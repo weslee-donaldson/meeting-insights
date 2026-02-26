@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createLogger } from "./logger.js";
 
 const logFilename = createLogger("parser:filename");
@@ -16,6 +16,10 @@ export function parseFilename(filename: string): { timestamp: string; title: str
   const title = stripped.slice(timestamp.length).replace(DUPLICATE_SUFFIX_RE, "").trim();
   logFilename("parsed timestamp=%s title=%s", timestamp, title);
   return { timestamp, title };
+}
+
+export function readTranscriptFile(filePath: string): string {
+  return readFileSync(filePath, "utf-8");
 }
 
 export function listTranscriptFiles(dir: string): string[] {

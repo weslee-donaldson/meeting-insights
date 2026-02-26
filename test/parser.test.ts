@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, parseFilename } from "../src/parser.js";
+import { listTranscriptFiles, parseFilename, readTranscriptFile } from "../src/parser.js";
 
 const tmpDir = join(tmpdir(), `mtninsights-test-${Date.now()}`);
 const rawDir = join(tmpDir, "raw-transcripts");
@@ -41,6 +41,19 @@ describe("parseFilename", () => {
   it("handles duplicate suffix", () => {
     const result = parseFilename(" 2026-01-19T15:43:52.210ZRevenium, INT, DSU (1)");
     expect(result.title).toBe("Revenium, INT, DSU");
+  });
+});
+
+describe("readTranscriptFile", () => {
+  it("reads file contents from full path and returns string", () => {
+    const filePath = join(rawDir, " 2026-01-19T15:43:52.210ZRevenium, INT, DSU");
+    expect(readTranscriptFile(filePath)).toBe("content");
+  });
+
+  it("handles UTF-8 encoding", () => {
+    const filePath = join(tmpDir, "utf8-test");
+    writeFileSync(filePath, "Héllo wörld 日本語", "utf-8");
+    expect(readTranscriptFile(filePath)).toBe("Héllo wörld 日本語");
   });
 });
 
