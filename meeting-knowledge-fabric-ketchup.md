@@ -272,12 +272,12 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Client Registry
 
-- [ ] Burst 70: `seedClients` inserts client records into clients table from JSON file in data/clients/ [depends: 39]
-- [ ] Burst 71: `getClientByName` retrieves client row by name [depends: 70]
-- [ ] Burst 72: `getClientByAlias` retrieves client row when alias matches [depends: 70]
-- [ ] Burst 73: `seedClients` rejects malformed client entries (missing name or aliases) [depends: 70]
-- [ ] Burst 74: `getAllClients` returns all client rows [depends: 70]
-- [ ] Burst 75: `seedClients` logs loaded client count via `mtninsights:client` [depends: 70]
+- [x] Burst 70: `seedClients` inserts client records into clients table from JSON file in data/clients/ [depends: 39]
+- [x] Burst 71: `getClientByName` retrieves client row by name [depends: 70]
+- [x] Burst 72: `getClientByAlias` retrieves client row when alias matches [depends: 70]
+- [x] Burst 73: `seedClients` rejects malformed client entries (missing name or aliases) [depends: 70]
+- [x] Burst 74: `getAllClients` returns all client rows [depends: 70]
+- [x] Burst 75: `seedClients` logs loaded client count via `mtninsights:client` [depends: 70]
 
 ### Bottle: Client Detection
 
