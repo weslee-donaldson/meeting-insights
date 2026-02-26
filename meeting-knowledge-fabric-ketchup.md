@@ -356,15 +356,15 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Context Curation
 
-- [ ] Burst 127: `buildContext` performs semantic search from query string and returns matching artifacts [depends: 100, 69]
-- [ ] Burst 128: `buildContext` filters by client_filter [depends: 127, 101]
-- [ ] Burst 129: `buildContext` filters by meeting_type_filter [depends: 127, 102]
-- [ ] Burst 130: `buildContext` filters by date_range [depends: 127, 103]
-- [ ] Burst 131: `buildContext` deduplicates results from same cluster_id [depends: 127, 110]
-- [ ] Burst 132: `buildContext` ranks results by relevance score and fills to token budget [depends: 127]
-- [ ] Burst 133: `buildContext` enforces token budget ceiling — output never exceeds configured limit [depends: 132]
-- [ ] Burst 134: `buildContext` returns curated_context string and source_meeting_ids array [depends: 133]
-- [ ] Burst 135: `buildContext` logs context size and source count via `mtninsights:context` [depends: 127]
+- [x] Burst 127: `buildContext` performs semantic search from query string and returns matching artifacts [depends: 100, 69]
+- [x] Burst 128: `buildContext` filters by client_filter [depends: 127, 101]
+- [x] Burst 129: `buildContext` filters by meeting_type_filter [depends: 127, 102]
+- [x] Burst 130: `buildContext` filters by date_range [depends: 127, 103]
+- [x] Burst 131: `buildContext` deduplicates results from same cluster_id [depends: 127, 110]
+- [x] Burst 132: `buildContext` ranks results by relevance score and fills to token budget [depends: 127]
+- [x] Burst 133: `buildContext` enforces token budget ceiling — output never exceeds configured limit [depends: 132]
+- [x] Burst 134: `buildContext` returns curated_context string and source_meeting_ids array [depends: 133]
+- [x] Burst 135: `buildContext` logs context size and source count via `mtninsights:context` [depends: 127]
 
 ### Bottle: Downstream Task Generation
 

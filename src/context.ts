@@ -1,0 +1,78 @@
+import { embed } from "./embedder.js";
+import { createLogger } from "./logger.js";
+import type { InferenceSession } from "onnxruntime-node";
+import type { Database } from "better-sqlite3";
+import type { VectorDb } from "./vector-db.js";
+import type { ArtifactRow } from "./extractor.js";
+
+const log = createLogger("context");
+
+const APPROX_CHARS_PER_TOKEN = 5;
+
+interface ContextOptions {
+  limit: number;
+  token_budget: number;
+  client_filter?: string;
+  meeting_type_filter?: string;
+  date_after?: string;
+  date_before?: string;
+  deduplicate_clusters?: boolean;
+}
+
+interface ContextResult {
+  curated_context: string;
+  source_meeting_ids: string[];
+}
+
+export async function buildContext(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  query: string,
+  options: ContextOptions,
+): Promise<ContextResult> {
+  const vec = await embed(session as Parameters<typeof embed>[0], query);
+  const table = await vdb.openTable("meeting_vectors");
+
+  const filters: string[] = [];
+  if (options.client_filter) filters.push(`client = '${options.client_filter}'`);
+  if (options.meeting_type_filter) filters.push(`meeting_type = '${options.meeting_type_filter}'`);
+  if (options.date_after) filters.push(`date >= '${options.date_after}'`);
+  if (options.date_before) filters.push(`date <= '${options.date_before}'`);
+
+  let search = table.search(Array.from(vec)).limit(options.limit);
+  if (filters.length > 0) search = search.where(filters.join(" AND "));
+  const rows = await search.toArray();
+
+  const charBudget = options.token_budget * APPROX_CHARS_PER_TOKEN;
+  const seenClusters = new Set<string>();
+  const parts: string[] = [];
+  const sourceIds: string[] = [];
+
+  for (const row of rows as Array<Record<string, unknown>>) {
+    const meetingId = row.meeting_id as string;
+
+    if (options.deduplicate_clusters) {
+      const clusterRow = db
+        .prepare("SELECT cluster_id FROM meeting_clusters WHERE meeting_id = ?")
+        .get(meetingId) as { cluster_id: string } | undefined;
+      if (clusterRow) {
+        if (seenClusters.has(clusterRow.cluster_id)) continue;
+        seenClusters.add(clusterRow.cluster_id);
+      }
+    }
+
+    const artifact = db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meetingId) as ArtifactRow | undefined;
+    if (!artifact) continue;
+
+    const chunk = `[Meeting: ${meetingId}]\n${artifact.summary}`;
+    if (parts.reduce((sum, p) => sum + p.length, 0) + chunk.length > charBudget) continue;
+
+    parts.push(chunk);
+    sourceIds.push(meetingId);
+  }
+
+  const curatedContext = parts.join("\n\n");
+  log("context size=%d chars sources=%d", curatedContext.length, sourceIds.length);
+  return { curated_context: curatedContext, source_meeting_ids: sourceIds };
+}
