@@ -346,13 +346,13 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Feature-Level Embedding
 
-- [ ] Burst 120: `embedFeature` generates real 384-dim vector for a single proposed_feature string [depends: 58, 87]
-- [ ] Burst 121: `storeFeatureVector` inserts vector + meeting_id + client into LanceDB feature_vectors table [depends: 120, 93, 84]
-- [ ] Burst 122: `searchFeatures` returns similar features across meetings for a query string [depends: 121, 87]
-- [ ] Burst 123: `searchFeatures` returns meeting_id and artifact summary excerpt per result [depends: 122, 69]
-- [ ] Burst 124: similar feature proposals from different meetings return high similarity [depends: 122]
-- [ ] Burst 125: query "Show discussions related to Feature X" returns meetings from both demo and architecture contexts [depends: 123]
-- [ ] Burst 126: `searchFeatures` logs query and result count via `mtninsights:embed:feature` [depends: 122]
+- [x] Burst 120: `embedFeature` generates real 384-dim vector for a single proposed_feature string [depends: 58, 87]
+- [x] Burst 121: `storeFeatureVector` inserts vector + meeting_id + client into LanceDB feature_vectors table [depends: 120, 93, 84]
+- [x] Burst 122: `searchFeatures` returns similar features across meetings for a query string [depends: 121, 87]
+- [x] Burst 123: `searchFeatures` returns meeting_id and artifact summary excerpt per result [depends: 122, 69]
+- [x] Burst 124: similar feature proposals from different meetings return high similarity [depends: 122]
+- [x] Burst 125: query "Show discussions related to Feature X" returns meetings from both demo and architecture contexts [depends: 123]
+- [x] Burst 126: `searchFeatures` logs query and result count via `mtninsights:embed:feature` [depends: 122]
 
 ### Bottle: Context Curation
 
