@@ -29,6 +29,7 @@ export function migrate(db: DB): void {
       technical_topics TEXT,
       open_questions TEXT,
       risk_items TEXT,
+      needs_reextraction INTEGER DEFAULT 0,
       FOREIGN KEY (meeting_id) REFERENCES meetings(id)
     );
 

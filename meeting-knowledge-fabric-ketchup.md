@@ -382,9 +382,9 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Human Feedback Loop
 
-- [ ] Burst 144: `overrideClient` updates client_detections table for a meeting_id [depends: 84]
-- [ ] Burst 145: `overrideTag` updates generated_tags in clusters table for a cluster_id [depends: 118]
-- [ ] Burst 146: `flagExtraction` marks artifact row for re-extraction [depends: 69]
+- [x] Burst 144: `overrideClient` updates client_detections table for a meeting_id [depends: 84]
+- [x] Burst 145: `overrideTag` updates generated_tags in clusters table for a cluster_id [depends: 118]
+- [x] Burst 146: `flagExtraction` marks artifact row for re-extraction [depends: 69]
 
 ### Bottle: Batch Processing Pipeline
 
