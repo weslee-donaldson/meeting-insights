@@ -174,40 +174,6 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ## TODO
 
-### Bottle: Project Bootstrap
-
-- [ ] Burst 1: `pnpm test` runs and exits clean with zero tests [depends: none]
-- [ ] Burst 2: project has src/ and test/ with tsconfig, vitest.config, and dependencies installed (better-sqlite3, @lancedb/lancedb, onnxruntime-node, debug, @types/debug) [depends: 1]
-
-### Bottle: Logging Foundation
-
-- [ ] Burst 3: `createLogger` accepts namespace string and returns debug logger instance namespaced under `mtninsights:` [depends: 2]
-- [ ] Burst 4: `createLogger` child loggers inherit parent namespace (e.g., `createLogger('parser:dir')` → `mtninsights:parser:dir`) [depends: 3]
-
-### Bottle: Krisp File Parser
-
-- [ ] Burst 5: `listTranscriptFiles` returns array of filenames from data/raw-transcripts/ directory [depends: 4]
-- [ ] Burst 6: `listTranscriptFiles` handles empty directory returning empty array [depends: 5]
-- [ ] Burst 7: `listTranscriptFiles` logs file count via `mtninsights:parser:dir` [depends: 5]
-- [ ] Burst 8: `parseFilename` extracts ISO timestamp from Krisp filename (strips leading space) [depends: 4]
-- [ ] Burst 9: `parseFilename` extracts meeting title from Krisp filename [depends: 8]
-- [ ] Burst 10: `parseFilename` handles titles with commas (e.g., "Revenium, INT, DSU") [depends: 9]
-- [ ] Burst 11: `parseFilename` handles unnamed meetings (e.g., "02:25 PM - zoom.us meeting January 19") [depends: 9]
-- [ ] Burst 12: `parseFilename` handles duplicate suffix (e.g., filename ending in "(1)") [depends: 9]
-- [ ] Burst 13: `parseFilename` logs parsed result via `mtninsights:parser:filename` [depends: 8]
-- [ ] Burst 14: `readTranscriptFile` reads file contents from full path and returns string [depends: 4]
-- [ ] Burst 15: `readTranscriptFile` handles UTF-8 encoding [depends: 14]
-- [ ] Burst 16: `splitSections` splits file contents into attendance string and transcript string at "Transcript:" delimiter [depends: 14]
-- [ ] Burst 17: `parseAttendance` extracts array of participant objects (first_name, last_name, email, id) from attendance string [depends: 16]
-- [ ] Burst 18: `parseAttendance` handles single-quote JSON-ish format Krisp uses (converts to valid JSON) [depends: 17]
-- [ ] Burst 19: `parseAttendance` logs participant count via `mtninsights:parser:attend` [depends: 17]
-- [ ] Burst 20: `parseTranscriptBody` extracts array of speaker turns with speaker_name and timestamp from transcript string [depends: 16]
-- [ ] Burst 21: `parseTranscriptBody` preserves multi-line dialogue blocks per speaker turn [depends: 20]
-- [ ] Burst 22: `parseTranscriptBody` normalizes "Speaker N" entries to "Unknown Speaker N" [depends: 20]
-- [ ] Burst 23: `parseTranscriptBody` logs turn count via `mtninsights:parser:body` [depends: 20]
-- [ ] Burst 24: `parseKrispFile` combines parseFilename + parseAttendance + parseTranscriptBody into complete parsed meeting object [depends: 9, 18, 21]
-- [ ] Burst 25: `parseKrispFile` returns null and logs error for unparseable files [depends: 24]
-
 ### Bottle: File Lifecycle
 
 - [ ] Burst 26: `moveToProcessed` moves file from raw-transcripts/ to processed/ preserving filename [depends: 5]
@@ -396,7 +362,36 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ## DONE
 
-_(Completed bursts move here with commit hash)_
+### Bottle: Project Bootstrap
+- [x] Burst 1: `pnpm test` runs and exits clean with zero tests (b387768)
+- [x] Burst 2: project has src/ and test/ with tsconfig, vitest.config, and dependencies installed (5d0e4ee)
+
+### Bottle: Logging Foundation
+- [x] Burst 3: `createLogger` returns debug logger namespaced under `mtninsights:` (89e9e18)
+- [x] Burst 4: `createLogger` child loggers inherit parent namespace (9a15513)
+
+### Bottle: Krisp File Parser
+- [x] Burst 5: `listTranscriptFiles` returns array of filenames from raw-transcripts/ (3b7d650)
+- [x] Burst 6: `listTranscriptFiles` handles empty directory returning empty array (3b7d650)
+- [x] Burst 7: `listTranscriptFiles` logs file count via `mtninsights:parser:dir` (3b7d650)
+- [x] Burst 8: `parseFilename` extracts ISO timestamp from Krisp filename (a3b9989)
+- [x] Burst 9: `parseFilename` extracts meeting title from Krisp filename (a3b9989)
+- [x] Burst 10: `parseFilename` handles titles with commas (a3b9989)
+- [x] Burst 11: `parseFilename` handles unnamed meetings (a3b9989)
+- [x] Burst 12: `parseFilename` handles duplicate suffix (a3b9989)
+- [x] Burst 13: `parseFilename` logs parsed result via `mtninsights:parser:filename` (a3b9989)
+- [x] Burst 14: `readTranscriptFile` reads file contents from full path and returns string (dfc183d)
+- [x] Burst 15: `readTranscriptFile` handles UTF-8 encoding (dfc183d)
+- [x] Burst 16: `splitSections` splits file contents into attendance and transcript (0174ec2)
+- [x] Burst 17: `parseAttendance` extracts array of participant objects (0174ec2)
+- [x] Burst 18: `parseAttendance` handles single-quote JSON-ish format (0174ec2)
+- [x] Burst 19: `parseAttendance` logs participant count via `mtninsights:parser:attend` (0174ec2)
+- [x] Burst 20: `parseTranscriptBody` extracts speaker turns with speaker_name and timestamp (0174ec2)
+- [x] Burst 21: `parseTranscriptBody` preserves multi-line dialogue blocks (0174ec2)
+- [x] Burst 22: `parseTranscriptBody` normalizes "Speaker N" to "Unknown Speaker N" (0174ec2)
+- [x] Burst 23: `parseTranscriptBody` logs turn count via `mtninsights:parser:body` (0174ec2)
+- [x] Burst 24: `parseKrispFile` combines parseFilename + parseAttendance + parseTranscriptBody (fd53f77)
+- [x] Burst 25: `parseKrispFile` returns null and logs error for unparseable files (fd53f77)
 
 ---
 
