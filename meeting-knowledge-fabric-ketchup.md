@@ -249,9 +249,9 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: LLM Adapter
 
-- [ ] Burst 53: `createLlmAdapter` accepts Anthropic config, returns adapter with `complete` method [depends: 2]
-- [ ] Burst 54: `createLlmAdapter` accepts stub config, returns adapter that returns fixture response [depends: 53]
-- [ ] Burst 55: stub adapter `complete` returns different fixtures keyed by prompt type (extraction, tags, task) [depends: 54]
+- [x] Burst 53: `createLlmAdapter` accepts Anthropic config, returns adapter with `complete` method [depends: 2]
+- [x] Burst 54: `createLlmAdapter` accepts stub config, returns adapter that returns fixture response [depends: 53]
+- [x] Burst 55: stub adapter `complete` returns different fixtures keyed by prompt type (extraction, tags, task) [depends: 54]
 
 ### Bottle: Structured Summary Extraction
 
