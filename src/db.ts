@@ -16,7 +16,7 @@ export function migrate(db: DB): void {
       date TEXT,
       participants TEXT,
       raw_transcript TEXT,
-      source_filename TEXT,
+      source_filename TEXT UNIQUE,
       created_at TEXT
     );
 

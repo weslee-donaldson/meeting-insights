@@ -233,12 +233,12 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Transcript Ingestion
 
-- [ ] Burst 43: `ingestMeeting` inserts parsed Krisp meeting into meetings table, returns meeting_id [depends: 37, 24]
-- [ ] Burst 44: `ingestMeeting` stores participant list as JSON string in participants column [depends: 43]
-- [ ] Burst 45: `ingestMeeting` stores source filename in source_filename column [depends: 43]
-- [ ] Burst 46: `getMeeting` retrieves stored meeting row by meeting_id [depends: 43]
-- [ ] Burst 47: `ingestMeeting` rejects duplicate source_filename [depends: 45]
-- [ ] Burst 48: `ingestMeeting` logs ingestion via `mtninsights:ingest` [depends: 43]
+- [x] Burst 43: `ingestMeeting` inserts parsed Krisp meeting into meetings table, returns meeting_id [depends: 37, 24]
+- [x] Burst 44: `ingestMeeting` stores participant list as JSON string in participants column [depends: 43]
+- [x] Burst 45: `ingestMeeting` stores source filename in source_filename column [depends: 43]
+- [x] Burst 46: `getMeeting` retrieves stored meeting row by meeting_id [depends: 43]
+- [x] Burst 47: `ingestMeeting` rejects duplicate source_filename [depends: 45]
+- [x] Burst 48: `ingestMeeting` logs ingestion via `mtninsights:ingest` [depends: 43]
 
 ### Bottle: Transcript Chunking
 
