@@ -223,13 +223,13 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: SQLite Foundation
 
-- [ ] Burst 36: `createDb` accepts a path argument and returns a better-sqlite3 connection (`:memory:` in tests, `db/mtninsights.db` in live) [depends: 2]
-- [ ] Burst 37: `migrate` creates meetings table (id TEXT PK, title TEXT, meeting_type TEXT, date TEXT, participants TEXT, raw_transcript TEXT, source_filename TEXT, created_at TEXT) [depends: 36]
-- [ ] Burst 38: `migrate` creates artifacts table (meeting_id TEXT PK FK, summary TEXT, decisions TEXT, proposed_features TEXT, action_items TEXT, technical_topics TEXT, open_questions TEXT, risk_items TEXT) [depends: 37]
-- [ ] Burst 39: `migrate` creates clients table (name TEXT PK, aliases TEXT, known_participants TEXT) [depends: 37]
-- [ ] Burst 40: `migrate` creates client_detections table (meeting_id TEXT FK, client_name TEXT FK, confidence REAL, method TEXT) [depends: 39]
-- [ ] Burst 41: `migrate` creates clusters table (cluster_id TEXT PK, generated_tags TEXT, centroid_snapshot TEXT, updated_at TEXT) [depends: 37]
-- [ ] Burst 42: `migrate` creates meeting_clusters table (meeting_id TEXT FK, cluster_id TEXT FK) [depends: 41]
+- [x] Burst 36: `createDb` accepts a path argument and returns a better-sqlite3 connection (`:memory:` in tests, `db/mtninsights.db` in live) [depends: 2]
+- [x] Burst 37: `migrate` creates meetings table (id TEXT PK, title TEXT, meeting_type TEXT, date TEXT, participants TEXT, raw_transcript TEXT, source_filename TEXT, created_at TEXT) [depends: 36]
+- [x] Burst 38: `migrate` creates artifacts table (meeting_id TEXT PK FK, summary TEXT, decisions TEXT, proposed_features TEXT, action_items TEXT, technical_topics TEXT, open_questions TEXT, risk_items TEXT) [depends: 37]
+- [x] Burst 39: `migrate` creates clients table (name TEXT PK, aliases TEXT, known_participants TEXT) [depends: 37]
+- [x] Burst 40: `migrate` creates client_detections table (meeting_id TEXT FK, client_name TEXT FK, confidence REAL, method TEXT) [depends: 39]
+- [x] Burst 41: `migrate` creates clusters table (cluster_id TEXT PK, generated_tags TEXT, centroid_snapshot TEXT, updated_at TEXT) [depends: 37]
+- [x] Burst 42: `migrate` creates meeting_clusters table (meeting_id TEXT FK, cluster_id TEXT FK) [depends: 41]
 
 ### Bottle: Transcript Ingestion
 
