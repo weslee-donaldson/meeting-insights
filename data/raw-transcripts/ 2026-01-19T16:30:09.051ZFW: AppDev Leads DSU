@@ -1,0 +1,143 @@
+Attendance: 
+{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'ray.li@llsa.com'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stace.baal@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'bethany.duffy@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'greg.christie@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'harry.dennen@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jennifer.karavakis@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'salem.madani@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'sam.hatoum@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'wesley.donaldson@llsa.com'}
+Transcript:
+Jennifer | 01:11
+Harry's just finishing a review session with the team.
+Sam Hatoum | 01:26
+We're waiting. Actually, I'll wait for Harry. But I'm going to talk about this little tiny task that I did over the weekend for...
+Jennifer | 02:00
+Okay, we have a FL for Monday at least. Sam, did you want to talk through that?
+Sam Hatoum | 02:12
+Sorry, just my coffee wind that was going.
+Harry | 02:16
+Yeah.
+Sam Hatoum | 02:16
+Just very quickly. I ran a task I have for doing documentation and repose that I've been developing. It uses a whole bunch of fancy AI and something called for... I think, which is like a method for documenting systems.
+Anyway, I've implemented it and documented every package that we have in the repo and published. So I mean if you have any feedback... It looked pretty good. I went through it all and looked pretty good.
+Jennifer | 02:45
+Awesome.
+Sam Hatoum | 02:46
+This is something...
+Wesley Donaldson | 02:47
+I'm sorry to be a stickler, but do we have a ticket for that? Just so we could like run it through the full process and get like PR and you want it.
+Sam Hatoum | 02:54
+I work on tickets, there's no PPR for this. I just updated the read means man, that's all.
+Wesley Donaldson | 02:59
+It's just the reading obvi.
+Sam Hatoum | 03:01
+Yeah, this is just a JFDII I just did it. Yeah, it's just sorry, no, it was just read mes. It was like a, you know, a little tech te thing like that. I filled in the background.
+So. Yeah. I mean, if you want to create a ticket and go through the process, there's no PRs or anything, right? It's just read these.
+Wesley Donaldson | 03:22
+Yeah, I think my worry there is I want to make sure the other developers are aware of it and like they're drinking from the fire. That's the wrong term. They're just so aware of it, and they're leveraging it. You took the time to do it, then clearly it's important to want to make sure the team saw it, right?
+Sam Hatoum | 03:35
+Definitely a good idea. I'll do it on the demo. I think it's the best form for it.
+Wesley Donaldson | 03:39
+Cool.
+I'll add it to the topics.
+Sam Hatoum | 03:42
+Thank you. I kept the skill in there so if anyone's using Claude, it can keep the it's not just they do once it can keep it up to date too. After everyone had to do that on Friday.
+Jennifer | 03:54
+Nice. Okay, let's get started. For our teams and/or Mandalor, who wants to start?
+Wesley Donaldson | 04:08
+I can go on... Light for today's coming off the demo and coming into the weekend. So kudos to Devon and to Jeremy for closing off some of those shopif data issues. So we were targeting for the end of last week, we were able to close those out.
+So those are out now. The other thing that we worked through this morning was just clarification and priorities, just ensuring that we're all aligned to what is top of mind, a high level of what our goals are for the week.
+So specifically we talked about the standardization application logging. There are three store tasks underneath that epic we have basic. We're pretty close to completing two of them as of today, so I'd expect those to be done. I'd expect the logging and documentation to be done for our conversation this morning. Lance is still working through the standardization for the package that could be used across the monorepo.
+So that looks like it's projecting to probably be... So I'll clarify with him on that today. But looking like we will have this epic closed out as planned for this week. The other priorities we talked about, which are just the things that you guys are already aware of, release transparency, there are two engineers partnering on that to move that forward and then working on the Century implementation.
+So tracking to what the commitments were and what the expectations were for last week, nothing unexpected is on the pipeline. The one thing to call out is some of the stuff that we still had around ESS that's still a few smaller tasks hanging around there that Romney is focusing on and he's partnering with Antony to make sure those go through it specifically around the connectors for Century that's looking to complete this week as well.
+So no major... Nothing major to share for today other than just team alignment around the commitments. Like I said, short for today.
+Jennifer | 06:03
+Thank you. Is there anything on these ones that are still...
+Wesley Donaldson | 06:11
+Yeah, Beth, do you want to speak? We touched on those this morning, but Beth, do you want to speak to that? Specifically, the shop of... I could touch on the call center.
+Speaker 5 | 06:22
+Yeah, I just got approval for the appointment ones.
+We're just going to cancel those and focus our efforts instead on doing appointment locking for the Recurrly integration. So I'll go ahead and remove those and then for the widget, we are waiting for data to determine what use cases best support, and then we'll make a suggested proposal from there. I don't believe that report is available yet, so I'm not sure where we want to put that if we want to drop it back into open for the time being until we have the appropriate data to make a decision on what we're actually implementing.
+Jennifer | 07:09
+And I put it in on hold.
+Speaker 5 | 07:12
+Whatever one you want, doesn't matter.
+Wesley Donaldson | 07:12
+Preference.
+Jennifer | 07:17
+Okay. I love getting to choose sometimes.
+Speaker 5 | 07:24
+Okay. I don't want...
+Jennifer | 07:30
+And then these ones that are in progress.
+Wesley Donaldson | 07:33
+So you already don't know about the standardization logging. The only one that may be a little unfamiliar with is the one that's on my house's plate.
+Jennifer | 07:37
+Yeah.
+Wesley Donaldson | 07:41
+These are just some tests that we identified, some test coverage that we thought were missing.
+So he did a report and analysis on that. Coming out of that analysis, he had proposed creating a decent amount of tests. I'm going to pull the top, the pro, the critical, and the highs, and create a ticket for that and all the secondary ones that we're going to put in the backlog for future, lower priority.
+So that and that's not going to block him from some of the things he's working on the three priorities. But this is effectively done.
+Jennifer | 08:09
+Okay, yeah, perfect, because this is just creating the list.
+Wesley Donaldson | 08:10
+Create the ticket and. And start pulling one of those tickets. Then we'll move this to done. Exactly.
+Jennifer | 08:19
+Perfect, okay, sweet, okay, thank you.
+Wesley Donaldson | 08:19
+Which is already on the ticket 2.
+Harry | 08:32
+And ope muted. It's been a admin heavy morning. We've got through retro and most of planning. The board looks good. I mean, it's just p one's in there that we're trying to get through. That's what we'll see an expedite and stale. The big one we're picking up now is this admin portal, which we started trying to break up this morning.
+I think three of the scenarios look good. Some of them we had some questions about Jennifer, I guess sits back with you. But we can start know getting work on it and we can definitely get what did we say, a prototype up and running beyond that, I mean, that's pretty much it. We've got a few carryovers, small ones from last week. We're still working on the PDF generation. I'm going to hop to get that finalized today, but it looks like today's going to be a meeting, so it's tomorrow.
+Jennifer | 09:45
+Okay, and then let's see here. This. Okay. For the priorities that we have, does everyone still feel like the expected dates are good? We don't have expected dates for Endor.
+Harry | 10:04
+No.
+Jennifer | 10:05
+If we can get those early next week, let's see... That is well, you guys have done that, so right, yeah, okay, and then live in production, no user access.
+Harry | 10:32
+That's still I mean no authentic, no authentication.
+Jennifer | 10:38
+Yeah, and nobody can use it. Okay.
+I think you said that this would be by the end of the week. Yeah, okay, and then we're still waiting on the planning for this one. All right, now this one was done. All right, let me do this.
+Harry | 11:23
+The business scenarios, that's what we are not super clear yet.
+Speaker 5 | 11:28
+Yeah.
+Jennifer | 11:29
+But this is done just that. Okay, this is not done. There we go. These were done last week, though, so there we go before our meeting. Okay. So then once it's refined, we can actually have a date of when it's going to be ready? And then Mandalor... All of that looks good still.
+Wesley Donaldson | 12:16
+The one item, the first one release notes generation that Antonio was pairing on some monitoring for connectors specifically. So he's working on exactly what... Tick it. He was working on this test using for the current connectors.
+So basically decommissioning that. So he spent a little bit more time than he was expecting on that. So he was a little delayed. So I'd say we may push a day for 436.
+Jennifer | 12:47
+Okay, that's this one.
+Wesley Donaldson | 12:50
+Yes.
+Jennifer | 12:57
+Okay, cool. And this is because just...
+Wesley Donaldson | 13:07
+So he was just... So he had two tickets on his plate. He was working on a ticket that was similar to four. He basically paired with Roy and just got some tests in place for the current connector.
+So that's a little bit more time for him to spend than expected on that. If you have the exact ticket number, it's 453, I think.
+Jennifer | 13:30
+That's fine.
+Wesley Donaldson | 13:32
+445453.
+Jennifer | 13:33
+I don't think I really... I just put it just because we talked about it, not because it's a big deal, but yeah, okay, that works.
+Wesley Donaldson | 13:38
+He...
+Jennifer | 13:46
+Anything else for anyone?
+Harry | 13:55
+Okay. Wait, I had one. I think it's more for Beth than maybe Ray or whoever the... Any of those live issue ones? We just need a clear definition of done because what we notice is happening is they come in and it starts out as an investigate, and then it's another thing.
+It's another thing. Then it ends up being this 1P1 that eats multiple days. That was specifically David's feedback. So if we have just a really specific definition done, then they can pick it up.
+If it's just the investigation, they can be done and move on. Then if we need to do more, just add more.
+Speaker 5 | 14:34
+That should be the existing process. We should be doing a triage first for the investigation. Jennifer, I know this has been a topic of conversation, but it should be triage first to determine what's going on and then we agree what the next step is from there.
+Jennifer | 14:54
+And we make a new ticket.
+Speaker 5 | 14:56
+Right.
+Jennifer | 14:56
+For any next steps.
+Harry | 14:58
+So that... Okay, so triage is not supposed to carry on through the board.
+Speaker 5 | 15:03
+No, triage did not have any development work on it, other than if there's an absolute hemorrhage and you need to slap a mitigation on it or something, right? Stop the bleeding and then let's figure out what our next step is.
+But if it's not...
+Harry | 15:20
+Do. Do. Do we have it written down anywhere? Cause like.

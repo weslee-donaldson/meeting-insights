@@ -1,0 +1,380 @@
+Attendance: 
+{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': 'Trigoso', 'id': 'a65fbda7-731f-44c4-b394-717625ce15cf', 'first_name': 'Fernando', 'email': 'fernando.trigoso@xolvio.com'},{'last_name': 'Pasieczny', 'id': '12ee28d6-9720-4557-a8b4-64166b5547a4', 'first_name': 'Igor', 'email': 'igor.pasieczny@xolv.io'},{'last_name': 'Hatoum', 'id': '389011f2-9f4a-4e5a-ab59-056fe0c0e774', 'first_name': 'Andy', 'email': 'andy@xolv.io'},{'last_name': 'Zekaj', 'id': '5dddbde1-f632-454c-b390-4c1c76f4b971', 'first_name': 'Rinor', 'email': 'rinor@xolv.io'},{'last_name': 'Doshi', 'id': '014200be-e658-44ff-a7f9-46e0041627e0', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'}
+Transcript:
+Dev Doshi | 00:35
+Come inva.
+Speaker 3 | 00:40
+That's good.
+Wesley Donaldson | 00:43
+Alright.
+Dev Doshi | 00:48
+I hope it touby core.
+Wesley Donaldson | 00:52
+Morning, New York.
+Speaker 3 | 00:54
+What afternoon morning? [Laughter].
+Wesley Donaldson | 00:57
+Fair enough. Good day slash afternoon.
+Dev Doshi | 01:02
+That's right, good localized time. [Laughter].
+Wesley Donaldson | 01:05
+Exactly. [Laughter] Part of the day at home when you reach someone, you always say, "Yeah, I like that."
+Speaker 3 | 01:07
+We don't distinguish a part of the day in Poland. When you reach someone, you always say "Good day."
+Dev Doshi | 01:18
+Yeah, you always say it's a good day, okay, but it doesn't mean it's a good day.
+Speaker 3 | 01:22
+Yeah, good day.
+Wesley Donaldson | 01:24
+It's a good way of not having to deal with the time zone.
+Speaker 3 | 01:25
+Surprised that you know that.
+Wesley Donaldson | 01:27
+Good day. Every part of the day is a good day.
+All right, let's jump in, shall we? All right, good. Folks, you should be seeing my screen. So let's just do what we always do, let's go top down. So let's start from just nothing critical from the priority perspective. The number one priority right now is still what you're on, Dev.
+So let's start with you. Good sir, I know you were putting in some benchmarks just so we are getting some insights into what's going on in the ecosystem. Can you just catch us up on where that investigation is going?
+Dev Doshi | 02:01
+Yup. So I did... I think I put some notes there, but basically, I looked at the most recent test run, which they post every day in their channel.
+Wesley Donaldson | 02:02
+Put some notes there.
+But very basically, I looked at the most recent test run and looked at all the blocks and everything in the US for that range of time until September reports.
+Dev Doshi | 02:11
+I had Claude go and look at all the logs and everything on as for that range of time and build some reports and I manually poked around as well.
+Wesley Donaldson | 02:19
+I mainly poked around as well as one of the questions you... I'll help you answer.
+Dev Doshi | 02:21
+Have a bunch of questions. Miha helped me answer some, and I'm going to talk to John Demick about the rest.
+Wesley Donaldson | 02:24
+We will talk to John Demick next about the rest and then...
+Dev Doshi | 02:30
+And then. And meanwhile, I have another round of Claude going against the code and running stuff locally to validate some of those things.
+Wesley Donaldson | 02:33
+And we want have another round of clat going to Caso and running stuff. Are you seeing anything other issues in flight?
+Dev Doshi | 02:41
+So it's still unbounded. There are a few things, but because there are so many other issues in flight, it's hard to say what is true about the code versus true about the system.
+Wesley Donaldson | 02:48
+It's hard to say what is true about the code versus true about the like that.
+Dev Doshi | 02:54
+Design or something like that.
+So, for example, there are a bunch of test failures in that last run that are irrelevant to the performance issues, but they cause noise in the analysis and things like that.
+Wesley Donaldson | 02:57
+So we're going to lose a bunch of test failures in the last month that are irrelevant to performance issues. That they caused some noise in the analysis and things like that.
+Dev Doshi | 03:05
+So basically...
+Wesley Donaldson | 03:05
+So basically...
+Dev Doshi | 03:08
+Then I think the other issue is that I don't believe that I can replicate these performance issues against the local deployment.
+Wesley Donaldson | 03:08
+Then I think the other issue is that I don't believe that I can...
+Okay, let's...
+Dev Doshi | 03:15
+SE okay.
+Wesley Donaldson | 03:15
+Let's touch on that. Then, if we don't believe we can get this tested or identified on local... What are your thoughts on how we would get production insight against the dev environment, which is what the will test run against?
+Dev Doshi | 03:26
+Yeah. It would be against the dev environment, which is what the load tests run against. So then it'll be like, "Okay, I can add various bits of observability like OpenTelemetry or cloud watch metrics to the specific thing so we can at least see as the load test is running or generally."
+Wesley Donaldson | 03:31
+So then it would be like, "Okay, I can add various bits of observability, both symmetry or cloud metrics, to the specific thing. Is it an automated load test? Is it a distributed load test?"
+Dev Doshi | 03:44
+Yeah.
+Wesley Donaldson | 03:45
+So it's something that is always running.
+Dev Doshi | 03:46
+It's not technically... It's not technically a load test. It just has some reproducible-ish traffic.
+Wesley Donaldson | 03:52
+The reason why I ask is if that's what we need... If we need to get a distributed load test to really see this level of...
+Dev Doshi | 03:52
+That...
+Wesley Donaldson | 03:58
+But considering what he's saying, I get the feeling that we should be able to see this in any load, not just a distributed large load won't reproduce because of the differences between the Docker bot setup and the iteration person.
+Dev Doshi | 04:05
+Exactly. Yeah, so that's why... But I don't think if I run it against my local, it won't reproduce because of the differences between the Docker-composed setup and the as-hosted.
+So that's what I'm getting at is that it's a little slow to iterate because I can't reproduce it locally, so I need to reproduce it against the dev.
+Wesley Donaldson | 04:16
+So that's where we get money, I guess, a little close to that.
+Dev Doshi | 04:24
+So...
+Wesley Donaldson | 04:24
+Okay, yeah, just because this is a priority, I would expect if I were Jason, my next question would be, "Can we get additional support on it to prioritize it?"
+Dev Doshi | 04:25
+So, yeah, so that's basically where I'm at right now.
+Wesley Donaldson | 04:35
+Would that speed up your workflow? Is there someone you could pair with on the Revidium side as an example, or from the Nucleus team?
+Dev Doshi | 04:43
+Yeah, a very on meal. So, yeah, so that I had a meeting with him earlier today.
+Wesley Donaldson | 04:46
+Yes, I had a meeting with him earlier that we were going over in more detail, and then in fifteen or ten minutes I got a call with them to with Meha to go into in more detail because Meha will benefit from knowledge transfer because it' right, so that that's the stats like we're still working through it, we're still investigation.
+Dev Doshi | 04:49
+We were going over in more detail, and then in fifteen or ten minutes I got a call with Demick to with Meha to go into it in more detail because Miha will benefit from a knowledge transfer because it's affecting his tasks as well.
+So, yeah, but we're taking the steps to increase our support from the team, so yeah, I do have one thing for.
+Wesley Donaldson | 05:15
+Okay. Alright. Cool. Let's move on then. So for today, it's just ongoing investigation. The meeting that you have planned to pair with John and me. How correct?
+Dev Doshi | 05:28
+Yep, exactly. Yup, and then I have a separate item to bring up later after, but else.
+Wesley Donaldson | 05:34
+Okay, right. Egor, your next up. I think for you looking that this could be something that we possibly could share in demo. I'm always looking for demo items when he gets this late in the end of the week implementation.
+Speaker 3 | 05:46
+Yeah, I hope so. I hope so. I just, finished implementation. And now I need to review the code and.
+Wesley Donaldson | 05:51
+Now I need to review the code and test it, so I'm hoping that this...
+Speaker 3 | 05:54
+Test it. So I'm hoping that this might be something that we are going to show on Thursday.
+Wesley Donaldson | 06:02
+Can you say a little bit more?
+Dev Doshi | 06:03
+So, yeah.
+Wesley Donaldson | 06:03
+Is it...? So obviously it's within the public API priority, but specifically, is it the HD stuff? Is it just showing the conversions I'm working on transport layer generation?
+Speaker 4 | 06:10
+No.
+Speaker 3 | 06:12
+The board reflects what I'm doing. So I'm working on transport layer generation. One thing I should mention is that John accepted the schema for Hatos yesterday, so we are good with the current shape.
+Wesley Donaldson | 06:18
+One thing I should mention is that John accepted the schema for Hatos yesterday. So we are good with the current shape.
+Speaker 3 | 06:29
+And this was actually merged to Maine today.
+Wesley Donaldson | 06:30
+And this was actually merged to. Mer domain today.
+Speaker 3 | 06:36
+So it's the way I assigned it to Reiner.
+Wesley Donaldson | 06:36
+So it's the way I assigned it to Reiner. I'm not sure if I should assign it to Reiner, but I'm assuming after our plot talk about how we organize things, and actually... We'll be reviewing such things.
+Speaker 3 | 06:39
+Not sure if I should assign it to Reiner, but I'm assuming after our last talk about how we organize things, then actually, yes, he will be reviewing such things.
+So he's assigned to both of those tickets.
+Wesley Donaldson | 06:55
+So we as scient to both of those tick and yeah, I'm hoping to finish up that transfer wire generation.
+Speaker 3 | 06:58
+Yeah, I'm hoping to finish up that transport layer generation. Maybe even today.
+Wesley Donaldson | 07:10
+Okay, that's good. One thing we talked about was just like these represent these tickets that were created.
+Maybe this guy here represents functionality that you already are working on. So if we can talk about maybe just pulling them over, for example, like the API documentation and contract publishing, back to time because I haven't touched that yet.
+Speaker 3 | 07:26
+Yes. So I moved that back to... Because it was in development. I moved that back to plan because I haven't touched that yet. So, yeah, this board reflects what I'm doing.
+Wesley Donaldson | 07:36
+So yeah, this is more reflective of what I'm doing.
+Speaker 3 | 07:40
+I was hoping that these two tickets would fall into that, but I forgot about reassigning them to John.
+Wesley Donaldson | 07:40
+I was hoping that the certificates would fall into...
+Speaker 3 | 07:46
+So sorry for that.
+Wesley Donaldson | 07:47
+Okay. We can serve like around towards the end of maybe early tomorrow morning. I'll in you first thing in my morning just to kind of get your sense for where we ended out with the Apler. I feel like that could, as I said be the first opportunity for us to share something in demo. Let's keep going Fernando. Let's jump to you.
+Speaker 4 | 08:08
+Hello.
+Wesley Donaldson | 08:09
+We can hear for some CI to go through.
+Speaker 4 | 08:11
+So yeah, all the stores are in development and aren't just waiting for some CI to go through. So let me do my update.
+Wesley Donaldson | 08:18
+So let me do my update.
+Speaker 4 | 08:20
+Yesterday I worked on... Let me see... Dashboard features.
+Wesley Donaldson | 08:20
+Yesterday I worked on cash for features.
+Speaker 4 | 08:26
+I implemented the lead dashboard functionality with a more menu and a confirmation that I... Created a reusable more menu item at a search box in the chart model and added a test for everything I've done in dashboards creatively edited and then I moved my attention to a CI/CD workflow.
+Wesley Donaldson | 08:26
+I implemented the lead dashboard, the one menu, and the component you have for a search box in the chart model and a test for everything I've done in the dashboard. Created the edit and then I moved my attention to the CI/CD workflow and redesigned our CI/CD workflow.
+Speaker 4 | 08:50
+I cannot redesign our CI/CD workflow.
+I'll submit the PR, I guess, so we can repeat the details.
+Basically, we have five types of tests right now: unit tests, integration tests that run against a clickhouse instance, Chromatic Storybook tests, and actual end-to-end Playwright tests.
+Wesley Donaldson | 09:00
+So basically, we have five types of tests right now: unit tests, integration tests, and a pre-instance. Dramatic Storybook tests. So actually, in... They have a great on instance and on web instance as well.
+Speaker 4 | 09:17
+They have created their own clickhouse instance and run on their own web instance as well.
+So I had all those passing and making some changes just to get what I have ready and into dev.
+Wesley Donaldson | 09:24
+So I had all those passing and making some changes just to get what I have ready. Then all those stories will move to
+Speaker 4 | 09:31
+And then all those stories will move today to ready for QA the ones that are in development.
+Wesley Donaldson | 09:38
+That's great. Just a couple of things we had left over from yesterday. The PDF design that you wanted to pair with Randy and I think we're talking about... Can we just skip that and have you just work with the existing design system? Did you guys finalize a decision on that?
+Speaker 5 | 09:54
+We'll. We'll have a chat after the standu.
+Wesley Donaldson | 09:59
+The other thing for you, Fernando, I think just wanted to confirm. I think we mentioned that much of these are things that you're already working on. You already had... By virtue of some of the video coding that you were doing. Just wanted to confirm there are none of the... You've already reviewed this list and confirmed these are not things that are already in your development queue, right? This is a fresh list.
+We need to pull over each one of these into development and confirm that statusment queue is what's in development then I remain priorities for the government I think that business lacks... Nice to have, right? To list.
+Speaker 4 | 10:25
+What's on my development queue? It's what's in development. Then I need priorities for what's ready for development. I sent the list to Slack. It would be nice to have a priority list, so maybe somebody has a better idea of what should work on first and next, but all of that will be pending.
+Wesley Donaldson | 10:37
+So okay, so restating, all of these are to be developed, they need secondary prioritization, I think.
+Speaker 4 | 10:49
+That's when we talked about not doing some of those.
+Wesley Donaldson | 10:49
+Andy, Sam... Well, so that's a challenge for me, right?
+Speaker 4 | 10:52
+So that's why in the...
+Wesley Donaldson | 10:58
+So I think we just need to quickly comb this list. We don't have to do it right now, but after the call we should comb this list and just verify which words these are, and if they need to go into implementation, if they are not already addressed.
+If we need prioritization, my understanding is all of these should be part of the dashboard functionality. If we want to do an incremental release for the dashboard per our conversation yesterday...
+I think we can't really do that because it's going to be like... It has to be all of the functionality the users currently have if we move the dashboard, and we can't drop functionality.
+Speaker 5 | 11:31
+Sorry, Wesley, just started to interrupt you there.
+Wesley Donaldson | 11:31
+So yeah, so not all the functionality that is there.
+Speaker 5 | 11:34
+So not all the functionality That is there things like PDF and stuff they don't exist right now.
+Wesley Donaldson | 11:38
+Things like they don't exist.
+Speaker 5 | 11:42
+So we can possibly punt some of this stuff at least to the next cycle and just go out with a cut down version of the dashboards.
+Wesley Donaldson | 11:42
+So we can possibly fund some of this stuff at least for the next cycle and just go out with a cut down version of the dashboards.
+Speaker 5 | 11:50
+So if you want, we can catch up after the stand up and just go through what needs to be in here, what doesn't, and then we can hand that list over to Fernando.
+Wesley Donaldson | 11:50
+So if you want, we can catch up after the stand up and just go through what needs to be in perfect. I can't catch up directly at the test, but I can catch up this afternoon, and I have a little bit of a meeting time available.
+If you could do me a favor, Randy, if you have the bandwidth, if you can just put a label on them that is like an initial release, okay, or a mandatory release, okay, that's even better.
+Speaker 5 | 12:10
+I can move them into the next cycle, and then that's like, "Yeah, I'll do that."
+Wesley Donaldson | 12:19
+So you're going to move them into cycle nine?
+Speaker 5 | 12:22
+No worries.
+Wesley Donaldson | 12:23
+Perfect.
+Okay. Right now let's jump to you.
+Rinor Zekaj | 12:32
+Yeah. So, storywise, I still have the same blocker.
+Wesley Donaldson | 12:34
+I still have the same blocker.
+Rinor Zekaj | 12:38
+I cannot link in any way my account to the local storybook instance, so that's the biggest blocker for now.
+Wesley Donaldson | 12:38
+I cannot link in any way my accounts to the local storybook instance. So that's the biggest blocker for now.
+Dev Doshi | 12:51
+So, yeah.
+Wesley Donaldson | 12:51
+So yeah, spent some time with you.
+Speaker 7 | 12:54
+Set up time with you or today for 30 minutes so we can go through any of those issues and I can give you some keys to get through.
+Wesley Donaldson | 12:55
+Why not today for 30 minutes so we can go through any of those issues and give you some keys to get through?
+Rinor Zekaj | 13:02
+Okay?
+Wesley Donaldson | 13:02
+Okay.
+Rinor Zekaj | 13:02
+Okay, yeah, got it. I accepted that.
+Dev Doshi | 13:04
+All right.
+Rinor Zekaj | 13:04
+Cool.
+Wesley Donaldson | 13:06
+Just priority for you right now. We definitely want to make sure we're reviewing the public API stuff. That is one of our core priorities for this cycle. So any support, if you had to choose between the storybook work or the support with pairing with Igor, let's focus on just getting these tickets done if we can. As I said, my hope would be that we can demo some of the content around the public API just generally speaking. Each team member should be thinking about what they can share as interesting work that I've done or progress that I've made.
+I look at the API as something a little bit one level above that. This is something that may be close to ready to push into production at some point. So this is one level above in demo like something that we're really... Our key item going into the demo.
+Rinor Zekaj | 13:53
+Sure, that sounds good. Do you have any acceptance criteria or way for me to test it, or maybe we can link up afterwards?
+Wesley Donaldson | 13:54
+Do you have any acceptance criteria or way for me to test it, or maybe we can link up afterwards? Up after what's not...
+Rinor Zekaj | 14:00
+Not a problem.
+Speaker 3 | 14:01
+Yeah, not a problem.
+Wesley Donaldson | 14:01
+Yeah, and this is not a problem.
+Speaker 3 | 14:02
+I actually left a comment in one of them.
+Wesley Donaldson | 14:02
+I actually left a comment in one of them if you need any details, just...
+Speaker 3 | 14:05
+If you need any details, just let me know.
+Wesley Donaldson | 14:07
+But no, so excellent.
+Speaker 3 | 14:08
+So yeah, okay.
+Wesley Donaldson | 14:14
+Andy, I've been...
+Speaker 5 | 14:18
+So I've been okay, what about you? Done the manual refresh design update for Fernando to the dashboards on the notification banners restyle, which was raised by Sam Combs a while back.
+Wesley Donaldson | 14:21
+Okay, wait on the manual refresh design update for Commander in the dashboard on the notification by the brief, which is great. It
+comes a while back to that I'm putting these in ready for development, and then we're going to be using the planning session to see what we say come next, what we spend.
+Speaker 5 | 14:34
+So that's... I'm putting these in ready for development, and then we can review them in the planning session and see what we take on next. Loading spin is done.
+I've got a task to update the REDV images, but that involves talking to a design agency that Bailey has sent on to me, so I'm going to do that.
+Wesley Donaldson | 14:45
+I'm thinking to update the REDV images.
+So that involves talking to design agencies that they have sent home to me. I'm going to do that.
+Speaker 5 | 14:58
+That's my next thing.
+Wesley Donaldson | 14:58
+That's my next thing.
+Speaker 5 | 15:00
+I'm still working on the Widget Builder Concept design.
+Wesley Donaldson | 15:00
+I'm still working on the Widget Builder Concept design.
+Speaker 5 | 15:04
+What I got here. I've got to review banners and toasts and provide a unified experience and guidelines.
+Wesley Donaldson | 15:05
+I've got a review balancing hopes and providing a unified experience and guidelines from my chat with Dahi today.
+Speaker 5 | 15:10
+So from my chat with Dahi today, they seem to have an issue with...
+Wesley Donaldson | 15:12
+They seem to have an issue with a lot of developers are working on a design system, and no one has any guidelines.
+Speaker 5 | 15:14
+A lot of developers are working on a design system. The...
+No one has any guidelines. So I think this is where we can step in and help and set up some developer onboarding guidelines so that everyone's working and getting... Maybe even giving them some cloud skills or MD files that they can integrate into their own rev stuff.
+Wesley Donaldson | 15:22
+So I think this is where we can step in and help and set up some kind of a development ongoing guidelines so that everyone working and get, you know, maybe even given some profil and d power they can get right into their. Randy.
+Speaker 5 | 15:40
+So yes, but that's this is just the start of it.
+Wesley Donaldson | 15:43
+Okay, so I definitely see a need for work share there. Thank you for the update on what we need to plan for. So I'll represent that in my planning board, and I'll share that with you just so you can chime in on it.
+Dev Doshi | 15:55
+Sure.
+Wesley Donaldson | 15:55
+Right.
+Dev Doshi | 15:56
+Real quick. I have to jump. But the thing I wanted to talk about was I posted a work in progress of importing Nucleus into Isotope at the React level so that we can just combine it into one project.
+Wesley Donaldson | 15:58
+Same progress of importing Nucleus into Isotope at a React level so that we can just combine it into one project.
+Dev Doshi | 16:12
+So there's a pull request open for that, and people can check it out and look at it, see if it sounds reasonable as an approach.
+Wesley Donaldson | 16:12
+So there's a pull request open for that as people can check it out and look at it to see if there's going to be...
+Yeah, I think maybe that requires a quick conversation with... Like Sam. I didn't believe that was a core priority of ours in the short term coming out of it for everyone.
+Dev Doshi | 16:26
+Not a task, but it's a...
+Speaker 7 | 16:29
+It's a big problem for...
+Dev Doshi | 16:31
+For everyone.
+Speaker 7 | 16:33
+It's definitely something we've got to look at.
+Wesley Donaldson | 16:33
+It's definitely something we've looked at.
+Speaker 7 | 16:34
+Yeah, we've been speaking about it.
+Wesley Donaldson | 16:34
+Yes, we've been speaking about it.
+Speaker 7 | 16:36
+And, like, Jason's been complaining about it too.
+Wesley Donaldson | 16:36
+Like Jason's been complaining about it too.
+Speaker 7 | 16:37
+Rightfully so.
+Wesley Donaldson | 16:37
+Rearly. So we definitely need to address that.
+Speaker 7 | 16:38
+So definitely we need to address that. What do you need, Dev?
+Wesley Donaldson | 16:40
+You need you guys.
+Speaker 7 | 16:41
+Do you want to just set up some time to meet this afternoon to go through it?
+Wesley Donaldson | 16:44
+Sorry, I got to jump to another one.
+Dev Doshi | 16:45
+No, I just think like, the people I mentioned should just need to run it locally and see what needs to be fixed.
+Wesley Donaldson | 16:50
+What needs to be fixed?
+Dev Doshi | 16:51
+Like, I don't.
+Wesley Donaldson | 16:51
+I don't want to spend my focus digging.
+Dev Doshi | 16:52
+I don't. I don't want to spend my focus digging deep.

@@ -1,0 +1,346 @@
+Attendance: 
+{'last_name': 'Doshi', 'id': '014200be-e658-44ff-a7f9-46e0041627e0', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'},{'last_name': 'Zekaj', 'id': '5dddbde1-f632-454c-b390-4c1c76f4b971', 'first_name': 'Rinor', 'email': 'rinor@xolv.io'},{'last_name': 'Hatoum', 'id': '389011f2-9f4a-4e5a-ab59-056fe0c0e774', 'first_name': 'Andy', 'email': 'andy@xolv.io'},{'last_name': 'Pasieczny', 'id': '12ee28d6-9720-4557-a8b4-64166b5547a4', 'first_name': 'Igor', 'email': 'igor.pasieczny@xolv.io'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Trigoso', 'id': 'a65fbda7-731f-44c4-b394-717625ce15cf', 'first_name': 'Fernando', 'email': 'fernando.trigoso@xolvio.com'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'}
+Transcript:
+Wesley Donaldson | 00:11
+Good morning. Yep, you could come in. Good, get rid of that. That's annoying. Hey, let's see.
+I'll be a minute or so early. You folks in a minute.
+All right.
+Rinor Zekaj | 01:19
+Here goes.
+Wesley Donaldson | 01:21
+Hey, good morning. I will share my whole screen because it's just easier that way. Let me know what you guys are seeing and what I'm seeing.
+Dev Doshi | 01:34
+I see you're linear and you're on Slack.
+Wesley Donaldson | 01:37
+Perfect. Start with that.
+Dev Doshi | 01:39
+How big is your monitor again?
+Wesley Donaldson | 01:41
+I got one of those ultra-whites just good.
+Dev Doshi | 01:43
+Yeah.
+Wesley Donaldson | 01:46
+If you could stack things nice and it's nice on the side, it's easier to find it than having the four quadrants.
+Dev Doshi | 01:51
+Definitely.
+Wesley Donaldson | 01:52
+All right, what do we got? We got Andy, Igor, Fernando. If he can make it. He did share his status, but since he thought he was late, but he wasn't, Fernando...
+We get back to that.
+Dev Doshi | 02:16
+Well, I think Fernando was saying he won't be able to make this time.
+Wesley Donaldson | 02:16
+Well, I think Fernando was saying he won't be able to make it. I read that he thought he missed... Either way, it's fine. The big question for him just to quickly touch on is he's making good progress. Clearly on the dashboard and... See, you've already responded to this.
+I'm just going to throw this on the board for him. The bigger question I had for Fernando and maybe you, when you guys have insight into this, is he shared a good amount of content on the demo.
+But if you think about it, there are a lot of things inside of the actual epic that the project is related to dashboarding. Let's go to the current, let's take a look at the dashboard. Stay with me. What's my dashboard? 34 items. Here we go.
+So my question to him and Andy, maybe this is... He should be doing a one-on-one bill that each one of the items you have designed out. Do you have a sense of how he's progressing through it? Looking at his status, I feel that's what he's knocking off of.
+But just wanted to have you... You had a chance to sync with him on... Hey, each one of these, in theory, should be dragged into the development column to... For death to take on.
+Speaker 4 | 03:41
+I haven't seen with him, but yeah, that's definitely how it should be happening.
+Wesley Donaldson | 03:45
+Okay, right, I'll circle back around with him on that. Let's keep it going. I want to share a couple of things with you guys.
+Dev Doshi | 03:52
+Just a second. When you said Dev there, you meant Dev is in the Dev team.
+Wesley Donaldson | 03:55
+The Dev team. I'm going to switch to engineers just so we don't have that confusion.
+Rinor Zekaj | 03:56
+Okay? [Laughter].
+Wesley Donaldson | 04:01
+Engineering folks.
+All right, so just a couple of things. Looking at the board. Yeah, nothing on fire in critical, and per our agreement, critical is like drop what you're doing where we can work on it, tackle it immediately. Looking at priorities then like Dev the person you're working on that transaction battle issue that she will share with us on Friday. Correct the test benchmark murder thing running against it so I can get...
+Dev Doshi | 04:21
+Yeah, exactly. I got... I'm going to work with Egle right after this call to get the test benchmark runner thing running against it so I can get more specific details on that.
+Wesley Donaldson | 04:32
+Okay. So ongoing investigation. I think my worry there is... I did look at this and I noticed managers tend to be very cool, you've added scope. Just calling out the things that we like, certain things have to be added. I'm tracking an item here specific to... Just the actual work necessary. I'm only going to leave the spike
+if you need a specific task. Just like you think there's a large amount of effort let's represented on the board but I'm only leaving this bottom investigation or whatever you fit underneath that.
+Then I have one more once we had... We'll have a short-term resolution, and then we'll have a longer-term one, which we'll put into planning. That's my read on it or you're aligned with that.
+Dev Doshi | 05:08
+Cool. I think that looks reasonable to me.
+Wesley Donaldson | 05:11
+Okay.
+All right, let's keep it going. So dashboard. Very touched on that. The feature and you said that you can actually... You'll have this ready for him tomorrow, so great, thank you for that. Is there already a story on the ticket on the board for that? Perfect.
+Speaker 4 | 05:26
+What export dashboard PDF figure? Go well there's a shared dashboard to PDF via mail, Slack, or export as well, so which is download. Yeah, absolutely.
+Wesley Donaldson | 05:39
+So is it just a matter of he doesn't know where the board is? Or is it just the assumption of the... You get a PDF of the... I mean, design the picture just on one purpose, like we're going to do that because a lot will go back and forth between Engineering and design and products.
+Speaker 4 | 05:43
+No, there isn't a design for it because the assumption was that you just get a PDF of the exact thing you've got on the screen.
+So that's. Yeah. I mean, not everything is designed right down to the pixel just on purpose. We don't do that because a lot... We'll go back and forth between Engineering and design and Product.
+So we just keep it there.
+Wesley Donaldson | 06:08
+So we keep it in extreme more perfect.
+Speaker 4 | 06:09
+If he needs more, I'm happy to do more, but yeah, I'll put one together.
+Wesley Donaldson | 06:15
+Thank you so much. If you don't mind, actually, don't worry about it. I'll put it there so I know where it is. I'm just going to throw it underneath the dashboarding project so we have it as a ticket.
+Speaker 4 | 06:25
+But what's up?
+Wesley Donaldson | 06:26
+I just want to track all the work that we're doing so we can just be able to...
+Speaker 4 | 06:29
+You can just assign that ticket to me wisely if you like. Great. I'll. I'll do that now. As student.
+Dev Doshi | 06:37
+Or I think you could get. I think you could just tell Fernando.
+Wesley Donaldson | 06:38
+Think exactly what's on the page of this thing and iterate if it's right.
+Dev Doshi | 06:39
+You could just make your best guess at putting exactly what's on the page and the thing, and then you can iterate if it's not right.
+Speaker 4 | 06:48
+Yeah, we had a discussion before I said, "Look, just do as you like, as long as it looks good, right?"
+Wesley Donaldson | 06:48
+Yeah, we kind of had a discussion before.
+Speaker 4 | 06:55
+We're not... No one is fed up about...
+Wesley Donaldson | 06:55
+My only worry with that is if Jason seems rather... What's the word? Pedantic.
+So my worry is if we just do it as we see fit, if that's going to be a risk. And maybe you guys can just tell me historically, has that been a challenge or is he inclined to just take it? It looks good.
+It's aligned to the design system. It's good to go, I think.
+Speaker 4 | 07:15
+I think Jason prefers engineers to do the work and then iterate rather than wait for things and then do it.
+Wesley Donaldson | 07:18
+He prefers engineers to do the work and then iterate rather than wait for things and then do it.
+Speaker 4 | 07:28
+So my goal would be, as Dev said, to go ahead and just build it and let's modify it if we need to, but happy to do either.
+Wesley Donaldson | 07:28
+So Michael would be a dev like, "Go ahead and just build it and let's modify it. We need to be happy to do either."
+Speaker 4 | 07:39
+All.
+Wesley Donaldson | 07:39
+Okay, makes sense. Let's just let's keep that process because it's less tickets to create, it's less like things to track if you can just ping Fernando directly like, hey, thank you.
+Speaker 4 | 07:48
+Yeah, I'll that phen under the do.
+Wesley Donaldson | 07:51
+Let's jump to the public API. For this one, you're making progress on it. I added a couple of things to this board based on the conversation we had in the API strategy meeting.
+That's where that increase in scope is coming from. So here, if you could just take a look at this, you can look at the canvas. You just take a look. I just added a couple of obvious things. I know you're working on trust right now, but I added things for the actual integration of the API docs.
+We had a big conversation on how we actually get our docs into their docs into one doc so that there's a ticket for that. This ticket is for the generation of our documents specific to the work that we are doing. I represented that the authentication and API access are happening however it's happening currently, just confirming that implementation is still working.
+However, we're authenticating against the existing documentation to make sure that's still working. So nothing here is stuff that you're not already doing. It's just like, "Hey, now I can actually track that individual item."
+So you see anything here? You're like, "It's not a thing, please just flag it."
+Speaker 5 | 08:54
+From what I hear, most of these are already done, maybe not integration with their docs, but our docs are already generated, authentication is already done.
+Wesley Donaldson | 08:54
+From what I hear, most of these are already done. Maybe not integration with their docs, but our docs are already generated. Authentication is already done.
+Speaker 5 | 09:02
+So yeah, but it's good.
+Wesley Donaldson | 09:02
+So yeah, but it's good. Thank you for that.
+Speaker 5 | 09:04
+Thank you for that.
+So I'll keep tracking, keep track of that and make sure that they will.
+Wesley Donaldson | 09:05
+So I'll keep track. If you feel it's already done, maybe just throw it in there so we can just give us a check on it just for transparency's sake. Love it.
+So that's where that was coming from. Maybe you can say a couple of words... You have... And thank you for working late on Friday. You want to speak to just the Atos investigation you were doing.
+Speaker 5 | 09:26
+Sure.
+Wesley Donaldson | 09:26
+Sure.
+Speaker 5 | 09:27
+So, the two tickets that are in QA, they're waiting for John's approval or the current shape of return data.
+Wesley Donaldson | 09:27
+So the two tickets that are in QA, they're waiting for John's approval or the current shape of return data.
+Speaker 5 | 09:38
+And, I think he's out today.
+Wesley Donaldson | 09:38
+And I think he's out today.
+Speaker 5 | 09:41
+I'm not sure about that, but, I simply moved to move to next.
+Wesley Donaldson | 09:41
+I'm not sure about that, but, I simply move to next ticket.
+Speaker 5 | 09:48
+Next ticket.
+So I'm implementing.
+Wesley Donaldson | 09:49
+So I'm implementing...
+Speaker 5 | 09:50
+So hate OAS hate o hate OS is, returning ur ls within the within metrics within aggregated models as well.
+Wesley Donaldson | 09:50
+So. Hates. Hate. OS it's returning URLS within the within metrics within aggregated models as well, and I need to make sure that these are resolvable.
+Speaker 5 | 10:02
+I need to make sure that these are resolvable. So some of them didn't have filters.
+Wesley Donaldson | 10:05
+So some of them didn't have filters, so this is what I'm taking.
+Speaker 5 | 10:09
+So this is what I'm taking care of now. Yeah, that's it.
+Wesley Donaldson | 10:14
+You pushed these into Q eight. Let's like let's really push them like change the, assigne here to John, like, are we can do it right now not showing up here, okay?
+Speaker 4 | 10:25
+Okay.
+Wesley Donaldson | 10:26
+Just so, let's not have it. Let's not rely on him to come back and get it for us, which John, I have a conversation with him.
+Speaker 5 | 10:30
+I you know, I had have a conversation with him, but yeah, that's a good point.
+Wesley Donaldson | 10:34
+That's a good point.
+Speaker 5 | 10:36
+We shouldn't keep things in DMs, but they should be public.
+Wesley Donaldson | 10:36
+We shouldn't keep things in the end, but they should be public.
+Speaker 5 | 10:40
+You're absolutely right.
+Wesley Donaldson | 10:40
+You're absolutely right. Is it Tomec? Yeah. Okay, so let's get to John Demick and the same one for the AP R response team is I did nice.
+Speaker 5 | 10:47
+Yep, I did both. So...
+Wesley Donaldson | 10:50
+Thank you so much.
+All right, nice on that. So then your next item that you're tackling, which one is that?
+Speaker 5 | 10:58
+Update resolvers to ensure functional internal hatos.
+Wesley Donaldson | 10:58
+Resolvers to ensure functional internal resolvers.
+Boom, and you got that, and that's in development, and I appreciate that, you're good to go. No blockers, no immediate conversation like where we left off on Friday. Do you feel good about that now?
+Because clearly you've pushed us out.
+Speaker 5 | 11:14
+Yeah, I'm just waiting for web blockers.
+Wesley Donaldson | 11:16
+I'm just I'm waiting for John's response, but it's other than that, I'm okay.
+Speaker 5 | 11:18
+I'm waiting for John's response, but other than that, I'm good.
+Wesley Donaldson | 11:23
+Nice. All right, guys, look at that, we got through that pretty quickly.
+Speaker 5 | 11:24
+Thank you.
+Wesley Donaldson | 11:27
+Just so you're aware, painting urgent for you guys. Not really. You don't need to really care about that meeting.
+Speaker 4 | 11:34
+There is no meeting today.
+Wesley Donaldson | 11:36
+So they're off today. However, we're still doing our architecture/planning meeting. That's this afternoon, so... If you... I think you already did. Yes, bless your heart, knock off. So just remove that and then we should be good to go from a client touch-based perspective. It's just the one or two meetings.
+I think, Dave, you're in that and you think you're in that as well for the arc, for the planning meeting, and that's it.
+Dev Doshi | 12:01
+I don't have anything else on my calendar today for... So...
+Wesley Donaldson | 12:04
+Okay, so heads down again, guys. Remember, we want to start thinking sooner rather than later. What we can get out relative to the priorities in this release. Again, we're not committing to things per se, but I do want us to keep the mindset of what we can contribute to the release per week.
+But just be aware we are prioritizing things by... This is the most important. We're going to stay working on that. But EG or you're super close. It looks like some content that could push to release. So I'd ask you maybe, "Hey, when you pick... When you pair with John, keep that top of mind and when you come back from that...
+If you feel strongly that this is ready to go, let's make a point of calling it out so we can have it actually clearly identified." Okay, cool. All right, you are in that right now, and if you're not, I'll add you, but yes.
+Speaker 4 | 12:45
+Well, did you want me in the architecture of meeting today, the preplanning? No, I am yeah.
+Wesley Donaldson | 12:54
+Okay, good, yes, if you could join that, please.
+Dev Doshi | 12:56
+What about this? So am I supposed to be in anything today?
+Wesley Donaldson | 13:00
+I don't think you're in the architecture planning, I think.
+Dev Doshi | 13:03
+Okay, cool, that's my thought as well.
+Wesley Donaldson | 13:03
+Yeah, I think you're just heads down on the...
+Dev Doshi | 13:05
+Yeah, cool. No, that's what I thought. I just wasn't sure.
+Speaker 4 | 13:07
+So who is it going to be? Just me, Sam, Wesley?
+Wesley Donaldson | 13:10
+You, Sam, and Jason Demick is in there.
+Well, I'll tell you exactly who's on the list right now.
+Speaker 4 | 13:15
+Yeah, but Jason is not working today.
+Wesley Donaldson | 13:19
+I mean, he clearly is, he's responding.
+Speaker 4 | 13:21
+No, that's that doesn't mean he's working. [Laughter].
+Wesley Donaldson | 13:25
+Fair enough, he did say it.
+Dev Doshi | 13:27
+He did say he'd be on the planning call, right?
+Wesley Donaldson | 13:31
+Yeah, okay, Rinor, what's on your plate for today, right?
+Speaker 4 | 13:31
+Okay, cool. All right, let's have a chat, no problem. Yeah.
+Wesley Donaldson | 13:40
+I know you're only 50%, but what are your focus items? The day?
+Rinor Zekaj | 13:44
+Yes.
+Wesley Donaldson | 13:44
+Yes, the storybook pipeline.
+Rinor Zekaj | 13:44
+So regarding the storybook pipeline, I left a message on the channel looking for some feedback.
+Wesley Donaldson | 13:48
+I left a message on the channel looking for some feedback.
+Rinor Zekaj | 13:53
+I know Sam mentioned one to block, not deploy to block, but not fail the deployment.
+Wesley Donaldson | 13:53
+I know Sam mentioned want to block, not deploy to block, but not fail of deployment.
+Rinor Zekaj | 14:00
+There are two ways to do that.
+Wesley Donaldson | 14:00
+There's two ways to do that.
+Rinor Zekaj | 14:01
+So looking for some feedback from any of you guys.
+Wesley Donaldson | 14:01
+So looking for some feedback from any of you guys.
+Rinor Zekaj | 14:04
+Then I'm working on the flakiness for visual tests.
+Wesley Donaldson | 14:04
+Then I'm working on the flakiness for visual tests.
+Rinor Zekaj | 14:10
+One more thing for the tickets in the DU column, those are the ones that I worked on when I was working on the dashboards.
+Wesley Donaldson | 14:10
+One more thing for the tickets that don't... Those are the ones that I worked on when I was working on the dashboards, but they are mainly UI done. I want you
+Rinor Zekaj | 14:19
+But they are mainly UIYUI done.
+Wesley Donaldson | 14:20
+I want you I done.
+Rinor Zekaj | 14:23
+I don't want to keep that practice of having a shelved code marked as done.
+Wesley Donaldson | 14:23
+I don't want to keep that practice of having a shelved code marked as done.
+Rinor Zekaj | 14:30
+So I might pull them back since Fernando is taking full ownership of the whole dashboard stuff.
+Wesley Donaldson | 14:30
+So I might pull them back since Fernando is taking full ownership of the whole dashboard stuff.
+Rinor Zekaj | 14:38
+So I would want to QA them again with the actual logic.
+Wesley Donaldson | 14:38
+So yeah, I would superimpose them again with the actual logic.
+Rinor Zekaj | 14:42
+Not just UI components.
+Wesley Donaldson | 14:42
+Not...
+So let's put them as canceled and create a ticket and just flag the fact that it was generated based on that. So it's like, so canceled. This should be a valid done state because we chose not to go that direction.
+And then we'll create a. And it's whatever ticket he's working on. That's what you just curate going forward. That makes sense.
+Rinor Zekaj | 15:04
+I mean, I don't think the ones that I pushed them to done need to be canceled.
+Wesley Donaldson | 15:04
+I mean, I don't think the ones that I pushed them to done need to be canceled.
+Rinor Zekaj | 15:08
+Those are all valid tickets that were generated from the very first goal and planning of the dashboards.
+Wesley Donaldson | 15:08
+Those are all valid tickets that were generated from the very first goal and planning of the dashboards.
+Rinor Zekaj | 15:16
+It's just that I only worked on them.
+Wesley Donaldson | 15:16
+It's just that I only worked on them.
+Rinor Zekaj | 15:18
+U iways.
+Wesley Donaldson | 15:18
+But the UI is totally different. Now, your concern is that, "Hey, having them... That's a question of a statement."
+Rinor Zekaj | 15:27
+I don't think they are different.
+Wesley Donaldson | 15:27
+Okay, let's maybe in the time that we had for DSU... You, me, and Fernando can just connect on how much of the UI work you already... That he's integrating into his work, and if to your point, if he's pulling in that UI integration, yes, let's leave it as done.
+I think the absolute minimum I want to put a comment on it, just saying, "Hey, we've pivoted approach. I still want to reflect that it's done, but I want to acknowledge that we have pivoted approach." I'm going to be...
+I have ten seconds to draw. All right, I'll sync with you guys inside of... I'll ping you. I know. As part of our normal standup, we still think of the original meeting.
+Speaker 4 | 16:06
+I don't think Jason got the cancellation I sent out. He still thinks the original meeting stands.
+I'll put a comment in there and you can take it from there. I don't think you can make the other meeting. We can... It is, but...
+Dev Doshi | 16:24
+Rinor, we'll do a huddle in our Slack, and then I'll help you with the GitHub stuff.
+Wesley Donaldson | 16:24
+Right? Or we'll do a huddle in our Slack and then I'll open you...
+Rinor Zekaj | 16:31
+Sure.
+Wesley Donaldson | 16:32
+Sure I would.
+Rinor Zekaj | 16:32
+Like, would you give me, like, 10 minutes?
+Wesley Donaldson | 16:33
+Give me 10 minutes, yeah, or are you busy?
+Rinor Zekaj | 16:34
+Yeah. Or are you busy?
+Dev Doshi | 16:36
+No, it's time.
+Wesley Donaldson | 16:36
+That's fine.
+Rinor Zekaj | 16:37
+All right, thanks a lot y.
+Wesley Donaldson | 16:37
+All right, thanks a lot.
+That's it.

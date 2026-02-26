@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/wdonaldson/tools/krisp-meeting-insights/.claude-auto/scripts/session-start.js"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/wdonaldson/tools/krisp-meeting-insights/.claude-auto/scripts/pre-tool-use.js"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/wdonaldson/tools/krisp-meeting-insights/.claude-auto/scripts/user-prompt-submit.js"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/wdonaldson/tools/krisp-meeting-insights/.claude-auto/scripts/auto-continue.js"
+          }
+        ]
+      }
+    ]
+  }
+}

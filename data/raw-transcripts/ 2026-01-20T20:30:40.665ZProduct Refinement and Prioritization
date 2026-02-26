@@ -1,0 +1,339 @@
+Attendance: 
+{'last_name': None, 'id': None, 'first_name': None, 'email': 'scrumritualmeetings@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'wesley.donaldson@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jennifer.karavakis@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'greg.christie@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'dave.beuning@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'christian.ball@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'bethany.duffy@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stace.baal@llsa.com'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'ray.li@llsa.com'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'}
+Transcript:
+Speaker 2 | 00:11
+Good afternoon.
+Speaker 3 | 00:13
+Afternoon.
+Wesley Donaldson | 00:19
+Good afternoon.
+Speaker 3 | 00:44
+Right, I think we have everyone we need to get started. I wanted to start by going over my first epic. Okay, so you can ignore what's going on up here. I'm just using this as my draft requirements so that the team's not getting confused with things in the backlog that aren't necessarily ready to go.
+So I've put together... This is specifically for the online screening search and display. So what that means is an online user can go in, enter search criteria, and find screening events and appointment times. There are a couple of business needs that these acceptance criteria support, which are scheduling in a way that is most efficient for the field teams.
+So there's a requirement around being able to filter by time of the appointment, and that's because the field teams want to schedule earlier in the day. Then we want to prioritize events that are earliest, so closest to them in date from today.
+Because the farther out in appointment is, the likelihood gets higher that they're going to cancel that appointment. So, as a business role, we like to get that scheduled earlier rather than later. Questions on the what or why before I dive into the scenarios that need to be supported.
+Stace | 02:22
+So could eat the scrolls of wet and wine again. These are back-end, right?
+Speaker 3 | 02:33
+Yes. So that's part of what I need to understand from the technical refinement piece is what needs to be hooked up to support the user experiences that I'm talking about.
+Stace | 02:45
+Okay, so for between now and April, I don't actually know, right? We can't touch the back-end because everything in Krisp is dependent on it, and we just can't move it. It doesn't mean you can't do a lot of the front-end experience you want, right? You're just going to get the appointment radii and the screening numbers at the back end returns. You're going to get them sorted in the order that the current back end returns. Doesn't mean you can't resort what's on the front end.
+But all of that appointment time, slot management, things like that... I think your whole story for the next three months has to be given the data available through the current endpoint. What can we do? Does that make sense?
+Speaker 3 | 03:40
+Yes. Most of this should be supported. That is existing rules today. Let me add...
+Stace | 03:51
+I'm just trying to think of... Especially since this is coming into Mandalor, is there a little bit more burden on us to clean the stories up? Because if we don't want them to touch the backend, do we have to be sure we don't have a backend requirement in the story? Or they're going to go chase it?
+Wesley Donaldson | 04:18
+Definitely. Gona. Go chase it.
+Stace | 04:20
+Do you know where I'm going?
+So I'm restating with you, Jennifer. I don't want to waste two weeks of them just learning CSTAR, right? I want them to be able to do a get on the endpoint, see the JSON, and work from there.
+Speaker 3 | 04:35
+Yes, most of this.
+Stace | 04:36
+Which means we should be assertive, right? The back end already ensures that any given moment, you're getting earlier in the day appointments, if they're available because they can't verify or test that, right?
+So if you leave it in this ticket, they're going to want to be able to verify and test that, and they can't because it's in a system they're not going to touch.
+Speaker 3 | 04:53
+So this is at the epic level. So they should be eating the tasks or...
+Stace | 04:57
+So if they read it's going to be in their heads and they're going to... I think they're going to ask the same questions, actually. Wesley, is the first time you're seeing it? Would you have asked those questions?
+Wesley Donaldson | 05:06
+I would ask, "What is the contract I have to comply with?" Alternatively, if I didn't have one, I'd go figure it out. So yes, I would ask the simplest question here, just state the fact that, as they said, there's no... We should be working off established contracts.
+Jennifer | 05:14
+Yeah.
+Wesley Donaldson | 05:26
+If we don't know what those are currently, we would go source those contracts.
+Jennifer | 05:39
+I can see that. There's an idea of having the full story being given somewhere, and I think we just need to define where that is versus what the teams see. How do we split that up so that Beth can have that full product story because she has to validate all of these things all the way through.
+But the engine splitting up what the engineering team is responsible for versus what they're not responsible for and how do we distinguish that?
+Stace | 06:21
+You verbalized that very well. Does that mean we actually need to look at a product requirements document? That's maybe not the epic because everything you're thinking through and you've gathered here... Beth is valid because guess what, you're going to put it into a story when we're moving about management describing so you're going to use it all at some point.
+It's just how can we do it without confusing the developers today?
+Speaker 3 | 06:45
+Right? That's what I'm saying. So they should understand at this level what we need to do as a business. Then when they go into breaking it down, they're creating the tasks that they're responsible for.
+Stace | 06:59
+But they won't know how to break it down because we haven't told them what the legacy system does versus what is different on here.
+Speaker 6 | 07:09
+I see we have capability topics here. What I'm seeing is, number one, Greg stays and backs to... We probably should have a separate call layer on redoing the ROMAP that we have to make sure we have alignments on what we say, what we have on the roadmap in terms of what is front-end, what's back-end, what is feasible, and what is system.
+I think we should have that little more detail there as well to help us drive the next level of tick-it-cre requirement creation because I think that will help us to be aligned on what we do that...
+Speaker 2 | 07:47
+Years since we have like the right people to.
+Speaker 6 | 07:49
+I can definitely do that. We can definitely do that. I think that's something we should do. The other piece of it was even on this ticket. If we have questions on refining it for front-end versus refining it on back-end, we can do that too.
+So yeah, to your points, correct. We can definitely go do the ROMAP alignment first before we come back to the ticket. I'm just asking because I do have one ticket that I want to refine today that I know it's really right to go...
+So, if we go for that, that's the only reason why I thought the ROMAP discussion may take me no longer. But as long as we have a time check, I'm totally good with proceeding with the ROMAP discussion first.
+Wesley Donaldson | 08:35
+Yeah, I'll be quick. I think the conversation of "Do we need everything in the epic and then what will block a developer from going with the scope of what we want them to target?" I think we just need to be explicit. We can say within individual stories and then the tasks that are added underneath the story or the explicit tasks themselves, even if they're attached to the epic, we just need to set the boundaries.
+So I would just simply state the line that we have there in the technical details. They usually have a technical note section that just explicitly says, "This does not require any investigation or modification in C-STAR contracts." How we will integrate with the underlying backend."
+I think my worry would be creating another artifact when it really should just be all on the epic level.
+Jennifer | 09:19
+I agree with that. I think that during the engineering with product refinement, we can make sure to list the things that are not part of the engineering scope and make sure that it is very explicit.
+Speaker 3 | 09:33
+In the epic.
+Jennifer | 09:34
+And like as part of like as like. Assumptions or technical details or something within the epics like these are not part of engineering scope. And make sure that that's super explicit and the teams can know not to research those and their stories will not have that involved in like any of those requirements in the stories.
+Stace | 09:57
+Okay, the two of you are aligned on that, then I'm completely satisfied, right? My only concern was I just didn't want to lose multiple days to them trying to reverse-engineer something that doesn't need attention right now.
+So, guys, good, I'm good.
+Speaker 6 | 10:19
+Did we go ahead?
+Speaker 3 | 10:22
+Yeah, I just wanted... So [Laughter] did we want to continue going through the requirements that I have on this one, or did we want to talk about something else?
+Speaker 6 | 10:38
+Let me ask the question. Then we can... Let's do the democracy and see what the team thinks. Three things we should do on this call. Number one is this ticket in particular. Let's dissect it into...
+I know this is a big initiative, but we can dissect it into what can be done on the front end with design, what can be done with the back end with the engineering that we should defer for time being.
+I think that's one topic for today. Second topic is going back one level higher. Let's look at the roadmap to have better alignments on what those roadmap initiatives mean to us so that we can focus on building the requirements for front end versus back end versus Engineering versus design versus whatever else like that.
+I think we should have one discussion as well. The third topic is the ticket I've posted, which is just a direct refinement of the PDF generation logic. I will defer to the team on how we want to discuss those three topics today.
+Any thoughts on which one you want to start first?
+Jennifer | 11:51
+I just wanted to say I do have to leave it too. I was going to see if Harry could jump in at two, but I'm not sure quite yet. So anything for the indoor team?
+Speaker 6 | 12:01
+Yes.
+Jennifer | 12:03
+Probably should go first and then Wesley can cover me for anything for the Mandalor team.
+Speaker 6 | 12:11
+Is there anything we need for the Mandalor discussion because I think if not... Christian and Wesley... We can focus on Mandalor and some of the roadmap discussion then.
+Stace | 12:23
+Well, we have time to get to this. There's another one on Thursday.
+Speaker 6 | 12:27
+We have another one on Thursday. Okay.
+Stace | 12:31
+Yeah. I'd like to give enough time to have something coming into Mandalor or on this by the end of the week so we can understand you guys.
+Speaker 6 | 12:40
+Then I think we should start with the Mandalor first because I feel pretty confident with the end door ticket already. Jennifer will be with you on the call. We can pull Harry in with... After this.
+It's just the PDF generation so why don't we pull back up the ticket that you have and see how much we can review what we find with Wesley's presence so that we can either create it as a separate one or as a follow-up ticket, whatever that may be for Mandalor to consume.
+Okay, yeah.
+Speaker 2 | 13:18
+Sorry, we're really quick just jumping again. I think the context here for everybody really needs to be like, "Just so we're speaking the same language." I think it should look at it this way. I think Beth should be requesting the behavior that she wants, like the product experience that she wants.
+Then everybody else on this call can tell us, "Is this something that can be handled through the front end?" If it is, then great. That can help cleave off what we need to document for that.
+If no, then I do want to take a second to talk about, "Is there any other creative solution to achieve the same kind of thing as guidance?" If that's the case, if no to that then that goes into the backlog for the next iteration.
+But I think to just get us on the same page because I think sometimes that gets lost in translation.
+Speaker 6 | 14:08
+No, that's great, Greg, I'm with you on that one. Everybody else, are we aligned on what we want to do with this ticket? I think that's yes, I'll take the sentences, yes, but go ahead and take us up.
+Speaker 3 | 14:25
+Yeah, so that just feeds into what I wanted to call out. Design is not part of the scope. This really is just the functional flow of what we have to put in place to facilitate this user experience.
+So with that in mind, that is really...
+Stace | 14:46
+Well then can we just start with the same look and feel for searches? Because again, this isn't a backend story. There's no integration to be done, right? The only thing they can do is the front-end client.
+So design has to be on this is just zip code select an appointment.
+Speaker 3 | 15:08
+So I'm confused.
+Stace | 15:09
+Can we get that design done? Hear me say because there is no backend to build here, is there?
+Speaker 3 | 15:15
+I guess I'm confused. Why is there no integration needed? Because this information needs to be attached to the order.
+Stace | 15:24
+But there's no such thing as an order yet, right? All we're doing is... Because that's all recurring stuff, we just have to... We do the same thing with Shopify, right? It's worked very well. We just built the Site Selection and Appointment Selection module or wizard or whatever you want to call it, right? We just need that because that runs by itself and in the design you're going towards. You may need it to run in other places, right? Could you have other ways that you could add an appointment on in your larger vision, right? These are places where you essentially launch this and you find more appointments.
+Jennifer | 16:06
+But so can we start getting.
+Stace | 16:09
+We're not ready for recurring. And we'll do this. And yes, once they've got the appointment and that's there, then it will get submitted to the order when we get to submitting the order. But we've got to go through this. We've got to go through product selection, got to go through checkout, right? All these other areas kind of methodically.
+Jennifer | 16:28
+Can we start by just having like barebones like kind of wire frame Level design to get the integration and to get it set up and then having like a more curated.
+Stace | 16:40
+At the Google Maps part, right? Because they're going to do coding around some of the stuff you're asking for auto-complete, that kind of stuff. You want that done, right?
+Speaker 3 | 16:50
+That's what I mean when I say integrated.
+Stace | 16:52
+Maybe by March, that's all we have time for. Because again, if you look, if you start working backwards from March, I mean, at most this can be scope, right? We've got... Maybe I'm even talking us into...
+You got no choice anymore, right? This has to be done and out of the way by the end of next week because I don't leave you two weeks to do anything else or two sprints to do anything else. So you have four weeks in February.
+If you let this go three or four weeks, then that's all we're going to have to say for the quarter.
+Speaker 6 | 17:34
+I know that's what we... I mean, from the design perspective, we just had earlier today. So the expectations we should have... We will have some design for review by next week. So my question is for this scope here, is that a new front end to be attached to recurrly using our existing API to set up for the events?
+So just a dumb question, I know, but I just want to make sure that on what we're trying to accomplish first. Is that what we're talking about here?
+Stace | 18:09
+That's what I want last things here, what I think.
+Speaker 2 | 18:13
+That makes sense to me.
+Speaker 6 | 18:15
+Okay. Then I think the requirement on this ticket is to update the tickets so that whether or not the new design is here is almost... I mean, it's relevant, but it's not the focus. The focus is how to build whatever design that we create next week into a working UI that can be attached to the recurrently using existing API event. Correct?
+Okay, in order... So I think this ticket is still valid because it's the... From the initiative perspective, right? The product requirement is really focused on what we want to build now, what's the bed we want to create so that parts can remain and be what does that mean? We should find this ticket to reflect those languages that we just mentioned so that you know what we're creating here on the ticket. We can have technical assumptions saying this scope is for a new UI attached to recurrently using existing API event. I don't actually I want to know what's the right word, but event management.
+And then we can provide wi not the right. Not only the wibra, but the actual design by next week so that we can have a better discussion on how the engineer is going to consume it. And for today, the ticket can focus on assuming we have to design right it by next Wednesday. What are the requirements that we need to have on this ticket to go alongside of the design for the engineering team to consume? Is that would that hell.
+Jennifer | 20:05
+I think even if we don't have a perfect design ready, as long as we have the frame of a design, we should go forward and get started on something. Because if we don't review this ticket, we're not going to be able to start engineering soon enough.
+Speaker 2 | 20:23
+And let's.
+Speaker 6 | 20:23
+Do with them.
+Stace | 20:24
+Yeah, I mean, we need to start. It's not that I wouldn't welcome a new design, but I'm just going to have caution for the business, right? We're starting multiple tracks here. We have some thrive timelines that are rather carved in granite in terms of milestones. That we have to be able to show the board before June that we can't fall too far. Be like if you do this with a really ugly ground and all the members have migrated, and we have to stop selling memberships and shop fixes are totally going to break once the tokens are moved.
+Plus, we're not collecting tokens like there could be this path, but we have no choice but to turn on what's there. So make sure that the design you give them is good enough. If it had to go live, it could.
+Speaker 3 | 21:17
+Yeah, sorry, just a second, I'll be right back.
+Stace | 21:42
+I don't mean to be overcritical, right? But again, at least to me, feels like just yesterday we were excited to get going on re-Curly, and that was before we all broke for the New Year. Now it's already January 20th, right? That time just flies faster than we think.
+Speaker 3 | 22:01
+Yeah, sorry about that. The way that I slice this is exactly what Jennifer was saying. That we need to get the functional pieces in place and then update the design from there. So that's the approach that I took with this. I don't know all the technical layers that need to happen.
+So that's what I'm looking for here. If you guys say we're just reusing this API endpoint and you tell me there's a technical constraint that doesn't support the user experience that we want, then that's the conversation we need to have.
+Speaker 2 | 22:46
+Yeah. Could someone elaborate on that? Actually, I think that would be...
+Stace | 22:49
+Yeah, I mean really, here we need to base this off of... Would this have been again capacity have so much priority right? Would this have been possible? Shopify, if you could ask for it there, you can probably ask for it here, right?
+So this first user interaction I want to use my browser location. That's fine, I'm going to rip through this slightly, right? Technically, you're going to click "Yes," your browser application. Here you get latitude and longitude. You're going to pass that to Google, turn it into a zip, and submit the zip to the back end.
+If you want to let them type an address, city, state, all that, and you can use the Google again mapping APIs to do autocomplaints, all that kind of stuff. That's great. Just understand really what you're submitting to the back end to get the list of screening. Back Zone does it because that's all you understand today.
+So you can build all this out, and it'll look exactly like you wanted to be doing, display results. I think you can largely do that. You're going to get the data set, sorted, and searched like it's going to come back as a JSON, it comes back.
+But you could again have them build in client-side filters that could resort those objects.
+Speaker 3 | 24:02
+I don't know how much of these business rules are built into the MPOINT today, but yeah, this follows how things should be acting.
+Jennifer | 24:14
+I think we have the radius as far as that gets done on the back end and the sorting. It could be based on whatever events come back. If we want to have a larger radius and then sort or filter more of them out on the front end, we can do that too.
+Stace | 24:37
+Yeah, I think the range you have backus going to do as... But you could tell the front end to ignore that and resort. So that's no big deal.
+Jennifer | 24:46
+But we could go with a larger radius and filter if needed.
+Stace | 24:52
+Yeah the question is you know we might be able to that that's that the team may have a it could be low hand proo there I'm a I'm not aware of so that's maybe but as changing the radius changed it on the live sites and for call center then we probably doesn't.
+Jennifer | 25:11
+It's in the URL.
+Stace | 25:12
+Okay. Yeah. Then if it's a filter, go for it. Thank you. You're good on everything else.
+Speaker 3 | 25:17
+Sir. Okay. And some of these are front-end, but I know, for example, the system is passing a message along, so that's why I included them, so that we know that it needs to be consumed. So if we submit a search and then for whatever reason, a response isn't returned, or we don't get information or it fails, then we need to display that message. It should be...
+That's all great. That and that all that content will come later. But in general, that flow needs to be supported. Next one is additional screening events. So I think this just comes down to... Basically, what happens today is we show 15 and then they can click "Show more" and it will show 15 more.
+So it's just repeating that until there's no more in the initial list that we got.
+Stace | 26:28
+Yeah, if that radius is a query string parameter, like a search parameter on the REST call... Jennifer said, if it's that, then seemingly you could just keep increasing the radius and keep making gets.
+Jennifer | 26:41
+Yeah, you could go and see more. I don't know what the limit would be as far as what the endpoint has, but you can do it based on whatever limit the back end has for radius.
+Speaker 3 | 26:56
+Got it.
+Stace | 26:57
+The tricky part is I think this experience is very related to where you are geographically, right? Yes. Yeah. It said that you might want to keep getting more and irrelevant to you and my place in Northern Michigan. I'm probably going to start getting results from Wisconsin across the lake. [Laughter].
+Speaker 3 | 27:20
+So when that does come into this... Yeah. So that's what we were talking about where if the search parameters are so strict that they don't return anything that we should loosen them up until there's at least one thing and then display that.
+Stace | 27:45
+Okay, yeah, it's all reasonable. Okay.
+Speaker 3 | 27:54
+So that's the additional screening events then. They need to be able to sort by date or distance. This is already happening today. It is defaulted to date and then it sorts by distance.
+Jennifer | 28:11
+I'm going to have to go really soon. But one thing... I just wanted to know if it's on here if we are making sure... I know in our current system, we show on the front end if it's in New York that there are limited products that are available or something like that. Are we wanting to do that as well with this one?
+Speaker 3 | 28:32
+We actually took that off from the screening event page and moved to not allowing them to select the product if it wasn't supported for their appointment. Okay.
+Jennifer | 28:45
+So we're not showing any indication on the screening selection page.
+Speaker 3 | 28:52
+No. Okay. At this point, I don't think that's a requirement because we are working through designs that open up the flow in which someone is selecting an appointment and a product. So they may not know which appointment they're selecting when they select a product, but that's for later.
+Okay, this next one is one that is new, and I want to know if it is possible. So it's searching by date range. So basically, if they wanted to see, let's say we were returned 90 events, and they want to see the ones that are in the next two weeks, or they know they're going to be in that area between April 1st and April 15th.
+So they want to select that start date and that end date and see which events fall in there. It may be combined with distance as well.
+Jennifer | 30:00
+As long as you understand the query to get the events is all based on the radius. So if we define a radius for that date range like the max radius, we can get all of the events back, and then within the front end do that searching.
+Stace | 30:21
+Yeah. Or my suggestion here would be just leave it on the front end. So if I have 15 events already loaded like return to the browser, I don't know what you guys are going to look like. Let's just pretend. They're...
+It's a slider. So if it had the in on the left side is the earliest first screening date you get back, and the max will be the last screening you get back. Right? I could drag some filter between those two.
+Jennifer | 30:51
+Right?
+Stace | 30:51
+Does that make sense, right? I think if you always use what's in the context, the browser, you could draw this UI and filter it down.
+Jennifer | 30:59
+Yeah, and I mean, we could even do different filtering based on only Mondays or something like that within the context of whatever was brought back from the call.
+Speaker 3 | 31:21
+Here we go.
+2. Then distance range should be pretty simple. If it's really just changing the radius and allowing them to override the default that we're searching.
+Jennifer | 32:05
+Wesley, when we do this, we might choose to do the filtering on the front end and have a larger radius, so instead of just recalling every time they change their radius, just filtering within a large radius that was set.
+Wesley Donaldson | 32:21
+So filter in the large radius in the back end, then allow the UI to filter down for faster searching. Okay.
+Jennifer | 32:29
+Especially if we're doing that for date, it just makes the filtering and sorting all within the front end.
+Speaker 3 | 32:41
+The other pieces that get returned back with screenings are the appointment times. So there are default appointment options that should be supported today because we do see it. So the earliest 15 appointments in times are shown and then they can select more and it will load the rest of the schedule for that appointment.
+Then I think what's happening... You guys can let me know what's supported. This is just what I'm seeing. I think appointments after 1 PM are only shown if there are five or less available before 1 PM otherwise nothing after 1 PM is shown in that first view.
+But they have to click more.
+Wesley Donaldson | 33:20
+01:00 PM in the local time zone of the browser or 01:00 PM CST or there we go.
+Stace | 33:25
+1 PM and everything's localized to the event location, right?
+Wesley Donaldson | 33:31
+So the that location. Gotcha.
+Stace | 33:35
+I'm pretty sure that's all on the back end, and that logic's performed before the browser would get the data.
+Wesley Donaldson | 33:46
+We should have an exception in the event they try to... Well, unless we are limiting the UI from ever going beyond the maximum scope defined by the back end.
+Because my worry would be what happens if they are right on the border of a time zone change or something.
+Speaker 3 | 34:08
+It's based off of the... So basically the time appointment times that are available don't change depending on where you are as a user. So if I'm scheduling an appointment in New York, 01:00 pm is 1 pm in New York, and it's not going to change whether I'm scheduling from Michigan or California because it's the appointment of that location.
+Wesley Donaldson | 34:24
+In New York? Got you. That makes sense. Based on the location. Okay.
+Speaker 3 | 34:40
+The location is going to be in New York, so it's 1 pm in New York. Did that make sense?
+So Greg is in California right now, but he's going to be in New York next week, and he wants to schedule an appointment in New York when he clicks 01:00 pm. It's always 1 pm in New York. It's not going to change because he's in California.
+Speaker 2 | 35:12
+Yeah, I would definitely keep it that way. It gets too confusing otherwise.
+Stace | 35:18
+There's nothing worse than time zones.
+Speaker 3 | 35:27
+This does not... The scope of the appointment times is just grabbing what's already available to us. None of this is touching or creating appointment schedules. There's already a set list of appointment times that are available. We're just getting them and showing them and filtering them based on the business logic.
+So if the appointment time says 11:55, don't show it.
+Okay, any questions on the appointment times?
+This one is the interactive map piece. So today, depending on what you click, I can't remember it. I think it's clicking. You have to click on the icon and it'll pop up the location name, the location address and the event date. What we would like to add is the available appointment times so that they can actually book from there. This I'm wondering though, Greg, I think I can pull this. I don't know, I'll leave it up to you guys. This is more design heavy on what the experience needs to be when they're clicking the icon.
+From a data perspective, this is the information that needs to be available in the pop-up from the map.
+So basically the screening and appointment information is linked to the location that has been visually identified on the map.
+Are there any technical concerns about...?
+Speaker 6 | 37:35
+That'll be fine.
+Speaker 3 | 37:48
+Okay, the last piece is updating the location for the search. So they did their initial search. Now they changed the location. We need to reload the screening list with this updated location information in the event that they change a filter or sorting that should remain intact.
+So whether it's the default's already there or they updated it, if they changed the location information, the distance and date should stay the same.
+Wesley Donaldson | 38:31
+I'm sorry. Say that one more time. So I'm looking at a map, I'm looking at a list of locations. Sorry, just repeat that one more time.
+Speaker 3 | 38:40
+Yes. Okay, so at a higher level, there are three things that you can do. You can search by location, you can search by distance, and you can search by date in the event that they changed the distance filter.
+So I only want to see things that are 5 miles from me and I only want to see things in the next two weeks but I'm changing my location from Ann Arbor to Detroit. The two weeks and five miles need to stay the same. We're just updating the location parameter.
+Wesley Donaldson | 39:13
+Yeah, so the refinements, the filters themselves remain the same. Are you just changing the presentation on the map? Okay, you might want to just put the word "persist" there. Persistence. That would probably make it a little clearer.
+Speaker 3 | 39:35
+Thank you.
+Stace | 39:38
+When you do the UI, just might want to think about having a color highlight, something to remind users they've set a filter, or a clear filter button.
+Wesley Donaldson | 39:53
+Reset filter.
+Stace | 39:54
+This tends to be a repeating behavior thing as people will search, they forget, they set some sort of filter, and they keep finding nothing and abandon.
+Speaker 3 | 40:04
+Yeah, let's good bye. I think we'll be reviewing the initial kind of redesign next week.
+Wesley Donaldson | 40:12
+Yeah, you hit it on the head. That would be a convention you need to establish in the general UX, not one specific for this view.
+Speaker 3 | 40:26
+Okay. So I called out a couple of things. So we should be supporting legacy contracts and shouldn't be changing them. Then I will put the link to the mirror board in here because it has the wireframes. I'm going to clean it up a little bit because we did simplify some of the things and the flows in there.
+Wesley Donaldson | 40:46
+What's the... Sorry, I apologize if I should know this. What is the mapping where you're using Google Maps? Are we going to maps directly their API or are we wrapping it? Is there just a custom mapping solution we're using?
+If you don't know, that's fine, we'll figure it out.
+Stace | 41:10
+I think the sites today are just using the standard Google JavaScript library. Might be wrapped in a JavaScript framework.
+Wesley Donaldson | 41:17
+I think my worry there is like depending on what functionality. You know, it's like the basic showing a map we may need to hit the place API or something like that. There is a contractual... There's an API key. There is... Depending on navigation, it's crazy expensive, but there may be a cost depending on what level of filtering and level of detail you're getting.
+Stace | 41:35
+Yeah, no, we have that set up because the sites are currently using that.
+Wesley Donaldson | 41:37
+Okay.
+Stace | 41:38
+So yeah, we've got our Google account prod non-prod account keys, stuff like that, so should be good to go there.
+Wesley Donaldson | 41:41
+Yes.
+Stace | 41:49
+Good question though.
+Speaker 3 | 41:52
+Awesome. Okay, so my next step for this one. I will get the curated wireframes for these different scenarios. They will be as simple as they can get. Just because I don't want too much time spent on the front end knowing that it's going to be redesigned.
+So it'll really just be fields that could be filled out or buttons that could be clicked. Is there anything else that you guys feel is needed before Thursday? Thursday, I would like to do the final refinement so that we can go into the engineering breakdown.
+Speaker 2 | 42:29
+Would it be worthwhile because we have a few more minutes right now? We have another... What? Fifteen minutes? Can we talk about the...
+Speaker 6 | 42:38
+Can we talk a little bit?
+Speaker 2 | 42:39
+About like the booking for a two person experience and what would be and just get some sort of understanding and maybe like some suggestions for coming into Thursday if there are additional things we need to provide.
+Stace | 42:56
+I love hearing talked about behind the scenes. My gut would be... Not as much. Introduce it to the TED. I think we should be able to release end to end all the way to PRAD, purchase one thing, and then layer on. Now I can add two screenings to the cart.
+Speaker 2 | 43:17
+I think I follow. Can you elaborate on that a little bit, though?
+Stace | 43:20
+So essentially make it work like e-com shop fire work today, right? Be able to release that where one person can go and place an order and buy it because that's 70% of sales, right? Then add on. Okay. Now I want to be allowed a second person, a second screening the cart and have that checkout experience work.
+Speaker 3 | 43:53
+In the kickoff on Thursday, I'm going to run through this scenario where they're adding more than one person just because I want it to be very clear that that's the route that we're going. So if there are decisions that are being made from a technical perspective, I want to make sure that there's not a bunch of real work that needs to happen to support that scenario.
+Speaker 6 | 44:28
+Alright. I can. We can move to the PDF ticketo quick. Since we got Harry and we only got a 15 minutes here.
+Stace | 44:40
+Right?
+Speaker 6 | 44:41
+Yeah. Wesley, question. Feel free to stay on your hub.
+Wesley Donaldson | 44:48
+I love PDFs so much as the next person. But I think I'll take the minutes back. Thanks, guys.

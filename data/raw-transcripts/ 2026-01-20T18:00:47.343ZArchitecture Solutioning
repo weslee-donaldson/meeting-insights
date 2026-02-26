@@ -1,0 +1,564 @@
+Attendance: 
+{'last_name': None, 'id': None, 'first_name': None, 'email': 'jennifer.karavakis@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'wesley.donaldson@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'sam.hatoum@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'rami.hatoum@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'michael.astle@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'harry.dennen@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'dev.doshi@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'dane.powell@llsa.com'},{'last_name': 'Doshi', 'id': '014200be-e658-44ff-a7f9-46e0041627e0', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stace.baal@llsa.com'},{'last_name': 'Falcão Jr', 'id': 'eb1ea9d2-97a7-4721-b464-a18aea83c711', 'first_name': 'Antônio', 'email': 'antonio.falcao@xolv.io'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'}
+Transcript:
+Dev Doshi | 00:18
+We'll see how it goes.
+Wesley Donaldson | 00:20
+In. Morning. All afternoon.
+Stace | 00:24
+Where you are in North Carolina, you only get snow a few times a year, right?
+Dev Doshi | 00:30
+Yeah, and usually when it does, it's a disaster.
+Stace | 00:33
+Yeah, I was going to say so's one of those.
+Dev Doshi | 00:36
+Yeah. I know. You.
+Stace | 00:37
+Gu. But when it does, everything comes to a grinding. HALE.
+Dev Doshi | 00:41
+Yeah, one year we were on the front page of read it, there, I'll drop a link to this. It's pretty funny. 
+And then once it once you see it. People, you'll see. People photo photoshopped something else onto it.
+Sam Hatoum | 01:26
+At least you had a way to keep warm fire.
+Jennifer | 01:34
+They did it on purpose just because they were too cold. They're like, we need to be warm. And just crashed some cars together.
+Harry | 01:42
+Was this the one where the first time they got like two inches of snow and everything just fell apart?
+Dev Doshi | 01:46
+I don't think it's the first time they got out of snow, but yeah, sort. It was a shit show.
+Sam Hatoum | 01:52
+Yeah, I remember that.
+Dev Doshi | 01:53
+Yeah. And then II love the one with the A 80 photo shot onto it. But yeah, they caught fire because I guess, like when you're spinning your wheels, your engine can overheat. And then it caught fire, [Laughter] so they kept just pressing the GAs instead of trying to do something different.
+Stace | 02:14
+Yeah, that's crazy. Alright, so I think we have everyone.
+Sam Hatoum | 02:21
+Yes, we do all right.
+Jennifer | 02:26
+I think you mentioned that we wanted to talk about internal and external graphs.
+Sam Hatoum | 02:31
+Yes. Let's talk about internal and external graphs.
+Stace | 02:35
+Yeah, let's. I can kind of kick that off for everyone because I have highly simplified diagram because I like pictures of we well, we have the customer care admin widget, which is temporary but doesn't really follow a sustainable pattern for us. 
+So what we're doing is we're standing up an admin section, which it's first functionality for now will be to allow people who need to view participant results in the same form that we display to the participant. 
+Right. So simple view where Lifeline employees will log in search for a participant, be able to view the results similar to how it part spent what on the portal right? Over time that will probably get other features and then we'll have whether the same application most likely different applications, right? We'll have similar flows for employee driven screens that are called Center Portal FA, our field support application PRP, things like that. 
+Right? So we have a pattern of utilities built for Lifeline employees today. Those are all on the LSA domain. Desire to want to keep them on their own domain so we can protect them by BPN have different lap rules, things like that. Whereas all of the public facing stuff being our current participant portal public site and our E commerce stores are on the lifeline screening domain. 
+And again, the primary difference here where authentication is involved on the lifeline screening domain. Those are customers. Those are public user customers that are currently authenticating against Cognito, whereas on the other domain for the admin portals, future call center, field support application and PRP things like that, those will be Lifeline employees that'll be authenticated against Microsoft. What's 80? 
+But now they call it Entra ID so that runs an Azure. So kind of the question I wanted to propose to the group based on the simple diagram, right? I have two graph squares. I don't know if it's two graph squares, if it's one graph, but I did it for the purpose of illustration, right? Users coming in from lifelinescreening.com. 
+If that requires authentication, it's going to go to Cognito obviously. Reach out run a lot of the same Thrive services. We'd have a Lifeline user that their graph calls have to get authenticated against. Entra ID still may touch the exact same backend services, data store, things like that. 
+And you know, for instance, a lot of the stuff that the store is able to do, the call center portal will be able to do. So a lot of the graph may be very similar. It's just that your authorizers have to be different between the two pools. 
+So that's where I wanted to leave it. There is. What's the best way for us to approach that?
+Dev Doshi | 05:43
+No specific comment on the best way to approach it, but I'll just set what is currently happening. So with the. With the main one, we use the Cognito authorizer. With the internal endpoint we use a custom maybe authorizer, but it's already kind of got it set the example basically for how to add more of those into the context setting for the GRAPHQL. 
+So once each authorizer returns, it's whatever structure that it returns, and then those get turned into a context for the GRAPHQL server. So there's already like a somewhat of a pattern for that. So yeah, there's that much to do.
+Sam Hatoum | 06:25
+That's exactly what I wanted to build on. Like, I think this is actually gonna be very straightforward. Like add an authorizer for the active directory or whatever that whatever branding they want to give it. 
+And now by the time a request comes through to the single graph. So single API gate to a single graph. And then it hits the graph and we've got a hydrated user data if you like in the context. And then we can do role based access from there. 
+So it's just an a back problem. So first we authenticate and get the user and then we authorize, right? So it's just separating those. I know they call it LLaMA authorizer or, you know, get like they're not really authorized, they're authenticators, but that's separate problems. 
+Yeah. Authentication is just making sure we know who the person is. And we get the toke. We get the data about them and then authorizing is making sure they've got access to it. So there's where we can use row based access within our services. 
+So I would say keep the infrastructure clean. Single endpoint. Just to add that authorizer at the land authorizer for the active directory and then downstream in our service we have a set of a tech we need to pick which technique we want to use. We could use Aspect oriented. We could use, you know, some RBA library of some kind, or we're going to do it manually. We can discuss that separately, but from a topology point of view, I would recommend one gateway, one growth.
+Dev Doshi | 07:49
+The main thing I'm.
+Stace | 07:51
+It's not the code. Then it's good to hear that. Design. I was going to ask the question from a code perspective. It's not going to care if we had to have two gateways, right? Because both gateways could end up pointing inside the BPC to the same stuff. 
+All right, I think we could start with one. It may be that we need to expose a different C name or endpoint for network access control like if we want to limit where like availability. What is allowed to access that gateway? What countries are allowed to access that gateway or tie it entirely behind VPN? It may get problematic if we're trying to send public traffic to the same gateway, but as long as the code doesn't care and it becomes more of an infrastructure concern that more.
+Dev Doshi | 08:37
+Would you imagine that this is like a separate stack from the super graph then? So this is like.
+Sam Hatoum | 08:43
+Same stack? Okay.
+Dev Doshi | 08:45
+It's just two landas, like the graph widget. There is just a landa in that program.
+Sam Hatoum | 08:52
+Yeah, like so like just I'll tell you where my mind's going. So with if we push the boundary of how much we can do with the Supergraph and Apollo tooling and Apollo server and all that, the concept of contracts and a contract gives you a different variant. 
+So I can. I can probably share my screen and show some pictures about the Apollo CL contracts. Just look that up real quick and check my screen. And so you've got this big schema over here, which is everything and that's how you want to maintain it, including admin functions and what have you. 
+And you have contract schema a which filters that contract that you know, the schema that's over here. So effectively they look like two schemers actually they're two variants. And then you can expose these individually to consumers. 
+So yeah, the whole idea is just to maintain a unified graph like supergraph. So we have one supergraph, a bunch of downstream services. I think it's too early for us to go down this full path of contracts and everything just like for the sake of two. I don't think it's necessary yet. 
+And so I would say like let's push what we've got in terms of a boundary and do like work towards this. But as we get more pull on the need for us for contracts, we can then start to use it.
+Stace | 10:13
+It's the variance. One more curiosity question for me. And I want to make sure that Mandalor can jump in since the stories are going to reside there. And I have a suggestion when we get going that maybe we could pair a program on this to begin with and let them drive with it. 
+So if we have two custom authorizer Lambos, one cardio, one's entra when a request comes in. And it's just a J WT token. How do you know? Is this going to the Cognito authorizer versus the entre? But we had to do something that hints it.
+Harry | 10:48
+I thought the authorizers were attached to was it a specific domain?
+Sam Hatoum | 10:57
+Yeah, I think. I think we need to just do a bit of research about this. Like, I actually don't know the exact answer, so it's.
+Stace | 11:04
+Yeah, well, this could be a reason to do the separate gateway as one of the things I was seeing in the internal gateway you could add because with API gateways right, you can do header manipulation. You could say every requests coming through this gateway gets like an X header, like X Dash LSA employee [Laughter] header, right? 
+And then everything else downstream would know how to handle that. Could be one way. You guys might have other ideas.
+Dev Doshi | 11:31
+Sorry, what was you could.
+Stace | 11:32
+To domain but then that's going to get really funky. NPR domains and things like that.
+Harry | 11:37
+Well it is it was the gateway. I remember we ran into this where the authorizers like ATAS gets very upset if you have an authorizer that isn't attached to the gateway. Is that right? Dev? We did run into this. 
+I think so, yes. So when the request comes in, as long as you're associated with that gateway when we pull the context off the request, we'll have all that stuff so that that's how we'll know. Yeah.
+Stace | 12:02
+So does that mean we need two gateways, one for internal, one for external?
+Harry | 12:06
+I think so, yeah. They would have to be separate because it's one. I think it's a one to one relationship between authorizer and gateway. No, that's what is that each path?
+Dev Doshi | 12:17
+Yeah, each route in the gateway can have its own authorizer.
+Sam Hatoum | 12:20
+Okay.
+Stace | 12:21
+But what if they want to share a route? Then do we have duplication like the same function exists?
+Dev Doshi | 12:30
+Not sure, but. But how we have it is basically each route is an entry point into the sup graph because just one entry point, right to this graph. So the slash internal uses the internal authorizer and then goes to the graph, and then the main one is the cognitive authorizer and goes to the graph. 
+So there's not like a variety of routes behind it's just what's the which context is it coming from? And then the other. So like.
+Harry | 12:56
+This would be like a rout path, like admin or something.
+Dev Doshi | 13:01
+Yeah, and the. I think the other piece is, like on the EP, we have the whole login system. So I'm not sure what would the experience be for people coming here. From the AD.
+Stace | 13:14
+We use on her ID. It's actually a whole lot different because you just validate that the JT token to get the group.
+Dev Doshi | 13:24
+Where do we get the action scheme right?
+Stace | 13:26
+Kind of the way that Microsoft works, Google's enterprise works, am I right? You always authenticate direct with Microsoft, but then anyone else who has delegated sign on through Microsoft that inteface with entre ID right? Your sessions either valid or not. 
+If it's not you kick them back to Microsoft.
+Dev Doshi | 13:45
+Yeah, so I guess we're missing like we need to do, we need to set up an app. But for employees.
+Stace | 13:50
+99.9% of the time it's valid, right? They have Outlook open or they have teams open. So they already have a ballot session somewhere. Yeah, with Microsoft and when you just go to the web page, it works.
+Dev Doshi | 14:02
+We can I guess I'm saying so where does that like redirect type flow happen in?
+Harry | 14:08
+Yeah.
+Stace | 14:08
+Okay, there's obstructions for that in Microsoft.
+Dev Doshi | 14:13
+Okay, but I'm just saying that I think that's going to have a few extra steps of like, setting up an OA app type thing or something like that.
+Stace | 14:21
+I found you guys might be able to refine this prompt if I just put this into, like, our copilot. So. So you get a pretty detailed.
+Harry | 14:33
+Yeah. So I was looking at this a little bit, because this is admin requests that are we talking about. This is coming from like the admin portal. Yeah. So that's point dev where the person is logged in with their SSO with their SA SSO account.
+Stace | 14:53
+Right? And they're going to go to like.
+Harry | 14:56
+Yeah, so and then so whatever.
+Stace | 14:57
+We call this something somethingadmin.sa.com they're not going to my lifeline lifelinescreening.com.
+Harry | 15:03
+Correct. Yeah, but if they want to see something on my lifeline that we're going to give them access to. Like, for instance, the results. If we do that, there's. So their request would come in as you see it in the diagram with the appropriate ad authorizer. 
+But then the supergraph or whatever, you know, there would be a separate internal endpoint or internal resolver for something that might be on Thrive. And then you'd have to map whatever their claims are to maybe like we were talking about like a role that we could have that can make those internal requests on behalf of someone. I'm not really sure how that part works, but that's how you kind of make the jump from I've love like that.
+Stace | 15:51
+I say that's person about because there will be, right? You are going to use similar graph calls that EP probably used. And when we get into commerce, you're going to have all kinds of mixing matchy things that are going to happen. Almost identical between lifelinescreening.com and a, you know, an employee logged into sa.com. 
+Yeah, right, and you know, I'm okay, but I just want to establish that pattern, right? Does that mean we have two graphs? Is everything duplicated, are we writing everything twice or can we is everything are there some more usable routes?
+Harry | 16:29
+So I don't know what it's. So if you're in the.
+Stace | 16:35
+You're right. The first half you can do. Yes, then have to start over again on the next phase.
+Harry | 16:40
+So. So really what we're talking about is. So if a normal end user participant loads Thrive EP, they make a call via Thrive to the graph. But in an admin portal situation, you'd effectively be making a call from the admin portal to the graph, and then that call would be like somehow you have to get the participants data out of the graph and then populate the front end. 
+But you're not using the same process. So? So you. I'm wondering if like you can navigate if we have something on the front end that has maybe internal specific paths so that you can effectively load the front end, but then the front end is not necessarily making calls, you're just populating with data that you received already, right? 
+Because if we if like I just I don't understand the part where you're logged in with one authorization, but then you're going to then load the Thrive EP with a participants data. So like, are we going to ask the THRIVEVP to then call a specific endpoint with your own thing? 
+Like it becomes this weird proxy thing.
+Stace | 18:04
+Like it wouldn't happen at all, right? Because you have a LLaMA that already aggregates all that data, right? So the graph. There'd be no world where the SA like admin client would call lifeline screening.com to get anything right.
+Dev Doshi | 18:20
+So I think we're trying to.
+Stace | 18:21
+Right that all be behind the graph. Yeah.
+Dev Doshi | 18:25
+Because I think so.
+Speaker 7 | 18:27
+Go ahead.
+Dev Doshi | 18:28
+I think Sam is waiting to show his thing, but. But if I understand. Like we don't. I don't think we want to share credentials across the two. Should be able to reuse the resolvers with just some different authorization mapping, right? 
+And then. And then, yeah, if we wanted to have the EP impersonation kind of thing, we could just build that inside the admin side, right? Just like a new endpoint that returns the HTML that the participant would have seen or something, right? 
+Yeah. So we don't need to, like, reuse anything from or like, we don't need to pass through anything to the.
+Harry | 19:05
+Okay, that's kind of what I'm getting at with, like, you know, you would load it but then populate it with data that you'd already gotten from the graph. Like as an admin.
+Dev Doshi | 19:17
+Yeah, okay, I might have been confused by your wording on that, but yeah, like any like we should be able to build the same experiences tweaked for the difference in the use case work, pretty easily on the admin side.
+Sam Hatoum | 19:34
+Yeah. So I mean.
+Dev Doshi | 19:35
+I think like just rendering the EP display should be like just exporting some components from there. And then that's yeah, that's all data and rendering it in, right?
+Harry | 19:48
+Maybe there there's a bit of a lift there because it's not just components and some data. The front ends actually doing quite a bit of data consolidation between the results that it receives and then putting that together with the contextual content that we have on the front end.
+Dev Doshi | 20:07
+But it's all the same code, right? Like the UI code, maybe I'm missing what you're saying.
+Harry | 20:13
+Yeah, it's the same code.
+Sam Hatoum | 20:17
+Is it I'm just gonna say it sounds pretty simple to me. I think maybe there's we're either overcomplicating it or it is complex and I'm missing the complication. So I just want to go through, like, my understanding of listening to everything that's being said and see if this is covered.
+Harry | 20:30
+Okay. So we have. So if you. Let's just take a results page. Right on the surface, that's a super simple thing. In theory, you just drop some content into the props and you get a page. But now the data that you would drop into those props to get that page has been transformed quite a bit, or enriched rather, with the contextual content. 
+So I'm just saying there's an extra moving part contextual.
+Sam Hatoum | 20:57
+Where is that part of the data that comes through the graph or that you guys do something.
+Harry | 21:00
+That is something. That's what I'm saying. So the front end has contextual content. And this is so what we get from the graph are content IDS, a couple of other IDS and then the actual like numerical data for the results. 
+And then we take those IDS and then we map that to like all the verbiage and all the stuff that business wants to be able to just update easily without going through either of the back end or full front end PRs. 
+And that's the other part that would have to be extracted into its own sort of module that can be consumed by the admin portal or EP.
+Sam Hatoum | 21:38
+If that's a UI component, then that UI component is doing something to have contextual content, right?
+Harry | 21:44
+There's there are builders.
+Sam Hatoum | 21:46
+That creates that builders.
+Harry | 21:48
+Builders.
+Sam Hatoum | 21:49
+Yeah, it's there is a builder pattern browser, right? Yes, okay, cool. So we can just take that same COM. If we abstract the component, we can take that same UI component to the AU UI and get the same value.
+Harry | 22:01
+What I'm saying is it's not happening in the UI component. There are some services like Builder services that do that construction as internal as effectively transient client state which is then injected into the UI components.
+Sam Hatoum | 22:14
+Is this builder so as part of the graph or is some other part of.
+Harry | 22:18
+The front end.
+Sam Hatoum | 22:20
+One moment there's a the public when you say front end that tells I'll just to get the nomination. Th AP.
+Harry | 22:28
+There is a builder in the THR VP that takes results from the graph and builds up a consumable, I guess displayable result set.
+Stace | 22:39
+Is it a LLaMA or is this.
+Harry | 22:41
+And it's just in the front end. It just takes.
+Stace | 22:44
+So it's right.
+Harry | 22:47
+Yeah, so there's a bunch of.
+Stace | 22:48
+JSON that same React bundle is downloaded admin is it's sitting in the client doesn't care, it doesn't even know what back end to, so it's just the data it gets.
+Sam Hatoum | 23:01
+Help me understand one thing. I just want to be. I think Stace you're tracking what I was saying, but it's on a double triple check. This builder that happens, this execution, what process does this ex where does it execute?
+Harry | 23:14
+In the front end?
+Sam Hatoum | 23:15
+It executes in the browser.
+Harry | 23:17
+In the browser?
+Sam Hatoum | 23:18
+Yeah, okay, great, cool, so it's just a there's a A UI comp like this bundle. Exactly like Stace was saying, whatever we've got here is a bundle, we can replicate that bundle and the adminui. Okay, that would all be right, yeah. 
+So in terms of, like us being able to have the abstraction here, that is. Okay, we need some component tree that has some, you know, some bundle and helpers and what have you. And then it gives you the same structure and everything that you can see, and you have Menui but in terms of the data, we only get data from one place, right? 
+And that's the graph. Correct me if I'm wrong. All right, awesome. That's key, because if we haven't got that, we need to refactor that. If everything is coming through the graph. That paves the way for us to later move to a super graph with subgraphs. 
+But today we have a single monolithic graph, which is fine, right? Like that's how you should grow. Actually, there's nothing wrong with the word monolith. Okay, so we're not here yet, and so because we're not here, I don't think we should not. We like you. The other thing you'd have with the full ecosystem of Apollo is that you'd have a bunch of contracts here, right? 
+So you'd have so variance contract variance problem that right. And this is where you might have an admin variant, a customer service a variant, a public variant, a partner variant, like all these different variants. Now this is how you do like proper super graph structures. 
+But this is in. This is where we are today. And that's what I was saying. Like, okay, let's not. Let's not move to this world yet, but make us ready as things proliferate and grow that we can go there. 
+And so now it's just a case of like, which one of these do we use? I'm actually going back towards your design here. Space like this actually might be just a lot simpler. We've got two separate AD UI, two separate URLS with two separate interfaces with two separate deployables. They can share context this way and they can. They can share UI components from a component library, and they can share data from the monolithic graph, but otherwise two API gateways with their own. 
+Yeah, URLS with their own deployed app and with their own independent authorizers. I think that's actually going to be easier cognitively than trying to do this. Now that we're talking about it, what do people think?
+Dev Doshi | 25:24
+Yeah, and to me, it doesn't really make a difference if the super graph is one instance or each gateway has its own lambda either, but see, it should work this way anyway.
+Sam Hatoum | 25:36
+Is this the same? So if we're. If we're saying it, we're gonna deploy it twice. All right? Like if we want to do that, if we want to do this, that's okay. Like if you if I heard correctly, you're suggesting that have two even two graphs as part of the stack. 
+I think that's okay as long as it's always the same code like the deploy. So it's just a deployment concern, and therefore it's not that we'rereating multiple graphs system, we're creating redundancy.
+Dev Doshi | 26:02
+Yeah, I think it'll work fine with just the one, but if not, then we can tell it.
+Sam Hatoum | 26:08
+Well, the scare there would be like that. These start diverging, in which case they're being subgraphs and we need a super graph on. Now we're going down this route, and that's the right way to do it. This here, like, having two, you know, like super monothy graph 1 and graph 2I wouldn't do this because it's moving us away from this world, right? 
+But I think. I think it should work just fine with one. Honestly, like it's it. I think we'd undercomplicated if we did this right, because now we know that it's one place, one deployment. It should handle the load no problem. 
+And all we really need now is a set of users and roles. So now we need role based access like this is the key thing to enable. This is our back.
+Dev Doshi | 26:49
+Yeah.
+Sam Hatoum | 26:53
+We got the other one. I'm gonna delete P.
+Dev Doshi | 26:55
+The other one. I just want to swap the right.
+Sam Hatoum | 26:59
+Say that one more time. Yeah, thank you.
+Dev Doshi | 27:03
+Yeah, the side thought that I had was that the Supergraph CDK stack is getting bulky. Or maybe it's been cleaned up since earlier, but, there's just a lot in it, right? So, the deployment is a little more complex. Or like we had the issues with the Cognito authorizer and the API gateway issues, if you recall, or if it's if we've all blanked it out into our traumatized memories. 
+But.
+Sam Hatoum | 27:33
+What are you talking about?
+Dev Doshi | 27:35
+Just the super. The Supergraph stack has a lot going on, right? The API gateways take time to deploy and stuff, so it's like it's an opportunity to reevaluate that if we're making changes to it.
+Sam Hatoum | 27:48
+I see. Yeah, okay. Yeah, I mean, if it's maybe it is, maybe it isn't. I don't know, man, because, like, if it's there and it's working right now, like, and it's not causing any problems, do we, you know, we could just punt any further. You like if we. What's it going to do differently? I guess is the question here, like as we do this, what changes would be required in the supergraph today other than getting the, you know, user roles which might require some call to a me service or something like that?
+Dev Doshi | 28:18
+I don't know. I think it may be too detailed to fit into this conversation, but there's just a lot happening, right? That there's the gateway, there's the authorizers, there's maybe some Cognito stuff I forget now, but, there's a lot in the one stack, and it's the API gateway stuff takes time to deploy and that kind of thing. 
+So if it's gonna cause issues rolling out, then maybe it's worth splitting stuff up more like keep the lambs in one stack and then keep the gateway and the motor stack and that kind of thing. So just take time to consider that. 
+But I don't think it's anything's on fire now.
+Sam Hatoum | 28:59
+I'm actually curious now that you say this, let's go here real quick, let's go look at the actions that we've got running today. Where is the deploy supergraph? Where does the super graph deployment happen? Can somebody help me?
+Dev Doshi | 29:16
+You got to open the deb deploy den prod or yeah, you should see it deployed to.
+Sam Hatoum | 29:27
+This one deployed PR environment.
+Dev Doshi | 29:28
+That's test development. I guess yeah, I guess it is that one. And then within that, you'll see all this sub the other cool.
+Sam Hatoum | 29:39
+Yeah, right, so where's the super graph.
+Dev Doshi | 29:43
+Within deploy infrastructure like the second in the middle, right? Yeah, the one you were just on before. Next one? Yeah, the next one.
+Sam Hatoum | 29:53
+This one.
+Dev Doshi | 29:54
+Yeah.
+Sam Hatoum | 29:56
+We're still good with eight minutes. We haven't got a problem right now. Yeah, if this is what's happening was the appurl API no graph output. Yeah, interesting.
+Dev Doshi | 30:15
+Okay, so looks like there's some kind of error.
+Sam Hatoum | 30:18
+There was there it's not right here. Okay.
+Speaker 7 | 30:23
+So you're in the portal front end repot, right? Set of the.
+Sam Hatoum | 30:33
+Going to show some. Somebody have a look at this. Like, let's just keep that there because if we did find, then it was a silent one. That's, it's just saying delete failed you.
+Dev Doshi | 30:41
+Yeah, you pad that error. No, the got the S three get bucket tagging or is like it's a whole thing. Yeah.
+Speaker 7 | 30:49
+This is for this is a run from November, is it? I don't even think this is like we're in the wrong reel.
+Dev Doshi | 30:55
+How did you click that one? Wait sorry you open the front end reb. Okay yeah we're in the what the hell that's why are so confusing.
+Sam Hatoum | 31:02
+My God.
+Dev Doshi | 31:03
+Yeah, that if Sheez. Wow. Okay.
+Sam Hatoum | 31:09
+All right, just thought over from one plan.
+Dev Doshi | 31:12
+Yeah, but yeah, basically the same steps to find it.
+Sam Hatoum | 31:17
+So deployed dem and broadm is probably this one right here. Wow, that's a nice comb.
+Jennifer | 31:22
+It looks more better, that looks more.
+Sam Hatoum | 31:25
+Okay and super graph here we go. I mean, that's the one that I'm waiting for to build. But do we know how long that takes to a previous one that's finished? That's actually the. But I'm just curious because if we're talking about the front end.
+Jennifer | 31:44
+I have the average run time is two minutes thirty seconds.
+Sam Hatoum | 31:52
+Good. And we don't have to worry about this. I think right now I like that if that's the answer, but so. Okay, so, look, we've. Do we have anywhere. How do how are we gonna get the we need to have a discussion about our back. 
+But let's just finish off this discussion first. Like in terms of we've got a component library that we can use. We can leverage that in multiple UIs and then we can get the contextual builder service working, et cetera. Builder working in here, right? 
+So that solves that problem. So a good call out there, Harry. And that's how we solve it. Shall if I'm as I'm saying this if I interrupt me right there and then if I'll say anything wrong. Now we've got two separate deployables for S3 bucket and cloud fronts and what have you that deploy this stuff. We can have independent CNAS one which is some whatever that admin L SA website is versus the public one. They come to independent gateways. We already have this. This is already done. 
+And this would be the new one that we do. And then this has they both go to the same monolytic graph. As part of that, we're getting in the hydration, whether it came from the admin or the public space. 
+So we'll we should be able to get that as context. So we'll need this in a head of somehow, right? So that's a key thing here is header to include source or not source what's the word is it source origin thank you request origin admin this is okay. 
+So then you know, we've got that coming in the graph has knowledge of that it has knowledge of the user by way of the authorizer. And then we need to go grab some content probably from some database to see like what they have and don't have in terms of ABAC we could handle our back could be handled by way of ADI guess that's another thing. 
+Like we just need to talk whether it just comes in with the right roles or whether we need to make a separate call. That's an open question, but does this fit in terms of an architecture? Does anyone have any issues with this. 
+Versus just doing the same thing? That I honestly think it's going to be more complex for us to make it squeeze it through one API gate to with multiple authorizers. Then it's just a do two. 
+But I could. I could re represent that single one if we really want to see it.
+Stace | 34:05
+I like this in single graph how you have it. If we have to split, we've come a reason to split. But I think, wait, there's a reason to keep South pass the super graph if we need it. Dane, that's how you meet, I mean, a few times. Any questions or thoughts on this?
+Speaker 7 | 34:36
+And we have some implementation of MSOL, right? The Microsoft authentication library somewhere out there that we can probably dust off if we do go the route of checking for our back the time of the.
+Sam Hatoum | 34:52
+What's it cold dr there?
+Speaker 7 | 34:55
+It's MSAL Microsoft authentication library.
+Stace | 35:01
+Yeah, there's a couple node libraries out there, it looks like.
+Speaker 7 | 35:07
+I mean, I hope they'd.
+Stace | 35:09
+Because there are some changes that Microsoft done in the past couple of years. As I was reading yesterday, there are some traps. If you go into some of the older libraries are not going to work with some of the things on for ID does today. 
+Yeah, and some are really geared towards the Microsoft. There's a different B2C like Microsoft similar to Cognito thing or on the B2B corporate user 1. So.
+Sam Hatoum | 35:38
+Antonio, you come from the dot net world, have you come across this before? No, not specifically this one. Alright. I'll just paste this here. Something for us to look into. Then, yes, I can ask Ami as well, see if he's a unique. I don't think he has. 
+All right, anyway, but that's a that's.
+Stace | 36:03
+A look at that. And then, the response was long but good. I put that like kind and copilot prompt in here. If you do that, you get a good idea of sort of what's out there too from an execution standpoint. My suggestion for Mandalor or for since is on Endor rather. You, Mary, Harry, you take the front end, Dane you some a little bit more familiarity with some of the Microsoft services, things like that. The team runs it. 
+I mean, you can drive the back end and the graph changes so they it again to speed up the graph side of it, right? If there's an opportunity to pair with anyone for an afternoon or something like that from Mandalor just to get through, set up a strong pattern here and encourage that as well.
+Sam Hatoum | 36:53
+All of this be done like this whole stack, you're basically mirroring it on this side. Yes, it is here. And then you know the things to work out are like getting both routes here to talk to the monothgraph or shouldn't a problem because API gateways, that's what they do. 
+And then the only outstanding thing is like, okay, now that you're coming in here, like once you're in here and you're like, okay, this did come through an admin and I do need my authorizer. Let me hdrate the context so that any call that's being made can basically have the kid can execute on our back. 
+So I just need to hydrate like hydrate this here with. I said a me endpoint, but if you're using M CL, that's fine. Yeah, I think if you can get that far, I would run a couple of spikes here first. Just like, see what can we get from ML and then you just execute on it.
+Stace | 37:41
+Yeah, another Cognito authorizer there. We're still pretty easy, right? Every user there essentially has the same role.
+Harry | 37:50
+Yeah.
+Stace | 37:52
+But I'm. I'm like abing. We'll start with looking for one role now, but as we build more on that side of the stack, be able to listen to whatever roles or an entra ID is probably good, right? Because you have the same employee with different levels of access and might have adminton access to admin and call center or just f SA or just call center or admin and PRP like that'll get complicated over time with employees and ops already weighed in there. Instead of listening to existing legacy system roles, they would prefer to define new roles in AY that would match what permissions we want to set up and Thrive. That makes it little probably easier for us to.
+Sam Hatoum | 38:41
+Yeah, I guess ideally I would go this way if you can. Like, if this works out as gateway, you just do an AD authorizer, which like, makes whatever cause it has to and brings in the floody hydrated like user roles and everything else. 
+Like, that's ideal. That's like fewer moving parts. Yeah, but if not, then we might have to make, you know, from the Hyde, you know, after this comes through this way. But like, that's what these guys are built for. They're built for exactly this. 
+So I and this is the, you know, this is the ideal way. If you can get that, then, you know, from this point on, it's clean, right? Like it doesn't care whether it came this way or that way. It has a, you know, the equivalent of the user context and a JWT and all this guy has to do is just do it job and say, this user has got these access controls. Then it's allowed to access this point, otherwise it's not. 
+And in the future all this does would forward those to the subgraphs. And the subgraphs maintain that same knowledge like the you know what people are allowed to use. So I'm guessing this is gonna be the right way most likely this way, but check it.
+Stace | 39:42
+And I did I'll throw out to because there's one happened concurrently or check in with Microsoft and the tech team there. We just react our whole contract and everything, and there are some support options and professional service we have too. 
+So if you had questions for them, Dane or the team, we can work through DEK and probably ask an expert at Microsoft if that were to come up about one of their libraries or any suggested essay.
+Harry | 40:04
+After that be helpful.
+Sam Hatoum | 40:08
+Building on that, I would actually do your first spike is just this, like this background. If I just make this like that and send it to the back. But this right here is like, if we know this, you've cracked its back because everything else is done. 
+And I'll send them back here. It's a range, right? Like if you can just prove out that hey, we can get a NADWS gateway if forget everything else to go through an AD authorizer that gets us stuff from here. 
+Like the rest is just copy based and that's not. And if you really want, we can pair on it and we can get Claude to do this. I'll bet you they'll do it in.
+Harry | 40:50
+In a couple of hours. The infrastructure side for sure.
+Sam Hatoum | 40:55
+Yeah, it's good, it's very good.
+Harry | 40:59
+I will say that you kind of have to watch that. It's not it doesn't always get the context of all the things you noticed. Like, II found it useful.
+Dev Doshi | 41:12
+For the project.
+Harry | 41:13
+I mean, I was just trying yesterday with the PDSF and so I had one write a plan and just boilerplate implement a plan, and then I opened a new context window and had to evaluate it with some extra stuff that I found. 
+And there was quite a bit missing. So just you still really kind of have to make sure you know exactly what it's doing. I don't know if you guys are fighting that issue.
+Sam Hatoum | 41:41
+Yeah, I am. I mean. You go.
+Dev Doshi | 41:45
+Well, yeah, I think I've noticed when it does plans, it doesn't put all the details in the plan for sure, right? And then you don't know if that's intentional or omission or what. It re reads it. It'll remember the things that it. 
+But
+Harry | 41:58
+I yeah, but like I can't like I don't know where the. I mean, I think the term is context pollution where, like, it fills up enough. Like, there's only so much where the results you're going to get at. Has, like, a high enough probability of being good until you get to the point where, like, it did something odd. 
+So, like, sometimes, like, I the scope isn't as big as kind of. Here's my design. Go for it. Like, I was trying to find that place of, like, where the appropriate abstraction is. And like, even though, like, it depends on the complexity of what I'm trying to do. 
+So like, if it's something that's clearly defined by cognitive or right, there's like documentation for it, you can kind of go at a little higher abstraction. But if you're in your own domain, especially if you've got your own patterns established, like dealing with the connector pattern, right then the level of I can't ask it to do sort of the infrastructure put together along with the domain stuff I'm trying to do, I have to separate those. 
+Otherwise it starts like the word, I guess maybe is frolicking, but it kind of does. Like if I go on a check, I call a text. Yeah, like I if I what do you call it? Wackamo? Yeah. So? Yeah. So then if I open a new context and say. Well, okay. Are you appropriately following this pattern established here? And it's like, no, not so yeah, I'm fine. Yeah, there's definitely and it's I find I need to kind of understand I'm saying I'm not comfortable relinquishing control.
+Dev Doshi | 43:33
+Yeah, so that I think you need to SA stuff with like the Claude hooks to rus automatically and.
+Harry | 43:40
+I think that makes sense.
+Sam Hatoum | 43:41
+Yeah, you mean my catch up technique? I just launched that part I just yesterday.
+Harry | 43:47
+That's great.
+Sam Hatoum | 43:48
+All built with. All built with Claude by. The whole thing.
+Harry | 43:51
+Is almost like Dooms style.
+Dev Doshi | 43:54
+Visuals.
+Harry | 43:57
+But yeah, I was the one.
+Sam Hatoum | 43:59
+I actually wrote the whole thing using ketchup, which is pretty funny to like the new library, but anyway, it's almost done. I'll share it soon. But it does do what you're saying. And then you can get it to enforce certain rules. 
+So if you want like just to like two seconds, I'll show you what I'm talking about. I'll go to my code base here to catch up. But if you look over here in code Claude code you see skills you see this catch up in dot in Fort MD this means that on commit this skill this whatever's in here will be enforced by the supervisor Claude upon the first. Claude so if you have things that you want to make sure like hey, I want to make sure this is enforced, you could put five or six of these and run five or six parallel agents to enforce on that, you know, that thing you want to enforce on before it's committed. 
+And so that way as it's trying to commit it basically it's blocked on the commit and then it has to get a yes from every single answer.
+Harry | 45:01
+Okay, cool. So I'm kind of like manually doing that right now.
+Sam Hatoum | 45:04
+Exactly. And that's just too much. And this allows you to codify that and then just put it on steroids. Okay? You can have like twelve different disciplines that you want to enforce, and then you as long as you tune the enforcement of it, then you can basically, like, you're effectively putting guardrails around it. 
+But anyway, I'll share that soon. And it's gonna be more like an open source version that you can actually configure yoursel. So what else we got on the docket today?
+Wesley Donaldson | 45:38
+I have one item on the architecture review board actually coming out of our workshop yesterday. We can use some directional. I can share just one second. 
+Where is that ARC C you this guy? So this is related to the Apkin fig how to pass in specific variables, namespaces and such into the standardized application logging. This came up yesterday that was actually one of the three things you were doing simultaneously. Sam so this one we didn't really leave with a clear direction. 
+I think we are leaning heavily towards using app config, but the team had specific questions. While implementing that, just that we didn't have direction on. So I just wanted to raise that with the team here and see if we have a perspective. 
+If we need to take it back, that's fine right here.
+Dev Doshi | 46:47
+I think those look like quick questions.
+Sam Hatoum | 46:50
+Like what questions?
+Wesley Donaldson | 46:52
+So, for example, when we're fetching the configuration, are we doing that at start or are we doing it at runtime? The LLaMA extension whether to use the app config out the life extension or some other kind of caching strategy.
+Dev Doshi | 47:07
+Yeah, to me. To me. The recommended approach is to have the agent installed and then you can pass it the config thing at start UPP. So it'll fetch it before you probably try to fetch it and then it will be cached there. 
+So that that's why they recommended it that way. So basically you just pass it to an environment variable that tells it which configuration values to look up at the start. And it's easy to install the extension with now because our CDK is a lot simpler. What the land is now and then performance implications that if you do that way then you shouldn't have any to worry about.
+Wesley Donaldson | 47:45
+And okay, I'll pull this from the notes.
+Sam Hatoum | 47:56
+But how does that track that's aan sorry do how does that once it caches it, what's the caching strategy for like for runtime changes?
+Wesley Donaldson | 47:57
+That's for the LLaMA extension specifically. Go ahead. What strategy? First?
+Dev Doshi | 48:15
+So it's polling in the background.
+Wesley Donaldson | 48:15
+So it.
+Dev Doshi | 48:18
+Okay, got it. The agent is doing polling. Basically, it's just that. So basically you can always access the immediately cached value, right? And then it's like stale wall revalidate kind of pattern. 
+So you can always get at least get the stale one. And then on whatever polling interval which you can configure, it'll update, right?
+Wesley Donaldson | 48:32
+And.
+Dev Doshi | 48:36
+So that's the mechanism, it gets the latest values, but you on every request, you might be slightly out of date until the agent has updated the value.
+Wesley Donaldson | 48:44
+That okay, that's the.
+Dev Doshi | 48:50
+Yeah, it's a pretty natural way, I think without push.
+Wesley Donaldson | 49:01
+Okay. So that's the co start versus runtime.
+Dev Doshi | 49:05
+Yeah, and appkfig can be configured through CDK as well. To see it with the initial can fix that you want.
+Wesley Donaldson | 49:14
+Is that. Is there a different implementation for the Lambda versus like the UY.
+Dev Doshi | 49:19
+No, like CDK will just create these like whatever configed documents that you want in that config. 
+And then the landlord just needs to point to the some combination of those IDS to know to load that config. Yep, I have done this task recently.
+Sam Hatoum | 49:37
+So yeah, I know it for another com yeah.
+Dev Doshi | 49:40
+So feel for to add me as a person to ask stuff two.
+Wesley Donaldson | 49:44
+Yeah. Now I'll write up the findings that what you just shared there. And then I'll just ask you to just quickly review it before I send it back to the team. 
+Right, thank you.
+Harry | 49:57
+A couple of small ones.
+Sam Hatoum | 50:00
+I mean, it's fine. So it's just fine to use the app config agent LLaMA like that's okay. I mean, there's no problem here. I think if I've if my parallel the answer to Jeremy should be like if my paradel, if I gave the AI implementation yesterday was defunct, like throw it away and start a new one. No problem at all. That they don't feel like it doesn't have to feel like he's tied to the implementation that I posted if that's the problem.
+Wesley Donaldson | 50:23
+I didn't get that's the sense. I think his sense was just confirming how to actually like how to pull the content or not. That sounds like it was his biggest challenge. Okay. Thank you.
+Sam Hatoum | 50:36
+And how. Sorry, you got ten minutes.
+Harry | 50:38
+CO Well, the first one was basically addressed by our first discussion, but the other one, when we generate. So on the PR builds, the event streams like it's still on the same event store, but we're adding like the branch so that each branch gets its own effectively stream. Do we need to worry about deleting that stuff?
+Sam Hatoum | 51:02
+No.
+Harry | 51:03
+Okay, yes. So because we just wanted to automatically generate a user on that on those PR builds because everyone kind of has to do that anyway. And then we could just write it to the company.
+Sam Hatoum | 51:14
+This is like in a PR environment. So, like, there's nothing to do with product.
+Harry | 51:17
+Yeah, just PR. I was just I just wa to bring it up.
+Sam Hatoum | 51:19
+Yeah we got a devo just to say why I said no the dev event store you know we can just like resion yeah you can cool makes sense.
+Harry | 51:30
+And then the other one. So I was starting to. Roy and there was still like a little confusion around the comito off events. And so we're chatting about it. And it occurred to me like, first I was like, hey, what if we had like a Claude skill in here for this kind of stuff?
+Wesley Donaldson | 51:43
+That'.
+Harry | 51:48
+But then I was saying, well, this is effectively like an architectural decision. We have lots of those. And that kind of goes back to what I was talking about before, where, you know, when we make domain decisions about things that are not well documented on the Internet or in the training set, then we need a way for that to be there. 
+So does it not make sense to maybe put our architectural decision record in the repo? So, like, if we have. Yeah.
+Sam Hatoum | 52:13
+I like it. I like that a lot. Like, especially if we use it with this, enforcement approach, like if we can. Yeah.
+Harry | 52:19
+Like check the ADRS, right? Because the whole problem with this thing is it's just like it's a domain context issue where the domain context of LSA is lost, right? The technical side's easy, right? It's on the Internet and the training set. 
+It's our stuff that gets lost.
+Sam Hatoum | 52:34
+It's almost like. Codifying your. Like. This was always difficult to codify. Like you could codify painting, codify a whole bunch of stuff. Like to codify these was has traditionally been hard, but with this technique of like on commit or you know, as a pre commit hook basically run a bunch of ADR checks and make sure this batch, this commit you're about to do adheres to all these ADRS and then.
+Harry | 52:56
+But that's what I'm thinking because we cause our AR process is simple, right? You have the what is it? Request for comments gets made eventually. Even in this call, somebody makes a call, even if it's a very short three liner, you know what I mean or something. Just AR articulates how the you know why we made the decision. Whatever. It'd be great to have.
+Sam Hatoum | 53:16
+That's. That's like I said. That's exactly what the catch up taking is doing right now with one gigantic document, right? Like which is the Claude MD and I was about to split it into multiple sections and then have them do this in parallel. 
+But what you just said actually adds to that because maybe they shouldn't be called like. I mean, they can be enforced, of course, but like it should be specifically, like, these are ADRS that you can actually split and categorize these things. These are techniques, these are ads, these are principles, these are like, you know, code, cleanliness, whatever. You can just have a bunch of qualitative functions that you can have it enforce.
+Harry | 53:48
+Yeah. Okay, so we just need an ad R directory in here.
+Jennifer | 53:52
+Yeah. I like that idea.
+Harry | 53:54
+Cool. I'll. I'll add one for the cognitive stuff. And at least Claude can ask about it benefit.
+Sam Hatoum | 54:00
+It doesn't surprise me one tidbit that you like automated process things.
+Jennifer | 54:06
+I just like everything to be in the repo. It makes them so much more easy to find.
+Harry | 54:12
+Yeah, I agree with that.
+Stace | 54:15
+Yeah, I think it's a great idea. I love it too.
+Jennifer | 54:18
+I can use Confluence, but it always is easier in the repo.
+Harry | 54:23
+Conflux is effectively a code comment and code comments always lie over a long enough timescale.
+Jennifer | 54:29
+Yeah, exactly. And it's. It just doesn't stay up to date. Whereas in the Rapo it could lie, but it's more likely to be up to date.
+Stace | 54:40
+So I'll say it hasn't gotten better. But Confluence used to be like stuff can be hard to find there, especially as it gets more and more robust.
+Harry | 54:51
+Yeah. The only time I've seen it work well is when there's an established template for basically everything and everyone just follows the template.
+Stace | 55:00
+And I liken the reason because I think the future is less searching and reading through documents, right? You're just through as, right? You're just asking questions. Pretty much.
+Dev Doshi | 55:15
+Nice. Like.
+Jennifer | 55:16
+We only have four minutes left. I know, like, we won't get into any of these, but just to let you guys know, as far as, like, the list of things to go through. I've been cleaning up the repository and anything that we have to put like anything that we have to like review. I made a new status for architecture review. 
+And so if there's a ticket that you guys have that you guys want to review in this meeting, just put this status as here. Let me open this. It's just architecture review here, and then it'll come in here and then we can go off of this list for these things. 
+I know that we have a couple of things like that are just like kind of stuck in here from like a while ago when we were putting together tech debt. If any of these sticks out to you guys and you want to look into it a little bit more before our next meeting, please feel free. 
+Otherwise we can go through this or anything else that you guys bring in.
+Sam Hatoum | 56:17
+Sounds great.
+Wesley Donaldson | 56:19
+Love it.
+Sam Hatoum | 56:23
+Alright, thank you. Thanks.
+Stace | 56:25
+Thanks. Great session today. I like everyone's ideas landed us in a really good place and kind of an important next aspect of Thrive really was.
+Sam Hatoum | 56:36
+Thank you, guys.
+Dev Doshi | 56:37
+Gu asking when's the next one next week? Okay, so it's just once a week now, or is it supposed to be twice a week, but just not this week?
+Wesley Donaldson | 56:50
+As a once a week.
+Speaker 7 | 56:51
+No, I think we yeah, we remember it once a week.
+Dev Doshi | 56:54
+Okay, cool. I think I missed that. Yeah, cool. See, guys.
+Harry | 56:58
+Me take care.

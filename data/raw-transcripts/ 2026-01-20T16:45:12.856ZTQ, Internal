@@ -1,0 +1,294 @@
+Attendance: 
+{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': 'Lasek', 'id': '33755235-125d-4873-83bc-b0dea162d23a', 'first_name': 'Dominik', 'email': 'dominik.lasek@xolv.io'},{'last_name': 'Berrogorry', 'id': 'a1aa35ad-3549-4343-929b-baefd2132c18', 'first_name': 'Nicolas', 'email': 'nicolas.berrogorry@xolv.io'}
+Transcript:
+Speaker 2 | 00:00
+Like, it actually just trace what we are doing.
+Wesley Donaldson | 00:00
+Like, it's actually just straight what you are doing.
+Speaker 2 | 00:04
+You ask questions so it can take the questions.
+Wesley Donaldson | 00:04
+You ask questions so you can take the questions, maybe ask under in the background.
+Speaker 2 | 00:08
+Maybe ask another ll M in the background, if anything could be corrected.
+Wesley Donaldson | 00:11
+If anything could be corrected in the question, maybe.
+Speaker 2 | 00:15
+And the question maybe it could be asked in a different way then can take the answer, do something with the answer at the very end when you, for example, finish working on something, it could just give you the summarize, like, you know, how many tokens you used.
+Wesley Donaldson | 00:17
+Maybe it could be asked in a different way then. Can take the answer, do something with the answer at the very end when you, for example, finish working on company, it could just give you the summarize, like, you know, how many tokens you use.
+Speaker 2 | 00:35
+What can you do better, you know, with the future workflow.
+Wesley Donaldson | 00:35
+What can you do better? 
+You know, in the future? It's a work for them.
+Speaker 2 | 00:40
+And so something like actually helps you to be better.
+Wesley Donaldson | 00:40
+So something like actually helps you to be better.
+Speaker 2 | 00:45
+Like, you know.
+Wesley Donaldson | 00:45
+Like. Yeah, I think if you want to do that, look at where the transcripts, the floor go.
+Sam Hatoum | 00:47
+Look, I think if you want to do that, look at where the transcripts for Claude go. They're in your disk.
+Wesley Donaldson | 00:53
+They're on your disk, like you got the whole chat transcript goes there.
+Sam Hatoum | 00:54
+Like, you guys, the whole chat transcript goes there. I think you can build something that's a feedback loop.
+Wesley Donaldson | 00:57
+If you build something that's a feedback loop like you probably want to tackle that so you can actually see the chats, maybe the historical chat or something in a rag database like you do what you want.
+Sam Hatoum | 00:59
+Like you'd probably want to tap that so you can actually see the chats, maybe even for historical chat store something in a rag database, whatever. Like you do what you want. But the cool thing is, don't do so if you want a tinker, do things for the fun.
+Wesley Donaldson | 01:06
+But the thing is, don't you want to take care of things for the fun?
+Sam Hatoum | 01:10
+But I advise you to do something that's actually going to improve your particular workflow.
+Wesley Donaldson | 01:10
+But I advise you to do something that's actually going to improve your particular workflow.
+Sam Hatoum | 01:14
+If it works for you, it will work for others.
+Wesley Donaldson | 01:14
+If it works for you, it will work for us.
+Sam Hatoum | 01:15
+That's the best advice I can do.
+Wesley Donaldson | 01:15
+It's the best of life you to do it for the plant that somebody else is going to use a feature.
+Speaker 2 | 01:17
+Okay. Okay. Okay.
+Sam Hatoum | 01:18
+Don't do it for the fun that somebody else is going to use this feature. No, it's going to be a feature that you need.
+Wesley Donaldson | 01:21
+No, it's going to be a feature that you need.
+Speaker 2 | 01:25
+Yeah, that that's something, actually that could be helpful for me.
+Wesley Donaldson | 01:25
+Yeah, that that's something actually that could be helpful for me.
+Speaker 2 | 01:28
+I always like what I've learned today, and I, you know, I cannot, like, recall myself, what I what I've done, what I've learned.
+Wesley Donaldson | 01:28
+I always like what I've learned today, and I, you know, I cannot like, recall myself, what I what I've done, what I've learned, what can I do better?
+Speaker 2 | 01:36
+What can I do better? 
+It's like why I thought about that, but, yeah, that's the good advice.
+Wesley Donaldson | 01:37
+It's like why I cool morning, folks, right?
+Sam Hatoum | 01:44
+Cool, he.
+Wesley Donaldson | 01:47
+Everyone's doing good. I learned today that you don't say good morning in Poland, but you say good day. Because they don't actually accelerate specific moments in the day. 
+And I like that for like our cross global team, so good day, everyone.
+Sam Hatoum | 02:00
+You know what that is? You know, that is because there's so much fog the entire fouging day, you never know what time it is.
+Wesley Donaldson | 02:02
+You know, I assume it's just like ease of communication. That's amazing nice.
+Speaker 2 | 02:13
+Yeah, I'm just kidding. Yeah, we don't have morning and afternoon. It's saying good morning. Good afternoon. We have say good day and that's it.
+Wesley Donaldson | 02:22
+Love that. God, that's hilarious. All right, guys. I pushed a couple of tickets onto the board for us. Based on our conversations yesterday, much of that was around. Well, obviously just calling out like the importance of getting like getting us the git repository set. 
+So I want to start with that. Like, I felt like a critical item for us just to close the loop on it. It should have been a quick task. So if we have a chance to complete that, we pushed in a couple things specific to just creating a reference and CPA reference instance for reference repository instance that allow other developers to quickly pull and be able to create their own MCP server. 
+So it looks like you're already pulled that in, so that's great. So that's what the priorities were, the things that came out of yesterday. Let me just pivot to you guys, don't let's start with you, just catch us through, walk us of your statusm.
+Speaker 2 | 03:13
+Sure, yeah. So, I'm almost done with the Python reference MCP server.
+Wesley Donaldson | 03:14
+Almost done with the Python reference. M pp server cleaned up a lot because we were using, for example, the API which as I found, isn't really necessary in terms of having a NTP it's just the NTP that does the same for us.
+Speaker 2 | 03:19
+I've created a cleaned up a lot because, we were using, for example, the fast API, which, as I found, isn't really necessary in terms of having a MCP it's just the fast MCP that does the same for us. 
+And that brings me to the error that I had like a few weeks ago with redirections and the trading slash at the end of the MCP endpoint that when we use just the one server like we only want when we want to have when we want to be connected to just the M CP server, it works.
+Wesley Donaldson | 03:34
+And that brings me to the error that I had like a few weeks ago with redirections and the trading splash at the end of the MP endpoint that when we use just as the one server like we when we want to have when we want to be connected to just Theity server, it works.
+Speaker 2 | 03:56
+But.
+Wesley Donaldson | 03:56
+But using Agent Gateway it causes some errors with the redirection.
+Speaker 2 | 03:56
+Using agent. Gateway. It causes some errors with the redirection. So yeah, in terms of creating the template, I just wanted to solve this issue, which I've already done.
+Wesley Donaldson | 04:01
+So yeah, in terms of creating the template, I just wanted to solve this issue, which I've already done.
+Speaker 2 | 04:09
+The readmi looks pretty good, so probably I will be able to match that tomorrow.
+Wesley Donaldson | 04:09
+The red looks pretty good, so probably I will be able to match that tomorrow.
+Speaker 2 | 04:14
+And it should be maybe not just the copy paste for the TYPESCRIPT one, but like 90% of job that I did today should be the it's the same job for the TYPESCRIPT one.
+Wesley Donaldson | 04:14
+And it should be maybe not just a copy page for the type script one, but like 90% of jobs that I did today should be the same load for the type three one.
+Speaker 2 | 04:30
+So yeah, it's should be much faster.
+Wesley Donaldson | 04:30
+So yeah, it's much prosper.
+Speaker 2 | 04:32
+So, yeah, I'm almost done with those two, actually.
+Wesley Donaldson | 04:32
+So I'm almost move down for you. I'd created a low actually, no, this is more for you, Nicholas. 
+I've created a low priority item around the conversion. Like they said that they work in Python, but just our standard is TYPESCRIPT. So if there's not a like a strong perspective on keeping it in Python, this is a low priority item we get as a team can decide not to do this one, but it was a task that we were tracking before yesterday's conversation, which they mentioned that Python before a end of last week's conversation where they mentioned that Python may be acceptable.
+Speaker 4 | 05:04
+Well, something done.
+Wesley Donaldson | 05:07
+Can picks over to you.
+Speaker 4 | 05:09
+Alrighty. So on my side, I am pretty much done with the implementation of my next step, but I didn't, need to test.
+Wesley Donaldson | 05:11
+So on my side. And I'm pretty much go with the implementation of the of my next step, but this may need to test.
+Speaker 4 | 05:26
+I do need to test a lot.
+Wesley Donaldson | 05:26
+I do need to test. And as I mentioned before, I move into this obstruction of product actually doing the testing.
+Speaker 4 | 05:27
+So as I mentioned before, I moved into this, abstraction for actually doing the testing now that the infrastructure is sorted out, I wanted to do like one quick cleanup to sort of segregate what's e infrastructure called dependent on OS from what's not, just to not create any confusion in the future.
+Wesley Donaldson | 05:34
+Now that the infrastructure is sorted out, I wanted to do like one quick cleanup to first Seggregate. What's the infrastructure called? Dependent Boise from what's not just to not create any confusion in the future.
+Speaker 4 | 05:52
+And I found a really neat, pretty simple way to do that.
+Wesley Donaldson | 05:52
+I found a very simple way to do that and I do need to do more test, but it is complete.
+Speaker 4 | 05:56
+And I do need to do more testing on it, but it is complete. Basically, instead of having a background environment, we just assume that we are using background or background for everything and we have like a HYPERV environment and CCP environment.
+Wesley Donaldson | 06:01
+Basically e instead of having a background environment, we just assume that we are using backgrounds of arms for everything and we have like a HYPERV environment and CCP environment.
+Speaker 4 | 06:17
+I won't use any time implementing or testing that.
+Wesley Donaldson | 06:17
+I won't use any time interting or testing us.
+Speaker 4 | 06:20
+I it's just as a like a placeholder.
+Wesley Donaldson | 06:21
+It's just as a like a placeholder.
+Speaker 4 | 06:22
+If someone would want to pick this up and use it in CCP, they would know it that instantly.
+Wesley Donaldson | 06:23
+If someone would want to pick this up and use it in CCP, they will know if that instantly like, okay, I should go this route and that is all I'm here to do.
+Speaker 4 | 06:28
+Like, okay, I should go this route. That. And that is all I needed to do. So as soon as I can test this and I make sure that my tests are still passing.
+Wesley Donaldson | 06:33
+So as soon as I can test this and I make sure that my. My TAS are still passing.
+Speaker 4 | 06:38
+Yeah, I can then, continue to instead of launching Notepad launching, they can actually a client gogin in and all of that.
+Wesley Donaldson | 06:38
+Yeah, I can then continue to instead of launching no relaunching the internal the AA planet.
+Speaker 4 | 06:49
+So still on yeah which one which task sorry I was looking at my own work I'm trying to your integration with that yeah that one is we are in this last step or like the san sale test.
+Wesley Donaldson | 06:49
+Sorry, just to close it out like I think we had a couple of stats where we're still kind of working through this. It sounds like this is done then, since you're working on that, that's an enablement task to get to you to the ability to launch AI client. 
+So are we comfortable saying that this is done at this point? The UI automation integration. Yeah where great.
+Speaker 4 | 07:18
+Yes.
+Wesley Donaldson | 07:19
+And just going back to just like the larger epic. So then like tools would be once we know that we can get a screenshot and text out of from the given prompts from the client, that will be like, okay, which test do we actually want?
+Speaker 4 | 07:24
+Yeah. So the other one, the other tool would be once we know like we can get a screenshot and text out of from like given prompts from the AI client, that part Cloud Desktop test will be like, okay, which test do we actually want to have? 
+Like getting serious with the testing itself.
+Wesley Donaldson | 07:41
+Like getting serious with the testing itself.
+Speaker 4 | 07:44
+I think that I agreed that one myself from, like, our conversations.
+Wesley Donaldson | 07:44
+I think that I read that one myself from the of our conversation.
+Speaker 4 | 07:51
+Did my best to sort of track the work correctly, but I don't know if we even want to get into this.
+Wesley Donaldson | 07:51
+Did my best to sort of track the word correctly, but I don't know if we even want to get into it.
+Speaker 4 | 07:59
+Like, I think it will depend on, like, when the experimental part is done.
+Wesley Donaldson | 07:59
+Like I think it will depend on like when the experimental part is done.
+Speaker 4 | 08:04
+Like, do we even have, as part of this experiment, do we even want to have, like, a proper test that is testing something valuable?
+Wesley Donaldson | 08:04
+Like, do we even have a part of this experiment? Do we even want to have, like, a proper text? That test is something valuable.
+Speaker 4 | 08:12
+And what would that test look like?
+Wesley Donaldson | 08:12
+And what will that test look like?
+Speaker 4 | 08:14
+Like, I don't know what that test would look like, for example.
+Wesley Donaldson | 08:14
+Like, I don't know. Look, like I think the test should be pretty simple, like basically just something along the lines of it can send as it can just send a chat and it will be sent on the line to the sorry from the client to the ICD it captures all the responses and then it gives them in the test for us a certain factor.
+Speaker 4 | 08:17
+Well, the test.
+Sam Hatoum | 08:18
+I think the test should be pretty simple, like basically just something along the lines of it can, send a, what was this? The zoom? Sorry. With that, I can just send a chat. And it will be sent from the client to the sorry, from the client to the, to MMCP. It captures all the, responses, and then it gives us gives them in the test for us to assert on them. 
+That's it.
+Speaker 4 | 08:53
+Okay, so that test I was planning on including on the other task, this one was like inauguration actual real test if we wanted to do that like.
+Wesley Donaldson | 08:53
+Okay, so that test I was planning onting on the other tasks, this one was like inauguration actual real test if we want to do that, but we would need something to test against and stuff like that.
+Speaker 4 | 09:05
+But we would need something to test against and stuff like that. 
+So we may want to close this task then, because if you go back to the other task, to the one in the middle, the in progress one.
+Wesley Donaldson | 09:09
+So we may want to close this task band because if you go back to the old ones one.
+Speaker 4 | 09:20
+Yeah, the last.
+Wesley Donaldson | 09:20
+Yeah, the last step is the sample test that you mentioned.
+Speaker 4 | 09:22
+The last step is the sample test that you're mentioning.
+Sam Hatoum | 09:24
+So that's a wind, you can kill the other one like that's it.
+Wesley Donaldson | 09:25
+Okay? That's all you can show the other one like that it once we're done with this we should be good cool M I'll close that one up.
+Sam Hatoum | 09:27
+Once we're done with this, we should be good.
+Speaker 4 | 09:29
+Okay, cool. 
+Okay.
+Wesley Donaldson | 09:40
+Okay, so is there what is the place for task exactly.
+Speaker 4 | 09:44
+So is what is the place for tasks that we may or may not need to do. Like the this one and the. And. The. Port.
+Wesley Donaldson | 09:51
+That's why my institution. I don't like DUN, but, like, it's management. Like, we'll address it, we'll close it out, okay?
+Speaker 4 | 09:57
+Okay.
+Wesley Donaldson | 10:01
+So you're clear and like, you're still pushing through getting the tests. That's where I translate that to the next question I have for the team is, around Wednesday, Tuesday. I like just putting the thought in mind, like, what are we bringing to the demo? You don't have to answer it right now, but for tomorrow let's just have a thought of what can we share. 
+And in this week's upcoming demo that we think will be valuable for the client to either to feed into. I think Demo is an opportunity for us to get clarity based on some of the work that we've done because we are exploring here. 
+So feedback is part of what we can get coming out of Demo. So if there's something you're like, hey, this is kind of in process, it's enough for me to share. That could be a place for us to use the demo as an opportunity for us to get feedback. Sam anything.
+Speaker 4 | 10:46
+Sounds good. Yeah.
+Wesley Donaldson | 10:46
+Again, I know the team knows this is. We're a little light on exploration items. We're waiting for AA to kind of have a more stronger perspective on Likeke helping us from a product perspective, giving us product direction. 
+But anything else we want to tackle as just opportunities for us to explore right now.
+Sam Hatoum | 11:04
+No, but let me not right now, but I was thinking maybe.
+Wesley Donaldson | 11:07
+But I was thinking maybe.
+Sam Hatoum | 11:09
+So we've got right now the hold for Terra Quantum, which she created.
+Wesley Donaldson | 11:09
+So we've got right now to hold the Terriff quantum, which she created.
+Sam Hatoum | 11:12
+Don't make it a hold, just make it real.
+Wesley Donaldson | 11:12
+Don't make it a hold, just make it real.
+Sam Hatoum | 11:14
+Like just that one.
+Wesley Donaldson | 11:14
+Like just that one.
+Sam Hatoum | 11:15
+And then.
+Wesley Donaldson | 11:15
+And then I think what we might want to do is, just thinking, sorry, like might want to meet with Jeff beforehand.
+Sam Hatoum | 11:16
+But I think what we might want to do is, just thinking, sorry, like we might want to meet with Jeff beforehand. Let me ping Jeff today.
+Wesley Donaldson | 11:26
+Let me think, Jeff. So IS I'll be because I if I can get some more light, we have perfect.
+Sam Hatoum | 11:27
+I'm just gonna pick him. 
+I'll pick him today and see if I can get some more. Like something out of him.
+Wesley Donaldson | 11:38
+Okay. Right. So we have enough Dominic, Nicholas, like, we have enough to stay heads down for the next couple of days. That would give Sam and Jeff just a chance to kind of, like, peer together. Come up with some additional timeies for us to. 
+Okay. Right. Sounds good then.
+Sam Hatoum | 11:54
+You around this afternoon for us to chat? Sorry, are you around this afternoon for the chat?
+Wesley Donaldson | 12:00
+Are you around this afternoon? Vers the trap?
+Sam Hatoum | 12:02
+Yeah, okay, cool, I'm gonna send you an invite, then we can go through some of the stuff.
+Wesley Donaldson | 12:03
+Okay, cool. I'm gonna send you invite and then we can gu.
+Speaker 4 | 12:07
+All right.
+Sam Hatoum | 12:08
+Awese, thanks guys.

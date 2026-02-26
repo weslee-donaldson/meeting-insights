@@ -1,0 +1,760 @@
+Attendance: 
+
+Transcript:
+Wesley Donaldson | 00:22
+If you guys haven't done this before, you're gonna love this.
+Jennifer | 00:24
+He. Hey, I'll probably be out in the end, but this is exciting.
+Wesley Donaldson | 00:25
+Roll your mind. Jennifer. 
+Harry, sorry. I know. I just got it over to you. But like, if there's anyone else who can join. I'll record a session and I'll post it that we can share with the rest of the team. But little impromptu. 
+From a unexpected.
+Sam Hatoum | 00:46
+Yeah, okay, I send it to the guys.
+Sam Hatoum | 00:49
+I'll have to draw.
+Sam Hatoum | 00:51
+Just before three.
+Speaker 5 | 00:52
+Yeah, let's keep this a little bit Mandalor focused for now, and we'll discuss the.
+Sam Hatoum | 00:57
+Larger rollout plan as we go. It's cool. I've got an audience and everything. All right, let's just get straight into it then. So the purpose of this is for us to get in like we're doing logging. Alr, somebody could send me the ticket, please, and I'll show you a workflow that I've finding works really well.
+Wesley Donaldson | 01:16
+Give me one second. 
+Okay. Let. Chat.
+Jennifer | 01:26
+I'm gonna cut in for just a second. So I think right now we're kind of doing more of a workshop, and we probably made the audience too wide for this one. I think we'll include the end or people in like a future one, and we will record this one, but I don't know how much work shopping at the beginning we're going to be doing versus actually demoing. 
+So you probably want to make it a little bit smaller for this first time.
+Sam Hatoum | 01:51
+I'm actually like. So here's the ask. This is purely for Jeremy and Lance. Everybody else, you're here to watch. Like, if you've got questions, save them to the very end. If you've got time to answer them. 
+I'll answer them. But this is really a working session and everybody can just spectate. Is that fair? Yeah, I actually don't want to do as a workshop puunch doing a pair session and we go on audience and that's okay. 
+Alright, so let's just get straight into it. I'm making sure I've got nothing damning on my screen. Get rid of that, and I think we are good. Okay, so ticket please, first of all.
+Wesley Donaldson | 02:25
+It's inside of the chat.
+Sam Hatoum | 02:27
+Yeah. Okay. Thank you. 
+So I'll start sharing my screen, and I'm just going to show you my workflow that I use for doing this sort of stuff. And if we start with the chat which is where.
+Wesley Donaldson | 02:41
+So that's the epic. You can go down to the second ticket. Which is? Number 04:25.
+Sam Hatoum | 02:49
+Find my way here and in the meantime I'll just go start a cloud code for where is maybe I don't have it here yet CD code and this is gonna be asive there we go. Okay, so this is as yeah, I'll just go to the ticket. 
+All right, so this is what we've got to do. A shared logger. So even when a same logging library. So let's go just first of all, find the current logging library if there's an extension. Yeah, that's okay, where is the current library? 
+If somebody could help me out with that, please. And what's this doing here? Can somebody help me? Like Jeremy Lanz was the shared. Shared?
+Speaker 5 | 03:57
+I don't find it myself exactly where it is.
+Sam Hatoum | 04:00
+To.
+Sam Hatoum | 04:00
+It just controlled pee for longer but it's't shared I thought.
+Sam Hatoum | 04:09
+Instructure shared infrastructure okay shared infrastructure loger okay cool and I'll make its own package is its own package right now. Do we have like that's.
+Sam Hatoum | 04:20
+Its own package, I think.
+Sam Hatoum | 04:22
+Okay, so we got two levels down here, like is this, yeah, that's some legacy issue. Okay, alright, good enough that works for me. So this is our logger. Just thrown a MP NP NPM installed across the thing here. Make sure these sorts of things resolve. Is the resolution okay for everyone? Jeremy Lance yeah.
+Speaker 5 | 04:50
+I can read it.
+Sam Hatoum | 04:52
+Alright, so Claude code I've got here. Claude Code extension. I could just use it from the CL I like to use it in the UI it's kind of helpful. It's got some nice bits and pieces in it. And yeah, so basically, like the first thing is we just got to get it into a good prompt and like, to understand the task. 
+So let me understand you first. So we've got this logger currently, right? Where? Basically we've got some console logs over here and that's how it's working, but instead we want to use debug JS. Have we started to work with debug JS anywhere yet? Or is it not in here at all? 
+It's in here I branch. 
+What did you say it was? Sir?
+Sam Hatoum | 05:49
+I'm dropping the branches check.
+Sam Hatoum | 05:51
+It's a branch check. Okay, got it. Goo that. 
+Okay, and where will I find Debub. A little difficult to hear you. Can you just do that one more time?
+Sam Hatoum | 06:32
+I should be logger dots. It's opening your left pane. Yeah.
+Sam Hatoum | 06:38
+And we've got de but I don't see it be. Sorry, there it is. I'm blind, I wasn't seeing it. Okay, cool. So we got in here and you're maintaining the same contract right now. So it's just basically saying this debug error and all we've got here is a well.
+Sam Hatoum | 06:52
+It's similar. So we the air one is extra at the moment. It's a deeper conversation. The main one being used is the debug. So you're passing the name space and it'll log out to that new space. The only purpose of the air. Or is that I don't know the full extent of how we're going to use this. I just thought at some point if we. 
+If we knew for an absolute fact that we want to walk something out as a very specific error versus a long statement, if we ever wanted to filter down on that specifically. And we don't want to log levels in debug. JS.
+Sam Hatoum | 07:38
+Yeah, but that's cool. Yeah, I think this is good so you can basically just like, pin it down. I would actually just say one thing, though, like, probably. Let's put the, error out here. What's AC prefix? How would that change? Just let us say that's what we want in here.
+Sam Hatoum | 08:03
+Yeah, I didn't know if that was gonna. If that was going to change, I just made it a variable in case we wound up pulling that out to some sort of configuration.
+Sam Hatoum | 08:12
+Okay, well, I mean, I'm just. I mean, it's good. Like a good done great design. I think if you do like the filtering, right, you want it to be, like reverse order. So I think org yes, we can then or just say filter anything. LS and that's gonna that's the top level for sure. 
+So I think that's good. I would just say like next, I would just want to say I want to see everything that is at a less error like that. And in that way, I can. I can filter down for those. See, I mean. 
+So I can just like say my filter is this and then I'll bring all errors across all namespaces if I wanted to, but I could scope into a specific namespace. Does that try is that. Do you think it's a good design decision? Agree disagree anyone?
+Sam Hatoum | 08:57
+I mean, that'd be fine. I guess my thought when I and I mean, we can do this a thousand ways, but the thought was we could still, use the wildcard, so. Ls a colon air. But if we put the air on the end, we could still leverage the name space before error if we only wanted specific errors per SE. 
+So SA colon Supergraph errors for instance.
+Sam Hatoum | 09:26
+Yeah, you do the same here as Supergraph would do the same, right? But then errors at least bring all errors rather than just Supergraph errors, because otherwise you'd have to do star errors. And it's a minor point, I think.
+Sam Hatoum | 09:39
+Yeah, I mean, it's ch okay.
+Sam Hatoum | 09:41
+So I think it's great. Like, okay, so we've got basically we've now got this we like this is our loger abstraction and we have it and now the idea is we just want to roll it out to the rest of the system. 
+So, like, the first thing I'm do here is just say, like, start chatting away. I recommend you get Super Whisper. I use that a lot. So I start with something like this. I've got this logger that I've recently refactored so that it uses debugg JS instead of having multiple levels.
+Wesley Donaldson | 10:04
+I'll turn it.
+Sam Hatoum | 10:11
+And what I'd like to do is roll this out to the rest of my Mono repo. I want you to fire off a set of subagents to go explore everywhere where there is a console log or a logger being used across the code base, and bring me back an inventory of all of those, places where loggers are being caught. 
+All right, so this should kick off a bunch of subagents. Now, our people don't use subagents enough, but you can see here, like, multiple exploration agents are actually going to fire off like, quite a few of them now in sequence. 
+So this saves you a lot of time, especially when you're doing something like this, which is very much a scatter gather sort of function where you want to scatter the thing, go find a bunch of stuff and then bring you back to learning. Now, while that's happening, what I can do is set off another agent over here so we can open up another chat. 
+And now I'll say I want to use this logger in my application. I've got another bunch of subagents right now looking at where any loggings being used, which I'm going to be removing and replacing with this. Your task is to find out where additional logging is required, so fire off a bunch of subagents across the entire mono repo and look specifically for all the places that don't have logging. That could do with extra logging. 
+And I want to be able to switch on logging at any point and see precisely what's happening, which code parts the code is going down. And I want to be able to be very selective about what I want to see and not see, because this can get extremely noisy in your research. You need to find any library like usage versus, runtime usage. 
+So for things like a Lambda, we need to know that this is the runtime so that we can instrument it in a you know what? I changed my mind about that last part. I'll do that as a separate task later. So's I was gonna overload it with another task, but I don't want to do that now, so forget that second part. 
+So again, we'll get this one going. Now with this plug in. Unfortunately, I can't see both at the same time. But what I can see is come back to this now and just like switch between them. So I wish I could actually open multiple extensions, but I can't. What you can do is you can open multiple workspaces when you're working on different features. 
+So if I'm setting this off and now I want to like leave this and go and work on a new feature I can use something called git work trees. I'll save that for another day, but right now I'm going to stay focused on one feature. 
+If that's one feature, then I have one Visual Studio Code that I'm working with to do the things across that feature. All right, so spotted the things. Yes, thank you for telling us. It's powerful and making us feel good about ourselves. 
+But, yeah, it's got the stuff here now it's finding out like where the various directories being where stuff is happening. And it's going to come back with a strategy of how to put logging into them, which I'll come back to, but this one here is about, like, where logging is. 
+So here we go. We've a logging inventory of where stuff's being used. Let's see what it came up with. You've got to do a logging system, the others logger, and then a widespread legacy console logs. The migration path is clear, but it involves 300 plus console logs and some interface in consistencies. We've got, this stuff here which is using the logger. 
+That's great. Direct import plus extends what's this hit? Does anyone know what this means? Create logger plus sand.
+Sam Hatoum | 13:50
+Yeah, that's some of that. We've already implemented that. What? There are some that we've already implemented, or at least the first pass up implementing it. Create logger is the wrapper where you pass in the namespace and stuff and extend is I think comes from debug which lets you add us add a next thing after colon like neces to the hierarchy. 
+It's our iron extend, but it has a similar kind of the hood extent. It's just creating a new one. Anyway, this just makes a new, instant circular wrapper with the Pi included.
+Sam Hatoum | 14:29
+Seems good. Like, I'll leave that for now. That's definitely not a problem there. So over here we've got some files, use methods not defined in our logger. So this one's here, okay, so that we want to get rid of those, right? 
+And then the strategy would be to replace, what they're using to use, you know, the approach up here and the names, the right name spacing and then direct the bug usage by passing as logr. So again, we want to get rid of that and actually use it properly. 
+And then console star needs migration. So console, blah. All this stuff here, migration, scope, whatever, sort of recommended order mix interaction for patients, a great direct legacy at, debug imports, MO production handlers. 
+I mean, yeah, that's fine. We can just do all of those. So yeah, now we're going to say create me a plan that hits all of the above. I want to refactor absolutely all of it so that everything is standardized. 
+And I using my one logger and as per your recommendation order put those into different phases at the same time. As you do this, I want you to write out a file with the plan and checkboxes next to each thing that you've done, and between every update I want you go back to go back and update that checklist. 
+So this won't follow my checklist commands as much as I'd like it to, and that's something that annoyed me. So I built some plugins around that, which we don't have in here. I'll show you those another day, but I'll just put it in plan mode. Notice I'm just clicking Shift tab and I'm going to plan mode. Plan mode is more of like it's actually going to take this finding now and put it into a concrete plan for me and ultrathink is a keyword. Do not use this if you're not on the max plan. It will eat all your tokens pretty much, I mean, or very quickly across sessions. 
+But I'm on the max plan so I never run out of tokens. So now I'll just do that. Set it off. And remember, this is just going to mi. This is about migrating any existing logging separately. This one here is concerned with where it's going to add additional logging. 
+All right, so I'm going to tell this guy, like, do not migrate any existing logging. I just want you to add new logging. That was the task, and I probably didn't fully get it, but let's just see what it came up with. 16 exploration agents. They definitely work a lot faster than we do. Your logger debug is powerful, thank you very much. Blow smoke up my button, appreciate it and then complete logging opportunities, an analysis. 
+So, these are a bunch of logging points that we can add, so that's great. Thereby being identified. That's what we wanted. We didn't want it to do new ones. Sorry, existing ones. Just new ones. So okay lad AA I'll looks good, I need to go into the super details of it, I'll see it at the end. High Priority Logging Categories Command and Event Flow Most critical absolutely. 
+So this is where all that's going to go. Subscription stuff again, important external API equals yes please cogne to operations most definitely connector and message processing high volume needs filtering what does that mean? 
+So. Okay, so it's got like, a bit more filtering on top of that here. So it's got like handless cognitive processes, but this would be in current connectors. Interesting. Okay, nothing crazy though. Usage patterns for selective debugging. 
+So this is what it's going to do. And in files that are currently using console logs and that should be converted. Okay, the above looks good as an attack plan, but do not change anything that is existing. 
+So don't change any existing console logs or any existing logger statements. There's another Claude code with subagents that's working on that as we speak. Your task is just to add logging where it has not been added so far. I want you to add a read me or modify the existing readmes for all the packages to show how the different namespaces can be applied for debuggability. 
+I think that's probably enough. Again, put it into plan mode and turn it to ultrathink.
+Speaker 5 | 18:58
+I got a question for you.
+Sam Hatoum | 19:00
+Sam.
+Sam Hatoum | 19:00
+Yeah, go ahead.
+Speaker 5 | 19:02
+So, and in the past, when I've tried, like, learning it, people talk about, like, the context. And it only has so much basically memory, right, of what it's doing where it seems like to me all these files would be a lot of memory or context it has to keep track of. 
+So, like, is there a way to kind of define where that line is, or do you just kind of have to guess where that is? And then I know some people I've. I read up that, like, using, Markdown language is super helpful for as to read stuff. 
+So, like, is that an approach as well? Like a valid approach to say, like, hey, I have all these things I need you to do. Like, have it planned and put it in Markdown somewhere, and then you review it and then send that to agents. 
+Like, I just I don't know if it's still relevant today. Like, I know it's progressed fast. There's like context and like the whole context window thing and how much space you have really matter. I mean, I guess for this, maybe it's a situation where we're not doing like, you know, this isn't like a nuclear testing facility. 
+It's not like anything crazy. So I don't know what I'm asking. I guess I'm asking about the context.
+Sam Hatoum | 20:12
+Yeah, absolutely. So, like, the short answer is, I wouldn't worry about it. Like, especially here, you can see, like, it's got 60% of the context used. And then what it's gonna do is gonna do something called auto compact. 
+I'll tell you about that in a second. It's the best thing we have today, but it's still like not amazing. So what's going to happen is. And you'll be able to see this. First of all, it's context Windows being filled up right now, right as it's finding all this stuff and it's doing some very clever things to try and, like figure out what to do. Hey, by the way, you haven't pulled recently, right? Lance? 
+Like this branch doesn't have the most recent main.
+Sam Hatoum | 20:50
+Right? Yeah, not for at least a few days.
+Sam Hatoum | 20:52
+Okay? Yeah, okay, so I just did something recently. I was relying on the read mes being there, but I've done every single package contains a reme now, and this is saying you can't find read mes. Anyway, I'll come back to that point, but. 
+So, Jeremy, yeah, to answer your question, the short answer is let the tool do what it wants, and just work, continue working. In terms of context management, definitely you need to. I'm in plan mode right now, like I'm in exploration and plan mode, so I'm actually just letting it manage its own thing. I don't care too much about the context fitting up. 
+But the next thing you do is once you come up with a plan, then yeah, you do want to record that plan because it can forget it. So what happens is like, let's say we come up with a plan here. The context window gets filled up. It does compacting. 
+And then in that compacting process, you end up losing the context of your plan, and so then you end up having to, you know, reorient it, and it can get quite lost. So that's the problem. And the solution I found is to create and that's what many people talk about in terms of the markdown, is to create a fixed like a plan that you can keep committing. 
+So let me show you an example of another one I have here. I've developed a technique exactly for this problem called ketchup, which is here. And let me just go find a nice catchup technique on this one. 
+So notice here, this is catch up plan. And like, it's got the to do list of all the things that I wanted to do, right? So it's finished them now. But like, that's a lot of tasks, and usually it loses context. 
+Like maybe about every three four burst is gonna like fill up its context, something like that. And so this helps it by saying this is the rest of the work you have to do. So it's really important to have a plan. 
+It's a bit like a Jira, right? Like, think about it like a Jira. What you're saying to it is I don't want you to know the totality of all the tickets all the time at every point in, you know, every second. Instead, what you say is, I want you to focus on one task at a time, right? 
+So that's my approach, that's what that's.
+Speaker 5 | 22:46
+What you were doing earlier where you had it right, like a checklistter or whatever.
+Sam Hatoum | 22:51
+Accuracy. Yeah, precisely. The problem is that it still doesn't adhere to that checklist. Which is why with this approach, with this other approach that I showed you here. I've actually got a bunch of clawed hooks that makes that keeps it in on, like on track. 
+I will show you guys that another time. Like, let's just not overload this meeting. But there is a way to force it, like force its hand to make sure that it follows the plan using hooks and enforcements, reinforcements. I should probably call them. 
+All right, so it's got some questions. That's the nice thing about plan mode is it always asks you something. So for phase six. So it came up with six phases in this plan. So I have no idea what phases one through 5 are, but let's just assume I do phase 6. CL I scripts tests front end. Which areas should we include in the migration? All of it. Migrarate everything including smoke test, CDK, scripts, fund, and maximum consistency. 
+I think that's the answer for all these. Nope. I've got no reason not to do all of it, so let's do all of it, please. Now the plan's comprehensive and it's gonna come back with a plan. Let's go check in on the other guy. 
+Still going, this one's great question nice timing. Where should the root level debugging guide live dogs debugging? Other. I'm going to say in here. Skip the read me part. Actually, no, I don't want to skip that, let's just put it all in one route dogs debugging. 
+That's good for now. Actually that's good, that's fine. So I changed my mind midway. Now how about should the logging be in each file? Strategic points only entry exit of functions decision points external calls comprehensive full function entry branches 10 to 15 log statements per file minimal. What do we want? 
+Like I said, that's a pretty important decision. Like log dens. Do we want to on entry exit functions and that's enough and then we can dig further. Or do we like envisage that functions have pathways and branches and we want like to know every branch? It. It'll do the work right? We get ask it to do comprehensive but with smart filtering. 
+So you know, we can have like a namesa in namespace. You can have something like branch and now we can filter branches or not. That would be one way. So the code would have it all, but then we can filter on it. The alternative is just not to have it at all. Any thoughts?
+Sam Hatoum | 25:00
+Yeah, maybe it's an easy way to filter it out. I guess ths in I don't know if we want to go full comprehensive at this point.
+Sam Hatoum | 25:13
+You okay. I like that ideas. Let's see how it looks. It's the worst thing that would happen is we just have to come back and run this task again. Right. Which is not a big deal, especially if the AI is going to do it for us and we have little servants. Do the comprehensive option, but couple it with a smart filtering approach. 
+So I should be able to selectively with my filter say whether I want to have branches come out or not do the same fit. The same goes for detailed data only. If I elect for it, then you should display it. 
+Otherwise, it should be hidden by default. Filted by default. All right, so that's off doing something, let's go back to smart subs space. You gotta love how it always says to you excellent feedback, you're so smart. 
+Yeah, just makes you feel good about yourself. Called attention. Yeah, all right, so now we'll go to max screen mode, because now there's a lot of information here, like this is the plan, right? Like, so here we go. This is the work it's gonna do for us. Let's just see right here real quick. 
+All right, Executive summary. So this is it's going to migrate all logging across monitor you, but to use the standardized logger, you've got a bunch of stuff here. Extend the eye loger interface in violations. 
+That's step one. And fixed violations, so it's going to buton downgrading these will extend the interface to support the proper log levels. Log and warn.
+Sam Hatoum | 26:51
+Do we want that?
+Sam Hatoum | 26:53
+No, I know exactly like I can tell it not to do that. So I do not want you to extend the interface anymore. I simply want debug and error. Those are the only two we need. Okay, cool. I thought. I thought that was. I didn't actually get it to continue. 
+Alright. So that's exactly what I do next, like is basically go through its plan and give it feedback so we can come up with another plan. And then this is the super important stuff because now you can really control what's going to happen. You're not just leaving it to go hallucinate. You've got the opportunity here to, like, steer it exactly like what you just said, like you noticed it last. 
+So now it's saying, add this stuff here. So okay, that'll take care of this in terms of using it. And then I'll just say to it, and migrate the existing warn and info et cetera usages to only use these two with the correct namespacing. 
+Okay. So that's one. I'll press shift end to the. To go to the next SLI and that's one output fixed violations. Okay, so that's part of it. And verification, it's gonna run this, it's gonna run a test and it's gonna make sure all that stuff. 
+So that's fine. Phase two migrate direct debugjacing ones here. So it's gonna, migrate them. Okay, great, but let's have a look at a couple here. Current connectors apps. Current connectors apps. Post novel. 
+Okay, using thrive prefix instead of SA and bypass P2 redaction I bypassing PII redaction where and why to create app level loger files. Okay, let's just say that the migrate each file here. So these are all saying thrive rather than SA does that. Do we ever do that? Do we want that?
+Sam Hatoum | 29:04
+Not sure is it saying bypass the PII.
+Sam Hatoum | 29:10
+That's what I had here like a. So migrate direct to your 8 file.
+Sam Hatoum | 29:15
+No files import depoly using roout colon.
+Sam Hatoum | 29:20
+Instead of others, say. And they bypass B2 reactions. So that's bad, that's why I wants to migrate them because they're bypassing Pi redaction. So by using the new ones, they won't that's why they need to be migrated. 
+Okay, fine, so before it was this and then after this it's gonna be this. That's correct. Okay, phase three migrate production handlers blah. These are production event, process of probable logins, observability, yes please, and think that's all good. Phase 4 migrates like just follow in the same pattern. Now that's good. 
+And it's just like going through the different migrations all other shared packages scripts TOSs in front end and namespace convention. So let's see. Yeah, that's the correct way. It should be using the correct namespaces here. 
+That's what we said down below. You bug environment variables were going to say error apps, current law, et cetera. Okay, I think we're good. So let's just get to revise the plan there, and we'll go to the other one, which hopefully should have a plan for us too. Here we go. This plan. 
+And so, like, you see this split brain thing? Like you set it off. There's always waiting time, so do that. And then once it actually gets executing, well, now I'm free, right? And then I do a git worktree and I go work on another feature at the same time. 
+But we'll get there and demonstrate that later. You have to trust it and for that you have the strong you need the stronger rails. So add debug logging across to monter repo a new debug logging to add new debug logging. Good. Do not modify existing console logs or loger statements. Another team is handling that. What we're adding is this. What we're not touching is that. 
+And so the idea here is hopefully once they all get affected at the same time, then we'll just see one ll request with the existing ones modified and then the new ones added by this agent. Some 14 examples. 
+Okay, this one should be a lot less problematic because it's just using what's there. So standard subname suffix suffixes. Okay, cool, we've got some timing stuff for it. I'll see how noisy this gets. 
+So log of packaged documentation, put in some docs, high priority app business logic, add all of that. Analyso integration, Supergraph, et cetera. Integration apps. That's just going through all the different apps. 
+So the next once. It's done. All this. Once I set these agents off, I'm actually going to go and work on the environment variables as another one. So it's now 12:00 We've been half an hour in planning mode with the AIIS, and I'm about to kick them off. This one actually looks good, so let's go. You are good. 
+And you may not like this, but I actually put this in bypass permissions because I feel pretty confident about everything being local. It's not making any remote changes. And so now it's going to basically go through this to do list here. Actually, I'm going to stop it right now. I'm going to say, write your to do list to a file and keep updating that file in between every change that you make, then continue. 
+And that's Jeremy, to answer your question. Like C it doesn't do it itself. And usually it does try and stick to this plan as much as it can, but I've seen it get this far and then it just goes off piece. Especially if you ask a question. Midway. Go ahead. W.
+Wesley Donaldson | 32:51
+Just one. Comment on just the two plans we running concurrently one me the one that's running the current updates, and then the one versus the one that's running the new. The current one may make namespace changes which could conflict or may not align with the stuff the new one is doing. 
+So maybe just having the current run first and having the new one. Just check again to see if there are any name space changes that should be aware of before running.
+Sam Hatoum | 33:16
+He could. I like to live dangerously.
+Wesley Donaldson | 33:19
+Okay.
+Sam Hatoum | 33:21
+I'm not as worried because this one is working off of the assumption that the existing logger exists, whereas it was the other one that said, hey, I want to make some changes to it. 
+So the second one isn't aware of the changes this one wants to make, so it probably won't be confused. That's why otherwise I would have. Yeah, I would have stopped and said wait, don't do that. But it does seem independent. I am touching on two very close areas, and I'm really trying to keep them separate, but let's see. Let's see if it works out. 
+All right, so let's look at this plan one more time. So's going to do all this business. Ioger stays minimal with just two methods. Yes, thank you very much. That's exactly the point. And then migration mapping. 
+So anything that says log info debug just goes to debug and warn error and warn goes to error I guess. So I guess that's the safe option for now. But we can change it if it becomes too noisy, you can always come back and change it, but that's probably the safer option. Fixed interface violations. Was someone going to say something just then?
+Speaker 5 | 34:17
+I forget what it's called. I was gonna try to look it up, but the you can have the file for it to read from, right? To give it like your expectation as far as the rules and coding standards, it follows or something, right? Would you include, like, the whole lists idea of, like, every time you're done planning and like, make a markdown file with, like, what you're doing? Could they. Could you include that as a part of that file? I forget what they're called.
+Sam Hatoum | 34:47
+Field the M you're talking about this, right?
+Speaker 5 | 34:50
+Yes.
+Sam Hatoum | 34:50
+Yeah. So you can like absolutely, you can have a Claude MD. I've actually come to some new discoveries about like what Claude MD should and shouldn't be used for. Use it to describe your Codebase. And like so that then and especially as you go down deeper, it's a bit like a read me. I would look at Claude, MD as the read me for that directory like. 
+And it's it cascades. So if you want it to work in a certain mode at this level. Claude, MD there is helpful. And as it goes deeper, it can be helpful. So it's good for setting initial context, but I wouldn't actually, like for enforcement of rules, there's another technique, which is using hooks, and that's the one I'm I'll show you at some point. 
+Yeah, it's the Claude MD file. Definitely read up on it. Like, it's fascinating, like the stuff that you can do. So I strongly recommend reading up about Claude Hook's skills commands and the Claude MD there's quite a lot of stuff you can do with those. 
+Okay, so fixed those my great is that answer your question? Jeremy?
+Speaker 5 | 35:55
+Yes, that does. That was helpful.
+Sam Hatoum | 35:56
+Awesome. So direct debug j statements yp fix those before after we already agreed to order this none of this has changed currently laying log worn in error for console logs, so we're going to do the same thing. 
+Okay, I think this looks good as a plan. Let's go. So yes, and accept bypass emissions. And now what you do is you turn this here and you got to look at that. And now you can see, I just keep the git workor tree open and I can see what's going on. 
+Like, first of all, because none of this is going to get committed until I'm ready. So there's the shared infrastructure logger read me. So it's done to read me for that. There's the to do logging implementation. Now one second. This guy I needed to write, so I'm going to stop in his tracks. You need to write a to do list that you track all of the above phases and tasks within, and I want you to keep updating that list as you go along. Then continue. Just move these. 
+So notice here it's got the file open, right? Like, and it actually prioritizes that. It looks at that first. So I like to clear my, what's visible first so it doesn't get polluted with it, and then I'll do that, and that way it doesn't think about it. 
+All right? That's it's a minor. It's usually quite smart, but not always. So I just like to. When I ask for something, II like to make sure not to pollute it with what's open because that gets priority. 
+So here we go. Now it created this new file. Where does that create a where is the actual to do plan? There was one to do. What is that to do? Said yes, absolutely corrects to do list and then continue. No. I want you to write. Write that to do list to disk and keep updating it in the disk as you progress. 
+What I have in this technique here. I'll show you quickly what I mean about some of the hooks. So if I'm going to look at this hook here, I've got this auto continue. 
+And what ought to continue does is by the if any time the AI says I'm done, what it does, it actually goes back to the to do list. Let's say that's in this case, my work. You saw the catch up later, but basically it goes back to that to do list, and if there's any unchecked items, we go check them out. 
+Like checked items. It goes back and scans that file programmatically, right? Not. Not like an AI. And then he sees. If there's any unchecked items, then it comes back to it and says you haven't finished yet. This is still remaining. Go ahead and finish it. 
+And that way it doesn't just stop and leave me stranded. It will keep going. Did it write this, or is it just still ignoring me? He's got to see. It did create one here. It's created here on the synthetic spinning sky, but it's not in my code base, so I guess it's just not. You have to sometimes be super clear about it, but here it is like this is actually its plan and it's doing a progress tracking. 
+It's good enough for me for now. A piece of graphic forever.
+Sam Hatoum | 39:18
+What was that? Other. That. Hooked or was that actually actual code that's looking at the file that Claude generated and if it exactly how do you know what format the file is going to be? And that cloud is generating the traffic.
+Sam Hatoum | 39:34
+Wow. Yeah, so that that's why I like. So we're gonna get into more of it here on, I mean, I can show you the catchup technique. So I'm building something called the catchup technique, which enforces exactly these things. 
+And like this here you can see it's a very structured and consistent way of creating the it's phased approach. Actually. This should be called bottle. I'm going to rename that soon, but it's bottles and bursts. 
+And so that way it's saying, okay, you always need a markdown. It always looks like this. But the all the actual code that's doing the hook is just checking for these. If there's any of these that look like that, then it's going to come back to the AI and say, you have not done this yet. Do it. And the reason that's useful is because, like I say, if you have a plan that's this big, I guarantee you're gonna run out of context multiple times and it's gonna go through compacting. So you can see there's 100% use. 
+It's actually compacting right now. It just compacted and I'll show it like compacting means this. It basically takes the previous session and converts it all into a single markdown like this, right? 
+And then it says, okay, now this is what I'm gonna fill for my context going forward. So it's almost like shut down. Its context cleared a good amount of that context. The older stuff. It washes out the older stuff, keeps some of the previous conversations, and then gives it this as well. 
+And that's their method of maintaining context over time. But it's not really maintaining context, it's removing detail from the context, giving it more like heading level detail. And so you've lost a lot of the detail at that point. 
+And that's why it's really important to have something that can keep that detail for you. So there's lots of techniques. I will get into them. Like, just me banging my head against the wall.
+Sam Hatoum | 41:11
+Wall.
+Sam Hatoum | 41:15
+Alr. So you can see it's working away, right? This one's busy. So what I want to do now is just leave it right, I leave it unattended mostly, and like, let's go look at this one, that one's progressing too. 
+So again, just leave them running and let's go see what they've done. I can if I just open this here. I'm basically seeing, like, the output. So instead of me typing on keyboards now I talk to these other lambs and I'm forty minutes in and let's see how much has actually happened. 
+So it's added the logger over here into the cognito ingestion. What is this, is it removed that? I guess it's there's a logger here, which is that's a bit weird. I see. Okay, so we've got a logo, a local loger that we import which extends the other loger is kind of crappy, right? Shouldn't really do this as a crappy pattern, we should just use that directly, like in the handler. 
+That's.
+Sam Hatoum | 42:04
+That's my crappy.
+Sam Hatoum | 42:04
+Pattern. I'm sorry, buddy, my apologies. Ideally, she just pull it straight in. I thought Claude just did that. But yeah, it's still working away here, so it's actually it is implementing that logo from local. 
+That's okay, we can do a second reactor like I don't worry about this stuff. Well.
+Sam Hatoum | 42:24
+There are some apps that have multiple. They're not they're pretty messy. So instead of we need a way of having a shared loger with the same name. Pleasece I see. Instead of trusting that we were going to give it the same name space and that logger that gave it a root logger that they included.
+Sam Hatoum | 42:45
+Yeah, it's not a bad thing. Like, it's not now I'm looking at it's not a bad thing. It's I think we could probably clean it up with more of a, like a context. Sorry, aosite route approach. So if you look at, like, dependency or dependency injection composite route, if you look at something like this here, it's probably like, what's a composite route? Let me go find the one that I actually like. There's one guy that's. 
+Yeah.
+Sam Hatoum | 43:16
+I mentioned to Jeremy like they could have a entry point in each package that sets up all the different exactly hierarchies, and then they could even have TYPESCRIPT types around them or something too.
+Sam Hatoum | 43:28
+Yeah.
+Sam Hatoum | 43:28
+But not necessary.
+Sam Hatoum | 43:31
+A composite route is a single place in your application where the composition of the object graph for your application takes place using a dependency injection container. Although now how that's a detail. 
+So basically it's like when you first start your application, something needs to construct it as a dependent, a graph of dependencies this package, that package, et cetera. The composite route is typically where you do that. Another word for it in JavaScript land is entry or index or whatever. 
+But yeah, so that's where I would look at. Thing like this is. Is if you. If you have something like this guy, you know, you might have a namespace parameter at the top that you call this. And when you create all the services, you inject that into them or, you know, something like that. 
+So it's just inverting it, inverting the, control. So another name you're here for, dependency injection is inversion of control, because you're inverting the control of dependencies and everything else back to something that can inject them. All that. 
+But this is not bad. Like this isn't, you know, in what we're doing here, this is not a bad thing. So we don't want don't sweat it, but here we go. It's migrating all our loggers and let's see all the statements it's putting in. 
+So whereas before we had loger.log, now we have logged debug. It's doing all the work where we had loger dot one's doing loger dot error. Great, so this one's concerned with the migration of existing ones. 
+Well, let's see the one that's actually adding things into. And 4, so I can see all the greens are additions, right? So this is now all added logging. And if you look at this log branch log debug, what's this log branch? 
+That's a kind of a weird decision. Let's just see what that is. I assume that's just a local thing. Okay, we might want to extend our framework to do this. We can do that as a second level. Like we can already see a pattern emerging here, right? 
+Like if we do think this is actually interesting like between branch and data, maybe these those do go back up to our super logger, which can then do that, right? If every single file is now going to do this, that's probably a bad thing. 
+So it's not dried up, but that's okay. Like to dry it up. It will be quite easy to do that with another AI after. Now let's just get it working. It's really important I find with AI not to just like stop the bus whenever something's happening. 
+Like let it do its thing knowing that execution is now cheap. Right? In the past we wouldn't do that because execution to do something like this across the code base was expensive. But now if execution is cheap, let it do it and then do a second run of execution and a third and a fourth and a 10th. 
+Alright, so it's definitely changing. Like the way to think about all of this, seeing if I've lost the group yet. So I'm still.
+Sam Hatoum | 45:54
+What's the API usage limits when it comes to something like this? Because I know it's dealing with a mono repo, which it's got to be another concept of Turks. Is that a thing in Max, or is it?
+Sam Hatoum | 46:12
+When you do Claude COB Max, you don't give a flying crap, you just do it. Yeah, I mean, it says 2020 times pro usage, but, like, honestly, it's. I've never run out of this, and if I have, I haven't noticed, because what happens is when you do run out, it actually switches from Opus and things like that. 
+Like there's actually two main models you can use as Opus and Sonnet. So what's happening now is Opus is usually being used in planning mode. And now Sonnet is running. And that uses a lot fewer tokens. 
+So just let it do its thing. Go on, Max, and forget about it. Wesley.
+Wesley Donaldson | 46:45
+Can you quantify execution as cheap? I'm still of the mindset of execution is expensive because it's still token consumption. Is there a meaningful cost difference between the two types of tokens?
+Sam Hatoum | 46:59
+No, I mean execution is cheap by means of like developer time. That's what I mean by like the team executing, right? Like you execute you sitting there developing this like normally if I wouldn't go down the pathway of saying to myself, you know what? I'm first going to go and write a log and a log branch, even though I know that's not the long term thing I want. 
+You know, and I would stop right there and I would just, like, rethink my approach and go, well, I don't want to rewrite this again in like a few days or, you know, next month or next year. So let me do it properly now. Whereas what I'm saying now, what you can do is like you can look at it making, you know, Technically Bad design Decisions or Questionable design Decisions. 
+And if they're like they can still get you there, you can do another round of, like, second and third and fourth execution runs to fix it, right? So I'm telling you, like the mindset of like an AI native development flow that don't sweat like the stuff like drying up and what have you, like do a first round. 
+If it's wrong, know that you can do a second round, right? And it doesn't take long. And like, okay, it can do that run. And I can go back to doing something else, and I can open my other ticket and I can open my other thing. I'm doing it. 
+So I already like. Look, this is two agents running for me. No freaking way in the world would I have written this. It' now 50 minutes in. Like I would challenge anyone to have done this, even with all the tools to find and replace and everything else. 
+Like you would no way get this fuck no freaking way. 
+Yep, these are all additions, so you can see it's adding all our log branch over here, so it's kind of nice. Okay, so we've got log branch on it. We can come back and refactor this and dry it up and think of a better architecture. 
+But at least it's becoming consistent. And now that it's consistent, we can go back and refactory it much easier.
+Wesley Donaldson | 48:42
+I think one thing I'd contribute is from my lessons learned and lessons of, you know, it is still on the developer to own the output coming out. 
+I think that's an important caveat. And welcome your thoughts on that. Like I would expect like Jeremy Lance like we are we've taken ownership of the changes because we managed the plan, we managed the execution of the plan. We're going to push this through. Q we're going to call out where we need to be very cognizant from. QA we're going to run our own test. 
+Like in my mind, the developer is critical here because the plan doesn't happen without the developer, and the validation of the plan and the execution of the plan needs to be bed by the developer.
+Sam Hatoum | 49:27
+Well, you're the operator is another way to look at it, right? Like you got a new space ship and you're still the operator. You're still responsible for what? That spaceship bumps into and what wake it whats it breaks. 
+And if you put a hyperdrive on and it wipes out the whole planet, like that's still your problem. So it's still a pilot for sure. Now, I'll notice this list here, like it's going through it like there's a lot of stuff to do on here still, like, okay, let's see. 
+So we've got or I don't know, we're about like 10% of the way through for this one spinning away. That's the one that's migrating and replacing and everything else. And this one which is adding, that's about again, like about 10% through. 
+So here I am twiddling my thumbs, like debugging has been dealt with and I've got nothing else to do. Now I could cheat and just go home and just go like. And I actually have been doing something like this. 
+Like go run an errand, then come back. I do that, and that's great because now my AIS are doing work for me. But what I can do now is actually start a th another, process around like the environment variables. Now I have a choice if I want to do environment variables versus Akinfig and so on. I can do that here. I can do that with. By here. 
+I mean, the same, Visual Studio Code. And maybe it's relevant, maybe I can just do it all here, or I can start a new Git work tree. So the first thing in my mind is like, how related is this to logging? Very. How much is it going to get in the way of what I'm doing right now? Probably not very much. 
+So I could probably do it in the same like code here, right? Like in the same repository, but I want to show you another technique, which is git work trees. Why not? Because we're here right now, so I may as well. 
+So what you can do with git work trees is the following. So if I just do pwd, I'm over in my Thrive event. Infra and apps. What I'll say here is get what tree ad and I'll go back to my code and I'll call it thrive infra an apps and I'll just say two. 
+So what this is doing? If you're not familiar with gitwork trees, a git work tree is a branch. That's all it is. It's just another branch. But the difference between a git work tree and a branch that you normally do is the branch switches the FIS in my current active disks like location. 
+All right, so I'm there. My files have now switched to the other branch with gitwork. Trees doesn't do that, instead it goes into an actual directory. So now if I open a Visual Studio code, this is actually a branch. I'm in a branch, but all the files are independent of the files of the first branch. Very important concept to be clear about it is simple. 
+But I just want to make sure everyone understands it. That make sense to everyone. Anyone confused by this?
+Sam Hatoum | 52:26
+Are those real files?
+Sam Hatoum | 52:28
+Those are real files. If I go here and I say CD Thrive Infrastructure apps 2 yup, these are actual files. Ifco you're here.
+Speaker 6 | 52:43
+Of course I've been here. What are you talking about? I've been enjoying what I'm saying. Just to clarify, it's not just files, this is the same repository thing that it is. It's cled in a separate folder, it has everything there, and it's just a different bunch though. That way it's a little bit more automated than you creating three different folders and cloning it there. 
+It's the gitwor tree is basically doing that for you automatically, but you can have three different branches or ten different branches and 10 different workories if you would like. That's want to add that qualification.
+Sam Hatoum | 53:18
+And that's actually exactly what I do. I do. Like this I do like, you know, three. I mean, I'll do one like that and I'll only I'm even do like a books that wouldn't work. Sorry, I did the wrong thing. 
+Yeah, we's the go ahead. What's your question? While I figure this one out.
+Wesley Donaldson | 53:36
+Get work tree question would you? In what situation? Or would you never check out a particular branch inside of a git workor tree like.
+Sam Hatoum | 53:44
+You can absolutely I can go there and I can check out another branch, no problem. It will do that, you know. So now I've just created another one, right? And I'll just do code. I'll show you like what happens now. Thrive one. 
+Okay, so now I've actually got, you know, you can see here. Thrive inf and apps one. Thrive infra and apps two. Right? So I've got two separate work trees. Start this one and this one. So these are two independent work trees, separate two give you to find other one. This one, this is the main one, right? 
+So you can see here, it's got like that special icon at the top. That's my main one, and you can see it's got in my git. I can actually see the others that I've created. One and two. Now the nice thing about one and two is I can go in there and I can work on an entirely separate feature. 
+And this is actually the branch name one and two like that right now. So if you want to call it a specific branch, you can call it a specific branch following your ticket or whatever you want. And you've got here like NDL 425. You can absolutely do a work tree that is MDL, blah. You can do the same thing. 
+It's just a branch with the folder name matching the branch name.
+Sam Hatoum | 54:56
+Is that you got a clean version of the branch, or is it since you've branched off of one that was in progress? It's going to happen. There's intermediary updates
+Sam Hatoum | 55:05
+Yeah, haven't got any of these changes, right? Because they haven't been committed. Had they been committed, yes, they would have been, they would have come along.
+Speaker 6 | 55:10
+Okay, it's just a branch and it actually does a new and run mpm install for you, but you can automatically add it to run it for you if you would like. Again, I think of it as git qual just automated for you that you have a separate folder.
+Sam Hatoum | 55:26
+Yeah, actually a good point. Like you have to. You still have to run ppm I on all of these because they won't have node modules and stuff. So yeah, it is just a totally another folder. It's the equivalent of you doing exactly git clone multiple times. 
+But the interesting part is that they're all committing to this like it's still the same git repo. So the dot git file, the dot git repository and the combat and the configuration of it and everything belongs to this main one here, which is this guy. 
+So what I would do if I were use. I just like have a main one over here that you have like the main. And then as you do branches, just do them as gatew trees. Let me close down my other ones. That are not to do with this here. 
+So this is auto. This is auto. You can see I have like, three features at any given time. And I'm working on this Claude catchup technique all at the same time because my brain is able to do it now. Like, you know, it takes a bit of practice, but you'll see. 
+Like you can free up your brain, get it moving on one thing and just say, I'm going to come back to you later, go, you know, go have a cup of tea or like, or coffee or whatever and then come back and, you know, work on another feature. 
+And that's what we're going to do right now, right? So this is the main one. It's still run iterating. Technically, I could have done these on a different work trees. It does make it a bit easier to manage. Actually. When you see it like that in separate work trees, it does help. 
+So at least now you know both techniques. You can do them in the same chat like two two chats. You can run off two chats or you can have worktree. So let's go to worktree and let's go. I'll just keep this one for spare for later. 
+So right now I've just got this one, and this one's going to work on my environments, right? So this is actually a totally independent task. It has nothing to do with whether I'm using debug JS or otherwise. 
+I mean, I guess it does if I want to like in my, debug flag. I want to say like the namespace, so I guess that does matter. So I'll just go ahead and tell it that now I'm doing some refactoring work where I have everything going through debug JS and I will use the namespaces and debug JS to filter out specific logs. I want you to find all the runtimes in this codebase. 
+So anything like a Lambda or a frontend or a ECS process or anything like that. That's what I refer to as a runtime which needs to have an environment variable injected into it, so that I can a turn on and off the debug and b control the namespace that debug JS will show. Fire off a bunch of subagents to analyze all the places where I have runtimes and pay special attention to my CDK infrastructure's code definitions where I have all of these runtimes defined. 
+And for the client, be mindful that I might be using vet and I might want to inject something into that separately. Now I've got options. I can either use environment variables or I can use app config, which we already have. Do we already have app configure or not yet? Have we not started using it. 
+Stuff here?
+Wesley Donaldson | 58:35
+The key dropped?
+Sam Hatoum | 58:35
+No, it's gone. All right, so I don't know. Right, I can use that or I can use as app config so that I can control it at runtime. The most important thing is I want to be able to control at runtime what kind of logging I have on various environments. I want that on lower environments debug is enabled by default to a reasonable degree, and on the higher environment debug is disabled by default and we only show errors. Analyze the code deeply. You may want to fire off subagents to go find all the runtimes and then come back to me with a set of findings and suggestions as to which I might use environment variables versus app conffig and I'll just add ta think again. It can go off. I should put that in plan mode as well so it doesn't go off and do stuff. 
+So that's now set off, right? I've got that going to investigate. My brain is free. I'll come back here and I'll look and see what else is going on. Any thoughts and questions while all of this stuff is running? 
+So this one looks like it's done, but it's ready for phase two. Sorry, just and this is that was my core annoyance. Like it got here and it's like, why aren't you continuing? Right? And it's probably already lost a bunch of context. 
+So this is where I wrote that tool to auto continue and it will actually stomp it. And so you still haven't finished like this, two outstanding tasks keep going. So now I have to go keep going this one still going, let's go look at its plan. Which one is this? This was the one where it's actually put the plan in here for us. 
+Sorry, this is still planning my mistake. So go back to this guy, let's see how far this go this is through phase one. There's a better work to do, but it'll be done. We're at 1h right now. Our dinner, if you'll finish all this in 30min. I'm not sure it might. It might not.
+Sam Hatoum | 00:38
+Yes, I did have a questions about T bug JS in general.
+Sam Hatoum | 00:41
+I guess. Yeah, once I actually just gonna speed this up real quick. It seems like all of these phases and sub phases can be run in parallel because there's nothing interdependent here. So I want you to start a subagent for each phase and subheading within a phase. What could possibly go wrong?
+Speaker 6 | 01:03
+I was about to ask exactly the same thing. They seem to be in different forms and fa so sure. I would suggest to have it TED because you say keep going, have a tread to do initial pump, but keep going until like until you finish all phases until you finish that phase.
+Sam Hatoum | 01:20
+Something like yeah, it won't, it will forget that. I guarantee that, you know, if you tell it won't. You have to have it with a hook, and then the hook will do it. So. Okay, here we go. This is now starting quite a few different agents. 
+That's great. And that should speed it up. Let's see that. And then this guy. I'll do the same thing on this guy, just pause it. It seems that all the different tasks that are split by phase and sub phase can happen in parallel since they're all separate tasks. 
+So go ahead and spin up lots of subageagents and get it all done. You can talk to it midway, and it picks it up at its next sort of available, I don't know, brain cycle, if you want to call it that. If it doesn't, you sometimes have to press escape, but eventually it does. I just like to get the confirmation first. While that's happening, let's see if this is actually speeding up. LA Sorry, we're going to ask a question about the bugjs in the meantime.
+Sam Hatoum | 02:32
+Yeah, about the filtering. You mentioned that in the debug environment we want to see those things in the prod environment we only care about, I guess heirs. However, the what I keep hearing is that the log levels aren't necessarily something that debug JS is in favor of. 
+So I guess the question was like, is having the aorna space? Is that convention in debug JS or how would you generally filter production logs versus non production if you don't have log models?
+Sam Hatoum | 03:10
+No, I think what you've done is quite nice. Honestly, I think we get the best of both worlds. I think just having, you know, the differentiation between hissom information versus hissom log. AL Low hissom and error like I quite like it. 
+I think it's very handy. Like, at the end of the day, the right answer is what's the right answer for this company and this team? So there's no convention per SE that I'm aware of anyway. Like to answer your question directly, it's usually just filter by component, like knowing that this is a component that you're interested in, let me just filter by that and see everything it's doing. 
+That's the general mindset around Debub, but that you've added a bit more name spacing to it. I can still do that. I can still elect to say, just give me that component, show me everything that's happening, or I can be a bit more filtered, which is nice. 
+So, you know, it's not a bad thing. It's just. And you know, the nice thing about using debug JS is that not only do we get our logs with it, but we get like a whole ecosystem of other people's logs, all from one sort of statement. Especially if we're using something like the current which we are client it uses it and then underneath the hood where uses GRPC connections that uses it, and so on. 
+So actually this hasn't listened to me, so I'm going to stop it now that it's gone to update to dos and I'm gonna say that here you go. So that's gonna do multiple agents. Let's see this go. I don't know if it's updating the to do lists anymore. 
+Maybe the sub agents are no longer doing it, but let's just see how far it's go. And this is what I mean. Like, you can kind of quickly lose. Looks like it said this finished. Let me just tell it to double check its to do plan. Which one was this? This is the too far which task was this? This is the adding logging, right? 
+So it looks like we've swapped them around. So for the adding logging, it's this one. Look at this plan. I know that I asked you to start off a bunch of subagents. Can you go through this plan and tick off the ones that were done and any that are not done? Fire off some more sub agents to go ahead and do them? 
+And that's the usefulness of having this file, right? If I didn't have this, it would be very difficult to manage it. So the plan file is out of date based on what to do. Most of these are actually complete. Let me verify. 
+So this is a bit like Wes coming to the stand up meeting saying, where are your fucking tickets? Updated on the board, guys?
+Sam Hatoum | 05:42
+That's how you have to talk to Claude.
+Sam Hatoum | 05:45
+Yeah, man, you got to see how I talk to it sometimes. Sometimes I just get really frustrated. Like I do. I do talk to. I hope that one day they don't become like sentient and come back and say you are being punished for the way you talk to us back in the day.
+Speaker 6 | 06:01
+Sam if you start using please seems to be more polite, but that doesn't mean it's better.
+Sam Hatoum | 06:08
+Toy team members. Sam Combs he's always talking to it really politely, talking to it really politely. Okay, so let me identify what's missing the main gap. So this so I actually see it did miss some stuff, right? 
+Like just go ahead to look at that. And that's the usefulness of this plan. Once you've finished, make sure you tick them off on the plan so I know. All right, I'll leave that do it staying and let's see how this guy's doing. 
+Okay? Still adding away. Let's see this it's no longer updating as planned. I'll just wait until the end and let it do it again. All right, let's see this guy, this is still actually doing its research, I believe this one right here. 
+So now it's going to have some clarifying questions to see my plan. And you seen now three Claude, right? Running and I still have spare brainpower, right? I'm still available. It's freed me up that I could still work on something else once I set this off too. 
+So four questions. Should we consolidate consistent debug name space patterns? Currently, there's two. I don't want you to worry at all about any consolidation. That is the task of another team that's working on this right now. All you're concerned with is the setting of the wait, did I get that? 
+Right now this is about namespace patterns. Currently there's two patterns L let's a and Thrive. Okay, I see, so I misunderstood the question. So it's just migrate to LA only. We will only be using the SA Colon star going forward. 
+But you don't have to worry about this because there's another effort right now going on that a team is about to commit, and then this will be done. So that's answer one. How important is true runtime control? Vi app config. This would let you change debug filters instantly in production without redeployment. 
+So that's an interesting design question for us here as a team. Like, what do we want? Is NV means we have to get a restart app config means that we'd get it live, right? We're like, shoot, there's a problem in production, let's just switch this flag on, right?
+Sam Hatoum | 08:22
+Ideally it would be a redeployment.
+Sam Hatoum | 08:27
+Yeah, then we should just do app config, and just do app configure as required. Now like, I mean, go ahead, like put it in a CDK do as part of the plan, that's your job. 
+So there's origin main. So I was a bit confused. Okay, so the front end portal does not currently use DEBUGJAS at all. Should we add debug support to the front end? Another team is working on adding debug JS to the front end so you can assume it will have it. What I want you to worry about is how we're going to pass a value from app config into the front end so we can control at runtime what kind of debugging it does. Is that real though? 
+Before I say that, like, do you want the front end to be controlled by app config? Because what happens if it's logging? It's logging locally, but it's not actually doing anything else, right? Perhaps that should just be something we go set in our local storage rather than app config. 
+Any thoughts?
+Wesley Donaldson | 09:29
+Do we want to just track those and then we'll bring them back to the architecture meeting, give everyone a chance to digest and come with a solution?
+Sam Hatoum | 09:29
+Anyone. 
+We want to go fast can bring a bunch of options here. I think. Like.
+Speaker 5 | 09:44
+What is that conflict? Like, is it just some other like resource or service on AWS that you go to like the Lambda Cloud watch that has whatever instance you've made of it and then all thes you have assigned and all that kind of stuff? 
+And yeah.
+Sam Hatoum | 10:02
+Think of it like an advanced key value pair store in the sky in a cloud. And basically it just allows us to like feat flagging. It's a feature flagging service of sorts.
+Speaker 5 | 10:14
+So I just manage it from there to start right. Like we don't have to do anything fancy if we're especially since we have such a big like logging feature we're doing, would it just be easier to just set it up and then control it from the whatever you call it AWS console or app?
+Sam Hatoum | 10:31
+Exactly the app conflict, correct? You just go there and you toggle some switches as AF months. Like. It's definitely the most robust. Like for sure, right? Like it's by far the most robust. But the question I have and I think if we can just get the AI to do it, like let it just free can do it if it's the right answer, do the right thing. 
+Yeah, like again, execution is cheap. We don't have to worry about that now. What we do have to worry about is checking it at the end and making sure we push it along. It's gonna do 80% of it. We still have to push the last 20% through, which can sometimes still take time. 
+So it's not going to be complete, but it's going to get us the majority of the way there. So, especially for things like app conflict, because you still actually have to deploy it, go look at it, make sure it's good, don't bring production down. There's a bunch of stuff you still have to do here. 
+But the question I have here is less about whether we should use our conflict or not, but for the front end, what discriminator would you want to use for having logging? Do you want to just be local storage and we just toggle it on and off individually? 
+That's option one. Option two is controlled througho conflict. But I'm wondering what the value is because we wouldn't necessarily want customers, you know, we' want toggle it on and off for customers. 
+It's usually only going togg it on enough for us, I think in the front end. Is that a true statement?
+Sam Hatoum | 11:41
+I can't imagine a customer wanting to turned on.
+Sam Hatoum | 11:44
+Yeah, just make sure that I get a no.
+Sam Hatoum | 11:51
+I was just going to say at the start, yeah, I can see us. Just we need to say. And Topy about ourselves.
+Sam Hatoum | 11:59
+Doing whatselves? Sorry, I'm finding hard to.
+Sam Hatoum | 12:02
+We could just do some in local storage to ourselves. If you see it.
+Sam Hatoum | 12:05
+Just make sure that I can turn it on and off in local storage. Ideally, I just have a variable in my VAT NVAR or something that I can flip on and off in my local development environment and it can turn it up. It can do that for me. 
+And then if I'm running on one of the preproduction environments, then I just want to be able to set a local storage. Actually, I'm just going to say local storage and not confuse it with the rest. Forget the ideally. 
+It's not really. Ideally. Verbose logs. Should we add verbose space? The namespace convention for high frequency logs that are filtered out even in development. Don't invent anything new on the logging layer itself. You're only concerned with the toggles and the discriminator of whether we should have logging or not versus what kind of logging we should get. 
+All right, that's going to come back with a plan. Give it a minute. Let's go check on any other ones. This one was finish. Mostly finished. But it's found some gaps. 
+So let me just go see what it's saying about those gaps. Did you actually start doing them, or is it waiting for me to say go? It's doing them? Yeah. So, Jeremy, earlier you were asking about the plan. 
+That is why that is. You just saw it in action. Like it can just skip things and it says, I'm done, but it isn't. Now it looks like it's done. Now that I had this plan and I went and checked it looks like it really is done.
+Speaker 5 | 13:42
+So you can use that to avoid the hallucinations and all that kind of stuff. And it. For the most part, it does a good job as long as you keep prodding it to, you know, double check.
+Sam Hatoum | 13:53
+And don't forget, you know, I've had a lot of experience with this. I've been run this for two years. Like just banging my head on against the wall when it doesn't do what I want it to. It's a bit like, you know, going to a toy store and someone says, Hey's an airplane. 
+Look at this. And you throw it and it comes round. They catch it again, you take it home, and then you keep smashing into the wall. So expect that you're going to have some trouble is what I'm saying, as you use this to begin with. 
+But please feel free to ask questions. I'm here to help. So as the rest of us, all your team and we can just keep having sessions around this stuff and working together. Okay, so that part one of, like, my making sure that we have a single API is done. 
+And actually on second thoughts, when I was saying earlier whether we should have this on a separate git work tree, I'm actually glad we did it on the same work tree because as this made changes now this one is aware, this other one that's working is aware of the same changes, so it won't be introducing anything that's breaking. 
+Otherwise, the IDE will let it know when it runs tests and when it tries to do stuff, it will get the feedback. One other thing is there's so much more we can do here, but if I show you, like, some of the MCP tools that we've got, for example. 
+So if I just say manage MCP services here. Continue in terminal while that's running. So you can have a bunch of MCP servers. I've configured a few that are super handy. Give it a second for those to load up. Go. 
+So you can see I've got a browser. MCP. I can actually start a browser from here. I can do playwright. I can do wallaby, which is a sort of unit testing. And then there's these built in MCPS that it has. Context 7 is super useful that goes and looks at like the latest manuals for various things. 
+So it has access. So Claude has access to those. You can connect Slack, Stripe and then you can send commands from here. So MCP really opens up how much you can do from here. VS code itself has an MCP actually, which is already wired up into it. Just continue with that refreshing here. 
+So if I show you one over here like I'll show you this interesting one. Now that it's done, everything' is complete. I'm going to say. I want you to do a spot check. So pick twelve files at random from this list and then run the Visual Studio IDE diagnostics on those files and let me know if there's any errors. 
+So what it's going to do now is use the Visual Studio ID EDAGS tool. There's one called that. I actually just running type checks on them right now. So it's not doing what I actually asked it to. 
+There was a tool. I was just doing type checks. I so maybe let me just find out real quick. Nope, it doesn't have them, it's not doing what I want it to do. There's a Visual. Do you see the Visual Studio MCP and ID diagnostics tool acting now? 
+Okay, let's come back to this. Now we have a plan here, so debug JS runtime configuration inject debug environment variables into all back runtimes with AWS for true runtime control. This enables turning debug on and off across environments without redeployment. Lovely. 30 3. 
+It's in scope are 33 Lambda functions, two ECF spar gates even though we know these are on the way out front end out of scope. Other than just adding debug, going to just need a local storage toggle and the namespace is ls a star everything. Another team is migrating back. Great, it got the gist of it. Architectural overview AWS config. 
+It's gonna have three environments dev stage and prod, each with their own settings, and then we can basically switch them. And over here. App config extension fetches config which is cached within the run within LLaMA SLA ECS runtime falls back to debug and var if the app conflicts are unavailable. 
+That's nice. That's definitely a good addition. And it falls back to the environment. Default if no end bar. I mean, fair enough, but not a big deal. Debug enable resolved on cold start. So this basically checks to see if the like it sets it to enable versus using the value it resolves from app config. Looks good to me. 
+So here it's going to have to create a new CCAD infrastructure for the ACON fig. Thank you very much. That's exactly what we need. ID didn't even have to tell it, but it figured that out, which is good. 
+And then create app conflex CDK constructs yes please do the CDK debug configuration helper, update the Lambda functions all of them. Yes please. And it'll go and do that bloody blood bloody blah. Yeah, that all looks good to me. Thank you very much. Go for it. 
+All right. So now we go back, I go, this one is complete. This one's saying I don't have a dedicated Visual Studio. Yeah, it doesn't have it, so I don't think it's working with the ID dags. Let me just go and look and seegle Studio IE gags board. 
+My mistake. I switched over from I was using a Jet Brains a lot and I switched recently to vs code. It's actually Jet Brains that has the Visual ID. The IDED AGS that I use. 
+It's my mistake, but you can get different tools is my point and you can tell it to like do additional checks. Any questions? While this is all doing our work for us.
+Speaker 5 | 19:35
+Are the MCP is like an API kind of thing for AIIS, right? So could you in theory write model independent hooks? And, I think you mentioned one other thing. But couldn't you write those if you use MCP? I don't know if I'm asking, like, a valid question. I'm just trying to he yeah.
+Sam Hatoum | 20:01
+I got you. Yes, you can like there's different tools there. There's MCP means MCP the if you read up on MCP what it is, it's actually a set of tools, each with a description and those Descriptions end up filling the context. 
+So the more MCP tools you have, the more the smaller the context window you have. They take a tax. They have a context window tax. And so Claude's answer to those was to then produce Claude skills instead. 
+So we're not using it here, but if I should show you another project or we do use skills. Claude Sorry, just go to one of my ones over here. So here, if I open that up. Claude. You can see that they introduce Claude skills so that. Read me. I'm going to present something to you on Friday where I wrote read me documentation for the entire SA site. I just use this particular Claude skill that I wrote over here. 
+And so you can have Claude skills, and skills are easier because they don't consume your context window, but Claude has access to them if you ask it to use a skill, or if it thinks that skill should be used. 
+It's just a sort of a reference lookup and it doesn't consume context. So between MCP and Skills, they're kind of two sides of the same coin. But Skills, a more modern version. MCP's taken the world by storm. 
+I think it's a really bad idea because that's a bad architecture. Let's see if they can fix it. But, you know, it's prevalent. Doesn't mean it's the right answer, but skills is definitely a lot better now for hooks and things. No, you can't really control. Ho hooks are much more control because there are actually things that like for example, on session start, it calls this hook which says session start for me and like that calls a script. This is going to happen on every single session start. This one is going to happen on every single pretool use. I can control that deterministically. When I use MCP tools, it's at the whims of the AI, whether it wants to use that tool or not. 
+That's part of the, you know, the chat window that you're having. So they're not as controlled. Does that answer your question? Sort of.
+Speaker 5 | 21:55
+Yes. Yeah. No, I just. I have a personal GitHub Copilot license that use for like my own side project. So I'm trying to figure out, like, if I start doing work in one, you know, if I'm working on something app on home and I find it useful, is it easy to, like, transfer to a Claude sort of tool?
+Sam Hatoum | 22:17
+Yeah, you just do this SLA MCP and then you go configure MCP service and then you can add it as an MCP tool. There's ways lu the yeah, the cloud code and M circa p server. Like it's just a command line over here. Yes, that's. I like there's different ways you can add them, but then there's a conft file that you can go look at like that.
+Speaker 5 | 22:39
+Okay, and earlier you said. I'm trying to remember what you said. You said using the Claude and D is better for, like, the setting of what your app is and what it's used for. Like it as structure. Like, this is a mono repo. We use typescripts, that kind of stuff.
+Sam Hatoum | 22:54
+Exactly. That's what I like to use it for. And like, you know, I might just say, like in the Claude MD D, be sure to check the read me, because it contains everything about the repo. And then I say, in addition, these are the sorts of things I want you to do. 
+But again, Claude, MD is not really enforced. It's just at the whims of when the tool decides to use it. That's why I've become much more into hooks because I like a lot of control and hooks give me the full control and I can now really like, just constrain the AI. I don't want to overload you guys today, but I'll show you. 
+I'll show you some more workflow stuff next time. Lance, where so wheres you had your hand up? I think.
+Wesley Donaldson | 23:35
+I did. I was. One of the things I often like to do is actually have Claude run the unit tests, make sure it's not breaking anything after it's making a change. 
+So it's kind of like cool. Make all the changes, but then verify your changes didn't cause any downstream problems.
+Sam Hatoum | 23:52
+Absolutely. So unit testing like we're not doing it here. We can get to that as well. But like one one skill. Recently I wrote it's over here. It's called a because I have a very specific taste when it comes to testing and this is a retroactive testing tool, and this creates test coverage by looking at it and it like tests behavior, not just coverage. 
+So it's not trying to just hit the lines, but actually it's actually trying to figure out what the thing is supposed to do. So I can like point this at a given file and I can say to it retroactively at testing, and then it has like a bunch of like dos and don'ts when it comes to testing that I've put in here and I'll be sharing this with everyone, by the way, soon. 
+So then it. It. It can actually write tests for existing app. For existing systems, the idea is that we want to bring it up to 100% test coverage. I know that sounds crazy that you'd want a hundred percent test coverage, but I'll show you something. In this, app that we're building, if I go to packages, like if I just show you here the VI test, it demands 100% test coverage. 
+If I show you another one. I don't know, the something that's not infrastructury by test. 100% test coverage. Which means if I actually go into the source code now and I look at something like activity tracker, this tiny little far right here, everything in here has a reason to exist, right? 
+And so then I can do this and I can look at them and these are the specifications. Like this guy here. These pieces of code exist to fulfill this. They're an activity tracker. It returns an object with, that can be called. It sensits typos. It silently ignores fetch errors, blah. These are my specifications, and this is the code that fulfills those specs, and these are the tests that make sure that thing fulfills those specs. 
+And so if you can get to 100% test coverage, it enables crazy workflows. Actually. After that with AI but yeah, again, I'll get into those another time. I just wanted to comment a little bit about what you said there was. This is going it looks like this is still going a little bit. We're now 85 minutes in. See, I don't know if it's gonna get it. I was. I was really hoping we'd get all this done in ' 19, but maybe it'll take two hours. It does look like this is at the end, though. 
+It's saying, it's got some failing tests. So it's right now running all the tests and making sure that everything still runs. So that's good. And then we'll have a look and see how much code it's done. 179 files. 
+That is touched. Overall. It's definitely quite a large commit. 
+I don't have.
+Sam Hatoum | 26:40
+Go ahead. How many files was it?
+Sam Hatoum | 26:43
+By the looks of it, 155 years, so yeah, so the other one has more. It's because this one has 24 on the other subtree. But yeah, there's 155 files that have been changed on here. Let's just do a spot check on some of them. 
+Like what's actually done? So it's changed all our console logs to logger. Lovely, let's do another one over here. Again, it's added logo error instead of logo do one. So this is one thing like a sweeping changes big as this. 
+And I think it's quite innocuous, like it's not a dangerous change. We haven't changed any pathways in. In all of this. And I'll show you technique I'd like to do at the end as well. So, like, once it's finished everything. 
+I'll get it to go and do a code review of everything that's been committed first. Like just to make sure there's no other errors. So that's another part of the workflow, you know? So like go and do a deep code review of all the changes that have been made and highlight any problems to me. 
+And again it surface, it helps me surface more errors. So yeah, we said this one was complete, I can forget about that now. Yep, so that's done now we're just waiting on this one. This here is complete. Turned, not off. This one's making all the test pass at the end, which is ideal. Let's see what the app can fiig 1 is doing to minimize this. This one's still working a way implementing our app config. Let's see what it's actually doing. Let's put that as a tree. I don't care about the graph now. 
+Yeah, so it's modifying interesting, which is the correct way to do it right? Like it's actually going through where we've got an app can fig over here. Like it's actually importing the APCOM fig. What's it. What else is he doing? Hasn't much here a cognito migration what's it there was this so it's added the app config it's pulling this in from me. 
+Okay, so it's just integrating the app config into it. Get app configurer. Here it is. Yep, there it is. And now it's still modifying. That's why I didn't see it earlier, but you can see it's still modifying this stuff here. 
+And it's added this, a comfig layer, and then it's able to get, over here. That's how I look. So I had the adult layer before, and now it's got the app config layer. I don't know what else is doing yet, it's probably still operating on that one. The same everywhere. There it is. 
+Sorry, debug is coming from the initial value get debug config environment. So before that was just true, and now it's getting the getting it from somewhere. We still have to test all this, of course. 
+So we deploy it to a lower environment and test it all. But it looks like it's got some pattern here. What it's doing is going to every CDK as stack, picking up the. And configuring it to use the app config. 
+And then it's defining in here where the app config sorry, the as a app conflict LIS let's see where it's actually doing the new this is the new app config itself, the new infrastructure. What did it do to our logger? 
+Interesting that I wrote a test. 
+Yeah. Sometimes I just like to wait until it's done because it's not. It's doing like multiple passes at it by the looks of it. So it might be developing a little bit in ANTH then going back and modifying these, doing a bit here, going and modify these. 
+So just let it do its thing. The sky still failing some of the test suites. Those questions while this is running, I think it's going to take a little bit longer. You want to take a five minute break and come back? You're welcome to or if you just want to go home, you're welcome to. See. 
+So sometimes it will try and bail itself out because it's optimized to succeed, right? It's optimized to, like, get stuff done and just move on. And actually, I was gonna ask you to do the same thing. I was going to say, like, go check on main to see if the tests were passing. 
+So it's stashing everything, and then running tests to see if that's gonna. If it was failing before in that package. 
+So the test was failing even on a clean main branch before my changes, the preexisting test issue let me restore my changes. Is that true? We got it failing on CI use the GH command line to see if this is failing on CI so I've got my GitHub command line as most people should, and then that gives Claude access to GitHub through the CRI to go and do some stuff since it's going to use my same credentials. 
+Alright, so that what I just asked it to do is go change, go look at the logs and see if it's fading there. If it's not, it'll come back and readjust. So here we go. It's about to do it. Like, here it is running a command. Sal enforcements. 
+So it looks like it's it says it's finished, right? And it's found some errors for exist for an existing for one existing failure. What I'm going to ask you to do now is let me try and run this command myself first. 
+So authorize this in your browser first, which I will continue. Great, now this should bring me back. Okay, try to look at GitHub again using the Gh command line. I've authenticated the connection. Let me see if I can run it. It won't I just did this damn you continue. 
+It's annoying thing going on. 
+Did you hate both? Great well I'll just go and look with my eyes shall I?
+Sam Hatoum | 33:58
+Is your current secession just not aware that you signed in?
+Sam Hatoum | 34:02
+I thought, yeah, I don't know, to be honest, man, actions. Let's see. So the main branch is currently failing, apparently, whereas what it's saying. So let's just see if it's telling the truth. 
+It seems like all the bills are passing on Maine. 
+All right. While that's happening, I'm going to fire off. Go back to this guy. Actually, no, sorry. What I'll do at this point is create a new session, right? 
+Because now I want it to be completely abstract and not aware of anything that's been happened so far. So I've made a ton of changes that I have not yet committed, and all of these were done with a whole bunch of different agents. I want you to do a deep analysis of all the changes that have happened and give me an honest code review and surface any issues, prioritize them for me and categorize them so I can know how to deal with them. 
+And again, I think so using AI against AI for AI like I don't have to go and do all this code review at least to the depth that I need to yet let it identify first what it can identify and then I will look at all of that and then I do my final review. 
+So why bother? For me, like, why should I bother wasting my cycles now when I can get it to do a good majority of it first and then I look at the end result? That's the general way I'm like to work with them. This one's still going, but this one stopped. Actually, I can see it just stopped for no reason, so I don't know why. 
+And that's it happens again, is where the stop hook would keep it going. Keep going, just a little push. 
+But the nice thing is this task here is completely independent of what we're about to commit over here. Let's go back to this one, which is trying to fix stuff. 
+Does anyone know if this is true? Generate data SPC T TS is this being excluded? I mean this should know that here. Check the codebase here to see if that's being excluded. You have access to all the things like the G.
+Sam Hatoum | 36:37
+That was failing last week in some branches as I recall, but I thought we actually fixed it.
+Speaker 5 | 36:50
+Was it related to that issue that I think Francis had talked about where we were bypassing some of the approvals and then that was causing the pipelines to act funky. Is it maybe one of those.
+Sam Hatoum | 37:09
+It might cause? We had a couple issues with tests. That was one of them. Another one was a timeout that we were intermittently hitting. Feel like there was one more that I that can't recall.
+Sam Hatoum | 37:32
+Whenever it says this, don't believe it. When it says now I see the issue, it's just like an overed, gullible bit, like it's always doubt. So. 
+I mean, it seems like it's not something runtime based and something to do with like generating data and what have you, but still just rather know like why it's not failing remotely. This guy here has fired off a whole bunch of subagents to go look at the code for us and figure out what's going on, so that's good. This will come back with the report shortly. 
+And then, let's see, this one's still going away doing this stuff. All right, so we're close with this. We're close with these 155 files or whatever changes. I think I can probably commit this to a, to the same branch you're working on LANs would that be okay? Right, once it's done here, I'll do that. And then for this one, I'll probably just Hong on a minute this finished. Okay, and again, I'll start off a another one here. So this is another trick. I've lost the initial prompt that I gave it. Let me see if I can get to it this way. Nope. What I do sometimes is grab the initial prompt. I can get to it. I can show you. You can go to the transcript and get it, but I remember it from memory. 
+But what I'd like to do is bring the initial prompt back that I used and then say like I asked another AI to build me an abstraction using. I asked another AI to build an app config CDK construct so that I can use it for debugging purposes across my app. I want you to do a deep code analysis of all that's not been committed yet and then highlight any problems and give them to me in a stack ranked order. 
+And again, all of things. So that's gonna commit some code, which I want to make sure is good first. And then now let me go back to this groups. This guy Switch has the comprehensive code review. This is a massive ref factctor. Overall the implementation is solid, but there's a few issues critical and nonfound. 
+That's good to hear. High priorities should fix before merge. Let's see what they are. Semantic level log mismatch warrant to error promotion. We're okay with that. We decided the front end wrong level for data mapping issues. SE very high. 
+So what is this? There are data not found, not errors. That's okay, I think we can keep it and, you know, we can change that, we can downgrade that if we believe it's the right thing to do. Is this true? Let's have a look. 
+So when this says interpret results builder data not found, do we want this to be an error? Because it used to be worn, but now it's either error or not or debug. It looks to me like this should never happen. 
+So it should be an error. Go ahead at well.
+Sam Hatoum | 40:59
+It shouldn't, but it's something that we have seen a few times that was very helpful in identifying the machine.
+Sam Hatoum | 41:06
+Yeah, I think. I think it's worth keeping because the data should come in clean because the UI should be dumb, therefore this stuff should. Well.
+Sam Hatoum | 41:12
+I think. I think it's really the content missing errors. So like if we add something there and forget to add the content to the JSON v we have a wave sne but it there. Yeah, I would think so.
+Sam Hatoum | 41:27
+Cool, I'm missing log missing config missing log does error again. That's fine, just leave it, these are all fine, they're just like misclassifications inconsistent namespace hierarchy. That's interesting. Portal front and so current is portal front and results in AZ port run and expected perk invention presentation. 
+Okay, that seems correct, right? Like we should do that. So this one, medium missing nested loggers in some aggregates, only the participants Agacy uses the four pattern. Other aggregates don't have branch data limiting filtering capabilities. We do want that. 
+It's like it missed those leading spaces in log messages. Yes, get rid of those. That's crappy. Just set up logger initialization timing cannot filter just logs with debugg and Vow. 
+Does that matter? And I wouldn't come back to it if it's annoying. So what's it saying? The solution is you cannot filter just logers. I mean, fuck could fix it. Name prefix existing thrives won't work. 
+That's fine. Well, and do we have deployment scripts? Well, that would definitely fix that if that they need to use the handle handler. Test and verify logging. Yeah, don't worry about that, I'm not going to test logging. 
+This one's missing event store SNC loger files. It seems like it could be quite crappy. Type assertion in loger moc. Don't worry about that. And then low priority issues. 
+All right, so I think just fix these issues and then I'll do a commit and that's the remaining work is that to push this over the edge's this guy got to. 
+Yeah, still debugging that problem with the runtime. This one over here just did that code review for me. Missing immis for LLaMA functions. Deployments will fade at runtime. The amp conf fi LLaMA extension requires two IM for permissions that are not being granted for any of the Lambda functions. Every app that adds an app configurer to Lambda will fail at runtime when a Lambda extension tries to fetch configuration from a conffc. That seems pretty bad. ECS service cannot use Lambda Layer, so I'm going to actually just say to ignore the ECS service. 
+So this fix this.
+Sam Hatoum | 45:15
+To ignore to.
+Sam Hatoum | 45:26
+What's this saying? So. 
+This will soon be deprecated. So if there's any errors that will occur from using logging here, just omit this, okay? And then critical notice for app con fixtack. Okay, high build failure in app config package won't compile. Missing type definitions. That seems like, something that should be fixed. I duplicated config. That was let's see so you got this is does anyone know if this is actually a pattern already like is this what does this happen already everywhere? Do you know that? 
+Okay, have we just introduced this what I what.
+Speaker 5 | 46:24
+I don't know if we I don't know if that's used anywhere. It might be from what you had done. RE is pick up the stuff that you did with the logging.
+Sam Hatoum | 46:39
+Okay, I'll put it into plan mode, so this is like instead of saying bypass permissions, I'll say plan mode so I can come up with a plan for this. High exported but never cold. Okay, test uses chest hardcoded LLaMA layer versions.
+Wesley Donaldson | 46:59
+Let's check this out. Two things.
+Sam Hatoum | 47:01
+This was there some hour changes I thought that should be fixed.
+Wesley Donaldson | 47:02
+First of all, thank you Blue Rolls for sending over the kit to make this outstanding pleaure.
+Sam Hatoum | 47:09
+I don't know the fixes but should come up with a plan for them for me. Medium reset initialized exposed the production API. 
+Then fix it ten load inconsistent results naming for a did a missing graceful degradation logging fixed that.
+Wesley Donaldson | 47:29
+I shared the tips on how I got this. Are you thinking to trade in my favorite spot? Yes, according to hell gets worse. This war with a lot of is noticeable far. You started something that should never have been started. The best chance of esty peace between the Federation of the MOS.
+Sam Hatoum | 47:50
+There we go.
+Wesley Donaldson | 47:51
+Any timeline took.
+Sam Hatoum | 47:52
+Give me a good plan to fix all these issues, especially the ones where the design decisions are required. Ask me questions until it's crystal clear. 
+That's another one. Keep asking me questions until it's crystal clear. I found as a very good prompt. But it just keeps coming back with more and more questions. And then even after I answer questions, I reinforce it. I say, do you have any more questions? Keep asking me to was crystal clear. This is especially useful when you have like a lot of design decisions that you don't want it to take for you. 
+The lock file has uncommitted changes. This explains the discrepancy. This could explain the discrepancy. But they persist even with the frozen lock one. 
+So it's still working away. Let's see about this guy. Okay, so this fixed all those things that like from the code review. So I'm happy with that. Now there's only two things left. There's this guy which is running right now to get us to an actual like passing tests. 
+And then this is a separate task that I'll commit this independently, but this is almost done. I'll commit this, and then I'll commit the other one when it's done and I'll commit the other. The other change to a separate branch. 
+Maybe you can split the work. Jeremy Lance like one person can look at this logging and then the other person can go look at that environments. Anyone who's brave to go in this config AWS world and wants to learn a lot. 
+Alright, the tests are passing. 
+Did you put this in or did I put the in? Do you know where this Claude MD came from? Ifco. Youa. Party okay, this chair just, that's fine, I mean it's good stale node so that was basically because of the stale node modules just fixed that.
+Wesley Donaldson | 49:53
+It's been there for a while. I remember when I first pulled a repo, like a month ago. I saw Claude ND in the file in the directory.
+Sam Hatoum | 50:16
+It's nice. Thank you. And then I'll be able to commit this and then you can test away and there you go. We've instrumented the majority of the app just under two hours. I think we'll be get this done. What do you guys think?
+Speaker 5 | 50:36
+I love that file idea where you have the checks.
+Sam Hatoum | 50:41
+Yeah, back to that guy. I know you asked it to generate it for you, and following that, you weren't asking me to reference that file. And you have knowledge of it after you've asked it to create it just kind of in context.
+Sam Hatoum | 50:58
+Or the first one worked well, like I'll show you well ish, right? So like, we had a where did it go.
+Sam Hatoum | 51:07
+All the one did it stop checking the ones off?
+Sam Hatoum | 51:10
+Yeah, so it did, right? And I got to that. And that's what like the reason it stopped was because round about here, I said to it, fire a bunch of subagents. And the subagents stopped doing them all. So then I subsequently went and asked and said, hey, I asked you to do sub subagents. Go ahead and fill this out. 
+And it found that actually it was missing a chunk. But you are technically correct. We have not. I have not given it the same extended the same thing here. Like I did the plan with it and said to it, let's have the plan and it gave it to us. 
+But we're actually not entirely sure that it really did do that right. So, going back here, I'm going to come back to this guy and say, did you really follow the plan? Let me come back and see if it's the right one. 
+And is this the right email collisions? So this is a ad and this is the migration one. Okay, so this is not the right chat was just find out where it was. This one's still working. Yeah, it's this one here, it's the different phases. 
+So according to this guy, it did phase six. You can see there, it got to phase six and it got to final verification, so it looks like it did do it, but it stopped updating this file. So, you know, that's a gap, right? 
+Like in if you use Claude out the box, there's a gap in that it won't follow the plan. Even though we made a big plan for it to follow. It looks like it did it. Anyway. Here. The other one didn't. But there is a gap, right? 
+And so now what I'm going to do in this particular instance is once it's done and it's taken forever, once this is done here, I'm gonna say I asked you to fire off a bunch of subagents, and I'm not sure if you ended up sticking to this plan because they did not update this plan. I want you to go over this plan and make sure that everything that is in here has indeed been implemented. 
+Alright? So this is taking forever, so that's hanging. I'm gonna stop it, stop.
+Wesley Donaldson | 53:08
+Hey, why don't you to go in my office frame, please?
+Sam Hatoum | 53:09
+I'll come back to that. I'll ask this question.
+Wesley Donaldson | 53:14
+Come on, man. I need.
+Sam Hatoum | 53:15
+And. And what I was saying is normally like.
+Wesley Donaldson | 53:17
+Please leave.
+Sam Hatoum | 53:18
+Sorry. The reason that I'm building a new app for this sketchup technique or whatever it is this one. I'm actually making this into an NPM module and I'm building it using Ketchup technique in the first place. I' building the new catchup using the existing catchup technique. 
+And catchup technique is about doing things in small bursts. That's why it's called ketchups. Like when you get a bottle and then in the bottle you have lots of small bursts and then it will hook itself into your existing Claude MD a bit like husky hits like instruments. Your system as a pre commit hooks. This will instrument your system as a. 
+Like Claude hooks. And so then you'll just have this NPM module called Claude ketchup that you can just add to any project and then it will add functionality to your Claude. And one of those would be this. Things like auto continue and like a validate commit. 
+So validate commit before it even tries to do a commit, it'll validate that commit and make sure it didn't go off pieced. I'll show you what this looks like. Here's a here's something that was generated recently using ketchup technique, and you can see this feature over here and you can see this ketchup plan. It was like it was on Buerse. 2023. It checked that off and said, that's done. It moved to 24. 
+So you can see this is much more controlled, right? Like because it's being forced to go down this path of. Make sure you update this, and if you didn't, the commit validator will fail you. So as the chat's going on, I have a supervisor that is making sure it stays in check, and actually that supervisor itself uses the Claude CI to check that the first second agent is adhering to the rules. 
+And in doing so, it ends up creating this like feedback loop which makes sure it does what it needs to. And here there's some rules I've got. For example, it says one test, one commit. You can't really see that in here. 
+Well, can we just check one out? Right, that should be showing us because it's a new test. So here you can see. Like, the rule is it does one test, which is right there, and then it does one commit and the next one. Here is one test you can see right there. 
+That's the test. And then over here one commit. So you can get like this ultra clean commit history. As it's working burst by burst, you can see them right as it checks off the plan for each one of them, and you can really get it to stay on the straight and narrow. 
+But you're only going to do that if you have these strong hooks, right? And that's what I'm working on now. I will give it to everybody. And what I was just doing over here is kind of a cheap version of that, right? 
+Like what? Always STI together. Whatever that was. So Windows does that make sense? Non yeah. Like this here was the cheap version of what I did and now it's actually gone ahead and filled it out so the migration is partially complete. Phase one to 4 are done, but phase 5 or 6 has 37 console that phase that has not started. Would you like well yeah, complete phase five please. Gez so we missed that out. There was a bunch of stuff here I didn't do. 
+Okay, other than that, I believe it's almost ready to go. So once it's done with these, we can commit it if you want. I can do that separately. So. I don't keep everybody beyond two hours here and this one here for the hard coded Lambda layer. Should you make it configurable? 
+So this is it. Asking me the questions after I said like ask me everything. Or just add a comment explaining the choice. 
+I don't know what this is actually, you know. For now, just comment only. It's probably going to be okay for initialized dwogs since it's async, but open telemetry TS runs at module time. How should we handle for this? Is the initialized debug syncrapper lazy internet pattern initialized on first load? Recreation. Not a module load that actually sounds better up level of weight. Do we have a cold start problem? Do you guys know if like we have do, have we ever faced the lander cold start problem?
+Jennifer | 57:34
+I haven't heard anyone complain about it.
+Sam Hatoum | 57:37
+Right? Jennifer okay, so in that case.
+Jennifer | 57:42
+Not to say we haven't, but usually I hear something.
+Sam Hatoum | 57:47
+I've never seen one. So, I think a lazy pattern is usually the nicest thing to do. And for the duplicate debug defaults. Where should we? Where should the single source of truth lives? Moving the environment utils into its environment specific conflict. Keeping CDK utils in port a keeping the a conflict package. 
+I think we already have environment util, so we should just leverage that and use that. Cool. So that's configuring app config for us, along with the ability to. Now every Lambda as a result of this would should have the context of the app config for us to get the variable at runtime for the recent initialized test. Should we handle it? Move to a test file. Separate test export keep a document that one right there. Just put it in a separate file and ECS services. Should we remove the app configure bars directly since lam don't work there? Removed completely from all ECS because that's about to die. 
+Okay, so that should have the code review details. It needs to go fix stuff and this is something else is a ketchup technique. Yeah, that's what we want now. All right, so this is the plan to fix or to continue the remaining phases. 
+So there's actually quite a bit left here. It didn't do. By the looks of it, we didn't see that it missed the phase entirely. Let's go a look. So this is saying it's finished quite a lot over here, but and there's still 37 console logs to migrate. That should be fairly easy. 
+It's going to create the logger TS files for the ones that don't have them. We said we'll come back and see if we want to do a second pass to dry those up. Script tests in front and not started. So it's still going to do the front end portal files and then it's going to do the final verification. 
+And we made some design decisions in that already that it's just resurfacing and now it's a detailed plan of how it's gonna do each one go. 
+And this one right here is just decided what we said we wanted to do. Missing I am. So it's going to add those in ECS it's going to remove it from ECS build failure and app config puts in the right stuff in TS configed duplicate default configuration. 
+That's fine. Initialized debug never called. It's gonna do that via an async thing, and hardcode is just gonna put some comments. We can come back to it I think. Inconsistent resource naming yep, it's gonna make those more consistent. Missing GRACEFULGRADATION does a warn instead of just returning null. Dont care about the tests right now. Go. 
+Okay, I'll give it another like probably know ten minutes or so. Everyone on the call's been here for two hours. If you're getting an that's fine. If you need to go take a walk or something, I'll just finish this off and commit it. 
+But this shouldn't take long. Fire off a bunch of subagents, but make sure that each one of those subagents goes back and updates the to do list file as it does its tasks. 
+Hopefully I should speed things up there. Do you ever play those games like Command and Conquer or Age of Empires or like, some of those tools? Those of those games, if you're my age, C&C come on.
+Wesley Donaldson | 01:41
+Yes. See and see all the way.
+Sam Hatoum | 01:44
+The Conquer. 
+So yeah, this feels like that to me now. It's like just resource management. Like, you go do that. There's a problem there. You go do that, right? And look, you can see now it's five or five agents at the same time to go accelerate that, which is pretty freakying. Awesome.
+Wesley Donaldson | 02:03
+Do we know? Maybe this is a question for Stace. Do we like what plan are we using in the Claude instance that he mentioned that he can give Jeremy and Lance access to? Does anyone know that on the call? Yes, Max. 
+Okay.
+Sam Hatoum | 02:18
+You're lucky, are you?
+Wesley Donaldson | 02:22
+And you should make sure that all team members, including myself have access to that MAX program.
+Sam Hatoum | 02:28
+Yeah, everyone at Ovia does, by the way, already. Like by default. So anyone who needs it. Just ask for itslvio and no problem. Like it's a no brainer to me. Toddlers.
+Wesley Donaldson | 02:43
+Because that's a question we should probably finalize with STAYSAM like which one should we should be using? Obviously, but so your team members should they be using the us a or should they be usinglvio account?
+Sam Hatoum | 02:56
+I mean, for Claude code, it doesn't matter because it's not really an enterprise account. So we'll just continue using our own. I think it's fine. I don't have to bill clients for our Claude code usage. 
+It's a no brainer. But I don't think they have, like an enterprise account or anything where, like, you know, the data's I believe Claude doesn't train on your cl I stuff. I could be wrong.
+Wesley Donaldson | 03:24
+I know on your use of their API so it was actually no, I don't know that monetized.
+Sam Hatoum | 03:24
+Okay.
+Wesley Donaldson | 03:32
+Mone.
+Sam Hatoum | 03:34
+That's right. Okay, so I can see here' like clicklick click, it's done, it's doing some verifications, but how it doing now before it's finished, see where it goes. Tick those off in like the agent when tick them differently. The agent doesn't usually have the same context. 
+Like, if you look at how it fires off agents. Let's see. Like this is actually the instruction it gives each agent, so it doesn't get nearly as much context. It just says migrate all console logs to Blower. Here it is. This is what the agent received from the main one. 
+Alright, so it doesn't have half as much context as what we gave the other one. He's gotta be careful about, like how what agents do. Let's find out. Like, for example, phase six here. Where is that?
+Speaker 5 | 04:35
+Is there a way to handle the quality of the code it writes? Like? I know people complain online, like, it's writing in secure code. It's blah. You know, I've tried adding like in my personal stuff, I do. I try to say, like, using, like, Solid design Principles or like, the Gang of four, like, design Patterns sort of things, that stuff even. Have you seen that be effective, or is it more about how you're phrasing? 
+Maybe that implies how it should be done. I don't yeah, got a technique. I mean, I guess the things I'm doing too, I'm not really planning out that much. Maybe. And I need to plan it out more before I ask it to do something. I don't know.
+Sam Hatoum | 05:23
+There is absolutely a technique. I'll show it to you here. That was like. I mean, that's the that catchup technique that I was telling you about earlier. Like, if I show you here just what it's doing. Let me. I wrote a scraper recently that you can find one that's already remain. Give me a second. 
+Maybe not this one, maybe number one three. Let's try that real quick. Okay? I'll just show you tail. How do you do it? With. With tail. How do you tell it? Like the number of lines that you want. I forget minus n 200 or something.
+Speaker 5 | 06:03
+Bad TOS club that one.
+Sam Hatoum | 06:05
+But there you go, right? Let me say more than 200, is it? Not this one done. Let me just go to a different one. Let me go back to. I was on this running. 
+Sorry I'm one as well. This is not it. I wanted just try three. Nobody has tried that one. I'll try one en us try this. 
+Let's get something wrong direct here. One that's got useful stuff in it. It's running a me so I'll find in a minute he we go. I think this is sort of good. 
+Maybe. I mean cau 1. Okay, here we go. This is it. All right, so notice over here, like one of the technique. One of the things I'm doing in the technique, as you see here, is like the. This is trying to do a commit. 
+So you can see here. Git add git commit. You see that like feature scripts, if I just go find this commit in here, right? Basically, the agent over here tried to do this commit first of all. And when it tried to do it first time around here, it got a knack. You can see the red knack. 
+And basically what I've told, what I've said is you're not allowed to commit this before, right? And, let me just wind back. So it tries to commit, it gets a knack and it says, can validate commit. So then it says, okay, the agent gets that response and it tries again, and this time it gives it what it needs. 
+And I'll tell you how. What? What it needs means. So here you can see a knack. It says New behavioral TS file requires a test script. Pretol used TS is being added without an accompanying test file. And then it says no. 
+So what I have is a second agent that's watching the first agents commits, and I get it to commit every burst at a time. So if you look and commit history over here, you'll see each one of these bursts is a single chunk of work. 
+And so now what we can do is we can tell the second agent, which is running in parallel to this on the hook on the commit hook when it tries to commit on the pretol use. I'll show you where that is. There's a hook over here which says on tool use pretol use. When it tries to do, a commit, it basically goes through my validate commit command over here. Script. 
+And if I go to validate commit, what you see is actually runn a Claude cl I somewhere herean I guesswn. Spawn. There it is. So you can see it's running a Claude agent again. And it's given it the value of the commits that the first agents doing. 
+And it says to it, make sure that this commit adheres to every single thing that's in this technique file. And if it doesn't, then it says you're not allowed to do that. And that's what you're seeing here is saying the techniques file doesn't. These three files you're trying to commit don't adhere to the rules of Sam, all right? 
+And so it says no. And so it says, this is the reason you failed. Try again. And then the first agent says, okay, I'm going to try again. And you can see it here, it says commit, blah. And it was, okay, commit here says commit violation and it. 
+And I have a plea system as well. It says like the. The first one is actually having a plea with. The first one says the script is a thin layer, but again it says no, you're not allowed. The validator is inconsistent. It says it allowed pretol us with the same plea, but not this one. Let me try again. 
+And, like, you can see the two agents having an argument. Basically, and it actually ends up with a fantastic clean commit history. And that's how, if you wanted to do the same thing, Jeremy would like, you know, specific solid techniques and what have you'd basically have a file that says, these are my musts. 
+And if I show you what that looks like for me, Claude MD. You can see here like backwards compatibility, I want let me look at something else extreme ownership. Every problem is your problem. No deflection, no explaining why something is broken. 
+You see a problem, you fix it, you add another burst to fix it. No third option, right? And so now what you see is like you find the plan being updated as it goes on. So you can see that 31, but that was 30. 
+But then it found there's a problem. So it made two new hook, two new sub plans within the plan, and it committed those two to let me know that like that happened. So this is like you need to create kind of a lock tight system around it. 
+And when you do that with a set of rules, then yes, you can absolutely enforce it. And it does. Bang it with a hammer if it doesn't.
+Speaker 5 | 11:09
+And so while it's adding more, does it still like with the extreme ownership? Or, you know, let's say it's just doing stuff poorly and it needs more tasks that it has to do. Does the ketchup still break it up into chunks? 
+Like, because you could. I don't know if it's actually possible, the way you wrote it, but you could technically have like almost an infinite loop or something, right? And kill your contexts.
+Sam Hatoum | 11:35
+But it hasn't happened. It doesn't fill your context. That's the thing is this one can keep running out of context like AP context Windows, so it keeps it running out. But the point is the plan keeps it consistent. 
+And then the other thing is like the bursts one test, one behavior, one commit, no exceptions. And you can see, like this catches it. This says, like the number of times here says like, there we go. One behavior, one commit, no exceptions. 
+And you can see it actually split it up into three separate commits.
+Speaker 5 | 12:03
+Okay? So you just have it fine tuned to, you know how to how much those verses should be as far as, like, how much each commit should be worth. And then you're testing the quality of it. So even if it does find issues or something like the pieces are so small that it doesn't really matter that it makes more because the context like that agent would get or whatever that subageagent is just so small where it's like very doable even if you have to like switch things around or not know as much about the main project.
+Sam Hatoum | 12:40
+Exactly that, and there's a lot. You can read it, I can send you a link to catch up like it's actually public. It's if you wanna just. Lou, I have one right here. This is the latest version I have of it, if you're interested in the chat, the, you know, the contents not yet in the hooks and stuff.
+Wesley Donaldson | 12:59
+You don't have the roles in there yet, right? So you don't have like the configuration for the hooks and stuff?
+Sam Hatoum | 13:06
+Not yet, no. This is just actually the Claude MD itself. 
+But I am gonna I'm working on an NPM package that's exactly the next one. Like I said, you can you'll be able to it's called the Claude catch.
+Wesley Donaldson | 13:13
+I tried configuring answer and it got crap. You didn't have the stuff in there yet.
+Sam Hatoum | 13:17
+That'll be, you know, I'm wondering whether this will be under author or overvi. I'm not sure yet, right, but I will publish this and give it to you and everyone here can assist to.
+Speaker 5 | 13:25
+And you said the skills don't cost context, right? And the other and MCP does is that what you'd said?
+Sam Hatoum | 13:34
+Okay, exactly correct. Okay, all right, let's see where these are guys have got to. So this one fixed all the things around appcom fake. All right, so that looks like it's good to go. This one is still going console one spy spies. 
+All right, fine. I mean, it makes sense. Like, in terms of testing, we enforced the testing. That's what that, Markdown is doing. But like when you have something like console logs, you leverage spies. There's like four four different types of test table spies, fakes, stubs and mocks. 
+It's just not very common that you see spies the heck. But yeah, it makes sense for logging, just using just to spy on. All right, Jeremy, I'm going to commit this because I think we've been at it for a bit, but there's a good chunk of work that's been done here. The last thing I'll do is I'll just say create a read me inside the app config file. That explains all the design decisions we've made, all the, refactorings that we've done and summarizes everything for the next developer to take on. I'm just gonna do that and commit this for you so you can take this over the edge and, like, it's done 80% of the work, right? 
+That's always think of it that way. It's done 80%. It's still your job to get the last 20% done. And the whole thing is your jobs. Just today, I'm the one doing the, AI control, and as time goes on, you guys will do it. 
+But you just get it to do 80% of your work. And you can finish off the last 20.
+Sam Hatoum | 15:14
+Let's goes straight to main Jeremy that's right, appreciate it Sam.
+Wesley Donaldson | 15:17
+Remember? You own a hundred percent of it though. All right guys. Sam, thank you so very much for guiding us through much my was to share the demo with the team.
+Sam Hatoum | 15:28
+Thank you. I'm going to commit all that no not for me guys and if you have any questions please come back to me I'm always happy to help.
+Wesley Donaldson | 15:32
+Any objections to that? Firefox I guess it.
+Speaker 5 | 15:43
+Sounds good. Thank you.
+Sam Hatoum | 15:45
+Thanks. Cool stuff. Thanks.

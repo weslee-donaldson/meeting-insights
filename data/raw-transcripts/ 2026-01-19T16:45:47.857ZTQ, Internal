@@ -1,0 +1,572 @@
+Attendance: 
+{'last_name': 'Lasek', 'id': '33755235-125d-4873-83bc-b0dea162d23a', 'first_name': 'Dominik', 'email': 'dominik.lasek@xolv.io'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Berrogorry', 'id': 'a1aa35ad-3549-4343-929b-baefd2132c18', 'first_name': 'Nicolas', 'email': 'nicolas.berrogorry@xolv.io'}
+Transcript:
+Wesley Donaldson | 00:05
+Did you know, like good morning slash afternoon we trying to do this from memory rather than the list that I have.
+Speaker 2 | 00:14
+Hey.
+Wesley Donaldson | 00:19
+You're in Europe or in South America?
+Speaker 2 | 00:21
+Exactly.
+Wesley Donaldson | 00:22
+Europe.
+Speaker 2 | 00:22
+In Europe y so it's afternoon for me.
+Wesley Donaldson | 00:22
+Okay, good. I make sure... Nice. We are an international team.
+Speaker 2 | 00:31
+Almost evening, I would say. Hey.
+Wesley Donaldson | 00:36
+Sam, super awesomely, you're able to join this. I think we'd love to... Let's jump in and share the board, and you can see what I mean, share. So let's take a look at the board. First team, congratulations on the demo last week.
+I think we showed up really strongly. The concern around "Should we be doing automation? Should we be doing a harness around testing different clients inside VMS?" I think we addressed that concern. The ability to integrate with their MCP server. Great work all around.
+So I think we showed up really strongly in the Ubebridge call. We showed up really strongly just generally at the end of last week. So kudos to you guys for delivering on that. What I did walk away with from the end of last week was just a need for us to revisit what's in the backlog.
+So before I jump to that, let's just quickly run status. We'll leave a couple of minutes for us just to revisit what's in the backlog. Sam, welcome. Your direction and thoughts on what the next quick thing that we can work on are clear. One clear thing that came out of the conversation was this idea of "Let's focus on one core client."
+But we came to the conclusion that we wanted to do that still within an environment which we can do future automation testing. So nothing I think that you have done, Nicolas, would go to waste, which is probably going to focus internally within that test on one core client. That being said, let's jump into status.
+So that I mentioned you, Nicolas, feel free to take it.
+Speaker 3 | 02:08
+Sure, yeah.
+Wesley Donaldson | 02:09
+Yeah, okay, so those are good news.
+Speaker 3 | 02:09
+Okay, so those are good news. I basically made a little bit of progress since Friday regarding just installing more software like configuring the AI client.
+Wesley Donaldson | 02:13
+I basically made a little bit of progress since Friday regarding just installing more software like configuring the AI client.
+Speaker 3 | 02:26
+It's not something that I can share at this point, but basically, I am trying to decouple a little bit.
+Wesley Donaldson | 02:26
+It's not something that I can share at this point, but basically I am trying to decouple a little bit the script.
+Speaker 3 | 02:35
+The script.
+So I found that there is some third-party platform called, and I don't want that to turn into a problem.
+Wesley Donaldson | 02:38
+So I found that there is some third-party platform called. And I don't want that to turn into a problem.
+Speaker 3 | 02:44
+So it will be just a couple of hours to get the benefit of not having platform-specific code on the automation, like on the script that basically controls a UI of whatever program we installed.
+Wesley Donaldson | 02:44
+So it would be like a couple of hours to get the benefit of not having platform-specific code on the automation like on the script that basically controls AI or whatever program we install, for example, is...
+Speaker 3 | 02:58
+For example, this code. But yeah, and when that is done, I'll be able to just continue with the next step, which is getting an ID configured and getting that IO. So as you remember, last week, I demonstrated that I was ready to do automation.
+Wesley Donaldson | 03:01
+But yeah, and when that is done, I'll be able to just continue with the next step, which is getting an ID configured and getting that IO. So as you remember, last week, I demonstrated that I was ready to do automation.
+Speaker 3 | 03:21
+And yeah, now my focus will be on getting that first program running and getting like a hello word out of that.
+Wesley Donaldson | 03:21
+And yeah, now my focus will be on getting that first program running. And I get it like an AI word out of that I would probably create...
+Speaker 3 | 03:30
+I would probably create... So at this point, I created an abstraction that is the environment.
+Wesley Donaldson | 03:31
+So at this point, I created an abstraction that is the environment.
+Speaker 3 | 03:37
+So basically when you are creating tests, you provision an environment and say, "Hey, give me a use case to provision a Windows BM, for example, with this specific image, and I will create a similar abstraction for basically creating a test with these prompts using this client."
+Wesley Donaldson | 03:37
+So basically when you are creating tests, you provision an environment and say, "Hey, give me a use case to provision a Windows BM, for example, with this specific image, and I will create a similar abstraction for basically creating a test with these prompts using this client."
+Speaker 3 | 04:04
+And it's very simple, but it's good to have like a sort of like top level structure.
+Wesley Donaldson | 04:04
+And it's very simple, but it's good to have like a sort of like top level structure.
+Speaker 3 | 04:10
+So it will be two entities, like the environment and the test and the environment.
+Wesley Donaldson | 04:10
+So it will be two entities like the environment and the test.
+Speaker 3 | 04:17
+Sorry.
+Speaker 4 | 04:18
+It sounds pretty sorry, that sounds pretty cool one more time.
+Wesley Donaldson | 04:19
+It sounds pretty cool.
+Speaker 4 | 04:20
+What's the prompt? Is it worth creating a test? Is that what you're saying?
+Wesley Donaldson | 04:20
+What the prompt is worth to create a test, is that what you're saying?
+Speaker 3 | 04:25
+I don't think that I fully understood the question.
+Wesley Donaldson | 04:25
+I don't think that I fully understood the question.
+Speaker 4 | 04:29
+Sorry.
+Wesley Donaldson | 04:29
+Sorry.
+Speaker 4 | 04:29
+Sorry. Just trying to track what you were saying.
+Wesley Donaldson | 04:30
+Just trying to track what you were saying.
+Speaker 4 | 04:34
+Are you saying that you can...?
+Wesley Donaldson | 04:34
+Are you saying that you can...?
+Speaker 4 | 04:36
+Can you repeat what you said about the prompt going yes to a question?
+Wesley Donaldson | 04:36
+Can you repeat what he said about the prompt?
+Speaker 3 | 04:41
+Yeah.
+Wesley Donaldson | 04:41
+Yeah.
+Speaker 3 | 04:41
+So what we want is... We're not trying to set up infinite variance testing for any UI program.
+Wesley Donaldson | 04:41
+So what we want is... We're not trying to set up infinite variance testing for any UI program.
+Speaker 3 | 04:52
+We just want to be able to test different prompts against different AI clients.
+Wesley Donaldson | 04:52
+We just want to be able to test different prompts against different AI clients.
+Speaker 3 | 05:00
+So I am always... Even though I am specifically building a for 101 platform and one AI client, I still want to create a very basic abstraction that we can work with.
+Wesley Donaldson | 05:00
+So I am always... Even though I am specifically building a for 01:01 platform and one AI client, I still want to create a very basic abstraction that we can work with.
+Speaker 3 | 05:13
+So this next abstraction will be the test that basically will be different prompts that we want to send to...
+Wesley Donaldson | 05:13
+So this next abstraction will be the test that basically will be different prompts that we want to send to the LLM and it will be very simple just like a test with a little of... And we send that and capture the output that will be like...
+Speaker 3 | 05:21
+LLM and it will be very simple, just like a test with a list of prompts and we send that and capture the output that will be like my goal.
+Wesley Donaldson | 05:31
+Okay, so Nicolas, can I close it?
+Speaker 3 | 05:32
+Okay, cool.
+Wesley Donaldson | 05:35
+Sounds like we've already done we've already proven our ability to like to do the to run the test, right? So then you're focused on this actually, what specifically we're testing the different prompts.
+So I'm going to close.
+Speaker 3 | 05:46
+Not yet. I wouldn't say that. No.
+Wesley Donaldson | 05:50
+No, I think that task should remain open then until this next step.
+Speaker 3 | 05:51
+I think that task should remain open. Like, until this. This next step. Like when this next step is done, we can close it.
+Wesley Donaldson | 05:55
+When this next step is done, we can close it.
+Speaker 3 | 05:59
+That will be fairer.
+Speaker 2 | 06:00
+I think.
+Wesley Donaldson | 06:01
+Understood. Then Nicolas, I know not a lot of things on the board for you.
+I think we'd love to start. We could look at the backlog, but it doesn't look like there's a significant amount there. We want to see what value is the most value we can pull in or if we want to pivot and focus on something else, something that we've used the term cool a couple of times.
+So what is that opportunity for us to do something that truly demonstrates the power of M? Cir PI, at this point, is it this guy?
+Speaker 2 | 06:39
+That was an experiment that was abandoned.
+Wesley Donaldson | 06:40
+That was an experiment that was abandoned.
+Speaker 2 | 06:44
+As I believe that was an idea that Jeff and Sam had a few weeks ago, but then it was like, "We don't actually need it."
+Wesley Donaldson | 06:44
+I believe that was an idea that Jeff and Sam had two weeks ago, but then it was like, "We don't actually need us for about...
+Speaker 2 | 06:54
+So it was abandoned, I think.
+Wesley Donaldson | 06:55
+I think, yes, actually, based on the Friday discussion we had.
+Speaker 2 | 06:59
+Yeah, actually, based on the Friday's, discussion we had. I actually spent my day today trying to understand the things that Nicolas is using, like the open-ended questions and so on.
+Wesley Donaldson | 07:04
+I actually spent my day to day trying to understand the things that. No, is it's using like. Like the ate background ansluin and so on.
+Speaker 2 | 07:16
+I've read something about them, but it's like leaking a lollipop on the glass.
+Wesley Donaldson | 07:16
+I've read something about them, but it's like making a lollipop on the glass.
+Speaker 2 | 07:21
+I would say...
+Wesley Donaldson | 07:21
+I would say...
+Speaker 2 | 07:23
+So I would like to...
+Wesley Donaldson | 07:23
+So I would like to...
+Speaker 2 | 07:24
+I don't know, maybe...
+Wesley Donaldson | 07:24
+I don't know, maybe I'm not sure that should be the goal for me, but as I understand it should be.
+Speaker 2 | 07:27
+I'm not sure if that should be the goal for me, but as I understand it should be.
+So maybe that would be...
+Wesley Donaldson | 07:31
+So maybe that would be...
+Speaker 2 | 07:33
+Of course, it would be great to, you know, to just, try this in a real, example, or.
+Wesley Donaldson | 07:33
+Of course it would be great to just try this in a real example or...
+Speaker 2 | 07:39
+So I don't know, like to just do it something with that I have.
+Wesley Donaldson | 07:39
+So I don't know, like to just do it something with that. I have an idea.
+Speaker 3 | 07:46
+Do you think that it would be interesting if you could, in parallel, try to run this on Google Cloud because you're not really working with them?
+Wesley Donaldson | 07:46
+Do you think that it would be interesting if you could, in parallel, try to run this on Google Cloud? Because first I need to get anything like the zip which I actually not using my I'm very sorry.
+Speaker 2 | 07:57
+But first I need to get anything like the zip, which I actually... Yeah, I know I was... I didn't... I'm sorry.
+Speaker 3 | 08:06
+That is me, not my vegetables. I am very sorry.
+Speaker 4 | 08:09
+But let's solve that right now.
+Wesley Donaldson | 08:09
+Let's solve that right now. So we're all... It's okay.
+Speaker 4 | 08:10
+Like, let's just spend time writing for the school like so in general, that's okay. Everything should go to the repositories, right?
+Wesley Donaldson | 08:16
+Everything should go to the repositories, right?
+Speaker 4 | 08:18
+And you should be working on it continuously.
+Wesley Donaldson | 08:18
+And you should be willing to continuously like whenever you make changes because we're in a collaborative environment, you have to be pushing continuously'm glad things now.
+Speaker 4 | 08:20
+Whenever you make changes because we're in a collaborative environment, you have to be pushing continuously.
+Speaker 3 | 08:25
+Yes, I will. I will do things now. Yeah, I will do both things now because I think I already have the rights to create a repo.
+Wesley Donaldson | 08:29
+Yes, I will do both things now because I think I already have the rights to create a repo.
+Speaker 3 | 08:34
+But let me first zip and give the zip... Yeah, the repo. I'm so sorry.
+Wesley Donaldson | 08:34
+Let me first... Yeah, the repo. I'm sorry, what is the zip?
+Speaker 4 | 08:39
+What is the zip?
+Speaker 3 | 08:42
+The zip contains the Python project basically.
+Wesley Donaldson | 08:42
+The zip contains a Python project, so I just give it to repo instead of using that.
+Speaker 4 | 08:45
+But just commit it to the repo. Use that as if...
+Wesley Donaldson | 08:48
+I said, yeah, so I don't want to put set up get repo as a task on the board.
+Speaker 4 | 08:48
+Yeah.
+Wesley Donaldson | 08:56
+Honestly, that's no... I am in Terra Quantum at this moment.
+Speaker 3 | 08:57
+No, I am in Terra Quantum in this moment. The organization says I need to authenticate my account.
+Wesley Donaldson | 09:02
+The organization says, "I need to authenticate my account."
+Speaker 4 | 09:09
+Yeah, just a quick reminder.
+Wesley Donaldson | 09:09
+Yeah, just a quick reminder, all delays in software are or not all but 90% of the latest software are due to waiting states.
+Speaker 4 | 09:11
+All delays in software are or not all but 90% of delays in software are due to waiting states. Are you really aware of that everybody just... It's okay, it's not a big deal.
+Wesley Donaldson | 09:17
+You really worry about just it's okay.
+It's not a big deal with us like it's happened.
+Speaker 4 | 09:23
+Nicholas like it's happened.
+It's fine, but I'm just reminding like the going forward just be aware that like waiting states is the biggest source of delis.
+Wesley Donaldson | 09:24
+It's fine, but I'm just remind you like that therefore would just be aware that like waiting states is the biggest possibilities.
+Speaker 2 | 09:34
+I would say we don't need the repository.
+Wesley Donaldson | 09:35
+We don't need the repository actually at the moment we don't need as go if you for example have the project like I can just get the deep and then when Jeff or someone else on track PS we create a POs for us we can just you know comment everything there but that is naturally so I don't want anyone use this.
+Speaker 2 | 09:36
+Actually, at the moment, we don't need the repository to do, for example, have the project like I can just get the zip and then when Jeff or someone else on track one will create the repository for us, we can just, you know, comment everything there. Or then I need that feature myself.
+Speaker 4 | 09:53
+But I don't want anyone using sips. Create theosa trio on Zolbo.
+Wesley Donaldson | 09:56
+Create your... On Xolv. You start sharing that and they're ready.
+Speaker 4 | 10:00
+Start sharing that anyone ready pushed the repository up to...
+Wesley Donaldson | 10:03
+Push the repository too.
+Speaker 3 | 10:08
+I am in the process of doing that and I have a question. Have you faced something called "Slack Claude user portal"?
+Wesley Donaldson | 10:08
+I am in the process of doing that and I have a question can you face something called Sam Cloud user portal?
+Speaker 3 | 10:17
+Because I've entered Git one to the organization of Terra Quantum.
+Wesley Donaldson | 10:17
+Because I would like enter Git one to the organization of the quantum.
+Speaker 3 | 10:26
+And they basically ask me, hey, can do the two factor authenticate.
+Wesley Donaldson | 10:26
+He basically asked me, can you the two back equate?
+Speaker 3 | 10:31
+And I click two factor authenticate and it seems that it redirected me to a sham.
+Wesley Donaldson | 10:34
+I clicked two-factor authentication and it seems that it redirected me to a Slack cloud.com link. I was asked for my email.
+Speaker 3 | 10:42
+Claude, that come link is asking for my email. I put in like Soudio's email is asking for a password.
+Wesley Donaldson | 10:47
+I'm put in like Soviet email. He's asking for a password now.
+Speaker 3 | 10:51
+Now I never seen this before.
+Wesley Donaldson | 10:52
+I never seen this before.
+Speaker 3 | 10:54
+Maybe I can share my screen a little bit or do this I think like it he I think.
+Wesley Donaldson | 10:54
+Maybe I can share my screen a little bit or do this. I think like I think that's not a problem.
+Speaker 4 | 11:01
+You do this... That's not a problem. I'm just going to add you to the team here.
+Wesley Donaldson | 11:03
+I'm just going to add you to the team here.
+Speaker 4 | 11:05
+And what's your.
+Wesley Donaldson | 11:05
+And what's your.
+Speaker 3 | 11:11
+So I don't know if it should be my email, like the personal email of my kid's account or...
+Wesley Donaldson | 11:11
+So I don't know if it should be my email, like the personal email for my... Account. Or do you...?
+Speaker 4 | 11:17
+Your public g have.
+Wesley Donaldson | 11:17
+Your public account?
+Speaker 3 | 11:18
+Account. That's fine. Yeah.
+Wesley Donaldson | 11:19
+Yeah.
+Speaker 3 | 11:20
+I will share that in the chat again.
+Wesley Donaldson | 11:20
+I haven't shared that in the chat.
+Speaker 3 | 11:23
+Just to add... You dissolve the up.
+Wesley Donaldson | 11:23
+I think is all the.
+Speaker 3 | 11:53
+I see it in the chat.
+Wesley Donaldson | 11:53
+A stamp in the chat.
+Speaker 3 | 11:58
+So you want to rebound Soldi or intera quantum because I think I went into intera quantum before if...
+Wesley Donaldson | 11:58
+So do you want to read on slowly or intera quantum? Because I think I went into intera quantum before, but it was to do it.
+Speaker 4 | 12:07
+If it's easy to go to terra quantum, I just put it straight there.
+Wesley Donaldson | 12:07
+It's easy to go to terra quantum and just put it straight there.
+Speaker 4 | 12:09
+If not, I'll just start collaborating right now, basically within the next 30 minutes.
+Wesley Donaldson | 12:09
+Not then just start collaborating right now, but basically within the next 30 minutes.
+Speaker 3 | 12:13
+Yeah.
+Wesley Donaldson | 12:14
+Yeah, the Dominic should be enabled.
+Speaker 4 | 12:15
+The Dominic should be enabled.
+Speaker 3 | 12:16
+That's the key.
+Wesley Donaldson | 12:16
+That's I agree.
+Speaker 3 | 12:17
+I agree. Yes, sorry for that.
+Wesley Donaldson | 12:18
+Yes, sorry for that. It is okay.
+Speaker 4 | 12:19
+Sorry, let's just get it.
+Speaker 3 | 12:22
+Okay? I mean, I am creating the repo.
+Wesley Donaldson | 12:22
+I mean I am creating the repo. Can be renamed, right?
+Speaker 3 | 12:26
+Repos can be renamed, right? So I just called it "TA" which is the name I was been doing credit test mesh.
+Wesley Donaldson | 12:28
+So I just called it "table" which is... In doing... Got a test mesh for member and five member disorder is... Doesn't take back this mesh the otherize data and prompting for Anthropic plant testing evaluation.
+Speaker 4 | 12:39
+Or sign member invite. The over you is an email doesn't... In but...
+Speaker 3 | 12:54
+Test mesh and automate the client prompting for Anthropic plant testing evaluation.
+Vana production branch name.
+Wesley Donaldson | 13:13
+Land that production branch name.
+Speaker 3 | 13:15
+Okay, there is some automation here that I'm not... Shall start with your project with compilation option configuration visibility should probably make it internal or private no internal start with a template no template.
+Wesley Donaldson | 13:15
+Okay, there are some alterations here that I'm not... Project duration visibility should probably make it internal or... No internal...
+But with you guys, you've got to hop to another call.
+Speaker 4 | 13:34
+I'll let you guys read it out. I've actually got to hop to another call. But in terms of priorities, I think... What you had there and what you're talking about in terms of... If we get this running
+Wesley Donaldson | 13:37
+But in terms of priorities, I think. Yeah, like what you have there and what you're talking about in terms of the if we get this running up beyond yours.
+Speaker 4 | 13:44
+I think if we can... Should we look at this?
+Wesley Donaldson | 13:44
+I think if we can... Should we look at this running this in product? Think here running in the GCP so we can run this part of CR CD so runs the a.
+Speaker 4 | 13:47
+Running this in Cloud? I think, yeah, like running this in a GCP so we can run it as part of CCD so it runs the grant and everything else up there.
+Wesley Donaldson | 13:53
+But that I think that's okay.
+Speaker 4 | 13:54
+I think that's okay.
+Like there's wild.
+Wesley Donaldson | 13:55
+Just while we're still waiting to get this to run in the cloud, just worry about us building so much infrastructure now and that the things are being just because things are being that navigated.
+Speaker 4 | 13:56
+We're still waiting to get this to run in a cloud. Just worry about us building so much infrastructure now and it ends up being useless because it ends up being that nobody ends up using this.
+I know it was a fun experiment, and now we're industrializing it.
+Wesley Donaldson | 14:07
+And like, it was a fun experiment and now we're industrializing it.
+Speaker 4 | 14:11
+What do you know?
+Wesley Donaldson | 14:13
+So just to confirm, we're going to create another work effort around getting what Nicolas has done on local into running into a cloud instance.
+Speaker 4 | 14:22
+I'm just saying I'm questioning that, like I'm questioning the value of that right now.
+Wesley Donaldson | 14:23
+Say... I'm questioning the right words.
+Speaker 4 | 14:26
+What's it might...
+Wesley Donaldson | 14:30
+It might be...
+Speaker 4 | 14:33
+It just might be one of those things that sits on a shelf.
+Wesley Donaldson | 14:33
+It might be one of those things that sit on the shelf. It's okay that we've done this much exploration to try to work with it, so I'm just wondering if we're better off spending time on something else.
+Speaker 4 | 14:39
+Yeah, and it's okay that we've done this much exploration to try and work with it. I'm just wondering if we're better off spending our time doing something else.
+Wesley Donaldson | 14:45
+Get something else. Scared that backlog one more time.
+Speaker 4 | 14:46
+Get to that backlog one more time.
+Speaker 2 | 15:02
+Actually, I'm not sure how important it is.
+Wesley Donaldson | 15:02
+Actually, I'm not sure how important it is, but the current DB I'm not sure if it's still a thing that we have in case of... The agent gateway proxy.
+Speaker 2 | 15:05
+The current DB I'm not sure if it's still a thing that we have in case of having the agent gateway proxy. I'm not sure if it's still putting anything to the current.
+Wesley Donaldson | 15:13
+I'm not sure if it's still putting anything to the current.
+Speaker 2 | 15:17
+Maybe that's worth checking, but as I said, I'm not sure if we still need the current.
+Wesley Donaldson | 15:17
+Maybe that's worth checking, but I think that I'm not sure if we still need the current.
+Speaker 2 | 15:22
+DB.
+Speaker 4 | 15:29
+Don't mention what is worth working on now. You could log in with a TQ account. Exactly. Yeah.
+Wesley Donaldson | 15:41
+Account yeah, they open the clode opens the browser with their logging patient.
+Speaker 2 | 15:41
+Opens the browser with their login page. Yeah, you open the Cloud Desktop and the Cloud desktop opens the browser with their login page. I think we should create...
+Wesley Donaldson | 15:48
+I think we should create... I'll tell you what, let's create a set of reference repositories.
+Speaker 4 | 15:49
+I'll tell you what. Let's create a set of reference repositories. So we've got one on that side, do we have a TypeScript repository and a Python repository like a reference?
+Wesley Donaldson | 15:52
+So put a on that side. Do have a tax script repository and iPhone reposit like a W so taking the iphon poster they have to today strip it down, make it a reference repob like.
+Speaker 4 | 15:59
+So taking the Python repository they have today, strip it down, make it a reference repo of like... Here's how you create a new Python-like repo in the same... Again, for a TypeScript one, which is basically an MCP tool effectively along with some reads and things like that.
+Wesley Donaldson | 16:05
+Here's how you create a new Python-like repo in the same... Again, for a TypeScript one, which is basically an MCP tool effectively along with some reads and things like that.
+Speaker 4 | 16:15
+I think this is valuable.
+Wesley Donaldson | 16:15
+I think this is valuable.
+Speaker 4 | 16:18
+Small task.
+Wesley Donaldson | 16:18
+Small task, we get it done this week, okay?
+Speaker 4 | 16:18
+We can get it done this week.
+Speaker 2 | 16:22
+Okay? Okay, yeah, I don't know, take your time here.
+Wesley Donaldson | 16:22
+Okay, yeah, I don't want to take your time here.
+Speaker 2 | 16:24
+I will just ask more questions on Slack to just clarify if I understand that correctly.
+Wesley Donaldson | 16:24
+I will just ask more questions on the slide to yes cloud by C correct.
+Speaker 4 | 16:29
+Yeah, but really, it's just like...
+Wesley Donaldson | 16:29
+Yeah, but really, it's just like I should be able to just check this reference repository.
+Speaker 4 | 16:30
+I should be able to just check this reference repository out, do my work with it, commit it to a new repository, and I'm up and running with an MCP service that...
+Wesley Donaldson | 16:33
+I do my work with it and do a new repository and I'm running for the next EP service that like the rein implementation.
+Speaker 2 | 16:38
+Like the rein implementations. Let's take this one and create another one.
+Wesley Donaldson | 16:39
+Let's take this one and create... Come over with one.
+Speaker 4 | 16:42
+Yeah, exactly, but it's like it has it's stripped down, it has just like, you know, what's necessary and n me so to get built into the MCP routes.
+Wesley Donaldson | 16:42
+Yeah, exactly, but it's like it's stripped down and it's just like what's necessary and the be to get built into the ncdser, you know, and it's basically a hello world Python and TV server, hello world PASCRIPT with the instructions to have customize it for them.
+Speaker 4 | 16:53
+It's basically a hello world Python MCP server, hello world TypeScript with the instructions of how to customize it, for one.
+I think that would be handy.
+Wesley Donaldson | 17:00
+I think that'd be happy.
+Speaker 2 | 17:02
+Okay.
+Speaker 4 | 17:03
+Okay, sure. I got to go. Guys, bye.
+Wesley Donaldson | 17:09
+Okay, the obvious question, right? Is there enough meat on the bone to chew on for the next couple of days? DOMINIQUE, I'll get that ticket. That just Sam just described. You guys will work through the reb... Is that enough to keep us heads down for at least a day?
+Speaker 2 | 17:25
+Actually I because we have sorry, yeah, it's like six p it's like 06:00 pm right now.
+Wesley Donaldson | 17:28
+Your day's pretty much at the end anyway, Dominic.
+Sorry, you're days... You're in Europe, right? So you're pretty much... What is it by 5 or 6 o'clock?
+Speaker 2 | 17:37
+Yeah, I just wanted to clarify that because, most certainly, I need to ask the question on Slack either... But because we have right now the reference MCP servers one in TypeScript and one in Python, and what I understand is we just want some kind of... Just read me to create how to create a new one.
+Wesley Donaldson | 17:37
+Yeah. I just wanted to clarify that because... Most of... I need to ask the question on Slack either... But because we have right now the reference and CP servers one in TypeScript and one in Python, and what I understand is we just want some kind of... I know it. Sam's challenge or what he's trying to say. There is one of the worries that we tend to have, and we've had we're having this on some other clients is this idea of we do work, but it never gets consumed by other team members or team members have to go figure it out after the fact.
+So I think what he's asking for is just like, "Hey, let's document how to set these up. Let's demonstrate to folks how to actually quickly deploy their own MCP server." So I think that's the core of what he's asking for.
+Let's... Let me write a ticket and let's reference the ticket in our Slack conversation and just converse over that. But it could be as simple as just a README.
+Speaker 2 | 18:32
+Okay, sure. Okay, yeah.
+Wesley Donaldson | 18:36
+Yeah, okay, guys, welcome to a new week.
+Speaker 2 | 18:36
+Yeah, that totally...
+Speaker 3 | 18:37
+Makes sense.
+Wesley Donaldson | 18:41
+Let's enjoy it, enjoy. I forgot, I'll review the yep, I'll review the demo and the UBE bridge call.
+Speaker 3 | 18:44
+I'm almost done setting up the repo. Sorry.
+Wesley Donaldson | 18:50
+Let's see if I could pull out any priorities that they called out there, and I'll service that back up to Sam and you guys to just chat about. See if we could pull one or more tasks from there. Makes sense.
+Speaker 3 | 19:01
+Yeah.
+Wesley Donaldson | 19:01
+Yeah. All right, guys. Bye-bye.
+You don't want to be told. You just want to see it get done, which is fine. I get that. Actually, I want to see if you created my things. Hey, nice.
+What are you putting in there?
+Is it complete? Nice, hello, good morning, right? No, well, good afternoon, close enough. So I'm trying to memorize this like you're in South America, so you're in the eastern time zone now you're in North America. Crack.
+All right, I'm still trying. We have a list of all team members and their locale, and I'm trying to see if I could just commit it to memory, make it easier. All right, Carolina. You're pretty close to me.
+Well, relatively close. We're actually just in North Carolina, this past weekend, we went skiing at Sugar Mountain. Well, snowboarding. Yeah, I'm getting up there, Fernando. If I'm being honest, I'm getting up there in age, so I didn't fall, but I didn't walk away feeling super great.
+A little sore afterwards, but I didn't take any falls or anything, so at least I'm good enough not to fall. I've been writing since I was... My God, it's been a while since 15 years or more than 15 years.
+It's a great experience. I try to encourage everyone to give it a try at least once or twice in their lives. Just the idea of being outside on a mountain is skiing. Whatever you're doing is just...
+It's relaxing. The air is... It's beautiful. There have been some rough times in my life where snowboarding helped get me through those sad moments, so definitely encourage folks to keep trying.
+Yeah. Nice. I keep trying to convince the wife to go to North Carolina, and I'm like, "Hey, could we find somewhere to work in North Carolina?" Sorry, in Colorado because I actually frequent... Not Vail, not a superfan of Vail because it's so commercial, but Breckenridge. I'm a big fan of Breckenridge.
+I think the mountain is like a lot of blues. Yeah. Breckenridge and Ridge. Yeah. I love Breckenridge, I love the bowls and Vail and all that, but it feels a little... Breckenridge feels more family-friendly, and I have young kids that want to go too.
+So sorry, you live... We live in Atlanta. Well, we live... Not too far from Atlanta. We're in a city called Marietta, which is about 30-45 minutes out of Marietta. Out of Atlanta? Nice. I have just some quick stuff to go over with you, and I can give you back some time. Thank you for sharing your status. Love that. The thing that I was posing to the team, and I'd love to get your insight on, is... Let me just show you the board. Where's my huddle? There you go.
+Then share. There we go, right? You could just see my whole screen. It's easier for everyone... Ignore that client. So current. Okay, so as you said, you're working through much of the functionality in here,
+and you made one direct ask for the PDF. Stuff like Adam's going to Adam, and he's going to reach out to you. Just talk a little bit about that. Spoiler alert. Trying to see if we don't need to create new designs if you can just take the direction from the existing design system. My question was more tactical, and I think you may have already answered. Let me just pull up your status real quick. Come on, where's my window? Be right, what the hell, there you go. I guess it just hides it when you're in a huddle. That makes sense.
+Okay, so you said that you're working through any priorities on these guys. That's fine. So removing the card search box. I think this is actually answering my question. My question was around... Are you knocking off the individual functional elements underneath each of these creative items?
+So like filter dashboard by date range, is that something where you're grabbing that and you're basically pulling it into development? Or are you just looking at the Figma and you have a sense of all the functionality? You're just working through that stigma?
+The conversation I have with Andy. Okay, I think it would be just because, again, you know this and I'm not trying to make it hard on you, but a lot of eyes on the board. You're probably already working on these. You probably already did them if you can try to just drag them through and just...
+The rationale behind that is that at least it's a chunk of a piece of work that we can give to Rhino to review. Jason, we completed X percentage of the task. One of the annoying things I have to do is I have to report on our progress on how we're pushing through this project.
+The only way I can do that is if I create tickets, I can show the tickets moving through. So I don't want to create more tickets because that creates this thing right here. And people's eyes are all over that.
+So if you can just grab one of these, we think, "Hey, I think I've done that. I'd rather you grab that and just push it into... If you've already worked on it, or push it into in development if you haven't worked on it yet." Some CI work so we can push it to there and figure out how we're going to do the database migration work.
+So I thought stuff I can figure out. So I can prioritize. I've been prioritizing just developing the pictures, not we just take a chunk, right? So grab enough where you think, "Hey, I think I have a good amount of content here." Then do the CI to get it into dev.
+The rationale behind that is their releases on Thursday. We as a team are not forced to commit to things in a release. But I do want to keep our mindset of, "Hey, what can we push into the release?"
+If we could push one or two items into each release, I'd rather do a chunk of this. Like, "Hey, dashboard 1.25 or dashboard 0.4, dashboard 0.5." Some portion of the work can be pushed in it, and let's give us some space to do the rest behind afterwards.
+So we do multiple releases. I don't know if we're going to push... That's a good call. Yeah, if we push this forward, then we'll basically blow away what the existing have. What are your thoughts?
+Basically, we're doing a shadow mode. Maybe we publish some content, and then we can... Well, what's the value of that? No one's going to review it in production other than us. Some of the results that we have returning errors for me.
+So I guess I'm looking at the picture really nice too. Like, "Yeah, that I guess production readiness." I could put the new dashboard there and link that. Now let's not worry about that. Let's just focus more on getting it into QA. We can demo. I'd feel comfortable saying, "Hey, we have 50% of the dashboard ready to go."
+It's being reviewed by QA right now. We have to review the dashboard atomic because we can't just give two reports because that will break functionality for the users currently have. So that's why we're not going to push out a subset of that so that I'm comfortable saying that.
+So let's focus more on the FA chunk, get the CI/CD working, and then push the QA to give Ryno something to review. Then you can take the next chunk.
+That's fine. I think the only thing I'd say there is, "Let's put that URL on the ticket unless he's already aware of what it is." I don't think he is, or he would be.
+So okay, so when you grew up, let's... I know you're working on the PDF email thing, right? So maybe this guy has worked on this before the removed chart. Okay, then, I'll just drop it in there for you.
+So you're already working on that, right?
+If you just... I would say I can closely observe others that... So these are just designs in theory, right? But they have an explanation of what the feature is. I think my worry would be, "Are you changing the implementation, which is fine, but we need to keep that situation when I would create a new ticket." I'd rather just keep the tickets that we are... Again, I'm trying deliberately not to create new tickets. I'd rather just keep what we have if it's close enough and then make updates on it and then make sense edits to some dashboard and put in... Yes.
+It's not going to be done the way I worked on it until I'm done until I do drive and drop, so that you can edit the name, description, and annual charts that you can. That's any other priority for the reordering because, unfortunately, it's this story that's all that...
+So I would like to maybe just cancel this one and create one story for... So hold on. So the subtask right here. Remove car. Like these are all done. So remove car chart exactly. So these are the secondary things like the dragon drop sorry, no time... Edit so this is the ability to edit enter edit rename the dashboard at... Okay, thank you. The other question I had was I wanted to get a sense of... Again, you could tell me you just started from scratch is perfectly fine, but trying to figure out what percentage of the work that Ryno did, are you consuming any of that or is it more like you're rebuilding it?
+Okay, that helps. All right, so just to summarize, then we just need to do a couple things. You're going to review the stories that we have here. You're going to pull them into development whatever you currently have, attach your test URL to it, and then just push it into QA for Rhino to attack to say because yeah, I had the exact same problem.
+You should probably have sent me the laptop before I started working, but whatever it is, we are where we are. Alright, cool. So if you could just, sometime today, please just grab these.
+Reflect the status of them. I have to give a report back to the team tomorrow, ideally. So if you could just grab these, push them into status, add the URL, and we could take Rhino because Rhino's a little light right now. He's working on some storyboard stuff, but he doesn't have a lot of things he's reviewing.
+Yeah, I bless you. When you connect with Andy, let me know where you guys net out with the PDF stuff if you need a dedicated ticket for that or not. But hoping not to create another design ticket. He sounds like...
+He feels pretty confident that we have enough design, and you can just take the liberty of working with it within the component system. Make it look as best you can. Right? Thank you, good sir.
+Wesley, good afternoon. Big man says hi. Mother, good afternoon. I'm good. Sorry you caught me in the middle of a meeting. We're chatting about a little bit that we missed you.
+So hopefully not too many bad things that you were saying. My God, you can't say that out loud.
+Jackson, I just wanted you to know who was just one of my cousins. His father just died, and I was telling him about your daughter. Really behaves like... Auntie... Everybody knows those as you never met them, but there were four of them at Delma.
+There were four of them anyway, and Ray behaved like all four put on Canva, and she was so feisty, smart. But feisty... My mother is very... That's where your lineage comes from, Leslie. You are Jackson Star. Who would say that? Boy of my own heart.
+She said, "I don't know that much like tax anymore. I'm looking like my father. People change." But she swears. Jackson. All the others are... Cocon Jackson... I'm pretty good, can't complain too much.
+Same as always, extremely too much. Let's just simply say that Grandparents that is my mother's father, sisters when he behaved just like feisty. Ama was so feisty. And Catila. So feisty. And ETA... I remember those a little bit tiny control of everything.
+So that's where Ray got that from. Ray saw... You would not imagine it would be... Well, my mother did not have the picture, but my mother's picture reminds me of you and all of those people. I love them dearly. We are the only ones everywhere. Very bed out.
+Because she's very right inside my mother. My mother's very right inside her. I want to go out and put something over her to commemorate because I figured when I passed... So you probably won't have time for two people.
+So I have to go... Something before I get you on to... So tenderless anything from your brother Julian? My God, why did this not record? Damn it. Just some work stuff. I take a... Jesus Christ. Is this...? Yes, but I'll talk to you later, okay? Why did this fail?
+Towards the end...
+But why are you still recording?

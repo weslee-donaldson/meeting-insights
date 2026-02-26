@@ -1,0 +1,101 @@
+Attendance: 
+{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'ray.li@llsa.com'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': 'Falcão Jr', 'id': 'eb1ea9d2-97a7-4721-b464-a18aea83c711', 'first_name': 'Antônio', 'email': 'antonio.falcao@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stace.baal@llsa.com'},{'last_name': 'Doshi', 'id': '014200be-e658-44ff-a7f9-46e0041627e0', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'dev.doshi@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'devon.woods@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'francis.pena@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'greg.christie@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'harry.dennen@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'itapplicationdevelopment@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jennifer.karavakis@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jeremy.campeau@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jivko.ivanov@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'john.wilgus@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'lance.fallon@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'michal.kawka@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'rami.hatoum@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stephan.brauberg@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'wesley.donaldson@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'antonio.falcao@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'bethany.duffy@llsa.com'}
+Transcript:
+Wesley Donaldson | 01:02
+Kind of a working session. Office hours, if you would, for just me to have available for you guys to connect with me. Other than that, you should be connecting with me during teams anyway. But what I hope I'm planning for that meeting is I want to communicate priorities from the business to you guys, specifically around the three core priorities that we're targeting for this week.
+We're not looking to close all of them out. But certainly looking to make good progress on each one of them. There are three things that we're working through, and they're all related to this idea of servability and monitoring.
+So the first one is release transparency. So we have a few tickets. Antonio, I think you're taking much of the lead there and pairing with other team members. The standardized logging. Francis and Jeremy, thank you guys for jumping on that.
+Then we have the additional release and release notes generation. It's not right. Where's the... Yeah, here we go. So we have the notion... Sorry, the implementation of Century. So of three core things that we're working through. Each team member should be contributing to those priorities in one way or the other. Or you should be closing out an item with the possibility of pulling in one of those.
+So keeping that in mind, I'll have a conversation with whoever doesn't have clarity on what they're exactly working on if they need to sync with me. Otherwise, I'll be paying you directly just to make sure we're all aligned to those three core priorities. That being said, I'm going to jump into the board review, and we're just going to go as before from right to left. Mehao catches up on where we are with the testing, and I apologize you didn't get a chance to fully demo with this, but let's see if you have everything you need to push this to review and push this to production this week.
+Speaker 2 | 02:36
+Everyone, no worries. I will demote on Friday. Together with the improvements, the build process. I think it's going to be a good demo to demo the improvements in the build and the test field execution.
+So it's ready for prod. I had to resolve one minor merge conflict which arose because of Rami's comment. He already approved that. So I'm waiting for the pipeline to finish and then we can basically merge that.
+So yeah, it's done. Just waiting for the pipeline to finish.
+Wesley Donaldson | 03:04
+Okay? And the do you need it? So do you need a review? Are you waiting for a review on the. The snapshot issue?
+Speaker 2 | 03:13
+I think we explained that on Friday in the demo. So I was supposed to check if the merge can GitHub behave the way the require branch to be up to date option does. But I think we clarified that the problem was that we were bypassing the permissions because we were forcing the merge, so to speak, because previously we needed the product approval. We basically pushed the tickets without the permissions as super admins.
+So I think that explains why it happened. So no further review required, I guess.
+Wesley Donaldson | 03:49
+I think I'd love to see just someone messaging back that they understood what that is. It could be Jiffco, Jeremy, or some other engineer. "Are you guys clear on this explanation? The underlying cause it doesn't require a PR per se, but I would like to see at least one comment back from an engineer too, just to say that they are clear."
+If they're not clear, it's like who we can reflect on what their issue is. Does that make it let me solve it for us right now?
+Speaker 2 | 04:16
+Yes.
+Wesley Donaldson | 04:18
+Jeremy, Jiffco, and you know, other at LANs. "Are you guys clear on what the underlying issue was and just the process enforcement that we need to do to prevent it from happening going forward?"
+Speaker 3 | 04:32
+Yeah. My understanding is that because of the extra approvals we had, we were skipping them because we didn't really need them in that sort of process. But when you skip it, for lack of a better term, it screws up the way the tests run.
+So that's why we were seeing the issue. Since we removed those approvals, now we're expected to go through the regular flow. Based on how the regular flow works, this shouldn't be a problem anymore because it's not going to bypass anything.
+Wesley Donaldson | 05:02
+Okay, sounds good. And Lance to see a thumbs up from you so. And Jiffco feeling good as well.
+Speaker 4 | 05:13
+I'm trying to give some... Sure why it's not working. Yes, I actually experienced that firsthand as well last weekend. Blocked one of my PRs and seems right now on another PR I'm again experiencing failure of missing coverage there.
+So it's the same thing.
+Speaker 2 | 05:30
+I think...
+Wesley Donaldson | 05:31
+Okay, understood. Alright, we are going to move it to completed then. Okay, so, Miha, you're knocking that off, but you have another ticket. You have another ticket here that seems related to the coverage, so I just make sure we're aligning these together again. Same goal here, if we can try to aim to close both of these for this week.
+Speaker 2 | 05:54
+That's correct. We are going to be able to close them. Of course, the ticket MDL 298 is about determining the missing coverage and not implementing the missing coverage. That should be pretty straightforward, but there are a lot of areas that need better coverage, so I would suggest we create separate tickets for each area, and I can then pick them up.
+Wesley Donaldson | 06:14
+Exactly.
+Speaker 2 | 06:19
+I'm not sure if I'm supposed to create those tickets myself or if someone's going to do that.
+Wesley Donaldson | 06:22
+No, I'll create those for you. So I think let's...
+Speaker 2 | 06:25
+Okay.
+Wesley Donaldson | 06:26
+I'm going to prioritize the high and medium ones, and then the others will fall into the backlog for future prioritization or just when we can grab it. I'd like to get you helping out with one of the three priorities. We can discuss that in my office hours or over Teams.
+But I'll create this so we can...
+Speaker 2 | 06:46
+I already picked up one ticket from that area, so I picked up a single place to verify the current release state. So there are a few questions I need to ask Rami.
+I know he was busy today because he was deploying the improved connectors, so I'm going to set up with him on that and basically implement what's needed for that.
+Wesley Donaldson | 07:08
+Sounds good. So just there's one thing here around some of the private folders being out of the end, so this is going to require DevOps to help us just set that up for us. So just... I'll create a separate ticket for that so we can at least track it, but just be aware that there may be a little bit of coordination. I would love to test the security. I'd love to not get this to... I'd love to have the security tested invalidated as part of this ticket. Just be mindful of that as part of the acceptance criteria, like this endpoint here should be private.
+Okay, anyone? So we touched on priorities there, we touched on what's ready for review and ready for going... Sorry, one thing in review we have the standardization logging. So Jeremy and Lance, you guys demo that. Thank you again for that.
+I think my curiosity here is, do we have enough where this cannot be standardized in our implementation plan? There clearly is additional configuration that we can do in debug JS on pipeline around the status we should use or the process we should use for how to filter content. I'd love to see some information around that.
+"Here's how you should be using it." That could be something we could add to the logging. Where is it?
+Speaker 3 | 08:24
+Yeah, I had updated that document and I added a small example, but I can include something with the filtering there, so that shouldn't take long to do.
+Wesley Donaldson | 08:31
+Okay, so...
+Speaker 3 | 08:35
+And then I can have Deb take, another look at it after I add the filtering example that you mentioned, if that's, what sounds good to you.
+Wesley Donaldson | 08:42
+Perfect. Yeah, I just want... I don't want to leave it open. I want to answer the question of "As a developer, how would I work with this?" How should I be working with this? We mentioned the risk around doing star for the filter that we should document. It should be clear to folks and given in situ examples.
+If you want to look at how the endpoints work, and if you want to look at something specific on the front end, just make it a little bit easier for the next person who didn't do the research to know how to work with it.
+Speaker 3 | 09:12
+Yeah, I'll add something about the star, too. So I'll add a part about the filtering as like a warning or something. Or just like a as a part of, like, the example or something.
+Wesley Donaldson | 09:22
+Okay, perfect. All right, let's keep it going. So hopefully once we have that documentation update, if I can ask you to push this into done. Let's have a pair with Lance. Let's have another engineer review it and say, "Yeah, that makes sense to me."
+But once you get that review, let's push this into done as we can. This should be pretty straightforward. The next ticket in that epic I'd like if you could pull as well. It's really just actually using whatever you're...
+Look, I assume you're using Claude, are you using Copilot? I want to propose going through the full application and making the updates to use what Lance is working on for the wrapper.
+So it's boating you. It looks like you're a little bit ahead. So if you could just pair together to see if you can take on it for 31 while he's still knocking off for 25. There's a dependency between the two of them, obviously, but let's pair together, see if we can work through what his plan is and then how to implement this task using his plan.
+Speaker 3 | 10:21
+Yeah, we've been working through... I think Lance had a PR up, and then there are some suggestions that he's been implementing.
+So one of the issues is that because of the nature of how it's set up, changes introduced, breaking changes. So I'm trying to help mitigate that as a part of my ticket because I do have to replace things, but some of them... It obviously can't be merged in the domain unless the brakes are fixed.
+Wesley Donaldson | 10:48
+Exactly.
+Speaker 3 | 10:51
+So the broken step is fixed. So that's what I'm doing right now. Just collaborating with him.
+Wesley Donaldson | 10:57
+Yeah. There's going to be a decent dependency here, Devin, around... Just like we should regression test everything definitely the core user flows, but we should make sure that we haven't accidentally introduced something across the entire user flows.
+Speaker 3 | 11:15
+That's it.
+Wesley Donaldson | 11:17
+Cool.
+That is really... I'm not familiar with... Actually. No, this is the older ticket, okay, and nothing new there. That's fine. Then we already said that Beth already confirmed that we're not going to have this for a little while, so no worries there. Those will just hang there on the call. Beth. What are your thoughts on. Just like if we should take this off the board just for the sake of if it's truly going to be blocked for, like, let's say the next three weeks, four weeks just to reflect that like, this is beyond just blocked.
+It's kind of more like we have deprioritize or we're just we're truly pause for extended period.
+Speaker 5 | 11:59
+We have our refinement meeting tomorrow, so let's pause until after that meeting. We may have an answer there and then. Same thing with the SHAB appointment locking. I may just remove that for now, but I need to get approval for that.
+Wesley Donaldson | 12:15
+Understood, right? Okay, good folks, that's pretty much it. Anyone have any... Are currently blocked, or are not clear what they're implementing, if they have any questions? I definitely want to encourage us to be more collaborative, reach out to each other, ask questions, and most importantly, push things forward, as opposed to dropping them in columns. Everyone good to go?
+All right, I'll take that as a yes. Well, welcome to a new week. Enjoy the week. Let's try to be productive. We know what our three core priorities are. I'm definitely looking to close out the standardized application logging for this week.
+If we feel that that's going to be a challenge, let's talk about it. That's one area I'd love to bring that concern to me in the engineering office hours, and we can go from there. Thank you so much.
+Speaker 2 | 13:07
+Thank you, guys.
+Speaker 3 | 13:08
+For the week. Thanks. Have a good week.
+Wesley Donaldson | 13:09
+Have a week. Let's get it.

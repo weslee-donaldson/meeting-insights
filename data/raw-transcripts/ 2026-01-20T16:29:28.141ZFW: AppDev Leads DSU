@@ -1,0 +1,75 @@
+Attendance: 
+{'last_name': None, 'id': None, 'first_name': None, 'email': 'wesley.donaldson@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'sam.hatoum@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'salem.madani@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jennifer.karavakis@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'harry.dennen@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'greg.christie@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'bethany.duffy@llsa.com'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stace.baal@llsa.com'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'ray.li@llsa.com'},{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'}
+Transcript:
+Wesley Donaldson | 00:15
+Good morning.
+Speaker 2 | 00:50
+I think this might be it. I know Jennifer is out. She couldn't make it. I don't know if CM can make it or not. So I think we can go ahead and get started.
+Wesley Donaldson | 01:06
+Cool. Someone's sharing their screen. I can just share my board and walk you through Mandalor real quick.
+Stace | 01:13
+Two.
+Wesley Donaldson | 01:14
+Alright.
+Okay, so we recently pushed one item to production yesterday specifically around our eat some testing functionality, so nothing major there. Nothing for product to review, just additional validation or test that we're running as part of our comprehensive regression test suite on the back end.
+So that went to Prague yesterday or early this morning. Additional items that we're focused on. I think we'll get to production this week, just restating the priority around, especially with the conversation that we had yesterday. Thank you again, Sam, for leaving that workshop.
+So we're currently in... We're projecting to get a PR in for the standardized lobby in the wrapper specifically. So Lance is predicting that by the end of today, he's working through some PR issues, but generally speaking, the logging is looking well and towards target to get that out for this week. One concern that came out of that was around just how we're going to leverage app config.
+So we're working through that. Ram's feeling a couple of questions coming from Jeremy. So nothing major block there. But Sam, we may pull you into that just to share a perspective, but looking good on that priority. My priority for this week was around the release transparency, specifically task number 04:36 around LM automation.
+So spoke with him this morning. Shared status. He's projecting to have a PR by the end of today for that. No major blockers. He did have a chance to review through some of the implementation details completion plan details.
+So read through that didn't flag any issues. Felt confident that he could take on getting that back to the core element of having what the actual changes were, having that available to move into the next step within the epic. Similar idea. I'm getting some additional feedback on just moving this ticket over if there are any blockers, but so far the review... The developer review of this is not flagging any concerns, but this is one item that I'm looking to get to a good status but get to complete by the end of this week. Other things on the board... Relevance. We opened one dog based on just some investigation that Romney caught. That investigation basically just challenged how we're actually qualifying what an active user is.
+So that investigation led to the creation of this ticket. Jeff has already worked on that. He has a PR coming, so it's pretty straightforward to make the update, but just be aware that there was this misunderstanding of how we should be classifying active users in the system.
+But it's a P1 right now. It's the first thing he's knocking off. Expect to have a PR today. So this will definitely be going this week, assuming we don't run into any issues in prod or QA review.
+Stace | 04:16
+One note on that, right? I think we have to be really careful when we're talking analytics stories. The definition of an active user is not a Thrive requirement, that's an analytics requirement. So we're passing the data. That determination would typically be made in the BI system. Does that make sense?
+Wesley Donaldson | 04:38
+Yes, I think from a UI perspective.
+Speaker 2 | 04:40
+Okay, yeah. My concern here is if... So the message we deliver related to the business is that once they complete the six-digit code verification, that's what flips them from pending to active.
+So if that is supported, then we're good. If we're finding cases where that's not then it needs to be addressed.
+Wesley Donaldson | 05:11
+Okay. So something for us to keep an eye out for. Or stays... Do you have an existing concern?
+Stace | 05:15
+Well in these sorts of things, right?
+Wesley Donaldson | 05:15
+How we...
+Stace | 05:19
+We just have to be careful and... Bathroom product a lot of this is for us to make sure we work out right. The system should be passing the raw states of like cognito and things over right.
+Then the business determines that within power BI so that's where I'm just saying be careful who you talk to get that requirement. If the dev team's job is just to expose the data, it's a Christian conversation.
+Speaker 2 | 05:43
+This is not for the power BI report. This is for the widget. What's being shown on the screen.
+Harry | 05:51
+Okay.
+Stace | 05:54
+All right then, I guess.
+Speaker 2 | 05:56
+Never mind.
+Wesley Donaldson | 05:57
+Okay. Sounds good. Stay the course. That is the priorities that we have. Beth Sawy, your meeting on Thrive Commerce is coming. So excited about that.
+But those are the priorities that stand for this week.
+Speaker 2 | 06:12
+You have a quick question on the power BI report. Maybe I should touch things with Ray. Is there anything that this team needs to do? Stays to your point or it that data streams already set up and it's really just Christian segment and into the report.
+Wesley Donaldson | 06:29
+We have projections that we have provided are specific for the BI team. If there is if Christian needs additional. Additional data or different like different SQL like we can we had talked about last week actually doing a session for him just to empower him to be able to kind of create his own projections.
+So that's still outstanding. We can continue that conversation, but he should have everything he needs now. It's really just about creating a projection.
+Stace | 06:53
+Yeah, that's my understanding too. Until we get to a next version of the report that might be geared towards results processing or clinical.
+Speaker 2 | 07:01
+Okay, cool. I just didn't know if there was something that we needed to be aware of. So that answers my question.
+Wesley Donaldson | 07:08
+That's us. Actually, one quick item I shared inside of Harry. I sent it to you directly, but I shared inside of the Mandalor channel. If you want to consume Sam's presentation, there's a Confluence page I created for it just so we didn't have it just living attached to only a meeting.
+Harry | 07:16
+Three.
+Wesley Donaldson | 07:25
+That's it for me.
+Harry | 07:27
+Yeah, I sent that to the desk. Just start with these ones that came in for dating. It's work mind. Let me see what Mike gets upsizing about now. Any better?
+Speaker 2 | 07:57
+Yeah, that's a little better.
+Harry | 08:04
+So, yeah, so Dane, these came in, I think, from Ray. It's just trying to figure out how to compile a list of users who are affected by this issue. Then this one, for instance, I think he's just shelved it while he's working on this proxy to get to use the widget over HPS and our board. Things are moving. The priority is just this PDF Lambda and the admin portal.
+Then I went through how we broke it down, which is right now boilerplate and participant search. Then the other part is the actions that you can perform on that. So that we've committed to this week.
+If we can get to the results side, we will, but then there's some complexity around that, around the internal resolver and stuff like that, which is something I was planning on using for the PDF generation.
+I know, Sam, you brought that up. We'll chat about it in internal resolvers in the architecture meeting, so hopefully, a little good news going on there. Yes, everybody tracking nicely. This one Nix got... He noticed that he'd actually put some AOR handling in here.
+So we said the friendly trace codes. We said five digits. I think he made it six, but he's just going to use whatever you guys just put in for the error handling. Then we should have that. So now if we get an API error, the user will see something useful that they can talk to the call center about, and that way we can just take the trace ID and somebody can look it up immediately.
+That's all the pressing items. Beth, I did speak to DJ about these triage ones. So expect him to hopefully actually triage stuff and then say, "All right, this is what we can do. I need another ticket." So that should be resolved.
+So right now I'm sorting out the banner thing. That's it.

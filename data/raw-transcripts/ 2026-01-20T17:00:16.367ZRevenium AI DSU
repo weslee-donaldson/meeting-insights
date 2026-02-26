@@ -1,0 +1,501 @@
+Attendance: 
+{'last_name': 'Hatoum', 'id': 'e14c677c-4d1d-4a22-8235-1f4bde498c9a', 'first_name': 'Sam', 'email': 'sam@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'pietro.fiori@revenium.io'},{'last_name': 'Zekaj', 'id': '5dddbde1-f632-454c-b390-4c1c76f4b971', 'first_name': 'Rinor', 'email': 'rinor@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'oscar.cruz@hypercurrent.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'stephanie.manrique@revenium.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'gabriel.sabadin@revenium.io'},{'last_name': 'Donaldson', 'id': 'dbc64bf1-b076-4342-953d-f7fb5f0d47cc', 'first_name': 'Wesley', 'email': 'wesley.donaldson@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'gustavo.pires@revenium.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'luis.hernandez@revenium.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'john.jairo@revenium.io'},{'last_name': 'Combs', 'id': 'f33a72b6-31cd-4509-b016-d16b7dc6c6d9', 'first_name': 'Sam', 'email': 'samuel.combs@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'daithi.walsh@revenium.io'},{'last_name': 'Pasieczny', 'id': '12ee28d6-9720-4557-a8b4-64166b5547a4', 'first_name': 'Igor', 'email': 'igor.pasieczny@xolv.io'},{'last_name': 'Trigoso', 'id': 'b429bdeb-442d-4ccc-9f1d-100ca94a37eb', 'first_name': 'Fernando', 'email': 'fernando.trigoso@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'john.demic@revenium.io'},{'last_name': 'Kawka', 'id': '52eebd9d-cbad-4078-8782-03a662bdd39f', 'first_name': 'Michal', 'email': 'michal.kawka@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'jason.cumberland@revenium.io'},{'last_name': 'Doshi', 'id': '014200be-e658-44ff-a7f9-46e0041627e0', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'},{'last_name': None, 'id': None, 'first_name': None, 'email': 'gabriel.bittencourt@revenium.io'},{'last_name': 'Hatoum', 'id': '389011f2-9f4a-4e5a-ab59-056fe0c0e774', 'first_name': 'Andy', 'email': 'andy@xolv.io'}
+Transcript:
+Speaker 2 | 00:27
+[Laughter].
+Everybody, welcome now. Right. It's release week, and a short week since we had a holiday. I just found my linear window. I see.
+Speaker 3 | 01:41
+I'm sorry, can I ask? I see one Sam and Andy, are you guys brothers or siblings? I don't know how to say we're brothers.
+Speaker 4 | 01:51
+Yeah.
+Dev Doshi | 01:52
+You got to guess who's the older brother.
+Speaker 3 | 01:55
+That's so cool. I would say Sammy's the oldest. I don't know.
+Speaker 2 | 01:58
+Why it's all the force.
+Sam Hatoum | 02:00
+That's why it's not correct, but it's all the stress. [Laughter].
+Wesley Donaldson | 02:03
+[Laughter] System.
+Speaker 4 | 02:07
+Four years younger than me. [Laughter] Got it.
+Speaker 2 | 02:11
+All right, so I got organized here.
+Wesley Donaldson | 02:13
+I think the hard sca decaster ran here, so I'll show you today and so we jump, but I'm just going to start jumping on and the I can a co that I...
+Speaker 2 | 02:14
+I know that Demick has to run here shortly today and Hall, I thought you might have questions for John or if anybody does. I'm just going to start there and ask because John's only got about five minutes. Is there anything... Meal? Are you here?
+Michal Kawka | 02:27
+I'm here. Hi, everyone. We already started out all the questions we had because we had a call an hour ago about the performance issues. So I don't have any direct questions to John right now.
+Speaker 8 | 02:43
+Okay?
+Speaker 2 | 02:43
+Anybody else? Before John goes off on his merry way. Okay?
+Sam Hatoum | 02:50
+Hey, yeah, but I don't have something. I have something for later, John.
+Wesley Donaldson | 02:53
+Let's want your... The objective to have... We have to give the alternative on this one. [Laughter] What activity at some point that front the strip?
+Sam Hatoum | 02:54
+So I've put together an architecture about the API Eagles executing on it now, but I'd love to talk to you when you have a minute if you want to ping me, I'm around all afternoon.
+Speaker 2 | 03:02
+Okay, sounds good. It's kind of a disaster for me today, but I'll try to pin you probably tomorrow.
+Sam Hatoum | 03:07
+Tomorrow... Thursday's fight, no problem.
+Speaker 2 | 03:09
+Okay, awesome. Thanks, guys. The other thing, just as a heads-up, we're going to tag the release at some point today, and I'm going to try that script that I wrote last month, and we'll see if that goes sideways.
+If not, we'll have Christina do it tomorrow just as it adds up.
+Wesley Donaldson | 03:24
+So to start with the most important thing to figure out for this reason, which is we're commenting on the US feature flag across the two platforms because we think we have to make to get reflected.
+Speaker 2 | 03:24
+Sounds good. Okay, thank everybody. See? Okay, so with that said, I want to start with the most important thing that we need to figure out for this release, which is where we are on feature flagging across the two platforms.
+Because we have a few things we actually need to feature flag, and if we can't feature flag, then we're just going to have to do old-school commits to hide or remove them.
+So, Oscar, if you're here, can you give us an update?
+Speaker 9 | 03:50
+Yeah, well, so for Friday, I... Yes, to Sam. No to... Sorry to take a look for my pull.
+Wesley Donaldson | 03:57
+[Laughter] and you know because I only too much I want to which for this that's right that's important to like something's today we're solution to that.
+Speaker 9 | 04:00
+Request for taking a look if I was established well the feature flag. So he already took a look, and he told me that it was fine. I already merged that part. I only will create the one that we need for the Nucleus side.
+Yeah, I guess the last part will be like doing some testing for today and probably... Yeah, can we I think we can have it. Yeah, for today.
+Speaker 2 | 04:25
+Yeah, we need a working solution today.
+Wesley Donaldson | 04:27
+So if there are two or three things that you can test with on the Stripe and that we're not tested with...
+Speaker 2 | 04:27
+So there are two or three things that you can test with Oscar. But we will not test with... Implement the squads part of the left menu and the related backend code needs to be a feature flag. Is the solution that you guys implemented front-end only?
+Wesley Donaldson | 04:35
+Technlement is part of the like connecting itself to be it's slightly from as okay, so then I'm just going to have both kind of take part.
+Speaker 2 | 04:47
+Yeah. Okay, so then I'm just going to have open up a ticket to probably Mike and Michal.
+I'll just ask you to annotate the API endpoints like the code can run. It won't be executed, it just needs to be hidden.
+You've done that in the past for something else.
+Wesley Donaldson | 05:02
+SI [Laughter].
+Speaker 2 | 05:02
+I forget what it was.
+Michal Kawka | 05:05
+I did it for the main endpoints for audio, video, and image for prods, so yeah, I can do that. That's basically one line of code.
+Speaker 2 | 05:13
+Okay, got it. It's the squad-related stuff. Squad
+Wesley Donaldson | 05:14
+Stuff, I think that's the great print stuff that can help... No, it's a... Yeah, that's right if that other count predicts... I don't know disruptive, but the to-pre-through stuff we still need to... Through that so that's for you.
+Speaker 2 | 05:16
+I think that's it. If you could please create a ticket for yourself to do that, that would be helpful. Is that enough detail, or do you need me to give more detail on that?
+Michal Kawka | 05:28
+No, I just need to hide all squad-related APIs. That's.
+Speaker 2 | 05:31
+Yeah, that's right. Yep, and then Combs, if you're here, the other thing that maybe I don't know if this is actually merged, but is the tool registry stuff still in a feature branch or is that merged into development?
+Sam Combs | 05:42
+That's merged. That's ready for Q... It can probably be passed on if someone wants to... I did ping Rinor about that because I thought that it might be good for me and him to pair on that to Q, but it is...
+Yeah. Then the Python middleware I just merged. So that's... Anyways, I could give an update or whatever, but...
+Wesley Donaldson | 05:59
+It's different, yes, that is separate from the production network.
+Speaker 2 | 06:03
+Yeah, go for it. Because I think I'm going to ask you the same thing, which is just to hide it from the production endpoints because there's nothing anybody can do with it until the next release when we have something.
+Wesley Donaldson | 06:07
+There's nothing I can do with it until things really go out. Something if... I just the pipeline.
+Speaker 2 | 06:11
+But go ahead, give you an update.
+Sam Combs | 06:13
+Yeah, that'd be cool. We could... Yeah, I could use the new because it would be across both apps, but I did the Python middleware and is there a release process there? Specifically, do you want to pull up my tickets there and I can show you which ones I push forward?
+Speaker 2 | 06:31
+Yep. Where are you, Sam?
+Speaker 11 | 06:37
+There you are. Are.
+Sam Combs | 06:40
+So two await's in QA or no, two await's done. 292 and 91 are ready for QA and then...
+Wesley Donaldson | 06:54
+Yep, that's probably back from libertys differently, but the practice you got to get chapter three right or whatever, but just to get deeper that from our... Back to this.
+Speaker 2 | 06:55
+That's like so the Python stuff will probably hold back from the release, but just because you know nobody can do anything with it until the features are fully released, but the release process there. Gus has a whole release process you guys can chat through or you can Slack or whatever, but Gus is the gatekeeper of that for all of our Python packages.
+Then Sam.
+Wesley Donaldson | 07:21
+Yes the question I ended up some that like we come some different like to present direct events to some branches and I don't I'm the price selected fun happen here but it.
+Speaker 2 | 07:21
+Just a question. I set up the alerts on GitHub last week to prevent direct commits to trunk branches, and I got one this morning about the Python work that you did. But I think it's a false positive. Or do you...? Was it...? I found a PR that looked like the exact same thing, or did you commit something directly?
+Sam Combs | 07:40
+I mean, I merged to Maine on the meat on the middleware.
+Speaker 2 | 07:43
+Merged? Okay, well that shouldn't trigger anyway, there's more curiosity... Okay, merges or what we want direct commits or what we don't.
+Sam Combs | 07:51
+Yeah, it was the metering Python revenue. Metering Python is what I've merged to. Yeah, after 20 augment review sessions.
+Speaker 2 | 08:01
+Have the augment beat down yeah.
+Sam Combs | 08:03
+Or the grip... Six things need to change real quick. But that was fun. I would like to talk about how people run Python and get better because it was a little bit rocky.
+Speaker 2 | 08:13
+But Gus is your guy for that.
+Sam Combs | 08:16
+Too many languages.
+Speaker 2 | 08:18
+Okay, cool. So anything else? Sam?
+Sam Combs | 08:21
+No, I'm good. I guess I'm just wondering about coordination of the release in relation to the...
+Wesley Donaldson | 08:25
+Court dismissed in relation to the...
+Sam Combs | 08:28
+Yeah, we should meet about the feature flags squad menu item, I guess, so that probably should be in a ticket.
+Speaker 2 | 08:36
+Yeah. If you and I can coordinate, he'll...
+I mean, maybe you know already, but he can show you what he's doing to hide those endpoints, and if not, just do the same thing. Please. Nice.
+Speaker 12 | 08:48
+I was going to add one in there just because you... The trip over your thing, Sam, is that I'm guessing this has to go into the getting started or the quick start section or get connected, whatever we're calling it these days. That will usually have a block that says, "Here's the SDK."
+So that's like... Is that going to be part of the feature flag? I'm asking because it would be interesting to know if we... That's like a whole separate plan, like turning on middlewares that you could feature flag each middleware and have them ready to go, and then just turn them on.
+Wesley Donaldson | 09:19
+But you can see... Microbot provided a fiddle on this not for the country but that is actually part of... Plus if I get more information.
+Speaker 2 | 09:24
+Good question. But not for today. For today, there's no change needed because we're not going to release that. But that should be part of the scope day. I agree. Everything just flows through naturally.
+So I just need Oscar to get one solution implemented so we can all look at it.
+Then for the Isotope team, we just need to talk about how we eventually extend that to be front end and back end both.
+I've seen an app config can do that, but we... I don't want to solve that during the DSU but... Let's go to the next thing that is really specific, which you brought up, which is the getting connected page.
+Wesley Donaldson | 09:49
+I have seen that we have some objects. But the co which that dep something and so it to get back to the c that we want people to see when people something so jump you know they come towarecrip by each one get doing this and the jobs for my chest you much my...
+Speaker 2 | 09:58
+It looks like it's not going to get done.
+So I need a way for us to get back to the version of code that we want people to see while you keep working on this. So, John, I think what you should do after this call is talk with Oscar about how he's implementing the feature flag and see if it's capable of doing this.
+Then, if it isn't, you just have to do it the old school way, which is to do a commit to hide what you're working on.
+Speaker 13 | 10:26
+I'm sorry, you said mine. John Kido or John. When you right you John.
+Speaker 2 | 10:37
+Are you clear what I was asking?
+Speaker 12 | 10:39
+I can talk to you, John, afterward if you want to go into detail.
+Speaker 13 | 10:42
+I was clear. I was... I was thinking just to never call me John directly.
+Wesley Donaldson | 10:44
+Of course, but only one, so let's just jump in like this for just that your better.
+Speaker 13 | 10:48
+So I was like a little bit confused.
+Speaker 2 | 10:51
+Okay, only one John working on the onboarding experience so far. All right, let's... So let's just jump into the rest of it. Now those are the core things I wanted to get out of the way. So, Dahi, anything else you want to say today?
+Speaker 12 | 11:11
+No, John, that's for the... Thing and doing some testing in VS code. Nobody would even be aware of that. But Sam, I'll... If you get a ping from me sometime, I'll talk with VS code.
+Wesley Donaldson | 11:21
+[Laughter].
+Speaker 12 | 11:22
+There's no urgency on it, but I just want to pick your brains.
+Sam Combs | 11:26
+I mean, you're Sam had two POs.
+Speaker 12 | 11:31
+So...
+Sam Combs | 11:32
+Yeah, I'm deep into work trees, which is actually slowing me down, but it's going to speed me up in the long run.
+Speaker 12 | 11:38
+Yeah, no urgency on it sometime just end the release.
+Wesley Donaldson | 11:39
+Yeah. And that is distinctly... Yes, but with good morning as testimony to... And to now so they qualified it is perfectly simply so good to invest.
+Speaker 12 | 11:42
+Yeah, okay.
+Speaker 14 | 11:46
+Hello, guys. So this morning I was testing some tickets that I implemented last week. A good one to mention is the red try and your breaker to the cost dashboard and to the web hooks in Alex. So they both are working in that.
+For today I started looking at the ticket 405 to move some configurations to the back end to improve the low storage in front end.
+I will speak with Pietro today about it and some more simple tickets that I gave to Reg towards today.
+Wesley Donaldson | 12:13
+If we to every seed by to black that before she had it still to give some up this com that's like conic so chat.
+Speaker 2 | 12:22
+I want to chat with you guys about the Slack integration tests that we... That was going back and forth just because I feel like there's still a better way to do it than what you guys landed on. I just remind me after this call. Open a Slack conversation about it so we can chat about it, please.
+Speaker 14 | 12:38
+Sure, we have the tickets. Maybe we start tomorrow to create integration attached for this Slack.
+Speaker 2 | 12:45
+Yeah, that's the one I'm talking about.
+Wesley Donaldson | 12:45
+Yeah, don't press down.
+Speaker 2 | 12:47
+I want to discuss the approach there before you get to work.
+Sure, okay.
+Speaker 15 | 12:54
+Hello. So last Friday I finished the crumbs capturing the mirror. Should I publish the mirror with the prompt capture in this release?
+Speaker 2 | 13:09
+Yeah, let's have you do that Thursday when the release goes out, please.
+Wesley Donaldson | 13:13
+Okay.
+Speaker 15 | 13:13
+Okay. And I reviewed task product. 176. And I finished ROS 490 and fros of 4901. And today I'm working on front 492. And I believe I will finish today. And do you want to create a public repository for cloud or middleware? Cloud.
+Speaker 2 | 13:38
+Yes.
+Wesley Donaldson | 13:39
+Yes. So I just made your... The definitely... Just like all type of object project magic and...
+Speaker 2 | 13:39
+So maybe you already know how, but we're going to need the dash internal and the external one just like all the rest. If you need help as... Okay.
+Speaker 15 | 13:49
+Okay, thank you. That's for me.
+Speaker 2 | 13:51
+And that should go out Thursday as well. The public one. Like.
+Speaker 15 | 13:56
+Okay.
+Speaker 11 | 14:00
+Hello everyone. I have issued 265 and 257. I set did the back and forth with the code reviewers, said... Just to give away that one. I have to just update documentation, but it seems the feature is working fine.
+Wesley Donaldson | 14:18
+Just AA it want to call something t book this one I spoke to you from.
+Speaker 11 | 14:23
+This one it was that 2000 lines of code.
+So I'm being very careful with this one. I did four code reviews for prompt capture for Sabadine in the node. So far so good. I saw the example that everything is running and nice work, 7. About the security check guys, we do have a robust security. As I mentioned, I was worried last week.
+The only thing that we don't have is client-signed encryption for the prompts, but that's protected by standard ATP secure tunneling.
+Wesley Donaldson | 14:57
+If you have to work on our investment in the future like that and the PO the stick is open as possible the...
+Speaker 11 | 15:01
+But the industry standard fits fine for us if we want to go one step further for compliance or other stuff in the future. I have in the comments of the card possible improvements just to give more robustness to the system.
+Speaker 2 | 15:20
+Which ticket is that, Gustavo? I'll look at that later.
+Speaker 11 | 15:24
+I mark you on the chicken ches and I.
+Speaker 2 | 15:26
+Okay, if it's in my inbox, I'll see it.
+Speaker 11 | 15:30
+Okay, so that's it for me. Yes, I just forgot. Sam, I'll indicate... Yeah, just to when we publish the revenue metering, we need to make sure that all the meteror Python that relies on it are running.
+Wesley Donaldson | 15:43
+We to that all that we are and with potentially every perform changeo the chance if the if.
+Speaker 11 | 15:49
+We have... Testing everything set up for matrix testing. We followed by conversions with support.
+So it's easy to make the check that we can publish. But this is the stuff that we need to do. You can call me and I can show you the process. We can align, but it's almost automatically just to double-check first before publishing.
+Sam Combs | 16:11
+Sounds good. Yeah, I'll check that out. Is that documented in there in the repo?
+Speaker 11 | 16:18
+In GitHub actions, you can see everything that's going on.
+Sam Combs | 16:23
+Cool. Yeah, I'll. I'll check it out. Yeah. I recently told my kind of local agent to be just do whatever they do in CI and that kind of helped because I kept failing CI for all the formatting and stuff, but it ended up working okay.
+Speaker 2 | 16:38
+It's a good call out, though. Gustavo, it would be helpful to put in the main README if it's...
+I'm assuming this is an internal repo.
+Wesley Donaldson | 16:45
+But just so I...
+Speaker 2 | 16:46
+Just an explanation of the GitHub action that runs so that you know AI and people know what's there, then they can read it themselves, but it's a deal pointer to the automated...
+Speaker 11 | 16:57
+I will create a document specific for the internal because that did not go to public, so I'll do that. Cool, thank you.
+Speaker 2 | 17:08
+Let's see... Anything else other than what we talked about before?
+Speaker 13 | 17:13
+I'm sorry. Well, one thing, I have a couple of books that come from the previous task, so I would like to know if I...
+Speaker 14 | 17:22
+After I finish...
+Speaker 13 | 17:23
+The last task that is already done, I'm just waiting for TI to give his okay, and it's done, which is four to four. I will tackle 465, but there are a lot of books. I like a couple of books that I saw in my previous work.
+So what do you want me to do, Jason? Tackle those books now or continue with the process of the creation of this onboarding, giving all this stuff that I'll have to talk with Oscar and the feature flag and all of this. What do you think about this?
+Speaker 2 | 17:59
+I feel like somebody else should probably work on this one because it's not really...
+Wesley Donaldson | 18:01
+That that's not good.
+Speaker 2 | 18:03
+I mean, this isn't really a part of what you're working on the Quickstart page, is it? I mean, this is a generic component that works everywhere.
+And I mean, are we replicating functional? We must be replicating functionality that's in the Isotope repo here.
+Wesley Donaldson | 18:20
+Get upset I...
+Speaker 13 | 18:25
+Yeah.
+Speaker 2 | 18:27
+So that's true. Andy, can... Whoever worked on this on your side of the repo worked on it on ours. So it's the same developer both ways.
+Speaker 4 | 18:37
+So yeah.
+Speaker 2 | 18:40
+Was...
+Sam Hatoum | 18:42
+Got it right. Andy, sorry, no go on... I say that was Combs that did it actually back then, when he was on Isotope. So how do you do? Do you need some help to just get someone on this and get it done?
+Speaker 11 | 18:54
+Well.
+Speaker 2 | 18:54
+The issue appears to be that it's behaving differently on our side of the fence than your side. And if this is just one of those pain points I talked about last week, Sam's not the end of the world but to have two different people fix it would seem silly.
+So if Combs, if you're familiar with this, can I put this in your queue, please, to look at?
+Sam Combs | 19:11
+Sure. Yeah.
+Sam Hatoum | 19:12
+It means Dev has already... We've got a discussion going on internally right now with Dev, Fernando, and myself about how we're going to unify it.
+Speaker 2 | 19:19
+So just so I had a long discussion with Claude about submodules since you TED me off to that last week, so I'm ready. All right, so... Skip that one and keep working on what you're working on, please.
+Speaker 13 | 19:32
+Okay, but what about the books? Jason? Do you want me to tackle the bugs in ticket 465 or continue with the long run?
+Speaker 2 | 19:39
+The bugs that were in ticket 465.
+Speaker 13 | 19:42
+No. There is another box that, for example, I... Get this right? Sorry. For example, I have to give you an example. Stephanie put a book. That is when you click on the "N" bar and maybe when you click this tool... Just links or stuff like that to have everything fixed until now.
+That's what I want to know.
+Speaker 2 | 20:17
+Got it. I don't really care, I mean, it's all got to be fixed before the features are released so you can decide the right time to work on it.
+Speaker 13 | 20:24
+Okay.
+Speaker 2 | 20:24
+Cool, yeah, sure thing.
+Speaker 13 | 20:26
+Okay, that's it for you.
+Speaker 2 | 20:27
+Thank you. All right, Luise.
+Speaker 13 | 20:31
+Welcome back.
+Speaker 16 | 20:33
+Good morning. Okay, yes, so as you may know, I was up for at least. I would say no, I mean seven to ten days.
+Wesley Donaldson | 20:43
+I hurt.
+Speaker 16 | 20:47
+Okay, so I came back yesterday. I worked yesterday in a couple of tickets as well as today.
+I have noted those tickets. Okay, so I'm going to share the tickets in which I have done for the last couple of days. Okay, one second. Go. I rephrase that. Okay, yes. So I have done the ticket numbers 122115, 09:99, and 01:20.
+Now I'm working on the ticket numbers 121116 and 97. So I have used a spoke with Michael Kaqua and I have applied what we were talking about. I have emerged. So it should be alright now.
+Wesley Donaldson | 21:51
+It but it can't but.
+Speaker 16 | 21:53
+So I'm going to ask him to see if it's really fixed the error that you have with metering right as metering... Yeah. So it's about that from my side I think...
+Speaker 11 | 22:10
+Yeah.
+Wesley Donaldson | 22:10
+Yeah, okay.
+Speaker 2 | 22:12
+Okay, thanks, Luise.
+Sure, yeah. Michal, I am waiting with great anticipation. You've made a big claim that you've fixed this metering test problem.
+Michal Kawka | 22:25
+Hopefully, yes. So that was one of the things that I was working on. So the problem was that we weren't trusting the upstream validation by default. When we merged that PR that... Created which removed the API validation service, I thought that the flag was set to true in dev and other environments, but it wasn't, so Luise created that PR in the stack repository. I don't know the name of the repository basically the Terraform stack, so it should be fixed now for dev environments.
+I asked John if we should set trust upstream validation for Q and prod.
+If that's the case, I ask you to do that. The other thing that was failing for the... Sorry.
+Speaker 2 | 23:09
+Are you waiting on an answer or you already got an answer on that question?
+Michal Kawka | 23:12
+No, I'm waiting for the answer. Okay.
+Speaker 2 | 23:14
+We should. It's the same thing.
+Wesley Donaldson | 23:14
+It's the same thing.
+Michal Kawka | 23:16
+Okay. So we can do that list if you take care of that. Another thing that was broken in the endpoint test was the timestamp validation. So I noticed today that 7,000 transactions succeeded because we had that flag set manually on the environment.
+So almost all transactions succeeded, but 36 failed due to timestamp validation.
+So I fixed that because we have a helper function in the test bench repository already, so I can rerun the tests after the standup to verify if everything
+works fine. I assume that the tests should be stable now,
+but of course, due to the issues that we were having recently, we identified a couple of bottlenecks in the performance of the transaction engine. Dev and I had a talk with John today about it.
+So we're going to wait probably three days for the test to stabilize and then we can try out our improvements.
+Wesley Donaldson | 24:07
+And I and that's what I can something I turn I as.
+Michal Kawka | 24:08
+The transaction engine, which are basically locking timeouts and all that. So that's what I was working on. I wrapped up back 406, which is user-level view prompt data. I took care of both the front-end and back-end, so any front-end developer is very welcome to review that.
+I'll ask John to review the back-end because that's a security rate change. I wrapped up back 30, so that's basically improvements to our API error handling. Back 342 is related to revenue calculation regression, which should be fixed.
+Wesley Donaldson | 24:41
+For this I the same the cont.
+Michal Kawka | 24:45
+I found the root cause of the issue if clearing AI anomalies endpoint. I have a PR which is ready for review. I'll ask John to do that for me and hopefully it's going to work as expected.
+Wesley Donaldson | 24:56
+Hope and it that live on.
+Speaker 2 | 24:59
+Good God, that's a lot of work you got done. Nice work. That's exciting.
+Michal Kawka | 25:03
+Thank you.
+Speaker 2 | 25:04
+So, one thing to be thinking about is I want to make the change that we introduced temporarily to add an alias for product ID and organization ID after we tag this release. I want to start testing, making, and removing the alias and making that change everywhere.
+Wesley Donaldson | 25:15
+A patent practice. Res start testing by vis that match different be complex plans that might be out quick ext some that way that to the point switch but and of courses and build up but I'm yours for se this is something point that like t from one perspective and I'm going to think about working as such as pointing the cost of.
+Speaker 2 | 25:21
+That's a complex plan that I'd like your help with because it has to extend to all the middleware. All the things that touch the API endpoint need to switch from... It's a breaking change. We're doing it intentionally, and I need you to help manage it, please.
+Michal Kawka | 25:34
+Of course.
+Speaker 2 | 25:35
+Okay, so if I don't know if there's a ticket for that, could you please make a ticket for yourself to build that plan? Then you can use Gustavo or Sabadine as a talking point there to review the plan from the middleware perspective and then just have to think of everywhere else it touches. Sure.
+Okay, thank you. All right. Oscar, anything other than the feature flag stuff from before?
+Speaker 9 | 25:57
+No, I think that should...
+Speaker 17 | 26:02
+Hey, everyone, good morning. So this morning, I fixed a small issue on the logs page that Stephanie found basically one of the columns displaying seconds instead of displaying milliseconds.
+Wesley Donaldson | 26:15
+So for the second...
+Speaker 17 | 26:15
+So now it's using a function to format the seconds. The middle ones are seconds.
+I started working on a new project to move some data from local storage into the backend. The first step will be removing the static chart configurations because the default and customer charts are currently stored in local storage, and the goal is to migrate everything to the database so it's easier to manage going forward.
+Wesley Donaldson | 26:44
+From...
+Speaker 17 | 26:46
+So that will be the first step.
+I'm still figuring out the next steps, but I'll have a call favor to online these items, and we will start that out, and that's it.
+Speaker 2 | 26:57
+Thank you. Stephanie Heyo.
+Speaker 3 | 27:05
+Good morning. So I had a few tickets here. There they are. I don't know why it went like that. I'm sorry. I fixed it. John, just so you know, if you do any changes to the ticket that I have pushed back again, just let me know which one they are so that when I test...
+Wesley Donaldson | 27:23
+Ticket push. Which one? So I simply the changes... Much more difficult.
+Speaker 3 | 27:28
+I test with the changes that you are putting in, and I have a bunch more tickets to test on my lane, so that's what I'm doing today. I still... I'm still blocked on two tickets that are for mobile check-in because the ticket front 465 is still in progress.
+That one is related to the navigation bar to the site navigation bar. So unless that one is done, I cannot check any mobile stuff freely, so let me know when it's done, and that's it.
+Speaker 2 | 28:05
+All right? Thank you. Stephanie, I need an update from you outside this meeting on the team testing stuff, please.
+Wesley Donaldson | 28:08
+I got on that some point that you've got since so I talk something now.
+Speaker 2 | 28:11
+If you're blocked, then set up time to talk through it so that you're unblocked.
+Wesley Donaldson | 28:13
+Well let no worries.
+Speaker 3 | 28:15
+Sure thing.
+Speaker 2 | 28:16
+A legendary thank you. All right guys, I'm sorry we're running behind today. We had that release conversation to have. So let's go over to West.
+Wesley Donaldson | 28:26
+Thank you. Let me just show the screen real quick.
+Okay? Do you see my screen, Stephanie? Actually, this works really well if you can maybe just really quickly since one of our priority items... If you can just quickly take a look at ticket 01:29 on our board, it's for the team switching functionality to utility. Have a chance to look at that. Speaking of priorities, let's start with Dev. Can you just give us a status on where the investigation on the bottleneck is?
+Dev Doshi | 29:02
+No blockers. I was working with Meha and John Demick to get a little bit more details on the transaction ended. Meanwhile, I have gotten access to middleware. Do IO which is where the telemetry from those things is going, so I'm looking to see if there's some clues there. Meanwhile, I've got Claude iterating locally on running the test bench against the local setup and trying some fixes and things like that, but the main caveat is that it doesn't seem like the issue will reproducely because it's just enough of a different setup compared to the as setup, so I'll have to eventually try it on the real account.
+Wesley Donaldson | 29:41
+The thank you.
+Dev Doshi | 29:42
+But making progress?
+Wesley Donaldson | 29:48
+Let's jump into our dashboard, our next priority. Fernando, can you give us a status? Your status.
+Speaker 18 | 29:54
+Yes. All the tickets in development are... Should move to... For Q8. Today I have added recently a dashboard delete. I added search to the ad chart model and refactored some things along the way. I set up a new CI Workflow design for the Isotope code so we can run all the types of tests that we have and be stabilizing that as well. Simplified the chart design and the chart definition design, which allowed me to change the dashboard edit page so that it can lazily load the charts that the user adds. It wasn't lazy loading before.
+Yeah. So just wrapping things up here for all those changes, which include everything I demoed in the last demo and all the new things I mentioned today. We can push that way for you.
+Wesley Donaldson | 30:53
+We're going to be doing a little bit of cleanup on this particular priority.
+So we're going to be moving out some of these items that we feel can be put into a next cycle just to give us something clear of what we can push into done for this cycle. So we'll refine this. Ready for development column to be more reflective of what can be accomplished in this cycle, let's move on to our next priority, the public API. So good progress there. Thanks, John, for assisting and partnering with us and getting some reviews on these.
+Let's switch to... For your status on this.
+Speaker 8 | 31:24
+Yeah. So I, as you mentioned, completed these tasks on the HATS schema and created endpoints for a couple of resolvers. Added required input arguments and more. Sorry.
+Speaker 2 | 31:41
+It's an echo.
+Speaker 8 | 31:45
+Added some inputs for... I mean, input arguments for one of the resolvers. Then I switched to auto-generation of transport layers. So open API and the RPC for chart data, they both will be generated with the same resolvers.
+So the ISO and the more maintainable number and yeah, easier to develop.
+Wesley Donaldson | 32:18
+Still...
+Sam Hatoum | 32:20
+Quick note on that I was working with Igor yesterday on this. I did a whole bunch of exploration. I'll share the exploration markdowns shortly on Slack. But basically, Jason, you were worried about the two APIs, like the internal one and the external one diverging.
+That's why you should use the same one. Well, instead, we've gone down to say, okay, let's make the resolvers generate both of those. And now you just maintain resolvers and they just it's generating.
+Wesley Donaldson | 32:45
+It just...
+Sam Hatoum | 32:46
+So that's what that is, and that's the alternative way of doing maintaining consistency while still being code-first.
+Speaker 2 | 32:53
+Okay, makes sense.
+Wesley Donaldson | 32:56
+Cool. Sam, anything just since you're speaking do you want to speak to about the API strategy?
+Sam Hatoum | 33:01
+That's what I did exactly. I brought this back from Dunn because I had some other thoughts like... Let me bring that back. So I've got these documents. I'll put them on a ticket, and I'll upload them to our Slack now if anyone's interested.
+Wesley Donaldson | 33:12
+Excellent, those are the critical items. We're still working on Fig on pulling rev into... But just prioritizing the dashboard into getting that something chunkable that we can get to deploy sooner rather than later.
+That's it for the Isotope team to get...
+Speaker 2 | 33:28
+Okay, thank you. Just like to bubble it up to the top level. Are we going to get the new dashboards released on Thursday to replace all of our current ones or not?
+Wesley Donaldson | 33:41
+So we're not going to have enough of all of the chunks. That's what I mentioned earlier, the idea of having enough of a chunk where we can actually push that as a feature into the... For the consumer, the thinking there is we need to have more of this built out. We're going to divide it up into short MVPs and then what's next? We'll put that into the next cycle.
+Right now, we just need to do that due diligence and just tell you definitively if we can ship just with what we currently have that's going to be going into QA today. It's going to be next week.
+Speaker 2 | 34:11
+Okay, sorry, I misunderstood that. So you're not saying no, you're not saying yes, you're saying we'll tell you later.
+Wesley Donaldson | 34:17
+Well, we need...
+Speaker 2 | 34:17
+I'll tell you that's fine, that's...
+Wesley Donaldson | 34:18
+We need to break this out for you, Jason, and to be able to tell you that, yes, this is what we think is a chunk that we can go with.
+Speaker 2 | 34:21
+Yeah, okay, makes sense.
+Wesley Donaldson | 34:23
+And you need to help with us. Just confirm that that's viable for your customers.
+Sam Hatoum | 34:27
+If we can take a shortcut and then just do fast follows, that's what we should do, right? That would be my recommendation, but we just need to chat with Jason to see how much you're willing to not go with.
+From what we've got here is the trunk.
+Speaker 2 | 34:39
+I mean, I would think... Yeah, think about it as replacing a page at a time, and I'm willing to replace a page at a time. So we're... That seems like the easiest unit to replace right now.
+Speaker 4 | 34:50
+As long as we've got dashboards and the ability to add predefined charts, then we should go with that and then increment on top of that. So we'll prioritize after this and then...
+Speaker 2 | 35:01
+Okay, so, I mean, we're kind of in the same mode.
+Wesley Donaldson | 35:03
+If you understand the share that to do what you intend to put it.
+Speaker 2 | 35:04
+We're going to create the QA thing that Sam hates so much. We're going to do that for a while longer and have a QA environment. But then we will use that to see what we intend to push.
+So, just sometime in the next 24 hours, we need you guys to tell the same things we know, what we're testing against.
+Okay? Cool, Hon, Sam just quit. He's really hated my comment. You just have to leave Sam when you hear the term QA, all right? I don't know what he's doing now.
+All right, I think we're done, so thanks, Wes, for running through it. So we'll tag the release later today. We'll go from there.
+Wesley Donaldson | 35:39
+Okay. Thank.
