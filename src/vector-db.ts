@@ -27,9 +27,13 @@ const featureSchema = new Schema([
 ]);
 
 export async function createMeetingTable(db: VectorDb): Promise<VectorTable> {
-  return db.createEmptyTable("meeting_vectors", meetingSchema, { existOk: true });
+  const names = await db.tableNames();
+  if (names.includes("meeting_vectors")) return db.openTable("meeting_vectors");
+  return db.createEmptyTable("meeting_vectors", meetingSchema);
 }
 
 export async function createFeatureTable(db: VectorDb): Promise<VectorTable> {
-  return db.createEmptyTable("feature_vectors", featureSchema, { existOk: true });
+  const names = await db.tableNames();
+  if (names.includes("feature_vectors")) return db.openTable("feature_vectors");
+  return db.createEmptyTable("feature_vectors", featureSchema);
 }
