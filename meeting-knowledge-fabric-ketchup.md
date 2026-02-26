@@ -302,9 +302,9 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: LanceDB Foundation
 
-- [ ] Burst 91: `connectVectorDb` accepts a path argument and opens LanceDB connection (temp dir in tests, `db/lancedb/` in live) [depends: 2]
-- [ ] Burst 92: `createMeetingTable` creates meeting_vectors table with schema (meeting_id TEXT, vector FLOAT32[384], client TEXT, meeting_type TEXT, date TEXT) [depends: 91]
-- [ ] Burst 93: `createFeatureTable` creates feature_vectors table with schema (feature_text TEXT, meeting_id TEXT, client TEXT, date TEXT, vector FLOAT32[384]) [depends: 91]
+- [x] Burst 91: `connectVectorDb` accepts a path argument and opens LanceDB connection (temp dir in tests, `db/lancedb/` in live) [depends: 2]
+- [x] Burst 92: `createMeetingTable` creates meeting_vectors table with schema (meeting_id TEXT, vector FLOAT32[384], client TEXT, meeting_type TEXT, date TEXT) [depends: 91]
+- [x] Burst 93: `createFeatureTable` creates feature_vectors table with schema (feature_text TEXT, meeting_id TEXT, client TEXT, date TEXT, vector FLOAT32[384]) [depends: 91]
 
 ### Bottle: Meeting Embedding Pipeline
 
