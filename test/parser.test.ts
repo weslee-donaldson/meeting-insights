@@ -2,7 +2,9 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, parseFilename, readTranscriptFile } from "../src/parser.js";
+import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody } from "../src/parser.js";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const tmpDir = join(tmpdir(), `mtninsights-test-${Date.now()}`);
 const rawDir = join(tmpDir, "raw-transcripts");
@@ -41,6 +43,47 @@ describe("parseFilename", () => {
   it("handles duplicate suffix", () => {
     const result = parseFilename(" 2026-01-19T15:43:52.210ZRevenium, INT, DSU (1)");
     expect(result.title).toBe("Revenium, INT, DSU");
+  });
+});
+
+const fixtureContent = readFileSync(resolve("test/fixtures/sample-meeting"), "utf-8");
+
+describe("splitSections", () => {
+  it("splits file contents into attendance string and transcript string", () => {
+    const { attendance, transcript } = splitSections(fixtureContent);
+    expect(attendance).toContain("Donaldson");
+    expect(transcript).toContain("Wesley Donaldson | 00:11");
+  });
+});
+
+describe("parseAttendance", () => {
+  it("extracts array of participant objects from attendance string", () => {
+    const { attendance } = splitSections(fixtureContent);
+    const participants = parseAttendance(attendance);
+    expect(participants).toEqual([
+      { last_name: "Donaldson", id: "014200be-0001-0001-0001-000000000001", first_name: "Wesley", email: "wesley@xolv.io" },
+      { last_name: "Doshi", id: "014200be-0002-0002-0002-000000000002", first_name: "Dev", email: "dev.doshi@revenium.com" },
+    ]);
+  });
+});
+
+describe("parseTranscriptBody", () => {
+  it("extracts array of speaker turns with speaker_name and timestamp", () => {
+    const { transcript } = splitSections(fixtureContent);
+    const turns = parseTranscriptBody(transcript);
+    expect(turns[0]).toEqual({ speaker_name: "Wesley Donaldson", timestamp: "00:11", text: "Good morning. Yep, you could come in." });
+  });
+
+  it("preserves multi-line dialogue blocks per speaker turn", () => {
+    const { transcript } = splitSections(fixtureContent);
+    const turns = parseTranscriptBody(transcript);
+    expect(turns[1]).toEqual({ speaker_name: "Rinor Zekaj", timestamp: "01:19", text: "Here goes.\nSecond line of Rinor." });
+  });
+
+  it("normalizes Speaker N entries to Unknown Speaker N", () => {
+    const { transcript } = splitSections(fixtureContent);
+    const turns = parseTranscriptBody(transcript);
+    expect(turns[2].speaker_name).toBe("Unknown Speaker 4");
   });
 });
 
