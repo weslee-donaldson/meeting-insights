@@ -74,6 +74,31 @@ export function parseTranscriptBody(transcript: string): SpeakerTurn[] {
   return turns;
 }
 
+const logParser = createLogger("parser");
+
+export interface ParsedMeeting {
+  timestamp: string;
+  title: string;
+  participants: Participant[];
+  turns: SpeakerTurn[];
+  rawTranscript: string;
+  sourceFilename: string;
+}
+
+export function parseKrispFile(filePath: string, filename: string): ParsedMeeting | null {
+  try {
+    const raw = readFileSync(filePath, "utf-8");
+    const { timestamp, title } = parseFilename(filename);
+    const { attendance, transcript } = splitSections(raw);
+    const participants = parseAttendance(attendance);
+    const turns = parseTranscriptBody(transcript);
+    return { timestamp, title, participants, turns, rawTranscript: raw, sourceFilename: filename };
+  } catch (err) {
+    logParser("failed to parse %s: %s", filename, err);
+    return null;
+  }
+}
+
 export function readTranscriptFile(filePath: string): string {
   return readFileSync(filePath, "utf-8");
 }

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody } from "../src/parser.js";
+import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseKrispFile } from "../src/parser.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -97,6 +97,35 @@ describe("readTranscriptFile", () => {
     const filePath = join(tmpDir, "utf8-test");
     writeFileSync(filePath, "Héllo wörld 日本語", "utf-8");
     expect(readTranscriptFile(filePath)).toBe("Héllo wörld 日本語");
+  });
+});
+
+describe("parseKrispFile", () => {
+  it("combines parseFilename + parseAttendance + parseTranscriptBody into complete parsed meeting object", () => {
+    const filePath = join(rawDir, " 2026-01-19T15:43:52.210ZRevenium, INT, DSU");
+    writeFileSync(filePath, fixtureContent);
+    const result = parseKrispFile(filePath, " 2026-01-19T15:43:52.210ZRevenium, INT, DSU");
+    expect(result).toEqual({
+      timestamp: "2026-01-19T15:43:52.210Z",
+      title: "Revenium, INT, DSU",
+      participants: [
+        { last_name: "Donaldson", id: "014200be-0001-0001-0001-000000000001", first_name: "Wesley", email: "wesley@xolv.io" },
+        { last_name: "Doshi", id: "014200be-0002-0002-0002-000000000002", first_name: "Dev", email: "dev.doshi@revenium.com" },
+      ],
+      turns: [
+        { speaker_name: "Wesley Donaldson", timestamp: "00:11", text: "Good morning. Yep, you could come in." },
+        { speaker_name: "Rinor Zekaj", timestamp: "01:19", text: "Here goes.\nSecond line of Rinor." },
+        { speaker_name: "Unknown Speaker 4", timestamp: "03:41", text: "I haven't seen with him, but yeah..." },
+      ],
+      rawTranscript: fixtureContent,
+      sourceFilename: " 2026-01-19T15:43:52.210ZRevenium, INT, DSU",
+    });
+  });
+
+  it("returns null for unparseable files", () => {
+    const badPath = join(tmpDir, "bad-file");
+    writeFileSync(badPath, "not a valid krisp file");
+    expect(parseKrispFile(badPath, "bad-file")).toBeNull();
   });
 });
 
