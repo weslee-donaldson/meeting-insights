@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "setup": "tsx scripts/setup.ts",
+    "process": "tsx scripts/run.ts",
+    "reset": "tsx scripts/reset.ts"
   },
   "keywords": [],
   "author": "",

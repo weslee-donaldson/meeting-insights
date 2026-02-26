@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Mandalore",
+    "aliases": ["Mandalore", "LLSA", "llsa"],
+    "known_participants": ["@llsa.com"]
+  },
+  {
+    "name": "Revenium",
+    "aliases": ["Revenium", "REV"],
+    "known_participants": ["@revenium.io", "@revenium.com"]
+  },
+  {
+    "name": "Hypercurrent",
+    "aliases": ["Hypercurrent"],
+    "known_participants": ["@hypercurrent.io"]
+  },
+  {
+    "name": "TQ",
+    "aliases": ["TQ"],
+    "known_participants": []
+  }
+]

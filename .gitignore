@@ -3,3 +3,4 @@ dist/
 db/
 models/
 .DS_Store
+.env.local

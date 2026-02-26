@@ -21,7 +21,7 @@ export function seedClients(db: Database, filePath: string): void {
   for (const entry of entries) {
     if (!entry.name) throw new Error("Client entry missing name");
     if (!entry.aliases) throw new Error("Client entry missing aliases");
-    db.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
       entry.name,
       JSON.stringify(entry.aliases),
       JSON.stringify(entry.known_participants ?? []),
