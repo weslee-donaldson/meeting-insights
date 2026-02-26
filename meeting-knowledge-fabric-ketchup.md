@@ -368,11 +368,11 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Downstream Task Generation
 
-- [ ] Burst 136: `generateTask` accepts curated_context and task_intent, calls LLM adapter [depends: 134, 55]
-- [ ] Burst 137: `generateTask` returns title, description, acceptance_criteria from LLM response [depends: 136]
-- [ ] Burst 138: `generateTask` output includes source_meeting_ids for traceability [depends: 137]
-- [ ] Burst 139: `generateTask` rejects output containing details not present in curated_context [depends: 137]
-- [ ] Burst 140: `generateTask` logs generation via `mtninsights:task` [depends: 136]
+- [x] Burst 136: `generateTask` accepts curated_context and task_intent, calls LLM adapter [depends: 134, 55]
+- [x] Burst 137: `generateTask` returns title, description, acceptance_criteria from LLM response [depends: 136]
+- [x] Burst 138: `generateTask` output includes source_meeting_ids for traceability [depends: 137]
+- [x] Burst 139: `generateTask` rejects output containing details not present in curated_context [depends: 137]
+- [x] Burst 140: `generateTask` logs generation via `mtninsights:task` [depends: 136]
 
 ### Bottle: Evolutionary Learning
 
