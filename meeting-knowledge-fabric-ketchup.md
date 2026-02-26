@@ -242,10 +242,10 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Transcript Chunking
 
-- [ ] Burst 49: `chunkTranscript` splits transcript exceeding token limit into chunks [depends: 46]
-- [ ] Burst 50: `chunkTranscript` preserves speaker turns — never splits mid-turn [depends: 49]
-- [ ] Burst 51: `chunkTranscript` returns single chunk when transcript is under limit [depends: 49]
-- [ ] Burst 52: `chunkTranscript` logs chunk count and sizes via `mtninsights:extract:chunk` [depends: 49]
+- [x] Burst 49: `chunkTranscript` splits transcript exceeding token limit into chunks [depends: 46]
+- [x] Burst 50: `chunkTranscript` preserves speaker turns — never splits mid-turn [depends: 49]
+- [x] Burst 51: `chunkTranscript` returns single chunk when transcript is under limit [depends: 49]
+- [x] Burst 52: `chunkTranscript` logs chunk count and sizes via `mtninsights:extract:chunk` [depends: 49]
 
 ### Bottle: LLM Adapter
 
