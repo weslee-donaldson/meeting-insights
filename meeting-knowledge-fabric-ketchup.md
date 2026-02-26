@@ -308,12 +308,12 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Meeting Embedding Pipeline
 
-- [ ] Burst 94: `buildEmbeddingInput` concatenates summary + features + topics + decisions from artifact [depends: 69]
-- [ ] Burst 95: `embedMeeting` generates real 384-dim vector from embedding input via ONNX [depends: 94, 87]
-- [ ] Burst 96: `storeMeetingVector` inserts vector + metadata into LanceDB meeting_vectors table [depends: 95, 92]
-- [ ] Burst 97: `storeMeetingVector` includes client from detection result in metadata [depends: 96, 84]
-- [ ] Burst 98: `storeMeetingVector` includes meeting_type and date in metadata [depends: 96]
-- [ ] Burst 99: `storeMeetingVector` logs storage via `mtninsights:embed:meeting` [depends: 96]
+- [x] Burst 94: `buildEmbeddingInput` concatenates summary + features + topics + decisions from artifact [depends: 69]
+- [x] Burst 95: `embedMeeting` generates real 384-dim vector from embedding input via ONNX [depends: 94, 87]
+- [x] Burst 96: `storeMeetingVector` inserts vector + metadata into LanceDB meeting_vectors table [depends: 95, 92]
+- [x] Burst 97: `storeMeetingVector` includes client from detection result in metadata [depends: 96, 84]
+- [x] Burst 98: `storeMeetingVector` includes meeting_type and date in metadata [depends: 96]
+- [x] Burst 99: `storeMeetingVector` logs storage via `mtninsights:embed:meeting` [depends: 96]
 
 ### Bottle: Vector Search
 

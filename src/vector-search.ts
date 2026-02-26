@@ -1,0 +1,55 @@
+import { embed } from "./embedder.js";
+import { createLogger } from "./logger.js";
+import type { InferenceSession } from "onnxruntime-node";
+import type { VectorDb } from "./vector-db.js";
+
+const log = createLogger("vector:search");
+
+interface SearchOptions {
+  limit: number;
+  client?: string;
+  meeting_type?: string;
+  date_after?: string;
+  date_before?: string;
+}
+
+interface SearchResult {
+  meeting_id: string;
+  score: number;
+  client: string;
+  meeting_type: string;
+  date: string;
+}
+
+export async function searchMeetings(
+  db: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  query: string,
+  options: SearchOptions,
+): Promise<SearchResult[]> {
+  const vec = await embed(session as Parameters<typeof embed>[0], query);
+  const table = await db.openTable("meeting_vectors");
+
+  const filters: string[] = [];
+  if (options.client) filters.push(`client = '${options.client}'`);
+  if (options.meeting_type) filters.push(`meeting_type = '${options.meeting_type}'`);
+  if (options.date_after) filters.push(`date >= '${options.date_after}'`);
+  if (options.date_before) filters.push(`date <= '${options.date_before}'`);
+
+  let search = table.search(Array.from(vec)).limit(options.limit);
+  if (filters.length > 0) {
+    search = search.where(filters.join(" AND "));
+  }
+
+  const rows = await search.toArray();
+  const results: SearchResult[] = rows.map((r: Record<string, unknown>) => ({
+    meeting_id: r.meeting_id as string,
+    score: r._distance as number,
+    client: r.client as string,
+    meeting_type: r.meeting_type as string,
+    date: r.date as string,
+  }));
+
+  log("query=%s results=%d", query, results.length);
+  return results;
+}
