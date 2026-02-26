@@ -294,11 +294,11 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: ONNX Embedding Engine
 
-- [ ] Burst 86: `loadModel` loads all-MiniLM-L6-v2 ONNX model and returns session [depends: 2]
-- [ ] Burst 87: `embed` accepts string input and returns Float32Array of length 384 [depends: 86]
-- [ ] Burst 88: `embed` returns similar vectors for semantically similar inputs (cosine similarity > 0.8) [depends: 87]
-- [ ] Burst 89: `embed` returns dissimilar vectors for unrelated inputs (cosine similarity < 0.3) [depends: 87]
-- [ ] Burst 90: `embed` logs embedding generation time via `mtninsights:embed` [depends: 87]
+- [x] Burst 86: `loadModel` loads all-MiniLM-L6-v2 ONNX model and returns session [depends: 2]
+- [x] Burst 87: `embed` accepts string input and returns Float32Array of length 384 [depends: 86]
+- [x] Burst 88: `embed` returns similar vectors for semantically similar inputs (cosine similarity > 0.8) [depends: 87]
+- [x] Burst 89: `embed` returns dissimilar vectors for unrelated inputs (cosine similarity < 0.3) [depends: 87]
+- [x] Burst 90: `embed` logs embedding generation time via `mtninsights:embed` [depends: 87]
 
 ### Bottle: LanceDB Foundation
 
