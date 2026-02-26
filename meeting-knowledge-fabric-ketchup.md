@@ -388,11 +388,11 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Batch Processing Pipeline
 
-- [ ] Burst 147: `processNewMeetings` scans raw-transcripts/, parses, ingests, extracts, and embeds all unprocessed files [depends: 32, 68, 84, 96]
-- [ ] Burst 148: `processNewMeetings` skips files already in processed/ [depends: 147, 34]
-- [ ] Burst 149: `processNewMeetings` logs failures to audit/ and moves failed files to failed-processing/ [depends: 147, 29]
-- [ ] Burst 150: `processNewMeetings` runs client detection for each ingested meeting [depends: 147, 84]
-- [ ] Burst 151: `processNewMeetings` logs full pipeline summary via `mtninsights:pipeline` [depends: 147]
+- [x] Burst 147: `processNewMeetings` scans raw-transcripts/, parses, ingests, extracts, and embeds all unprocessed files [depends: 32, 68, 84, 96]
+- [x] Burst 148: `processNewMeetings` skips files already in processed/ [depends: 147, 34]
+- [x] Burst 149: `processNewMeetings` logs failures to audit/ and moves failed files to failed-processing/ [depends: 147, 29]
+- [x] Burst 150: `processNewMeetings` runs client detection for each ingested meeting [depends: 147, 84]
+- [x] Burst 151: `processNewMeetings` logs full pipeline summary via `mtninsights:pipeline` [depends: 147]
 
 ---
 
