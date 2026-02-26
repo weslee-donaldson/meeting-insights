@@ -36,6 +36,7 @@ const result = await processNewMeetings({
   processedDir: "data/processed",
   failedDir: "data/failed-processing",
   auditDir: "data/audit",
+  extractionPromptPath: "config/prompts/extraction.md",
   db,
   vdb,
   session,

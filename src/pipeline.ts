@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, existsSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createLogger } from "./logger.js";
 import { parseKrispFile } from "./parser.js";
@@ -25,6 +25,7 @@ interface PipelineConfig {
   session: InferenceSession & { _tokenizer: unknown };
   llm: LlmAdapter;
   tokenLimit?: number;
+  extractionPromptPath?: string;
 }
 
 interface PipelineResult {
@@ -35,7 +36,11 @@ interface PipelineResult {
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000 } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath } = config;
+
+  const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
+    ? readFileSync(extractionPromptPath, "utf-8")
+    : undefined;
 
   mkdirSync(auditDir, { recursive: true });
 
@@ -68,7 +73,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
     try {
       const meetingId = ingestMeeting(db, parsed);
-      const artifact = await extractSummary(llm, parsed.turns, tokenLimit);
+      const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate);
       storeArtifact(db, meetingId, artifact);
 
       const vec = await embedMeeting(session, buildEmbeddingInput(artifact));

@@ -60,12 +60,19 @@ function mergeArtifacts(artifacts: Artifact[]): Artifact {
   };
 }
 
-export async function extractSummary(adapter: LlmAdapter, turns: SpeakerTurn[], tokenLimit: number): Promise<Artifact> {
+export async function extractSummary(
+  adapter: LlmAdapter,
+  turns: SpeakerTurn[],
+  tokenLimit: number,
+  promptTemplate?: string,
+): Promise<Artifact> {
   const chunks = chunkTranscript(turns, tokenLimit);
   const start = Date.now();
   const artifacts = await Promise.all(
     chunks.map(async (chunk) => {
-      const raw = await adapter.complete("extraction", turnsToText(chunk));
+      const transcript = turnsToText(chunk);
+      const content = promptTemplate ? promptTemplate.replace("{{transcript}}", transcript) : transcript;
+      const raw = await adapter.complete("extraction", content);
       return validateArtifact(raw);
     }),
   );
