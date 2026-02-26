@@ -317,24 +317,24 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Vector Search
 
-- [ ] Burst 100: `searchMeetings` returns top-k similar meetings for a query string [depends: 96, 87]
-- [ ] Burst 101: `searchMeetings` filters results by client metadata [depends: 100, 97]
-- [ ] Burst 102: `searchMeetings` filters results by meeting_type metadata [depends: 100, 98]
-- [ ] Burst 103: `searchMeetings` filters results by date range [depends: 100, 98]
-- [ ] Burst 104: `searchMeetings` returns meeting_id and distance score per result [depends: 100]
-- [ ] Burst 105: semantically similar meetings score higher than unrelated meetings in search results [depends: 100]
-- [ ] Burst 106: `searchMeetings` logs query and result count via `mtninsights:vector:search` [depends: 100]
+- [x] Burst 100: `searchMeetings` returns top-k similar meetings for a query string [depends: 96, 87]
+- [x] Burst 101: `searchMeetings` filters results by client metadata [depends: 100, 97]
+- [x] Burst 102: `searchMeetings` filters results by meeting_type metadata [depends: 100, 98]
+- [x] Burst 103: `searchMeetings` filters results by date range [depends: 100, 98]
+- [x] Burst 104: `searchMeetings` returns meeting_id and distance score per result [depends: 100]
+- [x] Burst 105: semantically similar meetings score higher than unrelated meetings in search results [depends: 100]
+- [x] Burst 106: `searchMeetings` logs query and result count via `mtninsights:vector:search` [depends: 100]
 
 ### Bottle: Cross-Meeting Clustering
 
-- [ ] Burst 107: `clusterMeetings` reads all vectors from LanceDB, assigns cluster_id to each [depends: 96]
-- [ ] Burst 108: `clusterMeetings` groups semantically similar meetings into same cluster [depends: 107]
-- [ ] Burst 109: `clusterMeetings` separates dissimilar meetings into different clusters [depends: 107]
-- [ ] Burst 110: `clusterMeetings` stores cluster_id mappings in meeting_clusters table [depends: 107, 42]
-- [ ] Burst 111: `clusterMeetings` stores centroid snapshot in clusters table [depends: 110, 41]
-- [ ] Burst 112: `assignCluster` assigns new meeting to nearest existing centroid without full recluster [depends: 111]
-- [ ] Burst 113: `recluster` performs full recomputation and updates all cluster_ids [depends: 110]
-- [ ] Burst 114: `clusterMeetings` logs cluster sizes via `mtninsights:cluster` [depends: 107]
+- [x] Burst 107: `clusterMeetings` reads all vectors from LanceDB, assigns cluster_id to each [depends: 96]
+- [x] Burst 108: `clusterMeetings` groups semantically similar meetings into same cluster [depends: 107]
+- [x] Burst 109: `clusterMeetings` separates dissimilar meetings into different clusters [depends: 107]
+- [x] Burst 110: `clusterMeetings` stores cluster_id mappings in meeting_clusters table [depends: 107, 42]
+- [x] Burst 111: `clusterMeetings` stores centroid snapshot in clusters table [depends: 110, 41]
+- [x] Burst 112: `assignCluster` assigns new meeting to nearest existing centroid without full recluster [depends: 111]
+- [x] Burst 113: `recluster` performs full recomputation and updates all cluster_ids [depends: 110]
+- [x] Burst 114: `clusterMeetings` logs cluster sizes via `mtninsights:cluster` [depends: 107]
 
 ### Bottle: Cluster Topic Extraction
 
