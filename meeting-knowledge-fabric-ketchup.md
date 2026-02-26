@@ -255,20 +255,20 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Structured Summary Extraction
 
-- [ ] Burst 56: `extractSummary` calls LLM adapter with transcript text and returns meeting_summary string [depends: 55, 46]
-- [ ] Burst 57: `extractSummary` returns decisions array from LLM response [depends: 56]
-- [ ] Burst 58: `extractSummary` returns proposed_features array [depends: 56]
-- [ ] Burst 59: `extractSummary` returns action_items with description, owner, due_date [depends: 56]
-- [ ] Burst 60: `extractSummary` returns technical_topics array [depends: 56]
-- [ ] Burst 61: `extractSummary` returns open_questions array [depends: 56]
-- [ ] Burst 62: `extractSummary` returns risk_items array [depends: 56]
-- [ ] Burst 63: `validateArtifact` rejects LLM response missing required keys [depends: 56]
-- [ ] Burst 64: `validateArtifact` rejects LLM response containing non-JSON prose [depends: 63]
-- [ ] Burst 65: `validateArtifact` logs validation failures via `mtninsights:extract:validate` [depends: 63]
-- [ ] Burst 66: `extractSummary` uses chunkTranscript for long transcripts and merges chunk results [depends: 51, 56]
-- [ ] Burst 67: `extractSummary` logs extraction timing via `mtninsights:extract` [depends: 56]
-- [ ] Burst 68: `storeArtifact` inserts validated artifact into artifacts table [depends: 38, 63]
-- [ ] Burst 69: `getArtifact` retrieves structured artifact from artifacts table by meeting_id [depends: 68]
+- [x] Burst 56: `extractSummary` calls LLM adapter with transcript text and returns meeting_summary string [depends: 55, 46]
+- [x] Burst 57: `extractSummary` returns decisions array from LLM response [depends: 56]
+- [x] Burst 58: `extractSummary` returns proposed_features array [depends: 56]
+- [x] Burst 59: `extractSummary` returns action_items with description, owner, due_date [depends: 56]
+- [x] Burst 60: `extractSummary` returns technical_topics array [depends: 56]
+- [x] Burst 61: `extractSummary` returns open_questions array [depends: 56]
+- [x] Burst 62: `extractSummary` returns risk_items array [depends: 56]
+- [x] Burst 63: `validateArtifact` rejects LLM response missing required keys [depends: 56]
+- [x] Burst 64: `validateArtifact` rejects LLM response containing non-JSON prose [depends: 63]
+- [x] Burst 65: `validateArtifact` logs validation failures via `mtninsights:extract:validate` [depends: 63]
+- [x] Burst 66: `extractSummary` uses chunkTranscript for long transcripts and merges chunk results [depends: 51, 56]
+- [x] Burst 67: `extractSummary` logs extraction timing via `mtninsights:extract` [depends: 56]
+- [x] Burst 68: `storeArtifact` inserts validated artifact into artifacts table [depends: 38, 63]
+- [x] Burst 69: `getArtifact` retrieves structured artifact from artifacts table by meeting_id [depends: 68]
 
 ### Bottle: Client Registry
 
