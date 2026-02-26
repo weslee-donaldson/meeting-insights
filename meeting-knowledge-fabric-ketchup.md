@@ -281,16 +281,16 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Client Detection
 
-- [ ] Burst 76: `detectClient` returns client when participant email domain matches known_participants [depends: 71, 46]
-- [ ] Burst 77: `detectClient` returns client when meeting title contains client alias [depends: 72, 46]
-- [ ] Burst 78: `detectClient` returns client when transcript text contains alias [depends: 72, 46]
-- [ ] Burst 79: `detectClient` returns high confidence (0.8) for participant match [depends: 76]
-- [ ] Burst 80: `detectClient` returns medium confidence (0.5) for alias-only match [depends: 78]
-- [ ] Burst 81: `detectClient` returns very high confidence (0.95) when both participant and alias match [depends: 79, 80]
-- [ ] Burst 82: `detectClient` returns empty array when no match found [depends: 76]
-- [ ] Burst 83: `detectClient` returns multiple clients for multi-client meetings [depends: 76, 78]
-- [ ] Burst 84: `storeDetection` inserts detection results into client_detections table [depends: 40, 76]
-- [ ] Burst 85: `detectClient` logs detection results and confidence via `mtninsights:client:detect` [depends: 76]
+- [x] Burst 76: `detectClient` returns client when participant email domain matches known_participants [depends: 71, 46]
+- [x] Burst 77: `detectClient` returns client when meeting title contains client alias [depends: 72, 46]
+- [x] Burst 78: `detectClient` returns client when transcript text contains alias [depends: 72, 46]
+- [x] Burst 79: `detectClient` returns high confidence (0.8) for participant match [depends: 76]
+- [x] Burst 80: `detectClient` returns medium confidence (0.5) for alias-only match [depends: 78]
+- [x] Burst 81: `detectClient` returns very high confidence (0.95) when both participant and alias match [depends: 79, 80]
+- [x] Burst 82: `detectClient` returns empty array when no match found [depends: 76]
+- [x] Burst 83: `detectClient` returns multiple clients for multi-client meetings [depends: 76, 78]
+- [x] Burst 84: `storeDetection` inserts detection results into client_detections table [depends: 40, 76]
+- [x] Burst 85: `detectClient` logs detection results and confidence via `mtninsights:client:detect` [depends: 76]
 
 ### Bottle: ONNX Embedding Engine
 
