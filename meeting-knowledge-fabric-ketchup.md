@@ -376,9 +376,9 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Evolutionary Learning
 
-- [ ] Burst 141: `detectTagDrift` compares current cluster centroid to stored centroid_snapshot [depends: 111, 113]
-- [ ] Burst 142: `detectTagDrift` triggers tag regeneration when centroid shift exceeds threshold [depends: 141, 116]
-- [ ] Burst 143: `detectTagDrift` logs drift magnitude via `mtninsights:cluster:drift` [depends: 141]
+- [x] Burst 141: `detectTagDrift` compares current cluster centroid to stored centroid_snapshot [depends: 111, 113]
+- [x] Burst 142: `detectTagDrift` triggers tag regeneration when centroid shift exceeds threshold [depends: 141, 116]
+- [x] Burst 143: `detectTagDrift` logs drift magnitude via `mtninsights:cluster:drift` [depends: 141]
 
 ### Bottle: Human Feedback Loop
 
