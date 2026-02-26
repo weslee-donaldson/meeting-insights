@@ -338,11 +338,11 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Cluster Topic Extraction
 
-- [ ] Burst 115: `aggregateClusterSummaries` collects all artifact summaries for a given cluster_id [depends: 110, 69]
-- [ ] Burst 116: `extractClusterTags` calls LLM adapter with aggregated summaries, returns 3–7 noun-phrase tags [depends: 115, 55]
-- [ ] Burst 117: `extractClusterTags` rejects vague tags like "discussion" or "meeting" [depends: 116]
-- [ ] Burst 118: `storeClusterTags` updates clusters table with generated_tags [depends: 117, 41]
-- [ ] Burst 119: `extractClusterTags` logs generated tags via `mtninsights:cluster:tags` [depends: 116]
+- [x] Burst 115: `aggregateClusterSummaries` collects all artifact summaries for a given cluster_id [depends: 110, 69]
+- [x] Burst 116: `extractClusterTags` calls LLM adapter with aggregated summaries, returns 3–7 noun-phrase tags [depends: 115, 55]
+- [x] Burst 117: `extractClusterTags` rejects vague tags like "discussion" or "meeting" [depends: 116]
+- [x] Burst 118: `storeClusterTags` updates clusters table with generated_tags [depends: 117, 41]
+- [x] Burst 119: `extractClusterTags` logs generated tags via `mtninsights:cluster:tags` [depends: 116]
 
 ### Bottle: Feature-Level Embedding
 
