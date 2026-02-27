@@ -57,6 +57,25 @@ function parseJsonOrThrow(text: string): Record<string, unknown> {
   }
 }
 
+const REPAIR_PREFIX = "The previous response was not valid JSON. Return only a valid JSON object with no prose.\n\nOriginal request:\n";
+
+async function withRepair(
+  call: (content: string) => Promise<Record<string, unknown>>,
+  content: string,
+): Promise<Record<string, unknown>> {
+  try {
+    return await call(content);
+  } catch (err) {
+    if (!(err instanceof Error) || !err.message.startsWith("[json_parse]")) throw err;
+    const firstRaw = err.message.slice("[json_parse] Response was not valid JSON: ".length);
+    try {
+      return await call(REPAIR_PREFIX + content);
+    } catch {
+      return { __fallback: true, raw_text: firstRaw.slice(0, 500) };
+    }
+  }
+}
+
 export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig): LlmAdapter {
   if (config.type === "stub") {
     return {
@@ -68,24 +87,27 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
 
   if (config.type === "local") {
     const { baseUrl, model } = config;
+    const localCall = async (capability: LlmCapability, content: string) => {
+      let res: Response;
+      try {
+        res = await fetch(`${baseUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages: [{ role: "user", content }], stream: false }),
+        });
+      } catch (err) {
+        throw new Error(`[api_error] Ollama unreachable: ${String(err)}`);
+      }
+      if (res.status === 429) throw new Error(`[rate_limit] Ollama rate limit (429)`);
+      if (res.status >= 500) throw new Error(`[api_error] Ollama server error (${res.status})`);
+      const json = await res.json() as { message?: { content?: string } };
+      const text = json.message?.content ?? "";
+      if (capability === "synthesize_answer") return { answer: text };
+      return parseJsonOrThrow(text);
+    };
     return {
       async complete(capability: LlmCapability, content: string) {
-        let res: Response;
-        try {
-          res = await fetch(`${baseUrl}/api/chat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ model, messages: [{ role: "user", content }], stream: false }),
-          });
-        } catch (err) {
-          throw new Error(`[api_error] Ollama unreachable: ${String(err)}`);
-        }
-        if (res.status === 429) throw new Error(`[rate_limit] Ollama rate limit (429)`);
-        if (res.status >= 500) throw new Error(`[api_error] Ollama server error (${res.status})`);
-        const json = await res.json() as { message?: { content?: string } };
-        const text = json.message?.content ?? "";
-        if (capability === "synthesize_answer") return { answer: text };
-        return parseJsonOrThrow(text);
+        return withRepair((c) => localCall(capability, c), content);
       },
     };
   }
@@ -93,25 +115,29 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   const client = new Anthropic({ apiKey: config.apiKey });
   const model = config.model ?? "claude-sonnet-4-6";
 
+  const anthropicCall = async (capability: LlmCapability, content: string) => {
+    let text: string;
+    try {
+      const message = await client.messages.create({
+        model,
+        max_tokens: 2048,
+        messages: [{ role: "user", content }],
+      });
+      text = message.content[0].type === "text" ? message.content[0].text : "";
+      log("completed capability=%s tokens=%d", capability, message.usage.output_tokens);
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith("[")) throw err;
+      if (err instanceof Anthropic.RateLimitError) throw new Error(`[rate_limit] ${err.message}`);
+      if (err instanceof Anthropic.APIError) throw new Error(`[api_error] ${err.message}`);
+      throw new Error(`[api_error] ${String(err)}`);
+    }
+    if (capability === "synthesize_answer") return { answer: text };
+    return parseJsonOrThrow(text);
+  };
+
   return {
     async complete(capability: LlmCapability, content: string) {
-      let text: string;
-      try {
-        const message = await client.messages.create({
-          model,
-          max_tokens: 2048,
-          messages: [{ role: "user", content }],
-        });
-        text = message.content[0].type === "text" ? message.content[0].text : "";
-        log("completed capability=%s tokens=%d", capability, message.usage.output_tokens);
-      } catch (err) {
-        if (err instanceof Error && err.message.startsWith("[")) throw err;
-        if (err instanceof Anthropic.RateLimitError) throw new Error(`[rate_limit] ${err.message}`);
-        if (err instanceof Anthropic.APIError) throw new Error(`[api_error] ${err.message}`);
-        throw new Error(`[api_error] ${String(err)}`);
-      }
-      if (capability === "synthesize_answer") return { answer: text };
-      return parseJsonOrThrow(text);
+      return withRepair((c) => anthropicCall(capability, c), content);
     },
   };
 }

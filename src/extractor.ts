@@ -82,6 +82,10 @@ export async function extractSummary(
       const transcript = turnsToText(chunk);
       const content = promptTemplate ? promptTemplate.replace("{{transcript}}", transcript) : transcript;
       const raw = await adapter.complete("extract_artifact", content);
+      if (raw.__fallback) {
+        logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
+        return { summary: "", decisions: [], proposed_features: [], action_items: [], technical_topics: [], open_questions: [], risk_items: [], additional_notes: [] };
+      }
       return validateArtifact(raw);
     }),
   );

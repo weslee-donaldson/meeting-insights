@@ -126,6 +126,18 @@ describe("validateArtifact", () => {
   });
 });
 
+describe("extractSummary with fallback adapter", () => {
+  it("returns minimal artifact when adapter returns __fallback sentinel", async () => {
+    const fallbackAdapter: LlmAdapter = {
+      complete: async () => ({ __fallback: true, raw_text: "not json" }),
+    };
+    const artifact = await extractSummary(fallbackAdapter, parsed.turns, 8000);
+    expect(artifact.summary).toBe("");
+    expect(artifact.decisions).toEqual([]);
+    expect(artifact.additional_notes).toEqual([]);
+  });
+});
+
 describe("storeArtifact / getArtifact", () => {
   it("inserts artifact and retrieves it by meeting_id", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);

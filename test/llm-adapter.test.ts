@@ -59,12 +59,20 @@ describe("createLlmAdapter (local)", () => {
     await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[rate_limit\]/);
   });
 
-  it("throws [json_parse] error when response body is not valid JSON", async () => {
+  it("returns __fallback sentinel after two non-JSON responses (repair loop)", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       status: 200,
       json: async () => ({ message: { content: "Here is a summary, not JSON at all!" } }),
     }));
     const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
-    await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[json_parse\]/);
+    const result = await adapter.complete("extract_artifact", "test");
+    expect(result.__fallback).toBe(true);
+    expect(typeof result.raw_text).toBe("string");
+  });
+
+  it("does NOT trigger repair loop for [rate_limit] errors — throws immediately", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ status: 429, json: async () => ({}) }));
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[rate_limit\]/);
   });
 });
