@@ -1,5 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { createLlmAdapter } from "../src/llm-adapter.js";
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("createLlmAdapter (stub)", () => {
   it("accepts stub config and returns adapter with complete method", () => {
@@ -49,5 +51,20 @@ describe("createLlmAdapter (local)", () => {
   it("accepts local config and returns adapter with complete method", () => {
     const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
     expect(typeof adapter.complete).toBe("function");
+  });
+
+  it("throws [rate_limit] error on 429 response", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ status: 429, json: async () => ({}) }));
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[rate_limit\]/);
+  });
+
+  it("throws [json_parse] error when response body is not valid JSON", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      status: 200,
+      json: async () => ({ message: { content: "Here is a summary, not JSON at all!" } }),
+    }));
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[json_parse\]/);
   });
 });

@@ -15,6 +15,13 @@ import type { LlmAdapter } from "./llm-adapter.js";
 
 const log = createLogger("pipeline");
 
+function extractErrorType(reason: string): "rate_limit" | "api_error" | "json_parse" | "unknown" {
+  if (reason.startsWith("[rate_limit]")) return "rate_limit";
+  if (reason.startsWith("[api_error]")) return "api_error";
+  if (reason.startsWith("[json_parse]")) return "json_parse";
+  return "unknown";
+}
+
 export type PipelineEvent =
   | { type: "processing"; name: string; title: string; index: number; total: number }
   | { type: "ok"; name: string; title: string; client: string; elapsed_ms: number }
@@ -64,7 +71,7 @@ async function processEntry(
   if (!parsed) {
     const reason = "parse failed";
     moveToFailed(rawDir, failedDir, name, reason);
-    writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, timestamp: new Date().toISOString() }), "utf-8");
+    writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, error_type: extractErrorType(reason), timestamp: new Date().toISOString() }), "utf-8");
     return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
   try {
@@ -81,7 +88,7 @@ async function processEntry(
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     moveToFailed(rawDir, failedDir, name, reason);
-    writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, timestamp: new Date().toISOString() }), "utf-8");
+    writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, error_type: extractErrorType(reason), timestamp: new Date().toISOString() }), "utf-8");
     return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
 }
