@@ -43,11 +43,36 @@ interface AnthropicConfig {
   model?: string;
 }
 
-export function createLlmAdapter(config: StubConfig | AnthropicConfig): LlmAdapter {
+interface LocalConfig {
+  type: "local";
+  baseUrl: string;
+  model: string;
+}
+
+export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig): LlmAdapter {
   if (config.type === "stub") {
     return {
       async complete(capability: LlmCapability) {
         return STUB_FIXTURES[capability];
+      },
+    };
+  }
+
+  if (config.type === "local") {
+    const { baseUrl, model } = config;
+    return {
+      async complete(capability: LlmCapability, content: string) {
+        const res = await fetch(`${baseUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages: [{ role: "user", content }], stream: false }),
+        });
+        const json = await res.json() as { message?: { content?: string } };
+        const text = json.message?.content ?? "";
+        if (capability === "synthesize_answer") {
+          return { answer: text };
+        }
+        return JSON.parse(text);
       },
     };
   }

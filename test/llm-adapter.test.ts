@@ -44,3 +44,10 @@ describe("createLlmAdapter (stub)", () => {
     expect((result.answer as string).length).toBeGreaterThan(0);
   });
 });
+
+describe("createLlmAdapter (local)", () => {
+  it("accepts local config and returns adapter with complete method", () => {
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    expect(typeof adapter.complete).toBe("function");
+  });
+});
