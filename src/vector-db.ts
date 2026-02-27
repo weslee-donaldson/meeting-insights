@@ -1,5 +1,6 @@
 import * as lancedb from "@lancedb/lancedb";
 import { Float32, Field, FixedSizeList, Schema, Utf8 } from "apache-arrow";
+import { resolve } from "node:path";
 
 const VECTOR_DIM = 384;
 
@@ -7,7 +8,7 @@ export type VectorDb = lancedb.Connection;
 export type VectorTable = lancedb.Table;
 
 export async function connectVectorDb(path: string): Promise<VectorDb> {
-  return lancedb.connect(path);
+  return lancedb.connect(resolve(path));
 }
 
 const meetingSchema = new Schema([
