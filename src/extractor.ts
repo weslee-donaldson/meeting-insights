@@ -29,6 +29,7 @@ export interface ArtifactRow {
   technical_topics: string;
   open_questions: string;
   risk_items: string;
+  additional_notes: string;
 }
 
 export function validateArtifact(raw: object): Artifact {
@@ -90,8 +91,8 @@ export async function extractSummary(
 
 export function storeArtifact(db: Database, meetingId: string, artifact: Artifact): void {
   db.prepare(`
-    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, technical_topics, open_questions, risk_items)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, technical_topics, open_questions, risk_items, additional_notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     meetingId,
     artifact.summary,
@@ -101,6 +102,7 @@ export function storeArtifact(db: Database, meetingId: string, artifact: Artifac
     JSON.stringify(artifact.technical_topics),
     JSON.stringify(artifact.open_questions),
     JSON.stringify(artifact.risk_items),
+    JSON.stringify(artifact.additional_notes),
   );
 }
 

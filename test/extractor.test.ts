@@ -128,4 +128,10 @@ describe("storeArtifact / getArtifact", () => {
     expect(stored.meeting_id).toBe(meetingId);
     expect(JSON.parse(stored.decisions)).toEqual(artifact.decisions);
   });
+
+  it("round-trips additional_notes through store/get", async () => {
+    const artifact = await extractSummary(adapter, parsed.turns, 8000);
+    const stored = getArtifact(db, meetingId);
+    expect(JSON.parse(stored.additional_notes)).toEqual(artifact.additional_notes);
+  });
 });
