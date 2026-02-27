@@ -1,0 +1,7 @@
+[
+  { "question": "What are the main technical decisions made in LLSA meetings?", "client": "LLSA" },
+  { "question": "What open questions or blockers remain for TerraQuantum?", "client": "TerraQuantum" },
+  { "question": "What features or integrations has Revenium proposed?", "client": "Revenium" },
+  { "question": "What action items are outstanding for Hypercurrent?", "client": "Hypercurrent" },
+  { "question": "What risks or concerns have been raised across all clients?" }
+]

@@ -495,8 +495,8 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 197: `scripts/setup.ts` validates Ollama server reachable when `MTNINSIGHTS_LLM_PROVIDER=local` — `GET {baseUrl}/api/tags`; on failure prints error with install/start instructions and exits [depends: 196]
 - [x] Burst 198: `scripts/setup.ts` verifies configured model exists in Ollama tag list; if absent auto-pulls via `POST {baseUrl}/api/pull { "name": model, "stream": false }` and waits for completion [depends: 197]
 - [x] Burst 199: `buildRichContext` renamed to `buildLabeledContext` in `scripts/query.ts` — prefixes each meeting block `[M1]`, `[M2]`, …`[Mn]`; system prompt instructs model to cite only those IDs; after response, `parseCitations()` extracts `[Mn]` references; `Sources:` line derived from cited IDs mapped to meeting titles; falls back to all retrieved titles if no citations found [depends: 196]
-- [ ] Burst 200: `scripts/eval.ts` evaluation harness reads `data/eval/questions.json` (array of `{ question: string, client?: string }`), runs each via `searchMeetings` + `buildLabeledContext` + `llm.complete("synthesize_answer", ...)`, writes `data/eval/results-{provider}-{timestamp}.jsonl` with fields: `question`, `retrieved_meeting_ids`, `cited_ids`, `latency_ms`, `answer_length`, `provider`, `model`; `data/eval/questions.json` pre-populated with 5 questions spanning Mandalore, TQ, Revenium, Hypercurrent [depends: 199]
-- [ ] Burst 201: `package.json` gains `eval` script: `"eval": "tsx scripts/eval.ts"` [depends: 200]
+- [x] Burst 200: `scripts/eval.ts` evaluation harness reads `data/eval/questions.json` (array of `{ question: string, client?: string }`), runs each via `searchMeetings` + `buildLabeledContext` + `llm.complete("synthesize_answer", ...)`, writes `data/eval/results-{provider}-{timestamp}.jsonl` with fields: `question`, `retrieved_meeting_ids`, `cited_ids`, `latency_ms`, `answer_length`, `provider`, `model`; `data/eval/questions.json` pre-populated with 5 questions spanning Mandalore, TQ, Revenium, Hypercurrent [depends: 199]
+- [x] Burst 201: `package.json` gains `eval` script: `"eval": "tsx scripts/eval.ts"` [depends: 200]
 
 ---
 
