@@ -86,7 +86,11 @@ export async function extractSummary(
     }),
   );
   log("extraction completed in %dms chunks=%d", Date.now() - start, chunks.length);
-  return mergeArtifacts(artifacts);
+  const merged = mergeArtifacts(artifacts);
+  const notesCount = merged.additional_notes.length;
+  const notesSize = JSON.stringify(merged.additional_notes).length;
+  log("notes_count=%d notes_size=%d", notesCount, notesSize);
+  return merged;
 }
 
 export function storeArtifact(db: Database, meetingId: string, artifact: Artifact): void {

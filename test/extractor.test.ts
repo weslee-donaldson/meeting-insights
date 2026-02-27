@@ -79,6 +79,12 @@ describe("extractSummary", () => {
     const artifact = await extractSummary(adapter, manyTurns, 50);
     expect(typeof artifact.summary).toBe("string");
   });
+
+  it("returns additional_notes as array and resolves without error (notes_count + notes_size logged)", async () => {
+    const artifact = await extractSummary(adapter, parsed.turns, 8000);
+    expect(Array.isArray(artifact.additional_notes)).toBe(true);
+    expect(typeof artifact.additional_notes.length).toBe("number");
+  });
 });
 
 const VALID_BASE = {

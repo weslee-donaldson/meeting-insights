@@ -474,14 +474,14 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Additional Notes Field
 
-- [ ] Burst 182: `migrate()` in `src/db.ts` checks `PRAGMA table_info(artifacts)` for column existence; if absent executes `ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'` — idempotent on new and existing databases [depends: 38]
-- [ ] Burst 183: `Artifact` interface gains `additional_notes: Array<Record<string, unknown>>`; added to `REQUIRED_KEYS`; `validateArtifact` verifies field exists, is an array, and every element is a plain object (not null, not array, not primitive) [depends: 182]
-- [ ] Burst 184: `validateArtifact` normalizes malformed `additional_notes` to `[]` rather than throwing — if value is not an array or contains non-objects, logs the malformation and replaces with `[]`; pipeline never aborts for this field [depends: 183]
-- [ ] Burst 185: `ArtifactRow` gains `additional_notes: string`; `storeArtifact` serializes with `JSON.stringify`; `mergeArtifacts` concatenates note arrays across chunks [depends: 182, 183]
-- [ ] Burst 186: `STUB_FIXTURES.extraction` in `src/llm-adapter.ts` includes `additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }]` [depends: 183]
-- [ ] Burst 187: `buildEmbeddingInput` in `src/meeting-pipeline.ts` canonicalizes `additional_notes` into embedding text — iterates top-level objects, emits first string-valued key as section header and remaining string values as lines; deterministic and readable regardless of model-chosen key names [depends: 185, 186]
-- [ ] Burst 188: `--list notes` (alias `--list additional_notes`) added to `scripts/query.ts` dispatch — renders per-meeting header then each note group with top-level key as section label and nested content indented with `•` [depends: 185]
-- [ ] Burst 189: `buildRichContext` in `scripts/query.ts` appends canonicalized notes after all higher-signal fields, capped at 1000 chars per meeting; content exceeding cap truncated with `…` [depends: 185]
+- [x] Burst 182: `migrate()` in `src/db.ts` checks `PRAGMA table_info(artifacts)` for column existence; if absent executes `ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'` — idempotent on new and existing databases [depends: 38]
+- [x] Burst 183: `Artifact` interface gains `additional_notes: Array<Record<string, unknown>>`; added to `REQUIRED_KEYS`; `validateArtifact` verifies field exists, is an array, and every element is a plain object (not null, not array, not primitive) [depends: 182]
+- [x] Burst 184: `validateArtifact` normalizes malformed `additional_notes` to `[]` rather than throwing — if value is not an array or contains non-objects, logs the malformation and replaces with `[]`; pipeline never aborts for this field [depends: 183]
+- [x] Burst 185: `ArtifactRow` gains `additional_notes: string`; `storeArtifact` serializes with `JSON.stringify`; `mergeArtifacts` concatenates note arrays across chunks [depends: 182, 183]
+- [x] Burst 186: `STUB_FIXTURES.extraction` in `src/llm-adapter.ts` includes `additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }]` [depends: 183]
+- [x] Burst 187: `buildEmbeddingInput` in `src/meeting-pipeline.ts` canonicalizes `additional_notes` into embedding text — iterates top-level objects, emits first string-valued key as section header and remaining string values as lines; deterministic and readable regardless of model-chosen key names [depends: 185, 186]
+- [x] Burst 188: `--list notes` (alias `--list additional_notes`) added to `scripts/query.ts` dispatch — renders per-meeting header then each note group with top-level key as section label and nested content indented with `•` [depends: 185]
+- [x] Burst 189: `buildRichContext` in `scripts/query.ts` appends canonicalized notes after all higher-signal fields, capped at 1000 chars per meeting; content exceeding cap truncated with `…` [depends: 185]
 - [ ] Burst 190: `extractSummary` logs `notes_count` (array length) and `notes_size` (char count of serialized notes) via `mtninsights:extract` after each extraction [depends: 183, 186]
 
 ### Bottle: LLM Provider Interface
