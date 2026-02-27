@@ -462,6 +462,16 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 173: pipeline emits `skipped` event (with index and total) for meetings already present in DB or processed directory [depends: 170]
 - [x] Burst 174: `scripts/run.ts` implements `onProgress` — prints per-meeting status line to console (`[i/N] title ... ✓ [client] (ms)` or `✗ FAILED\n  reason`) and writes full run log to `data/audit/run-{iso}.json` including all events, summary counts, and timing [depends: 169–173]
 
+### Bottle: Query CLI
+
+- [x] Burst 175: `scripts/query.ts` parses all flags (`--client`, `--meeting`, `--after`, `--before`, `--list`, `--search`, `--limit`) and implements `resolveMeetingIds()` helper that applies all filters — date range and title/ID substring via in-memory filter on all meetings, client via `client_detections` join [depends: 37, 100]
+- [x] Burst 176: `--list meetings` prints a padded table of matched meetings: 8-char ID prefix, title (truncated at 40 chars), date, detected client, confidence score [depends: 175, 84]
+- [x] Burst 177: `--list summary` prints full artifact dump per matched meeting — header bar with title/date/client, then SUMMARY / DECISIONS / PROPOSED FEATURES / ACTION ITEMS / TECHNICAL TOPICS / OPEN QUESTIONS / RISKS sections, each only printed when non-empty [depends: 175, 69]
+- [x] Burst 178: `--list decisions|actions|questions|risks|features` prints focused single-field dumps with per-meeting header; action items include owner and optional due date; all modes respect `--client`, `--meeting`, `--after`, `--before` [depends: 177]
+- [x] Burst 179: `--search` runs `searchMeetings()` with active filters and prints results with score, title, date, client tag, and summary excerpt (first 200 chars); default ask mode runs `searchMeetings()` + `buildRichContext()` (all artifact fields concatenated) + Anthropic SDK direct call for a plain-text answer with `Sources:` footer [depends: 175, 100, 69]
+- [x] Burst 180: `package.json` gains `query` script: `"query": "tsx scripts/query.ts"` [depends: 175]
+- [x] Burst 181: `README.md` documents prerequisites, setup (model download, .env.local, pnpm setup), processing (pnpm process, extraction prompt), all query modes with concrete examples (list/filter/summary/focused/search/ask), reset workflow, transcript folder format, and environment variables [depends: 175–180]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
@@ -561,6 +571,18 @@ Burst 1 → 2 (bootstrap)
 170–173 → 174 (run.ts console output + run log)
 ```
 
+### Phase 10: Query CLI (Bursts 175–181)
+
+```
+37 + 100 → 175 (flag parsing + resolveMeetingIds)
+175 + 84 → 176 (--list meetings table)
+175 + 69 → 177 (--list summary full dump)
+177 → 178 (--list decisions|actions|questions|risks|features)
+175 + 100 + 69 → 179 (--search + ask mode)
+175 → 180 (package.json query script)
+175–180 → 181 (README.md)
+```
+
 ---
 
 # CLIENT REGISTRY FORMAT
@@ -607,6 +629,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - Batch export format (`manifest.json` + per-folder `transcript.md`) parsed correctly (Bursts 163–168 green)
 - Extraction prompt editable without code changes (Bursts 159–161 green)
 - Per-meeting console progress with timing and client name; full run log written to `data/audit/run-*.json` (Bursts 169–174 green)
+- `pnpm query` CLI supports structured listing, focused field dumps, semantic search, and natural-language Q&A — all filterable by client, meeting, and date range (Bursts 175–181 green)
 - 100% test coverage by construction
 - **Single stubbed boundary** — only LLM calls are stubbed
 
