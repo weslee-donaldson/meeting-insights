@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createLogger } from "./logger.js";
 
-const log = createLogger("extract");
+const logLlm = createLogger("llm");
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer";
 
@@ -80,7 +80,10 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   if (config.type === "stub") {
     return {
       async complete(capability: LlmCapability) {
-        return STUB_FIXTURES[capability];
+        const start = Date.now();
+        const result = STUB_FIXTURES[capability];
+        logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, Date.now() - start);
+        return result;
       },
     };
   }
@@ -88,6 +91,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   if (config.type === "local") {
     const { baseUrl, model } = config;
     const localCall = async (capability: LlmCapability, content: string) => {
+      const start = Date.now();
       let res: Response;
       try {
         res = await fetch(`${baseUrl}/api/chat`, {
@@ -102,6 +106,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
       if (res.status >= 500) throw new Error(`[api_error] Ollama server error (${res.status})`);
       const json = await res.json() as { message?: { content?: string } };
       const text = json.message?.content ?? "";
+      logLlm("provider=local capability=%s model=%s latency_ms=%d tokens=%d", capability, model, Date.now() - start, text.length);
       if (capability === "synthesize_answer") return { answer: text };
       return parseJsonOrThrow(text);
     };
@@ -116,6 +121,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   const model = config.model ?? "claude-sonnet-4-6";
 
   const anthropicCall = async (capability: LlmCapability, content: string) => {
+    const start = Date.now();
     let text: string;
     try {
       const message = await client.messages.create({
@@ -124,7 +130,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
         messages: [{ role: "user", content }],
       });
       text = message.content[0].type === "text" ? message.content[0].text : "";
-      log("completed capability=%s tokens=%d", capability, message.usage.output_tokens);
+      logLlm("provider=anthropic capability=%s model=%s latency_ms=%d tokens=%d", capability, model, Date.now() - start, message.usage.output_tokens);
     } catch (err) {
       if (err instanceof Error && err.message.startsWith("[")) throw err;
       if (err instanceof Anthropic.RateLimitError) throw new Error(`[rate_limit] ${err.message}`);
