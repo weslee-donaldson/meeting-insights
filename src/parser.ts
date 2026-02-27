@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { createLogger } from "./logger.js";
 
 const logFilename = createLogger("parser:filename");
@@ -77,6 +78,7 @@ export function parseTranscriptBody(transcript: string): SpeakerTurn[] {
 const logParser = createLogger("parser");
 
 export interface ParsedMeeting {
+  externalId?: string;
   timestamp: string;
   title: string;
   participants: Participant[];
@@ -107,4 +109,52 @@ export function listTranscriptFiles(dir: string): string[] {
   const files = readdirSync(dir).sort();
   logDir("found %d files in %s", files.length, dir);
   return files;
+}
+
+export interface ManifestEntry {
+  meeting_id: string;
+  meeting_title: string;
+  meeting_date: string;
+  meeting_files: string[];
+}
+
+export function parseManifest(rawDir: string): ManifestEntry[] {
+  return JSON.parse(readFileSync(join(rawDir, "manifest.json"), "utf-8")) as ManifestEntry[];
+}
+
+const MD_TURN_HEADER_RE = /^\*\*(.+?) \| (\d{2}:\d{2})\*\*$/;
+
+export function parseMarkdownTranscriptBody(content: string): SpeakerTurn[] {
+  const lines = content.split("\n");
+  const turns: SpeakerTurn[] = [];
+  let current: SpeakerTurn | null = null;
+
+  for (const line of lines) {
+    const match = line.match(MD_TURN_HEADER_RE);
+    if (match) {
+      if (current) turns.push(current);
+      const rawName = match[1];
+      const speakerN = rawName.match(SPEAKER_N_RE);
+      const speaker_name = speakerN ? `Unknown Speaker ${speakerN[1]}` : rawName;
+      current = { speaker_name, timestamp: match[2], text: "" };
+    } else if (current && line.trim()) {
+      current.text = current.text ? `${current.text}\n${line}` : line;
+    }
+  }
+  if (current) turns.push(current);
+  logBody("parsed %d speaker turns (markdown)", turns.length);
+  return turns;
+}
+
+export function parseKrispFolder(rawDir: string, folderName: string, entry: ManifestEntry): ParsedMeeting | null {
+  try {
+    const raw = readFileSync(join(rawDir, folderName, "transcript.md"), "utf-8");
+    const idx = raw.indexOf("# Transcript\n");
+    if (idx === -1) throw new Error("No # Transcript section found");
+    const turns = parseMarkdownTranscriptBody(raw.slice(idx + "# Transcript\n".length).trim());
+    return { externalId: entry.meeting_id, timestamp: entry.meeting_date, title: entry.meeting_title, participants: [], turns, rawTranscript: raw, sourceFilename: folderName };
+  } catch (err) {
+    logParser("failed to parse folder %s: %s", folderName, err);
+    return null;
+  }
 }

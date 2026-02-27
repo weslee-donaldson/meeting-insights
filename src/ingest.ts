@@ -17,7 +17,7 @@ export interface MeetingRow {
 }
 
 export function ingestMeeting(db: Database, meeting: ParsedMeeting): string {
-  const id = randomUUID();
+  const id = meeting.externalId ?? randomUUID();
   db.prepare(`
     INSERT INTO meetings (id, title, meeting_type, date, participants, raw_transcript, source_filename, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
