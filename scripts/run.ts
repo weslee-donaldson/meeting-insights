@@ -64,9 +64,9 @@ const result = await processNewMeetings({
 const elapsed = Date.now() - runStart;
 console.log(`\n✓ total=${result.total} succeeded=${result.succeeded} failed=${result.failed} skipped=${result.skipped} (${elapsed}ms)`);
 
-mkdirSync("data/audit", { recursive: true });
+mkdirSync("logs", { recursive: true });
 writeFileSync(
-  `data/audit/run-${runId}.json`,
+  `logs/run-${runId}.json`,
   JSON.stringify({
     run_id: runId,
     started_at: new Date(runStart).toISOString(),
@@ -77,4 +77,4 @@ writeFileSync(
   }, null, 2),
   "utf-8",
 );
-console.log(`Log: data/audit/run-${runId}.json`);
+console.log(`Log: logs/run-${runId}.json`);
