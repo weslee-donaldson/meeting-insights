@@ -45,27 +45,36 @@ All state survives restarts. No in-memory-only storage in the live app.
 
 ```
 /Users/wdonaldson/tools/krisp-meeting-insights/
+├── config/
+│   └── prompts/
+│       └── extraction.md             # LLM extraction prompt template ({{transcript}} placeholder)
 ├── data/
-│   ├── raw-transcripts/              # Krisp export files (input)
-│   │   ├──  2026-01-19T15:43:52.210ZRevenium, INT, DSU
-│   │   ├──  2026-01-19T16:01:40.392ZMandalore DSU
-│   │   └── ...                       # No extension, leading space
-│   ├── processed/                    # Successfully ingested (moved here)
+│   ├── raw-transcripts/              # Krisp batch export (input)
+│   │   ├── manifest.json             # Meeting metadata index
+│   │   ├── mandalore_dsu-{id}/       # Per-meeting folder
+│   │   │   ├── transcript.md         # Markdown transcript (# Transcript + **Name | MM:SS** turns)
+│   │   │   └── recording_download_link.md
+│   │   └── ...
+│   ├── processed/                    # Successfully ingested folders (moved here)
 │   ├── failed-processing/            # Ingestion errors (moved here)
 │   ├── clients/                      # Client registry JSON
 │   │   └── clients.json
 │   ├── output/                       # Generated artifacts
 │   ├── audit/                        # Processing run logs
-│   ├── backups/                      # DB backups
-│   └── krisp-gdrive/                 # Sync source
+│   └── backups/                      # DB backups
+├── scripts/
+│   ├── setup.ts                      # Idempotent DB init + client seeding
+│   ├── run.ts                        # Process new meetings through full pipeline
+│   └── reset.ts                      # Clear DB + restore files to raw-transcripts
 ├── src/
 ├── test/
-│   └── fixtures/                     # Sample Krisp files for testing
+│   └── fixtures/                     # Sample Krisp files for testing (legacy format)
 ├── models/                           # ONNX model binary (gitignored)
 ├── db/                               # Persistent storage (gitignored)
 │   ├── mtninsights.db                # SQLite database
 │   └── lancedb/                      # LanceDB vector files
-├── ketchup-plan.md
+├── .env.local                        # API keys (gitignored)
+├── meeting-knowledge-fabric-ketchup.md
 ├── package.json
 ├── tsconfig.json
 └── vitest.config.ts
@@ -73,38 +82,59 @@ All state survives restarts. No in-memory-only storage in the live app.
 
 ### Krisp Export Format
 
+#### Batch Export Format (current)
+
+Krisp's batch export creates a folder per meeting under `data/raw-transcripts/`, plus a `manifest.json` index:
+
+**`manifest.json`** — meeting metadata array:
+```json
+[
+  {
+    "meeting_id": "019c9061563f76198534216c21bb4f3d",
+    "meeting_title": "Mandalore DSU",
+    "meeting_date": "2026-02-24T15:59:49.727Z",
+    "meeting_files": [
+      "mandalore_dsu-019c9061563f76198534216c21bb4f3d/transcript.md",
+      "mandalore_dsu-019c9061563f76198534216c21bb4f3d/recording_download_link.md"
+    ]
+  }
+]
+```
+
+**`{slug}-{meeting_id}/transcript.md`** — markdown transcript:
+```markdown
+# Mandalore DSU - Feb, 24
+
+# Transcript
+**Wesley Donaldson | 00:11**
+Good morning. Yep, you could come in.
+
+**Rinor Zekaj | 01:19**
+Here goes.
+
+**Speaker 2 | 03:41**
+I haven't seen with him, but yeah...
+```
+
+The pipeline detects `manifest.json` in `rawDir` and switches to folder-based processing automatically. Deduplication uses `meeting_id` from the manifest checked against the `meetings` table (DB-based, not filesystem-based).
+
+#### Legacy Format (flat-file, used by test fixtures)
+
 Each meeting is a **single file** (no extension) under `data/raw-transcripts/` named:
 ```
  {ISO-8601-timestamp}{Meeting Title}
 ```
-Note the **leading space** in the filename.
-
-Examples:
-```
- 2026-01-19T15:43:52.210ZRevenium, INT, DSU
- 2026-01-19T16:01:40.392ZMandalore DSU
- 2026-01-19T19:25:19.375Z02:25 PM - zoom.us meeting January 19
- 2026-01-20T16:45:12.856ZTQ, Internal
-```
-
-File contents have two sections:
-
-**Attendance section** — comma-separated single-quote JSON-ish objects:
+Note the **leading space** in the filename. File contents:
 ```
 Attendance:
 {'last_name': 'Doshi', 'id': '014200be-...', 'first_name': 'Dev', 'email': 'dev.doshi@xolv.io'},...
-```
-
-**Transcript section** — speaker-stamped dialogue:
-```
 Transcript:
 Wesley Donaldson | 00:11
 Good morning. Yep, you could come in.
-Rinor Zekaj | 01:19
-Here goes.
 Speaker 4 | 03:41
 I haven't seen with him, but yeah...
 ```
+The pipeline falls back to this path when no `manifest.json` is present (test suites use it).
 
 ### Logging Namespaces
 
@@ -394,6 +424,35 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 150: `processNewMeetings` runs client detection for each ingested meeting [depends: 147, 84]
 - [x] Burst 151: `processNewMeetings` logs full pipeline summary via `mtninsights:pipeline` [depends: 147]
 
+### Bottle: CLI & Runtime Infrastructure
+
+- [x] Burst 152: `data/clients/clients.json` seeded with real clients derived from actual transcript attendance (Mandalore/@llsa.com, Revenium/@revenium.io+@revenium.com, Hypercurrent/@hypercurrent.io, TQ/title-only) [depends: none]
+- [x] Burst 153: `seedClients` uses `INSERT OR IGNORE` for idempotent re-seeding [depends: 71]
+- [x] Burst 154: `scripts/setup.ts` creates DB directories, runs migrations, seeds clients, creates LanceDB tables — safe to re-run repeatedly [depends: 37, 72, 92]
+- [x] Burst 155: `scripts/run.ts` processes all new meetings through full pipeline using env-based config; validates `ANTHROPIC_API_KEY` before starting [depends: 147, 154]
+- [x] Burst 156: `scripts/reset.ts` deletes DB files and restores processed/failed folders to raw-transcripts for a clean development iteration [depends: none]
+- [x] Burst 157: `package.json` gains `setup`, `process`, and `reset` scripts backed by `tsx` [depends: 154, 155, 156]
+- [x] Burst 158: `.env.local` stores `ANTHROPIC_API_KEY`; loaded via `process.loadEnvFile()` (Node 21+ built-in); added to `.gitignore` [depends: none]
+
+### Bottle: Prompt Externalization
+
+- [x] Burst 159: `config/prompts/extraction.md` externalizes the LLM extraction prompt — defines all structured fields (summary, decisions, proposed_features, action_items, technical_topics, open_questions, risk_items, notes) with `{{transcript}}` placeholder [depends: none]
+- [x] Burst 160: `extractSummary` accepts optional fourth parameter `promptTemplate?: string`; when provided replaces `{{transcript}}` with speaker turns, otherwise sends raw transcript [depends: 63]
+- [x] Burst 161: `processNewMeetings` accepts `extractionPromptPath?: string` in `PipelineConfig`; loads template once from disk and passes to each `extractSummary` call [depends: 147, 160]
+
+### Fix: LanceDB Local Connection
+
+- [x] Burst 162: `connectVectorDb` resolves relative paths to absolute via `resolve()` before passing to `lancedb.connect()` — prevents newer `@lancedb/lancedb` versions from interpreting relative paths as cloud URIs [depends: 91]
+
+### Bottle: Batch Export Format
+
+- [x] Burst 163: `ManifestEntry` interface and `parseManifest(rawDir)` reads `manifest.json` from a raw-transcripts directory and returns typed meeting metadata array [depends: none]
+- [x] Burst 164: `parseMarkdownTranscriptBody` parses `**Name | MM:SS**` bold-markdown speaker turns (Krisp batch export format); normalises `Speaker N` → `Unknown Speaker N` [depends: 20]
+- [x] Burst 165: `parseKrispFolder(rawDir, folderName, entry)` builds a `ParsedMeeting` from a manifest entry and its folder's `transcript.md`, using `meeting_id` as `externalId` [depends: 163, 164]
+- [x] Burst 166: `ParsedMeeting` gains optional `externalId?: string`; `ingestMeeting` uses `externalId ?? randomUUID()` so manifest-provided IDs are preserved in the DB [depends: 43]
+- [x] Burst 167: `processNewMeetings` detects `manifest.json` in `rawDir` and switches to folder-based processing using `parseKrispFolder`; falls back to legacy flat-file path when no manifest present (backward-compatible for test suites) [depends: 147, 165]
+- [x] Burst 168: `processNewMeetings` uses DB-based deduplication in manifest mode — checks meeting_id against `meetings` table rather than `processed/` directory listing [depends: 167, 148]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
@@ -471,6 +530,21 @@ Burst 1 → 2 (bootstrap)
 32 + 68 + 84 + 96 → 147 → 148–151 (batch pipeline)
 ```
 
+### Phase 8: CLI, Prompt Externalization & Batch Export (Bursts 152–168)
+
+```
+71 → 153 (idempotent seed)
+37 + 72 + 92 → 154 (setup script)
+147 + 154 → 155 (run script)
+154 + 155 + 156 → 157 (package.json scripts)
+63 → 160 (prompt template param)
+147 + 160 → 161 (pipeline prompt path)
+91 → 162 (lancedb path fix)
+20 → 164 → 163 + 164 → 165 (folder parser)
+43 → 166 (externalId in ingest)
+147 + 165 + 166 → 167 → 168 (manifest pipeline mode)
+```
+
 ---
 
 # CLIENT REGISTRY FORMAT
@@ -513,6 +587,9 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - Downstream task generation traces to source meetings (Bursts 138–139 green)
 - No large transcript dumps required for task generation (Bursts 132–133 green)
 - Batch pipeline processes real Krisp exports end-to-end (Bursts 147–151 green)
+- `pnpm setup` initializes DB idempotently; `pnpm process` runs pipeline; `pnpm reset` restores clean state (Bursts 154–157 green)
+- Batch export format (`manifest.json` + per-folder `transcript.md`) parsed correctly (Bursts 163–168 green)
+- Extraction prompt editable without code changes (Bursts 159–161 green)
 - 100% test coverage by construction
 - **Single stubbed boundary** — only LLM calls are stubbed
 
