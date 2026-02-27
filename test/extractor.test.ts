@@ -104,17 +104,19 @@ describe("validateArtifact", () => {
     expect(() => validateArtifact(VALID_BASE)).toThrow(/missing required key: additional_notes/);
   });
 
-  it("throws when additional_notes is not an array", () => {
-    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: "bad" })).toThrow(/additional_notes must be an array/);
+  it("normalizes additional_notes to [] when it is a string", () => {
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: "bad" });
+    expect(result.additional_notes).toEqual([]);
   });
 
-  it("throws when additional_notes element is null or a number", () => {
-    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [null] })).toThrow(/plain objects/);
-    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [42] })).toThrow(/plain objects/);
+  it("normalizes additional_notes to [] when elements are null or numbers", () => {
+    expect(validateArtifact({ ...VALID_BASE, additional_notes: [null] }).additional_notes).toEqual([]);
+    expect(validateArtifact({ ...VALID_BASE, additional_notes: [42] }).additional_notes).toEqual([]);
   });
 
   it("accepts valid artifact with additional_notes", () => {
-    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [{ category: "ctx", note: "x" }] })).not.toThrow();
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: [{ category: "ctx", note: "x" }] });
+    expect(result.additional_notes).toEqual([{ category: "ctx", note: "x" }]);
   });
 });
 

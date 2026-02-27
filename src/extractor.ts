@@ -42,18 +42,13 @@ export function validateArtifact(raw: object): Artifact {
       throw new Error(`Artifact missing required key: ${key}`);
     }
   }
-  const notes = (raw as Record<string, unknown>)["additional_notes"];
-  if (!Array.isArray(notes)) {
-    logValidate("validation failed: additional_notes is not an array");
-    throw new Error("additional_notes must be an array");
+  const r = raw as Record<string, unknown>;
+  const notes = r["additional_notes"];
+  if (!Array.isArray(notes) || notes.some(item => typeof item !== "object" || item === null || Array.isArray(item))) {
+    logValidate("additional_notes malformed — normalizing to []");
+    r["additional_notes"] = [];
   }
-  for (const item of notes) {
-    if (typeof item !== "object" || item === null || Array.isArray(item)) {
-      logValidate("validation failed: additional_notes element is not a plain object");
-      throw new Error("additional_notes elements must be plain objects");
-    }
-  }
-  return raw as Artifact;
+  return r as unknown as Artifact;
 }
 
 function turnsToText(turns: SpeakerTurn[]): string {
