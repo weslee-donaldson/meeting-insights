@@ -17,6 +17,8 @@ describe("createLlmAdapter (stub)", () => {
     expect(result).toHaveProperty("technical_topics");
     expect(result).toHaveProperty("open_questions");
     expect(result).toHaveProperty("risk_items");
+    expect(Array.isArray(result.additional_notes)).toBe(true);
+    expect(typeof (result.additional_notes as unknown[])[0]).toBe("object");
   });
 
   it("stub complete returns tags fixture for tags prompt type", async () => {
