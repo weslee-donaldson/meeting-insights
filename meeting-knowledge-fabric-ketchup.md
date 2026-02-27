@@ -453,6 +453,15 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 167: `processNewMeetings` detects `manifest.json` in `rawDir` and switches to folder-based processing using `parseKrispFolder`; falls back to legacy flat-file path when no manifest present (backward-compatible for test suites) [depends: 147, 165]
 - [x] Burst 168: `processNewMeetings` uses DB-based deduplication in manifest mode — checks meeting_id against `meetings` table rather than `processed/` directory listing [depends: 167, 148]
 
+### Bottle: Pipeline Progress & Run Logging
+
+- [x] Burst 169: `PipelineEvent` discriminated union exported from `src/pipeline.ts` — four variants: `processing` (index, total), `ok` (client, elapsed_ms), `failed` (reason, elapsed_ms), `skipped` (index, total) [depends: none]
+- [x] Burst 170: `PipelineConfig` gains optional `onProgress?: (event: PipelineEvent) => void`; pipeline emits `processing` event before each unprocessed meeting with 1-based index and total count [depends: 169, 147]
+- [x] Burst 171: pipeline emits `ok` event with detected client name and wall-clock `elapsed_ms` after each successful meeting [depends: 170]
+- [x] Burst 172: pipeline emits `failed` event with error reason and `elapsed_ms` when parse or processing fails [depends: 170]
+- [x] Burst 173: pipeline emits `skipped` event (with index and total) for meetings already present in DB or processed directory [depends: 170]
+- [x] Burst 174: `scripts/run.ts` implements `onProgress` — prints per-meeting status line to console (`[i/N] title ... ✓ [client] (ms)` or `✗ FAILED\n  reason`) and writes full run log to `data/audit/run-{iso}.json` including all events, summary counts, and timing [depends: 169–173]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
@@ -545,6 +554,13 @@ Burst 1 → 2 (bootstrap)
 147 + 165 + 166 → 167 → 168 (manifest pipeline mode)
 ```
 
+### Phase 9: Pipeline Progress & Run Logging (Bursts 169–174)
+
+```
+169 → 170 → 171, 172, 173 (progress events)
+170–173 → 174 (run.ts console output + run log)
+```
+
 ---
 
 # CLIENT REGISTRY FORMAT
@@ -590,6 +606,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - `pnpm setup` initializes DB idempotently; `pnpm process` runs pipeline; `pnpm reset` restores clean state (Bursts 154–157 green)
 - Batch export format (`manifest.json` + per-folder `transcript.md`) parsed correctly (Bursts 163–168 green)
 - Extraction prompt editable without code changes (Bursts 159–161 green)
+- Per-meeting console progress with timing and client name; full run log written to `data/audit/run-*.json` (Bursts 169–174 green)
 - 100% test coverage by construction
 - **Single stubbed boundary** — only LLM calls are stubbed
 
