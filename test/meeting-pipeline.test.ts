@@ -26,6 +26,7 @@ const artifact: Artifact = {
   technical_topics: ["REST API", "authentication"],
   open_questions: ["Which OAuth provider?"],
   risk_items: ["Third party dependency"],
+  additional_notes: [{ category: "Architecture", notes: ["Prefer stateless design"] }],
 };
 
 const parsed: ParsedMeeting = {
@@ -59,6 +60,19 @@ describe("buildEmbeddingInput", () => {
     expect(input).toContain("Rate limiting");
     expect(input).toContain("REST API");
     expect(input).toContain("Use REST over GraphQL");
+  });
+
+  it("includes canonicalized additional_notes with group header and note text", () => {
+    const input = buildEmbeddingInput(artifact);
+    expect(input).toContain("Architecture");
+    expect(input).toContain("Prefer stateless design");
+  });
+
+  it("omits notes section when additional_notes is empty", () => {
+    const noNotes = { ...artifact, additional_notes: [] };
+    const input = buildEmbeddingInput(noNotes);
+    expect(input).toContain("Discussed API integration approach");
+    expect(input).not.toContain("Architecture");
   });
 });
 
