@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderNotesGroups } from "../src/display-helpers.js";
+import { renderNotesGroups, parseCitations } from "../src/display-helpers.js";
 
 describe("renderNotesGroups", () => {
   it("returns empty string for empty notes array", () => {
@@ -27,6 +27,25 @@ describe("renderNotesGroups", () => {
     const output = renderNotesGroups(notes);
     expect(output).toContain("Architecture");
     expect(output).toContain("Constraints");
+  });
+});
+
+describe("parseCitations", () => {
+  it("extracts citation indices from answer text", () => {
+    expect(parseCitations("[M1] and [M3] are relevant")).toEqual([1, 3]);
+  });
+
+  it("returns empty array when no citations found", () => {
+    expect(parseCitations("")).toEqual([]);
+    expect(parseCitations("no citations here")).toEqual([]);
+  });
+
+  it("de-duplicates repeated citations", () => {
+    expect(parseCitations("[M2] confirms what [M2] says")).toEqual([2]);
+  });
+
+  it("returns indices sorted ascending", () => {
+    expect(parseCitations("[M3] and [M1] both agree")).toEqual([1, 3]);
   });
 });
 

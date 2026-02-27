@@ -4,7 +4,7 @@ import { loadModel } from "../src/embedder.js";
 import { searchMeetings } from "../src/vector-search.js";
 import { getMeeting } from "../src/ingest.js";
 import { getArtifact } from "../src/extractor.js";
-import { renderNotesGroups } from "../src/display-helpers.js";
+import { renderNotesGroups, parseCitations } from "../src/display-helpers.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
 import type { Database } from "better-sqlite3";
 
@@ -72,8 +72,9 @@ function meetingHeader(title: string, date: string, client: string): string {
   return `\n${bar}\n${title}   ${date.slice(0, 10)}${clientTag}\n${bar}`;
 }
 
-function buildRichContext(db: Database, results: SearchResult[]): string {
-  return results.map(r => {
+function buildLabeledContext(db: Database, results: SearchResult[]): string {
+  return results.map((r, i) => {
+    const label = `[M${i + 1}]`;
     const mtg = getMeeting(db, r.meeting_id);
     const art = getArtifact(db, r.meeting_id);
     if (!art) return "";
@@ -89,7 +90,7 @@ function buildRichContext(db: Database, results: SearchResult[]): string {
       ? `Notes:\n${notesText.length > 1000 ? notesText.slice(0, 1000) + "…" : notesText}`
       : "";
     return [
-      `## ${mtg.title}  (${mtg.date.slice(0, 10)})`,
+      `## ${label} ${mtg.title}  (${mtg.date.slice(0, 10)})`,
       `Summary: ${art.summary}`,
       decisions.length  ? `Decisions: ${decisions.join(" | ")}` : "",
       actions.length    ? `Action items: ${actions.map(a => `${a.owner}: ${a.description}`).join(" | ")}` : "",
@@ -271,15 +272,23 @@ const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "stub" })
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
-const richContext = buildRichContext(db, results);
-const systemPrompt = "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. If the notes do not contain enough information to answer the question, say so clearly.";
-const prompt = `${systemPrompt}\n\n${richContext}\n\nQuestion: ${question}`;
+const labeledContext = buildLabeledContext(db, results);
+const systemPrompt = "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. Cite the source meeting using its label (e.g. [M1], [M2]) when you draw on it. If the notes do not contain enough information to answer the question, say so clearly.";
+const prompt = `${systemPrompt}\n\n${labeledContext}\n\nQuestion: ${question}`;
 
 const llmResult = await llm.complete("synthesize_answer", prompt);
 const answer = typeof llmResult.answer === "string" ? llmResult.answer : "(no response)";
-const sourceList = results
-  .map(r => `${getMeeting(db, r.meeting_id).title} (${r.date.slice(0, 10)})`)
-  .join(", ");
+
+const citedIndices = parseCitations(answer);
+const sourceList = citedIndices.length > 0
+  ? citedIndices
+      .filter(i => i >= 1 && i <= results.length)
+      .map(i => {
+        const r = results[i - 1];
+        return `${getMeeting(db, r.meeting_id).title} (${r.date.slice(0, 10)})`;
+      })
+      .join(", ")
+  : results.map(r => `${getMeeting(db, r.meeting_id).title} (${r.date.slice(0, 10)})`).join(", ");
 
 console.log(`\n${answer}\n`);
 console.log(`Sources: ${sourceList}`);
