@@ -17,7 +17,7 @@ export async function generateTask(
   sourceMeetingIds: string[],
 ): Promise<GeneratedTask> {
   const content = `Context:\n${curatedContext}\n\nTask Intent: ${taskIntent}`;
-  const result = await llm.complete("task", content);
+  const result = await llm.complete("generate_task", content);
   const task: GeneratedTask = {
     title: result.title as string,
     description: result.description as string,

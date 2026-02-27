@@ -29,7 +29,7 @@ export function aggregateClusterSummaries(db: Database, clusterId: string): stri
 
 export async function extractClusterTags(llm: LlmAdapter, summaries: string[]): Promise<string[]> {
   const content = summaries.join("\n\n");
-  const result = await llm.complete("tags", content);
+  const result = await llm.complete("cluster_tags", content);
   const rawTags = (result.tags as string[]) ?? [];
   const tags = rawTags.filter((t) => !VAGUE_TAGS.has(t.toLowerCase())).slice(0, 7);
   log("generated tags: %o", tags);

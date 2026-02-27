@@ -3,14 +3,14 @@ import { createLogger } from "./logger.js";
 
 const log = createLogger("extract");
 
-export type PromptType = "extraction" | "tags" | "task";
+export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer";
 
 export interface LlmAdapter {
-  complete(promptType: PromptType, content: string): Promise<Record<string, unknown>>;
+  complete(capability: LlmCapability, content: string): Promise<Record<string, unknown>>;
 }
 
-const STUB_FIXTURES: Record<PromptType, Record<string, unknown>> = {
-  extraction: {
+const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
+  extract_artifact: {
     summary: "Stub summary of the meeting.",
     decisions: ["Decision A", "Decision B"],
     proposed_features: ["Feature X", "Feature Y"],
@@ -20,13 +20,16 @@ const STUB_FIXTURES: Record<PromptType, Record<string, unknown>> = {
     risk_items: ["Scope creep risk"],
     additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }],
   },
-  tags: {
+  cluster_tags: {
     tags: ["API integration", "client onboarding", "feature planning", "roadmap review"],
   },
-  task: {
+  generate_task: {
     title: "Implement Feature X",
     description: "Based on meeting discussion, implement Feature X with the agreed approach.",
     acceptance_criteria: ["Feature X passes all unit tests", "Feature X is documented"],
+  },
+  synthesize_answer: {
+    answer: "Stub answer based on meeting context.",
   },
 };
 
@@ -43,8 +46,8 @@ interface AnthropicConfig {
 export function createLlmAdapter(config: StubConfig | AnthropicConfig): LlmAdapter {
   if (config.type === "stub") {
     return {
-      async complete(promptType: PromptType) {
-        return STUB_FIXTURES[promptType];
+      async complete(capability: LlmCapability) {
+        return STUB_FIXTURES[capability];
       },
     };
   }
@@ -53,14 +56,14 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig): LlmAdapt
   const model = config.model ?? "claude-sonnet-4-6";
 
   return {
-    async complete(promptType: PromptType, content: string) {
+    async complete(capability: LlmCapability, content: string) {
       const message = await client.messages.create({
         model,
         max_tokens: 2048,
         messages: [{ role: "user", content }],
       });
       const text = message.content[0].type === "text" ? message.content[0].text : "";
-      log("completed promptType=%s tokens=%d", promptType, message.usage.output_tokens);
+      log("completed capability=%s tokens=%d", capability, message.usage.output_tokens);
       return JSON.parse(text);
     },
   };

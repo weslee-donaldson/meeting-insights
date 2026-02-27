@@ -81,7 +81,7 @@ export async function extractSummary(
     chunks.map(async (chunk) => {
       const transcript = turnsToText(chunk);
       const content = promptTemplate ? promptTemplate.replace("{{transcript}}", transcript) : transcript;
-      const raw = await adapter.complete("extraction", content);
+      const raw = await adapter.complete("extract_artifact", content);
       return validateArtifact(raw);
     }),
   );
