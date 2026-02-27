@@ -15,6 +15,12 @@ import type { LlmAdapter } from "./llm-adapter.js";
 
 const log = createLogger("pipeline");
 
+export type PipelineEvent =
+  | { type: "processing"; name: string; title: string; index: number; total: number }
+  | { type: "ok"; name: string; title: string; client: string; elapsed_ms: number }
+  | { type: "failed"; name: string; title: string; reason: string; elapsed_ms: number }
+  | { type: "skipped"; name: string; title: string; index: number; total: number };
+
 interface PipelineConfig {
   rawDir: string;
   processedDir: string;
@@ -26,6 +32,7 @@ interface PipelineConfig {
   llm: LlmAdapter;
   tokenLimit?: number;
   extractionPromptPath?: string;
+  onProgress?: (event: PipelineEvent) => void;
 }
 
 interface PipelineResult {
@@ -34,6 +41,10 @@ interface PipelineResult {
   failed: number;
   skipped: number;
 }
+
+type EntryResult =
+  | { status: "ok"; client: string; elapsed_ms: number }
+  | { status: "failed"; reason: string; elapsed_ms: number };
 
 async function processEntry(
   parsed: ReturnType<typeof parseKrispFile>,
@@ -48,12 +59,13 @@ async function processEntry(
   llm: LlmAdapter,
   tokenLimit: number,
   promptTemplate: string | undefined,
-): Promise<"ok" | "failed"> {
+): Promise<EntryResult> {
+  const start = Date.now();
   if (!parsed) {
     const reason = "parse failed";
     moveToFailed(rawDir, failedDir, name, reason);
     writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, timestamp: new Date().toISOString() }), "utf-8");
-    return "failed";
+    return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
   try {
     const meetingId = ingestMeeting(db, parsed);
@@ -65,17 +77,17 @@ async function processEntry(
     const client = detections[0]?.client_name ?? "";
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
     moveToProcessed(rawDir, processedDir, name);
-    return "ok";
+    return { status: "ok", client, elapsed_ms: Date.now() - start };
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     moveToFailed(rawDir, failedDir, name, reason);
     writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, timestamp: new Date().toISOString() }), "utf-8");
-    return "failed";
+    return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress } = config;
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
@@ -91,43 +103,68 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
   const manifestPath = join(rawDir, "manifest.json");
   if (existsSync(manifestPath)) {
-    // Manifest-based folder processing
     const entries = parseManifest(rawDir);
+    const total = entries.length;
     const existingIds = new Set(
       (db.prepare("SELECT id FROM meetings").all() as { id: string }[]).map((r) => r.id),
     );
 
-    for (const entry of entries) {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
       const folderName = entry.meeting_files[0].split("/")[0];
+      const index = i + 1;
+
       if (existingIds.has(entry.meeting_id)) {
+        onProgress?.({ type: "skipped", name: folderName, title: entry.meeting_title, index, total });
         skipped++;
         continue;
       }
+
+      onProgress?.({ type: "processing", name: folderName, title: entry.meeting_title, index, total });
       const parsed = parseKrispFolder(rawDir, folderName, entry);
-      const outcome = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
-      if (outcome === "ok") succeeded++;
-      else failed++;
+      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
+
+      if (result.status === "ok") {
+        onProgress?.({ type: "ok", name: folderName, title: entry.meeting_title, client: result.client, elapsed_ms: result.elapsed_ms });
+        succeeded++;
+      } else {
+        onProgress?.({ type: "failed", name: folderName, title: entry.meeting_title, reason: result.reason, elapsed_ms: result.elapsed_ms });
+        failed++;
+      }
     }
 
-    log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", entries.length, succeeded, failed, skipped);
-    return { total: entries.length, succeeded, failed, skipped };
+    log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
+    return { total, succeeded, failed, skipped };
   }
 
   // Legacy flat-file processing (used by tests)
   const files = existsSync(rawDir) ? readdirSync(rawDir) : [];
+  const total = files.length;
   const alreadyProcessed = existsSync(processedDir) ? new Set(readdirSync(processedDir)) : new Set<string>();
 
-  for (const filename of files) {
+  for (let i = 0; i < files.length; i++) {
+    const filename = files[i];
+    const index = i + 1;
+
     if (alreadyProcessed.has(filename)) {
+      onProgress?.({ type: "skipped", name: filename, title: filename, index, total });
       skipped++;
       continue;
     }
+
+    onProgress?.({ type: "processing", name: filename, title: filename, index, total });
     const parsed = parseKrispFile(join(rawDir, filename), filename);
-    const outcome = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
-    if (outcome === "ok") succeeded++;
-    else failed++;
+    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
+
+    if (result.status === "ok") {
+      onProgress?.({ type: "ok", name: filename, title: filename, client: result.client, elapsed_ms: result.elapsed_ms });
+      succeeded++;
+    } else {
+      onProgress?.({ type: "failed", name: filename, title: filename, reason: result.reason, elapsed_ms: result.elapsed_ms });
+      failed++;
+    }
   }
 
-  log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", files.length, succeeded, failed, skipped);
-  return { total: files.length, succeeded, failed, skipped };
+  log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
+  return { total, succeeded, failed, skipped };
 }

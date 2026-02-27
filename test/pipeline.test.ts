@@ -6,7 +6,7 @@ import { createDb, migrate } from "../src/db.js";
 import { connectVectorDb } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
-import { processNewMeetings } from "../src/pipeline.js";
+import { processNewMeetings, type PipelineEvent } from "../src/pipeline.js";
 import type { Database } from "better-sqlite3";
 
 let db: Database;
@@ -92,5 +92,82 @@ describe("processNewMeetings", () => {
     mkdirSync(newRaw, { recursive: true });
     await expect(processNewMeetings({ rawDir: newRaw, processedDir, failedDir, auditDir, db, vdb, session, llm })).resolves.toBeDefined();
     rmSync(newRaw, { recursive: true, force: true });
+  });
+});
+
+describe("onProgress callback", () => {
+  let pDb: Database;
+  let pVdbPath: string;
+  let pVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let pBaseDir: string;
+  let pRawDir: string;
+  let pProcessedDir: string;
+  let pFailedDir: string;
+  let pAuditDir: string;
+  let firstRunEvents: PipelineEvent[] = [];
+  let secondRunEvents: PipelineEvent[] = [];
+
+  const FILENAME = " 2026-01-15T00:00:00.000ZProgress Test Meeting";
+  const CONTENT = `Attendance:
+{'last_name': 'Donaldson', 'id': '014200be-0001-0001-0001-000000000099', 'first_name': 'Wesley', 'email': 'wesley@xolv.io'}
+Transcript:
+Wesley Donaldson | 00:11
+Let us discuss progress events and run logging.`;
+
+  beforeAll(async () => {
+    pBaseDir = join(tmpdir(), `pipeline-progress-test-${Date.now()}`);
+    pRawDir = join(pBaseDir, "raw");
+    pProcessedDir = join(pBaseDir, "processed");
+    pFailedDir = join(pBaseDir, "failed");
+    pAuditDir = join(pBaseDir, "audit");
+    mkdirSync(pRawDir, { recursive: true });
+    pDb = createDb(":memory:");
+    migrate(pDb);
+    pVdbPath = join(tmpdir(), `lancedb-progress-${Date.now()}`);
+    mkdirSync(pVdbPath, { recursive: true });
+    pVdb = await connectVectorDb(pVdbPath);
+    writeFileSync(join(pRawDir, FILENAME), CONTENT, "utf-8");
+    writeFileSync(join(pRawDir, "bad-file"), "NOT VALID", "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    // First run: processes FILENAME (ok) and bad-file (failed)
+    await processNewMeetings({ rawDir: pRawDir, processedDir: pProcessedDir, failedDir: pFailedDir, auditDir: pAuditDir, db: pDb, vdb: pVdb, session, llm, onProgress: (e) => firstRunEvents.push(e) });
+    // Second run: FILENAME now in processed/, all entries skipped
+    await processNewMeetings({ rawDir: pProcessedDir, processedDir: pProcessedDir, failedDir: pFailedDir, auditDir: pAuditDir, db: pDb, vdb: pVdb, session, llm, onProgress: (e) => secondRunEvents.push(e) });
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(pBaseDir, { recursive: true, force: true });
+    rmSync(pVdbPath, { recursive: true, force: true });
+  });
+
+  it("emits processing event before each unprocessed meeting", () => {
+    const processing = firstRunEvents.filter((e) => e.type === "processing");
+    expect(processing.length).toBeGreaterThan(0);
+    expect(processing[0]).toMatchObject({ type: "processing", index: expect.any(Number), total: expect.any(Number) });
+  });
+
+  it("emits ok event with client name and elapsed_ms on success", () => {
+    const okEvents = firstRunEvents.filter((e) => e.type === "ok");
+    expect(okEvents.length).toBeGreaterThan(0);
+    const okEvent = okEvents[0] as Extract<PipelineEvent, { type: "ok" }>;
+    expect(typeof okEvent.elapsed_ms).toBe("number");
+    expect(typeof okEvent.client).toBe("string");
+  });
+
+  it("emits failed event with reason on parse failure", () => {
+    const failedEvents = firstRunEvents.filter((e) => e.type === "failed");
+    expect(failedEvents.length).toBeGreaterThan(0);
+    const failedEvent = failedEvents[0] as Extract<PipelineEvent, { type: "failed" }>;
+    expect(typeof failedEvent.reason).toBe("string");
+    expect(failedEvent.reason.length).toBeGreaterThan(0);
+  });
+
+  it("emits skipped event for already-processed meetings with index and total", () => {
+    const skipped = secondRunEvents.filter((e) => e.type === "skipped");
+    expect(skipped.length).toBeGreaterThan(0);
+    const skippedEvent = skipped[0] as Extract<PipelineEvent, { type: "skipped" }>;
+    expect(typeof skippedEvent.index).toBe("number");
+    expect(typeof skippedEvent.total).toBe("number");
   });
 });

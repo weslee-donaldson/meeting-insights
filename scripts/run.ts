@@ -1,10 +1,10 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { createDb, migrate } from "../src/db.js";
 import { connectVectorDb } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
 import { seedClients } from "../src/client-registry.js";
-import { processNewMeetings } from "../src/pipeline.js";
+import { processNewMeetings, type PipelineEvent } from "../src/pipeline.js";
 
 process.loadEnvFile?.(".env.local");
 
@@ -27,9 +27,13 @@ const vdb = await connectVectorDb(VECTOR_PATH);
 
 console.log("Loading embedding model...");
 const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
-console.log("Model loaded.");
+console.log("Model loaded.\n");
 
 const llm = createLlmAdapter({ type: "anthropic", apiKey: API_KEY });
+
+const runStart = Date.now();
+const runId = new Date().toISOString().replace(/:/g, "-");
+const events: PipelineEvent[] = [];
 
 const result = await processNewMeetings({
   rawDir: "data/raw-transcripts",
@@ -41,6 +45,36 @@ const result = await processNewMeetings({
   vdb,
   session,
   llm,
+  onProgress: (event) => {
+    events.push(event);
+    if (event.type === "processing") {
+      process.stdout.write(`[${event.index}/${event.total}] ${event.title} ... `);
+    } else if (event.type === "ok") {
+      const client = event.client ? ` [${event.client}]` : "";
+      console.log(`✓${client} (${event.elapsed_ms}ms)`);
+    } else if (event.type === "failed") {
+      console.log(`✗ FAILED`);
+      console.log(`         ${event.reason}`);
+    } else if (event.type === "skipped") {
+      console.log(`[${event.index}/${event.total}] ${event.title} — skipped`);
+    }
+  },
 });
 
-console.log(`✓ total=${result.total} succeeded=${result.succeeded} failed=${result.failed} skipped=${result.skipped}`);
+const elapsed = Date.now() - runStart;
+console.log(`\n✓ total=${result.total} succeeded=${result.succeeded} failed=${result.failed} skipped=${result.skipped} (${elapsed}ms)`);
+
+mkdirSync("data/audit", { recursive: true });
+writeFileSync(
+  `data/audit/run-${runId}.json`,
+  JSON.stringify({
+    run_id: runId,
+    started_at: new Date(runStart).toISOString(),
+    completed_at: new Date().toISOString(),
+    elapsed_ms: elapsed,
+    summary: result,
+    events,
+  }, null, 2),
+  "utf-8",
+);
+console.log(`Log: data/audit/run-${runId}.json`);
