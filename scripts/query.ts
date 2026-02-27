@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { createDb } from "../src/db.js";
 import { connectVectorDb } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
@@ -6,13 +5,17 @@ import { searchMeetings } from "../src/vector-search.js";
 import { getMeeting } from "../src/ingest.js";
 import { getArtifact } from "../src/extractor.js";
 import { renderNotesGroups } from "../src/display-helpers.js";
+import { createLlmAdapter } from "../src/llm-adapter.js";
 import type { Database } from "better-sqlite3";
 
 process.loadEnvFile?.(".env.local");
 
-const DB_PATH    = process.env.MTNINSIGHTS_DB_PATH    ?? "db/mtninsights.db";
-const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
-const API_KEY    = process.env.ANTHROPIC_API_KEY;
+const DB_PATH      = process.env.MTNINSIGHTS_DB_PATH      ?? "db/mtninsights.db";
+const VECTOR_PATH  = process.env.MTNINSIGHTS_VECTOR_PATH  ?? "db/lancedb";
+const PROVIDER     = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub";
+const API_KEY      = process.env.ANTHROPIC_API_KEY;
+const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
+const LOCAL_MODEL  = process.env.MTNINSIGHTS_LOCAL_MODEL  ?? "llama3.1:8b";
 
 // ── Arg parsing ──────────────────────────────────────────────────────────────
 
@@ -252,7 +255,7 @@ if (searchMode) {
 }
 
 // Ask mode
-if (!API_KEY || API_KEY.startsWith("sk-ant-...")) {
+if (PROVIDER === "anthropic" && (!API_KEY || API_KEY.startsWith("sk-ant-..."))) {
   console.error("Error: ANTHROPIC_API_KEY not set in .env.local");
   process.exit(1);
 }
@@ -262,19 +265,21 @@ if (results.length === 0) {
   process.exit(0);
 }
 
+const llm = PROVIDER === "local"
+  ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
+  : PROVIDER === "stub"
+    ? createLlmAdapter({ type: "stub" })
+    : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
+
 const richContext = buildRichContext(db, results);
-const sourceList  = results
+const systemPrompt = "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. If the notes do not contain enough information to answer the question, say so clearly.";
+const prompt = `${systemPrompt}\n\n${richContext}\n\nQuestion: ${question}`;
+
+const llmResult = await llm.complete("synthesize_answer", prompt);
+const answer = typeof llmResult.answer === "string" ? llmResult.answer : "(no response)";
+const sourceList = results
   .map(r => `${getMeeting(db, r.meeting_id).title} (${r.date.slice(0, 10)})`)
   .join(", ");
 
-const anthropic = new Anthropic({ apiKey: API_KEY });
-const response = await anthropic.messages.create({
-  model: "claude-sonnet-4-6",
-  max_tokens: 1024,
-  system: "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. If the notes do not contain enough information to answer the question, say so clearly.",
-  messages: [{ role: "user", content: `${richContext}\n\nQuestion: ${question}` }],
-});
-
-const answer = response.content[0].type === "text" ? response.content[0].text : "(no response)";
 console.log(`\n${answer}\n`);
 console.log(`Sources: ${sourceList}`);

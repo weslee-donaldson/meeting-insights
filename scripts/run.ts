@@ -10,9 +10,12 @@ process.loadEnvFile?.(".env.local");
 
 const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
 const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
+const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
+const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
+const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
 
-if (!API_KEY || API_KEY.startsWith("sk-ant-...")) {
+if (PROVIDER === "anthropic" && (!API_KEY || API_KEY.startsWith("sk-ant-..."))) {
   console.error("Error: ANTHROPIC_API_KEY not set. Add it to .env.local");
   process.exit(1);
 }
@@ -29,7 +32,11 @@ console.log("Loading embedding model...");
 const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
 console.log("Model loaded.\n");
 
-const llm = createLlmAdapter({ type: "anthropic", apiKey: API_KEY });
+const llm = PROVIDER === "local"
+  ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
+  : PROVIDER === "stub"
+    ? createLlmAdapter({ type: "stub" })
+    : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
 const runStart = Date.now();
 const runId = new Date().toISOString().replace(/:/g, "-");
