@@ -27,7 +27,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 | Relational storage | SQLite (`better-sqlite3`) | Persistent file at `db/mtninsights.db` | `:memory:` per suite |
 | Vector storage | LanceDB (`@lancedb/lancedb`) | Persistent directory at `db/lancedb/` | Temp dir per suite |
 | Embeddings | ONNX Runtime (`onnxruntime-node` + `all-MiniLM-L6-v2`, 384-dim) | In-process | In-process |
-| LLM | Anthropic API (Claude) | Real API calls | **Stubbed** — deterministic JSON fixtures |
+| LLM | Provider interface: `anthropic` (Claude API), `local` (Ollama `/api/chat`), `stub` — selected via `MTNINSIGHTS_LLM_PROVIDER` | Real API / Ollama calls | **Stubbed** — deterministic JSON fixtures |
 | Logging | `debug` npm package | Namespaced per module | Namespaced per module |
 | Runtime | Node.js 18+ / TypeScript / pnpm | | |
 | Test framework | Vitest | | |
@@ -472,6 +472,32 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 180: `package.json` gains `query` script: `"query": "tsx scripts/query.ts"` [depends: 175]
 - [x] Burst 181: `README.md` documents prerequisites, setup (model download, .env.local, pnpm setup), processing (pnpm process, extraction prompt), all query modes with concrete examples (list/filter/summary/focused/search/ask), reset workflow, transcript folder format, and environment variables [depends: 175–180]
 
+### Bottle: Additional Notes Field
+
+- [ ] Burst 182: `migrate()` in `src/db.ts` checks `PRAGMA table_info(artifacts)` for column existence; if absent executes `ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'` — idempotent on new and existing databases [depends: 38]
+- [ ] Burst 183: `Artifact` interface gains `additional_notes: Array<Record<string, unknown>>`; added to `REQUIRED_KEYS`; `validateArtifact` verifies field exists, is an array, and every element is a plain object (not null, not array, not primitive) [depends: 182]
+- [ ] Burst 184: `validateArtifact` normalizes malformed `additional_notes` to `[]` rather than throwing — if value is not an array or contains non-objects, logs the malformation and replaces with `[]`; pipeline never aborts for this field [depends: 183]
+- [ ] Burst 185: `ArtifactRow` gains `additional_notes: string`; `storeArtifact` serializes with `JSON.stringify`; `mergeArtifacts` concatenates note arrays across chunks [depends: 182, 183]
+- [ ] Burst 186: `STUB_FIXTURES.extraction` in `src/llm-adapter.ts` includes `additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }]` [depends: 183]
+- [ ] Burst 187: `buildEmbeddingInput` in `src/meeting-pipeline.ts` canonicalizes `additional_notes` into embedding text — iterates top-level objects, emits first string-valued key as section header and remaining string values as lines; deterministic and readable regardless of model-chosen key names [depends: 185, 186]
+- [ ] Burst 188: `--list notes` (alias `--list additional_notes`) added to `scripts/query.ts` dispatch — renders per-meeting header then each note group with top-level key as section label and nested content indented with `•` [depends: 185]
+- [ ] Burst 189: `buildRichContext` in `scripts/query.ts` appends canonicalized notes after all higher-signal fields, capped at 1000 chars per meeting; content exceeding cap truncated with `…` [depends: 185]
+- [ ] Burst 190: `extractSummary` logs `notes_count` (array length) and `notes_size` (char count of serialized notes) via `mtninsights:extract` after each extraction [depends: 183, 186]
+
+### Bottle: LLM Provider Interface
+
+- [ ] Burst 191: `PromptType` renamed to `LlmCapability`; values renamed: `"extraction"` → `"extract_artifact"`, `"tags"` → `"cluster_tags"`, `"task"` → `"generate_task"`; `"synthesize_answer"` added with stub fixture `{ answer: "Stub answer based on meeting context." }`; callers updated: `src/extractor.ts`, `src/cluster-topics.ts`, `src/task-generation.ts` [depends: none]
+- [ ] Burst 192: `createLlmAdapter` accepts `LocalConfig { type: "local"; baseUrl: string; model: string }` and implements Ollama provider via `fetch` — `POST {baseUrl}/api/chat` with `{ model, messages, stream: false }`; `extract_artifact`/`cluster_tags`/`generate_task` parse response JSON; `synthesize_answer` returns `{ answer: content }` directly [depends: 191]
+- [ ] Burst 193: Both providers classify errors before any repair attempt — Anthropic checks `instanceof Anthropic.RateLimitError` / `APIError`; local checks HTTP status 429/5xx; all throw with typed prefix: `"[rate_limit] ..."`, `"[api_error] ..."`, `"[json_parse] ..."`; `processEntry` in `src/pipeline.ts` extracts prefix and adds `error_type` field to audit JSON entries — making run logs scannable for rate limit patterns [depends: 192]
+- [ ] Burst 194: JSON repair loop fires on `[json_parse]` errors only — retries once with repair prefix `"The previous response was not valid JSON. Return only a valid JSON object with no prose.\n\nOriginal request:\n"`; on second failure returns `{ __fallback: true, raw_text: firstResponseText.slice(0, 500) }`; `extractSummary` detects `__fallback` sentinel and returns minimal artifact (empty arrays, `summary: ""`, `additional_notes: []`) without throwing; API errors (`[rate_limit]`, `[api_error]`) bypass repair loop entirely [depends: 193, 185]
+- [ ] Burst 195: All providers log via `mtninsights:llm` after each call: `provider capability model latency_ms` + token count (Anthropic: `usage.output_tokens`; local: response char count; stub: `0`) [depends: 192]
+- [ ] Burst 196: `scripts/run.ts` and `scripts/query.ts` read `MTNINSIGHTS_LLM_PROVIDER` (default `"anthropic"`), `MTNINSIGHTS_LOCAL_BASE_URL` (default `"http://localhost:11434"`), `MTNINSIGHTS_LOCAL_MODEL` (default `"llama3.1:8b"`) and build `createLlmAdapter` config accordingly; `ANTHROPIC_API_KEY` only required when `provider=anthropic`; `scripts/query.ts` removes direct Anthropic SDK import and routes ask mode through `llm.complete("synthesize_answer", ...)` [depends: 191, 193, 194]
+- [ ] Burst 197: `scripts/setup.ts` validates Ollama server reachable when `MTNINSIGHTS_LLM_PROVIDER=local` — `GET {baseUrl}/api/tags`; on failure prints error with install/start instructions and exits [depends: 196]
+- [ ] Burst 198: `scripts/setup.ts` verifies configured model exists in Ollama tag list; if absent auto-pulls via `POST {baseUrl}/api/pull { "name": model, "stream": false }` and waits for completion [depends: 197]
+- [ ] Burst 199: `buildRichContext` renamed to `buildLabeledContext` in `scripts/query.ts` — prefixes each meeting block `[M1]`, `[M2]`, …`[Mn]`; system prompt instructs model to cite only those IDs; after response, `parseCitations()` extracts `[Mn]` references; `Sources:` line derived from cited IDs mapped to meeting titles; falls back to all retrieved titles if no citations found [depends: 196]
+- [ ] Burst 200: `scripts/eval.ts` evaluation harness reads `data/eval/questions.json` (array of `{ question: string, client?: string }`), runs each via `searchMeetings` + `buildLabeledContext` + `llm.complete("synthesize_answer", ...)`, writes `data/eval/results-{provider}-{timestamp}.jsonl` with fields: `question`, `retrieved_meeting_ids`, `cited_ids`, `latency_ms`, `answer_length`, `provider`, `model`; `data/eval/questions.json` pre-populated with 5 questions spanning Mandalore, TQ, Revenium, Hypercurrent [depends: 199]
+- [ ] Burst 201: `package.json` gains `eval` script: `"eval": "tsx scripts/eval.ts"` [depends: 200]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
@@ -583,6 +609,26 @@ Burst 1 → 2 (bootstrap)
 175–180 → 181 (README.md)
 ```
 
+### Phase 11: Additional Notes (Bursts 182–190)
+
+```
+182 → 183 → 184, 185 (schema + validation + normalization)
+185 + 186 → 187 (embedding canonicalization)
+185 → 188, 189 (query display + context cap)
+183 → 190 (logging)
+```
+
+### Phase 12: LLM Provider Interface (Bursts 191–201)
+
+```
+191 → 192 → 193 → 194 (providers + error classification + repair loop)
+192 + 193 + 194 → 195 (per-call observability)
+195 → 196 (scripts routing)
+196 → 197 → 198 (setup Ollama validation)
+196 → 199 (labeled context + citations)
+199 → 200 → 201 (eval harness)
+```
+
 ---
 
 # CLIENT REGISTRY FORMAT
@@ -630,6 +676,8 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - Extraction prompt editable without code changes (Bursts 159–161 green)
 - Per-meeting console progress with timing and client name; full run log written to `data/audit/run-*.json` (Bursts 169–174 green)
 - `pnpm query` CLI supports structured listing, focused field dumps, semantic search, and natural-language Q&A — all filterable by client, meeting, and date range (Bursts 175–181 green)
+- `additional_notes` freeform field extracted, stored, embedded, and displayed — with graceful normalization for malformed output and per-meeting observability logging (Bursts 182–190 green)
+- Provider-based LLM boundary supports `anthropic`, `local` (Ollama), and `stub` — switchable via env var; API errors classified (`[rate_limit]`, `[json_parse]`) and surfaced in run log `error_type` field; JSON repair loop fires only on parse failures, never on rate limits; ask mode uses labeled context blocks with deterministic citation extraction (Bursts 191–201 green)
 - 100% test coverage by construction
 - **Single stubbed boundary** — only LLM calls are stubbed
 
