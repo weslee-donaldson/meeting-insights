@@ -1,0 +1,274 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { createDb } from "../src/db.js";
+import { connectVectorDb } from "../src/vector-db.js";
+import { loadModel } from "../src/embedder.js";
+import { searchMeetings } from "../src/vector-search.js";
+import { getMeeting } from "../src/ingest.js";
+import { getArtifact } from "../src/extractor.js";
+import { renderNotesGroups } from "../src/display-helpers.js";
+import type { Database } from "better-sqlite3";
+
+process.loadEnvFile?.(".env.local");
+
+const DB_PATH    = process.env.MTNINSIGHTS_DB_PATH    ?? "db/mtninsights.db";
+const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
+const API_KEY    = process.env.ANTHROPIC_API_KEY;
+
+// ── Arg parsing ──────────────────────────────────────────────────────────────
+
+const args = process.argv.slice(2);
+
+const clientFilter  = args.find(a => a.startsWith("--client="))?.slice(9);
+const meetingFilter = args.find(a => a.startsWith("--meeting="))?.slice(10);
+const afterFilter   = args.find(a => a.startsWith("--after="))?.slice(8);
+const beforeFilter  = args.find(a => a.startsWith("--before="))?.slice(9);
+const limit         = parseInt(args.find(a => a.startsWith("--limit="))?.slice(8) ?? "6");
+const searchMode    = args.includes("--search");
+
+const listIdx  = args.indexOf("--list");
+const listType = args.find(a => a.startsWith("--list="))?.slice(7)
+  ?? (listIdx !== -1 && args[listIdx + 1] && !args[listIdx + 1].startsWith("-") ? args[listIdx + 1] : undefined);
+
+const question = args.filter(a => !a.startsWith("-")).join(" ").trim();
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface MeetingRow { id: string; title: string; date: string; }
+interface ActionItem  { description: string; owner: string; due_date: string | null; }
+interface SearchResult { meeting_id: string; score: number; client: string; meeting_type: string; date: string; }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function resolveMeetingIds(db: Database, opts: { client?: string; meeting?: string; after?: string; before?: string }): string[] {
+  let rows = db.prepare("SELECT id, title, date FROM meetings ORDER BY date ASC").all() as MeetingRow[];
+  if (opts.after)   rows = rows.filter(r => r.date >= opts.after!);
+  if (opts.before)  rows = rows.filter(r => r.date <= (opts.before! + "T23:59:59Z"));
+  if (opts.meeting) rows = rows.filter(r =>
+    r.title.toLowerCase().includes(opts.meeting!.toLowerCase()) || r.id.startsWith(opts.meeting!),
+  );
+  if (opts.client) {
+    const clientIds = new Set(
+      (db.prepare("SELECT meeting_id FROM client_detections WHERE client_name = ?").all(opts.client) as { meeting_id: string }[])
+        .map(r => r.meeting_id),
+    );
+    rows = rows.filter(r => clientIds.has(r.id));
+  }
+  return rows.map(r => r.id);
+}
+
+function clientForMeeting(db: Database, meetingId: string): string {
+  const row = db.prepare(
+    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+  ).get(meetingId) as { client_name: string } | undefined;
+  return row?.client_name ?? "";
+}
+
+function meetingHeader(title: string, date: string, client: string): string {
+  const clientTag = client ? `  [${client}]` : "";
+  const bar = "━".repeat(60);
+  return `\n${bar}\n${title}   ${date.slice(0, 10)}${clientTag}\n${bar}`;
+}
+
+function buildRichContext(db: Database, results: SearchResult[]): string {
+  return results.map(r => {
+    const mtg = getMeeting(db, r.meeting_id);
+    const art = getArtifact(db, r.meeting_id);
+    if (!art) return "";
+    const decisions  = JSON.parse(art.decisions) as string[];
+    const actions    = JSON.parse(art.action_items) as ActionItem[];
+    const questions  = JSON.parse(art.open_questions) as string[];
+    const risks      = JSON.parse(art.risk_items) as string[];
+    const features   = JSON.parse(art.proposed_features) as string[];
+    const topics     = JSON.parse(art.technical_topics) as string[];
+    return [
+      `## ${mtg.title}  (${mtg.date.slice(0, 10)})`,
+      `Summary: ${art.summary}`,
+      decisions.length  ? `Decisions: ${decisions.join(" | ")}` : "",
+      actions.length    ? `Action items: ${actions.map(a => `${a.owner}: ${a.description}`).join(" | ")}` : "",
+      questions.length  ? `Open questions: ${questions.join(" | ")}` : "",
+      risks.length      ? `Risks: ${risks.join(" | ")}` : "",
+      features.length   ? `Proposed features: ${features.join(" | ")}` : "",
+      topics.length     ? `Technical topics: ${topics.join(", ")}` : "",
+    ].filter(Boolean).join("\n");
+  }).filter(Boolean).join("\n\n---\n\n");
+}
+
+// ── --list helpers ────────────────────────────────────────────────────────────
+
+function printMeetingsList(db: Database, ids: string[]): void {
+  if (ids.length === 0) { console.log("No meetings found."); return; }
+  const header = ["ID".padEnd(10), "Title".padEnd(40), "Date".padEnd(12), "Client".padEnd(16), "Conf"].join("  ");
+  console.log("\n" + header);
+  console.log("─".repeat(header.length));
+  for (const id of ids) {
+    const mtg = getMeeting(db, id);
+    const cd  = db.prepare(
+      "SELECT client_name, confidence FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+    ).get(id) as { client_name: string; confidence: number } | undefined;
+    console.log([
+      id.slice(0, 8).padEnd(10),
+      (mtg.title.length > 38 ? mtg.title.slice(0, 37) + "…" : mtg.title).padEnd(40),
+      mtg.date.slice(0, 10).padEnd(12),
+      (cd?.client_name ?? "").padEnd(16),
+      cd ? cd.confidence.toFixed(2) : "",
+    ].join("  "));
+  }
+  console.log();
+}
+
+function printSummary(db: Database, ids: string[]): void {
+  if (ids.length === 0) { console.log("No meetings found."); return; }
+  for (const id of ids) {
+    const mtg = getMeeting(db, id);
+    const art = getArtifact(db, id);
+    const client = clientForMeeting(db, id);
+    console.log(meetingHeader(mtg.title, mtg.date, client));
+    if (!art) { console.log("\n  (no artifact extracted)\n"); continue; }
+
+    const decisions = JSON.parse(art.decisions) as string[];
+    const actions   = JSON.parse(art.action_items) as ActionItem[];
+    const questions = JSON.parse(art.open_questions) as string[];
+    const risks     = JSON.parse(art.risk_items) as string[];
+    const features  = JSON.parse(art.proposed_features) as string[];
+    const topics    = JSON.parse(art.technical_topics) as string[];
+
+    console.log("\nSUMMARY");
+    console.log(`  ${art.summary}`);
+
+    if (decisions.length)  { console.log("\nDECISIONS");        decisions.forEach(d => console.log(`  • ${d}`)); }
+    if (features.length)   { console.log("\nPROPOSED FEATURES"); features.forEach(f => console.log(`  • ${f}`)); }
+    if (actions.length)    { console.log("\nACTION ITEMS");      actions.forEach(a => console.log(`  • [${a.owner || "?"}] ${a.description}${a.due_date ? `  (due: ${a.due_date})` : ""}`)); }
+    if (topics.length)     { console.log("\nTECHNICAL TOPICS"); console.log(`  ${topics.join(", ")}`); }
+    if (questions.length)  { console.log("\nOPEN QUESTIONS");    questions.forEach(q => console.log(`  • ${q}`)); }
+    if (risks.length)      { console.log("\nRISKS");             risks.forEach(r => console.log(`  • ${r}`)); }
+    console.log();
+  }
+}
+
+function printField(db: Database, ids: string[], type: string): void {
+  if (ids.length === 0) { console.log("No meetings found."); return; }
+  for (const id of ids) {
+    const mtg = getMeeting(db, id);
+    const art = getArtifact(db, id);
+    const client = clientForMeeting(db, id);
+    if (!art) continue;
+
+    let items: string[] = [];
+    if (type === "decisions")  items = JSON.parse(art.decisions) as string[];
+    if (type === "features")   items = JSON.parse(art.proposed_features) as string[];
+    if (type === "questions")  items = JSON.parse(art.open_questions) as string[];
+    if (type === "risks")      items = JSON.parse(art.risk_items) as string[];
+    if (type === "actions") {
+      items = (JSON.parse(art.action_items) as ActionItem[])
+        .map(a => `[${a.owner || "?"}] ${a.description}${a.due_date ? `  (due: ${a.due_date})` : ""}`);
+    }
+    if (items.length === 0) continue;
+
+    console.log(meetingHeader(mtg.title, mtg.date, client));
+    items.forEach(i => console.log(`  • ${i}`));
+    console.log();
+  }
+}
+
+function printNotes(db: Database, ids: string[]): void {
+  if (ids.length === 0) { console.log("No meetings found."); return; }
+  for (const id of ids) {
+    const mtg = getMeeting(db, id);
+    const art = getArtifact(db, id);
+    if (!art) continue;
+    const notes = JSON.parse(art.additional_notes ?? "[]") as Array<Record<string, unknown>>;
+    if (notes.length === 0) continue;
+    console.log(meetingHeader(mtg.title, mtg.date, clientForMeeting(db, id)));
+    console.log(renderNotesGroups(notes));
+    console.log();
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+const db = createDb(DB_PATH);
+
+if (listType) {
+  const ids = resolveMeetingIds(db, { client: clientFilter, meeting: meetingFilter, after: afterFilter, before: beforeFilter });
+  if (listType === "meetings") {
+    printMeetingsList(db, ids);
+  } else if (listType === "summary") {
+    printSummary(db, ids);
+  } else if (["decisions", "features", "actions", "questions", "risks"].includes(listType)) {
+    printField(db, ids, listType);
+  } else if (listType === "notes" || listType === "additional_notes") {
+    printNotes(db, ids);
+  } else {
+    console.error(`Unknown list type: ${listType}`);
+    console.error("Valid types: meetings, summary, decisions, features, actions, questions, risks, notes");
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
+if (!question && !searchMode) {
+  console.error("Usage:");
+  console.error("  pnpm query \"<question>\" [--client=X] [--after=YYYY-MM-DD] [--limit=N]");
+  console.error("  pnpm query --search \"<topic>\" [--client=X]");
+  console.error("  pnpm query --list <meetings|summary|decisions|actions|questions|risks|features>");
+  console.error("             [--client=X] [--meeting=\"title\"] [--after=YYYY-MM-DD] [--before=YYYY-MM-DD]");
+  process.exit(1);
+}
+
+process.stderr.write("Loading model... ");
+const vdb = await connectVectorDb(VECTOR_PATH);
+const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
+process.stderr.write("ready.\n\n");
+
+const searchQuery = question || args.find(a => !a.startsWith("-")) || "";
+
+const results = await searchMeetings(vdb, session, searchQuery, {
+  limit,
+  client: clientFilter,
+  date_after: afterFilter,
+  date_before: beforeFilter,
+}) as SearchResult[];
+
+if (searchMode) {
+  if (results.length === 0) { console.log("No results found."); process.exit(0); }
+  for (const r of results) {
+    const mtg = getMeeting(db, r.meeting_id);
+    const art = getArtifact(db, r.meeting_id);
+    const clientTag = r.client ? `  [${r.client}]` : "";
+    console.log(`[${r.score.toFixed(3)}]  ${mtg.title}  (${r.date.slice(0, 10)})${clientTag}`);
+    if (art) {
+      const excerpt = art.summary.slice(0, 200);
+      console.log(`        ${excerpt}${art.summary.length > 200 ? "…" : ""}`);
+    }
+    console.log();
+  }
+  process.exit(0);
+}
+
+// Ask mode
+if (!API_KEY || API_KEY.startsWith("sk-ant-...")) {
+  console.error("Error: ANTHROPIC_API_KEY not set in .env.local");
+  process.exit(1);
+}
+
+if (results.length === 0) {
+  console.log("No relevant meetings found for that query.");
+  process.exit(0);
+}
+
+const richContext = buildRichContext(db, results);
+const sourceList  = results
+  .map(r => `${getMeeting(db, r.meeting_id).title} (${r.date.slice(0, 10)})`)
+  .join(", ");
+
+const anthropic = new Anthropic({ apiKey: API_KEY });
+const response = await anthropic.messages.create({
+  model: "claude-sonnet-4-6",
+  max_tokens: 1024,
+  system: "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. If the notes do not contain enough information to answer the question, say so clearly.",
+  messages: [{ role: "user", content: `${richContext}\n\nQuestion: ${question}` }],
+});
+
+const answer = response.content[0].type === "text" ? response.content[0].text : "(no response)";
+console.log(`\n${answer}\n`);
+console.log(`Sources: ${sourceList}`);
