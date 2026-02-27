@@ -7,7 +7,7 @@ import type { SpeakerTurn } from "./parser.js";
 const log = createLogger("extract");
 const logValidate = createLogger("extract:validate");
 
-const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_items", "technical_topics", "open_questions", "risk_items"] as const;
+const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_items", "technical_topics", "open_questions", "risk_items", "additional_notes"] as const;
 
 export interface Artifact {
   summary: string;
@@ -17,6 +17,7 @@ export interface Artifact {
   technical_topics: string[];
   open_questions: string[];
   risk_items: string[];
+  additional_notes: Array<Record<string, unknown>>;
 }
 
 export interface ArtifactRow {
@@ -41,6 +42,17 @@ export function validateArtifact(raw: object): Artifact {
       throw new Error(`Artifact missing required key: ${key}`);
     }
   }
+  const notes = (raw as Record<string, unknown>)["additional_notes"];
+  if (!Array.isArray(notes)) {
+    logValidate("validation failed: additional_notes is not an array");
+    throw new Error("additional_notes must be an array");
+  }
+  for (const item of notes) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      logValidate("validation failed: additional_notes element is not a plain object");
+      throw new Error("additional_notes elements must be plain objects");
+    }
+  }
   return raw as Artifact;
 }
 
@@ -57,6 +69,7 @@ function mergeArtifacts(artifacts: Artifact[]): Artifact {
     technical_topics: artifacts.flatMap((a) => a.technical_topics),
     open_questions: artifacts.flatMap((a) => a.open_questions),
     risk_items: artifacts.flatMap((a) => a.risk_items),
+    additional_notes: artifacts.flatMap((a) => a.additional_notes),
   };
 }
 

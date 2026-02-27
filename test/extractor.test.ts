@@ -81,6 +81,16 @@ describe("extractSummary", () => {
   });
 });
 
+const VALID_BASE = {
+  summary: "ok",
+  decisions: [],
+  proposed_features: [],
+  action_items: [],
+  technical_topics: [],
+  open_questions: [],
+  risk_items: [],
+};
+
 describe("validateArtifact", () => {
   it("rejects response missing required keys", () => {
     expect(() => validateArtifact({ summary: "ok" })).toThrow();
@@ -88,6 +98,23 @@ describe("validateArtifact", () => {
 
   it("rejects response containing non-JSON prose", () => {
     expect(() => validateArtifact("Here is a summary of the meeting" as unknown as object)).toThrow();
+  });
+
+  it("throws when additional_notes is missing", () => {
+    expect(() => validateArtifact(VALID_BASE)).toThrow(/missing required key: additional_notes/);
+  });
+
+  it("throws when additional_notes is not an array", () => {
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: "bad" })).toThrow(/additional_notes must be an array/);
+  });
+
+  it("throws when additional_notes element is null or a number", () => {
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [null] })).toThrow(/plain objects/);
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [42] })).toThrow(/plain objects/);
+  });
+
+  it("accepts valid artifact with additional_notes", () => {
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [{ category: "ctx", note: "x" }] })).not.toThrow();
   });
 });
 

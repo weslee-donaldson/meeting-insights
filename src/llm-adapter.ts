@@ -18,6 +18,7 @@ const STUB_FIXTURES: Record<PromptType, Record<string, unknown>> = {
     technical_topics: ["API design", "database schema"],
     open_questions: ["What is the timeline?"],
     risk_items: ["Scope creep risk"],
+    additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }],
   },
   tags: {
     tags: ["API integration", "client onboarding", "feature planning", "roadmap review"],
