@@ -62,4 +62,9 @@ export function migrate(db: DB): void {
       FOREIGN KEY (cluster_id) REFERENCES clusters(cluster_id)
     );
   `);
+
+  const cols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
+  if (!cols.some(c => c.name === "additional_notes")) {
+    db.exec("ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'");
+  }
 }

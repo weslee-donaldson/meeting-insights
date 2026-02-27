@@ -45,4 +45,13 @@ describe("migrate", () => {
     const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='meeting_clusters'").get();
     expect(row).toEqual({ name: "meeting_clusters" });
   });
+
+  it("adds additional_notes column to artifacts", () => {
+    const cols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
+    expect(cols.some(c => c.name === "additional_notes")).toBe(true);
+  });
+
+  it("is idempotent — calling migrate twice does not throw", () => {
+    expect(() => migrate(db)).not.toThrow();
+  });
 });
