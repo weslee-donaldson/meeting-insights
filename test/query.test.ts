@@ -29,3 +29,22 @@ describe("renderNotesGroups", () => {
     expect(output).toContain("Constraints");
   });
 });
+
+describe("notes context cap", () => {
+  it("truncates notes text exceeding 1000 chars with ellipsis", () => {
+    const longNote = "x".repeat(1100);
+    const notes = [{ category: "Long", detail: longNote }];
+    const rendered = renderNotesGroups(notes);
+    const capped = rendered.length > 1000 ? rendered.slice(0, 1000) + "…" : rendered;
+    expect(capped.endsWith("…")).toBe(true);
+    expect(capped.length).toBe(1001);
+  });
+
+  it("does not truncate notes text under 1000 chars", () => {
+    const notes = [{ category: "Short", detail: "brief note" }];
+    const rendered = renderNotesGroups(notes);
+    const capped = rendered.length > 1000 ? rendered.slice(0, 1000) + "…" : rendered;
+    expect(capped.endsWith("…")).toBe(false);
+    expect(capped).toContain("brief note");
+  });
+});

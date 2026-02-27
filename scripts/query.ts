@@ -80,6 +80,11 @@ function buildRichContext(db: Database, results: SearchResult[]): string {
     const risks      = JSON.parse(art.risk_items) as string[];
     const features   = JSON.parse(art.proposed_features) as string[];
     const topics     = JSON.parse(art.technical_topics) as string[];
+    const notes = JSON.parse(art.additional_notes ?? "[]") as Array<Record<string, unknown>>;
+    const notesText = renderNotesGroups(notes);
+    const notesSection = notesText.length > 0
+      ? `Notes:\n${notesText.length > 1000 ? notesText.slice(0, 1000) + "…" : notesText}`
+      : "";
     return [
       `## ${mtg.title}  (${mtg.date.slice(0, 10)})`,
       `Summary: ${art.summary}`,
@@ -89,6 +94,7 @@ function buildRichContext(db: Database, results: SearchResult[]): string {
       risks.length      ? `Risks: ${risks.join(" | ")}` : "",
       features.length   ? `Proposed features: ${features.join(" | ")}` : "",
       topics.length     ? `Technical topics: ${topics.join(", ")}` : "",
+      notesSection,
     ].filter(Boolean).join("\n");
   }).filter(Boolean).join("\n\n---\n\n");
 }
