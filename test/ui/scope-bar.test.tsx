@@ -1,0 +1,46 @@
+// @vitest-environment jsdom
+import React from "react";
+import { describe, afterEach, it, expect, vi } from "vitest";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
+import { ScopeBar } from "../../ui/src/components/ScopeBar.js";
+
+afterEach(cleanup);
+
+
+const defaultProps = {
+  clients: ["Acme", "Beta Co"],
+  selectedClient: null,
+  dateRange: { after: "", before: "" },
+  onClientChange: vi.fn(),
+  onDateChange: vi.fn(),
+  onReset: vi.fn(),
+};
+
+describe("ScopeBar", () => {
+  it("renders Reset button", () => {
+    render(<ScopeBar {...defaultProps} />);
+    expect(screen.getByRole("button", { name: /reset/i })).toBeDefined();
+  });
+
+  it("calls onReset when Reset is clicked", () => {
+    const onReset = vi.fn();
+    render(<ScopeBar {...defaultProps} onReset={onReset} />);
+    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    expect(onReset).toHaveBeenCalledOnce();
+  });
+
+  it("renders after and before date inputs", () => {
+    render(<ScopeBar {...defaultProps} />);
+    expect(screen.getByLabelText("After date")).toBeDefined();
+    expect(screen.getByLabelText("Before date")).toBeDefined();
+  });
+
+  it("calls onDateChange when after date changes", () => {
+    const onDateChange = vi.fn();
+    render(<ScopeBar {...defaultProps} onDateChange={onDateChange} />);
+    fireEvent.change(screen.getByLabelText("After date"), {
+      target: { value: "2026-02-01" },
+    });
+    expect(onDateChange).toHaveBeenCalledWith({ after: "2026-02-01", before: "" });
+  });
+});

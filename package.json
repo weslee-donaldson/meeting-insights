@@ -9,16 +9,23 @@
     "process": "tsx scripts/run.ts",
     "clear": "tsx scripts/reset.ts",
     "query": "tsx scripts/query.ts",
-    "eval": "tsx scripts/eval.ts"
+    "eval": "tsx scripts/eval.ts",
+    "ui:dev": "electron-vite dev",
+    "ui:build": "electron-vite build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/debug": "^4.1.12",
     "@types/node": "^25.3.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^28.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
@@ -33,14 +40,21 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@lancedb/lancedb": "^0.26.2",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-select": "^2.2.6",
+    "@tailwindcss/vite": "^4.2.1",
+    "@tanstack/react-query": "^5.90.21",
     "@vitejs/plugin-react": "^5.1.4",
     "apache-arrow": "^21.1.0",
     "better-sqlite3": "^12.6.2",
     "debug": "^4.4.3",
     "electron": "^40.6.1",
     "electron-vite": "^5.0.0",
+    "lucide-react": "^0.575.0",
     "onnxruntime-node": "^1.24.2",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-resizable-panels": "^4.6.5",
+    "tailwindcss": "^4.2.1"
   }
 }

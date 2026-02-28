@@ -157,6 +157,61 @@ pnpm reset
 
 ---
 
+## Meeting Intelligence Explorer (UI)
+
+A four-column desktop app for browsing, filtering, and chatting with your meeting knowledge store. Requires meetings already processed via `pnpm process`.
+
+### Launch
+
+```bash
+pnpm ui:dev
+```
+
+This starts the Electron app with Vite hot-reload for development. The app connects directly to your local SQLite database.
+
+### Layout
+
+```
+┌─────────────┬───────────────────┬────────────────────┬─────────────────────┐
+│   Clients   │     Meetings      │   Context View     │       Chat          │
+│             │                   │                    │                     │
+│  All        │ ▼ Mandalore DSU   │ ▼ Mandalore DSU    │  3 meetings ·       │
+│  Mandalore  │   ☐ Feb 26        │   Summary: ...     │  12,400 chars       │
+│  Revenium   │   ☑ Feb 25        │   Decisions: ...   │                     │
+│  TQ         │   ☑ Feb 24        │   Action Items:... │  What risks remain? │
+│             │ ▼ Architecture... │                    │  ─────────────────  │
+│             │   ☐ Feb 24        │ ▼ Architecture...  │  Based on the       │
+│             │                   │   Summary: ...     │  selected meetings, │
+│             │                   │                    │  the open risks are │
+└─────────────┴───────────────────┴────────────────────┴─────────────────────┘
+```
+
+**Column 1 — Clients**: Click to filter all columns to a single client. Click again (or use Reset) to show all clients.
+
+**Column 2 — Meetings**: Grouped by recurring series (DSU, refinement, etc.). Check individual meetings or use "Select all" per group to add them to the chat context. Newest meetings appear first within each group.
+
+**Column 3 — Context View**: Shows the raw structured artifact for every checked meeting, with collapsible sections for Summary, Decisions, Action Items, Open Questions, Risks, Proposed Features, Technical Topics, and Additional Notes. Empty sections are hidden automatically.
+
+**Column 4 — Chat**: Grounded Q&A over the currently selected meetings. The context size indicator shows how many meetings and characters are loaded. Answers cite which meetings they drew from. Previous Q&A pairs accumulate in the session — start a new window to clear history.
+
+### Scope bar
+
+The scope bar above the columns controls what meetings are visible:
+
+- **Client dropdown**: narrows to a single client
+- **After / Before date inputs**: date-range filter (ISO format: `2026-02-24`)
+- **Reset**: clears all filters and deselects all meetings
+
+### Build for distribution
+
+```bash
+pnpm ui:build
+```
+
+Compiles the renderer and packages the Electron app into `dist/`.
+
+---
+
 ## Transcript format
 
 Krisp batch exports create a folder structure like:
