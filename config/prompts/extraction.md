@@ -13,7 +13,7 @@ Fields:
 - technical_topics (string[]): Technical subjects discussed (APIs, systems, tools, architectures, protocols)
 - open_questions (string[]): Questions raised but not resolved during the meeting
 - risk_items (string[]): Risks, blockers, concerns, or dependencies flagged
-- notes (array of objects): this is dynamic based on the meeting context. Provide a detailed breakdown which is not already included in other data fields. 
+- additional_notes (array of objects): this is dynamic based on the meeting context. Provide a detailed breakdown which is not already included in other data fields. Provide logical grouping of information and where possible have categorization and grouping within the notes.
 
 ## Transcript
 

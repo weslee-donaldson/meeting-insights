@@ -1,0 +1,113 @@
+import type { Database } from "better-sqlite3";
+import { getArtifact } from "../src/extractor.js";
+import type { Artifact } from "../src/extractor.js";
+import { buildLabeledContext } from "../src/labeled-context.js";
+import { parseCitations } from "../src/display-helpers.js";
+import type { LlmAdapter } from "../src/llm-adapter.js";
+import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters } from "./channels.js";
+
+interface ClientRow { name: string; }
+interface DbMeetingRow { id: string; title: string; date: string; }
+interface DetectionRow { meeting_id: string; client_name: string; }
+
+export function handleGetClients(db: Database): string[] {
+  const rows = db.prepare("SELECT name FROM clients ORDER BY name").all() as ClientRow[];
+  return rows.map((r) => r.name);
+}
+
+function normalizeSeries(title: string): string {
+  return title.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function topClientForMeeting(
+  db: Database,
+  meetingId: string,
+): string {
+  const row = db
+    .prepare(
+      "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+    )
+    .get(meetingId) as { client_name: string } | undefined;
+  return row?.client_name ?? "";
+}
+
+export function handleGetMeetings(
+  db: Database,
+  opts: MeetingFilters,
+): MeetingRow[] {
+  let rows = db
+    .prepare("SELECT id, title, date FROM meetings ORDER BY date DESC")
+    .all() as DbMeetingRow[];
+
+  if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
+  if (opts.before)
+    rows = rows.filter((r) => r.date <= opts.before! + "T23:59:59Z");
+  if (opts.client) {
+    const clientIds = new Set(
+      (
+        db
+          .prepare(
+            "SELECT meeting_id FROM client_detections WHERE client_name = ?",
+          )
+          .all(opts.client) as DetectionRow[]
+      ).map((r) => r.meeting_id),
+    );
+    rows = rows.filter((r) => clientIds.has(r.id));
+  }
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    date: r.date,
+    client: topClientForMeeting(db, r.id),
+    series: normalizeSeries(r.title),
+  }));
+}
+
+export function handleGetArtifact(
+  db: Database,
+  meetingId: string,
+): Artifact | null {
+  const row = getArtifact(db, meetingId);
+  if (!row) return null;
+  return {
+    summary: row.summary,
+    decisions: JSON.parse(row.decisions ?? "[]"),
+    proposed_features: JSON.parse(row.proposed_features ?? "[]"),
+    action_items: JSON.parse(row.action_items ?? "[]"),
+    technical_topics: JSON.parse(row.technical_topics ?? "[]"),
+    open_questions: JSON.parse(row.open_questions ?? "[]"),
+    risk_items: JSON.parse(row.risk_items ?? "[]"),
+    additional_notes: JSON.parse(row.additional_notes ?? "[]"),
+  };
+}
+
+const SYSTEM_PROMPT = `You are a meeting intelligence assistant. Answer the user's question using ONLY the provided meeting context.
+Cite specific meetings using their labels [M1], [M2], etc. when referencing information.
+If the answer cannot be found in the context, say so clearly.`;
+
+export async function handleChat(
+  db: Database,
+  llm: LlmAdapter,
+  req: ChatRequest,
+): Promise<ChatResponse> {
+  const { contextText, charCount, meetings } = buildLabeledContext(
+    db,
+    req.meetingIds,
+  );
+
+  const prompt = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}\n\nQuestion: ${req.question}`;
+
+  const result = await llm.complete("synthesize_answer", prompt);
+  const answer = (result as { answer?: string }).answer ?? String(result);
+
+  const citations = parseCitations(answer);
+  const sources =
+    citations.length > 0
+      ? citations
+          .map((i) => meetings[i - 1]?.title ?? "")
+          .filter(Boolean)
+      : meetings.map((m) => m.title);
+
+  return { answer, sources, charCount };
+}

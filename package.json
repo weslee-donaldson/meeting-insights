@@ -33,9 +33,14 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@lancedb/lancedb": "^0.26.2",
+    "@vitejs/plugin-react": "^5.1.4",
     "apache-arrow": "^21.1.0",
     "better-sqlite3": "^12.6.2",
     "debug": "^4.4.3",
-    "onnxruntime-node": "^1.24.2"
+    "electron": "^40.6.1",
+    "electron-vite": "^5.0.0",
+    "onnxruntime-node": "^1.24.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }

@@ -1,22 +1,75 @@
 [
   {
-    "name": "Mandalore",
-    "aliases": ["Mandalore", "LLSA", "llsa"],
-    "known_participants": ["@llsa.com"]
+    "name": "LLSA",
+    "aliases": [
+      "Mandalore",
+      "Endor",
+      "LLSA",
+      "llsa"
+    ],
+    "known_participants": [
+      "antonio.falcao@llsa.com",
+      "bethany.duffy@llsa.com",
+      "dev.doshi@llsa.com",
+      "devon.woods@llsa.com",
+      "francis.pena@llsa.com",
+      "greg.christie@llsa.com",
+      "harry.dennen@llsa.com",
+      "itapplicationdevelopment@llsa.com",
+      "jennifer.karavakis@llsa.com",
+      "jeremy.campeau@llsa.com",
+      "jivko.ivanov@llsa.com",
+      "john.wilgus@llsa.com",
+      "lance.fallon@llsa.com",
+      "michal.kawka@llsa.com",
+      "rami.hatoum@llsa.com",
+      "ray.li@llsa.com",
+      "stace.baal@llsa.com",
+      "stephan.brauberg@llsa.com",
+      "wesley.donaldson@llsa.com",
+      "yoelvis.mulen@llsa.com",
+      "antonio.falcao@xolv.io",
+      "dev.doshi@xolv.io",
+      "sam@xolv.io"
+    ]
   },
   {
     "name": "Revenium",
-    "aliases": ["Revenium", "REV"],
-    "known_participants": ["@revenium.io", "@revenium.com"]
+    "aliases": [
+      "Revenium",
+      "REV"
+    ],
+    "known_participants": [
+      "@revenium.io",
+      "@revenium.com"
+    ]
   },
   {
     "name": "Hypercurrent",
-    "aliases": ["Hypercurrent"],
-    "known_participants": ["@hypercurrent.io"]
+    "aliases": [
+      "Hypercurrent"
+    ],
+    "known_participants": [
+      "@hypercurrent.io"
+    ]
   },
   {
-    "name": "TQ",
-    "aliases": ["TQ"],
-    "known_participants": []
+    "name": "TerraQuantum",
+    "aliases": [
+      "TQ"
+    ],
+    "known_participants": [
+      "jessica@terraquantum.swiss",
+      "anya@terraquantum.swiss",
+      "Brian DeFeyter",
+      "ck@terraquantum.swiss",
+      "cosmin.stredie@coremaker.io",
+      "dev.agrawal@xolv.io",
+      "Dominik Lasek",
+      "Jeff Titus",
+      "Nicolas Berrogorry",
+      "lg@terraquantum.swiss",
+      "shawn@terraquantum.swiss"
+    ]
   }
 ]

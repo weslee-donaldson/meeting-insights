@@ -498,6 +498,60 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 200: `scripts/eval.ts` evaluation harness reads `data/eval/questions.json` (array of `{ question: string, client?: string }`), runs each via `searchMeetings` + `buildLabeledContext` + `llm.complete("synthesize_answer", ...)`, writes `data/eval/results-{provider}-{timestamp}.jsonl` with fields: `question`, `retrieved_meeting_ids`, `cited_ids`, `latency_ms`, `answer_length`, `provider`, `model`; `data/eval/questions.json` pre-populated with 5 questions spanning Mandalore, TQ, Revenium, Hypercurrent [depends: 199]
 - [x] Burst 201: `package.json` gains `eval` script: `"eval": "tsx scripts/eval.ts"` [depends: 200]
 
+### Bottle: UI Foundation — Electron + IPC
+
+- [ ] Burst 202: Install `electron`, `electron-vite`, `react`, `react-dom`, `@vitejs/plugin-react`; `electron.vite.config.ts` with custom paths (main=`electron/main/`, preload=`electron/preload/`, renderer=`ui/`); `electron/main/index.ts` opens a BrowserWindow loading the renderer; `ui/index.html` + `ui/src/main.tsx` + `ui/src/App.tsx` stubs; `pnpm ui:dev` starts Electron dev server [depends: none, infra]
+- [ ] Burst 203: `electron/channels.ts` exports `CHANNELS` const with 4 string values (`GET_CLIENTS`, `GET_MEETINGS`, `GET_ARTIFACT`, `CHAT`); `electron/preload/index.ts` exposes `window.api` via contextBridge using those channels; `ElectronAPI` interface exported from `electron/channels.ts`; test: all 4 channel strings are unique, non-empty, and match between preload and ipc-handler imports [depends: 202]
+- [ ] Burst 204: `handleGetClients(db)` in `electron/ipc-handlers.ts` queries `SELECT name FROM clients ORDER BY name` and returns `string[]`; test: in-memory db seeded with clients returns all names [depends: 203]
+- [ ] Burst 205: `handleGetMeetings(db, opts: { client?, after?, before? })` returns `Array<{ id, title, date, client, series }>` where `client` is top confidence detection and `series` is normalized title (lowercased, whitespace-collapsed); date range and client filters applied; test: all three filters work independently [depends: 204]
+- [ ] Burst 206: `handleGetArtifact(db, meetingId)` returns `Artifact` with all fields JSON-parsed or `null` if not found; test: found returns full artifact, not-found returns null [depends: 205]
+- [ ] Burst 207: `src/labeled-context.ts` exports `buildLabeledContext(db, meetingIds: string[])` — fetches meetings + artifacts from SQLite for given IDs, sorts newest-first, builds `[M1]…[Mn]` labeled blocks (title · date · section headers with content), returns `{ contextText: string, charCount: number, meetings: Array<{id, title, date}> }`; test: 2 meeting IDs produce labeled blocks with [M1] and [M2] prefixes and correct char count [depends: 68]
+- [ ] Burst 208: `handleChat(db, llm, { meetingIds, question })` in `electron/ipc-handlers.ts` calls `buildLabeledContext`, builds system+user prompt, calls `llm.complete("synthesize_answer", context+question)`, calls `parseCitations`, returns `{ answer: string, sources: string[], charCount: number }`; test: stub llm returns expected response shape [depends: 207, 203]
+
+### Bottle: Renderer Scaffold
+
+- [ ] Burst 209: Install `tailwindcss`, `@tailwindcss/vite`, `react-resizable-panels`, `lucide-react`, `@tanstack/react-query`, `@radix-ui/react-collapsible`, `@radix-ui/react-select`; devDependencies: `@testing-library/react`, `jsdom`, `@types/react`, `@types/react-dom`; `ui/tailwind.config.ts` + `ui/src/index.css` with dark mode; `vitest.config.ts` gains `environmentMatchGlobs: [["test/ui/**", "jsdom"]]` and `include` covers `test/ui/**/*.test.tsx`; test: `App` renders without crashing in jsdom smoke test [depends: 202]
+
+### Bottle: Layout Shell
+
+- [ ] Burst 210: `ui/src/components/ScopeBar.tsx` — receives `clients: string[]`, `selectedClient: string | null`, `dateRange: { after: string; before: string }`, `onClientChange`, `onDateChange`, `onReset` props; renders Radix Select for clients, two `<input type="date">` for range, Reset button; test: all clients rendered as options, Reset click fires onReset, client select fires onClientChange [depends: 209]
+- [ ] Burst 211: `ui/src/components/AppLayout.tsx` uses `react-resizable-panels` `PanelGroup direction="horizontal"` with 4 panels (Clients, Meetings, Context, Chat) and resize handles; each panel has data-testid; test: all 4 panel testids present in DOM [depends: 209]
+- [ ] Burst 212: Context panel and Chat panel each have a collapse toggle button; collapsed Context panel sets its `defaultSize` to 0; collapsed Chat panel sets its `defaultSize` to 0; other panel expands; test: toggle buttons present, clicking one fires onCollapseContext / onCollapseChat callback [depends: 211]
+
+### Bottle: Clients Column
+
+- [ ] Burst 213: `ui/src/components/ClientsColumn.tsx` — receives `clients: string[]`, `selected: string | null`, `onSelect: (name: string) => void`; renders a scrollable list of client names; selected item has `aria-selected="true"`; clicking calls `onSelect`; test: renders clients, click fires onSelect with correct name [depends: 209]
+
+### Bottle: Meetings Column
+
+- [ ] Burst 214: `ui/src/components/MeetingsColumn.tsx` — receives `meetings: MeetingRow[]`, `selected: Set<string>`, `onToggle: (id: string) => void`, `onToggleGroup: (ids: string[]) => void`; derives series groups from meetings sharing the same normalized title; renders one group header + meeting rows per series; test: 3 meetings with "DSU" in title render under one group label, 1 other title is its own group [depends: 209]
+- [ ] Burst 215: each meeting row has a checkbox; checking fires `onToggle(meetingId)`; group header has "Select all" button that fires `onToggleGroup` with all IDs in the group; test: checkbox change fires onToggle, Select-all fires onToggleGroup [depends: 214]
+- [ ] Burst 216: meetings within each group sorted newest-first (descending ISO date); test: of two meetings in same series, later date renders first in DOM [depends: 214]
+
+### Bottle: Context View Column
+
+- [ ] Burst 217: `ui/src/components/ContextViewColumn.tsx` — receives `meetings: MeetingWithArtifact[]`; renders one block per meeting with title + ISO date in a header; test: 2 meetings → 2 headers with correct titles [depends: 209]
+- [ ] Burst 218: each meeting block has 8 collapsible sections (Summary, Decisions, Action Items, Open Questions, Risks, Proposed Features, Technical Topics, Additional Notes) using `@radix-ui/react-collapsible`; all sections closed by default; clicking a section trigger opens it; test: section content element has `data-state="closed"` initially, click changes it to `data-state="open"` [depends: 217]
+- [ ] Burst 219: a section is not rendered when its content is empty (empty string, empty array, or array of empty objects); test: meeting with empty `decisions` array has no Decisions section in DOM [depends: 218]
+
+### Bottle: Chat Column
+
+- [ ] Burst 220: `ui/src/components/ChatColumn.tsx` — receives `contextInfo: { meetingCount: number; charCount: number }`, `onChat: (q: string) => Promise<ChatResponse>`; renders textarea, Send button, and indicator "Context: N meetings | M characters"; test: indicator shows correct meeting count and char count from props [depends: 209]
+- [ ] Burst 221: pressing Enter (non-shifted) or clicking Send submits the question, calls `onChat` with trimmed text, clears the textarea; test: after submit, onChat called with trimmed question and textarea is empty [depends: 220]
+- [ ] Burst 222: after `onChat` resolves, the Q/A pair renders: question text in muted style, answer below it, Sources list with meeting titles from `response.sources`; test: Q/A pair and sources list appear in DOM [depends: 221]
+- [ ] Burst 223: multiple submissions accumulate as separate Q/A pairs; updating contextInfo does not clear history; test: 2 submits → 2 Q/A pairs visible simultaneously [depends: 222]
+
+### Bottle: Data Hooks
+
+- [ ] Burst 224: `ui/src/hooks/useClients.ts` — calls `window.api.getClients()` via `useQuery({ queryKey: ['clients'] })`; test: mock `window.api.getClients` resolves with client array, hook returns it [depends: 209]
+- [ ] Burst 225: `ui/src/hooks/useMeetings.ts` — calls `window.api.getMeetings(filters)` with queryKey `['meetings', filters]`; refetches when filters object changes; test: changing filter object triggers new invocation [depends: 224]
+- [ ] Burst 226: `ui/src/hooks/useArtifact.ts` — calls `window.api.getArtifact(meetingId)` only when meetingId is defined (`enabled: !!meetingId`); test: with undefined meetingId, `window.api.getArtifact` is never called [depends: 224]
+
+### Bottle: App Wiring + Scripts + Docs
+
+- [ ] Burst 227: `ui/src/App.tsx` composes ScopeBar + AppLayout with all 4 columns; state: `selectedClient`, `dateRange`, `selectedMeetingIds: Set<string>`; client change resets `selectedMeetingIds`; date change prunes meetings outside range from selectedMeetingIds; ContextViewColumn receives selected meetings (or all scope meetings when selection empty); test: App renders all 4 panel testids [depends: 210–226]
+- [ ] Burst 228: App wires chat — `onChat` in App builds context from `selectedMeetingIds` (or all scope IDs when empty), calls `window.api.chat(...)`, returns result to ChatColumn; `package.json` gains `"ui:dev": "electron-vite dev"` and `"ui:build": "electron-vite build"`; README gains "Meeting Intelligence Explorer UI" section: prerequisites, `pnpm setup`, `pnpm ui:dev`, 4-column layout description, chat usage [depends: 227, 208]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
