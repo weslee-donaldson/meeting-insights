@@ -10,9 +10,10 @@
     "clear": "tsx scripts/reset.ts",
     "query": "tsx scripts/query.ts",
     "eval": "tsx scripts/eval.ts",
+    "preui:dev": "electron-rebuild -f -w better-sqlite3",
     "ui:dev": "electron-vite dev",
     "ui:build": "electron-vite build",
-    "postinstall": "electron-rebuild -f -w better-sqlite3"
+    "ui:restore": "pnpm rebuild better-sqlite3"
   },
   "keywords": [],
   "author": "",
