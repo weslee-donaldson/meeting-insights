@@ -169,6 +169,10 @@ pnpm ui:dev
 
 This starts the Electron app with Vite hot-reload for development. The app connects directly to your local SQLite database.
 
+**Note — `ELECTRON_RUN_AS_NODE`:** If this environment variable is set (it is automatically set inside Claude Code's shell), the Electron binary runs as plain Node.js and all Electron APIs are unavailable. The `ui:dev` script already prefixes with `unset ELECTRON_RUN_AS_NODE &&` to handle this. If you launch Electron by any other means and see errors about `app` being undefined, unset this variable first.
+
+**Note — native module ABI:** `better-sqlite3` must be compiled against the Electron Node.js ABI to run inside the app, but against the system Node.js ABI to run tests. The `preui:dev` hook handles the Electron rebuild automatically. After running `pnpm ui:dev`, run `pnpm ui:restore` before running `pnpm test` to rebuild for system Node.
+
 ### Layout
 
 ```
