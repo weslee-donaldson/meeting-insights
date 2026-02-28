@@ -11,13 +11,15 @@
     "query": "tsx scripts/query.ts",
     "eval": "tsx scripts/eval.ts",
     "ui:dev": "electron-vite dev",
-    "ui:build": "electron-vite build"
+    "ui:build": "electron-vite build",
+    "postinstall": "electron-rebuild -f -w better-sqlite3"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/better-sqlite3": "^7.6.13",
