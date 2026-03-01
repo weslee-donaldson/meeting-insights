@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useClients } from "../../ui/src/hooks/useClients.js";
 import { useMeetings } from "../../ui/src/hooks/useMeetings.js";
 import { useArtifact } from "../../ui/src/hooks/useArtifact.js";
+import { useSearch } from "../../ui/src/hooks/useSearch.js";
 
 afterEach(cleanup);
 
@@ -46,6 +47,41 @@ describe("useMeetings", () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(getMeetings).toHaveBeenCalledWith({ client: "Acme" });
+  });
+});
+
+describe("useSearch", () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>).api = {
+      getClients: vi.fn().mockResolvedValue([]),
+      getMeetings: vi.fn().mockResolvedValue([]),
+      getArtifact: vi.fn().mockResolvedValue(null),
+      chat: vi.fn(),
+      search: vi.fn().mockResolvedValue([]),
+    };
+  });
+
+  it("does not call search when query is shorter than 2 characters", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      ...(window as unknown as { api: object }).api,
+      search,
+    };
+    renderHook(() => useSearch("a"), { wrapper: makeWrapper() });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(search).not.toHaveBeenCalled();
+  });
+
+  it("calls search with query and client when query is at least 2 characters", async () => {
+    const search = vi.fn().mockResolvedValue([{ meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "DSU", date: "2026-02-24" }]);
+    (window as unknown as Record<string, unknown>).api = {
+      ...(window as unknown as { api: object }).api,
+      search,
+    };
+    const { result } = renderHook(() => useSearch("quarterly review", "Acme"), { wrapper: makeWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(search).toHaveBeenCalledWith({ query: "quarterly review", client: "Acme" });
+    expect(result.current.data).toEqual([{ meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "DSU", date: "2026-02-24" }]);
   });
 });
 
