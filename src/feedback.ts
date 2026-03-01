@@ -1,4 +1,4 @@
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 export function overrideClient(db: Database, meetingId: string, clientName: string): void {
   db.prepare("UPDATE client_detections SET client_name = ?, confidence = 1.0, method = 'override' WHERE meeting_id = ?").run(

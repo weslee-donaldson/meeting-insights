@@ -7,7 +7,7 @@ import { connectVectorDb } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
 import { processNewMeetings, type PipelineEvent } from "../src/pipeline.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let vdbPath: string;

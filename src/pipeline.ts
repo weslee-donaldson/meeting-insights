@@ -8,7 +8,7 @@ import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting
 import { detectClient, storeDetection } from "./client-detection.js";
 import { createMeetingTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "./vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm-adapter.js";

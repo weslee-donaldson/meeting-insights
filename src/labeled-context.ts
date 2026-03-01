@@ -1,4 +1,4 @@
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import { getMeeting } from "./ingest.js";
 import { getArtifact } from "./extractor.js";
 import type { ArtifactRow, Artifact } from "./extractor.js";

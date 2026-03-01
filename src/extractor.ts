@@ -1,4 +1,4 @@
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import { createLogger } from "./logger.js";
 import { chunkTranscript } from "./chunker.js";
 import type { LlmAdapter } from "./llm-adapter.js";
@@ -110,7 +110,7 @@ export function storeArtifact(db: Database, meetingId: string, artifact: Artifac
     JSON.stringify(artifact.technical_topics),
     JSON.stringify(artifact.open_questions),
     JSON.stringify(artifact.risk_items),
-    JSON.stringify(artifact.additional_notes),
+    JSON.stringify(artifact.additional_notes ?? []),
   );
 }
 

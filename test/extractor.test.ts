@@ -4,7 +4,7 @@ import { createLlmAdapter } from "../src/llm-adapter.js";
 import { extractSummary, validateArtifact, storeArtifact, getArtifact } from "../src/extractor.js";
 import { ingestMeeting } from "../src/ingest.js";
 import type { ParsedMeeting } from "../src/parser.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../src/llm-adapter.js";
 
 let db: Database;

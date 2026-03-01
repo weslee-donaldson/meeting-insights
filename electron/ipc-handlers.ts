@@ -1,4 +1,4 @@
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact } from "../src/extractor.js";
 import type { Artifact } from "../src/extractor.js";
 import { buildLabeledContext } from "../src/labeled-context.js";
@@ -11,7 +11,7 @@ interface DbMeetingRow { id: string; title: string; date: string; }
 interface DetectionRow { meeting_id: string; client_name: string; }
 
 export function handleGetClients(db: Database): string[] {
-  const rows = db.prepare("SELECT name FROM clients ORDER BY name").all() as ClientRow[];
+  const rows = db.prepare("SELECT name FROM clients ORDER BY name").all() as unknown as ClientRow[];
   return rows.map((r) => r.name);
 }
 
@@ -37,7 +37,7 @@ export function handleGetMeetings(
 ): MeetingRow[] {
   let rows = db
     .prepare("SELECT id, title, date FROM meetings ORDER BY date DESC")
-    .all() as DbMeetingRow[];
+    .all() as unknown as DbMeetingRow[];
 
   if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
   if (opts.before)
@@ -49,7 +49,7 @@ export function handleGetMeetings(
           .prepare(
             "SELECT meeting_id FROM client_detections WHERE client_name = ?",
           )
-          .all(opts.client) as DetectionRow[]
+          .all(opts.client) as unknown as DetectionRow[]
       ).map((r) => r.meeting_id),
     );
     rows = rows.filter((r) => clientIds.has(r.id));

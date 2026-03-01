@@ -5,7 +5,7 @@ import { ingestMeeting } from "../src/ingest.js";
 import { storeArtifact } from "../src/extractor.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
 import { aggregateClusterSummaries, extractClusterTags, storeClusterTags } from "../src/cluster-topics.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let clusterId: string;

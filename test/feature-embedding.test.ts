@@ -8,7 +8,7 @@ import { storeArtifact } from "../src/extractor.js";
 import { connectVectorDb, createFeatureTable } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
 import { embedFeature, storeFeatureVector, searchFeatures } from "../src/feature-embedding.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let vdbPath: string;

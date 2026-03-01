@@ -10,7 +10,7 @@ import { connectVectorDb, createMeetingTable } from "../src/vector-db.js";
 import { loadModel } from "../src/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../src/meeting-pipeline.js";
 import { buildContext } from "../src/context.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import type { Artifact } from "../src/extractor.js";
 
 let db: Database;

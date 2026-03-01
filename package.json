@@ -10,20 +10,16 @@
     "clear": "tsx scripts/reset.ts",
     "query": "tsx scripts/query.ts",
     "eval": "tsx scripts/eval.ts",
-    "preui:dev": "electron-rebuild -f -w better-sqlite3",
-    "ui:dev": "unset ELECTRON_RUN_AS_NODE && electron-vite dev",
-    "ui:build": "electron-vite build",
-    "ui:restore": "pnpm rebuild better-sqlite3"
+    "ui:dev": "electron-vite dev",
+    "ui:build": "electron-vite build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
-    "@electron/rebuild": "^4.0.3",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/debug": "^4.1.12",
     "@types/node": "^25.3.1",
     "@types/react": "^19.2.14",
@@ -36,7 +32,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "better-sqlite3",
       "esbuild",
       "electron",
       "onnxruntime-node"
@@ -51,7 +46,6 @@
     "@tanstack/react-query": "^5.90.21",
     "@vitejs/plugin-react": "^5.1.4",
     "apache-arrow": "^21.1.0",
-    "better-sqlite3": "^12.6.2",
     "debug": "^4.4.3",
     "electron-vite": "^5.0.0",
     "lucide-react": "^0.575.0",

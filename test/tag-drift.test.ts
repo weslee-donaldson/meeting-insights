@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../src/db.js";
 import { detectTagDrift } from "../src/tag-drift.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let stableClusterId: string;

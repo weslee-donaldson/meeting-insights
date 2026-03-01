@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../src/db.js";
 import { ingestMeeting, getMeeting } from "../src/ingest.js";
 import type { ParsedMeeting } from "../src/parser.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../src/db.js";
-import type { Database } from "better-sqlite3";
+import type { Database } from "../src/db.js";
 
 let db: Database;
 
@@ -10,8 +10,9 @@ beforeAll(() => {
 });
 
 describe("createDb", () => {
-  it("accepts a path and returns a better-sqlite3 connection", () => {
-    expect(db.open).toBe(true);
+  it("accepts a path and returns a working SQLite connection", () => {
+    const result = db.prepare("SELECT 1 AS val").get() as { val: number };
+    expect(result).toEqual({ val: 1 });
   });
 });
 

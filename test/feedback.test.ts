@@ -4,7 +4,7 @@ import { createDb, migrate } from "../src/db.js";
 import { ingestMeeting } from "../src/ingest.js";
 import { storeArtifact } from "../src/extractor.js";
 import { overrideClient, overrideTag, flagExtraction } from "../src/feedback.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let meetingId: string;

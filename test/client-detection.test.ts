@@ -4,7 +4,7 @@ import { seedClients } from "../src/client-registry.js";
 import { detectClient, storeDetection } from "../src/client-detection.js";
 import { ingestMeeting } from "../src/ingest.js";
 import type { ParsedMeeting } from "../src/parser.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";

@@ -7,7 +7,7 @@ import { getMeeting } from "../src/ingest.js";
 import { getArtifact } from "../src/extractor.js";
 import { renderNotesGroups, parseCitations } from "../src/display-helpers.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 process.loadEnvFile?.(".env.local");
 

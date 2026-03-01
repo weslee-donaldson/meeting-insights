@@ -10,7 +10,7 @@ import { loadModel } from "../src/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../src/meeting-pipeline.js";
 import type { ParsedMeeting } from "../src/parser.js";
 import type { Artifact } from "../src/extractor.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let vdbPath: string;

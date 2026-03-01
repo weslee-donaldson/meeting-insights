@@ -6,7 +6,7 @@ import { getMeeting } from "../src/ingest.js";
 import { getArtifact } from "../src/extractor.js";
 import { renderNotesGroups, parseCitations } from "../src/display-helpers.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 process.loadEnvFile?.(".env.local");
 
@@ -43,7 +43,7 @@ interface SearchResult { meeting_id: string; score: number; client: string; meet
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function resolveMeetingIds(db: Database, opts: { client?: string; meeting?: string; after?: string; before?: string }): string[] {
-  let rows = db.prepare("SELECT id, title, date FROM meetings ORDER BY date ASC").all() as MeetingRow[];
+  let rows = db.prepare("SELECT id, title, date FROM meetings ORDER BY date ASC").all() as unknown as MeetingRow[];
   if (opts.after)   rows = rows.filter(r => r.date >= opts.after!);
   if (opts.before)  rows = rows.filter(r => r.date <= (opts.before! + "T23:59:59Z"));
   if (opts.meeting) rows = rows.filter(r =>
@@ -51,7 +51,7 @@ function resolveMeetingIds(db: Database, opts: { client?: string; meeting?: stri
   );
   if (opts.client) {
     const clientIds = new Set(
-      (db.prepare("SELECT meeting_id FROM client_detections WHERE client_name = ?").all(opts.client) as { meeting_id: string }[])
+      (db.prepare("SELECT meeting_id FROM client_detections WHERE client_name = ?").all(opts.client) as unknown as { meeting_id: string }[])
         .map(r => r.meeting_id),
     );
     rows = rows.filter(r => clientIds.has(r.id));

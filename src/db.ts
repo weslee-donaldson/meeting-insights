@@ -1,13 +1,12 @@
-import Database from "better-sqlite3";
-import type { Database as DB } from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 
-export type { DB as Database };
+export type { DatabaseSync as Database };
 
-export function createDb(path: string): DB {
-  return new Database(path);
+export function createDb(path: string): DatabaseSync {
+  return new DatabaseSync(path);
 }
 
-export function migrate(db: DB): void {
+export function migrate(db: DatabaseSync): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS meetings (
       id TEXT PRIMARY KEY,

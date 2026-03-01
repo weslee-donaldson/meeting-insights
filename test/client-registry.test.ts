@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../src/db.js";
 import { seedClients, getClientByName, getClientByAlias, getAllClients } from "../src/client-registry.js";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let clientsFile: string;

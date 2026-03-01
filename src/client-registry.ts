@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { Database } from "better-sqlite3";
+import type { DatabaseSync as Database } from "node:sqlite";
 import { createLogger } from "./logger.js";
 
 const log = createLogger("client");
