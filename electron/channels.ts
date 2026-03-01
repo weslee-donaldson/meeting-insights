@@ -3,6 +3,7 @@ export const CHANNELS = {
   GET_MEETINGS: "get-meetings",
   GET_ARTIFACT: "get-artifact",
   CHAT: "chat",
+  SEARCH_MEETINGS: "search-meetings",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -32,9 +33,26 @@ export interface MeetingFilters {
   before?: string;
 }
 
+export interface SearchRequest {
+  query: string;
+  client?: string;
+  date_after?: string;
+  date_before?: string;
+  limit?: number;
+}
+
+export interface SearchResultRow {
+  meeting_id: string;
+  score: number;
+  client: string;
+  meeting_type: string;
+  date: string;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
   getArtifact: (meetingId: string) => Promise<import("../src/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
+  search: (req: SearchRequest) => Promise<SearchResultRow[]>;
 }
