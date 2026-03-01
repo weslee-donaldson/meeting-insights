@@ -2,6 +2,8 @@ import React from "react";
 import * as Select from "@radix-ui/react-select";
 import { ChevronDown, RotateCcw, Sun, Moon, Droplets } from "lucide-react";
 import type { ThemeName, Theme } from "../theme.js";
+import { SearchBar } from "./SearchBar.js";
+import type { SearchResultRow } from "../../../electron/channels.js";
 
 interface DateRange {
   after: string;
@@ -15,6 +17,7 @@ interface Props {
   onClientChange: (name: string) => void;
   onDateChange: (range: DateRange) => void;
   onReset: () => void;
+  onSelectSearchResults: (results: SearchResultRow[]) => void;
   theme: ThemeName;
   setTheme: (name: ThemeName) => void;
   themes: Theme[];
@@ -33,6 +36,7 @@ export function ScopeBar({
   onClientChange,
   onDateChange,
   onReset,
+  onSelectSearchResults,
   theme,
   setTheme,
   themes,
@@ -118,9 +122,16 @@ export function ScopeBar({
         aria-label="Before date"
       />
 
+      <div className="ml-auto">
+        <SearchBar
+          client={selectedClient ?? undefined}
+          onSelectResults={onSelectSearchResults}
+        />
+      </div>
+
       <button
         onClick={onReset}
-        className="flex items-center gap-1 px-2 py-1 rounded ml-auto"
+        className="flex items-center gap-1 px-2 py-1 rounded"
         style={iconButtonStyle}
         aria-label="Reset"
       >

@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ScopeBar } from "./components/ScopeBar.js";
-import { SearchBar } from "./components/SearchBar.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { ClientsColumn } from "./components/ClientsColumn.js";
 import { MeetingsColumn } from "./components/MeetingsColumn.js";
@@ -143,19 +142,11 @@ export function App() {
         onClientChange={handleClientChange}
         onDateChange={handleDateChange}
         onReset={handleReset}
+        onSelectSearchResults={handleSelectSearchResults}
         theme={theme}
         setTheme={setTheme}
         themes={themes}
       />
-      <div
-        className="flex items-center gap-3 px-4 py-1.5 shrink-0 border-b"
-        style={{ background: "var(--color-bg-panel)", borderColor: "var(--color-border)" }}
-      >
-        <SearchBar
-          client={selectedClient ?? undefined}
-          onSelectResults={handleSelectSearchResults}
-        />
-      </div>
       <AppLayout
         contextCollapsed={contextCollapsed}
         chatCollapsed={chatCollapsed}
