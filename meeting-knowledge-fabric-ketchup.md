@@ -552,6 +552,42 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 227: `ui/src/App.tsx` composes ScopeBar + AppLayout with all 4 columns; state: `selectedClient`, `dateRange`, `selectedMeetingIds: Set<string>`; client change resets `selectedMeetingIds`; date change prunes meetings outside range from selectedMeetingIds; ContextViewColumn receives selected meetings (or all scope meetings when selection empty); test: App renders all 4 panel testids [depends: 210–226]
 - [x] Burst 228: App wires chat — `onChat` in App builds context from `selectedMeetingIds` (or all scope IDs when empty), calls `window.api.chat(...)`, returns result to ChatColumn; `package.json` gains `"ui:dev": "electron-vite dev"` and `"ui:build": "electron-vite build"`; README gains "Meeting Intelligence Explorer UI" section: prerequisites, `pnpm setup`, `pnpm ui:dev`, 4-column layout description, chat usage [depends: 227, 208]
 
+### Bottle: node:sqlite Migration (Refactor — DONE)
+
+- [x] Burst 229: Replace `better-sqlite3` (native C++ addon, ABI mismatch between system Node.js v25 / ABI 141 and Electron's embedded Node.js v24 / different ABI) with Node.js built-in `node:sqlite` (`DatabaseSync`) — zero native files, no ABI conflicts, available in both runtimes; update `src/db.ts` runtime import; replace `import type { Database } from "better-sqlite3"` with `import type { DatabaseSync as Database } from "node:sqlite"` in all 26 source/test/script files; fix `db.open` test with behavioral `SELECT 1` assertion; fix `storeArtifact` undefined binding bug (`additional_notes ?? []`); add `as unknown as T[]` double-casts in `ipc-handlers.ts` and `scripts/query.ts`; remove `better-sqlite3`, `@types/better-sqlite3`, `@electron/rebuild` from `package.json`; drop `preui:dev` and `ui:restore` scripts; simplify `ui:dev` to `"electron-vite dev"`; all 212 tests pass (commit: `8baf65a`) [depends: 37]
+
+---
+
+### Bottle: Theme System
+
+- [ ] Burst 230: Theme foundation — `ui/src/theme.ts` defines 3 named theme objects (`deepSea`, `daylight`, `midnight`), each a record of CSS custom-property key/value pairs; `ui/src/ThemeContext.tsx` exports `ThemeProvider` (wraps app, writes `data-theme` attr on `<html>`, persists choice in `localStorage`) and `useTheme()` hook returning `{ theme, setTheme, themes }`; `ui/src/index.css` defines `[data-theme="deep-sea"]`, `[data-theme="daylight"]`, `[data-theme="midnight"]` blocks each declaring: `--color-bg-base`, `--color-bg-panel`, `--color-bg-surface`, `--color-bg-elevated`, `--color-bg-input`, `--color-border`, `--color-border-focus`, `--color-text-primary`, `--color-text-secondary`, `--color-text-muted`, `--color-accent`, `--color-accent-hover`, `--color-accent-muted`, `--color-danger`, `--color-success`; Deep Sea: dark navy base `#0b1120`; Daylight: white/slate base `#f8fafc`; Midnight: near-black `#09090b` with indigo accents; test: `ThemeProvider` sets correct `data-theme` on `document.documentElement`, persists to `localStorage`, `useTheme` returns correct theme and setter [depends: 209]
+
+- [ ] Burst 231: Theme switcher in ScopeBar — ScopeBar accepts `theme`, `setTheme`, `themes` props; compact cycle button at right edge of scope bar (after Reset) cycles through 3 themes; icon changes per theme (Sun/Daylight, Moon/Midnight, Droplets/Deep Sea); test: clicking switcher cycles `theme` value, `setTheme` called with next theme name [depends: 230, 205]
+
+- [ ] Burst 232: Apply theme to AppLayout structural chrome — replace all hardcoded hex colors (`#27272a`, `#18181b`) and `bg-zinc-*` / `border-zinc-*` classes in `AppLayout.tsx` with CSS-var arbitrary values (`bg-[var(--color-bg-base)]`, `border-[var(--color-border)]`, etc.); App.tsx root div uses `bg-[var(--color-bg-base)] text-[var(--color-text-primary)]`; ThemeProvider wraps App in `ui/src/main.tsx`; test: switching theme updates `data-theme` and root div bg class [depends: 231]
+
+- [ ] Burst 233: Apply theme to all 4 column components — `ClientsColumn`: replace `bg-zinc-800/900`, `text-zinc-100/400/700` with CSS-var classes; `MeetingsColumn`: hover, selected, muted metadata; `ScopeBar`: Select trigger/content, date inputs, Reset button; `ContextViewColumn`: section headers, dividers, content text; `ChatColumn`: context indicator, textarea, send button, Q/A text, sources, copy button; test: each component snapshot contains no `zinc-` class strings [depends: 232]
+
+---
+
+### Bottle: Electron Data Path Fix
+
+- [ ] Burst 234: Fix DB and LanceDB paths in `electron/main/index.ts` — relative paths (`"db/mtninsights.db"`, `"db/lancedb"`) resolve against Electron binary working directory (not project root), causing "No meetings in scope" in the UI; resolve using `path.join(app.getPath('userData'), ...)` for writable data or detect project root via `process.cwd()` / `import.meta.dirname`; log resolved paths at startup; test: infra commit — verified manually that meetings populate in `pnpm ui:dev` [depends: 204]
+
+---
+
+### Bottle: Semantic Search Integration
+
+- [ ] Burst 235: `SEARCH_MEETINGS` IPC channel + types — add `SEARCH_MEETINGS: "search-meetings"` to `electron/channels.ts`; export `SearchRequest` (`query: string`, `client?: string`, `date_after?: string`, `date_before?: string`, `limit?: number`) and `SearchResultRow` (`meeting_id: string`, `score: number`, `client: string`, `meeting_type: string`, `date: string`) interfaces; test: channel constant and both interface shapes are exported and type-safe [depends: 202]
+
+- [ ] Burst 236: `handleSearchMeetings` + preload exposure — add `handleSearchMeetings(vdb, session, req: SearchRequest): Promise<SearchResultRow[]>` to `electron/ipc-handlers.ts` wrapping existing `searchMeetings()` from `src/vector-search.ts`; add `search: (req: SearchRequest) => ipcRenderer.invoke(Channels.SEARCH_MEETINGS, req)` to contextBridge in `electron/preload/index.ts`; update `window.api` type declaration; test: stub vdb + session, assert handler returns correctly shaped results [depends: 235, 100]
+
+- [ ] Burst 237: Main process loads VectorDB + ONNX at startup — after `createWindow()`, load `connectVectorDb(VECTOR_PATH)` and `loadModel(MODEL_PATH, TOKENIZER_PATH)` in background; register `ipcMain.handle(Channels.SEARCH_MEETINGS, ...)` once both resolve; use same env-based path constants as CLI scripts (`MTNINSIGHTS_VECTOR_PATH`, etc.); infra commit, no new tests [depends: 236, 234]
+
+- [ ] Burst 238: `useSearch` hook — `ui/src/hooks/useSearch.ts` wraps `window.api.search` in `useQuery` with `queryKey: ['search', query, client]`, `queryFn: () => window.api.search({ query, client })`, `enabled: query.trim().length >= 2`, `staleTime: 60_000`; test: mock `window.api.search`, hook fires only when query ≥ 2 chars, returns empty array when disabled [depends: 230, 235]
+
+- [ ] Burst 239: SearchBar component + App wiring — `ui/src/components/SearchBar.tsx` renders a text input (magnifying glass icon, CSS theme vars) in the ScopeBar row; 300 ms debounce; results dropdown shows meeting title + date + relevance score; selecting a result calls `onSelectMeetings([meeting_id])` in App, sets `selectedMeetingIds`, feeds ContextViewColumn and ChatColumn without requiring client/meeting drill-down; test: typing ≥ 2 chars triggers search after debounce, selecting result updates `selectedMeetingIds` prop [depends: 238, 231]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
