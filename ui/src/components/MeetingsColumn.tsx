@@ -43,12 +43,16 @@ export function MeetingsColumn({ meetings, selected, onToggle, onToggleGroup }: 
         return (
           <div key={group.series}>
             <div className="flex items-center px-3 py-1.5 mt-2">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex-1 truncate">
+              <span
+                className="text-xs font-semibold uppercase tracking-wider flex-1 truncate"
+                style={{ color: "var(--color-text-muted)" }}
+              >
                 {group.label}
               </span>
               <button
                 onClick={() => onToggleGroup(group.meetings.map((m) => m.id))}
-                className="text-xs text-zinc-600 hover:text-zinc-300 ml-2 shrink-0"
+                className="text-xs ml-2 shrink-0"
+                style={{ color: "var(--color-text-muted)" }}
               >
                 {allSelected ? "Deselect all" : "Select all"}
               </button>
@@ -56,20 +60,26 @@ export function MeetingsColumn({ meetings, selected, onToggle, onToggleGroup }: 
             {group.meetings.map((m) => (
               <label
                 key={m.id}
-                className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-zinc-900 group"
+                className="flex items-center gap-2 px-3 py-1.5 cursor-pointer group"
+                style={{ background: selected.has(m.id) ? "var(--color-bg-elevated)" : "transparent" }}
               >
                 <input
                   type="checkbox"
                   checked={selected.has(m.id)}
                   onChange={() => onToggle(m.id)}
-                  className="w-3.5 h-3.5 rounded accent-blue-400 shrink-0"
+                  className="w-3.5 h-3.5 rounded shrink-0"
+                  style={{ accentColor: "var(--color-accent)" }}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm text-zinc-300 truncate">{m.title}</div>
-                  <div className="text-xs text-zinc-600">
+                  <div className="text-sm truncate" style={{ color: "var(--color-text-primary)" }}>
+                    {m.title}
+                  </div>
+                  <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                     {m.date.slice(0, 10)}
                     {m.client && (
-                      <span className="ml-1 text-zinc-700">[{m.client}]</span>
+                      <span className="ml-1" style={{ color: "var(--color-text-muted)" }}>
+                        [{m.client}]
+                      </span>
                     )}
                   </div>
                 </div>
@@ -79,7 +89,9 @@ export function MeetingsColumn({ meetings, selected, onToggle, onToggleGroup }: 
         );
       })}
       {meetings.length === 0 && (
-        <div className="px-3 py-4 text-xs text-zinc-600">No meetings in scope</div>
+        <div className="px-3 py-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
+          No meetings in scope
+        </div>
       )}
     </div>
   );

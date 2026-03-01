@@ -15,14 +15,15 @@ export function ClientsColumn({ clients, selected, onSelect }: Props) {
           <button
             onClick={() => onSelect(name)}
             aria-selected={selected === name}
-            className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
-              selected === name
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
-            }`}
+            className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors"
+            style={{
+              background: selected === name ? "var(--color-bg-elevated)" : "transparent",
+              color: selected === name ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+            }}
           >
             <Circle
-              className={`w-2 h-2 shrink-0 ${selected === name ? "text-blue-400" : "text-zinc-700"}`}
+              className="w-2 h-2 shrink-0"
+              style={{ color: selected === name ? "var(--color-accent)" : "var(--color-text-muted)" }}
               fill="currentColor"
             />
             {name}

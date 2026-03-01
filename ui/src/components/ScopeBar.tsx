@@ -43,27 +43,44 @@ export function ScopeBar({
     setTheme(next.name);
   }
 
+  const inputStyle = {
+    background: "var(--color-bg-input)",
+    color: "var(--color-text-primary)",
+    border: "1px solid var(--color-border)",
+  };
+
+  const mutedStyle = { color: "var(--color-text-muted)" };
+  const iconButtonStyle = { color: "var(--color-text-secondary)" };
+
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900 border-b border-zinc-800 text-sm shrink-0">
-      <span className="text-zinc-500 font-medium">Scope:</span>
+    <div
+      className="flex items-center gap-3 px-4 py-2 text-sm shrink-0 border-b"
+      style={{ background: "var(--color-bg-panel)", borderColor: "var(--color-border)" }}
+    >
+      <span className="font-medium" style={mutedStyle}>Scope:</span>
 
       <Select.Root
         value={selectedClient ?? "__all"}
         onValueChange={(v) => onClientChange(v === "__all" ? "" : v)}
       >
         <Select.Trigger
-          className="flex items-center gap-1 px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-100 min-w-[120px]"
+          className="flex items-center gap-1 px-2 py-1 rounded min-w-[120px]"
+          style={{ background: "var(--color-bg-input)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }}
           aria-label="Client"
         >
           <Select.Value placeholder="All Clients" />
-          <ChevronDown className="w-3 h-3 text-zinc-400 ml-auto" />
+          <ChevronDown className="w-3 h-3 ml-auto" style={mutedStyle} />
         </Select.Trigger>
         <Select.Portal>
-          <Select.Content className="bg-zinc-800 rounded shadow-xl border border-zinc-700 z-50">
+          <Select.Content
+            className="rounded shadow-xl z-50"
+            style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border)" }}
+          >
             <Select.Viewport className="p-1">
               <Select.Item
                 value="__all"
-                className="px-3 py-1.5 rounded cursor-pointer text-zinc-300 hover:bg-zinc-700 focus:outline-none"
+                className="px-3 py-1.5 rounded cursor-pointer focus:outline-none"
+                style={{ color: "var(--color-text-secondary)" }}
               >
                 <Select.ItemText>All Clients</Select.ItemText>
               </Select.Item>
@@ -71,7 +88,8 @@ export function ScopeBar({
                 <Select.Item
                   key={c}
                   value={c}
-                  className="px-3 py-1.5 rounded cursor-pointer text-zinc-100 hover:bg-zinc-700 focus:outline-none"
+                  className="px-3 py-1.5 rounded cursor-pointer focus:outline-none"
+                  style={{ color: "var(--color-text-primary)" }}
                 >
                   <Select.ItemText>{c}</Select.ItemText>
                 </Select.Item>
@@ -81,26 +99,29 @@ export function ScopeBar({
         </Select.Portal>
       </Select.Root>
 
-      <span className="text-zinc-500">From</span>
+      <span style={mutedStyle}>From</span>
       <input
         type="date"
         value={dateRange.after}
         onChange={(e) => onDateChange({ ...dateRange, after: e.target.value })}
-        className="px-2 py-1 rounded bg-zinc-800 text-zinc-100 border border-zinc-700 focus:outline-none focus:border-zinc-500"
+        className="px-2 py-1 rounded focus:outline-none"
+        style={inputStyle}
         aria-label="After date"
       />
-      <span className="text-zinc-500">to</span>
+      <span style={mutedStyle}>to</span>
       <input
         type="date"
         value={dateRange.before}
         onChange={(e) => onDateChange({ ...dateRange, before: e.target.value })}
-        className="px-2 py-1 rounded bg-zinc-800 text-zinc-100 border border-zinc-700 focus:outline-none focus:border-zinc-500"
+        className="px-2 py-1 rounded focus:outline-none"
+        style={inputStyle}
         aria-label="Before date"
       />
 
       <button
         onClick={onReset}
-        className="flex items-center gap-1 px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 ml-auto"
+        className="flex items-center gap-1 px-2 py-1 rounded ml-auto"
+        style={iconButtonStyle}
         aria-label="Reset"
       >
         <RotateCcw className="w-3 h-3" />
@@ -109,7 +130,8 @@ export function ScopeBar({
 
       <button
         onClick={cycleTheme}
-        className="flex items-center gap-1 px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+        className="flex items-center gap-1 px-2 py-1 rounded"
+        style={iconButtonStyle}
         aria-label={`Theme: ${theme}`}
         title={`Switch theme (current: ${themes.find((t) => t.name === theme)?.label})`}
       >
