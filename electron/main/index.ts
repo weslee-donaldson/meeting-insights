@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { createRequire } from "node:module";
 import { join } from "path";
+const { app, BrowserWindow, ipcMain } = createRequire(import.meta.url)("electron") as typeof import("electron");
 import { createDb, migrate } from "../../src/db.js";
 import { CHANNELS } from "../channels.js";
 import {

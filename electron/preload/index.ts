@@ -1,4 +1,5 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { createRequire } from "node:module";
+const { contextBridge, ipcRenderer } = createRequire(import.meta.url)("electron") as typeof import("electron");
 import { CHANNELS } from "../channels.js";
 import type {
   MeetingFilters,
