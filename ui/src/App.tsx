@@ -1,13 +1,14 @@
 import React, { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ScopeBar } from "./components/ScopeBar.js";
+import { SearchBar } from "./components/SearchBar.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { ClientsColumn } from "./components/ClientsColumn.js";
 import { MeetingsColumn } from "./components/MeetingsColumn.js";
 import { ContextViewColumn } from "./components/ContextViewColumn.js";
 import { ChatColumn } from "./components/ChatColumn.js";
 import { useTheme } from "./ThemeContext.js";
-import type { MeetingRow, ChatResponse, Artifact } from "../../electron/channels.js";
+import type { MeetingRow, ChatResponse, Artifact, SearchResultRow } from "../../electron/channels.js";
 
 interface DateRange {
   after: string;
@@ -24,6 +25,7 @@ export function App() {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
   const [selectedMeetingIds, setSelectedMeetingIds] = useState<Set<string>>(new Set());
+  const [pinnedSearchResults, setPinnedSearchResults] = useState<SearchResultRow[]>([]);
   const [contextCollapsed, setContextCollapsed] = useState(false);
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
@@ -62,8 +64,13 @@ export function App() {
   const activeMeetingsWithArtifacts: MeetingWithArtifact[] = activeMeetingIds
     .map((id) => {
       const meeting = scopeMeetings.find((m) => m.id === id);
-      if (!meeting) return null;
-      return { meeting, artifact: artifactsQuery.data?.[id] ?? null };
+      if (meeting) return { meeting, artifact: artifactsQuery.data?.[id] ?? null };
+      const pinned = pinnedSearchResults.find((r) => r.meeting_id === id);
+      if (pinned) return {
+        meeting: { id: pinned.meeting_id, title: pinned.meeting_type, date: pinned.date, client: pinned.client, series: pinned.meeting_type },
+        artifact: artifactsQuery.data?.[id] ?? null,
+      };
+      return null;
     })
     .filter((m): m is MeetingWithArtifact => m !== null);
 
@@ -86,10 +93,16 @@ export function App() {
     });
   }, [scopeMeetings]);
 
+  const handleSelectSearchResults = useCallback((results: SearchResultRow[]) => {
+    setPinnedSearchResults(results);
+    setSelectedMeetingIds(new Set(results.map((r) => r.meeting_id)));
+  }, []);
+
   const handleReset = useCallback(() => {
     setSelectedClient(null);
     setDateRange({ after: "", before: "" });
     setSelectedMeetingIds(new Set());
+    setPinnedSearchResults([]);
   }, []);
 
   const handleToggle = useCallback((id: string) => {
@@ -134,6 +147,15 @@ export function App() {
         setTheme={setTheme}
         themes={themes}
       />
+      <div
+        className="flex items-center gap-3 px-4 py-1.5 shrink-0 border-b"
+        style={{ background: "var(--color-bg-panel)", borderColor: "var(--color-border)" }}
+      >
+        <SearchBar
+          client={selectedClient ?? undefined}
+          onSelectResults={handleSelectSearchResults}
+        />
+      </div>
       <AppLayout
         contextCollapsed={contextCollapsed}
         chatCollapsed={chatCollapsed}

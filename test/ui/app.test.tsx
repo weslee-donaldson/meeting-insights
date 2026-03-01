@@ -22,6 +22,7 @@ beforeAll(() => {
     getMeetings: vi.fn().mockResolvedValue([]),
     getArtifact: vi.fn().mockResolvedValue(null),
     chat: vi.fn().mockResolvedValue({ answer: "", sources: [], charCount: 0 }),
+    search: vi.fn().mockResolvedValue([]),
   };
 });
 
