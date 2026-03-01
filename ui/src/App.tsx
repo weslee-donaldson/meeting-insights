@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ScopeBar } from "./components/ScopeBar.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { ClientsColumn } from "./components/ClientsColumn.js";
 import { MeetingsColumn } from "./components/MeetingsColumn.js";
 import { ContextViewColumn } from "./components/ContextViewColumn.js";
 import { ChatColumn } from "./components/ChatColumn.js";
+import { useTheme } from "./ThemeContext.js";
 import type { MeetingRow, ChatResponse, Artifact } from "../../electron/channels.js";
 
 interface DateRange {
@@ -19,6 +20,7 @@ interface MeetingWithArtifact {
 }
 
 export function App() {
+  const { theme, setTheme, themes } = useTheme();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
   const [selectedMeetingIds, setSelectedMeetingIds] = useState<Set<string>>(new Set());
@@ -128,6 +130,9 @@ export function App() {
         onClientChange={handleClientChange}
         onDateChange={handleDateChange}
         onReset={handleReset}
+        theme={theme}
+        setTheme={setTheme}
+        themes={themes}
       />
       <AppLayout
         contextCollapsed={contextCollapsed}

@@ -1,6 +1,7 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
-import { ChevronDown, RotateCcw } from "lucide-react";
+import { ChevronDown, RotateCcw, Sun, Moon, Droplets } from "lucide-react";
+import type { ThemeName, Theme } from "../theme.js";
 
 interface DateRange {
   after: string;
@@ -14,7 +15,16 @@ interface Props {
   onClientChange: (name: string) => void;
   onDateChange: (range: DateRange) => void;
   onReset: () => void;
+  theme: ThemeName;
+  setTheme: (name: ThemeName) => void;
+  themes: Theme[];
 }
+
+const THEME_ICONS: Record<ThemeName, React.ReactNode> = {
+  "deep-sea": <Droplets className="w-3.5 h-3.5" />,
+  "daylight":  <Sun className="w-3.5 h-3.5" />,
+  "midnight":  <Moon className="w-3.5 h-3.5" />,
+};
 
 export function ScopeBar({
   clients,
@@ -23,7 +33,16 @@ export function ScopeBar({
   onClientChange,
   onDateChange,
   onReset,
+  theme,
+  setTheme,
+  themes,
 }: Props) {
+  function cycleTheme() {
+    const idx = themes.findIndex((t) => t.name === theme);
+    const next = themes[(idx + 1) % themes.length];
+    setTheme(next.name);
+  }
+
   return (
     <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900 border-b border-zinc-800 text-sm shrink-0">
       <span className="text-zinc-500 font-medium">Scope:</span>
@@ -86,6 +105,15 @@ export function ScopeBar({
       >
         <RotateCcw className="w-3 h-3" />
         <span>Reset</span>
+      </button>
+
+      <button
+        onClick={cycleTheme}
+        className="flex items-center gap-1 px-2 py-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+        aria-label={`Theme: ${theme}`}
+        title={`Switch theme (current: ${themes.find((t) => t.name === theme)?.label})`}
+      >
+        {THEME_ICONS[theme]}
       </button>
     </div>
   );

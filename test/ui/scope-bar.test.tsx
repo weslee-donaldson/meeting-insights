@@ -3,9 +3,9 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { ScopeBar } from "../../ui/src/components/ScopeBar.js";
+import { themes } from "../../ui/src/theme.js";
 
 afterEach(cleanup);
-
 
 const defaultProps = {
   clients: ["Acme", "Beta Co"],
@@ -14,6 +14,9 @@ const defaultProps = {
   onClientChange: vi.fn(),
   onDateChange: vi.fn(),
   onReset: vi.fn(),
+  theme: "deep-sea" as const,
+  setTheme: vi.fn(),
+  themes,
 };
 
 describe("ScopeBar", () => {
@@ -42,5 +45,17 @@ describe("ScopeBar", () => {
       target: { value: "2026-02-01" },
     });
     expect(onDateChange).toHaveBeenCalledWith({ after: "2026-02-01", before: "" });
+  });
+
+  it("renders theme cycle button with current theme aria-label", () => {
+    render(<ScopeBar {...defaultProps} />);
+    expect(screen.getByRole("button", { name: /theme: deep-sea/i })).toBeDefined();
+  });
+
+  it("calls setTheme with next theme when cycle button is clicked", () => {
+    const setTheme = vi.fn();
+    render(<ScopeBar {...defaultProps} setTheme={setTheme} />);
+    fireEvent.click(screen.getByRole("button", { name: /theme:/i }));
+    expect(setTheme).toHaveBeenCalledWith("daylight");
   });
 });
