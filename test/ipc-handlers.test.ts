@@ -167,4 +167,5 @@ describe("IPC handlers", () => {
       expect(result.sources).toEqual([]);
     });
   });
+
 });

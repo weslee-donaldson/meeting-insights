@@ -4,6 +4,7 @@ import { CHANNELS } from "../channels.js";
 import type {
   MeetingFilters,
   ChatRequest,
+  SearchRequest,
   ElectronAPI,
 } from "../channels.js";
 
@@ -14,6 +15,7 @@ const api: ElectronAPI = {
   getArtifact: (meetingId: string) =>
     ipcRenderer.invoke(CHANNELS.GET_ARTIFACT, meetingId),
   chat: (req: ChatRequest) => ipcRenderer.invoke(CHANNELS.CHAT, req),
+  search: (req: SearchRequest) => ipcRenderer.invoke(CHANNELS.SEARCH_MEETINGS, req),
 };
 
 contextBridge.exposeInMainWorld("api", api);

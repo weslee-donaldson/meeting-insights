@@ -4,7 +4,10 @@ import type { Artifact } from "../src/extractor.js";
 import { buildLabeledContext } from "../src/labeled-context.js";
 import { parseCitations } from "../src/display-helpers.js";
 import type { LlmAdapter } from "../src/llm-adapter.js";
-import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters } from "./channels.js";
+import { searchMeetings } from "../src/vector-search.js";
+import type { VectorDb } from "../src/vector-db.js";
+import type { InferenceSession } from "onnxruntime-node";
+import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow } from "./channels.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; }
@@ -110,4 +113,17 @@ export async function handleChat(
       : meetings.map((m) => m.title);
 
   return { answer, sources, charCount };
+}
+
+export async function handleSearchMeetings(
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  req: SearchRequest,
+): Promise<SearchResultRow[]> {
+  return searchMeetings(vdb, session, req.query, {
+    limit: req.limit ?? 6,
+    client: req.client,
+    date_after: req.date_after,
+    date_before: req.date_before,
+  }) as Promise<SearchResultRow[]>;
 }
