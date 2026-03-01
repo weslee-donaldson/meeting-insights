@@ -122,7 +122,7 @@ export function App() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100">
+    <div className="flex flex-col h-screen" style={{ background: "var(--color-bg-base)", color: "var(--color-text-primary)" }}>
       <ScopeBar
         clients={clientsQuery.data ?? []}
         selectedClient={selectedClient}
