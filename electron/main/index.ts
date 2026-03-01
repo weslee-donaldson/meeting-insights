@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { join } from "path";
+import { join, resolve } from "path";
 const { app, BrowserWindow, ipcMain } = createRequire(import.meta.url)("electron") as typeof import("electron");
 import { createDb, migrate } from "../../src/db.js";
 import { CHANNELS } from "../channels.js";
@@ -11,9 +11,18 @@ import {
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../src/llm-adapter.js";
 
-process.loadEnvFile?.(".env.local");
+// Resolve .env.local relative to app root before reading any env vars
+const APP_ROOT = resolve(app.getAppPath());
+try {
+  process.loadEnvFile?.(join(APP_ROOT, ".env.local"));
+} catch {
+  // .env.local is optional
+}
 
-const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
+const DB_PATH = process.env.MTNINSIGHTS_DB_PATH
+  ? resolve(process.env.MTNINSIGHTS_DB_PATH)
+  : join(APP_ROOT, "db/mtninsights.db");
+
 const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"
   | "local"
@@ -26,11 +35,15 @@ const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
 const isDev =
   process.env.NODE_ENV === "development" || !!process.env["ELECTRON_RENDERER_URL"];
 
+console.log("[main] APP_ROOT:", APP_ROOT);
+console.log("[main] DB_PATH:", DB_PATH);
+console.log("[main] PROVIDER:", PROVIDER);
+
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 1400,
     height: 900,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: "#0b1120",
     webPreferences: {
       preload: join(__dirname, "../preload/index.mjs"),
       contextIsolation: true,
