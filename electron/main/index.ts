@@ -8,8 +8,11 @@ import {
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
+  handleSearchMeetings,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../src/llm-adapter.js";
+import { connectVectorDb } from "../../src/vector-db.js";
+import { loadModel } from "../../src/embedder.js";
 
 // Resolve .env.local relative to app root before reading any env vars
 const APP_ROOT = resolve(app.getAppPath());
@@ -22,6 +25,13 @@ try {
 const DB_PATH = process.env.MTNINSIGHTS_DB_PATH
   ? resolve(process.env.MTNINSIGHTS_DB_PATH)
   : join(APP_ROOT, "db/mtninsights.db");
+
+const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH
+  ? resolve(process.env.MTNINSIGHTS_VECTOR_PATH)
+  : join(APP_ROOT, "db/lancedb");
+
+const MODEL_PATH     = join(APP_ROOT, "models/all-MiniLM-L6-v2.onnx");
+const TOKENIZER_PATH = join(APP_ROOT, "models/tokenizer.json");
 
 const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"
@@ -37,6 +47,7 @@ const isDev =
 
 console.log("[main] APP_ROOT:", APP_ROOT);
 console.log("[main] DB_PATH:", DB_PATH);
+console.log("[main] VECTOR_PATH:", VECTOR_PATH);
 console.log("[main] PROVIDER:", PROVIDER);
 
 function createWindow(): void {
@@ -58,7 +69,7 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   const db = createDb(DB_PATH);
   migrate(db);
 
@@ -72,15 +83,23 @@ app.whenReady().then(() => {
   const llm = createLlmAdapter(llmConfig);
 
   ipcMain.handle(CHANNELS.GET_CLIENTS, () => handleGetClients(db));
-  ipcMain.handle(CHANNELS.GET_MEETINGS, (_e, opts) =>
-    handleGetMeetings(db, opts),
-  );
-  ipcMain.handle(CHANNELS.GET_ARTIFACT, (_e, meetingId: string) =>
-    handleGetArtifact(db, meetingId),
-  );
+  ipcMain.handle(CHANNELS.GET_MEETINGS, (_e, opts) => handleGetMeetings(db, opts));
+  ipcMain.handle(CHANNELS.GET_ARTIFACT, (_e, meetingId: string) => handleGetArtifact(db, meetingId));
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
 
   createWindow();
+
+  // Load vector search infrastructure in background — non-blocking
+  connectVectorDb(VECTOR_PATH)
+    .then((vdb) => loadModel(MODEL_PATH, TOKENIZER_PATH).then((session) => {
+      ipcMain.handle(CHANNELS.SEARCH_MEETINGS, (_e, req) =>
+        handleSearchMeetings(vdb, session, req),
+      );
+      console.log("[main] Vector search ready");
+    }))
+    .catch((err) => {
+      console.error("[main] Vector search init failed:", err);
+    });
 });
 
 app.on("window-all-closed", () => {
