@@ -4,6 +4,7 @@ import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff } from
 import type { MeetingRow, Artifact, ActionItemCompletion } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { cn } from "../lib/utils.js";
 
 interface MeetingDetailProps {
@@ -14,7 +15,7 @@ interface MeetingDetailProps {
   onReassignClient?: (clientName: string) => void;
   onIgnore?: () => void;
   completions?: ActionItemCompletion[];
-  onComplete?: (index: number) => void;
+  onComplete?: (index: number, note: string) => void;
 }
 
 interface SectionProps {
@@ -66,8 +67,28 @@ function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; i
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number) => void }) {
+function NoteDialogBody({ initialNote, onSave, onCancel }: { initialNote: string; onSave: (note: string) => void; onCancel: () => void }) {
+  const [note, setNote] = useState(initialNote);
+  return (
+    <>
+      <textarea
+        aria-label="Completion note"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        rows={4}
+        className="w-full rounded border border-border bg-background text-foreground text-sm p-2 resize-none focus:outline-none"
+      />
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" size="sm" onClick={onCancel} aria-label="Cancel">Cancel</Button>
+        <Button size="sm" onClick={() => onSave(note)} aria-label="Save">Save</Button>
+      </div>
+    </>
+  );
+}
+
+function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void }) {
   const [completedExpanded, setCompletedExpanded] = useState(false);
+  const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
 
   const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
 
@@ -122,7 +143,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
             <li key={a.index} className="flex gap-2.5 items-start">
               {onComplete ? (
                 <button
-                  onClick={() => onComplete(a.index)}
+                  onClick={() => onComplete(a.index, "")}
                   aria-label={`Complete item ${a.index}`}
                   className="shrink-0 mt-0.5 text-primary bg-transparent border-0 cursor-pointer p-0"
                 >
@@ -152,17 +173,38 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
             </button>
             {completedExpanded && (
               <ul className="m-0 p-0 list-none flex flex-col gap-1.5 mt-1.5">
-                {completedWithIndex.map((a) => (
-                  <li key={a.index} className="flex gap-2.5 items-start opacity-60">
-                    <span className="shrink-0 mt-0.5 text-green-500">✓</span>
-                    <span className="leading-[1.5] line-through">{a.description}</span>
-                  </li>
-                ))}
+                {completedWithIndex.map((a) => {
+                  const existingNote = completions.find((c) => c.item_index === a.index)?.note ?? "";
+                  return (
+                    <li key={a.index} className="flex gap-2.5 items-start opacity-60">
+                      <span className="shrink-0 mt-0.5 text-green-500">✓</span>
+                      <button
+                        onClick={() => setNoteDialog({ index: a.index, note: existingNote })}
+                        className="text-left text-sm leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
+                      >
+                        {a.description}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </>
         )}
       </Section>
+
+      <Dialog open={noteDialog !== null} onOpenChange={(open) => { if (!open) setNoteDialog(null); }}>
+        <DialogContent aria-describedby={undefined}>
+          <DialogTitle>Completion note</DialogTitle>
+          {noteDialog !== null && (
+            <NoteDialogBody
+              initialNote={noteDialog.note}
+              onSave={(note) => { onComplete?.(noteDialog.index, note); setNoteDialog(null); }}
+              onCancel={() => setNoteDialog(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0}>
         <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" />

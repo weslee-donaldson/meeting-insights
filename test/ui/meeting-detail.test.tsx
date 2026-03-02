@@ -102,7 +102,7 @@ describe("MeetingDetail", () => {
     expect(onReExtract).toHaveBeenCalledOnce();
   });
 
-  it("clicking action item checkbox calls onComplete with its index", () => {
+  it("clicking action item checkbox calls onComplete with its index and empty note", () => {
     const onComplete = vi.fn();
     render(
       <MeetingDetail
@@ -118,7 +118,7 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Complete item 0" }));
-    expect(onComplete).toHaveBeenCalledWith(0);
+    expect(onComplete).toHaveBeenCalledWith(0, "");
   });
 
   it("completed items collapse into a summary row showing count", () => {
@@ -160,6 +160,64 @@ describe("MeetingDetail", () => {
     expect(screen.queryByText("Write tests")).toBeNull();
     fireEvent.click(screen.getByText("1 completed"));
     expect(screen.getByText("Write tests")).toBeDefined();
+  });
+
+  it("clicking a completed item description opens note dialog pre-filled with existing note", () => {
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "existing note" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        completions={completions}
+        onComplete={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByText("1 completed"));
+    fireEvent.click(screen.getByText("Write tests"));
+    expect(screen.getByRole("textbox", { name: "Completion note" })).toBeDefined();
+    expect((screen.getByRole("textbox", { name: "Completion note" }) as HTMLTextAreaElement).value).toBe("existing note");
+  });
+
+  it("saving note from dialog calls onComplete with updated note", () => {
+    const onComplete = vi.fn();
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "old note" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        completions={completions}
+        onComplete={onComplete}
+      />,
+    );
+    fireEvent.click(screen.getByText("1 completed"));
+    fireEvent.click(screen.getByText("Write tests"));
+    const textarea = screen.getByRole("textbox", { name: "Completion note" });
+    fireEvent.change(textarea, { target: { value: "new note" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(onComplete).toHaveBeenCalledWith(0, "new note");
+  });
+
+  it("canceling note dialog does not call onComplete", () => {
+    const onComplete = vi.fn();
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "old note" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        completions={completions}
+        onComplete={onComplete}
+      />,
+    );
+    fireEvent.click(screen.getByText("1 completed"));
+    fireEvent.click(screen.getByText("Write tests"));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(onComplete).not.toHaveBeenCalled();
   });
 
   it("copy action items button writes checklist to clipboard", () => {

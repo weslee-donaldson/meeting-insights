@@ -141,9 +141,9 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
-  const handleCompleteActionItem = useCallback(async (itemIndex: number) => {
+  const handleCompleteActionItem = useCallback(async (itemIndex: number, note: string) => {
     if (!selectedMeetingId) return;
-    await window.api.completeActionItem(selectedMeetingId, itemIndex, "");
+    await window.api.completeActionItem(selectedMeetingId, itemIndex, note);
     queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
   }, [selectedMeetingId, queryClient]);
 
