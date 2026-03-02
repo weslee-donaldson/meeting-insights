@@ -52,7 +52,7 @@ function Section({ title, children, isEmpty, defaultOpen = false, headerExtra }:
         {headerExtra}
       </div>
       <Collapsible.Content className="pb-3 text-sm text-secondary-foreground leading-[1.65]">
-        <ScrollArea className="max-h-[40vh]">
+        <ScrollArea maxHeight={300}>
           <div className="pl-5 pr-1">
             {children}
           </div>

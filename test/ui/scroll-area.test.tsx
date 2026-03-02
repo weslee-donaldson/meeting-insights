@@ -37,4 +37,16 @@ describe("ScrollArea", () => {
     expect(viewport).not.toBeNull();
     expect(screen.getByTestId("inner")).toBeDefined();
   });
+
+  it("applies maxHeight as inline style on root and viewport", () => {
+    const { container } = render(
+      <ScrollArea maxHeight={300}>
+        <span>Constrained</span>
+      </ScrollArea>,
+    );
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.style.maxHeight).toBe("300px");
+    const viewport = container.querySelector("[data-radix-scroll-area-viewport]") as HTMLElement;
+    expect(viewport.style.maxHeight).toBe("300px");
+  });
 });

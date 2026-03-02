@@ -2,10 +2,15 @@ import React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { cn } from "../../lib/utils.js";
 
-export function ScrollArea({ children, className, ...props }: React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>) {
+interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
+  maxHeight?: number;
+}
+
+export function ScrollArea({ children, className, maxHeight, style, ...props }: ScrollAreaProps) {
+  const rootStyle = maxHeight ? { ...style, maxHeight: `${maxHeight}px` } : style;
   return (
-    <ScrollAreaPrimitive.Root className={cn("relative overflow-hidden", className)} {...props}>
-      <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+    <ScrollAreaPrimitive.Root className={cn("relative overflow-hidden", className)} style={rootStyle} {...props}>
+      <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]" style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}>
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollBar />
