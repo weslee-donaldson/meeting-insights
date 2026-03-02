@@ -7,9 +7,9 @@ import { buildLabeledContext } from "../core/labeled-context.js";
 function makeArtifact() {
   return {
     summary: "We discussed the roadmap.",
-    decisions: ["Use TypeScript"],
+    decisions: [{ text: "Use TypeScript", decided_by: "CEO" }],
     proposed_features: [],
-    action_items: [{ description: "Write tests", owner: "Alice", due_date: null }],
+    action_items: [{ description: "Write tests", owner: "Alice", requester: "Bob", due_date: null }],
     technical_topics: [],
     open_questions: ["When to launch?"],
     risk_items: [],
@@ -74,6 +74,12 @@ describe("buildLabeledContext", () => {
       title: expect.any(String),
       date: expect.any(String),
     });
+  });
+
+  it("formats decisions with decided_by and action items with requester", () => {
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).toContain("- Use TypeScript (decided by CEO)");
+    expect(result.contextText).toContain("- Write tests (Alice, requested by Bob)");
   });
 
   it("should return empty context for unknown meeting IDs", () => {

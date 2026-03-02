@@ -15,12 +15,24 @@ export interface LabeledContextResult {
   meetings: ContextMeeting[];
 }
 
+function normalizeDecisions(raw: unknown[]): Artifact["decisions"] {
+  return raw.map((d) => (typeof d === "string" ? { text: d, decided_by: "" } : d as Artifact["decisions"][number]));
+}
+
+function normalizeActionItems(raw: unknown[]): Artifact["action_items"] {
+  return raw.map((item) => {
+    const a = item as Record<string, unknown>;
+    if (!("requester" in a)) return { ...a, requester: "" } as Artifact["action_items"][number];
+    return a as Artifact["action_items"][number];
+  });
+}
+
 function parseArtifactRow(row: ArtifactRow): Artifact {
   return {
     summary: row.summary,
-    decisions: JSON.parse(row.decisions ?? "[]"),
+    decisions: normalizeDecisions(JSON.parse(row.decisions ?? "[]")),
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
-    action_items: JSON.parse(row.action_items ?? "[]"),
+    action_items: normalizeActionItems(JSON.parse(row.action_items ?? "[]")),
     technical_topics: JSON.parse(row.technical_topics ?? "[]"),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
     risk_items: JSON.parse(row.risk_items ?? "[]"),
@@ -32,11 +44,14 @@ function artifactBlock(artifact: Artifact): string {
   const lines: string[] = [];
   if (artifact.summary) lines.push(`Summary: ${artifact.summary}`);
   if (artifact.decisions.length > 0)
-    lines.push(`Decisions:\n${artifact.decisions.map((d) => `- ${d}`).join("\n")}`);
+    lines.push(`Decisions:\n${artifact.decisions.map((d) => `- ${d.text}${d.decided_by ? ` (decided by ${d.decided_by})` : ""}`).join("\n")}`);
   if (artifact.action_items.length > 0)
     lines.push(
       `Action Items:\n${artifact.action_items
-        .map((a) => `- ${a.description} (${a.owner}${a.due_date ? ", due " + a.due_date : ""})`)
+        .map((a) => {
+          const meta = [a.owner, a.requester ? `requested by ${a.requester}` : "", a.due_date ? `due ${a.due_date}` : ""].filter(Boolean).join(", ");
+          return meta ? `- ${a.description} (${meta})` : `- ${a.description}`;
+        })
         .join("\n")}`,
     );
   if (artifact.open_questions.length > 0)
