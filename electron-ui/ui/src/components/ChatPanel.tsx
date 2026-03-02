@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Send, Clipboard, Paperclip, X } from "lucide-react";
+import { Send, Clipboard, Paperclip, X, FileText, Code } from "lucide-react";
 import { Button } from "./ui/button.js";
 import type { ChatResponse } from "../../../electron/channels.js";
 
@@ -16,10 +16,23 @@ function markdownToJira(md: string): string {
     .replace(/^- (.+)$/gm, "* $1");
 }
 
-interface QAPair {
-  question: string;
-  answer: string;
-  sources: string[];
+function markdownToHtml(md: string): string {
+  return md
+    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    .replace(/```(\w+)\n([\s\S]*?)```/g, "<pre><code>$2</code></pre>")
+    .replace(/```\n([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
+    .replace(/\n/g, "<br>");
+}
+
+interface InternalMessage {
+  role: "user" | "assistant";
+  content: string;
+  sources?: string[];
 }
 
 interface AttachmentItem {
@@ -34,8 +47,8 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProps) {
-  const [question, setQuestion] = useState("");
-  const [history, setHistory] = useState<QAPair[]>([]);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<InternalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -44,26 +57,27 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
   const meetingKey = useMemo(() => activeMeetingIds.join(","), [activeMeetingIds]);
 
   useEffect(() => {
-    setHistory([]);
+    setMessages([]);
     setAttachments([]);
   }, [meetingKey]);
 
   const submit = useCallback(async () => {
-    const q = question.trim();
+    const q = input.trim();
     if (!q || loading) return;
-    setQuestion("");
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: q }]);
     setLoading(true);
     try {
       const response = await onChat(q);
-      setHistory((prev) => [
+      setMessages((prev) => [
         ...prev,
-        { question: q, answer: response.answer, sources: response.sources },
+        { role: "assistant", content: response.answer, sources: response.sources },
       ]);
     } finally {
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
-  }, [question, loading, onChat]);
+  }, [input, loading, onChat]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -98,8 +112,21 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
     setAttachments((prev) => prev.filter((a) => a.name !== name));
   }, []);
 
-  const copyToClipboard = useCallback((text: string) => {
+  const copyMarkdown = useCallback((text: string) => {
     navigator.clipboard.writeText(text).catch(() => {});
+  }, []);
+
+  const copyJira = useCallback((text: string) => {
+    navigator.clipboard.writeText(markdownToJira(text)).catch(() => {});
+  }, []);
+
+  const copyRichText = useCallback((text: string) => {
+    const html = markdownToHtml(text);
+    const htmlBlob = new Blob([html], { type: "text/html" });
+    const textBlob = new Blob([text], { type: "text/plain" });
+    navigator.clipboard.write([
+      new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob }),
+    ]).catch(() => {});
   }, []);
 
   return (
@@ -115,51 +142,80 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5">
-        {history.map((pair, i) => (
-          <div key={i} className="flex flex-col gap-2">
-            <div className="text-[0.75rem] font-semibold text-muted-foreground pb-1 border-b border-border">
-              {pair.question}
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+        {messages.map((msg, i) =>
+          msg.role === "user" ? (
+            <div
+              key={i}
+              data-testid="user-bubble"
+              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed"
+            >
+              {msg.content}
             </div>
-            <div className="text-sm leading-[1.65] text-foreground">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{pair.answer}</ReactMarkdown>
-            </div>
-            {pair.sources.length > 0 && (
-              <div className="text-[0.7rem] text-muted-foreground">
-                <span className="font-semibold uppercase tracking-[0.05em]">Sources</span>
-                <ul className="mt-1 m-0 p-0 list-none flex flex-col gap-0.5">
-                  {pair.sources.map((s, j) => (
-                    <li key={j} className="pl-2">— {s}</li>
-                  ))}
-                </ul>
+          ) : (
+            <div key={i} className="flex flex-col gap-1.5 max-w-[90%]">
+              <div
+                data-testid="assistant-bubble"
+                className="self-start px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-secondary text-secondary-foreground text-sm leading-[1.65]"
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
               </div>
-            )}
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(pair.answer)}
-                aria-label="Copy as Markdown"
-                className="h-auto px-1 py-0.5 text-[0.7rem] text-muted-foreground"
-              >
-                <Clipboard className="w-[11px] h-[11px]" />
-                Copy as Markdown
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(markdownToJira(pair.answer))}
-                aria-label="Copy for Jira"
-                className="h-auto px-1 py-0.5 text-[0.7rem] text-muted-foreground"
-              >
-                <Clipboard className="w-[11px] h-[11px]" />
-                Copy for Jira
-              </Button>
+              {msg.sources && msg.sources.length > 0 && (
+                <div className="text-[0.7rem] text-muted-foreground pl-1">
+                  <span className="font-semibold uppercase tracking-[0.05em]">Sources</span>
+                  <ul className="mt-0.5 m-0 p-0 list-none flex flex-col gap-0.5">
+                    {msg.sources.map((s, j) => (
+                      <li key={j} className="pl-2">— {s}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="flex gap-0.5 pl-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyMarkdown(msg.content)}
+                  aria-label="Copy as Markdown"
+                  className="h-auto px-1 py-0.5 text-[0.65rem] text-muted-foreground"
+                >
+                  <Clipboard className="w-[10px] h-[10px]" />
+                  Copy as Markdown
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyJira(msg.content)}
+                  aria-label="Copy for Jira"
+                  className="h-auto px-1 py-0.5 text-[0.65rem] text-muted-foreground"
+                >
+                  <Code className="w-[10px] h-[10px]" />
+                  Copy for Jira
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyRichText(msg.content)}
+                  aria-label="Copy as Rich Text"
+                  className="h-auto px-1 py-0.5 text-[0.65rem] text-muted-foreground"
+                >
+                  <FileText className="w-[10px] h-[10px]" />
+                  Copy as Rich Text
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          ),
+        )}
         {loading && (
-          <div className="text-xs text-muted-foreground">Thinking…</div>
+          <div
+            data-testid="thinking-indicator"
+            className="self-start px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-secondary text-muted-foreground text-sm"
+          >
+            <span className="inline-flex gap-1">
+              <span className="animate-bounce [animation-delay:0ms]">·</span>
+              <span className="animate-bounce [animation-delay:150ms]">·</span>
+              <span className="animate-bounce [animation-delay:300ms]">·</span>
+            </span>
+          </div>
         )}
         <div ref={bottomRef} />
       </div>
@@ -183,8 +239,8 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
         )}
         <div className="flex gap-2">
           <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             placeholder="Ask a question about these meetings…"
@@ -204,7 +260,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
             </label>
             <Button
               onClick={submit}
-              disabled={!question.trim() || loading}
+              disabled={!input.trim() || loading}
               size="icon"
               className="shrink-0"
               aria-label="Send"
