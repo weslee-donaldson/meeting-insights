@@ -8,7 +8,7 @@ import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 interface ClientRow { name: string; }
@@ -118,6 +118,31 @@ export async function handleChat(
 
   const result = await llm.complete("synthesize_answer", prompt, req.attachments);
   const answer = (result as { answer?: string }).answer ?? String(result);
+
+  const citations = parseCitations(answer);
+  const sources =
+    citations.length > 0
+      ? citations
+          .map((i) => meetings[i - 1]?.title ?? "")
+          .filter(Boolean)
+      : meetings.map((m) => m.title);
+
+  return { answer, sources, charCount };
+}
+
+export async function handleConversationChat(
+  db: Database,
+  llm: LlmAdapter,
+  req: ConversationChatRequest,
+): Promise<ConversationChatResponse> {
+  const { contextText, charCount, meetings } = buildLabeledContext(
+    db,
+    req.meetingIds,
+  );
+
+  const system = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}`;
+
+  const answer = await llm.converse(system, req.messages);
 
   const citations = parseCitations(answer);
   const sources =

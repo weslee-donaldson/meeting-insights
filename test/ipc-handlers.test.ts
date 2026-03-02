@@ -9,6 +9,7 @@ import {
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
+  handleConversationChat,
   handleDeleteMeetings,
   handleReExtract,
   handleReassignClient,
@@ -211,6 +212,44 @@ describe("IPC handlers", () => {
       expect(capturedAttachments).toEqual([
         { name: "shot.png", base64: "abc123", mimeType: "image/png" },
       ]);
+    });
+  });
+
+  describe("handleConversationChat", () => {
+    it("returns answer from converse with labeled context as system", async () => {
+      let capturedSystem = "";
+      let capturedMessages: Array<{ role: string; content: string }> = [];
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system, messages) {
+          capturedSystem = system;
+          capturedMessages = messages;
+          return "The team decided to go with approach A [M1].";
+        },
+      };
+      const result = await handleConversationChat(db, spyLlm, {
+        meetingIds: [meetingId2],
+        messages: [{ role: "user", content: "What was decided?" }],
+      });
+      expect(result.answer).toBe("The team decided to go with approach A [M1].");
+      expect(result.sources).toEqual(["Beta Planning"]);
+      expect(result.charCount).toBeGreaterThan(0);
+      expect(capturedSystem).toContain("meeting intelligence assistant");
+      expect(capturedSystem).toContain("[M1]");
+      expect(capturedMessages).toEqual([{ role: "user", content: "What was decided?" }]);
+    });
+
+    it("returns empty sources when no meetingIds provided", async () => {
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse() { return "No context available."; },
+      };
+      const result = await handleConversationChat(db, spyLlm, {
+        meetingIds: [],
+        messages: [{ role: "user", content: "Hello" }],
+      });
+      expect(result.answer).toBe("No context available.");
+      expect(result.sources).toEqual([]);
     });
   });
 

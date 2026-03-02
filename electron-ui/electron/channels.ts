@@ -37,6 +37,22 @@ export interface ChatResponse {
   charCount: number;
 }
 
+export interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ConversationChatRequest {
+  meetingIds: string[];
+  messages: ConversationMessage[];
+}
+
+export interface ConversationChatResponse {
+  answer: string;
+  sources: string[];
+  charCount: number;
+}
+
 export interface MeetingFilters {
   client?: string;
   after?: string;
