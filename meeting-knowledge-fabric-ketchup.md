@@ -710,47 +710,49 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 
 **Test strategy:** Tests that currently check `style.fontWeight` or `style.background` will be updated to check class names or accessible roles. Tests that check dynamic `style.width` (resize) remain inline-style assertions. No coverage gaps.
 
-- [ ] Burst 277: Install deps + `lib/utils.ts` + `@theme inline` in `index.css` + rename `--color-border` → `--color-border-val` across themes (infra chore — no tests required)
-- [ ] Burst 278: `components/ui/button.tsx` + `components/ui/badge.tsx` — copy shadcn Button and Badge source; test: Button renders with correct variant classes; Badge renders with text
-- [ ] Burst 279: Migrate `MeetingList.tsx` to Tailwind + shadcn — replace inline styles with Tailwind classes; group mode pills → `Button` variants; client chip → `Badge`; update tests (active button check via aria-pressed or class instead of fontWeight)
-- [ ] Burst 280: Migrate `LinearShell.tsx` to Tailwind — flex layout via className; drag handles keep inline dynamic width; update tests
-- [ ] Burst 281: Migrate `MeetingDetail.tsx` to shadcn — Section trigger → shadcn `Collapsible`; action item owner/due tags → `Badge`; send button → `Button`; ScrollArea for history; update tests
-- [ ] Burst 282: Migrate `Sidebar.tsx` + `TopBar.tsx` — Tailwind layout + shadcn `Button`, `Select`; update sidebar/topbar tests
-- [ ] Burst 283: New `ChatPanel.tsx` (4th column) — extract `ChatSection` from `MeetingDetail`; move to standalone component; `react-markdown` for AI response rich text (headings, bullet lists, code blocks, bold); context bar (N meetings · N chars); copy button; shadcn `Textarea`, `ScrollArea`, `Button`, `Badge`; test: renders markdown response, submit calls onChat, copy button present
-- [ ] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — new `chat` slot + `chatOpen` prop on `LinearShell`; resize handle between detail↔chat; `chatOpen` = `activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update `LinearShell` + `App` tests
+- [ ] Burst 277: shadcn infra — install `tailwind-merge`, `class-variance-authority`, `clsx`; create `lib/utils.ts` with `cn()`; add `@theme inline` block to `index.css` mapping `--color-*` vars to shadcn token names; rename internal `--color-border` → `--color-line` in themes to avoid circular ref (chore, no tests)
+- [ ] Burst 278: `components/ui/button.tsx` + `components/ui/badge.tsx` — add shadcn Button and Badge; test: each renders with correct variant class
+- [ ] Burst 279: Migrate `MeetingList.tsx` — Tailwind classes; group pills → `Button`; client chip → `Badge`; update tests to check class/role not inline fontWeight
+- [ ] Burst 280: Migrate `LinearShell.tsx` — Tailwind flex layout; drag handles keep inline dynamic width; update tests
+- [ ] Burst 281: Migrate `MeetingDetail.tsx` — shadcn `Collapsible`, `ScrollArea`, `Button`, `Badge`; update tests
+- [ ] Burst 282: Migrate `Sidebar.tsx` + `TopBar.tsx` — Tailwind + shadcn `Button`, `Select`; update tests
+- [ ] Burst 283: `ChatPanel.tsx` (4th column) — standalone component extracted from `MeetingDetail.ChatSection`; `react-markdown` renders AI answers with headings/lists/bold/code; context bar; copy button; shadcn `Textarea`, `ScrollArea`, `Button`; test: markdown renders, submit calls onChat
+- [ ] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — `chat` slot + `chatOpen` prop; resize handle; `chatOpen = activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update shell + app tests
 
 ### Bottle: Cross-Cutting Search
 
-Current search (SearchBar) only selects individual results from a dropdown — it does NOT filter the meeting list. This bottle makes search a first-class filter that updates the visible meeting list and respects Client + date filters.
-
-- [ ] Burst 285: Lift search query state to App.tsx — `searchQuery` state in App; pass `value`/`onChange` to SearchBar via TopBar; SearchBar becomes fully controlled; `handleReset` clears search; test: controlled input in TopBar uses `searchQuery` prop [depends: 265]
-- [ ] Burst 286: Filter meeting list by search results — when `searchQuery.length >= 2`, call `window.api.search(...)` (or `useSearch` hook); `scopeMeetings` in App.tsx is filtered to only IDs returned by search; when query is empty, show all meetings; test: with search results stub, meeting list only shows matching IDs [depends: 285]
-- [ ] Burst 287: Search respects Client + date filters — pass `client`, `after`, `before` to search API call so results are scoped to current filters; test: stub search returns different results when `client` param is set vs unset [depends: 286]
-- [ ] Burst 288: Search loading + empty state — while search is in flight, show "Searching…" spinner in SearchBar; when results are empty, show "No results for '...'" in meeting list area instead of "No meetings in scope"; test: loading state renders during pending search [depends: 287]
+- [ ] Burst 285: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value
+- [ ] Burst 286: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results
+- [ ] Burst 287: Search respects Client + date filters — pass current `client`/`after`/`before` to search call; test: results change with client param
+- [ ] Burst 288: Search loading + no-results state — spinner while in-flight; "No results for '…'" in list when empty; test: loading + empty states render
 
 ### Bottle: Export + Clipboard
 
-Allow users to export meeting content for use outside the app.
-
-- [ ] Burst 289: Copy meeting summary to clipboard — "Copy summary" button in MeetingDetail header; copies title + date + summary + decisions as markdown; test: button click calls `navigator.clipboard.writeText` with formatted markdown [depends: 276]
-- [ ] Burst 290: Export action items as markdown list — "Copy action items" button in Action Items section; copies all action items as `- [ ] description (owner, due)` markdown checklist; test: button produces correct markdown format [depends: 289]
-- [ ] Burst 291: Export checked meetings as markdown report — "Export N meetings" button appears in TopBar when `checkedMeetingIds.size > 0`; calls `window.api.getArtifact` for each checked meeting and concatenates formatted markdown; copies to clipboard; test: with 2 checked meetings, export copies combined markdown [depends: 289]
+- [ ] Burst 289: Copy meeting summary — button in `MeetingDetail` header copies title + date + summary + decisions as markdown; test: `clipboard.writeText` called with correct format
+- [ ] Burst 290: Copy action items — button in Action Items section copies items as `- [ ] description (owner, due)` checklist; test: correct markdown format
 
 ### Bottle: Meeting Management
 
-- [ ] Burst 292: Delete selected meetings — "Delete N meetings" danger button in TopBar when checked meetings > 0; calls new `window.api.deleteMeetings(ids)` IPC; removes from DB and refreshes meeting list; add `handleDeleteMeetings` IPC handler + `DELETE /api/meetings` API route; test: handler deletes rows from `meetings` and cascades to `artifacts`, `client_detections` [depends: 270]
-- [ ] Burst 293: Re-extract artifact for a meeting — "Re-extract" button in MeetingDetail header (icon only); calls `window.api.reExtract(meetingId)`; invalidates artifact query; add IPC handler that calls `extractSummary` and `storeArtifact`; test: IPC handler stores updated artifact [depends: 292]
+- [ ] Burst 291: Delete selected meetings — danger button in TopBar when checked > 0; `window.api.deleteMeetings(ids)` IPC + handler cascades delete from `meetings`, `artifacts`, `client_detections`; test: handler removes correct rows
+- [ ] Burst 292: Re-extract artifact — icon button in `MeetingDetail` header; `window.api.reExtract(id)` IPC + handler calls `extractSummary` + `storeArtifact`; invalidates artifact query; test: handler stores updated artifact
+- [ ] Burst 293: Reassign meeting client — icon button in `MeetingDetail` header opens a modal/popover with client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler updates `client_detections`; meeting list refreshes; test: handler inserts/replaces detection row with new client
+- [ ] Burst 294: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results
+
+### Bottle: Action Item Completion
+
+Action items extracted per meeting need a completion lifecycle: check off, add a note, bulk complete. Completions stored persistently in DB.
+
+- [ ] Burst 295: DB schema for action item completions — new table `action_item_completions (id TEXT PK, meeting_id TEXT, item_index INTEGER, completed_at TEXT, note TEXT)`; migrate; test: insert + query round-trip
+- [ ] Burst 296: IPC handlers for completion — `handleCompleteActionItem(db, meetingId, itemIndex, note)` inserts/upserts completion row; `handleGetCompletions(db, meetingId)` returns all for meeting; add to `channels.ts`; test: complete → get returns record
+- [ ] Burst 297: Render completion state in `MeetingDetail` — action items rendered as checkboxes; completed items show checkmark + note tooltip; clicking checkbox calls `onComplete(meetingId, index)`; state loaded via `window.api.getCompletions`; test: checked item renders with completion indicator
+- [ ] Burst 298: Completion note modal — clicking a completed item opens a small popover with the stored note (editable); saving calls `handleCompleteActionItem` with updated note; test: note displays after save
+- [ ] Burst 299: Bulk complete action items — "Mark all complete" button in Action Items section header; opens note input; saves completion record for every item in the section with the same note; test: bulk complete creates N completion rows
 
 ### Bottle: UX Polish
 
-- [ ] Burst 294: Meeting list loading skeleton — while `meetingsQuery.isLoading`, render 5 placeholder skeleton rows (shimmer bars) instead of blank list; test: when meetings query is pending, skeleton elements render [depends: 270]
-- [ ] Burst 295: Empty state illustrations — when meeting list is empty (not loading, no error): if filter active, show "No meetings match your filters · Reset filters" with Reset link; if no filter, show "No meetings ingested yet"; test: each empty state variant renders correct message [depends: 294]
-- [ ] Burst 296: Keyboard navigation in meeting list — `ArrowUp`/`ArrowDown` moves selection through visible meetings; `Enter` opens detail; `Space` toggles checkbox; `Escape` clears selection; meeting rows get `tabIndex={0}` and `onKeyDown`; test: ArrowDown moves selectedId to next meeting in rendered order [depends: 270]
-
-### Bottle: Electron Build + Distribution
-
-- [ ] Burst 297: Electron production build validation — `pnpm build` produces `electron-ui/out/`; `main.js` and `preload.js` present; renderer HTML loads correctly; add build smoke test that verifies output files exist with correct extensions; test: build script exits 0 and output directory has required files (chore burst, may be infra-only) [depends: 264]
-- [ ] Burst 298: Auto-reload on file process — Electron main process watches `data/raw-transcripts/` via `fs.watch`; when new `.md` file detected, runs `processNewMeetings` and sends `meetings:updated` IPC to renderer; renderer invalidates `["meetings"]` query; test: dropping a file triggers reload notification [depends: 297]
+- [ ] Burst 300: Toast notification system — lightweight `Toast` component (top-right, auto-dismiss 4s); `useToast()` hook in App; all API errors surface as error toast; success actions (copy, delete, reassign) show success toast; test: toast renders and auto-hides
+- [ ] Burst 301: Loading states — `meetingsQuery.isLoading` → skeleton rows in meeting list; `selectedArtifactQuery.isLoading` → skeleton in detail panel; test: skeleton renders during pending query
+- [ ] Burst 302: Empty states — no meetings + filter active → "No meetings match your filters"; no meetings + no filter → "No meetings yet"; test: each variant renders correct message
 
 ---
 
