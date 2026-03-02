@@ -13,10 +13,12 @@ import {
   getMentionStats,
   cleanupMentions,
   cleanupItemVectors,
+  deduplicateItems,
 } from "../core/item-dedup.js";
 import { cosineSimilarity } from "../core/math.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
+import type { Artifact } from "../core/extractor.js";
 
 let db: Database;
 let vdbPath: string;
@@ -235,5 +237,100 @@ describe("cleanupItemVectors", () => {
     expect(rows.length).toBe(0);
     const remaining = await cleanupTable.query().where("meeting_id = 'cleanup-m2'").toArray();
     expect(remaining.length).toBe(1);
+  });
+});
+
+describe("deduplicateItems", () => {
+  let dedupDb: Database;
+  const dedupVdbPaths: string[] = [];
+
+  const baseArtifact: Artifact = {
+    summary: "Test meeting",
+    decisions: [{ text: "Use React", decided_by: "Alice" }],
+    proposed_features: ["Dark mode"],
+    action_items: [
+      { description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null },
+      { description: "Review budget report", owner: "Carol", requester: "Bob", due_date: null },
+    ],
+    architecture: ["React"],
+    open_questions: ["When is the launch?"],
+    risk_items: ["Budget overrun"],
+    additional_notes: [],
+  };
+
+  async function freshItemTable() {
+    const p = join(tmpdir(), `lancedb-dedup-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(p, { recursive: true });
+    dedupVdbPaths.push(p);
+    const v = await connectVectorDb(p);
+    return createItemTable(v);
+  }
+
+  beforeEach(() => {
+    dedupDb = createDb(":memory:");
+    migrate(dedupDb);
+    dedupDb.prepare("INSERT INTO meetings (id, title, date) VALUES ('dd-m1', 'Monday Standup', '2026-01-10')").run();
+    dedupDb.prepare("INSERT INTO meetings (id, title, date) VALUES ('dd-m2', 'Wednesday Standup', '2026-01-12')").run();
+  });
+
+  afterAll(() => {
+    for (const p of dedupVdbPaths) rmSync(p, { recursive: true, force: true });
+  });
+
+  it("creates mentions and vectors for all artifact items", async () => {
+    const t = await freshItemTable();
+    const result = await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+    expect(result.mentionsCreated).toBe(7);
+    expect(result.duplicatesAutoCompleted).toBe(0);
+    const mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m1'").all();
+    expect(mentions.length).toBe(7);
+  });
+
+  it("links duplicate action items to same canonical_id across meetings", async () => {
+    const t = await freshItemTable();
+    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+
+    const artifact2: Artifact = {
+      ...baseArtifact,
+      action_items: [
+        { description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null },
+      ],
+      decisions: [],
+      proposed_features: [],
+      architecture: [],
+      open_questions: [],
+      risk_items: [],
+    };
+
+    await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12");
+
+    const m1Mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m1' AND item_type = 'action_items' AND item_index = 0").all() as { canonical_id: string }[];
+    const m2Mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m2' AND item_type = 'action_items' AND item_index = 0").all() as { canonical_id: string }[];
+    expect(m1Mentions[0].canonical_id).toBe(m2Mentions[0].canonical_id);
+  });
+
+  it("auto-completes duplicate action items with dedup note", async () => {
+    const t = await freshItemTable();
+    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+
+    const artifact2: Artifact = {
+      ...baseArtifact,
+      action_items: [
+        { description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null },
+      ],
+      decisions: [],
+      proposed_features: [],
+      architecture: [],
+      open_questions: [],
+      risk_items: [],
+    };
+
+    const result = await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12");
+    expect(result.duplicatesAutoCompleted).toBe(1);
+
+    const completions = dedupDb.prepare("SELECT * FROM action_item_completions WHERE meeting_id = 'dd-m2'").all() as { note: string }[];
+    expect(completions.length).toBe(1);
+    expect(completions[0].note).toMatch(/\[auto-dedup\]/);
+    expect(completions[0].note).toMatch(/Monday Standup/);
   });
 });

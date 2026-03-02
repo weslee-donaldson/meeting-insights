@@ -154,3 +154,93 @@ export async function cleanupItemVectors(table: VectorTable, meetingId: string):
   await table.delete(`meeting_id = '${meetingId}'`);
   log("cleaned up item vectors for meeting=%s", meetingId);
 }
+
+import { randomUUID } from "node:crypto";
+import { isSemanticDuplicate, isStringDuplicate } from "./math.js";
+import type { Artifact } from "./extractor.js";
+
+interface DeduplicateItemsResult {
+  mentionsCreated: number;
+  duplicatesAutoCompleted: number;
+}
+
+function getItemText(item: unknown, fieldType: string): string {
+  if (typeof item === "string") return item;
+  if (typeof item === "object" && item !== null) {
+    const obj = item as Record<string, unknown>;
+    if (fieldType === "action_items") return (obj.description as string) ?? "";
+    if (fieldType === "decisions") return (obj.text as string) ?? "";
+  }
+  return String(item);
+}
+
+function getMeetingTitle(db: Database, meetingId: string): string {
+  const row = db.prepare("SELECT title FROM meetings WHERE id = ?").get(meetingId) as { title: string } | undefined;
+  return row?.title ?? "Unknown Meeting";
+}
+
+const DEDUP_FIELDS: (keyof Artifact)[] = [
+  "action_items",
+  "decisions",
+  "proposed_features",
+  "architecture",
+  "open_questions",
+  "risk_items",
+];
+
+export async function deduplicateItems(
+  db: Database,
+  itemTable: VectorTable,
+  session: InferenceSession & { _tokenizer: unknown },
+  meetingId: string,
+  artifact: Artifact,
+  meetingDate: string,
+): Promise<DeduplicateItemsResult> {
+  let mentionsCreated = 0;
+  let duplicatesAutoCompleted = 0;
+
+  for (const field of DEDUP_FIELDS) {
+    const items = artifact[field];
+    if (!Array.isArray(items)) continue;
+
+    for (let i = 0; i < items.length; i++) {
+      const text = getItemText(items[i], field);
+      if (!text) continue;
+
+      const existing = await searchSimilarItems(itemTable, session, text, { itemType: field, limit: 1 });
+      let canonicalId: string;
+      let isDuplicate = false;
+
+      if (existing.length > 0 && existing[0].meeting_id !== meetingId) {
+        const match = existing[0];
+        if (isStringDuplicate(text, match.item_text) || isSemanticDuplicate(match.distance)) {
+          canonicalId = match.canonical_id;
+          isDuplicate = true;
+        } else {
+          canonicalId = randomUUID();
+        }
+      } else {
+        canonicalId = randomUUID();
+      }
+
+      const vec = await embedItem(session, text);
+      await storeItemVector(itemTable, canonicalId, text, field, meetingId, meetingDate, vec);
+      recordMention(db, canonicalId, meetingId, field, i, text, meetingDate);
+      mentionsCreated++;
+
+      if (isDuplicate && field === "action_items") {
+        const match = existing[0];
+        const matchTitle = getMeetingTitle(db, match.meeting_id);
+        const note = `[auto-dedup] First raised ${match.date} in '${matchTitle}'`;
+        db.prepare(
+          "INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET note = excluded.note, completed_at = excluded.completed_at",
+        ).run(`${meetingId}:${i}`, meetingId, i, new Date().toISOString(), note);
+        duplicatesAutoCompleted++;
+        log("auto-completed duplicate action_item index=%d canonical=%s", i, canonicalId);
+      }
+    }
+  }
+
+  log("meeting=%s mentions=%d dupes_completed=%d", meetingId, mentionsCreated, duplicatesAutoCompleted);
+  return { mentionsCreated, duplicatesAutoCompleted };
+}
