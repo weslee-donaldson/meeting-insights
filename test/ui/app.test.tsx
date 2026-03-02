@@ -7,13 +7,40 @@ import { App } from "../../electron-ui/ui/src/App.js";
 
 afterEach(cleanup);
 
+const ARTIFACT_M1 = {
+  summary: "Alpha summary.",
+  decisions: [{ text: "Use TypeScript", decided_by: "Alice" }],
+  proposed_features: ["Dark mode"],
+  action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
+  architecture: [],
+  open_questions: [],
+  risk_items: [],
+  additional_notes: [],
+};
+
+const ARTIFACT_M2 = {
+  summary: "Beta summary.",
+  decisions: [{ text: "use typescript", decided_by: "Bob" }],
+  proposed_features: ["Dark mode"],
+  action_items: [{ description: "Review PR", owner: "Bob", requester: "", due_date: null }],
+  architecture: [],
+  open_questions: [],
+  risk_items: [],
+  additional_notes: [],
+};
+
 beforeAll(() => {
   (window as unknown as Record<string, unknown>).api = {
     getClients: vi.fn().mockResolvedValue(["Acme"]),
     getMeetings: vi.fn().mockResolvedValue([
       { id: "m1", title: "Alpha Weekly", date: "2026-01-01", client: "Acme", series: "alpha weekly", actionItemCount: 2 },
+      { id: "m2", title: "Beta Daily", date: "2026-01-02", client: "Acme", series: "beta daily", actionItemCount: 1 },
     ]),
-    getArtifact: vi.fn().mockResolvedValue(null),
+    getArtifact: vi.fn().mockImplementation((id: string) => {
+      if (id === "m1") return Promise.resolve(ARTIFACT_M1);
+      if (id === "m2") return Promise.resolve(ARTIFACT_M2);
+      return Promise.resolve(null);
+    }),
     chat: vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 }),
     search: vi.fn().mockResolvedValue([]),
     getCompletions: vi.fn().mockResolvedValue([]),
@@ -92,10 +119,21 @@ describe("App", () => {
   it("shows success toast after deleting checked meetings", async () => {
     render(<App />, { wrapper });
     const row = await screen.findByTestId("meeting-row-m1");
-    fireEvent.click(screen.getByRole("checkbox"));
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
     await waitFor(() => expect(screen.getByRole("button", { name: /Delete/i })).toBeDefined());
     fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
     await waitFor(() => expect(screen.getByText("1 meeting(s) deleted")).toBeDefined());
     expect(row).toBeDefined();
+  });
+
+  it("checking 2 meetings shows merged multi-meeting detail header", async () => {
+    render(<App />, { wrapper });
+    const checkboxes = await screen.findAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    fireEvent.click(checkboxes[1]);
+    await waitFor(() => {
+      expect(screen.getByText("2 meetings selected")).toBeDefined();
+    });
   });
 });

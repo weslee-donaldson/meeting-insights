@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { Sidebar } from "./components/Sidebar.js";
 import { TopBar } from "./components/TopBar.js";
@@ -9,6 +9,7 @@ import { ChatPanel } from "./components/ChatPanel.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
+import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
 import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion } from "../../electron/channels.js";
 
 interface DateRange {
@@ -74,9 +75,34 @@ export function App() {
     enabled: !!selectedMeetingId,
   });
 
-  const charCount = selectedArtifactQuery.data
-    ? JSON.stringify(selectedArtifactQuery.data).length
-    : 0;
+  const isMultiMode = checkedMeetingIds.size >= 2;
+
+  const checkedMeetings = useMemo(
+    () => scopeMeetings.filter((m) => checkedMeetingIds.has(m.id)),
+    [scopeMeetings, checkedMeetingIds],
+  );
+
+  const checkedArtifactQueries = useQueries({
+    queries: checkedMeetings.map((m) => ({
+      queryKey: ["artifact", m.id] as const,
+      queryFn: () => window.api.getArtifact(m.id),
+      enabled: isMultiMode,
+    })),
+  });
+
+  const mergedArtifact = useMemo(() => {
+    if (!isMultiMode) return null;
+    const artifacts = checkedArtifactQueries
+      .map((q) => q.data)
+      .filter((a): a is Artifact => a != null);
+    return artifacts.length > 0 ? mergeArtifactsDeduped(artifacts) : null;
+  }, [isMultiMode, checkedArtifactQueries]);
+
+  const mergedArtifactLoading = isMultiMode && checkedArtifactQueries.some((q) => q.isLoading);
+
+  const charCount = isMultiMode
+    ? (mergedArtifact ? JSON.stringify(mergedArtifact).length : 0)
+    : (selectedArtifactQuery.data ? JSON.stringify(selectedArtifactQuery.data).length : 0);
 
   const handleClientChange = useCallback((name: string | null) => {
     setSelectedClient(name);
@@ -217,16 +243,17 @@ export function App() {
       }
       detail={
         <MeetingDetail
-          meeting={selectedMeeting}
-          artifact={selectedArtifactQuery.data ?? null}
-          onReExtract={selectedMeetingId ? handleReExtract : undefined}
+          meeting={isMultiMode ? null : selectedMeeting}
+          meetings={isMultiMode ? checkedMeetings : undefined}
+          artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
+          onReExtract={isMultiMode ? undefined : (selectedMeetingId ? handleReExtract : undefined)}
           clients={clientsQuery.data}
-          onReassignClient={selectedMeetingId ? handleReassignClient : undefined}
-          onIgnore={selectedMeetingId ? handleIgnore : undefined}
-          completions={completionsQuery.data ?? []}
-          onComplete={selectedMeetingId ? handleCompleteActionItem : undefined}
-          onUncomplete={selectedMeetingId ? handleUncompleteActionItem : undefined}
-          artifactLoading={selectedArtifactQuery.isLoading}
+          onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
+          onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}
+          completions={isMultiMode ? [] : (completionsQuery.data ?? [])}
+          onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
+          onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
+          artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
         />
       }
       chat={
