@@ -52,6 +52,17 @@ describe("migrate", () => {
     expect(cols.some(c => c.name === "additional_notes")).toBe(true);
   });
 
+  it("creates action_item_completions table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='action_item_completions'").get();
+    expect(row).toEqual({ name: "action_item_completions" });
+  });
+
+  it("action_item_completions insert + query round-trip", () => {
+    db.prepare("INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES ('c1', 'm1', 0, '2026-03-01T00:00:00Z', 'done')").run();
+    const row = db.prepare("SELECT * FROM action_item_completions WHERE id = 'c1'").get() as { id: string; meeting_id: string; item_index: number; completed_at: string; note: string };
+    expect(row).toEqual({ id: "c1", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" });
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });

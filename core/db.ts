@@ -60,6 +60,14 @@ export function migrate(db: DatabaseSync): void {
       FOREIGN KEY (meeting_id) REFERENCES meetings(id),
       FOREIGN KEY (cluster_id) REFERENCES clusters(cluster_id)
     );
+
+    CREATE TABLE IF NOT EXISTS action_item_completions (
+      id TEXT PRIMARY KEY,
+      meeting_id TEXT,
+      item_index INTEGER,
+      completed_at TEXT,
+      note TEXT
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
