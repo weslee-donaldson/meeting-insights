@@ -674,7 +674,7 @@ Findings from full Playwright MCP UI audit against `web:dev` + `api:dev`. Functi
 - `tailwind-merge` — for `cn()` utility
 - `class-variance-authority` — for component variants
 - `clsx` — conditional class composition
-- `react-markdown` — rich text rendering for AI chat responses
+- `react-markdown` + `remark-gfm` — rich text rendering for AI chat responses (GFM: tables, strikethrough, task lists)
 
 **Tailwind v4 theming bridge:** Use `@theme inline` in `index.css` to map our existing `--color-*` CSS vars to shadcn's color token names, so Tailwind utilities (`bg-background`, `text-primary`, etc.) dynamically pick up the active theme:
 ```css
@@ -705,8 +705,15 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 4. `LinearShell.tsx` → Tailwind classes for flex layout; drag handles keep inline width
 5. `MeetingDetail.tsx` → shadcn `Collapsible`; `ScrollArea`; action item badges; `Button`
 6. `Sidebar.tsx` + `TopBar.tsx` → Tailwind + shadcn `Button`, `Select`
-7. `ChatPanel.tsx` (new 4th column) — dedicated chat column extracted from `MeetingDetail`; `react-markdown` for AI response rendering; shadcn `Textarea`, `ScrollArea`, `Button`, `Badge`
+7. `ChatPanel.tsx` (new 4th column) — rich conversational interface with meeting context; `react-markdown` for AI responses; image paste + file upload attached to messages; copy response as rich text (markdown) for Jira/Confluence
 8. Wire 4th column into `LinearShell` + `App.tsx`; add `chatOpen` prop; resize handle
+
+**Chat interface requirements:**
+- Messages include meeting context (selected/checked meetings) sent to the configured LLM provider
+- Images can be pasted (clipboard) or uploaded (file picker) and attached to a message
+- AI responses rendered as rich text: headings, bullet lists, bold, inline code, code blocks
+- Each response has a "Copy as Markdown" button for pasting into Jira, Confluence, Notion, etc.
+- Conversation history maintained in session; context bar shows active meeting count + char budget
 
 **Test strategy:** Tests that currently check `style.fontWeight` or `style.background` will be updated to check class names or accessible roles. Tests that check dynamic `style.width` (resize) remain inline-style assertions. No coverage gaps.
 
@@ -716,43 +723,46 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 - [ ] Burst 280: Migrate `LinearShell.tsx` — Tailwind flex layout; drag handles keep inline dynamic width; update tests
 - [ ] Burst 281: Migrate `MeetingDetail.tsx` — shadcn `Collapsible`, `ScrollArea`, `Button`, `Badge`; update tests
 - [ ] Burst 282: Migrate `Sidebar.tsx` + `TopBar.tsx` — Tailwind + shadcn `Button`, `Select`; update tests
-- [ ] Burst 283: `ChatPanel.tsx` (4th column) — standalone component extracted from `MeetingDetail.ChatSection`; `react-markdown` renders AI answers with headings/lists/bold/code; context bar; copy button; shadcn `Textarea`, `ScrollArea`, `Button`; test: markdown renders, submit calls onChat
+- [ ] Burst 283: `ChatPanel.tsx` — standalone 4th-column component; `react-markdown` + `remark-gfm` renders AI answers (headings, lists, bold, code, tables); context bar (N meetings · N chars); copy-to-clipboard per response; shadcn `ScrollArea`, `Button`; test: markdown renders h2/list/bold, submit calls onChat, copy button fires clipboard
 - [ ] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — `chat` slot + `chatOpen` prop; resize handle; `chatOpen = activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update shell + app tests
+- [ ] Burst 285: Chat input — shadcn `Textarea` with paste-to-attach image support (`onPaste` reads `DataTransfer.files`); file picker button (`<input type="file" accept="image/*">`); attached images shown as thumbnails below textarea with remove button; test: pasting a file populates attachment list; test: clicking remove clears it
+- [ ] Burst 286: Chat IPC — extend `channels.ts` `ChatRequest` with `attachments: { name: string; base64: string; mimeType: string }[]`; update `handleChat` to include image content blocks in Anthropic messages API call (using vision); test: handler forwards attachment as image_url content block
+- [ ] Burst 287: Copy response as rich text — "Copy as Markdown" button copies raw markdown source (not rendered HTML); "Copy for Jira" button converts markdown to Jira wiki markup (bold, headers, bullets, code blocks); test: each format produces correct output for a fixture response
 
 ### Bottle: Cross-Cutting Search
 
-- [ ] Burst 285: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value
-- [ ] Burst 286: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results
-- [ ] Burst 287: Search respects Client + date filters — pass current `client`/`after`/`before` to search call; test: results change with client param
-- [ ] Burst 288: Search loading + no-results state — spinner while in-flight; "No results for '…'" in list when empty; test: loading + empty states render
+- [ ] Burst 288: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value
+- [ ] Burst 289: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results
+- [ ] Burst 290: Search respects Client + date filters — pass current `client`/`after`/`before` to search call; test: results change with client param
+- [ ] Burst 291: Search loading + no-results state — spinner while in-flight; "No results for '…'" in list when empty; test: loading + empty states render
 
 ### Bottle: Export + Clipboard
 
-- [ ] Burst 289: Copy meeting summary — button in `MeetingDetail` header copies title + date + summary + decisions as markdown; test: `clipboard.writeText` called with correct format
-- [ ] Burst 290: Copy action items — button in Action Items section copies items as `- [ ] description (owner, due)` checklist; test: correct markdown format
+- [ ] Burst 292: Copy meeting summary — button in `MeetingDetail` header copies title + date + summary + decisions as markdown; test: `clipboard.writeText` called with correct format
+- [ ] Burst 293: Copy action items — button in Action Items section copies items as `- [ ] description (owner, due)` checklist; test: correct markdown format
 
 ### Bottle: Meeting Management
 
-- [ ] Burst 291: Delete selected meetings — danger button in TopBar when checked > 0; `window.api.deleteMeetings(ids)` IPC + handler cascades delete from `meetings`, `artifacts`, `client_detections`; test: handler removes correct rows
-- [ ] Burst 292: Re-extract artifact — icon button in `MeetingDetail` header; `window.api.reExtract(id)` IPC + handler calls `extractSummary` + `storeArtifact`; invalidates artifact query; test: handler stores updated artifact
-- [ ] Burst 293: Reassign meeting client — icon button in `MeetingDetail` header opens a modal/popover with client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler updates `client_detections`; meeting list refreshes; test: handler inserts/replaces detection row with new client
-- [ ] Burst 294: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results
+- [ ] Burst 294: Delete selected meetings — danger button in TopBar when checked > 0; `window.api.deleteMeetings(ids)` IPC + handler cascades delete from `meetings`, `artifacts`, `client_detections`; test: handler removes correct rows
+- [ ] Burst 295: Re-extract artifact — icon button in `MeetingDetail` header; `window.api.reExtract(id)` IPC + handler calls `extractSummary` + `storeArtifact`; invalidates artifact query; test: handler stores updated artifact
+- [ ] Burst 296: Reassign meeting client — icon button in `MeetingDetail` header opens a modal/popover with client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler updates `client_detections`; meeting list refreshes; test: handler inserts/replaces detection row with new client
+- [ ] Burst 297: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results
 
 ### Bottle: Action Item Completion
 
 Action items extracted per meeting need a completion lifecycle: check off, add a note, bulk complete. Completions stored persistently in DB.
 
-- [ ] Burst 295: DB schema for action item completions — new table `action_item_completions (id TEXT PK, meeting_id TEXT, item_index INTEGER, completed_at TEXT, note TEXT)`; migrate; test: insert + query round-trip
-- [ ] Burst 296: IPC handlers for completion — `handleCompleteActionItem(db, meetingId, itemIndex, note)` inserts/upserts completion row; `handleGetCompletions(db, meetingId)` returns all for meeting; add to `channels.ts`; test: complete → get returns record
-- [ ] Burst 297: Render completion state in `MeetingDetail` — action items rendered as checkboxes; completed items show checkmark + note tooltip; clicking checkbox calls `onComplete(meetingId, index)`; state loaded via `window.api.getCompletions`; test: checked item renders with completion indicator
-- [ ] Burst 298: Completion note modal — clicking a completed item opens a small popover with the stored note (editable); saving calls `handleCompleteActionItem` with updated note; test: note displays after save
-- [ ] Burst 299: Bulk complete action items — "Mark all complete" button in Action Items section header; opens note input; saves completion record for every item in the section with the same note; test: bulk complete creates N completion rows
+- [ ] Burst 298: DB schema for action item completions — new table `action_item_completions (id TEXT PK, meeting_id TEXT, item_index INTEGER, completed_at TEXT, note TEXT)`; migrate; test: insert + query round-trip
+- [ ] Burst 299: IPC handlers for completion — `handleCompleteActionItem(db, meetingId, itemIndex, note)` inserts/upserts completion row; `handleGetCompletions(db, meetingId)` returns all for meeting; add to `channels.ts`; test: complete → get returns record
+- [ ] Burst 300: Render completion state in `MeetingDetail` — action items rendered as checkboxes; completed items show checkmark + note tooltip; clicking checkbox calls `onComplete(meetingId, index)`; state loaded via `window.api.getCompletions`; test: checked item renders with completion indicator
+- [ ] Burst 301: Completion note modal — clicking a completed item opens a small popover with the stored note (editable); saving calls `handleCompleteActionItem` with updated note; test: note displays after save
+- [ ] Burst 302: Bulk complete action items — "Mark all complete" button in Action Items section header; opens note input; saves completion record for every item in the section with the same note; test: bulk complete creates N completion rows
 
 ### Bottle: UX Polish
 
-- [ ] Burst 300: Toast notification system — lightweight `Toast` component (top-right, auto-dismiss 4s); `useToast()` hook in App; all API errors surface as error toast; success actions (copy, delete, reassign) show success toast; test: toast renders and auto-hides
-- [ ] Burst 301: Loading states — `meetingsQuery.isLoading` → skeleton rows in meeting list; `selectedArtifactQuery.isLoading` → skeleton in detail panel; test: skeleton renders during pending query
-- [ ] Burst 302: Empty states — no meetings + filter active → "No meetings match your filters"; no meetings + no filter → "No meetings yet"; test: each variant renders correct message
+- [ ] Burst 303: Toast notification system — lightweight `Toast` component (top-right, auto-dismiss 4s); `useToast()` hook in App; all API errors surface as error toast; success actions (copy, delete, reassign) show success toast; test: toast renders and auto-hides
+- [ ] Burst 304: Loading states — `meetingsQuery.isLoading` → skeleton rows in meeting list; `selectedArtifactQuery.isLoading` → skeleton in detail panel; test: skeleton renders during pending query
+- [ ] Burst 305: Empty states — no meetings + filter active → "No meetings match your filters"; no meetings + no filter → "No meetings yet"; test: each variant renders correct message
 
 ---
 
