@@ -372,4 +372,51 @@ describe("MeetingDetail", () => {
     const contentContainer = summaryText.closest("[class*='pl-']");
     expect(contentContainer).not.toBeNull();
   });
+
+  it("renders multi-meeting header with count when meetings array has 2+ entries", () => {
+    render(
+      <MeetingDetail
+        meeting={null}
+        meetings={[makeMeeting({ id: "m1", title: "Alpha" }), makeMeeting({ id: "m2", title: "Beta" })]}
+        artifact={makeArtifact()}
+      />,
+    );
+    expect(screen.getByText("2 meetings selected")).toBeDefined();
+    expect(screen.getByText(/Alpha/)).toBeDefined();
+    expect(screen.getByText(/Beta/)).toBeDefined();
+  });
+
+  it("multi-mode hides single-meeting action buttons", () => {
+    render(
+      <MeetingDetail
+        meeting={null}
+        meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
+        artifact={makeArtifact()}
+        onReExtract={vi.fn()}
+        onIgnore={vi.fn()}
+        onReassignClient={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Re-extract" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ignore meeting" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Reassign client" })).toBeNull();
+  });
+
+  it("multi-mode renders action items without completion checkboxes", () => {
+    render(
+      <MeetingDetail
+        meeting={null}
+        meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
+        onComplete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Write tests")).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Complete item 0" })).toBeNull();
+  });
+
+  it("shows empty state when meeting is null and meetings is empty", () => {
+    render(<MeetingDetail meeting={null} meetings={[]} artifact={null} />);
+    expect(screen.getByText("Select a meeting")).toBeDefined();
+  });
 });

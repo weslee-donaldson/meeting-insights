@@ -9,6 +9,7 @@ import { cn } from "../lib/utils.js";
 
 interface MeetingDetailProps {
   meeting: MeetingRow | null;
+  meetings?: MeetingRow[];
   artifact: Artifact | null;
   onReExtract?: () => void;
   clients?: string[];
@@ -333,8 +334,9 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, artifactLoading }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
+  const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
     const lines = [
@@ -348,10 +350,44 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
     navigator.clipboard.writeText(lines.join("\n")).catch(() => {});
   }, [meeting, artifact]);
 
-  if (!meeting) {
+  if (!meeting && !isMultiMode) {
     return (
       <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
         Select a meeting
+      </div>
+    );
+  }
+
+  if (isMultiMode) {
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="p-4 border-b border-border shrink-0">
+          <div className="font-bold text-base text-foreground leading-[1.3]">
+            {meetings!.length} meetings selected
+          </div>
+          <div className="text-xs mt-1 text-muted-foreground flex flex-col gap-0.5">
+            {meetings!.map((m) => (
+              <span key={m.id}>{m.title} — {m.date.slice(0, 10)}</span>
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4">
+          {artifact ? (
+            <ArtifactView artifact={artifact} />
+          ) : artifactLoading ? (
+            <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse flex flex-col gap-2">
+                  <div className="h-3 rounded bg-muted w-1/4" />
+                  <div className="h-3 rounded bg-muted w-full" />
+                  <div className="h-3 rounded bg-muted w-3/4" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-4 text-xs text-muted-foreground">No artifacts extracted</div>
+          )}
+        </div>
       </div>
     );
   }
