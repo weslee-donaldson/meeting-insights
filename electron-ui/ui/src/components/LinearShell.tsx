@@ -11,7 +11,7 @@ interface LinearShellProps {
 
 export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = false }: LinearShellProps) {
   const [sidebarWidth, setSidebarWidth] = useState(240);
-  const [mainWidth, setMainWidth] = useState(200);
+  const [mainWidth, setMainWidth] = useState(500);
   const [chatWidth, setChatWidth] = useState(380);
 
   const sidebarDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -43,7 +43,7 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
     const onMouseMove = (ev: MouseEvent) => {
       if (!mainDragRef.current) return;
       const delta = ev.clientX - mainDragRef.current.startX;
-      setMainWidth(Math.max(140, Math.min(500, mainDragRef.current.startWidth + delta)));
+      setMainWidth(Math.max(200, Math.min(700, mainDragRef.current.startWidth + delta)));
     };
 
     const onMouseUp = () => {

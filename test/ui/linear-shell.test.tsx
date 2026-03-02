@@ -22,7 +22,7 @@ describe("LinearShell", () => {
     expect(screen.getByText("detail-content")).toBeDefined();
   });
 
-  it("main panel defaults to 200px width", () => {
+  it("main panel defaults to 500px width", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
@@ -32,7 +32,7 @@ describe("LinearShell", () => {
       />,
     );
     const mainPanel = screen.getByTestId("main-panel");
-    expect(mainPanel.style.width).toBe("200px");
+    expect(mainPanel.style.width).toBe("500px");
   });
 
   it("detail panel is always visible with flex-1 layout", () => {
