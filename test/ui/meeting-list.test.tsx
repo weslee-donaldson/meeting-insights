@@ -51,7 +51,7 @@ describe("MeetingList", () => {
     );
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(4);
-    expect(screen.getAllByText("Select all")).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
   });
 
   it("clicking a row fires onSelect with the meeting id", () => {
@@ -91,7 +91,7 @@ describe("MeetingList", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("group toggle button fires onCheckGroup with ids in the group", () => {
+  it("group menu opens popover and Select all fires onCheckGroup", () => {
     const onCheckGroup = vi.fn();
     render(
       <MeetingList
@@ -104,7 +104,8 @@ describe("MeetingList", () => {
         onCheckGroup={onCheckGroup}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /select all/i })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: /group menu/i })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /select all/i }));
     expect(onCheckGroup).toHaveBeenCalledOnce();
   });
 
@@ -192,7 +193,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
   });
 
   it("day group label is formatted as weekday month day year", () => {
@@ -246,7 +247,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
   });
 
   it("week group label starts with 'Week of'", () => {
@@ -281,7 +282,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
   });
 
   it("month group label is formatted as 'Month Year'", () => {

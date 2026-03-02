@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -112,6 +113,36 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
+interface GroupMenuProps {
+  onSelectAll: () => void;
+}
+
+function GroupMenu({ onSelectAll }: GroupMenuProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative ml-2 shrink-0">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Group menu"
+        className="text-muted-foreground bg-transparent border-none cursor-pointer p-0"
+      >
+        <MoreHorizontal className="w-4 h-4" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 z-50 bg-secondary border border-border rounded shadow-lg flex flex-col min-w-[120px]">
+          <button
+            onClick={() => { onSelectAll(); setOpen(false); }}
+            className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground bg-transparent border-none cursor-pointer"
+            aria-label="Select all"
+          >
+            Select all
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const GROUP_MODES: { value: GroupBy; label: string }[] = [
   { value: "series", label: "Series" },
   { value: "day", label: "Day" },
@@ -184,12 +215,9 @@ export function MeetingList({
                   <span className="text-sm font-bold flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                     {group.label}
                   </span>
-                  <button
-                    onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
-                    className="text-xs ml-2 shrink-0 text-muted-foreground bg-transparent border-none cursor-pointer p-0"
-                  >
-                    {allChecked ? "Deselect all" : "Select all"}
-                  </button>
+                  <GroupMenu
+                    onSelectAll={() => onCheckGroup(allChecked ? [] : groupIds)}
+                  />
                 </div>
                 {showStats && (
                   <div className="text-xs text-muted-foreground mt-0.5">
