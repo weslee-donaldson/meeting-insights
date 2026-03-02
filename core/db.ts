@@ -68,6 +68,16 @@ export function migrate(db: DatabaseSync): void {
       completed_at TEXT,
       note TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS item_mentions (
+      canonical_id TEXT,
+      meeting_id TEXT,
+      item_type TEXT,
+      item_index INTEGER,
+      item_text TEXT,
+      first_mentioned_at TEXT,
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
