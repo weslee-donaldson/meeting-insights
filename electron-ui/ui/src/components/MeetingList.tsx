@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { MoreHorizontal, ArrowUpDown, Trash2 } from "lucide-react";
+import React, { useMemo } from "react";
+import { ArrowUpDown, Trash2, SquareCheck, Square, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -118,46 +118,6 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-interface GroupMenuProps {
-  onSelectAll: () => void;
-  onIgnoreAll?: () => void;
-}
-
-function GroupMenu({ onSelectAll, onIgnoreAll }: GroupMenuProps) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative ml-2 shrink-0">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Group menu"
-        className="text-muted-foreground bg-transparent border-none cursor-pointer p-0"
-      >
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-secondary border border-border rounded shadow-lg flex flex-col min-w-[120px]">
-          <button
-            onClick={() => { onSelectAll(); setOpen(false); }}
-            className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground bg-transparent border-none cursor-pointer"
-            aria-label="Select all"
-          >
-            Select all
-          </button>
-          {onIgnoreAll && (
-            <button
-              onClick={() => { onIgnoreAll(); setOpen(false); }}
-              className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground bg-transparent border-none cursor-pointer"
-              aria-label="Ignore all"
-            >
-              Ignore all
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const GROUP_MODES: { value: GroupBy; label: string }[] = [
   { value: "series", label: "Series" },
   { value: "day", label: "Day" },
@@ -261,14 +221,26 @@ export function MeetingList({
           return (
             <div key={group.series}>
               <div className="px-3 pt-2.5 pb-1 mt-1">
-                <div className="flex items-baseline">
-                  <span className="text-sm font-bold flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                     {group.label}
                   </span>
-                  <GroupMenu
-                    onSelectAll={() => onCheckGroup(allChecked ? [] : groupIds)}
-                    onIgnoreAll={onIgnoreGroup ? () => onIgnoreGroup(groupIds) : undefined}
-                  />
+                  <button
+                    onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
+                    aria-label={allChecked ? "Deselect all" : "Select all"}
+                    className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0"
+                  >
+                    {allChecked ? <SquareCheck className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
+                  </button>
+                  {onIgnoreGroup && (
+                    <button
+                      onClick={() => onIgnoreGroup(groupIds)}
+                      aria-label="Ignore all"
+                      className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0"
+                    >
+                      <EyeOff className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
                 {showStats && (
                   <div className="text-xs text-muted-foreground mt-0.5">

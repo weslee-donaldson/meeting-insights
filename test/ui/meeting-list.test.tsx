@@ -51,7 +51,7 @@ describe("MeetingList", () => {
     );
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(4);
-    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
   });
 
   it("clicking a row fires onSelect with the meeting id", () => {
@@ -91,7 +91,7 @@ describe("MeetingList", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("group menu opens popover and Select all fires onCheckGroup", () => {
+  it("select all button fires onCheckGroup with group ids", () => {
     const onCheckGroup = vi.fn();
     render(
       <MeetingList
@@ -104,12 +104,11 @@ describe("MeetingList", () => {
         onCheckGroup={onCheckGroup}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /group menu/i })[0]);
-    fireEvent.click(screen.getByRole("button", { name: /select all/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /select all/i })[0]);
     expect(onCheckGroup).toHaveBeenCalledOnce();
   });
 
-  it("Ignore all in group menu fires onIgnoreGroup with group ids", () => {
+  it("ignore all button fires onIgnoreGroup with group ids", () => {
     const onIgnoreGroup = vi.fn();
     render(
       <MeetingList
@@ -123,8 +122,7 @@ describe("MeetingList", () => {
         onIgnoreGroup={onIgnoreGroup}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /group menu/i })[0]);
-    fireEvent.click(screen.getByRole("button", { name: /ignore all/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /ignore all/i })[0]);
     expect(onIgnoreGroup).toHaveBeenCalledWith(["dsu-3", "dsu-2", "dsu-1"]);
   });
 
@@ -247,7 +245,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
   });
 
   it("day group label is formatted as weekday month day year", () => {
@@ -301,7 +299,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
   });
 
   it("week group label starts with 'Week of'", () => {
@@ -336,7 +334,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /group menu/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
   });
 
   it("month group label is formatted as 'Month Year'", () => {
@@ -489,6 +487,23 @@ describe("MeetingList", () => {
     expect(btn).toBeDefined();
     fireEvent.click(btn);
     expect(onDelete).toHaveBeenCalledOnce();
+  });
+
+  it("select all toggles to deselect all when all group meetings are checked", () => {
+    const onCheckGroup = vi.fn();
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set(["dsu-1", "dsu-2", "dsu-3"])}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={onCheckGroup}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("button", { name: /deselect all/i })[0]);
+    expect(onCheckGroup).toHaveBeenCalledWith([]);
   });
 
   it("does not render client badge in meeting rows", () => {
