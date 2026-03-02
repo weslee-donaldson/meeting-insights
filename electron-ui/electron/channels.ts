@@ -14,6 +14,7 @@ export interface MeetingRow {
   date: string;
   client: string;
   series: string;
+  actionItemCount: number;
 }
 
 export interface ChatRequest {

@@ -640,6 +640,16 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 263: Design tokens (chore) — update `index.css` + `theme.ts` with indigo accent `#6366f1` across all 3 themes [depends: 262]
 - [x] Burst 264: `web:dev` mode — `api-client.ts` (HTTP fetch impl of `ElectronAPI`); `main-web.tsx` (web entry assigns apiClient to `window.api`); `vite.web.config.ts` (standalone Vite config); `"web:dev": "vite --config vite.web.config.ts"` script; test: all 5 apiClient methods mock fetch and verify URL + return value
 
+### Bottle: Web UI Bug Fixes (Playwright audit 2026-03-01)
+
+Findings from full Playwright MCP UI audit against `web:dev` + `api:dev`. Functional features confirmed working: client sidebar filter, client dropdown sync, meeting list load + grouping, meeting click → detail panel, all 8 artifact tabs (Summary/Decisions/Action Items/Open Questions/Risks/Proposed Features/Technical Topics/Additional Notes), Select all / Deselect all per group, individual checkboxes, context counter (meeting count + char count), chat input send-button enable/disable, date range filter, Reset (partial), theme cycle (deep-sea → daylight → midnight).
+
+- [ ] Burst 265: Fix Reset not clearing search text — `resetFilters` in App.tsx must also set search state to `""` and clear the controlled search input; test: after reset, search field is empty and no pending API call [depends: 264]
+- [ ] Burst 266: Add CORS middleware to `api/server.ts` — `app.use(cors())` via `hono/cors` so `web:dev` (port 5173) can call `api:dev` (port 3000); test: `createApp` handler includes CORS headers in response [depends: 264]
+- [ ] Burst 267: Fix `web:dev` root URL — Vite serves `index.html` (Electron entry) at `/` instead of `index-web.html`; set `vite.web.config.ts` `build.rollupOptions.input` as the dev entry via a custom Vite plugin or rename `index-web.html` → `index.html` and move Electron's entry to `index-electron.html`; test: navigating to `http://localhost:5173/` loads `main-web.tsx` and `window.api` is defined [depends: 264]
+- [ ] Burst 268: Search error feedback — when `/api/search` returns non-200, show inline error message in the meeting list area instead of silently leaving the list unchanged; test: stub fetch to return 503, verify error message renders [depends: 264]
+- [ ] Burst 269: Fix "1 meetings" grammar — context counter reads "1 meetings"; should read "1 meeting" (singular); test: with 1 meeting selected, counter renders "1 meeting" [depends: 262]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP

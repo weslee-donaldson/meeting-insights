@@ -119,6 +119,27 @@ describe("IPC handlers", () => {
         expect(m.series).toBe(m.title.toLowerCase().trim());
       }
     });
+
+    it("should include actionItemCount from artifact", () => {
+      const meetings = handleGetMeetings(db, {});
+      for (const m of meetings) {
+        expect(m.actionItemCount).toBe(1);
+      }
+    });
+
+    it("should return actionItemCount of 0 for meeting with no artifact", () => {
+      const noArtifactId = ingestMeeting(db, {
+        title: "No Artifact Meeting",
+        timestamp: "2026-02-20T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "X | 00:00\nHi.",
+        turns: [],
+        sourceFilename: "no-artifact",
+      });
+      const meetings = handleGetMeetings(db, {});
+      const m = meetings.find((r) => r.id === noArtifactId)!;
+      expect(m.actionItemCount).toBe(0);
+    });
   });
 
   describe("handleGetArtifact", () => {

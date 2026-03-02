@@ -65,7 +65,7 @@ describe("GET /api/meetings", () => {
   it("should return all meetings with correct shape", async () => {
     const res = await app.request("/api/meetings");
     expect(res.status).toBe(200);
-    const body = await res.json() as { id: string; title: string; date: string; client: string; series: string }[];
+    const body = await res.json() as { id: string; title: string; date: string; client: string; series: string; actionItemCount: number }[];
     expect(body).toHaveLength(2);
     expect(body[0]).toEqual({
       id: expect.any(String),
@@ -73,6 +73,7 @@ describe("GET /api/meetings", () => {
       date: expect.any(String),
       client: expect.any(String),
       series: expect.any(String),
+      actionItemCount: expect.any(Number),
     });
   });
 

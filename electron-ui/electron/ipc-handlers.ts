@@ -10,7 +10,7 @@ import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow } from "./channels.js";
 
 interface ClientRow { name: string; }
-interface DbMeetingRow { id: string; title: string; date: string; }
+interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
 interface DetectionRow { meeting_id: string; client_name: string; }
 
 export function handleGetClients(db: Database): string[] {
@@ -39,7 +39,9 @@ export function handleGetMeetings(
   opts: MeetingFilters,
 ): MeetingRow[] {
   let rows = db
-    .prepare("SELECT id, title, date FROM meetings ORDER BY date DESC")
+    .prepare(
+      "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id ORDER BY m.date DESC",
+    )
     .all() as unknown as DbMeetingRow[];
 
   if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
@@ -64,6 +66,7 @@ export function handleGetMeetings(
     date: r.date,
     client: topClientForMeeting(db, r.id),
     series: normalizeSeries(r.title),
+    actionItemCount: r.action_item_count,
   }));
 }
 

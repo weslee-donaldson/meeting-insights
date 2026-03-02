@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
@@ -16,6 +17,7 @@ interface SearchDeps {
 
 export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps): Hono {
   const app = new Hono();
+  app.use(cors());
 
   app.get("/api/debug", (c) => {
     const clientCount = (db.prepare("SELECT COUNT(*) as n FROM clients").get() as { n: number }).n;

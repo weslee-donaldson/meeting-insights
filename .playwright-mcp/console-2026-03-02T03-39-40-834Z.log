@@ -1,0 +1,13 @@
+[      92ms] [ERROR] Access to fetch at 'http://localhost:3000/api/clients' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:5173/index-web.html:0
+[      92ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3000/api/clients:0
+[      92ms] [ERROR] Access to fetch at 'http://localhost:3000/api/meetings' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:5173/index-web.html:0
+[      92ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3000/api/meetings:0
+[    1100ms] [ERROR] Access to fetch at 'http://localhost:3000/api/clients' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:5173/index-web.html:0
+[    1100ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3000/api/clients:0
+[    1103ms] [ERROR] Access to fetch at 'http://localhost:3000/api/meetings' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:5173/index-web.html:0
+[    1103ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3000/api/meetings:0
+[   35301ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=GmrJfSU1mBtj' failed:  @ http://localhost:5173/@vite/client:744
+[   35415ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
+[   35415ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0
+[   36417ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
+[   36417ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0
