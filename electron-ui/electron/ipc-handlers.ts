@@ -9,6 +9,7 @@ import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion } from "./channels.js";
+import { cleanupMentions } from "../../core/item-dedup.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -132,6 +133,7 @@ export async function handleChat(
 export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: string): Promise<void> {
   const row = db.prepare("SELECT raw_transcript FROM meetings WHERE id = ?").get(meetingId) as RawMeetingRow | undefined;
   if (!row) throw new Error(`Meeting ${meetingId} not found`);
+  cleanupMentions(db, meetingId);
   const turns = parseTranscriptBody(row.raw_transcript ?? "");
   const artifact = await extractSummary(llm, turns, 8000);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
@@ -152,6 +154,8 @@ export function handleReassignClient(db: Database, meetingId: string, clientName
 export function handleDeleteMeetings(db: Database, ids: string[]): void {
   if (ids.length === 0) return;
   const placeholders = ids.map(() => "?").join(",");
+  for (const id of ids) cleanupMentions(db, id);
+  db.prepare(`DELETE FROM action_item_completions WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);

@@ -7,8 +7,9 @@ import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { detectClient, storeDetection } from "./client-detection.js";
 import { getClientByName } from "./client-registry.js";
-import { createMeetingTable } from "./vector-db.js";
+import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
+import { deduplicateItems } from "./item-dedup.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "./vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -63,6 +64,7 @@ async function processEntry(
   auditDir: string,
   db: Database,
   table: Awaited<ReturnType<typeof createMeetingTable>>,
+  itemTable: Awaited<ReturnType<typeof createItemTable>>,
   session: InferenceSession & { _tokenizer: unknown },
   llm: LlmAdapter,
   tokenLimit: number,
@@ -84,6 +86,7 @@ async function processEntry(
     const refinementPrompt = clientRow?.refinement_prompt ?? undefined;
     const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, refinementPrompt);
     storeArtifact(db, meetingId, artifact);
+    await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp);
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     const client = topClient?.client_name ?? "";
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
@@ -111,6 +114,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
   let skipped = 0;
 
   const table = await createMeetingTable(vdb);
+  const itemTable = await createItemTable(vdb);
 
   const manifestPath = join(rawDir, "manifest.json");
   if (existsSync(manifestPath)) {
@@ -133,7 +137,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
       onProgress?.({ type: "processing", name: folderName, title: entry.meeting_title, index, total });
       const parsed = parseKrispFolder(rawDir, folderName, entry);
-      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
+      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate);
 
       if (result.status === "ok") {
         onProgress?.({ type: "ok", name: folderName, title: entry.meeting_title, client: result.client, elapsed_ms: result.elapsed_ms });
@@ -165,7 +169,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
     onProgress?.({ type: "processing", name: filename, title: filename, index, total });
     const parsed = parseKrispFile(join(rawDir, filename), filename);
-    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, session, llm, tokenLimit, promptTemplate);
+    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate);
 
     if (result.status === "ok") {
       onProgress?.({ type: "ok", name: filename, title: filename, client: result.client, elapsed_ms: result.elapsed_ms });
