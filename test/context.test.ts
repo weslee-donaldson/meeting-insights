@@ -24,7 +24,7 @@ let finMeetingId: string;
 
 const apiArtifact1: Artifact = {
   summary: "REST API design patterns and OAuth authentication discussion",
-  decisions: ["Use REST", "OAuth2"],
+  decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
   proposed_features: ["API versioning"],
   action_items: [],
   technical_topics: ["REST", "OAuth", "API gateway"],
@@ -34,7 +34,7 @@ const apiArtifact1: Artifact = {
 
 const apiArtifact2: Artifact = {
   summary: "API endpoint structure and HTTP authentication protocols review",
-  decisions: ["Bearer tokens"],
+  decisions: [{ text: "Bearer tokens", decided_by: "" }],
   proposed_features: ["token refresh"],
   action_items: [],
   technical_topics: ["HTTP", "authentication", "API design"],
@@ -44,7 +44,7 @@ const apiArtifact2: Artifact = {
 
 const finArtifact: Artifact = {
   summary: "Quarterly budget review and financial planning",
-  decisions: ["Approve budget"],
+  decisions: [{ text: "Approve budget", decided_by: "" }],
   proposed_features: [],
   action_items: [],
   technical_topics: ["budget", "financial planning"],

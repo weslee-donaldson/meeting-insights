@@ -115,7 +115,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
       </Section>
 
       <Section title="Decisions" isEmpty={artifact.decisions.length === 0}>
-        <ItemList items={artifact.decisions} icon="—" />
+        <ItemList items={artifact.decisions.map((d) => d.decided_by ? `${d.text} (${d.decided_by})` : d.text)} icon="—" />
       </Section>
 
       <Section
@@ -281,7 +281,7 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
       "",
       "## Summary",
       artifact.summary,
-      ...(artifact.decisions.length > 0 ? ["", "## Decisions", ...artifact.decisions.map((d) => `- ${d}`)] : []),
+      ...(artifact.decisions.length > 0 ? ["", "## Decisions", ...artifact.decisions.map((d) => `- ${d.text}`)] : []),
     ];
     navigator.clipboard.writeText(lines.join("\n")).catch(() => {});
   }, [meeting, artifact]);

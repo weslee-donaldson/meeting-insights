@@ -22,9 +22,9 @@ function makeMeeting(overrides: Partial<MeetingRow> = {}): MeetingRow {
 function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
   return {
     summary: "We discussed the roadmap.",
-    decisions: ["Ship by March"],
+    decisions: [{ text: "Ship by March", decided_by: "" }],
     proposed_features: ["Dark mode"],
-    action_items: [{ description: "Write tests", owner: "Alice", due_date: null }],
+    action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
     technical_topics: ["TypeScript"],
     open_questions: ["When to launch?"],
     risk_items: ["Timeline slippage"],
@@ -109,8 +109,8 @@ describe("MeetingDetail", () => {
         meeting={makeMeeting()}
         artifact={makeArtifact({
           action_items: [
-            { description: "Write tests", owner: "Alice", due_date: null },
-            { description: "Review PR", owner: "Bob", due_date: null },
+            { description: "Write tests", owner: "Alice", requester: "", due_date: null },
+            { description: "Review PR", owner: "Bob", requester: "", due_date: null },
           ],
         })}
         completions={[]}
@@ -130,8 +130,8 @@ describe("MeetingDetail", () => {
         meeting={makeMeeting()}
         artifact={makeArtifact({
           action_items: [
-            { description: "Write tests", owner: "Alice", due_date: null },
-            { description: "Review PR", owner: "Bob", due_date: null },
+            { description: "Write tests", owner: "Alice", requester: "", due_date: null },
+            { description: "Review PR", owner: "Bob", requester: "", due_date: null },
           ],
         })}
         completions={completions}
@@ -151,7 +151,7 @@ describe("MeetingDetail", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
-        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
         completions={completions}
         onComplete={vi.fn()}
       />,
@@ -169,7 +169,7 @@ describe("MeetingDetail", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
-        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
         completions={completions}
         onComplete={onComplete}
       />,
@@ -189,7 +189,7 @@ describe("MeetingDetail", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
-        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", due_date: null }] })}
+        artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
         completions={completions}
         onComplete={onComplete}
       />,
@@ -208,9 +208,9 @@ describe("MeetingDetail", () => {
         meeting={makeMeeting()}
         artifact={makeArtifact({
           action_items: [
-            { description: "Task A", owner: null, due_date: null },
-            { description: "Task B", owner: null, due_date: null },
-            { description: "Task C", owner: null, due_date: null },
+            { description: "Task A", owner: null, requester: "", due_date: null },
+            { description: "Task B", owner: null, requester: "", due_date: null },
+            { description: "Task C", owner: null, requester: "", due_date: null },
           ],
         })}
         completions={completions}
@@ -229,8 +229,8 @@ describe("MeetingDetail", () => {
         meeting={makeMeeting()}
         artifact={makeArtifact({
           action_items: [
-            { description: "Task A", owner: null, due_date: null },
-            { description: "Task B", owner: null, due_date: null },
+            { description: "Task A", owner: null, requester: "", due_date: null },
+            { description: "Task B", owner: null, requester: "", due_date: null },
           ],
         })}
         completions={[]}
@@ -254,9 +254,9 @@ describe("MeetingDetail", () => {
         meeting={makeMeeting()}
         artifact={makeArtifact({
           action_items: [
-            { description: "Write tests", owner: "Alice", due_date: "2026-03-01" },
-            { description: "Review PR", owner: "Bob", due_date: null },
-            { description: "Deploy app", owner: null, due_date: null },
+            { description: "Write tests", owner: "Alice", requester: "", due_date: "2026-03-01" },
+            { description: "Review PR", owner: "Bob", requester: "", due_date: null },
+            { description: "Deploy app", owner: null, requester: "", due_date: null },
           ],
         })}
       />,

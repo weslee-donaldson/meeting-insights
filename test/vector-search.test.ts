@@ -14,7 +14,7 @@ let session: Awaited<ReturnType<typeof loadModel>>;
 
 const apiArtifact: Artifact = {
   summary: "Discussed REST API integration approach and authentication strategy",
-  decisions: ["Use REST over GraphQL", "OAuth2 for authentication"],
+  decisions: [{ text: "Use REST over GraphQL", decided_by: "" }, { text: "OAuth2 for authentication", decided_by: "" }],
   proposed_features: ["Rate limiting", "OAuth2 support", "API versioning"],
   action_items: [],
   technical_topics: ["REST API", "OAuth2", "rate limiting"],
@@ -24,7 +24,7 @@ const apiArtifact: Artifact = {
 
 const unrelatedArtifact: Artifact = {
   summary: "Quarterly budget review and headcount planning for next fiscal year",
-  decisions: ["Freeze hiring in Q3", "Increase marketing budget"],
+  decisions: [{ text: "Freeze hiring in Q3", decided_by: "" }, { text: "Increase marketing budget", decided_by: "" }],
   proposed_features: [],
   action_items: [],
   technical_topics: ["budget", "headcount"],

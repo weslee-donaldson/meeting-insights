@@ -32,7 +32,7 @@ beforeAll(() => {
 
   storeArtifact(db, meeting1Id, {
     summary: "REST API design patterns and OAuth authentication",
-    decisions: ["Use REST", "OAuth2"],
+    decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
     proposed_features: ["API versioning"],
     action_items: [],
     technical_topics: ["REST", "OAuth"],
@@ -42,7 +42,7 @@ beforeAll(() => {
 
   storeArtifact(db, meeting2Id, {
     summary: "API endpoint authentication protocols review",
-    decisions: ["Bearer tokens"],
+    decisions: [{ text: "Bearer tokens", decided_by: "" }],
     proposed_features: ["token refresh"],
     action_items: [],
     technical_topics: ["HTTP", "authentication"],

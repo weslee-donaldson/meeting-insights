@@ -24,7 +24,7 @@ let fin2Id: string;
 
 const apiArtifact1: Artifact = {
   summary: "REST API design patterns and OAuth authentication discussion",
-  decisions: ["Use REST", "OAuth2"],
+  decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
   proposed_features: ["API versioning", "rate limiting"],
   action_items: [],
   technical_topics: ["REST", "OAuth", "API gateway"],
@@ -34,7 +34,7 @@ const apiArtifact1: Artifact = {
 
 const apiArtifact2: Artifact = {
   summary: "API endpoint structure and HTTP authentication protocols review",
-  decisions: ["Bearer tokens", "versioned endpoints"],
+  decisions: [{ text: "Bearer tokens", decided_by: "" }, { text: "versioned endpoints", decided_by: "" }],
   proposed_features: ["token refresh", "endpoint documentation"],
   action_items: [],
   technical_topics: ["HTTP", "authentication", "API design"],
@@ -44,7 +44,7 @@ const apiArtifact2: Artifact = {
 
 const financeArtifact1: Artifact = {
   summary: "Quarterly budget review and financial planning for fiscal spending",
-  decisions: ["Approve budget increases", "Review quarterly spending"],
+  decisions: [{ text: "Approve budget increases", decided_by: "" }, { text: "Review quarterly spending", decided_by: "" }],
   proposed_features: [],
   action_items: [],
   technical_topics: ["budget", "financial planning", "quarterly spending", "fiscal review"],
@@ -54,7 +54,7 @@ const financeArtifact1: Artifact = {
 
 const financeArtifact2: Artifact = {
   summary: "Quarterly financial analysis and budget allocation for fiscal period",
-  decisions: ["Allocate budget to teams", "Track financial expenditure"],
+  decisions: [{ text: "Allocate budget to teams", decided_by: "" }, { text: "Track financial expenditure", decided_by: "" }],
   proposed_features: [],
   action_items: [],
   technical_topics: ["budget", "financial analysis", "quarterly review", "fiscal allocation"],

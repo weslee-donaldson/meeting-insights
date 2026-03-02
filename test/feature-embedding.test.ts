@@ -30,7 +30,7 @@ function makeParsed(title: string, filename: string) {
 
 const artifact1 = {
   summary: "API integration and OAuth authentication design",
-  decisions: ["Use OAuth2"],
+  decisions: [{ text: "Use OAuth2", decided_by: "" }],
   proposed_features: ["Single sign-on via OAuth", "API key rotation"],
   action_items: [],
   technical_topics: ["OAuth", "API"],
@@ -40,7 +40,7 @@ const artifact1 = {
 
 const artifact2 = {
   summary: "Customer portal features for self-service account management",
-  decisions: ["Add SSO to customer portal"],
+  decisions: [{ text: "Add SSO to customer portal", decided_by: "" }],
   proposed_features: ["Single sign-on for customer portal", "Self-service password reset"],
   action_items: [],
   technical_topics: ["portal", "authentication"],
