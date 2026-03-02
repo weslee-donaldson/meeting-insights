@@ -6,6 +6,7 @@ export const CHANNELS = {
   SEARCH_MEETINGS: "search-meetings",
   DELETE_MEETINGS: "delete-meetings",
   RE_EXTRACT: "re-extract",
+  REASSIGN_CLIENT: "reassign-client",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -61,4 +62,5 @@ export interface ElectronAPI {
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;
   reExtract: (meetingId: string) => Promise<void>;
+  reassignClient: (meetingId: string, clientName: string) => Promise<void>;
 }

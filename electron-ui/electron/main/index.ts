@@ -11,6 +11,7 @@ import {
   handleSearchMeetings,
   handleDeleteMeetings,
   handleReExtract,
+  handleReassignClient,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
@@ -90,6 +91,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
   ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, ids));
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
+  ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
 
   createWindow();
 

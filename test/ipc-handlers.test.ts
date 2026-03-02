@@ -11,6 +11,7 @@ import {
   handleChat,
   handleDeleteMeetings,
   handleReExtract,
+  handleReassignClient,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -224,6 +225,15 @@ describe("IPC handlers", () => {
       const before = handleGetMeetings(db, {}).length;
       handleDeleteMeetings(db, []);
       expect(handleGetMeetings(db, {}).length).toBe(before);
+    });
+  });
+
+  describe("handleReassignClient", () => {
+    it("upserts client_detections so meeting.client updates to new client", () => {
+      handleReassignClient(db, meetingId2, "Acme");
+      const meetings = handleGetMeetings(db, {});
+      const m = meetings.find((r) => r.id === meetingId2)!;
+      expect(m.client).toBe("Acme");
     });
   });
 

@@ -59,6 +59,35 @@ describe("MeetingDetail", () => {
     );
   });
 
+  it("reassign client button opens picker with client options", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={null}
+        clients={["Acme", "Beta Co"]}
+        onReassignClient={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
+    expect(screen.getByRole("button", { name: "Acme" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Beta Co" })).toBeDefined();
+  });
+
+  it("selecting a client from picker calls onReassignClient", () => {
+    const onReassignClient = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={null}
+        clients={["Acme", "Beta Co"]}
+        onReassignClient={onReassignClient}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
+    fireEvent.click(screen.getByRole("button", { name: "Acme" }));
+    expect(onReassignClient).toHaveBeenCalledWith("Acme");
+  });
+
   it("re-extract button calls onReExtract when clicked", () => {
     const onReExtract = vi.fn();
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);

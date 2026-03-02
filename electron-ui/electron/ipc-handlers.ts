@@ -129,6 +129,13 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   storeArtifact(db, meetingId, artifact);
 }
 
+export function handleReassignClient(db: Database, meetingId: string, clientName: string): void {
+  db.prepare("DELETE FROM client_detections WHERE meeting_id = ?").run(meetingId);
+  db.prepare(
+    "INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, 1.0, 'manual')",
+  ).run(meetingId, clientName);
+}
+
 export function handleDeleteMeetings(db: Database, ids: string[]): void {
   if (ids.length === 0) return;
   const placeholders = ids.map(() => "?").join(",");

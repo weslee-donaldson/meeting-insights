@@ -14,6 +14,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #781 | 12:45 AM | 🔴 | Fixed handleReassignClient to prevent multiple client detections per meeting | ~367 |
 | #772 | 12:41 AM | 🟣 | Added meeting artifact re-extraction capability for regenerating analysis | ~417 |
 | #741 | 12:23 AM | 🟣 | Added attachment support to chat functionality for multimodal queries | ~380 |
 | #740 | " | ✅ | Extended ChatRequest interface to support image attachments | ~331 |

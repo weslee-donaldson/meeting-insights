@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard, RefreshCw } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen } from "lucide-react";
 import type { MeetingRow, Artifact } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
@@ -10,6 +10,8 @@ interface MeetingDetailProps {
   meeting: MeetingRow | null;
   artifact: Artifact | null;
   onReExtract?: () => void;
+  clients?: string[];
+  onReassignClient?: (clientName: string) => void;
 }
 
 interface SectionProps {
@@ -159,7 +161,8 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient }: MeetingDetailProps) {
+  const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
     const lines = [
@@ -194,7 +197,33 @@ export function MeetingDetail({ meeting, artifact, onReExtract }: MeetingDetailP
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="relative flex items-center gap-1 shrink-0">
+            {onReassignClient && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setClientPickerOpen((v) => !v)}
+                  aria-label="Reassign client"
+                  className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+                >
+                  <UserPen className="w-3 h-3" />
+                </Button>
+                {clientPickerOpen && (
+                  <div className="absolute right-0 top-full mt-1 z-50 bg-secondary border border-border rounded shadow-lg flex flex-col min-w-[120px]">
+                    {(clients ?? []).map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => { onReassignClient(c); setClientPickerOpen(false); }}
+                        className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground"
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
             {onReExtract && (
               <Button
                 variant="ghost"
