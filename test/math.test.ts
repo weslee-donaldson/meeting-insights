@@ -3,6 +3,9 @@ import {
   cosineSimilarity,
   l2ToCosineSim,
   isSemanticDuplicate,
+  normalizeItemText,
+  jaroWinklerSimilarity,
+  isStringDuplicate,
 } from "../core/math.js";
 
 describe("cosineSimilarity", () => {
@@ -64,5 +67,76 @@ describe("isSemanticDuplicate", () => {
     const l2 = Math.sqrt(2 * (1 - 0.8));
     expect(isSemanticDuplicate(l2, 0.9)).toBe(false);
     expect(isSemanticDuplicate(l2, 0.7)).toBe(true);
+  });
+});
+
+describe("normalizeItemText", () => {
+  it("lowercases and trims text", () => {
+    expect(normalizeItemText("  Deploy To PROD  ")).toBe("deploy to prod");
+  });
+
+  it("collapses multiple whitespace to single space", () => {
+    expect(normalizeItemText("deploy   to    prod")).toBe("deploy to prod");
+  });
+
+  it("strips punctuation", () => {
+    expect(normalizeItemText("Deploy to prod.")).toBe("deploy to prod");
+    expect(normalizeItemText("Deploy to prod!")).toBe("deploy to prod");
+  });
+
+  it("returns empty string for empty input", () => {
+    expect(normalizeItemText("")).toBe("");
+    expect(normalizeItemText("   ")).toBe("");
+  });
+});
+
+describe("jaroWinklerSimilarity", () => {
+  it("returns 1.0 for identical strings", () => {
+    expect(jaroWinklerSimilarity("deploy to prod", "deploy to prod")).toBeCloseTo(1.0);
+  });
+
+  it("returns 0.0 for completely different strings", () => {
+    expect(jaroWinklerSimilarity("abc", "xyz")).toBeCloseTo(0.0);
+  });
+
+  it("returns high similarity for near-identical strings", () => {
+    const sim = jaroWinklerSimilarity("deploy to production", "deploy to prod");
+    expect(sim).toBeGreaterThan(0.85);
+  });
+
+  it("returns low similarity for unrelated strings", () => {
+    const sim = jaroWinklerSimilarity("deploy to production", "review quarterly budget");
+    expect(sim).toBeLessThan(0.5);
+  });
+
+  it("handles empty strings", () => {
+    expect(jaroWinklerSimilarity("", "")).toBeCloseTo(1.0);
+    expect(jaroWinklerSimilarity("abc", "")).toBeCloseTo(0.0);
+    expect(jaroWinklerSimilarity("", "abc")).toBeCloseTo(0.0);
+  });
+
+  it("is case-sensitive (operates on raw input)", () => {
+    const lower = jaroWinklerSimilarity("deploy", "deploy");
+    const mixed = jaroWinklerSimilarity("deploy", "Deploy");
+    expect(lower).toBeGreaterThan(mixed);
+  });
+});
+
+describe("isStringDuplicate", () => {
+  it("returns true for exact match after normalization", () => {
+    expect(isStringDuplicate("Deploy to prod", "deploy to prod")).toBe(true);
+  });
+
+  it("returns true for near-identical strings", () => {
+    expect(isStringDuplicate("Deploy to production", "Deploy to prod")).toBe(true);
+  });
+
+  it("returns false for unrelated strings", () => {
+    expect(isStringDuplicate("Deploy to production", "Review quarterly budget")).toBe(false);
+  });
+
+  it("accepts a custom threshold", () => {
+    expect(isStringDuplicate("deploy app", "deploy application", 0.99)).toBe(false);
+    expect(isStringDuplicate("deploy app", "deploy application", 0.7)).toBe(true);
   });
 });
