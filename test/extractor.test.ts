@@ -159,6 +159,26 @@ describe("extraction prompt", () => {
     expect(prompt).toContain("requester");
     expect(prompt).toContain("decided_by");
   });
+
+  it("summary field requests 2-4 sentences for searchability", async () => {
+    const { readFileSync } = await import("node:fs");
+    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
+    expect(prompt).toContain("2-4 sentence");
+  });
+
+  it("architecture field describes system design insights", async () => {
+    const { readFileSync } = await import("node:fs");
+    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
+    expect(prompt).toContain("architecture");
+    expect(prompt).toContain("how systems are built");
+  });
+
+  it("risk_items field scoped to account-level concerns", async () => {
+    const { readFileSync } = await import("node:fs");
+    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
+    expect(prompt).toContain("Account-level");
+    expect(prompt).toContain("Do NOT include routine engineering");
+  });
 });
 
 describe("extractSummary with fallback adapter", () => {
