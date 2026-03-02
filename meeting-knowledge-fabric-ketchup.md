@@ -723,11 +723,11 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 - [ ] Burst 280: Migrate `LinearShell.tsx` — Tailwind flex layout; drag handles keep inline dynamic width; update tests
 - [ ] Burst 281: Migrate `MeetingDetail.tsx` — shadcn `Collapsible`, `ScrollArea`, `Button`, `Badge`; update tests
 - [ ] Burst 282: Migrate `Sidebar.tsx` + `TopBar.tsx` — Tailwind + shadcn `Button`, `Select`; update tests
-- [ ] Burst 283: `ChatPanel.tsx` — standalone 4th-column component; `react-markdown` + `remark-gfm` renders AI answers (headings, lists, bold, code, tables); context bar (N meetings · N chars); copy-to-clipboard per response; shadcn `ScrollArea`, `Button`; test: markdown renders h2/list/bold, submit calls onChat, copy button fires clipboard
+- [ ] Burst 283: `ChatPanel.tsx` — standalone 4th-column component; `react-markdown` + `remark-gfm` renders AI answers (headings, lists, bold, code, tables); context bar (N meetings · N chars); copy-to-clipboard per response; shadcn `ScrollArea`, `Button`; conversation history resets when `activeMeetingIds` changes; test: markdown renders h2/list/bold, submit calls onChat, copy button fires clipboard, history clears on meeting change
 - [ ] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — `chat` slot + `chatOpen` prop; resize handle; `chatOpen = activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update shell + app tests
 - [ ] Burst 285: Chat input — shadcn `Textarea` with paste-to-attach image support (`onPaste` reads `DataTransfer.files`); file picker button (`<input type="file" accept="image/*">`); attached images shown as thumbnails below textarea with remove button; test: pasting a file populates attachment list; test: clicking remove clears it
 - [ ] Burst 286: Chat IPC — extend `channels.ts` `ChatRequest` with `attachments: { name: string; base64: string; mimeType: string }[]`; update `handleChat` to include image content blocks in Anthropic messages API call (using vision); test: handler forwards attachment as image_url content block
-- [ ] Burst 287: Copy response as rich text — "Copy as Markdown" button copies raw markdown source (not rendered HTML); "Copy for Jira" button converts markdown to Jira wiki markup (bold, headers, bullets, code blocks); test: each format produces correct output for a fixture response
+- [ ] Burst 287: Copy response as rich text — two buttons per response: "Copy as Markdown" copies raw markdown source; "Copy for Jira" converts to Jira classic wiki markup (`*bold*`, `h2.`, `- bullet`, `{code}`) for Jira Server/Data Center/older Cloud; test: each format produces correct output for a fixture response containing heading, list, bold, and code block
 
 ### Bottle: Cross-Cutting Search
 
@@ -745,7 +745,7 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 
 - [ ] Burst 294: Delete selected meetings — danger button in TopBar when checked > 0; `window.api.deleteMeetings(ids)` IPC + handler cascades delete from `meetings`, `artifacts`, `client_detections`; test: handler removes correct rows
 - [ ] Burst 295: Re-extract artifact — icon button in `MeetingDetail` header; `window.api.reExtract(id)` IPC + handler calls `extractSummary` + `storeArtifact`; invalidates artifact query; test: handler stores updated artifact
-- [ ] Burst 296: Reassign meeting client — icon button in `MeetingDetail` header opens a modal/popover with client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler updates `client_detections`; meeting list refreshes; test: handler inserts/replaces detection row with new client
+- [ ] Burst 296: Reassign meeting client — icon button in `MeetingDetail` header opens a shadcn `Dialog` with a searchable client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler upserts `client_detections` row; meeting list refreshes; test: handler inserts/replaces detection row with new client
 - [ ] Burst 297: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results
 
 ### Bottle: Action Item Completion
@@ -754,7 +754,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 
 - [ ] Burst 298: DB schema for action item completions — new table `action_item_completions (id TEXT PK, meeting_id TEXT, item_index INTEGER, completed_at TEXT, note TEXT)`; migrate; test: insert + query round-trip
 - [ ] Burst 299: IPC handlers for completion — `handleCompleteActionItem(db, meetingId, itemIndex, note)` inserts/upserts completion row; `handleGetCompletions(db, meetingId)` returns all for meeting; add to `channels.ts`; test: complete → get returns record
-- [ ] Burst 300: Render completion state in `MeetingDetail` — action items rendered as checkboxes; completed items show checkmark + note tooltip; clicking checkbox calls `onComplete(meetingId, index)`; state loaded via `window.api.getCompletions`; test: checked item renders with completion indicator
+- [ ] Burst 300: Render completion state in `MeetingDetail` — action items rendered as checkboxes; clicking calls `onComplete(meetingId, index)`; completed items show checkmark + strikethrough + note tooltip; completions loaded via `window.api.getCompletions`; completed items collapse into a "N completed ▸" summary row at the bottom of the section, expandable on click; test: checked item renders with completion indicator, collapsed summary shows correct count, expand reveals completed items
 - [ ] Burst 301: Completion note dialog — clicking a completed item opens a shadcn `Dialog` (`@radix-ui/react-dialog`) with editable `Textarea` showing the stored note; Save calls `handleCompleteActionItem` with updated note; Cancel discards; test: note displays after save, cancel leaves note unchanged
 - [ ] Burst 302: Bulk complete action items — "Mark all complete" button in Action Items section header opens a shadcn `Dialog` with a shared note `Textarea`; Confirm saves a completion row for every item with the same note; test: bulk complete creates N completion rows
 
