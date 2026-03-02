@@ -1,6 +1,7 @@
 node_modules/
 dist/
 electron-ui/out/
+electron-ui/ui/out/
 db/
 models/
 logs/
