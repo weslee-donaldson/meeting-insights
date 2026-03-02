@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../src/db.js";
 import { seedClients } from "../src/client-registry.js";
-import { detectClient, storeDetection, normalizeTokens } from "../src/client-detection.js";
+import { detectClient, storeDetection, normalizeTokens, nameTokensFromParticipant, parseSpeakerNames } from "../src/client-detection.js";
 import { ingestMeeting } from "../src/ingest.js";
 import type { ParsedMeeting } from "../src/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -177,6 +177,120 @@ describe("meeting_names matching", () => {
     const results = detectClient(localDb, mid);
     const r = results.find((r) => r.client_name === "TestCo");
     expect(r).toEqual({ client_name: "TestCo", confidence: 0.95, method: "participant+meeting_name" });
+  });
+});
+
+describe("nameTokensFromParticipant", () => {
+  it("extracts name tokens from email local part", () => {
+    expect(nameTokensFromParticipant("ray.li@llsa.com")).toEqual(new Set(["ray", "li"]));
+  });
+
+  it("extracts name tokens from plain name entry", () => {
+    expect(nameTokensFromParticipant("Brian DeFeyter")).toEqual(new Set(["brian", "defeyter"]));
+  });
+
+  it("returns empty set for domain pattern entry", () => {
+    expect(nameTokensFromParticipant("@llsa.com")).toEqual(new Set());
+  });
+});
+
+describe("parseSpeakerNames", () => {
+  it("extracts unique speaker names from raw transcript lines", () => {
+    const raw = "Ray Li | 00:01\nHello\nRay Li | 01:00\nWorld\nJennifer K | 02:00\nHi";
+    expect(parseSpeakerNames(raw)).toEqual(["Ray Li", "Jennifer K"]);
+  });
+});
+
+describe("speaker name matching", () => {
+  it("detects client when speaker name matches known_participant email tokens (full name)", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-sp1-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      rawTranscript: "Attendance:\nTranscript:\nRay Li | 00:01\nHello world.",
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.find((r) => r.client_name === "TestCo")).toMatchObject({ confidence: 0.8, method: "speaker_name" });
+  });
+
+  it("detects client when speaker uses first name only (single token match)", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-sp2-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      rawTranscript: "Attendance:\nTranscript:\nRay | 00:01\nHello.",
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.some((r) => r.client_name === "TestCo")).toBe(true);
+  });
+
+  it("detects client via plain-name known_participant matched by speaker", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-sp3-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["Brian DeFeyter"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      rawTranscript: "Attendance:\nTranscript:\nBrian | 00:01\nHello.",
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.some((r) => r.client_name === "TestCo")).toBe(true);
+  });
+
+  it("does not match domain-pattern entry via speaker name", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-sp4-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["@testco.com"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      rawTranscript: "Attendance:\nTranscript:\nTestco | 00:01\nHello.",
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.find((r) => r.client_name === "TestCo")).toBeUndefined();
+  });
+
+  it("returns confidence 0.95 and method speaker_name+meeting_name when both signals present", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-sp5-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"], meeting_names: ["Weekly Sync"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      title: "Weekly Sync",
+      rawTranscript: "Attendance:\nTranscript:\nRay Li | 00:01\nHello.",
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.find((r) => r.client_name === "TestCo")).toMatchObject({ confidence: 0.95, method: "speaker_name+meeting_name" });
   });
 });
 

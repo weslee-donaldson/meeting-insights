@@ -22,6 +22,38 @@ function meetingNameMatches(meetingName: string, titleTokens: Set<string>): bool
   return nameTokens.size > 0 && [...nameTokens].every(t => titleTokens.has(t));
 }
 
+export function nameTokensFromParticipant(entry: string): Set<string> {
+  if (entry.startsWith("@")) return new Set();
+  const localPart = entry.includes("@") ? entry.split("@")[0] : entry;
+  return normalizeTokens(localPart);
+}
+
+export function parseSpeakerNames(rawTranscript: string): string[] {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const line of rawTranscript.split("\n")) {
+    const m = /^([^|]+)\|/.exec(line);
+    if (m) {
+      const name = m[1].trim();
+      if (name && !seen.has(name)) {
+        seen.add(name);
+        names.push(name);
+      }
+    }
+  }
+  return names;
+}
+
+function speakerMatchesParticipants(knownParticipants: string[], speakerNames: string[]): boolean {
+  const speakerTokenSets = speakerNames.map(n => normalizeTokens(n));
+  return knownParticipants
+    .filter(p => !p.startsWith("@"))
+    .some(p => {
+      const pTokens = nameTokensFromParticipant(p);
+      return pTokens.size > 0 && speakerTokenSets.some(st => [...pTokens].some(t => st.has(t)));
+    });
+}
+
 export function detectClient(db: Database, meetingId: string): DetectionResult[] {
   const meeting = getMeeting(db, meetingId);
   const clients = getAllClients(db);
@@ -29,16 +61,21 @@ export function detectClient(db: Database, meetingId: string): DetectionResult[]
   const title = meeting.title ?? "";
   const rawTranscript = meeting.raw_transcript ?? "";
 
+  const speakerNames = parseSpeakerNames(rawTranscript);
   const results: DetectionResult[] = [];
 
   for (const client of clients) {
     const aliases: string[] = JSON.parse(client.aliases);
-    const knownDomains: string[] = JSON.parse(client.known_participants);
+    const knownParticipants: string[] = JSON.parse(client.known_participants);
     const meetingNames: string[] = JSON.parse(client.meeting_names ?? "[]");
 
     const domainMatch = participants.some((p) =>
-      knownDomains.some((domain) => p.email.endsWith(domain)),
+      knownParticipants.some((domain) => p.email.endsWith(domain)),
     );
+    const speakerMatch = speakerMatchesParticipants(knownParticipants, speakerNames);
+    const hasParticipant = domainMatch || speakerMatch;
+    const participantMethod = speakerMatch && !domainMatch ? "speaker_name" : "participant";
+
     const aliasInTitle = aliases.some((a) => title.includes(a));
     const aliasInTranscript = aliases.some((a) => rawTranscript.includes(a));
     const aliasMatch = aliasInTitle || aliasInTranscript;
@@ -48,18 +85,18 @@ export function detectClient(db: Database, meetingId: string): DetectionResult[]
     let confidence = 0;
     let method = "";
 
-    if (domainMatch && aliasMatch && meetingNameMatch) {
+    if (hasParticipant && aliasMatch && meetingNameMatch) {
       confidence = 0.95;
-      method = "participant+alias+meeting_name";
-    } else if (domainMatch && aliasMatch) {
+      method = `${participantMethod}+alias+meeting_name`;
+    } else if (hasParticipant && aliasMatch) {
       confidence = 0.95;
-      method = "participant+alias";
-    } else if (domainMatch && meetingNameMatch) {
+      method = `${participantMethod}+alias`;
+    } else if (hasParticipant && meetingNameMatch) {
       confidence = 0.95;
-      method = "participant+meeting_name";
-    } else if (domainMatch) {
+      method = `${participantMethod}+meeting_name`;
+    } else if (hasParticipant) {
       confidence = 0.8;
-      method = "participant";
+      method = participantMethod;
     } else if (meetingNameMatch && aliasMatch) {
       confidence = 0.7;
       method = "meeting_name+alias";
