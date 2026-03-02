@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
 import { describe, afterEach, it, expect } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { LinearShell } from "../../electron-ui/ui/src/components/LinearShell.js";
 
 afterEach(cleanup);
@@ -48,5 +48,78 @@ describe("LinearShell", () => {
     );
     const detailPanel = screen.getByTestId("detail-panel");
     expect(detailPanel.style.width).toBe("480px");
+  });
+
+  it("sidebar resize handle is rendered", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={false}
+      />,
+    );
+    expect(screen.getByTestId("sidebar-resize-handle")).toBeDefined();
+  });
+
+  it("dragging sidebar handle rightward increases sidebar width", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={false}
+      />,
+    );
+    const handle = screen.getByTestId("sidebar-resize-handle");
+    fireEvent.mouseDown(handle, { clientX: 240 });
+    fireEvent.mouseMove(document, { clientX: 300 });
+    const sidebarPanel = screen.getByTestId("sidebar-panel");
+    expect(parseInt(sidebarPanel.style.width)).toBeGreaterThan(240);
+  });
+
+  it("detail resize handle is absent when detailOpen is false", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={false}
+      />,
+    );
+    expect(screen.queryByTestId("detail-resize-handle")).toBeNull();
+  });
+
+  it("detail resize handle is present when detailOpen is true", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={true}
+      />,
+    );
+    expect(screen.getByTestId("detail-resize-handle")).toBeDefined();
+  });
+
+  it("dragging detail handle leftward increases detail width", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={true}
+      />,
+    );
+    const handle = screen.getByTestId("detail-resize-handle");
+    fireEvent.mouseDown(handle, { clientX: 480 });
+    fireEvent.mouseMove(document, { clientX: 420 });
+    const detailPanel = screen.getByTestId("detail-panel");
+    expect(parseInt(detailPanel.style.width)).toBeGreaterThan(480);
   });
 });
