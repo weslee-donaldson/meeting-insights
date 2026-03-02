@@ -155,7 +155,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
             aria-label="Filter decisions by person"
             className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
           >
-            <option value="">All</option>
+            <option value="">Person: All</option>
             {decisionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         ) : undefined}
@@ -176,7 +176,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
                 aria-label="Filter action items by person"
                 className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
               >
-                <option value="">All</option>
+                <option value="">Person: All</option>
                 {actionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             )}
