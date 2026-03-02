@@ -971,3 +971,15 @@ Committed as `chore(scope): description`:
 - `models/` directory with ONNX model binary (gitignored, fetched via setup script)
 - `data/clients/clients.json` initial client registry
 - Test fixture files mimicking Krisp export format in `test/fixtures/`
+
+---
+
+# POSSIBLE ENHANCEMENTS
+
+- **Semantic item deduplication**: Embed each artifact item at extraction time, compare against existing items via cosine similarity + Jaro-Winkler string distance. Auto-complete duplicate action items with dedup notes. Track `first_mentioned` timestamp and `mention_count` per canonical item. Show mention badges in the UI with scrollable history dialog. Enrich LLM chat context with `[raised Nx, first mentioned DATE]` annotations. (Plan: `.claude/plans/nested-wishing-galaxy.md`, Bursts 340–367)
+- **Multi-meeting artifact aggregation**: Select multiple meetings and view merged/deduplicated artifacts in the detail panel. String-level normalization for obvious duplicates, semantic matching for paraphrased items.
+- **Trend detection across meetings**: Identify topics/items that recur over time windows. Surface trending action items that haven't been resolved.
+- **Meeting health scoring**: Score meetings on coverage (decisions made, action items assigned, questions resolved) to highlight unproductive patterns.
+- **Automated follow-up reminders**: Track incomplete action items across meetings and surface reminders when the same participants meet again.
+- **Speaker analytics**: Attribution heatmaps showing who drives decisions, raises concerns, or generates the most action items.
+- **Custom extraction refinement per client**: Client-specific extraction prompts that adapt to domain terminology and meeting formats.
