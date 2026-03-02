@@ -621,6 +621,24 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 250: `api/` stub — create `api/server.ts` with placeholder comment for Bottle 10 (commit: `9a75083`)
 - [x] Burst 251: Update project structure in ketchup plan + MEMORY.md [depends: 247–250]
 
+### Bottle: HTTP API (Hono)
+
+- [ ] Burst 252: Hono skeleton + `GET /api/debug` — install `hono` + `@hono/node-server`; `api/server.ts` exports `app` (Hono instance) + `startServer(port)`; `/api/debug` returns `{db_path, client_count, meeting_count}`; test: `app.request("/api/debug")` asserts shape
+- [ ] Burst 253: `GET /api/clients` + `GET /api/meetings` — reuse `handleGetClients`/`handleGetMeetings` from `electron-ui/electron/ipc-handlers.ts`; parse `?client=&after=&before=` query params; test: seed DB, assert client list and filtered meeting list
+- [ ] Burst 254: `GET /api/meetings/:id/artifact` + `POST /api/chat` — reuse `handleGetArtifact`/`handleChat`; stub LLM; 404 when artifact missing; test: valid id returns Artifact shape, unknown id → 404, chat returns answer/sources
+- [ ] Burst 255: `GET /api/search` — reuse `handleSearchMeetings`; lazy-load embedder + vector DB; guard: 400 if query < 2 chars; test: mock `searchMeetings`, assert route calls it with correct params + 400 on short query [depends: 252]
+- [ ] Burst 256: `api:dev` script (chore) — `"api:dev": "tsx api/server.ts"` in `package.json`; `isMain` guard calls `startServer(PORT ?? 3000)` [depends: 255]
+
+### Bottle: Linear UI Redesign
+
+- [ ] Burst 257: `Sidebar` component — replaces `ClientsColumn`; props: `{clients, selected, onSelect}`; fixed 240px, indigo dot indicator; test: renders list, click fires onSelect, selected has aria-selected
+- [ ] Burst 258: `TopBar` component — replaces `ScopeBar`; same scope props (client dropdown, date range, reset, theme toggle) + SearchBar inline; test: date change, reset, theme cycle
+- [ ] Burst 259: `MeetingList` component — replaces `MeetingsColumn`; adds `selectedId`/`onSelect` (single-click → detail) alongside existing `checked`/`onCheck`/`onCheckGroup` (multi-select); series grouping preserved; test: series grouping, row click fires onSelect, checkbox fires onCheck
+- [ ] Burst 260: `MeetingDetail` component — combines `ContextViewColumn` + `ChatColumn`; props: `{meeting, artifact, chatContext: {meetingIds, charCount}, onChat}`; artifact sections at top (collapsible), chat at bottom; null meeting → placeholder; test: renders artifact sections, chat submit, placeholder
+- [ ] Burst 261: `LinearShell` layout — replaces `AppLayout`; props: `{topBar, sidebar, main, detail, detailOpen}`; flex column layout, 240px fixed sidebar, flex-1 main, 480px detail panel (CSS transition); no react-resizable-panels; test: all zones render, detail hidden when detailOpen=false
+- [ ] Burst 262: App.tsx rewrite + delete old components — add `selectedMeetingId` state; wire new components; `activeMeetingIds` = checked set or [selectedMeetingId]; delete 6 old components + 6 old test files; update app.test.tsx [depends: 257–261]
+- [ ] Burst 263: Design tokens (chore) — update `index.css` + `theme.ts` with indigo accent `#6366f1` across all 3 themes [depends: 262]
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
