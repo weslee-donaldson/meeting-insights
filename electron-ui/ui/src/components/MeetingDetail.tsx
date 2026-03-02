@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useCallback } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard } from "lucide-react";
 import type { MeetingRow, Artifact } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
+import { Button } from "./ui/button.js";
 import { cn } from "../lib/utils.js";
 
 interface MeetingDetailProps {
@@ -130,6 +131,19 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
 }
 
 export function MeetingDetail({ meeting, artifact }: MeetingDetailProps) {
+  const copySummary = useCallback(() => {
+    if (!meeting || !artifact) return;
+    const lines = [
+      `# ${meeting.title}`,
+      `Date: ${meeting.date.slice(0, 10)}`,
+      "",
+      "## Summary",
+      artifact.summary,
+      ...(artifact.decisions.length > 0 ? ["", "## Decisions", ...artifact.decisions.map((d) => `- ${d}`)] : []),
+    ];
+    navigator.clipboard.writeText(lines.join("\n")).catch(() => {});
+  }, [meeting, artifact]);
+
   if (!meeting) {
     return (
       <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
@@ -141,12 +155,28 @@ export function MeetingDetail({ meeting, artifact }: MeetingDetailProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="p-4 border-b border-border shrink-0">
-        <div className="font-bold text-base text-foreground leading-[1.3]">
-          {meeting.title}
-        </div>
-        <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
-          <span>{meeting.date.slice(0, 10)}</span>
-          {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
+        <div className="flex items-start gap-2">
+          <div className="flex-1">
+            <div className="font-bold text-base text-foreground leading-[1.3]">
+              {meeting.title}
+            </div>
+            <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
+              <span>{meeting.date.slice(0, 10)}</span>
+              {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
+            </div>
+          </div>
+          {artifact && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={copySummary}
+              aria-label="Copy summary"
+              className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+            >
+              <Clipboard className="w-3 h-3" />
+              Copy summary
+            </Button>
+          )}
         </div>
       </div>
 

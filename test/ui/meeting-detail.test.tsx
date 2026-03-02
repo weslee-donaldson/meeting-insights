@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
-import { describe, afterEach, it, expect } from "vitest";
-import { render, cleanup, screen } from "@testing-library/react";
+import { describe, afterEach, it, expect, vi } from "vitest";
+import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
 import type { MeetingRow, Artifact } from "../../electron-ui/electron/channels.js";
 
@@ -47,5 +47,15 @@ describe("MeetingDetail", () => {
   it("renders summary content visible by default when artifact is set", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
+  });
+
+  it("copy summary button writes title + date + summary + decisions as markdown to clipboard", () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Copy summary" }));
+    expect(writeText).toHaveBeenCalledWith(
+      "# Alpha Meeting\nDate: 2026-02-25\n\n## Summary\nWe discussed the roadmap.\n\n## Decisions\n- Ship by March",
+    );
   });
 });
