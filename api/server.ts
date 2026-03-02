@@ -143,20 +143,40 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isMain) {
+  process.loadEnvFile?.(".env.local");
+
   const { createDb, migrate } = await import("../core/db.js");
   const { createLlmAdapter } = await import("../core/llm-adapter.js");
+  const { connectVectorDb } = await import("../core/vector-db.js");
+  const { loadModel } = await import("../core/embedder.js");
 
   const APP_ROOT = resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd());
   const DB_PATH = process.env.MTNINSIGHTS_DB_PATH
     ? resolve(process.env.MTNINSIGHTS_DB_PATH)
     : join(APP_ROOT, "db/mtninsights.db");
+  const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH
+    ? resolve(process.env.MTNINSIGHTS_VECTOR_PATH)
+    : join(APP_ROOT, "db/lancedb");
   const PORT = Number(process.env.PORT ?? 3000);
 
   const db = createDb(DB_PATH);
   migrate(db);
   const llm = createLlmAdapter({ type: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
-  const app = createApp(db, DB_PATH, llm);
 
+  let searchDeps: SearchDeps | undefined;
+  try {
+    const vdb = await connectVectorDb(VECTOR_PATH);
+    const session = await loadModel(
+      join(APP_ROOT, "models/all-MiniLM-L6-v2.onnx"),
+      join(APP_ROOT, "models/tokenizer.json"),
+    );
+    searchDeps = { vdb, session };
+    console.log("[api] Search deps loaded");
+  } catch (err) {
+    console.warn("[api] Search unavailable:", (err as Error).message);
+  }
+
+  const app = createApp(db, DB_PATH, llm, searchDeps);
   serve({ fetch: app.fetch, port: PORT });
   console.log(`[api] Listening on http://localhost:${PORT}`);
 }
