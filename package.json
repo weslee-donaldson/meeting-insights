@@ -10,6 +10,7 @@
     "clear": "tsx scripts/reset.ts",
     "query": "tsx scripts/query.ts",
     "eval": "tsx scripts/eval.ts",
+    "assign-client": "tsx scripts/assign-client.ts",
     "ui:dev": "electron-vite dev",
     "ui:build": "electron-vite build"
   },
