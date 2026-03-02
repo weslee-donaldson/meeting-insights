@@ -199,6 +199,29 @@ describe("MeetingDetail", () => {
     expect(onComplete).not.toHaveBeenCalled();
   });
 
+  it("action items header shows count text and progress bar", () => {
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Task A", owner: null, due_date: null },
+            { description: "Task B", owner: null, due_date: null },
+            { description: "Task C", owner: null, due_date: null },
+          ],
+        })}
+        completions={completions}
+        onComplete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("1 / 3")).toBeDefined();
+    const progress = screen.getByRole("progressbar");
+    expect(progress.style.width).toBe("33%");
+  });
+
   it("Mark all complete button calls onComplete for each active item with shared note", () => {
     const onComplete = vi.fn();
     render(

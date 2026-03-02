@@ -123,7 +123,21 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         isEmpty={artifact.action_items.length === 0}
         defaultOpen={true}
         headerExtra={
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            {artifact.action_items.length > 0 && (
+              <>
+                <span className="text-[0.7rem] text-muted-foreground shrink-0">
+                  {completedSet.size} / {artifact.action_items.length}
+                </span>
+                <div className="w-12 h-1.5 rounded-full bg-muted shrink-0 overflow-hidden">
+                  <div
+                    role="progressbar"
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${Math.round((completedSet.size / artifact.action_items.length) * 100)}%` }}
+                  />
+                </div>
+              </>
+            )}
             {onComplete && activeCount > 0 && (
               <Button
                 variant="ghost"
