@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createDb, migrate } from "../src/db.js";
-import { ingestMeeting } from "../src/ingest.js";
-import { storeArtifact } from "../src/extractor.js";
-import { buildLabeledContext } from "../src/labeled-context.js";
+import { createDb, migrate } from "../core/db.js";
+import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/extractor.js";
+import { buildLabeledContext } from "../core/labeled-context.js";
 
 function makeArtifact() {
   return {

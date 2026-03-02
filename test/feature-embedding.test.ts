@@ -2,12 +2,12 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createDb, migrate } from "../src/db.js";
-import { ingestMeeting } from "../src/ingest.js";
-import { storeArtifact } from "../src/extractor.js";
-import { connectVectorDb, createFeatureTable } from "../src/vector-db.js";
-import { loadModel } from "../src/embedder.js";
-import { embedFeature, storeFeatureVector, searchFeatures } from "../src/feature-embedding.js";
+import { createDb, migrate } from "../core/db.js";
+import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/extractor.js";
+import { connectVectorDb, createFeatureTable } from "../core/vector-db.js";
+import { loadModel } from "../core/embedder.js";
+import { embedFeature, storeFeatureVector, searchFeatures } from "../core/feature-embedding.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

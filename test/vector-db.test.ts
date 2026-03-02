@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { connectVectorDb, createMeetingTable, createFeatureTable } from "../src/vector-db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable } from "../core/vector-db.js";
 
 let dbPath: string;
 let db: Awaited<ReturnType<typeof connectVectorDb>>;

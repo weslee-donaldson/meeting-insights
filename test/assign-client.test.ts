@@ -2,11 +2,11 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createDb, migrate } from "../src/db.js";
-import { seedClients } from "../src/client-registry.js";
-import { ingestMeeting } from "../src/ingest.js";
+import { createDb, migrate } from "../core/db.js";
+import { seedClients } from "../core/client-registry.js";
+import { ingestMeeting } from "../core/ingest.js";
 import { assignClient } from "../scripts/assign-client.js";
-import type { ParsedMeeting } from "../src/parser.js";
+import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

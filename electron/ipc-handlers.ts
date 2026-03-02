@@ -1,11 +1,11 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getArtifact } from "../src/extractor.js";
-import type { Artifact } from "../src/extractor.js";
-import { buildLabeledContext } from "../src/labeled-context.js";
-import { parseCitations } from "../src/display-helpers.js";
-import type { LlmAdapter } from "../src/llm-adapter.js";
-import { searchMeetings } from "../src/vector-search.js";
-import type { VectorDb } from "../src/vector-db.js";
+import { getArtifact } from "../core/extractor.js";
+import type { Artifact } from "../core/extractor.js";
+import { buildLabeledContext } from "../core/labeled-context.js";
+import { parseCitations } from "../core/display-helpers.js";
+import type { LlmAdapter } from "../core/llm-adapter.js";
+import { searchMeetings } from "../core/vector-search.js";
+import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow } from "./channels.js";
 

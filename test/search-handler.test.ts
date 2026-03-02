@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import type { SearchResultRow } from "../electron/channels.js";
-import type { VectorDb } from "../src/vector-db.js";
+import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
 const fakeResults: SearchResultRow[] = [
@@ -9,7 +9,7 @@ const fakeResults: SearchResultRow[] = [
 
 const searchMeetingsMock = vi.fn().mockResolvedValue(fakeResults);
 
-vi.mock("../src/vector-search.js", () => ({
+vi.mock("../core/vector-search.js", () => ({
   searchMeetings: searchMeetingsMock,
 }));
 

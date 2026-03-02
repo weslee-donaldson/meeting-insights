@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { chunkTranscript } from "../src/chunker.js";
-import type { SpeakerTurn } from "../src/parser.js";
+import { chunkTranscript } from "../core/chunker.js";
+import type { SpeakerTurn } from "../core/parser.js";
 
 function makeTurns(count: number, wordsEach: number): SpeakerTurn[] {
   return Array.from({ length: count }, (_, i) => ({

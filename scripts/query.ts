@@ -1,11 +1,11 @@
-import { createDb } from "../src/db.js";
-import { connectVectorDb } from "../src/vector-db.js";
-import { loadModel } from "../src/embedder.js";
-import { searchMeetings } from "../src/vector-search.js";
-import { getMeeting } from "../src/ingest.js";
-import { getArtifact } from "../src/extractor.js";
-import { renderNotesGroups, parseCitations } from "../src/display-helpers.js";
-import { createLlmAdapter } from "../src/llm-adapter.js";
+import { createDb } from "../core/db.js";
+import { connectVectorDb } from "../core/vector-db.js";
+import { loadModel } from "../core/embedder.js";
+import { searchMeetings } from "../core/vector-search.js";
+import { getMeeting } from "../core/ingest.js";
+import { getArtifact } from "../core/extractor.js";
+import { renderNotesGroups, parseCitations } from "../core/display-helpers.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 process.loadEnvFile?.(".env.local");

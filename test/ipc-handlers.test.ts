@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createDb, migrate } from "../src/db.js";
-import { ingestMeeting } from "../src/ingest.js";
-import { storeArtifact } from "../src/extractor.js";
-import { storeDetection } from "../src/client-detection.js";
-import { createLlmAdapter } from "../src/llm-adapter.js";
+import { createDb, migrate } from "../core/db.js";
+import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/extractor.js";
+import { storeDetection } from "../core/client-detection.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
 import {
   handleGetClients,
   handleGetMeetings,

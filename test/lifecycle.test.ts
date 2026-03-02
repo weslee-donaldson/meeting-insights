@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { rmSync } from "node:fs";
-import { moveToProcessed, moveToFailed, processDirectory } from "../src/lifecycle.js";
+import { moveToProcessed, moveToFailed, processDirectory } from "../core/lifecycle.js";
 
 let tmpDir: string;
 let rawDir: string;

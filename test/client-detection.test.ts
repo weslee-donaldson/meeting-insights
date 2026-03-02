@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createDb, migrate } from "../src/db.js";
-import { seedClients } from "../src/client-registry.js";
-import { detectClient, storeDetection, normalizeTokens, nameTokensFromParticipant, parseSpeakerNames } from "../src/client-detection.js";
-import { ingestMeeting } from "../src/ingest.js";
-import type { ParsedMeeting } from "../src/parser.js";
+import { createDb, migrate } from "../core/db.js";
+import { seedClients } from "../core/client-registry.js";
+import { detectClient, storeDetection, normalizeTokens, nameTokensFromParticipant, parseSpeakerNames } from "../core/client-detection.js";
+import { ingestMeeting } from "../core/ingest.js";
+import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

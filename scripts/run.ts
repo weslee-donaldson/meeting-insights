@@ -1,10 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import { createDb, migrate } from "../src/db.js";
-import { connectVectorDb } from "../src/vector-db.js";
-import { loadModel } from "../src/embedder.js";
-import { createLlmAdapter } from "../src/llm-adapter.js";
-import { seedClients } from "../src/client-registry.js";
-import { processNewMeetings, type PipelineEvent } from "../src/pipeline.js";
+import { createDb, migrate } from "../core/db.js";
+import { connectVectorDb } from "../core/vector-db.js";
+import { loadModel } from "../core/embedder.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
+import { seedClients } from "../core/client-registry.js";
+import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
 
 process.loadEnvFile?.(".env.local");
 

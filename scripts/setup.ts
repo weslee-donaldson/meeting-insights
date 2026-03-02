@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
-import { createDb, migrate } from "../src/db.js";
-import { connectVectorDb, createMeetingTable, createFeatureTable } from "../src/vector-db.js";
-import { seedClients, getAllClients } from "../src/client-registry.js";
+import { createDb, migrate } from "../core/db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable } from "../core/vector-db.js";
+import { seedClients, getAllClients } from "../core/client-registry.js";
 
 process.loadEnvFile?.(".env.local");
 

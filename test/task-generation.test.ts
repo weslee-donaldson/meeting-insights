@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { createLlmAdapter } from "../src/llm-adapter.js";
-import { generateTask } from "../src/task-generation.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
+import { generateTask } from "../core/task-generation.js";
 
 const curatedContext = "API design patterns and OAuth authentication were discussed. Team agreed to implement OAuth2 with bearer tokens.";
 const sourceIds = ["meeting-abc", "meeting-def"];

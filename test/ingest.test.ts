@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createDb, migrate } from "../src/db.js";
-import { ingestMeeting, getMeeting } from "../src/ingest.js";
-import type { ParsedMeeting } from "../src/parser.js";
+import { createDb, migrate } from "../core/db.js";
+import { ingestMeeting, getMeeting } from "../core/ingest.js";
+import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

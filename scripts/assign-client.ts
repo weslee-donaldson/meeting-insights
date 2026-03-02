@@ -29,7 +29,7 @@ export function assignClient(db: Database, identifier: string, clientName: strin
 const isMain = process.argv[1]?.endsWith("assign-client.ts") || process.argv[1]?.endsWith("assign-client.js");
 if (isMain) {
   process.loadEnvFile?.(".env.local");
-  const { createDb, migrate } = await import("../src/db.js");
+  const { createDb, migrate } = await import("../core/db.js");
   const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
   const [identifier, clientName] = process.argv.slice(2);
   if (!identifier || !clientName) {

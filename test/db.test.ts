@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createDb, migrate } from "../src/db.js";
-import type { Database } from "../src/db.js";
+import { createDb, migrate } from "../core/db.js";
+import type { Database } from "../core/db.js";
 
 let db: Database;
 

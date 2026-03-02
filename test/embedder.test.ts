@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { loadModel, embed } from "../src/embedder.js";
+import { loadModel, embed } from "../core/embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 
 let session: InferenceSession;

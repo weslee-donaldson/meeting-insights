@@ -2,8 +2,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createDb, migrate } from "../src/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients } from "../src/client-registry.js";
+import { createDb, migrate } from "../core/db.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
