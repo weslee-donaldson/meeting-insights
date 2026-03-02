@@ -13,6 +13,7 @@ export interface ImageAttachment {
 
 export interface LlmAdapter {
   complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]): Promise<Record<string, unknown>>;
+  converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>): Promise<string>;
 }
 
 const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
@@ -91,6 +92,9 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
         logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, Date.now() - start);
         return result;
       },
+      async converse(_system: string, _messages: Array<{ role: "user" | "assistant"; content: string }>) {
+        return STUB_FIXTURES.synthesize_answer.answer as string;
+      },
     };
   }
 
@@ -119,6 +123,23 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
     return {
       async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
         return withRepair((c) => localCall(capability, c, attachments), content);
+      },
+      async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>) {
+        const start = Date.now();
+        const allMessages = [
+          { role: "system" as const, content: system },
+          ...messages,
+        ];
+        const res = await fetch(`${baseUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model, messages: allMessages, stream: false }),
+        });
+        if (res.status >= 500) throw new Error(`[api_error] Ollama server error (${res.status})`);
+        const json = await res.json() as { message?: { content?: string } };
+        const text = json.message?.content ?? "";
+        logLlm("provider=local converse model=%s latency_ms=%d tokens=%d", model, Date.now() - start, text.length);
+        return text;
       },
     };
   }
@@ -163,6 +184,18 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   return {
     async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
       return withRepair((c) => anthropicCall(capability, c, attachments), content);
+    },
+    async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>) {
+      const start = Date.now();
+      const message = await client.messages.create({
+        model,
+        max_tokens: 4096,
+        system,
+        messages,
+      });
+      const text = message.content[0].type === "text" ? message.content[0].text : "";
+      logLlm("provider=anthropic converse model=%s latency_ms=%d tokens=%d", model, Date.now() - start, message.usage.output_tokens);
+      return text;
     },
   };
 }

@@ -45,6 +45,14 @@ describe("createLlmAdapter (stub)", () => {
     expect(typeof result.answer).toBe("string");
     expect((result.answer as string).length).toBeGreaterThan(0);
   });
+
+  it("stub converse returns fixture answer for conversation messages", async () => {
+    const adapter = createLlmAdapter({ type: "stub" });
+    const result = await adapter.converse("system prompt", [
+      { role: "user", content: "hello" },
+    ]);
+    expect(result).toBe("Stub answer based on meeting context.");
+  });
 });
 
 describe("createLlmAdapter (local)", () => {
