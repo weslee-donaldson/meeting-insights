@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "../lib/utils.js";
 
 interface SidebarProps {
   clients: string[];
@@ -8,37 +9,19 @@ interface SidebarProps {
 
 export function Sidebar({ clients, selected, onSelect }: SidebarProps) {
   return (
-    <div
-      style={{
-        width: "240px",
-        height: "100%",
-        background: "var(--color-bg-panel)",
-        flexShrink: 0,
-      }}
-    >
-      <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
+    <div className="w-full h-full bg-card shrink-0">
+      <ul className="list-none m-0 py-1">
         {clients.map((name) => (
           <li key={name}>
             <button
               onClick={() => onSelect(name)}
               aria-selected={selected === name}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: "8px 12px",
-                border: "none",
-                borderLeft: selected === name
-                  ? "4px solid var(--color-accent)"
-                  : "4px solid transparent",
-                background: selected === name
-                  ? "var(--color-bg-elevated)"
-                  : "transparent",
-                color: selected === name
-                  ? "var(--color-text-primary)"
-                  : "var(--color-text-secondary)",
-                cursor: "pointer",
-                fontSize: "0.875rem",
-              }}
+              className={cn(
+                "w-full text-left py-2 px-3 border-0 border-l-4 cursor-pointer text-sm",
+                selected === name
+                  ? "border-l-primary bg-secondary text-foreground"
+                  : "border-l-transparent bg-transparent text-secondary-foreground",
+              )}
             >
               {name}
             </button>

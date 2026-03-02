@@ -14,4 +14,10 @@
 | #656 | 11:04 PM | 🔄 | Refined meeting date display logic for different grouping modes | ~332 |
 | #647 | 11:00 PM | 🟣 | Added meeting grouping mode selector with Series/Day/Week/Month options | ~390 |
 | #638 | 10:53 PM | 🔵 | Meeting Intelligence Explorer UI built with React, Radix UI, and inline chat interface | ~483 |
+
+### Mar 2, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #720 | 12:09 AM | 🔄 | Migrated MeetingDetail to Tailwind classes and shadcn components | ~532 |
 </claude-mem-context>
