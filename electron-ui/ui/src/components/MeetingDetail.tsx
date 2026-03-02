@@ -192,6 +192,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
                     <span className="leading-[1.5]">{a.description}</span>
                   )}
                   {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
+                  {a.requester && <Badge variant="outline">{a.requester}</Badge>}
                   {a.due_date && <Badge variant="muted">{a.due_date}</Badge>}
                 </div>
               </li>

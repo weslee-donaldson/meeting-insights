@@ -272,6 +272,31 @@ describe("MeetingDetail", () => {
     expect(screen.getByTestId("artifact-skeleton")).toBeDefined();
   });
 
+  it("renders requester badge on action items when requester is present", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [{ description: "Draft spec", owner: "Alice", requester: "Bob", due_date: null }],
+        })}
+      />,
+    );
+    expect(screen.getByText("Bob")).toBeDefined();
+  });
+
+  it("renders decided_by in decisions text when decided_by is present", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          decisions: [{ text: "Use TypeScript", decided_by: "CTO" }],
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByText("Decisions"));
+    expect(screen.getByText("Use TypeScript (CTO)")).toBeDefined();
+  });
+
   it("section content has left padding for visual hierarchy", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     const summaryText = screen.getByText("We discussed the roadmap.");
