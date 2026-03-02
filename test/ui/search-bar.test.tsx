@@ -64,6 +64,19 @@ describe("SearchBar", () => {
     expect(screen.getByText("DSU")).toBeDefined();
   });
 
+  it("renders search unavailable chip when search API errors", async () => {
+    (window as unknown as Record<string, unknown>).api = {
+      search: vi.fn().mockRejectedValue(new Error("503")),
+    };
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <ControlledWrapper onSelectResults={vi.fn()} />
+      </QueryClientProvider>,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
+    await waitFor(() => expect(screen.getByText("Search unavailable")).toBeDefined(), { timeout: 2000 });
+  });
+
   it("calls onSelectResults with the clicked result", async () => {
     const onSelectResults = vi.fn();
     (window as unknown as Record<string, unknown>).api = {

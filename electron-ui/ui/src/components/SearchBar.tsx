@@ -12,7 +12,7 @@ interface Props {
 
 export function SearchBar({ query, onQueryChange, client, onSelectResults }: Props) {
   const [open, setOpen] = useState(false);
-  const { data: results } = useSearch(query, client);
+  const { data: results, isError } = useSearch(query, client);
 
   return (
     <div className="relative">
@@ -33,7 +33,15 @@ export function SearchBar({ query, onQueryChange, client, onSelectResults }: Pro
           aria-label="Search meetings"
         />
       </div>
-      {open && results && results.length > 0 && (
+      {isError && (
+        <span
+          className="absolute top-full mt-1 left-0 text-xs px-2 py-0.5 rounded"
+          style={{ background: "var(--color-bg-elevated)", color: "var(--color-danger)", border: "1px solid var(--color-border)" }}
+        >
+          Search unavailable
+        </span>
+      )}
+      {!isError && open && results && results.length > 0 && (
         <ul
           className="absolute top-full mt-1 left-0 z-50 w-80 rounded shadow-xl overflow-hidden"
           style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border)" }}
