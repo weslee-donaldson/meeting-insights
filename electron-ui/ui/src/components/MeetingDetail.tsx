@@ -67,7 +67,7 @@ function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; i
   );
 }
 
-function NoteDialogBody({ initialNote, onSave, onCancel }: { initialNote: string; onSave: (note: string) => void; onCancel: () => void }) {
+function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: { initialNote: string; onSave: (note: string) => void; onCancel: () => void; saveLabel?: string }) {
   const [note, setNote] = useState(initialNote);
   return (
     <>
@@ -80,7 +80,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel }: { initialNote: string
       />
       <div className="flex gap-2 justify-end">
         <Button variant="ghost" size="sm" onClick={onCancel} aria-label="Cancel">Cancel</Button>
-        <Button size="sm" onClick={() => onSave(note)} aria-label="Save">Save</Button>
+        <Button size="sm" onClick={() => onSave(note)} aria-label={saveLabel}>{saveLabel}</Button>
       </div>
     </>
   );
@@ -89,6 +89,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel }: { initialNote: string
 function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void }) {
   const [completedExpanded, setCompletedExpanded] = useState(false);
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
+  const [bulkDialog, setBulkDialog] = useState(false);
 
   const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
 
@@ -127,15 +128,28 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         isEmpty={artifact.action_items.length === 0}
         defaultOpen={true}
         headerExtra={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={copyActionItems}
-            aria-label="Copy action items"
-            className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
-          >
-            <Clipboard className="w-3 h-3" />
-          </Button>
+          <div className="flex items-center">
+            {onComplete && activeWithIndex.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setBulkDialog(true)}
+                aria-label="Mark all complete"
+                className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+              >
+                Mark all
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={copyActionItems}
+              aria-label="Copy action items"
+              className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+            >
+              <Clipboard className="w-3 h-3" />
+            </Button>
+          </div>
         }
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-2">
@@ -203,6 +217,18 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
               onCancel={() => setNoteDialog(null)}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkDialog} onOpenChange={(open) => { if (!open) setBulkDialog(false); }}>
+        <DialogContent aria-describedby={undefined}>
+          <DialogTitle>Mark all complete</DialogTitle>
+          <NoteDialogBody
+            initialNote=""
+            onSave={(note) => { activeWithIndex.forEach((a) => onComplete?.(a.index, note)); setBulkDialog(false); }}
+            onCancel={() => setBulkDialog(false)}
+            saveLabel="Confirm"
+          />
         </DialogContent>
       </Dialog>
 

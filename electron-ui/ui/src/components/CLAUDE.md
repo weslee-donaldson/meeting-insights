@@ -19,6 +19,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #815 | 1:04 AM | 🟣 | Added bulk action item completion with optional shared note | ~402 |
 | #812 | 1:01 AM | 🔄 | Updated action item completion call to include note parameter | ~332 |
 | #777 | 12:43 AM | 🟣 | Added re-extract button to MeetingDetail header for triggering artifact regeneration | ~427 |
 | #734 | 12:19 AM | 🟣 | Added image attachment support to ChatPanel component | ~414 |

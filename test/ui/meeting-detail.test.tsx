@@ -220,6 +220,30 @@ describe("MeetingDetail", () => {
     expect(onComplete).not.toHaveBeenCalled();
   });
 
+  it("Mark all complete button calls onComplete for each active item with shared note", () => {
+    const onComplete = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Task A", owner: null, due_date: null },
+            { description: "Task B", owner: null, due_date: null },
+          ],
+        })}
+        completions={[]}
+        onComplete={onComplete}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Mark all complete" }));
+    const textarea = screen.getByRole("textbox", { name: "Completion note" });
+    fireEvent.change(textarea, { target: { value: "bulk done" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    expect(onComplete).toHaveBeenCalledTimes(2);
+    expect(onComplete).toHaveBeenCalledWith(0, "bulk done");
+    expect(onComplete).toHaveBeenCalledWith(1, "bulk done");
+  });
+
   it("copy action items button writes checklist to clipboard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
