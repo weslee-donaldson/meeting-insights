@@ -14,5 +14,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #740 | 12:23 AM | ✅ | Extended ChatRequest interface to support image attachments | ~331 |
+| #741 | 12:23 AM | 🟣 | Added attachment support to chat functionality for multimodal queries | ~380 |
+| #740 | " | ✅ | Extended ChatRequest interface to support image attachments | ~331 |
 </claude-mem-context>

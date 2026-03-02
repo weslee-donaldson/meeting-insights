@@ -5,6 +5,17 @@ import { Send, Clipboard, Paperclip, X } from "lucide-react";
 import { Button } from "./ui/button.js";
 import type { ChatResponse } from "../../../electron/channels.js";
 
+function markdownToJira(md: string): string {
+  return md
+    .replace(/```(\w+)\n([\s\S]*?)```/g, (_: string, lang: string, code: string) => `{code:${lang}}\n${code}{code}`)
+    .replace(/```\n([\s\S]*?)```/g, (_: string, code: string) => `{code}\n${code}{code}`)
+    .replace(/^### (.+)$/gm, "h3. $1")
+    .replace(/^## (.+)$/gm, "h2. $1")
+    .replace(/^# (.+)$/gm, "h1. $1")
+    .replace(/\*\*(.+?)\*\*/g, "*$1*")
+    .replace(/^- (.+)$/gm, "* $1");
+}
+
 interface QAPair {
   question: string;
   answer: string;
@@ -123,16 +134,28 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
                 </ul>
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => copyToClipboard(pair.answer)}
-              aria-label="Copy to clipboard"
-              className="self-start h-auto px-1 py-0.5 text-[0.7rem] text-muted-foreground"
-            >
-              <Clipboard className="w-[11px] h-[11px]" />
-              Copy
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(pair.answer)}
+                aria-label="Copy as Markdown"
+                className="h-auto px-1 py-0.5 text-[0.7rem] text-muted-foreground"
+              >
+                <Clipboard className="w-[11px] h-[11px]" />
+                Copy as Markdown
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(markdownToJira(pair.answer))}
+                aria-label="Copy for Jira"
+                className="h-auto px-1 py-0.5 text-[0.7rem] text-muted-foreground"
+              >
+                <Clipboard className="w-[11px] h-[11px]" />
+                Copy for Jira
+              </Button>
+            </div>
           </div>
         ))}
         {loading && (

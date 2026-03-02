@@ -53,7 +53,7 @@ describe("ChatPanel", () => {
     expect(screen.getByText("bold text")).toBeDefined();
   });
 
-  it("copy button calls navigator.clipboard.writeText with the answer", async () => {
+  it("Copy as Markdown button copies the raw markdown answer", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       value: { writeText },
@@ -71,8 +71,29 @@ describe("ChatPanel", () => {
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
     fireEvent.click(screen.getByLabelText("Send"));
     await waitFor(() => screen.getByText("The answer."), { timeout: 2000 });
-    fireEvent.click(screen.getByRole("button", { name: /copy to clipboard/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Copy as Markdown" }));
     expect(writeText).toHaveBeenCalledWith("The answer.");
+  });
+
+  it("Copy for Jira button converts heading, list, bold, and code to Jira wiki markup", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+      writable: true,
+    });
+    const rawMarkdown = "## Heading\n- item one\n\n**bold text**\n\n```js\nconsole.log(1)\n```";
+    const onChat = vi.fn().mockResolvedValue({ answer: rawMarkdown, sources: [], charCount: 0 });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByRole("heading", { level: 2, name: "Heading" }), { timeout: 2000 });
+    fireEvent.click(screen.getByRole("button", { name: "Copy for Jira" }));
+    expect(writeText).toHaveBeenCalledWith(
+      "h2. Heading\n* item one\n\n*bold text*\n\n{code:js}\nconsole.log(1)\n{code}",
+    );
   });
 
   it("pasting an image file adds it to the attachment list", () => {
