@@ -223,7 +223,7 @@ function ChatSection({
           gap: "8px",
         }}
       >
-        <span><span style={{ color: "var(--color-text-secondary)" }}>{chatContext.meetingIds.length}</span> meetings</span>
+        <span><span style={{ color: "var(--color-text-secondary)" }}>{chatContext.meetingIds.length}</span> {chatContext.meetingIds.length === 1 ? "meeting" : "meetings"}</span>
         <span>·</span>
         <span><span style={{ color: "var(--color-text-secondary)" }}>{chatContext.charCount.toLocaleString()}</span> chars</span>
       </div>

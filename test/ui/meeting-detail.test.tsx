@@ -100,4 +100,28 @@ describe("MeetingDetail", () => {
     expect(onChat).toHaveBeenCalledWith("What was decided?");
     await waitFor(() => expect(screen.getByText("The answer is 42.")).toBeDefined());
   });
+
+  it("shows singular 'meeting' with 1 meeting in context", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={null}
+        chatContext={{ meetingIds: ["m1"], charCount: 100 }}
+        onChat={vi.fn()}
+      />,
+    );
+    expect(screen.getByText((_, el) => el?.textContent === "1 meeting")).toBeDefined();
+  });
+
+  it("shows plural 'meetings' with 2 meetings in context", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={null}
+        chatContext={{ meetingIds: ["m1", "m2"], charCount: 100 }}
+        onChat={vi.fn()}
+      />,
+    );
+    expect(screen.getByText((_, el) => el?.textContent === "2 meetings")).toBeDefined();
+  });
 });
