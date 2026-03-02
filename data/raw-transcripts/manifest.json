@@ -1,5 +1,148 @@
 [
-  
+  {
+    "meeting_id": "019ca032bcdf7137ac3522a0ab49a8d8",
+    "meeting_title": "LLSA, Yoelvis Status Sync",
+    "meeting_date": "2026-02-27T17:42:55.359Z",
+    "meeting_files": [
+      "llsa,_yoelvis_status_sync-019ca032bcdf7137ac3522a0ab49a8d8/transcript.md",
+      "llsa,_yoelvis_status_sync-019ca032bcdf7137ac3522a0ab49a8d8/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019ca00ccae67268acdd06346f883779",
+    "meeting_title": "AppDev - Weekly Demo",
+    "meeting_date": "2026-02-27T17:01:28.101Z",
+    "meeting_files": [
+      "appdev_-_weekly_demo-019ca00ccae67268acdd06346f883779/transcript.md",
+      "appdev_-_weekly_demo-019ca00ccae67268acdd06346f883779/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9fd87c58713bbf44b148fdafb597",
+    "meeting_title": "AppDev Leads - Weekly Sync",
+    "meeting_date": "2026-02-27T16:03:54.716Z",
+    "meeting_files": [
+      "appdev_leads_-_weekly_sync-019c9fd87c58713bbf44b148fdafb597/transcript.md",
+      "appdev_leads_-_weekly_sync-019c9fd87c58713bbf44b148fdafb597/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9ae888c1766b907472ac045e9140",
+    "meeting_title": "Product X AppDev Office Hours",
+    "meeting_date": "2026-02-26T17:03:45.974Z",
+    "meeting_files": [
+      "product_x_appdev_office_hours-019c9ae888c1766b907472ac045e9140/transcript.md",
+      "product_x_appdev_office_hours-019c9ae888c1766b907472ac045e9140/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9ad94b3a753c951ab7f1aad57618",
+    "meeting_title": "AppDev Leads DSU",
+    "meeting_date": "2026-02-26T16:47:08.164Z",
+    "meeting_files": [
+      "appdev_leads_dsu-019c9ad94b3a753c951ab7f1aad57618/transcript.md",
+      "appdev_leads_dsu-019c9ad94b3a753c951ab7f1aad57618/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9aae6ec2759a8ea792142b9ec343",
+    "meeting_title": "Mandalore DSU",
+    "meeting_date": "2026-02-26T16:00:19.285Z",
+    "meeting_files": [
+      "mandalore_dsu-019c9aae6ec2759a8ea792142b9ec343/transcript.md",
+      "mandalore_dsu-019c9aae6ec2759a8ea792142b9ec343/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c962c7be871ccb011151a979e17ef",
+    "meeting_title": "Architecture Solutioning",
+    "meeting_date": "2026-02-25T18:59:52.419Z",
+    "meeting_files": [
+      "architecture_solutioning-019c962c7be871ccb011151a979e17ef/transcript.md",
+      "architecture_solutioning-019c962c7be871ccb011151a979e17ef/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c95bfe059731a985bd87e2d58ef42",
+    "meeting_title": "Product X AppDev Office Hours",
+    "meeting_date": "2026-02-25T17:01:15.444Z",
+    "meeting_files": [
+      "product_x_appdev_office_hours-019c95bfe059731a985bd87e2d58ef42/transcript.md",
+      "product_x_appdev_office_hours-019c95bfe059731a985bd87e2d58ef42/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c95a5888b7488a9010e5e5659935f",
+    "meeting_title": "AppDev Leads DSU",
+    "meeting_date": "2026-02-25T16:32:28.406Z",
+    "meeting_files": [
+      "appdev_leads_dsu-019c95a5888b7488a9010e5e5659935f/transcript.md",
+      "appdev_leads_dsu-019c95a5888b7488a9010e5e5659935f/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c958884b2723bbbc485136050cd14",
+    "meeting_title": "Mandalore DSU",
+    "meeting_date": "2026-02-25T16:00:47.310Z",
+    "meeting_files": [
+      "mandalore_dsu-019c958884b2723bbbc485136050cd14/transcript.md",
+      "mandalore_dsu-019c958884b2723bbbc485136050cd14/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9097ede2705f9615d63400afbbe7",
+    "meeting_title": "Product X AppDev Office Hours",
+    "meeting_date": "2026-02-24T16:59:31.337Z",
+    "meeting_files": [
+      "product_x_appdev_office_hours-019c9097ede2705f9615d63400afbbe7/transcript.md",
+      "product_x_appdev_office_hours-019c9097ede2705f9615d63400afbbe7/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9080690b70b3a59a41462f90bfa4",
+    "meeting_title": "AppDev Leads DSU",
+    "meeting_date": "2026-02-24T16:33:50.166Z",
+    "meeting_files": [
+      "appdev_leads_dsu-019c9080690b70b3a59a41462f90bfa4/transcript.md",
+      "appdev_leads_dsu-019c9080690b70b3a59a41462f90bfa4/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c9061563f76198534216c21bb4f3d",
+    "meeting_title": "Mandalore DSU",
+    "meeting_date": "2026-02-24T15:59:49.727Z",
+    "meeting_files": [
+      "mandalore_dsu-019c9061563f76198534216c21bb4f3d/transcript.md",
+      "mandalore_dsu-019c9061563f76198534216c21bb4f3d/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c8c18254c76a8be3f1db97f6776ae",
+    "meeting_title": "LLSA: Codebase Refinement",
+    "meeting_date": "2026-02-23T20:01:25.757Z",
+    "meeting_files": [
+      "llsa__codebase_refinement-019c8c18254c76a8be3f1db97f6776ae/transcript.md",
+      "llsa__codebase_refinement-019c8c18254c76a8be3f1db97f6776ae/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c8be024567268a0057d96ffe217b3",
+    "meeting_title": "Mandalore, Engineering Refinement",
+    "meeting_date": "2026-02-23T19:00:17.291Z",
+    "meeting_files": [
+      "mandalore,_engineering_refinement-019c8be024567268a0057d96ffe217b3/transcript.md",
+      "mandalore,_engineering_refinement-019c8be024567268a0057d96ffe217b3/recording_download_link.md"
+    ]
+  },
+  {
+    "meeting_id": "019c8b5773f4728a8c9ccd5a082da15e",
+    "meeting_title": "AppDev Leads DSU",
+    "meeting_date": "2026-02-23T16:30:58.748Z",
+    "meeting_files": [
+      "appdev_leads_dsu-019c8b5773f4728a8c9ccd5a082da15e/transcript.md",
+      "appdev_leads_dsu-019c8b5773f4728a8c9ccd5a082da15e/recording_download_link.md"
+    ]
+  },
   {
     "meeting_id": "019c8b3caf3377a88c295bb1ac0b7979",
     "meeting_title": "Mandalore DSU",

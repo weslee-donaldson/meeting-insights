@@ -31,7 +31,8 @@
       "antonio.falcao@xolv.io",
       "dev.doshi@xolv.io",
       "sam@xolv.io"
-    ]
+    ],
+    "refinement_prompt": "Stace is the CTO for the client and our role is as a service provider. Action items, decisions and direction provided by Stace should be treated as high-priority explicit instructions. Jennifer is the lead engineering manager and should be viewed as secondary to Stace."
   },
   {
     "name": "Revenium",

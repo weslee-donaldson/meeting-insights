@@ -73,3 +73,24 @@ describe("getAllClients", () => {
     expect(all.map((c) => c.name)).toEqual(["Revenium", "Mandalore"]);
   });
 });
+
+describe("refinement_prompt field", () => {
+  it("returns refinement_prompt when client is seeded with one", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-refine-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([
+      { name: "TestCo", aliases: ["Test"], known_participants: ["@test.com"], refinement_prompt: "Stace is the CTO." },
+    ]));
+    seedClients(localDb, file);
+    const client = getClientByName(localDb, "TestCo");
+    expect(client!.refinement_prompt).toBe("Stace is the CTO.");
+  });
+
+  it("returns null refinement_prompt when client has none", () => {
+    const client = getClientByName(db, "Revenium");
+    expect(client!.refinement_prompt).toBeNull();
+  });
+});

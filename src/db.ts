@@ -62,8 +62,13 @@ export function migrate(db: DatabaseSync): void {
     );
   `);
 
-  const cols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
-  if (!cols.some(c => c.name === "additional_notes")) {
+  const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
+  if (!artifactCols.some(c => c.name === "additional_notes")) {
     db.exec("ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'");
+  }
+
+  const clientCols = db.prepare("PRAGMA table_info(clients)").all() as { name: string }[];
+  if (!clientCols.some(c => c.name === "refinement_prompt")) {
+    db.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");
   }
 }
