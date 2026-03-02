@@ -623,7 +623,7 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: HTTP API (Hono)
 
-- [ ] Burst 252: Hono skeleton + `GET /api/debug` — install `hono` + `@hono/node-server`; `api/server.ts` exports `app` (Hono instance) + `startServer(port)`; `/api/debug` returns `{db_path, client_count, meeting_count}`; test: `app.request("/api/debug")` asserts shape
+- [x] Burst 252: Hono skeleton + `GET /api/debug` — install `hono` + `@hono/node-server`; `api/server.ts` exports `app` (Hono instance) + `startServer(port)`; `/api/debug` returns `{db_path, client_count, meeting_count}`; test: `app.request("/api/debug")` asserts shape
 - [ ] Burst 253: `GET /api/clients` + `GET /api/meetings` — reuse `handleGetClients`/`handleGetMeetings` from `electron-ui/electron/ipc-handlers.ts`; parse `?client=&after=&before=` query params; test: seed DB, assert client list and filtered meeting list
 - [ ] Burst 254: `GET /api/meetings/:id/artifact` + `POST /api/chat` — reuse `handleGetArtifact`/`handleChat`; stub LLM; 404 when artifact missing; test: valid id returns Artifact shape, unknown id → 404, chat returns answer/sources
 - [ ] Burst 255: `GET /api/search` — reuse `handleSearchMeetings`; lazy-load embedder + vector DB; guard: 400 if query < 2 chars; test: mock `searchMeetings`, assert route calls it with correct params + 400 on short query [depends: 252]
