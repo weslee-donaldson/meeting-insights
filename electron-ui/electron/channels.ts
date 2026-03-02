@@ -8,6 +8,8 @@ export const CHANNELS = {
   RE_EXTRACT: "re-extract",
   REASSIGN_CLIENT: "reassign-client",
   SET_IGNORED: "set-ignored",
+  COMPLETE_ACTION_ITEM: "complete-action-item",
+  GET_COMPLETIONS: "get-completions",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -55,6 +57,14 @@ export interface SearchResultRow {
   date: string;
 }
 
+export interface ActionItemCompletion {
+  id: string;
+  meeting_id: string;
+  item_index: number;
+  completed_at: string;
+  note: string;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -65,4 +75,6 @@ export interface ElectronAPI {
   reExtract: (meetingId: string) => Promise<void>;
   reassignClient: (meetingId: string, clientName: string) => Promise<void>;
   setIgnored: (meetingId: string, ignored: boolean) => Promise<void>;
+  completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;
+  getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;
 }

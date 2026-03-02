@@ -8,7 +8,7 @@ import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion } from "./channels.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -146,6 +146,16 @@ export function handleDeleteMeetings(db: Database, ids: string[]): void {
   db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
+}
+
+export function handleCompleteActionItem(db: Database, meetingId: string, itemIndex: number, note: string): void {
+  db.prepare(
+    "INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET note = excluded.note, completed_at = excluded.completed_at",
+  ).run(`${meetingId}:${itemIndex}`, meetingId, itemIndex, new Date().toISOString(), note);
+}
+
+export function handleGetCompletions(db: Database, meetingId: string): ActionItemCompletion[] {
+  return db.prepare("SELECT * FROM action_item_completions WHERE meeting_id = ?").all(meetingId) as ActionItemCompletion[];
 }
 
 export async function handleSearchMeetings(

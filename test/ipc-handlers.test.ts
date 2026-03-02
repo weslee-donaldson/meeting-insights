@@ -13,6 +13,8 @@ import {
   handleReExtract,
   handleReassignClient,
   handleSetIgnored,
+  handleCompleteActionItem,
+  handleGetCompletions,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -249,6 +251,28 @@ describe("IPC handlers", () => {
       handleSetIgnored(db, meetingId2, false);
       const meetings = handleGetMeetings(db, {});
       expect(meetings.some((m) => m.id === meetingId2)).toBe(true);
+    });
+  });
+
+  describe("handleCompleteActionItem + handleGetCompletions", () => {
+    it("complete → get returns record with meetingId, itemIndex, note", () => {
+      handleCompleteActionItem(db, meetingId2, 0, "done");
+      const completions = handleGetCompletions(db, meetingId2);
+      expect(completions).toHaveLength(1);
+      expect(completions[0]).toMatchObject({
+        meeting_id: meetingId2,
+        item_index: 0,
+        note: "done",
+        completed_at: expect.any(String),
+      });
+    });
+
+    it("calling complete again for same index upserts the note", () => {
+      handleCompleteActionItem(db, meetingId2, 0, "updated");
+      const completions = handleGetCompletions(db, meetingId2);
+      const c = completions.filter(r => r.item_index === 0);
+      expect(c).toHaveLength(1);
+      expect(c[0].note).toBe("updated");
     });
   });
 

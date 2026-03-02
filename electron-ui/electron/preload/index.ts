@@ -20,6 +20,8 @@ const api: ElectronAPI = {
   reExtract: (meetingId: string) => ipcRenderer.invoke(CHANNELS.RE_EXTRACT, meetingId),
   reassignClient: (meetingId: string, clientName: string) => ipcRenderer.invoke(CHANNELS.REASSIGN_CLIENT, meetingId, clientName),
   setIgnored: (meetingId: string, ignored: boolean) => ipcRenderer.invoke(CHANNELS.SET_IGNORED, meetingId, ignored),
+  completeActionItem: (meetingId: string, itemIndex: number, note: string) => ipcRenderer.invoke(CHANNELS.COMPLETE_ACTION_ITEM, meetingId, itemIndex, note),
+  getCompletions: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_COMPLETIONS, meetingId),
 };
 
 contextBridge.exposeInMainWorld("api", api);

@@ -13,6 +13,8 @@ import {
   handleReExtract,
   handleReassignClient,
   handleSetIgnored,
+  handleCompleteActionItem,
+  handleGetCompletions,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
@@ -94,6 +96,8 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
   ipcMain.handle(CHANNELS.SET_IGNORED, (_e, meetingId: string, ignored: boolean) => handleSetIgnored(db, meetingId, ignored));
+  ipcMain.handle(CHANNELS.COMPLETE_ACTION_ITEM, (_e, meetingId: string, itemIndex: number, note: string) => handleCompleteActionItem(db, meetingId, itemIndex, note));
+  ipcMain.handle(CHANNELS.GET_COMPLETIONS, (_e, meetingId: string) => handleGetCompletions(db, meetingId));
 
   createWindow();
 

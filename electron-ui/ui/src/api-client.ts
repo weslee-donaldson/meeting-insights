@@ -58,4 +58,14 @@ export const apiClient: ElectronAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ignored }),
     }).then(() => undefined),
+
+  completeActionItem: (meetingId: string, itemIndex: number, note: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/action-items/${itemIndex}/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note }),
+    }).then(() => undefined),
+
+  getCompletions: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/completions`).then((r) => r.json()),
 };
