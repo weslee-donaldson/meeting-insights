@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { SearchResultRow } from "../electron/channels.js";
+import type { SearchResultRow } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -13,7 +13,7 @@ vi.mock("../core/vector-search.js", () => ({
   searchMeetings: searchMeetingsMock,
 }));
 
-const { handleSearchMeetings } = await import("../electron/ipc-handlers.js");
+const { handleSearchMeetings } = await import("../electron-ui/electron/ipc-handlers.js");
 
 const mockVdb = {} as VectorDb;
 const mockSession = {} as InferenceSession & { _tokenizer: unknown };

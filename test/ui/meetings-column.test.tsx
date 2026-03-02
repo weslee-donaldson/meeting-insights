@@ -3,8 +3,8 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MeetingsColumn } from "../../ui/src/components/MeetingsColumn.js";
-import type { MeetingRow } from "../../electron/channels.js";
+import { MeetingsColumn } from "../../electron-ui/ui/src/components/MeetingsColumn.js";
+import type { MeetingRow } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 

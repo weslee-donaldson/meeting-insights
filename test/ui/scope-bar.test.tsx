@@ -3,8 +3,8 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ScopeBar } from "../../ui/src/components/ScopeBar.js";
-import { themes } from "../../ui/src/theme.js";
+import { ScopeBar } from "../../electron-ui/ui/src/components/ScopeBar.js";
+import { themes } from "../../electron-ui/ui/src/theme.js";
 
 afterEach(cleanup);
 

@@ -2,8 +2,8 @@
 import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
-import { ContextViewColumn } from "../../ui/src/components/ContextViewColumn.js";
-import type { MeetingRow, Artifact } from "../../electron/channels.js";
+import { ContextViewColumn } from "../../electron-ui/ui/src/components/ContextViewColumn.js";
+import type { MeetingRow, Artifact } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 

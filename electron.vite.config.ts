@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, "electron/main/index.ts") },
+        input: { index: resolve(__dirname, "electron-ui/electron/main/index.ts") },
       },
     },
   },
@@ -15,15 +15,15 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, "electron/preload/index.ts") },
+        input: { index: resolve(__dirname, "electron-ui/electron/preload/index.ts") },
       },
     },
   },
   renderer: {
-    root: resolve(__dirname, "ui"),
+    root: resolve(__dirname, "electron-ui/ui"),
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, "ui/index.html") },
+        input: { index: resolve(__dirname, "electron-ui/ui/index.html") },
       },
     },
     plugins: [react()],

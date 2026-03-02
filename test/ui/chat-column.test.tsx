@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
-import { ChatColumn } from "../../ui/src/components/ChatColumn.js";
+import { ChatColumn } from "../../electron-ui/ui/src/components/ChatColumn.js";
 
 afterEach(cleanup);
 

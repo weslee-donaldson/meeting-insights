@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 import { join, resolve } from "path";
 const { app, BrowserWindow, ipcMain } = createRequire(import.meta.url)("electron") as typeof import("electron");
-import { createDb, migrate } from "../../core/db.js";
+import { createDb, migrate } from "../../../core/db.js";
 import { CHANNELS } from "../channels.js";
 import {
   handleGetClients,
@@ -10,9 +10,9 @@ import {
   handleChat,
   handleSearchMeetings,
 } from "../ipc-handlers.js";
-import { createLlmAdapter } from "../../core/llm-adapter.js";
-import { connectVectorDb } from "../../core/vector-db.js";
-import { loadModel } from "../../core/embedder.js";
+import { createLlmAdapter } from "../../../core/llm-adapter.js";
+import { connectVectorDb } from "../../../core/vector-db.js";
+import { loadModel } from "../../../core/embedder.js";
 
 // Resolve .env.local relative to app root before reading any env vars
 const APP_ROOT = resolve(app.getAppPath());

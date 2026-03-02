@@ -3,7 +3,7 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SearchBar } from "../../ui/src/components/SearchBar.js";
+import { SearchBar } from "../../electron-ui/ui/src/components/SearchBar.js";
 
 afterEach(cleanup);
 

@@ -9,7 +9,7 @@ import {
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
-} from "../electron/ipc-handlers.js";
+} from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
   db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(

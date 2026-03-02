@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
-import { ClientsColumn } from "../../ui/src/components/ClientsColumn.js";
+import { ClientsColumn } from "../../electron-ui/ui/src/components/ClientsColumn.js";
 
 afterEach(cleanup);
 

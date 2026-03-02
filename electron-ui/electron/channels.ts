@@ -52,7 +52,7 @@ export interface SearchResultRow {
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
-  getArtifact: (meetingId: string) => Promise<import("../core/extractor.js").Artifact | null>;
+  getArtifact: (meetingId: string) => Promise<import("../../core/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
 }

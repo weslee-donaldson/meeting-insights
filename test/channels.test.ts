@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { CHANNELS } from "../electron/channels.js";
-import type { SearchRequest, SearchResultRow } from "../electron/channels.js";
+import { CHANNELS } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
   it("should have 5 unique non-empty channel strings", () => {

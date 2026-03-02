@@ -3,10 +3,10 @@ import React from "react";
 import { describe, afterEach, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useClients } from "../../ui/src/hooks/useClients.js";
-import { useMeetings } from "../../ui/src/hooks/useMeetings.js";
-import { useArtifact } from "../../ui/src/hooks/useArtifact.js";
-import { useSearch } from "../../ui/src/hooks/useSearch.js";
+import { useClients } from "../../electron-ui/ui/src/hooks/useClients.js";
+import { useMeetings } from "../../electron-ui/ui/src/hooks/useMeetings.js";
+import { useArtifact } from "../../electron-ui/ui/src/hooks/useArtifact.js";
+import { useSearch } from "../../electron-ui/ui/src/hooks/useSearch.js";
 
 afterEach(cleanup);
 

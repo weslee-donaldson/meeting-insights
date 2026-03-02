@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, cleanup, act, screen } from "@testing-library/react";
-import { ThemeProvider, useTheme } from "../../ui/src/ThemeContext.js";
+import { ThemeProvider, useTheme } from "../../electron-ui/ui/src/ThemeContext.js";
 
 function makeLocalStorageMock() {
   let store: Record<string, string> = {};

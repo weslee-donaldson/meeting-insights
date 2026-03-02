@@ -3,7 +3,7 @@ import React from "react";
 import { describe, it, expect, beforeAll, vi, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { App } from "../../ui/src/App.js";
+import { App } from "../../electron-ui/ui/src/App.js";
 
 afterEach(cleanup);
 

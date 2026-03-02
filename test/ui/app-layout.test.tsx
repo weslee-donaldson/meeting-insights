@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
-import { AppLayout } from "../../ui/src/components/AppLayout.js";
+import { AppLayout } from "../../electron-ui/ui/src/components/AppLayout.js";
 
 afterEach(cleanup);
 
