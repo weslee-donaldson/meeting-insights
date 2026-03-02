@@ -173,7 +173,6 @@ export function App() {
   return (
     <>
     <LinearShell
-      detailOpen={!!selectedMeetingId}
       chatOpen={activeMeetingIds.length > 0}
       topBar={
         <TopBar

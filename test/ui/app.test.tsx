@@ -28,10 +28,10 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe("App", () => {
-  it("renders LinearShell with detail panel closed initially", () => {
+  it("renders detail panel always visible", () => {
     render(<App />, { wrapper });
     const panel = screen.getByTestId("detail-panel");
-    expect((panel as HTMLElement).style.width).toBe("0px");
+    expect(panel.className).toContain("flex-1");
   });
 
   it("shows Select a meeting placeholder in detail", () => {
@@ -58,13 +58,12 @@ describe("App", () => {
     expect((input as HTMLInputElement).value).toBe("");
   });
 
-  it("opens detail panel after meeting row click", async () => {
+  it("shows meeting title in detail panel after meeting row click", async () => {
     render(<App />, { wrapper });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => {
-      const panel = screen.getByTestId("detail-panel");
-      expect((panel as HTMLElement).style.width).toBe("480px");
+      expect(screen.queryByText("Select a meeting")).toBeNull();
     });
   });
 

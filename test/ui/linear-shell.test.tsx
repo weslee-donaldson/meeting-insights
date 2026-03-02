@@ -7,47 +7,46 @@ import { LinearShell } from "../../electron-ui/ui/src/components/LinearShell.js"
 afterEach(cleanup);
 
 describe("LinearShell", () => {
-  it("renders topBar, sidebar, and main content always", () => {
+  it("renders topBar, sidebar, main, and detail content always", () => {
     render(
       <LinearShell
         topBar={<div>top-bar-content</div>}
         sidebar={<div>sidebar-content</div>}
         main={<div>main-content</div>}
         detail={<div>detail-content</div>}
-        detailOpen={false}
       />,
     );
     expect(screen.getByText("top-bar-content")).toBeDefined();
     expect(screen.getByText("sidebar-content")).toBeDefined();
     expect(screen.getByText("main-content")).toBeDefined();
+    expect(screen.getByText("detail-content")).toBeDefined();
   });
 
-  it("detail panel has width 0 when detailOpen is false", () => {
+  it("main panel defaults to 200px width", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+      />,
+    );
+    const mainPanel = screen.getByTestId("main-panel");
+    expect(mainPanel.style.width).toBe("200px");
+  });
+
+  it("detail panel is always visible with flex-1 layout", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail-content</div>}
-        detailOpen={false}
       />,
     );
     const detailPanel = screen.getByTestId("detail-panel");
-    expect(detailPanel.style.width).toBe("0px");
-  });
-
-  it("detail panel has 480px width when detailOpen is true", () => {
-    render(
-      <LinearShell
-        topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
-        main={<div>main</div>}
-        detail={<div>detail-content</div>}
-        detailOpen={true}
-      />,
-    );
-    const detailPanel = screen.getByTestId("detail-panel");
-    expect(detailPanel.style.width).toBe("480px");
+    expect(detailPanel.className).toContain("flex-1");
+    expect(screen.getByText("detail-content")).toBeDefined();
   });
 
   it("sidebar resize handle is rendered", () => {
@@ -57,7 +56,6 @@ describe("LinearShell", () => {
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={false}
       />,
     );
     expect(screen.getByTestId("sidebar-resize-handle")).toBeDefined();
@@ -70,7 +68,6 @@ describe("LinearShell", () => {
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={false}
       />,
     );
     const handle = screen.getByTestId("sidebar-resize-handle");
@@ -80,47 +77,32 @@ describe("LinearShell", () => {
     expect(parseInt(sidebarPanel.style.width)).toBeGreaterThan(240);
   });
 
-  it("detail resize handle is absent when detailOpen is false", () => {
+  it("main resize handle is rendered", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={false}
       />,
     );
-    expect(screen.queryByTestId("detail-resize-handle")).toBeNull();
+    expect(screen.getByTestId("main-resize-handle")).toBeDefined();
   });
 
-  it("detail resize handle is present when detailOpen is true", () => {
+  it("dragging main handle rightward increases main width", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={true}
       />,
     );
-    expect(screen.getByTestId("detail-resize-handle")).toBeDefined();
-  });
-
-  it("dragging detail handle leftward increases detail width", () => {
-    render(
-      <LinearShell
-        topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
-        detailOpen={true}
-      />,
-    );
-    const handle = screen.getByTestId("detail-resize-handle");
-    fireEvent.mouseDown(handle, { clientX: 480 });
-    fireEvent.mouseMove(document, { clientX: 420 });
-    const detailPanel = screen.getByTestId("detail-panel");
-    expect(parseInt(detailPanel.style.width)).toBeGreaterThan(480);
+    const handle = screen.getByTestId("main-resize-handle");
+    fireEvent.mouseDown(handle, { clientX: 200 });
+    fireEvent.mouseMove(document, { clientX: 300 });
+    const mainPanel = screen.getByTestId("main-panel");
+    expect(parseInt(mainPanel.style.width)).toBeGreaterThan(200);
   });
 
   it("chat panel is absent when chatOpen is false", () => {
@@ -130,7 +112,6 @@ describe("LinearShell", () => {
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={false}
         chat={<div>chat-content</div>}
         chatOpen={false}
       />,
@@ -145,7 +126,6 @@ describe("LinearShell", () => {
         sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
-        detailOpen={false}
         chat={<div>chat-content</div>}
         chatOpen={true}
       />,

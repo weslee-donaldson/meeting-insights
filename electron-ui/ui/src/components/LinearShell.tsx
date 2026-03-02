@@ -5,18 +5,17 @@ interface LinearShellProps {
   sidebar: React.ReactNode;
   main: React.ReactNode;
   detail: React.ReactNode;
-  detailOpen: boolean;
   chat?: React.ReactNode;
   chatOpen?: boolean;
 }
 
-export function LinearShell({ topBar, sidebar, main, detail, detailOpen, chat, chatOpen = false }: LinearShellProps) {
+export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = false }: LinearShellProps) {
   const [sidebarWidth, setSidebarWidth] = useState(240);
-  const [detailWidth, setDetailWidth] = useState(480);
+  const [mainWidth, setMainWidth] = useState(200);
   const [chatWidth, setChatWidth] = useState(380);
 
   const sidebarDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
-  const detailDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const mainDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const chatDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
@@ -38,24 +37,24 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen, chat, c
     document.addEventListener("mouseup", onMouseUp);
   }, [sidebarWidth]);
 
-  const handleDetailMouseDown = useCallback((e: React.MouseEvent) => {
-    detailDragRef.current = { startX: e.clientX, startWidth: detailWidth };
+  const handleMainMouseDown = useCallback((e: React.MouseEvent) => {
+    mainDragRef.current = { startX: e.clientX, startWidth: mainWidth };
 
     const onMouseMove = (ev: MouseEvent) => {
-      if (!detailDragRef.current) return;
-      const delta = detailDragRef.current.startX - ev.clientX;
-      setDetailWidth(Math.max(280, detailDragRef.current.startWidth + delta));
+      if (!mainDragRef.current) return;
+      const delta = ev.clientX - mainDragRef.current.startX;
+      setMainWidth(Math.max(140, Math.min(500, mainDragRef.current.startWidth + delta)));
     };
 
     const onMouseUp = () => {
-      detailDragRef.current = null;
+      mainDragRef.current = null;
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
     };
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
-  }, [detailWidth]);
+  }, [mainWidth]);
 
   const handleChatMouseDown = useCallback((e: React.MouseEvent) => {
     chatDragRef.current = { startX: e.clientX, startWidth: chatWidth };
@@ -97,26 +96,23 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen, chat, c
           className="w-1 shrink-0 cursor-col-resize bg-border"
         />
 
-        <div className="flex-1 min-w-[200px] overflow-auto">
+        <div
+          data-testid="main-panel"
+          className="shrink-0 overflow-auto"
+          style={{ width: mainWidth + "px" }}
+        >
           {main}
         </div>
 
-        {detailOpen && (
-          <div
-            data-testid="detail-resize-handle"
-            onMouseDown={handleDetailMouseDown}
-            className="w-1 shrink-0 cursor-col-resize bg-border"
-          />
-        )}
+        <div
+          data-testid="main-resize-handle"
+          onMouseDown={handleMainMouseDown}
+          className="w-1 shrink-0 cursor-col-resize bg-border"
+        />
 
         <div
           data-testid="detail-panel"
-          className="overflow-hidden shrink-0"
-          style={{
-            width: detailOpen ? detailWidth + "px" : "0px",
-            transition: "width 0.2s ease",
-            borderLeft: detailOpen ? "none" : "1px solid var(--color-border)",
-          }}
+          className="flex-1 min-w-[280px] overflow-auto"
         >
           {detail}
         </div>
