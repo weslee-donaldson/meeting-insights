@@ -5,12 +5,12 @@
   "main": "out/main/index.js",
   "scripts": {
     "test": "vitest run",
-    "setup": "tsx scripts/setup.ts",
-    "process": "tsx scripts/run.ts",
-    "clear": "tsx scripts/reset.ts",
-    "query": "tsx scripts/query.ts",
-    "eval": "tsx scripts/eval.ts",
-    "assign-client": "tsx scripts/assign-client.ts",
+    "setup": "tsx cli/setup.ts",
+    "process": "tsx cli/run.ts",
+    "clear": "tsx cli/reset.ts",
+    "query": "tsx cli/query.ts",
+    "eval": "tsx cli/eval.ts",
+    "assign-client": "tsx cli/assign-client.ts",
     "ui:dev": "electron-vite dev",
     "ui:build": "electron-vite build"
   },
