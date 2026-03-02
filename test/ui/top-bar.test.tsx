@@ -79,17 +79,4 @@ describe("TopBar", () => {
     expect(setTheme).toHaveBeenCalledWith("daylight");
   });
 
-  it("delete button is absent when checkedCount is 0", () => {
-    render(<TopBar {...defaultProps} checkedCount={0} onDelete={vi.fn()} />, { wrapper: makeWrapper() });
-    expect(screen.queryByRole("button", { name: /delete/i })).toBeNull();
-  });
-
-  it("delete button shows count and calls onDelete when clicked", () => {
-    const onDelete = vi.fn();
-    render(<TopBar {...defaultProps} checkedCount={3} onDelete={onDelete} />, { wrapper: makeWrapper() });
-    const btn = screen.getByRole("button", { name: /delete 3/i });
-    expect(btn).toBeDefined();
-    fireEvent.click(btn);
-    expect(onDelete).toHaveBeenCalledOnce();
-  });
 });

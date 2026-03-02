@@ -453,6 +453,44 @@ describe("MeetingList", () => {
     expect(screen.getByText("No meetings yet")).toBeDefined();
   });
 
+  it("delete button is absent when checkedCount is 0", () => {
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        checkedCount={0}
+        onDelete={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /delete/i })).toBeNull();
+  });
+
+  it("delete button shows count and calls onDelete when clicked", () => {
+    const onDelete = vi.fn();
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set(["dsu-1", "dsu-2"])}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        checkedCount={2}
+        onDelete={onDelete}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: /delete 2/i });
+    expect(btn).toBeDefined();
+    fireEvent.click(btn);
+    expect(onDelete).toHaveBeenCalledOnce();
+  });
+
   it("does not render client badge in meeting rows", () => {
     render(
       <MeetingList

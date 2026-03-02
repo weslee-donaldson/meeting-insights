@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Trash2 } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -22,6 +22,8 @@ interface MeetingListProps {
   searchQuery?: string;
   loading?: boolean;
   hasFilters?: boolean;
+  checkedCount?: number;
+  onDelete?: () => void;
 }
 
 function normalizeSeries(title: string): string {
@@ -179,6 +181,8 @@ export function MeetingList({
   searchQuery,
   loading,
   hasFilters,
+  checkedCount,
+  onDelete,
 }: MeetingListProps) {
   const groups = useMemo(() => {
     let g: SeriesGroup[];
@@ -206,17 +210,31 @@ export function MeetingList({
             {label}
           </Button>
         ))}
-        {onSortToggle && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto h-auto px-1.5 py-0.5"
-            onClick={onSortToggle}
-            aria-label={sortAsc ? "Sort descending" : "Sort ascending"}
-          >
-            <ArrowUpDown className="w-3.5 h-3.5" />
-          </Button>
-        )}
+        <div className="flex items-center gap-1 ml-auto">
+          {(checkedCount ?? 0) > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-auto px-2 py-0.5 text-xs"
+              onClick={onDelete}
+              aria-label={`Delete ${checkedCount}`}
+            >
+              <Trash2 className="w-3 h-3" />
+              <span>Delete {checkedCount}</span>
+            </Button>
+          )}
+          {onSortToggle && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto px-1.5 py-0.5"
+              onClick={onSortToggle}
+              aria-label={sortAsc ? "Sort descending" : "Sort ascending"}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto py-1">

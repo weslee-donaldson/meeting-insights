@@ -214,8 +214,6 @@ export function App() {
           theme={theme}
           setTheme={setTheme}
           themes={themes}
-          checkedCount={checkedMeetingIds.size}
-          onDelete={handleDeleteMeetings}
         />
       }
       sidebar={
@@ -239,6 +237,8 @@ export function App() {
           searchQuery={searchQuery}
           loading={meetingsQuery.isLoading}
           hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
+          checkedCount={checkedMeetingIds.size}
+          onDelete={handleDeleteMeetings}
         />
       }
       detail={
