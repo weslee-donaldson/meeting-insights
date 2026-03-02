@@ -755,8 +755,8 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [ ] Burst 298: DB schema for action item completions — new table `action_item_completions (id TEXT PK, meeting_id TEXT, item_index INTEGER, completed_at TEXT, note TEXT)`; migrate; test: insert + query round-trip
 - [ ] Burst 299: IPC handlers for completion — `handleCompleteActionItem(db, meetingId, itemIndex, note)` inserts/upserts completion row; `handleGetCompletions(db, meetingId)` returns all for meeting; add to `channels.ts`; test: complete → get returns record
 - [ ] Burst 300: Render completion state in `MeetingDetail` — action items rendered as checkboxes; completed items show checkmark + note tooltip; clicking checkbox calls `onComplete(meetingId, index)`; state loaded via `window.api.getCompletions`; test: checked item renders with completion indicator
-- [ ] Burst 301: Completion note modal — clicking a completed item opens a small popover with the stored note (editable); saving calls `handleCompleteActionItem` with updated note; test: note displays after save
-- [ ] Burst 302: Bulk complete action items — "Mark all complete" button in Action Items section header; opens note input; saves completion record for every item in the section with the same note; test: bulk complete creates N completion rows
+- [ ] Burst 301: Completion note dialog — clicking a completed item opens a shadcn `Dialog` (`@radix-ui/react-dialog`) with editable `Textarea` showing the stored note; Save calls `handleCompleteActionItem` with updated note; Cancel discards; test: note displays after save, cancel leaves note unchanged
+- [ ] Burst 302: Bulk complete action items — "Mark all complete" button in Action Items section header opens a shadcn `Dialog` with a shared note `Textarea`; Confirm saves a completion row for every item with the same note; test: bulk complete creates N completion rows
 
 ### Bottle: UX Polish
 
