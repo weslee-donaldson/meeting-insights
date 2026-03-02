@@ -3,6 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { buildLabeledContext } from "../core/labeled-context.js";
+import { recordMention } from "../core/item-dedup.js";
 
 function makeArtifact() {
   return {
@@ -87,5 +88,28 @@ describe("buildLabeledContext", () => {
     expect(result.contextText).toBe("");
     expect(result.charCount).toBe(0);
     expect(result.meetings).toHaveLength(0);
+  });
+
+  it("annotates items with mention count when raised multiple times", () => {
+    const extraId = ingestMeeting(db, {
+      title: "Extra Meeting",
+      timestamp: "2026-02-27T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "X | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "extra",
+    });
+    recordMention(db, "can-ctx-1", id1, "action_items", 0, "Write tests", "2026-02-25");
+    recordMention(db, "can-ctx-1", id2, "action_items", 0, "Write tests", "2026-02-26");
+    recordMention(db, "can-ctx-1", extraId, "action_items", 0, "Write tests", "2026-02-27");
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).toContain("[raised 3x, first mentioned 2026-02-25]");
+  });
+
+  it("does not annotate items with only one mention", () => {
+    recordMention(db, "can-ctx-2", id1, "decisions", 0, "Use TypeScript", "2026-02-25");
+    const result = buildLabeledContext(db, [id1]);
+    const decisionLine = result.contextText.split("\n").find(l => l.includes("Use TypeScript"));
+    expect(decisionLine).not.toContain("[raised");
   });
 });
