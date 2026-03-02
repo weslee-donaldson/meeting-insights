@@ -120,6 +120,20 @@ describe("validateArtifact", () => {
     expect(validateArtifact({ ...VALID_BASE, additional_notes: [42] }).additional_notes).toEqual([]);
   });
 
+  it("normalizes legacy string decisions to objects with empty decided_by", () => {
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: [], decisions: ["Use REST", "OAuth2"] });
+    expect(result.decisions).toEqual([
+      { text: "Use REST", decided_by: "" },
+      { text: "OAuth2", decided_by: "" },
+    ]);
+  });
+
+  it("preserves structured decisions unchanged", () => {
+    const structured = [{ text: "Use REST", decided_by: "Alice" }];
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: [], decisions: structured });
+    expect(result.decisions).toEqual([{ text: "Use REST", decided_by: "Alice" }]);
+  });
+
   it("accepts valid artifact with additional_notes", () => {
     const result = validateArtifact({ ...VALID_BASE, additional_notes: [{ category: "ctx", note: "x" }] });
     expect(result.additional_notes).toEqual([{ category: "ctx", note: "x" }]);

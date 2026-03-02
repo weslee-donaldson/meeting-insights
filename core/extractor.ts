@@ -11,7 +11,7 @@ const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_item
 
 export interface Artifact {
   summary: string;
-  decisions: string[];
+  decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
   action_items: Array<{ description: string; owner: string; due_date: string | null }>;
   technical_topics: string[];
@@ -44,6 +44,12 @@ export function validateArtifact(raw: object): Artifact {
     }
   }
   const r = raw as Record<string, unknown>;
+  const decisions = r["decisions"];
+  if (Array.isArray(decisions)) {
+    r["decisions"] = decisions.map((d) =>
+      typeof d === "string" ? { text: d, decided_by: "" } : d,
+    );
+  }
   const notes = r["additional_notes"];
   if (!Array.isArray(notes) || notes.some(item => typeof item !== "object" || item === null || Array.isArray(item))) {
     logValidate("additional_notes malformed — normalizing to []");

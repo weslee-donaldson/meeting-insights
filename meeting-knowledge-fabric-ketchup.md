@@ -773,7 +773,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 310: Sort toggle on meeting list — add ascending/descending sort button to the group-by bar; default desc (newest first); toggling reverses date order within groups; test: toggling sort reverses meeting order
 - [x] Burst 311: Action items inline with strikethrough — completed items stay in place in original order with ✓ and `line-through` text instead of being hidden in collapsed section; remove the "N completed ▸" collapse toggle; completed item description still opens note dialog on click; update existing tests; test: completed item renders inline with line-through style
 - [x] Burst 312: Action items counter with percent-complete progress — show "N/M" counter and a small progress bar next to "Action Items" section header; test: header renders count text and progress element with correct width
-- [ ] Burst 313: Indent sub-items in artifact sections — add left padding to item lists (action items, decisions, open questions, risks, etc.) within collapsible sections for clear visual hierarchy; test: item list container has left padding class
+- [x] Burst 313: Indent sub-items in artifact sections — add left padding to item lists (action items, decisions, open questions, risks, etc.) within collapsible sections for clear visual hierarchy; test: item list container has left padding class
 
 ---
 
