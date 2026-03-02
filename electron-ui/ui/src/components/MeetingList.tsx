@@ -17,6 +17,7 @@ interface MeetingListProps {
   searchLoading?: boolean;
   searchQuery?: string;
   loading?: boolean;
+  hasFilters?: boolean;
 }
 
 function normalizeSeries(title: string): string {
@@ -130,6 +131,7 @@ export function MeetingList({
   searchLoading,
   searchQuery,
   loading,
+  hasFilters,
 }: MeetingListProps) {
   const groups = useMemo(() => {
     if (groupBy === "day") return groupByDay(meetings);
@@ -240,9 +242,9 @@ export function MeetingList({
             </div>
           );
         })}
-        {!searchLoading && (searchQuery?.length ?? 0) < 2 && meetings.length === 0 && (
+        {!loading && !searchLoading && (searchQuery?.length ?? 0) < 2 && meetings.length === 0 && (
           <div className="p-4 text-xs text-muted-foreground">
-            No meetings in scope
+            {hasFilters ? "No meetings match your filters" : "No meetings yet"}
           </div>
         )}
       </div>

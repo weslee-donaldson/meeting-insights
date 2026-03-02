@@ -365,4 +365,36 @@ describe("MeetingList", () => {
     );
     expect(screen.getByTestId("meeting-list-skeleton")).toBeDefined();
   });
+
+  it("shows filter empty state when meetings are empty and hasFilters is true", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        hasFilters={true}
+      />,
+    );
+    expect(screen.getByText("No meetings match your filters")).toBeDefined();
+  });
+
+  it("shows no meetings yet state when meetings are empty and hasFilters is false", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        hasFilters={false}
+      />,
+    );
+    expect(screen.getByText("No meetings yet")).toBeDefined();
+  });
 });

@@ -207,6 +207,7 @@ export function App() {
           searchLoading={searchFetching && searchQuery.trim().length >= 2}
           searchQuery={searchQuery}
           loading={meetingsQuery.isLoading}
+          hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
         />
       }
       detail={
