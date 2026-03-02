@@ -115,7 +115,7 @@ function statLine(ms: MeetingRow[]): string {
 
 function formatShortDate(dateStr: string): string {
   const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 interface GroupMenuProps {
