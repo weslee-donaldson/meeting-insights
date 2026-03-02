@@ -27,11 +27,15 @@ interface SectionProps {
   children: React.ReactNode;
   isEmpty: boolean;
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   headerExtra?: React.ReactNode;
 }
 
-function Section({ title, children, isEmpty, defaultOpen = false, headerExtra }: SectionProps) {
-  const [open, setOpen] = React.useState(defaultOpen);
+function Section({ title, children, isEmpty, defaultOpen = false, open: controlledOpen, onOpenChange, headerExtra }: SectionProps) {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   if (isEmpty) return null;
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
@@ -146,15 +150,48 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
     navigator.clipboard.writeText(text).catch(() => {});
   }, [artifact.action_items]);
 
+  const [sectionStates, setSectionStates] = useState<Record<string, boolean>>({
+    Summary: true,
+    "Action Items": true,
+  });
+
+  const setSectionOpen = useCallback((title: string, open: boolean) => {
+    setSectionStates(prev => ({ ...prev, [title]: open }));
+  }, []);
+
+  const expandAll = useCallback(() => {
+    setSectionStates({
+      Summary: true, Decisions: true, "Action Items": true,
+      "Open Questions": true, Risks: true, "Proposed Features": true,
+      Architecture: true, "Additional Notes": true,
+    });
+  }, []);
+
+  const collapseAll = useCallback(() => {
+    setSectionStates({});
+  }, []);
+
   return (
     <div className="flex flex-col">
-      <Section title="Summary" isEmpty={!artifact.summary} defaultOpen={true}>
+      <div className="flex items-center gap-1 pt-2 pb-1">
+        <Button variant="ghost" size="sm" onClick={expandAll} aria-label="Expand all"
+          className="h-auto px-1.5 py-0.5 text-[0.7rem] text-muted-foreground">
+          Expand all
+        </Button>
+        <Button variant="ghost" size="sm" onClick={collapseAll} aria-label="Collapse all"
+          className="h-auto px-1.5 py-0.5 text-[0.7rem] text-muted-foreground">
+          Collapse all
+        </Button>
+      </div>
+      <Section title="Summary" isEmpty={!artifact.summary} open={!!sectionStates["Summary"]} onOpenChange={(o) => setSectionOpen("Summary", o)}>
         <p className="leading-[1.65] text-secondary-foreground m-0">{artifact.summary}</p>
       </Section>
 
       <Section
         title="Decisions"
         isEmpty={artifact.decisions.length === 0}
+        open={!!sectionStates["Decisions"]}
+        onOpenChange={(o) => setSectionOpen("Decisions", o)}
         headerExtra={decisionPeople.length > 0 ? (
           <select
             value={decisionFilter}
@@ -173,7 +210,8 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
       <Section
         title="Action Items"
         isEmpty={artifact.action_items.length === 0}
-        defaultOpen={true}
+        open={!!sectionStates["Action Items"]}
+        onOpenChange={(o) => setSectionOpen("Action Items", o)}
         headerExtra={
           <div className="flex items-center gap-2">
             {actionPeople.length > 0 && (
@@ -293,23 +331,23 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
         </DialogContent>
       </Dialog>
 
-      <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0}>
+      <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={!!sectionStates["Open Questions"]} onOpenChange={(o) => setSectionOpen("Open Questions", o)}>
         <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" />
       </Section>
 
-      <Section title="Risks" isEmpty={artifact.risk_items.length === 0}>
+      <Section title="Risks" isEmpty={artifact.risk_items.length === 0} open={!!sectionStates["Risks"]} onOpenChange={(o) => setSectionOpen("Risks", o)}>
         <ItemList items={artifact.risk_items} icon="⚠" iconColor="var(--color-danger)" />
       </Section>
 
-      <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0}>
+      <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={!!sectionStates["Proposed Features"]} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}>
         <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" />
       </Section>
 
-      <Section title="Architecture" isEmpty={artifact.architecture.length === 0}>
+      <Section title="Architecture" isEmpty={artifact.architecture.length === 0} open={!!sectionStates["Architecture"]} onOpenChange={(o) => setSectionOpen("Architecture", o)}>
         <ItemList items={artifact.architecture} icon="◆" />
       </Section>
 
-      <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0}>
+      <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0} open={!!sectionStates["Additional Notes"]} onOpenChange={(o) => setSectionOpen("Additional Notes", o)}>
         {artifact.additional_notes.map((note, i) => {
           const entries = Object.entries(note);
           const header = entries.find(([, v]) => typeof v === "string");

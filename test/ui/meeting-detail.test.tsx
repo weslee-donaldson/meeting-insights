@@ -419,4 +419,28 @@ describe("MeetingDetail", () => {
     render(<MeetingDetail meeting={null} meetings={[]} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
+
+  it("expand all button opens all collapsed sections", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+      />,
+    );
+    expect(screen.queryByText("Ship by March")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Expand all" }));
+    expect(screen.getByText("Ship by March")).toBeDefined();
+  });
+
+  it("collapse all button closes all open sections", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+      />,
+    );
+    expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Collapse all" }));
+    expect(screen.queryByText("We discussed the roadmap.")).toBeNull();
+  });
 });
