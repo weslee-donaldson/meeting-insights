@@ -78,11 +78,20 @@ export function handleGetArtifact(
 ): Artifact | null {
   const row = getArtifact(db, meetingId);
   if (!row) return null;
+  const rawDecisions = JSON.parse(row.decisions ?? "[]") as unknown[];
+  const decisions = rawDecisions.map((d) =>
+    typeof d === "string" ? { text: d, decided_by: "" } : d as Artifact["decisions"][number],
+  );
+  const rawActions = JSON.parse(row.action_items ?? "[]") as unknown[];
+  const action_items = rawActions.map((item) => {
+    const a = item as Record<string, unknown>;
+    return "requester" in a ? a as Artifact["action_items"][number] : { ...a, requester: "" } as Artifact["action_items"][number];
+  });
   return {
     summary: row.summary,
-    decisions: JSON.parse(row.decisions ?? "[]"),
+    decisions,
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
-    action_items: JSON.parse(row.action_items ?? "[]"),
+    action_items,
     technical_topics: JSON.parse(row.technical_topics ?? "[]"),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
     risk_items: JSON.parse(row.risk_items ?? "[]"),

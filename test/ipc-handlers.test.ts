@@ -29,9 +29,9 @@ function seedClientsRaw(db: ReturnType<typeof createDb>) {
 function makeArtifact() {
   return {
     summary: "Key decisions were made.",
-    decisions: ["Go with approach A"],
+    decisions: [{ text: "Go with approach A", decided_by: "CEO" }],
     proposed_features: ["Dark mode"],
-    action_items: [{ description: "Write spec", owner: "Bob", due_date: "2026-03-01" }],
+    action_items: [{ description: "Write spec", owner: "Bob", requester: "Alice", due_date: "2026-03-01" }],
     technical_topics: ["TypeScript"],
     open_questions: ["When to ship?"],
     risk_items: ["Timeline risk"],
@@ -153,9 +153,9 @@ describe("IPC handlers", () => {
       const artifact = handleGetArtifact(db, meetingId1);
       expect(artifact).toEqual({
         summary: "Key decisions were made.",
-        decisions: ["Go with approach A"],
+        decisions: [{ text: "Go with approach A", decided_by: "CEO" }],
         proposed_features: ["Dark mode"],
-        action_items: [{ description: "Write spec", owner: "Bob", due_date: "2026-03-01" }],
+        action_items: [{ description: "Write spec", owner: "Bob", requester: "Alice", due_date: "2026-03-01" }],
         technical_topics: ["TypeScript"],
         open_questions: ["When to ship?"],
         risk_items: ["Timeline risk"],

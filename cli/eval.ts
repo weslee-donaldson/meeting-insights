@@ -23,8 +23,14 @@ const LIMIT        = parseInt(process.env.MTNINSIGHTS_EVAL_LIMIT ?? "6");
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface EvalQuestion { question: string; client?: string; }
-interface ActionItem  { description: string; owner: string; due_date: string | null; }
+interface ActionItem  { description: string; owner: string; requester: string; due_date: string | null; }
+interface Decision { text: string; decided_by: string }
 interface SearchResult { meeting_id: string; score: number; client: string; meeting_type: string; date: string; }
+
+function parseDecisions(json: string): Decision[] {
+  const raw = JSON.parse(json) as unknown[];
+  return raw.map((d) => (typeof d === "string" ? { text: d, decided_by: "" } : d as Decision));
+}
 
 // ── Context builder ───────────────────────────────────────────────────────────
 
@@ -34,7 +40,7 @@ function buildLabeledContext(db: Database, results: SearchResult[]): string {
     const mtg = getMeeting(db, r.meeting_id);
     const art = getArtifact(db, r.meeting_id);
     if (!art) return "";
-    const decisions = JSON.parse(art.decisions) as string[];
+    const decisions = parseDecisions(art.decisions);
     const actions   = JSON.parse(art.action_items) as ActionItem[];
     const questions = JSON.parse(art.open_questions) as string[];
     const risks     = JSON.parse(art.risk_items) as string[];
@@ -48,7 +54,7 @@ function buildLabeledContext(db: Database, results: SearchResult[]): string {
     return [
       `## ${label} ${mtg.title}  (${mtg.date.slice(0, 10)})`,
       `Summary: ${art.summary}`,
-      decisions.length ? `Decisions: ${decisions.join(" | ")}` : "",
+      decisions.length ? `Decisions: ${decisions.map(d => d.text).join(" | ")}` : "",
       actions.length   ? `Action items: ${actions.map(a => `${a.owner}: ${a.description}`).join(" | ")}` : "",
       questions.length ? `Open questions: ${questions.join(" | ")}` : "",
       risks.length     ? `Risks: ${risks.join(" | ")}` : "",

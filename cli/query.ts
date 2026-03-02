@@ -37,7 +37,13 @@ const question = args.filter(a => !a.startsWith("-")).join(" ").trim();
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface MeetingRow { id: string; title: string; date: string; }
-interface ActionItem  { description: string; owner: string; due_date: string | null; }
+interface ActionItem  { description: string; owner: string; requester: string; due_date: string | null; }
+interface Decision { text: string; decided_by: string }
+
+function parseDecisions(json: string): Decision[] {
+  const raw = JSON.parse(json) as unknown[];
+  return raw.map((d) => (typeof d === "string" ? { text: d, decided_by: "" } : d as Decision));
+}
 interface SearchResult { meeting_id: string; score: number; client: string; meeting_type: string; date: string; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -78,7 +84,7 @@ function buildLabeledContext(db: Database, results: SearchResult[]): string {
     const mtg = getMeeting(db, r.meeting_id);
     const art = getArtifact(db, r.meeting_id);
     if (!art) return "";
-    const decisions  = JSON.parse(art.decisions) as string[];
+    const decisions  = parseDecisions(art.decisions);
     const actions    = JSON.parse(art.action_items) as ActionItem[];
     const questions  = JSON.parse(art.open_questions) as string[];
     const risks      = JSON.parse(art.risk_items) as string[];
@@ -92,7 +98,7 @@ function buildLabeledContext(db: Database, results: SearchResult[]): string {
     return [
       `## ${label} ${mtg.title}  (${mtg.date.slice(0, 10)})`,
       `Summary: ${art.summary}`,
-      decisions.length  ? `Decisions: ${decisions.join(" | ")}` : "",
+      decisions.length  ? `Decisions: ${decisions.map(d => d.text).join(" | ")}` : "",
       actions.length    ? `Action items: ${actions.map(a => `${a.owner}: ${a.description}`).join(" | ")}` : "",
       questions.length  ? `Open questions: ${questions.join(" | ")}` : "",
       risks.length      ? `Risks: ${risks.join(" | ")}` : "",
@@ -135,7 +141,7 @@ function printSummary(db: Database, ids: string[]): void {
     console.log(meetingHeader(mtg.title, mtg.date, client));
     if (!art) { console.log("\n  (no artifact extracted)\n"); continue; }
 
-    const decisions = JSON.parse(art.decisions) as string[];
+    const decisions = parseDecisions(art.decisions);
     const actions   = JSON.parse(art.action_items) as ActionItem[];
     const questions = JSON.parse(art.open_questions) as string[];
     const risks     = JSON.parse(art.risk_items) as string[];
@@ -145,7 +151,7 @@ function printSummary(db: Database, ids: string[]): void {
     console.log("\nSUMMARY");
     console.log(`  ${art.summary}`);
 
-    if (decisions.length)  { console.log("\nDECISIONS");        decisions.forEach(d => console.log(`  • ${d}`)); }
+    if (decisions.length)  { console.log("\nDECISIONS");        decisions.forEach(d => console.log(`  • ${d.text}${d.decided_by ? ` (${d.decided_by})` : ""}`)); }
     if (features.length)   { console.log("\nPROPOSED FEATURES"); features.forEach(f => console.log(`  • ${f}`)); }
     if (actions.length)    { console.log("\nACTION ITEMS");      actions.forEach(a => console.log(`  • [${a.owner || "?"}] ${a.description}${a.due_date ? `  (due: ${a.due_date})` : ""}`)); }
     if (topics.length)     { console.log("\nTECHNICAL TOPICS"); console.log(`  ${topics.join(", ")}`); }
@@ -164,7 +170,7 @@ function printField(db: Database, ids: string[], type: string): void {
     if (!art) continue;
 
     let items: string[] = [];
-    if (type === "decisions")  items = JSON.parse(art.decisions) as string[];
+    if (type === "decisions")  items = parseDecisions(art.decisions).map(d => d.text);
     if (type === "features")   items = JSON.parse(art.proposed_features) as string[];
     if (type === "questions")  items = JSON.parse(art.open_questions) as string[];
     if (type === "risks")      items = JSON.parse(art.risk_items) as string[];

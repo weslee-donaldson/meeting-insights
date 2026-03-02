@@ -8,9 +8,9 @@ import { createApp } from "../api/server.js";
 function makeArtifact() {
   return {
     summary: "Key decisions were made.",
-    decisions: ["Go with approach A"],
+    decisions: [{ text: "Go with approach A", decided_by: "" }],
     proposed_features: ["Dark mode"],
-    action_items: [{ description: "Write spec", owner: "Bob", due_date: "2026-03-01" }],
+    action_items: [{ description: "Write spec", owner: "Bob", requester: "", due_date: "2026-03-01" }],
     technical_topics: ["TypeScript"],
     open_questions: ["When to ship?"],
     risk_items: ["Timeline risk"],
