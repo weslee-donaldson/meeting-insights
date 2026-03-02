@@ -8,6 +8,7 @@ import {
   handleGetClients, handleGetMeetings, handleGetArtifact, handleChat,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
+  handleGetItemHistory, handleGetMentionStats,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -109,6 +110,16 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   app.get("/api/meetings/:id/completions", (c) => {
     const id = c.req.param("id");
     return c.json(handleGetCompletions(db, id));
+  });
+
+  app.get("/api/items/:canonicalId/history", (c) => {
+    const canonicalId = c.req.param("canonicalId");
+    return c.json(handleGetItemHistory(db, canonicalId));
+  });
+
+  app.get("/api/meetings/:id/mention-stats", (c) => {
+    const id = c.req.param("id");
+    return c.json(handleGetMentionStats(db, id));
   });
 
   app.get("/api/search", async (c) => {

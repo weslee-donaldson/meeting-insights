@@ -10,6 +10,8 @@ export const CHANNELS = {
   SET_IGNORED: "set-ignored",
   COMPLETE_ACTION_ITEM: "complete-action-item",
   GET_COMPLETIONS: "get-completions",
+  GET_ITEM_HISTORY: "get-item-history",
+  GET_MENTION_STATS: "get-mention-stats",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -65,6 +67,23 @@ export interface ActionItemCompletion {
   note: string;
 }
 
+export interface ItemHistoryEntry {
+  canonical_id: string;
+  meeting_id: string;
+  item_type: string;
+  item_index: number;
+  item_text: string;
+  first_mentioned_at: string;
+}
+
+export interface MentionStat {
+  canonical_id: string;
+  item_type: string;
+  item_index: number;
+  mention_count: number;
+  first_mentioned_at: string;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -78,4 +97,6 @@ export interface ElectronAPI {
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;
   uncompleteActionItem: (meetingId: string, itemIndex: number) => Promise<void>;
   getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;
+  getItemHistory: (canonicalId: string) => Promise<ItemHistoryEntry[]>;
+  getMentionStats: (meetingId: string) => Promise<MentionStat[]>;
 }

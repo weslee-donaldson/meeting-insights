@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 11 unique non-empty channel strings", () => {
+  it("should have 13 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(11);
-    expect(new Set(values).size).toBe(11);
+    expect(values).toHaveLength(13);
+    expect(new Set(values).size).toBe(13);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);

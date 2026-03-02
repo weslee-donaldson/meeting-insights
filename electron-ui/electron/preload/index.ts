@@ -22,6 +22,8 @@ const api: ElectronAPI = {
   setIgnored: (meetingId: string, ignored: boolean) => ipcRenderer.invoke(CHANNELS.SET_IGNORED, meetingId, ignored),
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => ipcRenderer.invoke(CHANNELS.COMPLETE_ACTION_ITEM, meetingId, itemIndex, note),
   getCompletions: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_COMPLETIONS, meetingId),
+  getItemHistory: (canonicalId: string) => ipcRenderer.invoke(CHANNELS.GET_ITEM_HISTORY, canonicalId),
+  getMentionStats: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MENTION_STATS, meetingId),
 };
 
 contextBridge.exposeInMainWorld("api", api);

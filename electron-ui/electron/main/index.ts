@@ -15,6 +15,8 @@ import {
   handleSetIgnored,
   handleCompleteActionItem,
   handleGetCompletions,
+  handleGetItemHistory,
+  handleGetMentionStats,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
@@ -98,6 +100,8 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.SET_IGNORED, (_e, meetingId: string, ignored: boolean) => handleSetIgnored(db, meetingId, ignored));
   ipcMain.handle(CHANNELS.COMPLETE_ACTION_ITEM, (_e, meetingId: string, itemIndex: number, note: string) => handleCompleteActionItem(db, meetingId, itemIndex, note));
   ipcMain.handle(CHANNELS.GET_COMPLETIONS, (_e, meetingId: string) => handleGetCompletions(db, meetingId));
+  ipcMain.handle(CHANNELS.GET_ITEM_HISTORY, (_e, canonicalId: string) => handleGetItemHistory(db, canonicalId));
+  ipcMain.handle(CHANNELS.GET_MENTION_STATS, (_e, meetingId: string) => handleGetMentionStats(db, meetingId));
 
   createWindow();
 

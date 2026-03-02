@@ -8,8 +8,8 @@ import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion } from "./channels.js";
-import { cleanupMentions } from "../../core/item-dedup.js";
+import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat } from "./channels.js";
+import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -186,4 +186,12 @@ export async function handleSearchMeetings(
     date_after: req.date_after,
     date_before: req.date_before,
   }) as Promise<SearchResultRow[]>;
+}
+
+export function handleGetItemHistory(db: Database, canonicalId: string): ItemHistoryEntry[] {
+  return getMentionsByCanonical(db, canonicalId);
+}
+
+export function handleGetMentionStats(db: Database, meetingId: string): MentionStat[] {
+  return getMentionStats(db, meetingId);
 }
