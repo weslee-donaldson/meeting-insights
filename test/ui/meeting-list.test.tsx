@@ -4,6 +4,7 @@ import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MeetingList } from "../../electron-ui/ui/src/components/MeetingList.js";
+import type { GroupBy } from "../../electron-ui/ui/src/components/MeetingList.js";
 import type { MeetingRow } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
@@ -15,6 +16,15 @@ function makeMeeting(overrides: Partial<MeetingRow>): MeetingRow {
     date: "2026-02-25T10:00:00.000Z",
     client: "Acme",
     series: "test meeting",
+    actionItemCount: 0,
+    ...overrides,
+  };
+}
+
+function defaultProps(overrides: Partial<{ groupBy: GroupBy; onGroupBy: (g: GroupBy) => void }> = {}) {
+  return {
+    groupBy: "series" as GroupBy,
+    onGroupBy: vi.fn(),
     ...overrides,
   };
 }
@@ -33,6 +43,7 @@ describe("MeetingList", () => {
         meetings={dsuMeetings}
         selectedId={null}
         checked={new Set()}
+        {...defaultProps()}
         onSelect={vi.fn()}
         onCheck={vi.fn()}
         onCheckGroup={vi.fn()}
@@ -50,6 +61,7 @@ describe("MeetingList", () => {
         meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" })]}
         selectedId={null}
         checked={new Set()}
+        {...defaultProps()}
         onSelect={onSelect}
         onCheck={vi.fn()}
         onCheckGroup={vi.fn()}
@@ -71,6 +83,7 @@ describe("MeetingList", () => {
         meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" })]}
         selectedId={null}
         checked={new Set()}
+        {...defaultProps()}
         onSelect={onSelect}
         onCheck={onCheck}
         onCheckGroup={vi.fn()}
@@ -89,6 +102,7 @@ describe("MeetingList", () => {
         meetings={dsuMeetings}
         selectedId={null}
         checked={new Set()}
+        {...defaultProps()}
         onSelect={vi.fn()}
         onCheck={vi.fn()}
         onCheckGroup={onCheckGroup}
@@ -104,6 +118,7 @@ describe("MeetingList", () => {
         meetings={dsuMeetings}
         selectedId={null}
         checked={new Set()}
+        {...defaultProps()}
         onSelect={vi.fn()}
         onCheck={vi.fn()}
         onCheckGroup={vi.fn()}
@@ -111,5 +126,56 @@ describe("MeetingList", () => {
     );
     const dates = screen.getAllByText(/2026-02-\d+/);
     expect(dates[0].textContent).toContain("2026-02-26");
+  });
+
+  it("renders four group-by selector buttons", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Series" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Day" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Week" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Month" })).toBeTruthy();
+  });
+
+  it("clicking a group-by button calls onGroupBy with that mode", () => {
+    const onGroupBy = vi.fn();
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ onGroupBy })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    expect(onGroupBy).toHaveBeenCalledWith("day");
+  });
+
+  it("active group-by button matches groupBy prop", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "week" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    const weekBtn = screen.getByRole("button", { name: "Week" }) as HTMLButtonElement;
+    expect(weekBtn.style.fontWeight).toBe("600");
   });
 });

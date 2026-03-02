@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { Sidebar } from "./components/Sidebar.js";
 import { TopBar } from "./components/TopBar.js";
-import { MeetingList } from "./components/MeetingList.js";
+import { MeetingList, type GroupBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
 import { useTheme } from "./ThemeContext.js";
 import type { MeetingRow, ChatResponse, Artifact, SearchResultRow } from "../../electron/channels.js";
@@ -19,6 +19,7 @@ export function App() {
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
+  const [groupBy, setGroupBy] = useState<GroupBy>("series");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -138,6 +139,8 @@ export function App() {
           meetings={scopeMeetings}
           selectedId={selectedMeetingId}
           checked={checkedMeetingIds}
+          groupBy={groupBy}
+          onGroupBy={setGroupBy}
           onSelect={setSelectedMeetingId}
           onCheck={handleCheck}
           onCheckGroup={handleCheckGroup}

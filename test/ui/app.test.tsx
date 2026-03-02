@@ -11,7 +11,7 @@ beforeAll(() => {
   (window as unknown as Record<string, unknown>).api = {
     getClients: vi.fn().mockResolvedValue(["Acme"]),
     getMeetings: vi.fn().mockResolvedValue([
-      { id: "m1", title: "Alpha Weekly", date: "2026-01-01", client: "Acme", series: "alpha weekly" },
+      { id: "m1", title: "Alpha Weekly", date: "2026-01-01", client: "Acme", series: "alpha weekly", actionItemCount: 2 },
     ]),
     getArtifact: vi.fn().mockResolvedValue(null),
     chat: vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 }),
@@ -34,6 +34,16 @@ describe("App", () => {
   it("shows Select a meeting placeholder in detail", () => {
     render(<App />, { wrapper });
     expect(screen.getByText("Select a meeting")).toBeDefined();
+  });
+
+  it("renders group-by selector and switches groupBy state on click", async () => {
+    render(<App />, { wrapper });
+    const dayBtn = screen.getByRole("button", { name: "Day" });
+    expect(dayBtn).toBeDefined();
+    fireEvent.click(dayBtn);
+    await waitFor(() => {
+      expect((screen.getByRole("button", { name: "Day" }) as HTMLButtonElement).style.fontWeight).toBe("600");
+    });
   });
 
   it("opens detail panel after meeting row click", async () => {

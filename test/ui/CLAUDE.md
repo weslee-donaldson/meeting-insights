@@ -7,6 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #647 | 11:00 PM | 🟣 | Added meeting grouping mode selector with Series/Day/Week/Month options | ~390 |
-| #638 | 10:53 PM | 🔵 | Meeting Intelligence Explorer UI built with React, Radix UI, and inline chat interface | ~483 |
+| #651 | 11:02 PM | ✅ | Updated test mock data to include actionItemCount field | ~224 |
+| #650 | " | ✅ | Added test coverage for meeting grouping functionality in MeetingList component | ~333 |
 </claude-mem-context>
