@@ -727,11 +727,11 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 - [x] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — `chat` slot + `chatOpen` prop; resize handle; `chatOpen = activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update shell + app tests (commit: `fccddc7`)
 - [x] Burst 285: Chat input — shadcn `Textarea` with paste-to-attach image support (`onPaste` reads `DataTransfer.files`); file picker button (`<input type="file" accept="image/*">`); attached images shown as thumbnails below textarea with remove button; test: pasting a file populates attachment list; test: clicking remove clears it (commit: `fd02cd7`)
 - [x] Burst 286: Chat IPC — extend `channels.ts` `ChatRequest` with `attachments: { name: string; base64: string; mimeType: string }[]`; update `handleChat` to include image content blocks in Anthropic messages API call (using vision); test: handler forwards attachment as image_url content block (commit: `098cf7c`)
-- [ ] Burst 287: Copy response as rich text — two buttons per response: "Copy as Markdown" copies raw markdown source; "Copy for Jira" converts to Jira classic wiki markup (`*bold*`, `h2.`, `- bullet`, `{code}`) for Jira Server/Data Center/older Cloud; test: each format produces correct output for a fixture response containing heading, list, bold, and code block
+- [x] Burst 287: Copy response as rich text — two buttons per response: "Copy as Markdown" copies raw markdown source; "Copy for Jira" converts to Jira classic wiki markup (`*bold*`, `h2.`, `- bullet`, `{code}`) for Jira Server/Data Center/older Cloud; test: each format produces correct output for a fixture response containing heading, list, bold, and code block (commit: `3c9628c`)
 
 ### Bottle: Cross-Cutting Search
 
-- [ ] Burst 288: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value
+- [x] Burst 288: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value (already complete from burst 265)
 - [ ] Burst 289: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results
 - [ ] Burst 290: Search respects Client + date filters — pass current `client`/`after`/`before` to search call; test: results change with client param
 - [ ] Burst 291: Search loading + no-results state — spinner while in-flight; "No results for '…'" in list when empty; test: loading + empty states render

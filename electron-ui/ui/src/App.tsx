@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { Sidebar } from "./components/Sidebar.js";
@@ -7,6 +7,7 @@ import { MeetingList, type GroupBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { useTheme } from "./ThemeContext.js";
+import { useSearch } from "./hooks/useSearch.js";
 import type { MeetingRow, ChatResponse, Artifact, SearchResultRow } from "../../electron/channels.js";
 
 interface DateRange {
@@ -38,7 +39,14 @@ export function App() {
       }),
   });
 
-  const scopeMeetings = meetingsQuery.data ?? [];
+  const { data: searchResults } = useSearch(searchQuery, selectedClient ?? undefined);
+
+  const scopeMeetings = useMemo(() => {
+    const all = meetingsQuery.data ?? [];
+    if (searchQuery.trim().length < 2 || !searchResults) return all;
+    const matchIds = new Set(searchResults.map((r) => r.meeting_id));
+    return all.filter((m) => matchIds.has(m.id));
+  }, [meetingsQuery.data, searchQuery, searchResults]);
 
   const activeMeetingIds =
     checkedMeetingIds.size > 0
