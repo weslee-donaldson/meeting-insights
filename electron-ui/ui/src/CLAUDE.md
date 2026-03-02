@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #690 | 11:56 PM | 🔄 | Lifted search query state to App component for centralized state management | ~331 |
+| #689 | 11:55 PM | 🔴 | Fixed Reset button to clear search query along with other filters | ~301 |
 | #671 | 11:20 PM | 🔵 | Documented chat panel architecture and rendering limitations | ~538 |
-| #644 | 10:58 PM | 🔵 | Backend IPC handlers use SQLite with client detection and vector search capabilities | ~434 |
 </claude-mem-context>

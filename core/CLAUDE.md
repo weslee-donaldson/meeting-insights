@@ -8,5 +8,4 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #671 | 11:20 PM | 🔵 | Documented chat panel architecture and rendering limitations | ~538 |
-| #644 | 10:58 PM | 🔵 | Backend IPC handlers use SQLite with client detection and vector search capabilities | ~434 |
 </claude-mem-context>

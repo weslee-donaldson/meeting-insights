@@ -23,3 +23,195 @@
 [ 1945445ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emm:0
 [ 1945597ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emmi:0
 [ 1945740ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emmit:0
+[ 4486295ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427307768:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4486295ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4489478ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427310954:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4489478ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4493329ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427314806:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4493329ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4498655ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4498655ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4500116ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4500116ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4504964ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4504964ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4506334ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4506334ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4509391ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4509391ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4513652ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4513652ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4519440ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4519440ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4521006ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4521006ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963
+[ 4524008ms] TypeError: Cannot read properties of undefined (reading 'trim')
+    at useSearch (http://localhost:5173/src/hooks/useSearch.ts:6:20)
+    at SearchBar (http://localhost:5173/src/components/SearchBar.tsx?t=1772427320132:9:29)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:18507:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:5652:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:7473:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:8523:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:995:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12559:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12422:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:12406:13)
+[ 4524009ms] [WARNING] %s
+
+%s
+ An error occurred in the <SearchBar> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7b1d369d:6963

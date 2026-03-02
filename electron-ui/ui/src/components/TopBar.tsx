@@ -9,8 +9,10 @@ interface TopBarProps {
   clients: string[];
   selectedClient: string | null;
   dateRange: { after: string; before: string };
+  searchQuery: string;
   onClientChange: (name: string | null) => void;
   onDateChange: (field: "after" | "before", value: string) => void;
+  onSearchQueryChange: (q: string) => void;
   onReset: () => void;
   onSelectSearchResults: (results: SearchResultRow[]) => void;
   theme: ThemeName;
@@ -28,8 +30,10 @@ export function TopBar({
   clients,
   selectedClient,
   dateRange,
+  searchQuery,
   onClientChange,
   onDateChange,
+  onSearchQueryChange,
   onReset,
   onSelectSearchResults,
   theme,
@@ -128,6 +132,8 @@ export function TopBar({
 
       <div style={{ marginLeft: "auto" }}>
         <SearchBar
+          query={searchQuery}
+          onQueryChange={onSearchQueryChange}
           client={selectedClient ?? undefined}
           onSelectResults={onSelectSearchResults}
         />

@@ -4,12 +4,13 @@ import { useSearch } from "../hooks/useSearch.js";
 import type { SearchResultRow } from "../../../electron/channels.js";
 
 interface Props {
+  query: string;
+  onQueryChange: (q: string) => void;
   client?: string;
   onSelectResults: (results: SearchResultRow[]) => void;
 }
 
-export function SearchBar({ client, onSelectResults }: Props) {
-  const [query, setQuery] = useState("");
+export function SearchBar({ query, onQueryChange, client, onSelectResults }: Props) {
   const [open, setOpen] = useState(false);
   const { data: results } = useSearch(query, client);
 
@@ -24,7 +25,7 @@ export function SearchBar({ client, onSelectResults }: Props) {
           type="text"
           placeholder="Search meetings…"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onChange={(e) => { onQueryChange(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           className="bg-transparent focus:outline-none text-sm w-44"
@@ -47,7 +48,7 @@ export function SearchBar({ client, onSelectResults }: Props) {
               style={{ borderBottom: "1px solid var(--color-border)" }}
               onMouseDown={() => {
                 onSelectResults([r]);
-                setQuery("");
+                onQueryChange("");
                 setOpen(false);
               }}
             >

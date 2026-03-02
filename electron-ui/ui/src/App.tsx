@@ -20,6 +20,7 @@ export function App() {
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -82,6 +83,7 @@ export function App() {
     setDateRange({ after: "", before: "" });
     setSelectedMeetingId(null);
     setCheckedMeetingIds(new Set());
+    setSearchQuery("");
   }, []);
 
   const handleCheck = useCallback((id: string) => {
@@ -118,8 +120,10 @@ export function App() {
           clients={clientsQuery.data ?? []}
           selectedClient={selectedClient}
           dateRange={dateRange}
+          searchQuery={searchQuery}
           onClientChange={handleClientChange}
           onDateChange={handleDateChange}
+          onSearchQueryChange={setSearchQuery}
           onReset={handleReset}
           onSelectSearchResults={handleSelectSearchResults}
           theme={theme}

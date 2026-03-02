@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import React from "react";
+import React, { useState } from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,10 +7,14 @@ import { SearchBar } from "../../electron-ui/ui/src/components/SearchBar.js";
 
 afterEach(cleanup);
 
-function makeWrapper() {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+function makeQC() {
+  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
+}
+
+function ControlledWrapper({ onSelectResults }: { onSelectResults: (r: unknown[]) => void }) {
+  const [query, setQuery] = useState("");
+  return (
+    <SearchBar query={query} onQueryChange={setQuery} onSelectResults={onSelectResults} />
   );
 }
 
@@ -24,8 +28,11 @@ const mockResult = {
 
 describe("SearchBar", () => {
   it("renders search input", () => {
-    const Wrapper = makeWrapper();
-    render(<Wrapper><SearchBar onSelectResults={vi.fn()} /></Wrapper>);
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <SearchBar query="" onQueryChange={vi.fn()} onSelectResults={vi.fn()} />
+      </QueryClientProvider>,
+    );
     expect(screen.getByRole("textbox", { name: /search meetings/i })).toBeDefined();
   });
 
@@ -33,8 +40,11 @@ describe("SearchBar", () => {
     (window as unknown as Record<string, unknown>).api = {
       search: vi.fn().mockResolvedValue([mockResult]),
     };
-    const Wrapper = makeWrapper();
-    render(<Wrapper><SearchBar onSelectResults={vi.fn()} /></Wrapper>);
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <ControlledWrapper onSelectResults={vi.fn()} />
+      </QueryClientProvider>,
+    );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "a" } });
     await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByRole("listbox")).toBeNull();
@@ -44,8 +54,11 @@ describe("SearchBar", () => {
     (window as unknown as Record<string, unknown>).api = {
       search: vi.fn().mockResolvedValue([mockResult]),
     };
-    const Wrapper = makeWrapper();
-    render(<Wrapper><SearchBar onSelectResults={vi.fn()} /></Wrapper>);
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <ControlledWrapper onSelectResults={vi.fn()} />
+      </QueryClientProvider>,
+    );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
     await waitFor(() => expect(screen.getByRole("listbox")).toBeDefined(), { timeout: 2000 });
     expect(screen.getByText("DSU")).toBeDefined();
@@ -56,8 +69,11 @@ describe("SearchBar", () => {
     (window as unknown as Record<string, unknown>).api = {
       search: vi.fn().mockResolvedValue([mockResult]),
     };
-    const Wrapper = makeWrapper();
-    render(<Wrapper><SearchBar onSelectResults={onSelectResults} /></Wrapper>);
+    render(
+      <QueryClientProvider client={makeQC()}>
+        <ControlledWrapper onSelectResults={onSelectResults} />
+      </QueryClientProvider>,
+    );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
     await waitFor(() => screen.getByRole("listbox"), { timeout: 2000 });
     fireEvent.mouseDown(screen.getByRole("option"));

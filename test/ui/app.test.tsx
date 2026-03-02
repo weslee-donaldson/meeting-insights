@@ -46,6 +46,15 @@ describe("App", () => {
     });
   });
 
+  it("reset clears search input value", async () => {
+    render(<App />, { wrapper });
+    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "foo" } });
+    expect((input as HTMLInputElement).value).toBe("foo");
+    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    expect((input as HTMLInputElement).value).toBe("");
+  });
+
   it("opens detail panel after meeting row click", async () => {
     render(<App />, { wrapper });
     const row = await screen.findByTestId("meeting-row-m1");
