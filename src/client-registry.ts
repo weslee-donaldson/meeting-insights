@@ -9,6 +9,7 @@ export interface ClientRow {
   aliases: string;
   known_participants: string;
   refinement_prompt: string | null;
+  meeting_names: string;
 }
 
 interface ClientEntry {
@@ -16,6 +17,7 @@ interface ClientEntry {
   aliases: string[];
   known_participants: string[];
   refinement_prompt?: string;
+  meeting_names?: string[];
 }
 
 export function seedClients(db: Database, filePath: string): void {
@@ -24,12 +26,13 @@ export function seedClients(db: Database, filePath: string): void {
     if (!entry.name) throw new Error("Client entry missing name");
     if (!entry.aliases) throw new Error("Client entry missing aliases");
     db.prepare(
-      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, refinement_prompt) VALUES (?, ?, ?, ?)",
+      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, refinement_prompt, meeting_names) VALUES (?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
       JSON.stringify(entry.known_participants ?? []),
       entry.refinement_prompt ?? null,
+      entry.meeting_names ? JSON.stringify(entry.meeting_names) : "[]",
     );
   }
   log("loaded %d clients", entries.length);

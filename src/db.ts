@@ -71,4 +71,7 @@ export function migrate(db: DatabaseSync): void {
   if (!clientCols.some(c => c.name === "refinement_prompt")) {
     db.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");
   }
+  if (!clientCols.some(c => c.name === "meeting_names")) {
+    db.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
+  }
 }

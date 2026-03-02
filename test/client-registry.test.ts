@@ -94,3 +94,24 @@ describe("refinement_prompt field", () => {
     expect(client!.refinement_prompt).toBeNull();
   });
 });
+
+describe("meeting_names field", () => {
+  it("returns parseable meeting_names array when client is seeded with one", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-meetingnames-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([
+      { name: "TestCo", aliases: ["Test"], known_participants: ["@test.com"], meeting_names: ["Weekly Sync", "Team DSU"] },
+    ]));
+    seedClients(localDb, file);
+    const client = getClientByName(localDb, "TestCo");
+    expect(JSON.parse(client!.meeting_names)).toEqual(["Weekly Sync", "Team DSU"]);
+  });
+
+  it("returns empty array meeting_names when client has none", () => {
+    const client = getClientByName(db, "Revenium");
+    expect(JSON.parse(client!.meeting_names)).toEqual([]);
+  });
+});
