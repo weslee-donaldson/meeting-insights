@@ -135,6 +135,13 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleIgnore = useCallback(async () => {
+    if (!selectedMeetingId) return;
+    await window.api.setIgnored(selectedMeetingId, true);
+    setSelectedMeetingId(null);
+    queryClient.invalidateQueries({ queryKey: ["meetings"] });
+  }, [selectedMeetingId, queryClient]);
+
   const handleChat = useCallback(
     async (question: string): Promise<ChatResponse> => {
       return window.api.chat({ meetingIds: activeMeetingIds, question });
@@ -192,6 +199,7 @@ export function App() {
           onReExtract={selectedMeetingId ? handleReExtract : undefined}
           clients={clientsQuery.data}
           onReassignClient={selectedMeetingId ? handleReassignClient : undefined}
+          onIgnore={selectedMeetingId ? handleIgnore : undefined}
         />
       }
       chat={

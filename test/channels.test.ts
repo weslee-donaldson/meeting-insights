@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 8 unique non-empty channel strings", () => {
+  it("should have 9 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(8);
-    expect(new Set(values).size).toBe(8);
+    expect(values).toHaveLength(9);
+    expect(new Set(values).size).toBe(9);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -43,6 +43,10 @@ describe("CHANNELS", () => {
 
   it("should define REASSIGN_CLIENT channel", () => {
     expect(CHANNELS.REASSIGN_CLIENT).toBe("reassign-client");
+  });
+
+  it("should define SET_IGNORED channel", () => {
+    expect(CHANNELS.SET_IGNORED).toBe("set-ignored");
   });
 
   it("SearchRequest has correct shape", () => {

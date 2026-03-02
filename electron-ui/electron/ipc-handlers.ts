@@ -42,7 +42,7 @@ export function handleGetMeetings(
 ): MeetingRow[] {
   let rows = db
     .prepare(
-      "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id ORDER BY m.date DESC",
+      "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id WHERE m.ignored = 0 ORDER BY m.date DESC",
     )
     .all() as unknown as DbMeetingRow[];
 
@@ -127,6 +127,10 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   const artifact = await extractSummary(llm, turns, 8000);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
   storeArtifact(db, meetingId, artifact);
+}
+
+export function handleSetIgnored(db: Database, meetingId: string, ignored: boolean): void {
+  db.prepare("UPDATE meetings SET ignored = ? WHERE id = ?").run(ignored ? 1 : 0, meetingId);
 }
 
 export function handleReassignClient(db: Database, meetingId: string, clientName: string): void {

@@ -15,6 +15,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #792 | 12:50 AM | 🟣 | Added setIgnored API client method for toggling meeting visibility | ~342 |
 | #767 | 12:38 AM | ✅ | Wired delete functionality props from App to TopBar component | ~344 |
 | #766 | " | 🟣 | Added bulk meeting deletion functionality with automatic state cleanup | ~374 |
 </claude-mem-context>

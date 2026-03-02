@@ -51,4 +51,11 @@ export const apiClient: ElectronAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clientName }),
     }).then(() => undefined),
+
+  setIgnored: (meetingId: string, ignored: boolean) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/ignored`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ignored }),
+    }).then(() => undefined),
 };

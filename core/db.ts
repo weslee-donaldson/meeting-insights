@@ -67,6 +67,11 @@ export function migrate(db: DatabaseSync): void {
     db.exec("ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'");
   }
 
+  const meetingCols = db.prepare("PRAGMA table_info(meetings)").all() as { name: string }[];
+  if (!meetingCols.some(c => c.name === "ignored")) {
+    db.exec("ALTER TABLE meetings ADD COLUMN ignored INTEGER DEFAULT 0");
+  }
+
   const clientCols = db.prepare("PRAGMA table_info(clients)").all() as { name: string }[];
   if (!clientCols.some(c => c.name === "refinement_prompt")) {
     db.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");

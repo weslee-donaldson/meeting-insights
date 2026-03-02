@@ -88,6 +88,13 @@ describe("MeetingDetail", () => {
     expect(onReassignClient).toHaveBeenCalledWith("Acme");
   });
 
+  it("ignore button calls onIgnore when clicked", () => {
+    const onIgnore = vi.fn();
+    render(<MeetingDetail meeting={makeMeeting()} artifact={null} onIgnore={onIgnore} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ignore meeting" }));
+    expect(onIgnore).toHaveBeenCalledOnce();
+  });
+
   it("re-extract button calls onReExtract when clicked", () => {
     const onReExtract = vi.fn();
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);

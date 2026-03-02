@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff } from "lucide-react";
 import type { MeetingRow, Artifact } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
@@ -12,6 +12,7 @@ interface MeetingDetailProps {
   onReExtract?: () => void;
   clients?: string[];
   onReassignClient?: (clientName: string) => void;
+  onIgnore?: () => void;
 }
 
 interface SectionProps {
@@ -161,7 +162,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -223,6 +224,17 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
                   </div>
                 )}
               </>
+            )}
+            {onIgnore && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onIgnore}
+                aria-label="Ignore meeting"
+                className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+              >
+                <EyeOff className="w-3 h-3" />
+              </Button>
             )}
             {onReExtract && (
               <Button

@@ -12,6 +12,7 @@ import {
   handleDeleteMeetings,
   handleReExtract,
   handleReassignClient,
+  handleSetIgnored,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -234,6 +235,20 @@ describe("IPC handlers", () => {
       const meetings = handleGetMeetings(db, {});
       const m = meetings.find((r) => r.id === meetingId2)!;
       expect(m.client).toBe("Acme");
+    });
+  });
+
+  describe("handleSetIgnored", () => {
+    it("excludes meeting from getMeetings when ignored=true", () => {
+      handleSetIgnored(db, meetingId2, true);
+      const meetings = handleGetMeetings(db, {});
+      expect(meetings.some((m) => m.id === meetingId2)).toBe(false);
+    });
+
+    it("restores meeting in getMeetings when ignored=false", () => {
+      handleSetIgnored(db, meetingId2, false);
+      const meetings = handleGetMeetings(db, {});
+      expect(meetings.some((m) => m.id === meetingId2)).toBe(true);
     });
   });
 
