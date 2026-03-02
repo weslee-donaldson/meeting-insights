@@ -281,7 +281,8 @@ describe("MeetingDetail", () => {
         })}
       />,
     );
-    expect(screen.getByText("Bob")).toBeDefined();
+    const bobs = screen.getAllByText("Bob");
+    expect(bobs.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders decided_by in decisions text when decided_by is present", () => {
@@ -295,6 +296,51 @@ describe("MeetingDetail", () => {
     );
     fireEvent.click(screen.getByText("Decisions"));
     expect(screen.getByText("Use TypeScript (CTO)")).toBeDefined();
+  });
+
+  it("action items person filter dropdown filters by selected person", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", requester: "", due_date: null },
+            { description: "Review PR", owner: "Bob", requester: "Alice", due_date: null },
+            { description: "Deploy app", owner: "Charlie", requester: "", due_date: null },
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByText("Write tests")).toBeDefined();
+    expect(screen.getByText("Review PR")).toBeDefined();
+    expect(screen.getByText("Deploy app")).toBeDefined();
+    fireEvent.change(screen.getByRole("combobox", { name: "Filter action items by person" }), { target: { value: "Alice" } });
+    expect(screen.getByText("Write tests")).toBeDefined();
+    expect(screen.getByText("Review PR")).toBeDefined();
+    expect(screen.queryByText("Deploy app")).toBeNull();
+  });
+
+  it("decisions person filter dropdown filters by selected person", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          decisions: [
+            { text: "Use TypeScript", decided_by: "CTO" },
+            { text: "Ship by March", decided_by: "PM" },
+            { text: "Add dark mode", decided_by: "CTO" },
+          ],
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByText("Decisions"));
+    expect(screen.getByText("Use TypeScript (CTO)")).toBeDefined();
+    expect(screen.getByText("Ship by March (PM)")).toBeDefined();
+    expect(screen.getByText("Add dark mode (CTO)")).toBeDefined();
+    fireEvent.change(screen.getByRole("combobox", { name: "Filter decisions by person" }), { target: { value: "PM" } });
+    expect(screen.queryByText("Use TypeScript (CTO)")).toBeNull();
+    expect(screen.getByText("Ship by March (PM)")).toBeDefined();
+    expect(screen.queryByText("Add dark mode (CTO)")).toBeNull();
   });
 
   it("section content has left padding for visual hierarchy", () => {

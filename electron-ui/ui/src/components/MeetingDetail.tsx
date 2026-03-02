@@ -90,6 +90,8 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
 function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
+  const [actionItemFilter, setActionItemFilter] = useState("");
+  const [decisionFilter, setDecisionFilter] = useState("");
 
   const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
 
@@ -97,6 +99,35 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
     () => artifact.action_items.filter((_, i) => !completedSet.has(i)).length,
     [artifact.action_items, completedSet],
   );
+
+  const actionPeople = useMemo(() => {
+    const names = new Set<string>();
+    for (const a of artifact.action_items) {
+      if (a.owner) names.add(a.owner);
+      if (a.requester) names.add(a.requester);
+    }
+    return Array.from(names).sort();
+  }, [artifact.action_items]);
+
+  const filteredActions = useMemo(() => {
+    if (!actionItemFilter) return artifact.action_items.map((a, i) => ({ a, i }));
+    return artifact.action_items
+      .map((a, i) => ({ a, i }))
+      .filter(({ a }) => a.owner === actionItemFilter || a.requester === actionItemFilter);
+  }, [artifact.action_items, actionItemFilter]);
+
+  const decisionPeople = useMemo(() => {
+    const names = new Set<string>();
+    for (const d of artifact.decisions) {
+      if (d.decided_by) names.add(d.decided_by);
+    }
+    return Array.from(names).sort();
+  }, [artifact.decisions]);
+
+  const filteredDecisions = useMemo(() => {
+    if (!decisionFilter) return artifact.decisions;
+    return artifact.decisions.filter((d) => d.decided_by === decisionFilter);
+  }, [artifact.decisions, decisionFilter]);
 
   const copyActionItems = useCallback(() => {
     const text = artifact.action_items
@@ -114,8 +145,22 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         <p className="leading-[1.65] text-secondary-foreground m-0">{artifact.summary}</p>
       </Section>
 
-      <Section title="Decisions" isEmpty={artifact.decisions.length === 0}>
-        <ItemList items={artifact.decisions.map((d) => d.decided_by ? `${d.text} (${d.decided_by})` : d.text)} icon="—" />
+      <Section
+        title="Decisions"
+        isEmpty={artifact.decisions.length === 0}
+        headerExtra={decisionPeople.length > 0 ? (
+          <select
+            value={decisionFilter}
+            onChange={(e) => setDecisionFilter(e.target.value)}
+            aria-label="Filter decisions by person"
+            className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
+          >
+            <option value="">All</option>
+            {decisionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        ) : undefined}
+      >
+        <ItemList items={filteredDecisions.map((d) => d.decided_by ? `${d.text} (${d.decided_by})` : d.text)} icon="—" />
       </Section>
 
       <Section
@@ -124,6 +169,17 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         defaultOpen={true}
         headerExtra={
           <div className="flex items-center gap-2">
+            {actionPeople.length > 0 && (
+              <select
+                value={actionItemFilter}
+                onChange={(e) => setActionItemFilter(e.target.value)}
+                aria-label="Filter action items by person"
+                className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
+              >
+                <option value="">All</option>
+                {actionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            )}
             {artifact.action_items.length > 0 && (
               <>
                 <span className="text-[0.7rem] text-muted-foreground shrink-0">
@@ -162,7 +218,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         }
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-2">
-          {artifact.action_items.map((a, i) => {
+          {filteredActions.map(({ a, i }) => {
             const isCompleted = completedSet.has(i);
             const existingNote = completions.find((c) => c.item_index === i)?.note ?? "";
             return (
