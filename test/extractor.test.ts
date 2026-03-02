@@ -47,12 +47,15 @@ describe("extractSummary", () => {
     expect(Array.isArray(artifact.proposed_features)).toBe(true);
   });
 
-  it("returns action_items with description, owner, due_date", async () => {
+  it("returns action_items with description, owner, requester, due_date", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     expect(Array.isArray(artifact.action_items)).toBe(true);
-    expect(artifact.action_items[0]).toHaveProperty("description");
-    expect(artifact.action_items[0]).toHaveProperty("owner");
-    expect(artifact.action_items[0]).toHaveProperty("due_date");
+    expect(artifact.action_items[0]).toEqual({
+      description: "Follow up",
+      owner: "Wesley",
+      requester: "Stace",
+      due_date: null,
+    });
   });
 
   it("returns technical_topics array", async () => {
@@ -126,6 +129,15 @@ describe("validateArtifact", () => {
       { text: "Use REST", decided_by: "" },
       { text: "OAuth2", decided_by: "" },
     ]);
+  });
+
+  it("normalizes action_items without requester to empty string", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      action_items: [{ description: "Do X", owner: "Bob", due_date: null }],
+    });
+    expect(result.action_items[0]).toEqual({ description: "Do X", owner: "Bob", requester: "", due_date: null });
   });
 
   it("preserves structured decisions unchanged", () => {

@@ -13,7 +13,7 @@ export interface Artifact {
   summary: string;
   decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
-  action_items: Array<{ description: string; owner: string; due_date: string | null }>;
+  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null }>;
   technical_topics: string[];
   open_questions: string[];
   risk_items: string[];
@@ -49,6 +49,15 @@ export function validateArtifact(raw: object): Artifact {
     r["decisions"] = decisions.map((d) =>
       typeof d === "string" ? { text: d, decided_by: "" } : d,
     );
+  }
+  const items = r["action_items"];
+  if (Array.isArray(items)) {
+    r["action_items"] = items.map((item) => {
+      if (typeof item === "object" && item !== null && !("requester" in item)) {
+        return { ...item, requester: "" };
+      }
+      return item;
+    });
   }
   const notes = r["additional_notes"];
   if (!Array.isArray(notes) || notes.some(item => typeof item !== "object" || item === null || Array.isArray(item))) {
