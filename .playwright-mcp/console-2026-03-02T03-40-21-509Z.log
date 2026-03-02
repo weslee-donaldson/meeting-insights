@@ -220,3 +220,4 @@ Visit https://react.dev/link/error-boundaries to learn more about error boundari
 [ 8771575ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/App.tsx?t=1772431591259:0
 [ 8795218ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/App.tsx?t=1772431591259:0
 [ 8818443ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/App.tsx?t=1772431639894:0
+[27335667ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=6fbfksSP0yKn' failed:  @ http://localhost:5173/@vite/client:744

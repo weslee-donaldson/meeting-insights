@@ -4,7 +4,11 @@ import { serve } from "@hono/node-server";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { handleGetClients, handleGetMeetings, handleGetArtifact, handleChat } from "../electron-ui/electron/ipc-handlers.js";
+import {
+  handleGetClients, handleGetMeetings, handleGetArtifact, handleChat,
+  handleDeleteMeetings, handleReExtract, handleReassignClient,
+  handleSetIgnored, handleCompleteActionItem, handleGetCompletions,
+} from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 import type { VectorDb } from "../core/vector-db.js";
@@ -59,6 +63,45 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const req = await c.req.json() as { meetingIds: string[]; question: string };
     const result = await handleChat(db, llm!, req);
     return c.json(result);
+  });
+
+  app.delete("/api/meetings", async (c) => {
+    const { ids } = await c.req.json() as { ids: string[] };
+    handleDeleteMeetings(db, ids);
+    return c.body(null, 204);
+  });
+
+  app.post("/api/meetings/:id/re-extract", async (c) => {
+    const id = c.req.param("id");
+    await handleReExtract(db, llm!, id);
+    return c.json({});
+  });
+
+  app.post("/api/meetings/:id/client", async (c) => {
+    const id = c.req.param("id");
+    const { clientName } = await c.req.json() as { clientName: string };
+    handleReassignClient(db, id, clientName);
+    return c.body(null, 204);
+  });
+
+  app.post("/api/meetings/:id/ignored", async (c) => {
+    const id = c.req.param("id");
+    const { ignored } = await c.req.json() as { ignored: boolean };
+    handleSetIgnored(db, id, ignored);
+    return c.body(null, 204);
+  });
+
+  app.post("/api/meetings/:id/action-items/:index/complete", async (c) => {
+    const id = c.req.param("id");
+    const itemIndex = Number(c.req.param("index"));
+    const { note } = await c.req.json() as { note: string };
+    handleCompleteActionItem(db, id, itemIndex, note);
+    return c.body(null, 204);
+  });
+
+  app.get("/api/meetings/:id/completions", (c) => {
+    const id = c.req.param("id");
+    return c.json(handleGetCompletions(db, id));
   });
 
   app.get("/api/search", async (c) => {

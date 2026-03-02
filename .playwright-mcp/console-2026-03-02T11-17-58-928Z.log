@@ -1,0 +1,2 @@
+[   92007ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019ca032bcdf7137ac3522a0ab49a8d8/completions:0
+[   93013ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019ca032bcdf7137ac3522a0ab49a8d8/completions:0

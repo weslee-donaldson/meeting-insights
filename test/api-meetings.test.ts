@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeDetection } from "../core/client-detection.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
 import { createApp } from "../api/server.js";
 
 function seedClientRaw(db: ReturnType<typeof createDb>, name: string) {
@@ -111,5 +112,151 @@ describe("GET /api/meetings", () => {
   it("should return 404 for unknown meeting id", async () => {
     const res = await app.request("/api/meetings/unknown-id");
     expect(res.status).toBe(404);
+  });
+});
+
+describe("DELETE /api/meetings", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "To Delete",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "delete-me",
+    });
+    app = createApp(db, ":memory:");
+  });
+
+  it("deletes meetings by id and returns 204", async () => {
+    const res = await app.request("/api/meetings", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [meetingId] }),
+    });
+    expect(res.status).toBe(204);
+  });
+});
+
+describe("POST /api/meetings/:id/re-extract", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "ReExtract Meeting",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "re-extract-me",
+    });
+    const llm = createLlmAdapter({ type: "stub" });
+    app = createApp(db, ":memory:", llm);
+  });
+
+  it("returns 200 after re-extracting artifact", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/re-extract`, { method: "POST" });
+    expect(res.status).toBe(200);
+  });
+});
+
+describe("POST /api/meetings/:id/client", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+    meetingId = ingestMeeting(db, {
+      title: "Reassign Test",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "reassign-me",
+    });
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns 204 after reassigning client", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/client`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientName: "Acme" }),
+    });
+    expect(res.status).toBe(204);
+  });
+});
+
+describe("POST /api/meetings/:id/ignored", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "Ignore Test",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "ignore-me",
+    });
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns 204 after setting ignored flag", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/ignored`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ignored: true }),
+    });
+    expect(res.status).toBe(204);
+  });
+});
+
+describe("POST /api/meetings/:id/action-items/:index/complete and GET /api/meetings/:id/completions", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "Completion Test",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "complete-me",
+    });
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns 204 after completing an action item", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/action-items/0/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note: "done" }),
+    });
+    expect(res.status).toBe(204);
+  });
+
+  it("GET /completions returns the stored completion", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/completions`);
+    expect(res.status).toBe(200);
+    const body = await res.json() as { meeting_id: string; item_index: number; note: string }[];
+    expect(body).toHaveLength(1);
+    expect(body[0]).toMatchObject({ meeting_id: meetingId, item_index: 0, note: "done" });
   });
 });
