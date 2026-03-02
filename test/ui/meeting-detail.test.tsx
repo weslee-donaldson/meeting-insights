@@ -3,7 +3,7 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
-import type { MeetingRow, Artifact } from "../../electron-ui/electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 
@@ -100,6 +100,66 @@ describe("MeetingDetail", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);
     fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
     expect(onReExtract).toHaveBeenCalledOnce();
+  });
+
+  it("clicking action item checkbox calls onComplete with its index", () => {
+    const onComplete = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", due_date: null },
+            { description: "Review PR", owner: "Bob", due_date: null },
+          ],
+        })}
+        completions={[]}
+        onComplete={onComplete}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Complete item 0" }));
+    expect(onComplete).toHaveBeenCalledWith(0);
+  });
+
+  it("completed items collapse into a summary row showing count", () => {
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", due_date: null },
+            { description: "Review PR", owner: "Bob", due_date: null },
+          ],
+        })}
+        completions={completions}
+        onComplete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("1 completed")).toBeDefined();
+    expect(screen.getByText("Review PR")).toBeDefined();
+    expect(screen.queryByText("Write tests")).toBeNull();
+  });
+
+  it("expanding completed summary reveals completed items", () => {
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [{ description: "Write tests", owner: "Alice", due_date: null }],
+        })}
+        completions={completions}
+        onComplete={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("Write tests")).toBeNull();
+    fireEvent.click(screen.getByText("1 completed"));
+    expect(screen.getByText("Write tests")).toBeDefined();
   });
 
   it("copy action items button writes checklist to clipboard", () => {

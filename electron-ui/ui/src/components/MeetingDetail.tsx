@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff } from "lucide-react";
-import type { MeetingRow, Artifact } from "../../../electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { cn } from "../lib/utils.js";
@@ -13,6 +13,8 @@ interface MeetingDetailProps {
   clients?: string[];
   onReassignClient?: (clientName: string) => void;
   onIgnore?: () => void;
+  completions?: ActionItemCompletion[];
+  onComplete?: (index: number) => void;
 }
 
 interface SectionProps {
@@ -64,7 +66,21 @@ function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; i
   );
 }
 
-function ArtifactView({ artifact }: { artifact: Artifact }) {
+function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number) => void }) {
+  const [completedExpanded, setCompletedExpanded] = useState(false);
+
+  const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
+
+  const activeWithIndex = useMemo(
+    () => artifact.action_items.map((a, i) => ({ ...a, index: i })).filter((a) => !completedSet.has(a.index)),
+    [artifact.action_items, completedSet],
+  );
+
+  const completedWithIndex = useMemo(
+    () => artifact.action_items.map((a, i) => ({ ...a, index: i })).filter((a) => completedSet.has(a.index)),
+    [artifact.action_items, completedSet],
+  );
+
   const copyActionItems = useCallback(() => {
     const text = artifact.action_items
       .map((a) => {
@@ -88,6 +104,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
       <Section
         title="Action Items"
         isEmpty={artifact.action_items.length === 0}
+        defaultOpen={true}
         headerExtra={
           <Button
             variant="ghost"
@@ -101,9 +118,19 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
         }
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-2">
-          {artifact.action_items.map((a, i) => (
-            <li key={i} className="flex gap-2.5 items-start">
-              <span className="shrink-0 mt-0.5 text-primary">□</span>
+          {activeWithIndex.map((a) => (
+            <li key={a.index} className="flex gap-2.5 items-start">
+              {onComplete ? (
+                <button
+                  onClick={() => onComplete(a.index)}
+                  aria-label={`Complete item ${a.index}`}
+                  className="shrink-0 mt-0.5 text-primary bg-transparent border-0 cursor-pointer p-0"
+                >
+                  □
+                </button>
+              ) : (
+                <span className="shrink-0 mt-0.5 text-primary">□</span>
+              )}
               <div className="flex flex-col gap-0.5">
                 <span className="leading-[1.5]">{a.description}</span>
                 <div className="flex gap-1.5 flex-wrap">
@@ -114,6 +141,27 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
             </li>
           ))}
         </ul>
+        {completedWithIndex.length > 0 && (
+          <>
+            <button
+              onClick={() => setCompletedExpanded((v) => !v)}
+              className="mt-2 text-xs text-muted-foreground bg-transparent border-0 cursor-pointer p-0 flex items-center gap-1"
+            >
+              <span>{completedWithIndex.length} completed</span>
+              <span aria-hidden="true">{completedExpanded ? "▾" : "▸"}</span>
+            </button>
+            {completedExpanded && (
+              <ul className="m-0 p-0 list-none flex flex-col gap-1.5 mt-1.5">
+                {completedWithIndex.map((a) => (
+                  <li key={a.index} className="flex gap-2.5 items-start opacity-60">
+                    <span className="shrink-0 mt-0.5 text-green-500">✓</span>
+                    <span className="leading-[1.5] line-through">{a.description}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
       </Section>
 
       <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0}>
@@ -162,7 +210,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -265,7 +313,7 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
 
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
-          <ArtifactView artifact={artifact} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} />
         ) : (
           <div className="py-4 text-xs text-muted-foreground">No artifact extracted</div>
         )}

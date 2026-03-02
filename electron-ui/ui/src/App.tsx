@@ -8,7 +8,7 @@ import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
-import type { MeetingRow, ChatResponse, Artifact, SearchResultRow } from "../../electron/channels.js";
+import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion } from "../../electron/channels.js";
 
 interface DateRange {
   after: string;
@@ -63,6 +63,12 @@ export function App() {
   const selectedArtifactQuery = useQuery<Artifact | null>({
     queryKey: ["artifact", selectedMeetingId],
     queryFn: () => window.api.getArtifact(selectedMeetingId!),
+    enabled: !!selectedMeetingId,
+  });
+
+  const completionsQuery = useQuery<ActionItemCompletion[]>({
+    queryKey: ["completions", selectedMeetingId],
+    queryFn: () => window.api.getCompletions(selectedMeetingId!),
     enabled: !!selectedMeetingId,
   });
 
@@ -135,6 +141,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleCompleteActionItem = useCallback(async (itemIndex: number) => {
+    if (!selectedMeetingId) return;
+    await window.api.completeActionItem(selectedMeetingId, itemIndex, "");
+    queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
+  }, [selectedMeetingId, queryClient]);
+
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
     await window.api.setIgnored(selectedMeetingId, true);
@@ -200,6 +212,8 @@ export function App() {
           clients={clientsQuery.data}
           onReassignClient={selectedMeetingId ? handleReassignClient : undefined}
           onIgnore={selectedMeetingId ? handleIgnore : undefined}
+          completions={completionsQuery.data ?? []}
+          onComplete={selectedMeetingId ? handleCompleteActionItem : undefined}
         />
       }
       chat={

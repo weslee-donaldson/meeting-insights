@@ -15,6 +15,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #806 | 12:58 AM | ✅ | Wired action item completion callback in App component | ~367 |
+| #805 | " | 🟣 | Added React Query for fetching action item completion status | ~387 |
 | #792 | 12:50 AM | 🟣 | Added setIgnored API client method for toggling meeting visibility | ~342 |
 | #767 | 12:38 AM | ✅ | Wired delete functionality props from App to TopBar component | ~344 |
 | #766 | " | 🟣 | Added bulk meeting deletion functionality with automatic state cleanup | ~374 |
