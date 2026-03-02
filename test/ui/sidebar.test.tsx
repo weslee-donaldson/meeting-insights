@@ -53,4 +53,17 @@ describe("Sidebar", () => {
     );
     expect(screen.getByRole("button", { name: /beta co/i }).getAttribute("aria-selected")).toBe("false");
   });
+
+  it("clicking an already-selected client calls onSelect with null to deselect", () => {
+    const onSelect = vi.fn();
+    render(
+      <Sidebar
+        clients={["Acme", "Beta Co"]}
+        selected="Acme"
+        onSelect={onSelect}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /acme/i }));
+    expect(onSelect).toHaveBeenCalledWith(null);
+  });
 });

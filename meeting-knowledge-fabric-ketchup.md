@@ -766,7 +766,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 
 ### Bottle: UI Design Tweaks
 
-- [ ] Burst 306: Remove client badge from meeting list rows — client already visible via sidebar/combobox filter; remove `<Badge>` from both series and non-series row views in `MeetingList`; test: meeting row does not render client badge text
+- [x] Burst 306: Remove client badge from meeting list rows — client already visible via sidebar/combobox filter; remove `<Badge>` from both series and non-series row views in `MeetingList`; test: meeting row does not render client badge text
 - [ ] Burst 307: Sidebar client toggle — clicking an already-selected client deselects it (calls `onSelect(null)`); test: clicking selected client calls onSelect with null
 - [ ] Burst 308: Group command palette — replace inline "Select all" text with a menu button (⋯) on group headers; clicking opens a popover/dropdown with "Select all" option; extensible for future commands; update existing tests that assert on "Select all" button; test: menu button opens popover, clicking "Select all" fires onCheckGroup
 - [ ] Burst 309: Ignore command in group palette — add "Ignore all" option to group command palette; new `onIgnoreGroup?: (ids: string[]) => void` prop on MeetingList; test: clicking "Ignore all" calls onIgnoreGroup with group meeting ids

@@ -4,7 +4,7 @@ import { cn } from "../lib/utils.js";
 interface SidebarProps {
   clients: string[];
   selected: string | null;
-  onSelect: (name: string) => void;
+  onSelect: (name: string | null) => void;
 }
 
 export function Sidebar({ clients, selected, onSelect }: SidebarProps) {
@@ -14,7 +14,7 @@ export function Sidebar({ clients, selected, onSelect }: SidebarProps) {
         {clients.map((name) => (
           <li key={name}>
             <button
-              onClick={() => onSelect(name)}
+              onClick={() => onSelect(selected === name ? null : name)}
               aria-selected={selected === name}
               className={cn(
                 "w-full text-left py-2 px-3 border-0 border-l-4 cursor-pointer text-sm",
