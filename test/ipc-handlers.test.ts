@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
 import {
   handleGetClients,
   handleGetMeetings,
@@ -186,6 +186,24 @@ describe("IPC handlers", () => {
         question: "Anything?",
       });
       expect(result.sources).toEqual([]);
+    });
+
+    it("forwards attachments to LLM adapter", async () => {
+      let capturedAttachments: unknown;
+      const spyLlm: LlmAdapter = {
+        async complete(_cap, _content, attachments) {
+          capturedAttachments = attachments;
+          return { answer: "ok" };
+        },
+      };
+      await handleChat(db, spyLlm, {
+        meetingIds: [],
+        question: "Describe this image.",
+        attachments: [{ name: "shot.png", base64: "abc123", mimeType: "image/png" }],
+      });
+      expect(capturedAttachments).toEqual([
+        { name: "shot.png", base64: "abc123", mimeType: "image/png" },
+      ]);
     });
   });
 

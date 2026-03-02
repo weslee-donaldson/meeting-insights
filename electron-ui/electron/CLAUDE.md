@@ -9,4 +9,10 @@
 |----|------|---|-------|------|
 | #671 | 11:20 PM | 🔵 | Documented chat panel architecture and rendering limitations | ~538 |
 | #644 | 10:58 PM | 🔵 | Backend IPC handlers use SQLite with client detection and vector search capabilities | ~434 |
+
+### Mar 2, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #740 | 12:23 AM | ✅ | Extended ChatRequest interface to support image attachments | ~331 |
 </claude-mem-context>

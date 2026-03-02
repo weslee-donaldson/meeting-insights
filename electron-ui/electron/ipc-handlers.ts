@@ -104,7 +104,7 @@ export async function handleChat(
 
   const prompt = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}\n\nQuestion: ${req.question}`;
 
-  const result = await llm.complete("synthesize_answer", prompt);
+  const result = await llm.complete("synthesize_answer", prompt, req.attachments);
   const answer = (result as { answer?: string }).answer ?? String(result);
 
   const citations = parseCitations(answer);

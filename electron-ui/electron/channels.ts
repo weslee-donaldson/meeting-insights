@@ -20,6 +20,7 @@ export interface MeetingRow {
 export interface ChatRequest {
   meetingIds: string[];
   question: string;
+  attachments?: { name: string; base64: string; mimeType: string }[];
 }
 
 export interface ChatResponse {

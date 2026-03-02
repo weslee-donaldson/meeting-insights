@@ -5,8 +5,14 @@ const logLlm = createLogger("llm");
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer";
 
+export interface ImageAttachment {
+  name: string;
+  base64: string;
+  mimeType: string;
+}
+
 export interface LlmAdapter {
-  complete(capability: LlmCapability, content: string): Promise<Record<string, unknown>>;
+  complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]): Promise<Record<string, unknown>>;
 }
 
 const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
@@ -79,7 +85,7 @@ async function withRepair(
 export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig): LlmAdapter {
   if (config.type === "stub") {
     return {
-      async complete(capability: LlmCapability) {
+      async complete(capability: LlmCapability, _content: string, _attachments?: ImageAttachment[]) {
         const start = Date.now();
         const result = STUB_FIXTURES[capability];
         logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, Date.now() - start);
@@ -90,7 +96,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
 
   if (config.type === "local") {
     const { baseUrl, model } = config;
-    const localCall = async (capability: LlmCapability, content: string) => {
+    const localCall = async (capability: LlmCapability, content: string, _attachments?: ImageAttachment[]) => {
       const start = Date.now();
       let res: Response;
       try {
@@ -111,8 +117,8 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
       return parseJsonOrThrow(text);
     };
     return {
-      async complete(capability: LlmCapability, content: string) {
-        return withRepair((c) => localCall(capability, c), content);
+      async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
+        return withRepair((c) => localCall(capability, c, attachments), content);
       },
     };
   }
@@ -120,14 +126,27 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   const client = new Anthropic({ apiKey: config.apiKey });
   const model = config.model ?? "claude-sonnet-4-6";
 
-  const anthropicCall = async (capability: LlmCapability, content: string) => {
+  const anthropicCall = async (capability: LlmCapability, content: string, attachments?: ImageAttachment[]) => {
     const start = Date.now();
     let text: string;
     try {
+      const userContent: Anthropic.MessageParam["content"] = attachments && attachments.length > 0
+        ? [
+            ...attachments.map((a) => ({
+              type: "image" as const,
+              source: {
+                type: "base64" as const,
+                media_type: a.mimeType as "image/png" | "image/jpeg" | "image/gif" | "image/webp",
+                data: a.base64,
+              },
+            })),
+            { type: "text" as const, text: content },
+          ]
+        : content;
       const message = await client.messages.create({
         model,
         max_tokens: 2048,
-        messages: [{ role: "user", content }],
+        messages: [{ role: "user", content: userContent }],
       });
       text = message.content[0].type === "text" ? message.content[0].text : "";
       logLlm("provider=anthropic capability=%s model=%s latency_ms=%d tokens=%d", capability, model, Date.now() - start, message.usage.output_tokens);
@@ -142,8 +161,8 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
   };
 
   return {
-    async complete(capability: LlmCapability, content: string) {
-      return withRepair((c) => anthropicCall(capability, c), content);
+    async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
+      return withRepair((c) => anthropicCall(capability, c, attachments), content);
     },
   };
 }
