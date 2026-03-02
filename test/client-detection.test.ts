@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../src/db.js";
 import { seedClients } from "../src/client-registry.js";
-import { detectClient, storeDetection } from "../src/client-detection.js";
+import { detectClient, storeDetection, normalizeTokens } from "../src/client-detection.js";
 import { ingestMeeting } from "../src/ingest.js";
 import type { ParsedMeeting } from "../src/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -114,6 +114,69 @@ describe("detectClient", () => {
     const mid = ingestMeeting(db, meeting);
     const results = detectClient(db, mid);
     expect(results.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("normalizeTokens", () => {
+  it("lowercases, strips non-alphanumeric, splits to token set", () => {
+    expect(normalizeTokens("AppDev Leads - Weekly Sync")).toEqual(
+      new Set(["appdev", "leads", "weekly", "sync"])
+    );
+  });
+});
+
+describe("meeting_names matching", () => {
+  it("detects client via meeting_name when title matches (confidence 0.7, method meeting_name)", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-mn-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: ["TestAlias"], known_participants: ["@testco.com"], meeting_names: ["AppDev Leads - Weekly Sync"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({ title: "AppDev Leads - Weekly Sync" });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    const r = results.find((r) => r.client_name === "TestCo");
+    expect(r).toEqual({ client_name: "TestCo", confidence: 0.7, method: "meeting_name" });
+  });
+
+  it("detects client via token intersection on folder-derived title", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-mn2-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: [], meeting_names: ["AppDev Leads DSU"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({ title: "appdev_leads_dsu-019cabc" });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    expect(results.some((r) => r.client_name === "TestCo")).toBe(true);
+  });
+
+  it("returns confidence 0.95 and method participant+meeting_name when both signals present", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `det-mn3-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const f = join(dir, "clients.json");
+    writeFileSync(f, JSON.stringify([
+      { name: "TestCo", aliases: [], known_participants: ["@testco.com"], meeting_names: ["Weekly Sync"] },
+    ]));
+    seedClients(localDb, f);
+    const meeting = makeMeeting({
+      title: "Weekly Sync",
+      participants: [{ last_name: "A", id: "x1", first_name: "A", email: "a@testco.com" }],
+    });
+    const mid = ingestMeeting(localDb, meeting);
+    const results = detectClient(localDb, mid);
+    const r = results.find((r) => r.client_name === "TestCo");
+    expect(r).toEqual({ client_name: "TestCo", confidence: 0.95, method: "participant+meeting_name" });
   });
 });
 
