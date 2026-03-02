@@ -58,4 +58,25 @@ describe("MeetingDetail", () => {
       "# Alpha Meeting\nDate: 2026-02-25\n\n## Summary\nWe discussed the roadmap.\n\n## Decisions\n- Ship by March",
     );
   });
+
+  it("copy action items button writes checklist to clipboard", () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", due_date: "2026-03-01" },
+            { description: "Review PR", owner: "Bob", due_date: null },
+            { description: "Deploy app", owner: null, due_date: null },
+          ],
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Copy action items" }));
+    expect(writeText).toHaveBeenCalledWith(
+      "- [ ] Write tests (Alice, 2026-03-01)\n- [ ] Review PR (Bob)\n- [ ] Deploy app",
+    );
+  });
 });

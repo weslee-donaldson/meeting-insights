@@ -16,26 +16,30 @@ interface SectionProps {
   children: React.ReactNode;
   isEmpty: boolean;
   defaultOpen?: boolean;
+  headerExtra?: React.ReactNode;
 }
 
-function Section({ title, children, isEmpty, defaultOpen = false }: SectionProps) {
+function Section({ title, children, isEmpty, defaultOpen = false, headerExtra }: SectionProps) {
   const [open, setOpen] = React.useState(defaultOpen);
   if (isEmpty) return null;
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
-      <Collapsible.Trigger
-        className={cn(
-          "flex items-center gap-1.5 w-full text-left pt-2.5 pb-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] bg-transparent border-0 border-t border-border cursor-pointer",
-          open ? "text-foreground" : "text-secondary-foreground",
-        )}
-      >
-        {open ? (
-          <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-        ) : (
-          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-        )}
-        {title}
-      </Collapsible.Trigger>
+      <div className="flex items-center border-t border-border">
+        <Collapsible.Trigger
+          className={cn(
+            "flex items-center gap-1.5 flex-1 text-left pt-2.5 pb-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] bg-transparent border-0 cursor-pointer",
+            open ? "text-foreground" : "text-secondary-foreground",
+          )}
+        >
+          {open ? (
+            <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+          )}
+          {title}
+        </Collapsible.Trigger>
+        {headerExtra}
+      </div>
       <Collapsible.Content className="pb-3 text-sm text-secondary-foreground leading-[1.65]">
         {children}
       </Collapsible.Content>
@@ -57,6 +61,16 @@ function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; i
 }
 
 function ArtifactView({ artifact }: { artifact: Artifact }) {
+  const copyActionItems = useCallback(() => {
+    const text = artifact.action_items
+      .map((a) => {
+        const meta = [a.owner, a.due_date].filter(Boolean).join(", ");
+        return meta ? `- [ ] ${a.description} (${meta})` : `- [ ] ${a.description}`;
+      })
+      .join("\n");
+    navigator.clipboard.writeText(text).catch(() => {});
+  }, [artifact.action_items]);
+
   return (
     <div className="flex flex-col">
       <Section title="Summary" isEmpty={!artifact.summary} defaultOpen={true}>
@@ -67,7 +81,21 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
         <ItemList items={artifact.decisions} icon="—" />
       </Section>
 
-      <Section title="Action Items" isEmpty={artifact.action_items.length === 0}>
+      <Section
+        title="Action Items"
+        isEmpty={artifact.action_items.length === 0}
+        headerExtra={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={copyActionItems}
+            aria-label="Copy action items"
+            className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+          >
+            <Clipboard className="w-3 h-3" />
+          </Button>
+        }
+      >
         <ul className="m-0 p-0 list-none flex flex-col gap-2">
           {artifact.action_items.map((a, i) => (
             <li key={i} className="flex gap-2.5 items-start">

@@ -738,7 +738,7 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 
 ### Bottle: Export + Clipboard
 
-- [ ] Burst 292: Copy meeting summary — button in `MeetingDetail` header copies title + date + summary + decisions as markdown; test: `clipboard.writeText` called with correct format
+- [x] Burst 292: Copy meeting summary — button in `MeetingDetail` header copies title + date + summary + decisions as markdown; test: `clipboard.writeText` called with correct format (commit: `5c73537`)
 - [ ] Burst 293: Copy action items — button in Action Items section copies items as `- [ ] description (owner, due)` checklist; test: correct markdown format
 
 ### Bottle: Meeting Management
