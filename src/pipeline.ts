@@ -6,6 +6,7 @@ import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { detectClient, storeDetection } from "./client-detection.js";
+import { getClientByName } from "./client-registry.js";
 import { createMeetingTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -76,12 +77,15 @@ async function processEntry(
   }
   try {
     const meetingId = ingestMeeting(db, parsed);
-    const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate);
-    storeArtifact(db, meetingId, artifact);
-    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     const detections = detectClient(db, meetingId);
     storeDetection(db, meetingId, detections);
-    const client = detections[0]?.client_name ?? "";
+    const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
+    const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
+    const refinementPrompt = clientRow?.refinement_prompt ?? undefined;
+    const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, refinementPrompt);
+    storeArtifact(db, meetingId, artifact);
+    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
+    const client = topClient?.client_name ?? "";
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
     moveToProcessed(rawDir, processedDir, name);
     return { status: "ok", client, elapsed_ms: Date.now() - start };

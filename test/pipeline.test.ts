@@ -8,6 +8,7 @@ import { loadModel } from "../src/embedder.js";
 import { createLlmAdapter } from "../src/llm-adapter.js";
 import { processNewMeetings, type PipelineEvent } from "../src/pipeline.js";
 import type { DatabaseSync as Database } from "node:sqlite";
+import type { LlmAdapter } from "../src/llm-adapter.js";
 
 let db: Database;
 let vdbPath: string;
@@ -92,6 +93,69 @@ describe("processNewMeetings", () => {
     mkdirSync(newRaw, { recursive: true });
     await expect(processNewMeetings({ rawDir: newRaw, processedDir, failedDir, auditDir, db, vdb, session, llm })).resolves.toBeDefined();
     rmSync(newRaw, { recursive: true, force: true });
+  });
+});
+
+describe("processNewMeetings threads client refinement_prompt into extraction", () => {
+  let rDb: Database;
+  let rVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let rVdbPath: string;
+  let rBaseDir: string;
+  let capturedContent = "";
+
+  const FILENAME = " 2026-03-01T00:00:00.000ZRefinement Test Meeting";
+  const CONTENT = `Attendance:
+{'last_name': 'Smith', 'id': '014200be-9999-9999-9999-000000000001', 'first_name': 'Alice', 'email': 'alice@testclientco.com'}
+Transcript:
+Alice Smith | 00:11
+Let us discuss the project roadmap and upcoming priorities.`;
+
+  beforeAll(async () => {
+    rBaseDir = join(tmpdir(), `pipeline-refinement-${Date.now()}`);
+    const rawDir = join(rBaseDir, "raw");
+    const processedDir = join(rBaseDir, "processed");
+    const failedDir = join(rBaseDir, "failed");
+    const auditDir = join(rBaseDir, "audit");
+    mkdirSync(rawDir, { recursive: true });
+
+    rDb = createDb(":memory:");
+    migrate(rDb);
+    rDb.prepare(
+      "INSERT INTO clients (name, aliases, known_participants, refinement_prompt) VALUES (?, ?, ?, ?)",
+    ).run("TestClientCo", '["TestClientCo"]', '["@testclientco.com"]', "Alice is the lead engineer and her action items are high priority.");
+
+    rVdbPath = join(tmpdir(), `lancedb-refinement-${Date.now()}`);
+    mkdirSync(rVdbPath, { recursive: true });
+    rVdb = await connectVectorDb(rVdbPath);
+
+    const templatePath = join(rBaseDir, "template.md");
+    writeFileSync(templatePath, "{{client_context}}## Transcript\n\n{{transcript}}", "utf-8");
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    capturedContent = "";
+    const stubLlm = createLlmAdapter({ type: "stub" });
+    const recordingLlm: LlmAdapter = {
+      complete: async (cap, content) => {
+        if (cap === "extract_artifact") capturedContent = content;
+        return stubLlm.complete(cap, content);
+      },
+    };
+
+    await processNewMeetings({
+      rawDir, processedDir, failedDir, auditDir,
+      db: rDb, vdb: rVdb, session, llm: recordingLlm,
+      extractionPromptPath: templatePath,
+    });
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(rBaseDir, { recursive: true, force: true });
+    rmSync(rVdbPath, { recursive: true, force: true });
+  });
+
+  it("injects client refinement_prompt as ## Client Context into extraction prompt", () => {
+    expect(capturedContent).toContain("## Client Context");
+    expect(capturedContent).toContain("Alice is the lead engineer");
   });
 });
 
