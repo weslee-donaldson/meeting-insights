@@ -178,4 +178,143 @@ describe("MeetingList", () => {
     const weekBtn = screen.getByRole("button", { name: "Week" }) as HTMLButtonElement;
     expect(weekBtn.style.fontWeight).toBe("600");
   });
+
+  it("groups two meetings on the same day under one day group", () => {
+    const dayMeetings = [
+      makeMeeting({ id: "d1", title: "Morning Sync", date: "2026-02-27T09:00:00.000Z" }),
+      makeMeeting({ id: "d2", title: "Afternoon Sync", date: "2026-02-27T14:00:00.000Z" }),
+      makeMeeting({ id: "d3", title: "Friday Review", date: "2026-02-28T10:00:00.000Z" }),
+    ];
+    render(
+      <MeetingList
+        meetings={dayMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "day" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+  });
+
+  it("day group label is formatted as weekday month day year", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "d1", date: "2026-02-27T09:00:00.000Z" })]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "day" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/Friday, Feb 27, 2026/)).toBeTruthy();
+  });
+
+  it("day group shows stat line with meeting and action item counts", () => {
+    const dayMeetings = [
+      makeMeeting({ id: "d1", date: "2026-02-27T09:00:00.000Z", actionItemCount: 3 }),
+      makeMeeting({ id: "d2", date: "2026-02-27T14:00:00.000Z", actionItemCount: 2 }),
+    ];
+    render(
+      <MeetingList
+        meetings={dayMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "day" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("2 meetings · 5 action items")).toBeTruthy();
+  });
+
+  it("groups meetings in same ISO week under one week group", () => {
+    const weekMeetings = [
+      makeMeeting({ id: "w1", date: "2026-02-23T09:00:00.000Z" }),
+      makeMeeting({ id: "w2", date: "2026-02-25T09:00:00.000Z" }),
+      makeMeeting({ id: "w3", date: "2026-03-02T09:00:00.000Z" }),
+    ];
+    render(
+      <MeetingList
+        meetings={weekMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "week" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+  });
+
+  it("week group label starts with 'Week of'", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "w1", date: "2026-02-25T09:00:00.000Z" })]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "week" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/Week of Feb 23, 2026/)).toBeTruthy();
+  });
+
+  it("groups meetings in the same month under one month group", () => {
+    const monthMeetings = [
+      makeMeeting({ id: "m1", date: "2026-02-05T09:00:00.000Z" }),
+      makeMeeting({ id: "m2", date: "2026-02-20T09:00:00.000Z" }),
+      makeMeeting({ id: "m3", date: "2026-03-01T09:00:00.000Z" }),
+    ];
+    render(
+      <MeetingList
+        meetings={monthMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "month" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+  });
+
+  it("month group label is formatted as 'Month Year'", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "m1", date: "2026-02-15T09:00:00.000Z" })]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "month" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("February 2026")).toBeTruthy();
+  });
+
+  it("month group shows stat line", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "m1", date: "2026-02-15T09:00:00.000Z", actionItemCount: 1 })]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ groupBy: "month" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("1 meeting · 1 action item")).toBeTruthy();
+  });
 });

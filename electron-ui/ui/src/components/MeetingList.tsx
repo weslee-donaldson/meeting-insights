@@ -39,6 +39,68 @@ function groupBySeries(meetings: MeetingRow[]): SeriesGroup[] {
   }));
 }
 
+function groupByDay(meetings: MeetingRow[]): SeriesGroup[] {
+  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
+  const map = new Map<string, MeetingRow[]>();
+  for (const m of sorted) {
+    const key = m.date.slice(0, 10);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return [...map.entries()].map(([key, ms]) => {
+    const d = new Date(key + "T12:00:00Z");
+    const label = d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    return { series: key, label, meetings: ms };
+  });
+}
+
+function isoWeekKey(dateStr: string): { key: string; monday: Date } {
+  const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
+  const day = d.getUTCDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d);
+  monday.setUTCDate(d.getUTCDate() + diff);
+  const jan4 = new Date(Date.UTC(monday.getUTCFullYear(), 0, 4));
+  const jan4Day = jan4.getUTCDay() === 0 ? 7 : jan4.getUTCDay();
+  const weekNum = Math.ceil(((monday.getTime() - jan4.getTime()) / 86400000 + jan4Day) / 7);
+  return { key: `${monday.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`, monday };
+}
+
+function groupByWeek(meetings: MeetingRow[]): SeriesGroup[] {
+  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
+  const map = new Map<string, { meetings: MeetingRow[]; monday: Date }>();
+  for (const m of sorted) {
+    const { key, monday } = isoWeekKey(m.date);
+    if (!map.has(key)) map.set(key, { meetings: [], monday });
+    map.get(key)!.meetings.push(m);
+  }
+  return [...map.entries()].map(([key, { meetings: ms, monday }]) => {
+    const label = "Week of " + monday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+    return { series: key, label, meetings: ms };
+  });
+}
+
+function groupByMonth(meetings: MeetingRow[]): SeriesGroup[] {
+  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
+  const map = new Map<string, MeetingRow[]>();
+  for (const m of sorted) {
+    const key = m.date.slice(0, 7);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return [...map.entries()].map(([key, ms]) => {
+    const d = new Date(key + "-15T12:00:00Z");
+    const label = d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    return { series: key, label, meetings: ms };
+  });
+}
+
+function statLine(ms: MeetingRow[]): string {
+  const mCount = ms.length;
+  const aiCount = ms.reduce((s, m) => s + m.actionItemCount, 0);
+  return `${mCount} meeting${mCount !== 1 ? "s" : ""} · ${aiCount} action item${aiCount !== 1 ? "s" : ""}`;
+}
+
 const GROUP_MODES: { value: GroupBy; label: string }[] = [
   { value: "series", label: "Series" },
   { value: "day", label: "Day" },
@@ -56,7 +118,12 @@ export function MeetingList({
   onCheck,
   onCheckGroup,
 }: MeetingListProps) {
-  const groups = useMemo(() => groupBySeries(meetings), [meetings]);
+  const groups = useMemo(() => {
+    if (groupBy === "day") return groupByDay(meetings);
+    if (groupBy === "week") return groupByWeek(meetings);
+    if (groupBy === "month") return groupByMonth(meetings);
+    return groupBySeries(meetings);
+  }, [meetings, groupBy]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -93,45 +160,51 @@ export function MeetingList({
         {groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));
           const groupIds = group.meetings.map((m) => m.id);
+          const showStats = groupBy === "day" || groupBy === "week" || groupBy === "month";
           return (
             <div key={group.series}>
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
                   padding: "6px 12px",
                   marginTop: "8px",
                 }}
               >
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    flex: 1,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    color: "var(--color-text-muted)",
-                  }}
-                >
-                  {group.label}
-                </span>
-                <button
-                  onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
-                  style={{
-                    fontSize: "0.75rem",
-                    marginLeft: "8px",
-                    flexShrink: 0,
-                    color: "var(--color-text-muted)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {allChecked ? "Deselect all" : "Select all"}
-                </button>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      textTransform: groupBy === "series" ? "uppercase" : "none",
+                      letterSpacing: groupBy === "series" ? "0.05em" : "normal",
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {group.label}
+                  </span>
+                  <button
+                    onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
+                    style={{
+                      fontSize: "0.75rem",
+                      marginLeft: "8px",
+                      flexShrink: 0,
+                      color: "var(--color-text-muted)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {allChecked ? "Deselect all" : "Select all"}
+                  </button>
+                </div>
+                {showStats && (
+                  <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
+                    {statLine(group.meetings)}
+                  </div>
+                )}
               </div>
               {group.meetings.map((m) => (
                 <div
@@ -166,12 +239,12 @@ export function MeetingList({
                         color: "var(--color-text-primary)",
                       }}
                     >
-                      {m.title}
+                      {groupBy === "series" ? m.title : m.title}
                     </div>
                     <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                      {m.date.slice(0, 10)}
+                      {groupBy === "series" && m.date.slice(0, 10)}
                       {m.client && (
-                        <span style={{ marginLeft: "4px", color: "var(--color-text-muted)" }}>
+                        <span style={{ marginLeft: groupBy === "series" ? "4px" : "0px", color: "var(--color-text-muted)" }}>
                           [{m.client}]
                         </span>
                       )}
