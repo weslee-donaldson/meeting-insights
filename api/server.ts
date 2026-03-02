@@ -1,4 +1,7 @@
 import { Hono } from "hono";
+import { serve } from "@hono/node-server";
+import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { handleGetClients, handleGetMeetings, handleGetArtifact, handleChat } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
@@ -72,4 +75,25 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   return app;
+}
+
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isMain) {
+  const { createDb, migrate } = await import("../core/db.js");
+  const { createLlmAdapter } = await import("../core/llm-adapter.js");
+
+  const APP_ROOT = resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd());
+  const DB_PATH = process.env.MTNINSIGHTS_DB_PATH
+    ? resolve(process.env.MTNINSIGHTS_DB_PATH)
+    : join(APP_ROOT, "db/mtninsights.db");
+  const PORT = Number(process.env.PORT ?? 3000);
+
+  const db = createDb(DB_PATH);
+  migrate(db);
+  const llm = createLlmAdapter({ type: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  const app = createApp(db, DB_PATH, llm);
+
+  serve({ fetch: app.fetch, port: PORT });
+  console.log(`[api] Listening on http://localhost:${PORT}`);
 }

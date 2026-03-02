@@ -627,7 +627,7 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 253: `GET /api/clients` + `GET /api/meetings` — reuse `handleGetClients`/`handleGetMeetings` from `electron-ui/electron/ipc-handlers.ts`; parse `?client=&after=&before=` query params; test: seed DB, assert client list and filtered meeting list
 - [x] Burst 254: `GET /api/meetings/:id/artifact` + `POST /api/chat` — reuse `handleGetArtifact`/`handleChat`; stub LLM; 404 when artifact missing; test: valid id returns Artifact shape, unknown id → 404, chat returns answer/sources
 - [x] Burst 255: `GET /api/search` — reuse `handleSearchMeetings`; lazy-load embedder + vector DB; guard: 400 if query < 2 chars; test: mock `searchMeetings`, assert route calls it with correct params + 400 on short query [depends: 252]
-- [ ] Burst 256: `api:dev` script (chore) — `"api:dev": "tsx api/server.ts"` in `package.json`; `isMain` guard calls `startServer(PORT ?? 3000)` [depends: 255]
+- [x] Burst 256: `api:dev` script (chore) — `"api:dev": "tsx api/server.ts"` in `package.json`; `isMain` guard calls `startServer(PORT ?? 3000)` [depends: 255]
 
 ### Bottle: Linear UI Redesign
 
