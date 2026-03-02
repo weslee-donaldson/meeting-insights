@@ -644,11 +644,113 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 Findings from full Playwright MCP UI audit against `web:dev` + `api:dev`. Functional features confirmed working: client sidebar filter, client dropdown sync, meeting list load + grouping, meeting click → detail panel, all 8 artifact tabs (Summary/Decisions/Action Items/Open Questions/Risks/Proposed Features/Technical Topics/Additional Notes), Select all / Deselect all per group, individual checkboxes, context counter (meeting count + char count), chat input send-button enable/disable, date range filter, Reset (partial), theme cycle (deep-sea → daylight → midnight).
 
-- [ ] Burst 265: Fix Reset not clearing search text — `resetFilters` in App.tsx must also set search state to `""` and clear the controlled search input; test: after reset, search field is empty and no pending API call [depends: 264]
-- [ ] Burst 266: Add CORS middleware to `api/server.ts` — `app.use(cors())` via `hono/cors` so `web:dev` (port 5173) can call `api:dev` (port 3000); test: `createApp` handler includes CORS headers in response [depends: 264]
-- [ ] Burst 267: Fix `web:dev` root URL — Vite serves `index.html` (Electron entry) at `/` instead of `index-web.html`; set `vite.web.config.ts` `build.rollupOptions.input` as the dev entry via a custom Vite plugin or rename `index-web.html` → `index.html` and move Electron's entry to `index-electron.html`; test: navigating to `http://localhost:5173/` loads `main-web.tsx` and `window.api` is defined [depends: 264]
-- [ ] Burst 268: Search error feedback — when `/api/search` returns non-200, show inline error message in the meeting list area instead of silently leaving the list unchanged; test: stub fetch to return 503, verify error message renders [depends: 264]
-- [ ] Burst 269: Fix "1 meetings" grammar — context counter reads "1 meetings"; should read "1 meeting" (singular); test: with 1 meeting selected, counter renders "1 meeting" [depends: 262]
+- [ ] Burst 265: Fix Reset not clearing search text — SearchBar owns its own `query` state; lift `query`/`setQuery` to App.tsx and pass as controlled prop through TopBar → SearchBar so `handleReset` can set it to `""`; test: after Reset click, search input value is empty [depends: 264]
+- [x] Burst 266: Add CORS middleware to `api/server.ts` — `app.use(cors())` via `hono/cors`; done 2026-03-01 (code in place)
+- [ ] Burst 267: Fix `web:dev` root URL — add redirect middleware in `vite.web.config.ts`: `configureServer` hook rewrites `GET /` → `/index-web.html`; test: GET root returns HTML referencing `main-web.tsx` [depends: 264]
+- [ ] Burst 268: Search error feedback — `useSearch` hook exposes `isError`; when error, SearchBar renders "Search unavailable" inline chip; test: stub fetch to return 503, verify error chip renders [depends: 264]
+- [ ] Burst 269: Fix "1 meetings" grammar — context bar uses `${n} meeting${n !== 1 ? "s" : ""}` for pluralisation; test: 1 meeting → "1 meeting", 2 meetings → "2 meetings" [depends: 262]
+
+### Bottle: Meeting List Grouping + Resizable Columns (completed 2026-03-01)
+
+- [x] Burst 270: Add `actionItemCount` to `MeetingRow` — LEFT JOIN artifacts in `handleGetMeetings` query; `COALESCE(json_array_length(a.action_items), 0)`; map `action_item_count` → `actionItemCount` in return; test: meeting with artifact returns count=1, meeting without artifact returns 0 (commit: `dd0e3d7`)
+- [x] Burst 271: GroupBy selector above meeting list — `GroupBy = "series"|"day"|"week"|"month"` type; `groupBy`/`onGroupBy` props on `MeetingList`; pill bar with 4 buttons; active button `fontWeight: 600` + accent background; `groupBy` state in `App.tsx`; test: 4 buttons render, click "Day" calls `onGroupBy("day")`, active button has correct weight (commit: `ee8a8ab`)
+- [x] Burst 272+273: Group meetings by day, week, month with stat headers — `groupByDay` (key=YYYY-MM-DD, label="Friday, Feb 27, 2026"), `groupByWeek` (ISO week, label="Week of Feb 23, 2026"), `groupByMonth` (key=YYYY-MM, label="February 2026"); `statLine` helper ("N meetings · N action items"); stat line shown for all temporal modes; full dispatcher switching all 4 modes; 8 tests (commit: `41a07d9`)
+- [x] Burst 274+275: Resizable sidebar and detail columns — `sidebarWidth` state (default 240, min 140, max 400); `detailWidth` state (default 480, min 280, no max); drag handles (4px, `col-resize`) between sidebar↔main and main↔detail; detail handle only renders when `detailOpen`; main panel `minWidth: 200px`, `overflowX: auto`; 5 new tests (commit: `58c2413`)
+
+### Bottle: UI Typography + Series Row Display (completed 2026-03-02)
+
+- [x] Burst 276: Typography hierarchy — MeetingList: series mode rows show formatted date ("Feb 26, 2026") + client tag instead of duplicate title; group headers 0.9rem/700/primary color; items indented 24px with accent left-border on selection; `data-testid="meeting-row-{id}"` on rows. MeetingDetail: title 1rem/700; Section triggers 0.8rem with top-border dividers; Summary `defaultOpen`; action items render owner/due-date as pill tags; item spacing 6-8px; client as chip in header (commit: `b796a4b`)
+
+### Bottle: shadcn/ui Migration (next)
+
+**Goal:** Replace all bespoke inline-style components with shadcn/ui primitives built on Radix UI + Tailwind v4. Gives access to the full shadcn component library, consistent accessible patterns, and a design token system that matches our multi-theme CSS variable setup.
+
+**Prerequisites already met:**
+- `tailwindcss ^4.2.1` + `@tailwindcss/vite` installed
+- `@radix-ui/react-collapsible`, `@radix-ui/react-select` already used
+- `@import "tailwindcss"` in `index.css`; all 3 themes via `[data-theme]` selectors
+
+**New packages needed:**
+- `tailwind-merge` — for `cn()` utility
+- `class-variance-authority` — for component variants
+- `clsx` — conditional class composition
+- `react-markdown` — rich text rendering for AI chat responses
+
+**Tailwind v4 theming bridge:** Use `@theme inline` in `index.css` to map our existing `--color-*` CSS vars to shadcn's color token names, so Tailwind utilities (`bg-background`, `text-primary`, etc.) dynamically pick up the active theme:
+```css
+@theme inline {
+  --color-background:         var(--color-bg-base);
+  --color-foreground:         var(--color-text-primary);
+  --color-card:               var(--color-bg-panel);
+  --color-card-foreground:    var(--color-text-primary);
+  --color-primary:            var(--color-accent);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-secondary:          var(--color-bg-elevated);
+  --color-secondary-foreground: var(--color-text-secondary);
+  --color-muted:              var(--color-bg-elevated);
+  --color-muted-foreground:   var(--color-text-muted);
+  --color-border:             var(--color-border-val);  /* see note */
+  --color-input:              var(--color-bg-input);
+  --color-ring:               var(--color-accent);
+  --color-destructive:        var(--color-danger);
+  --radius: 0.375rem;
+}
+```
+Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks to avoid the self-referential `var(--color-border)` issue in `@theme inline`.
+
+**Component migration order (one burst per component):**
+1. `lib/utils.ts` + `components/ui/` scaffold + deps install (infra, no tests)
+2. `components/ui/button.tsx` + `components/ui/badge.tsx`
+3. `MeetingList.tsx` → Tailwind classes; group buttons → shadcn `Button`; pills → `Badge`
+4. `LinearShell.tsx` → Tailwind classes for flex layout; drag handles keep inline width
+5. `MeetingDetail.tsx` → shadcn `Collapsible`; `ScrollArea`; action item badges; `Button`
+6. `Sidebar.tsx` + `TopBar.tsx` → Tailwind + shadcn `Button`, `Select`
+7. `ChatPanel.tsx` (new 4th column) — dedicated chat column extracted from `MeetingDetail`; `react-markdown` for AI response rendering; shadcn `Textarea`, `ScrollArea`, `Button`, `Badge`
+8. Wire 4th column into `LinearShell` + `App.tsx`; add `chatOpen` prop; resize handle
+
+**Test strategy:** Tests that currently check `style.fontWeight` or `style.background` will be updated to check class names or accessible roles. Tests that check dynamic `style.width` (resize) remain inline-style assertions. No coverage gaps.
+
+- [ ] Burst 277: Install deps + `lib/utils.ts` + `@theme inline` in `index.css` + rename `--color-border` → `--color-border-val` across themes (infra chore — no tests required)
+- [ ] Burst 278: `components/ui/button.tsx` + `components/ui/badge.tsx` — copy shadcn Button and Badge source; test: Button renders with correct variant classes; Badge renders with text
+- [ ] Burst 279: Migrate `MeetingList.tsx` to Tailwind + shadcn — replace inline styles with Tailwind classes; group mode pills → `Button` variants; client chip → `Badge`; update tests (active button check via aria-pressed or class instead of fontWeight)
+- [ ] Burst 280: Migrate `LinearShell.tsx` to Tailwind — flex layout via className; drag handles keep inline dynamic width; update tests
+- [ ] Burst 281: Migrate `MeetingDetail.tsx` to shadcn — Section trigger → shadcn `Collapsible`; action item owner/due tags → `Badge`; send button → `Button`; ScrollArea for history; update tests
+- [ ] Burst 282: Migrate `Sidebar.tsx` + `TopBar.tsx` — Tailwind layout + shadcn `Button`, `Select`; update sidebar/topbar tests
+- [ ] Burst 283: New `ChatPanel.tsx` (4th column) — extract `ChatSection` from `MeetingDetail`; move to standalone component; `react-markdown` for AI response rich text (headings, bullet lists, code blocks, bold); context bar (N meetings · N chars); copy button; shadcn `Textarea`, `ScrollArea`, `Button`, `Badge`; test: renders markdown response, submit calls onChat, copy button present
+- [ ] Burst 284: Wire `ChatPanel` into `LinearShell` + `App.tsx` — new `chat` slot + `chatOpen` prop on `LinearShell`; resize handle between detail↔chat; `chatOpen` = `activeMeetingIds.length > 0`; remove chat from `MeetingDetail`; update `LinearShell` + `App` tests
+
+### Bottle: Cross-Cutting Search
+
+Current search (SearchBar) only selects individual results from a dropdown — it does NOT filter the meeting list. This bottle makes search a first-class filter that updates the visible meeting list and respects Client + date filters.
+
+- [ ] Burst 285: Lift search query state to App.tsx — `searchQuery` state in App; pass `value`/`onChange` to SearchBar via TopBar; SearchBar becomes fully controlled; `handleReset` clears search; test: controlled input in TopBar uses `searchQuery` prop [depends: 265]
+- [ ] Burst 286: Filter meeting list by search results — when `searchQuery.length >= 2`, call `window.api.search(...)` (or `useSearch` hook); `scopeMeetings` in App.tsx is filtered to only IDs returned by search; when query is empty, show all meetings; test: with search results stub, meeting list only shows matching IDs [depends: 285]
+- [ ] Burst 287: Search respects Client + date filters — pass `client`, `after`, `before` to search API call so results are scoped to current filters; test: stub search returns different results when `client` param is set vs unset [depends: 286]
+- [ ] Burst 288: Search loading + empty state — while search is in flight, show "Searching…" spinner in SearchBar; when results are empty, show "No results for '...'" in meeting list area instead of "No meetings in scope"; test: loading state renders during pending search [depends: 287]
+
+### Bottle: Export + Clipboard
+
+Allow users to export meeting content for use outside the app.
+
+- [ ] Burst 289: Copy meeting summary to clipboard — "Copy summary" button in MeetingDetail header; copies title + date + summary + decisions as markdown; test: button click calls `navigator.clipboard.writeText` with formatted markdown [depends: 276]
+- [ ] Burst 290: Export action items as markdown list — "Copy action items" button in Action Items section; copies all action items as `- [ ] description (owner, due)` markdown checklist; test: button produces correct markdown format [depends: 289]
+- [ ] Burst 291: Export checked meetings as markdown report — "Export N meetings" button appears in TopBar when `checkedMeetingIds.size > 0`; calls `window.api.getArtifact` for each checked meeting and concatenates formatted markdown; copies to clipboard; test: with 2 checked meetings, export copies combined markdown [depends: 289]
+
+### Bottle: Meeting Management
+
+- [ ] Burst 292: Delete selected meetings — "Delete N meetings" danger button in TopBar when checked meetings > 0; calls new `window.api.deleteMeetings(ids)` IPC; removes from DB and refreshes meeting list; add `handleDeleteMeetings` IPC handler + `DELETE /api/meetings` API route; test: handler deletes rows from `meetings` and cascades to `artifacts`, `client_detections` [depends: 270]
+- [ ] Burst 293: Re-extract artifact for a meeting — "Re-extract" button in MeetingDetail header (icon only); calls `window.api.reExtract(meetingId)`; invalidates artifact query; add IPC handler that calls `extractSummary` and `storeArtifact`; test: IPC handler stores updated artifact [depends: 292]
+
+### Bottle: UX Polish
+
+- [ ] Burst 294: Meeting list loading skeleton — while `meetingsQuery.isLoading`, render 5 placeholder skeleton rows (shimmer bars) instead of blank list; test: when meetings query is pending, skeleton elements render [depends: 270]
+- [ ] Burst 295: Empty state illustrations — when meeting list is empty (not loading, no error): if filter active, show "No meetings match your filters · Reset filters" with Reset link; if no filter, show "No meetings ingested yet"; test: each empty state variant renders correct message [depends: 294]
+- [ ] Burst 296: Keyboard navigation in meeting list — `ArrowUp`/`ArrowDown` moves selection through visible meetings; `Enter` opens detail; `Space` toggles checkbox; `Escape` clears selection; meeting rows get `tabIndex={0}` and `onKeyDown`; test: ArrowDown moves selectedId to next meeting in rendered order [depends: 270]
+
+### Bottle: Electron Build + Distribution
+
+- [ ] Burst 297: Electron production build validation — `pnpm build` produces `electron-ui/out/`; `main.js` and `preload.js` present; renderer HTML loads correctly; add build smoke test that verifies output files exist with correct extensions; test: build script exits 0 and output directory has required files (chore burst, may be infra-only) [depends: 264]
+- [ ] Burst 298: Auto-reload on file process — Electron main process watches `data/raw-transcripts/` via `fs.watch`; when new `.md` file detected, runs `processNewMeetings` and sends `meetings:updated` IPC to renderer; renderer invalidates `["meetings"]` query; test: dropping a file triggers reload notification [depends: 297]
 
 ---
 
