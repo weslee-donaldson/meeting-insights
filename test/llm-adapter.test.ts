@@ -83,4 +83,27 @@ describe("createLlmAdapter (local)", () => {
     const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
     await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[rate_limit\]/);
   });
+
+  it("local converse sends system as first message and conversation array to Ollama", async () => {
+    const spy = vi.fn().mockResolvedValue({
+      status: 200,
+      json: async () => ({ message: { content: "response text" } }),
+    });
+    vi.stubGlobal("fetch", spy);
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    const result = await adapter.converse("system context", [
+      { role: "user", content: "q1" },
+      { role: "assistant", content: "a1" },
+      { role: "user", content: "q2" },
+    ]);
+    expect(result).toBe("response text");
+    const body = JSON.parse(spy.mock.calls[0][1].body);
+    expect(body.messages).toEqual([
+      { role: "system", content: "system context" },
+      { role: "user", content: "q1" },
+      { role: "assistant", content: "a1" },
+      { role: "user", content: "q2" },
+    ]);
+    expect(body.model).toBe("llama3.1:8b");
+  });
 });
