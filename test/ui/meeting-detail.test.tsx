@@ -271,4 +271,11 @@ describe("MeetingDetail", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={null} artifactLoading={true} />);
     expect(screen.getByTestId("artifact-skeleton")).toBeDefined();
   });
+
+  it("section content has left padding for visual hierarchy", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    const summaryText = screen.getByText("We discussed the roadmap.");
+    const contentContainer = summaryText.closest("[class*='pl-']");
+    expect(contentContainer).not.toBeNull();
+  });
 });

@@ -48,7 +48,7 @@ function Section({ title, children, isEmpty, defaultOpen = false, headerExtra }:
         </Collapsible.Trigger>
         {headerExtra}
       </div>
-      <Collapsible.Content className="pb-3 text-sm text-secondary-foreground leading-[1.65]">
+      <Collapsible.Content className="pb-3 pl-5 text-sm text-secondary-foreground leading-[1.65]">
         {children}
       </Collapsible.Content>
     </Collapsible.Root>
