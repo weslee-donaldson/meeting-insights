@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import {
-  handleGetClients, handleGetMeetings, handleGetArtifact, handleChat,
+  handleGetClients, handleGetMeetings, handleGetArtifact, handleChat, handleConversationChat,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats,
@@ -63,6 +63,12 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   app.post("/api/chat", async (c) => {
     const req = await c.req.json() as { meetingIds: string[]; question: string };
     const result = await handleChat(db, llm!, req);
+    return c.json(result);
+  });
+
+  app.post("/api/chat/conversation", async (c) => {
+    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }> };
+    const result = await handleConversationChat(db, llm!, req);
     return c.json(result);
   });
 

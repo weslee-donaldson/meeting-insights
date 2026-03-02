@@ -90,3 +90,44 @@ describe("POST /api/chat", () => {
     });
   });
 });
+
+describe("POST /api/chat/conversation", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const llm = createLlmAdapter({ type: "stub" });
+
+    meetingId = ingestMeeting(db, {
+      title: "Conversation Meeting",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "conv-meeting-1",
+    });
+    storeArtifact(db, meetingId, makeArtifact());
+
+    app = createApp(db, ":memory:", llm);
+  });
+
+  it("returns answer from conversation handler with meeting context", async () => {
+    const res = await app.request("/api/chat/conversation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        meetingIds: [meetingId],
+        messages: [{ role: "user", content: "What was decided?" }],
+      }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as { answer: string; sources: string[]; charCount: number };
+    expect(body).toEqual({
+      answer: "Stub answer based on meeting context.",
+      sources: ["Conversation Meeting"],
+      charCount: expect.any(Number),
+    });
+  });
+});
