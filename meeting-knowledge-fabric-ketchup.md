@@ -760,7 +760,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 
 ### Bottle: UX Polish
 
-- [ ] Burst 303: Toast notification system — lightweight `Toast` component (top-right, auto-dismiss 4s); `useToast()` hook in App; all API errors surface as error toast; success actions (copy, delete, reassign) show success toast; test: toast renders and auto-hides
+- [x] Burst 303: Toast notification system — lightweight `Toast` component (top-right, auto-dismiss 4s); `useToast()` hook in App; all API errors surface as error toast; success actions (copy, delete, reassign) show success toast; test: toast renders and auto-hides
 - [ ] Burst 304: Loading states — `meetingsQuery.isLoading` → skeleton rows in meeting list; `selectedArtifactQuery.isLoading` → skeleton in detail panel; test: skeleton renders during pending query
 - [ ] Burst 305: Empty states — no meetings + filter active → "No meetings match your filters"; no meetings + no filter → "No meetings yet"; test: each variant renders correct message
 

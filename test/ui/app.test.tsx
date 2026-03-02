@@ -18,6 +18,7 @@ beforeAll(() => {
     search: vi.fn().mockResolvedValue([]),
     getCompletions: vi.fn().mockResolvedValue([]),
     completeActionItem: vi.fn().mockResolvedValue(undefined),
+    deleteMeetings: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -87,5 +88,15 @@ describe("App", () => {
       expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
       expect(screen.queryByTestId("meeting-row-m2")).toBeNull();
     });
+  });
+
+  it("shows success toast after deleting checked meetings", async () => {
+    render(<App />, { wrapper });
+    const row = await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByRole("checkbox"));
+    await waitFor(() => expect(screen.getByRole("button", { name: /Delete/i })).toBeDefined());
+    fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
+    await waitFor(() => expect(screen.getByText("1 meeting(s) deleted")).toBeDefined());
+    expect(row).toBeDefined();
   });
 });

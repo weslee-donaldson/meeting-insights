@@ -8,6 +8,7 @@ import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
+import { ToastContainer, useToast } from "./components/ui/toast.js";
 import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion } from "../../electron/channels.js";
 
 interface DateRange {
@@ -18,6 +19,7 @@ interface DateRange {
 export function App() {
   const queryClient = useQueryClient();
   const { theme, setTheme, themes } = useTheme();
+  const { toasts, addToast, removeToast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
@@ -127,7 +129,8 @@ export function App() {
     setCheckedMeetingIds(new Set());
     if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
-  }, [checkedMeetingIds, selectedMeetingId, queryClient]);
+    addToast(`${ids.length} meeting(s) deleted`, "success");
+  }, [checkedMeetingIds, selectedMeetingId, queryClient, addToast]);
 
   const handleReExtract = useCallback(async () => {
     if (!selectedMeetingId) return;
@@ -162,6 +165,7 @@ export function App() {
   );
 
   return (
+    <>
     <LinearShell
       detailOpen={!!selectedMeetingId}
       chatOpen={activeMeetingIds.length > 0}
@@ -224,5 +228,7 @@ export function App() {
         />
       }
     />
+    <ToastContainer toasts={toasts} onDismiss={removeToast} />
+    </>
   );
 }
