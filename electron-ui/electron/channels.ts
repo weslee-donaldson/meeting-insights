@@ -9,6 +9,7 @@ export const CHANNELS = {
   REASSIGN_CLIENT: "reassign-client",
   SET_IGNORED: "set-ignored",
   COMPLETE_ACTION_ITEM: "complete-action-item",
+  CONVERSATION_CHAT: "conversation-chat",
   GET_COMPLETIONS: "get-completions",
   GET_ITEM_HISTORY: "get-item-history",
   GET_MENTION_STATS: "get-mention-stats",

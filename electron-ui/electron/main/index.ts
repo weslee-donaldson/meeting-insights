@@ -8,6 +8,7 @@ import {
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
+  handleConversationChat,
   handleSearchMeetings,
   handleDeleteMeetings,
   handleReExtract,
@@ -94,6 +95,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_MEETINGS, (_e, opts) => handleGetMeetings(db, opts));
   ipcMain.handle(CHANNELS.GET_ARTIFACT, (_e, meetingId: string) => handleGetArtifact(db, meetingId));
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
+  ipcMain.handle(CHANNELS.CONVERSATION_CHAT, (_e, opts) => handleConversationChat(db, llm, opts));
   ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, ids));
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
