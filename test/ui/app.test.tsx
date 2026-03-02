@@ -42,7 +42,7 @@ describe("App", () => {
     expect(dayBtn).toBeDefined();
     fireEvent.click(dayBtn);
     await waitFor(() => {
-      expect((screen.getByRole("button", { name: "Day" }) as HTMLButtonElement).style.fontWeight).toBe("600");
+      expect((screen.getByRole("button", { name: "Day" }) as HTMLButtonElement).className).toContain("bg-primary");
     });
   });
 

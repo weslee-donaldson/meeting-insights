@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import type { MeetingRow } from "../../../electron/channels.js";
+import { Button } from "./ui/button.js";
+import { Badge } from "./ui/badge.js";
 
 export type GroupBy = "series" | "day" | "week" | "month";
 
@@ -131,94 +133,54 @@ export function MeetingList({
   }, [meetings, groupBy]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          display: "flex",
-          gap: "4px",
-          padding: "6px 12px",
-          flexShrink: 0,
-          borderBottom: "1px solid var(--color-border)",
-        }}
-      >
+    <div className="flex flex-col h-full">
+      <div className="flex gap-1 px-3 py-1.5 shrink-0 border-b border-border">
         {GROUP_MODES.map(({ value, label }) => (
-          <button
+          <Button
             key={value}
+            variant={groupBy === value ? "default" : "secondary"}
+            size="sm"
+            className="rounded-full h-auto px-2.5 py-0.5 text-xs"
             onClick={() => onGroupBy(value)}
-            style={{
-              fontSize: "0.75rem",
-              padding: "3px 10px",
-              borderRadius: "12px",
-              border: "none",
-              cursor: "pointer",
-              background: groupBy === value ? "var(--color-accent)" : "var(--color-bg-elevated)",
-              color: groupBy === value ? "#fff" : "var(--color-text-secondary)",
-              fontWeight: groupBy === value ? 600 : 400,
-            }}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 0" }}>
+      <div className="flex-1 overflow-y-auto py-1">
         {groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));
           const groupIds = group.meetings.map((m) => m.id);
           const showStats = groupBy !== "series";
           return (
             <div key={group.series}>
-              {/* Group header — prominent */}
-              <div style={{ padding: "10px 12px 4px 12px", marginTop: "4px" }}>
-                <div style={{ display: "flex", alignItems: "baseline" }}>
-                  <span
-                    style={{
-                      fontSize: "0.9rem",
-                      fontWeight: 700,
-                      flex: 1,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
+              <div className="px-3 pt-2.5 pb-1 mt-1">
+                <div className="flex items-baseline">
+                  <span className="text-sm font-bold flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                     {group.label}
                   </span>
                   <button
                     onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
-                    style={{
-                      fontSize: "0.7rem",
-                      marginLeft: "8px",
-                      flexShrink: 0,
-                      color: "var(--color-text-muted)",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
+                    className="text-xs ml-2 shrink-0 text-muted-foreground bg-transparent border-none cursor-pointer p-0"
                   >
                     {allChecked ? "Deselect all" : "Select all"}
                   </button>
                 </div>
                 {showStats && (
-                  <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)", marginTop: "2px" }}>
+                  <div className="text-xs text-muted-foreground mt-0.5">
                     {statLine(group.meetings)}
                   </div>
                 )}
               </div>
 
-              {/* Meeting rows — indented under group header */}
               {group.meetings.map((m) => (
                 <div
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => onSelect(m.id)}
+                  className="flex items-center gap-2 py-1.5 pr-3 pl-6 cursor-pointer"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "5px 12px 5px 24px",
-                    cursor: "pointer",
                     background: selectedId === m.id ? "var(--color-bg-elevated)" : "transparent",
                     borderLeft: "2px solid " + (selectedId === m.id ? "var(--color-accent)" : "transparent"),
                   }}
@@ -231,48 +193,23 @@ export function MeetingList({
                       e.stopPropagation();
                       onCheck(m.id);
                     }}
-                    style={{ width: "13px", height: "13px", flexShrink: 0, accentColor: "var(--color-accent)" }}
+                    className="w-3.5 h-3.5 shrink-0"
+                    style={{ accentColor: "var(--color-accent)" }}
                   />
-                  <div style={{ minWidth: 0, flex: 1 }}>
+                  <div className="min-w-0 flex-1">
                     {groupBy === "series" ? (
                       <>
-                        <div
-                          style={{
-                            fontSize: "0.8rem",
-                            fontWeight: 500,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            color: "var(--color-text-primary)",
-                          }}
-                        >
+                        <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                           {formatShortDate(m.date)}
                         </div>
-                        {m.client && (
-                          <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)" }}>
-                            {m.client}
-                          </div>
-                        )}
+                        {m.client && <Badge variant="muted" className="mt-0.5">{m.client}</Badge>}
                       </>
                     ) : (
                       <>
-                        <div
-                          style={{
-                            fontSize: "0.8rem",
-                            fontWeight: 500,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            color: "var(--color-text-primary)",
-                          }}
-                        >
+                        <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                           {m.title}
                         </div>
-                        {m.client && (
-                          <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)" }}>
-                            {m.client}
-                          </div>
-                        )}
+                        {m.client && <Badge variant="muted" className="mt-0.5">{m.client}</Badge>}
                       </>
                     )}
                   </div>
@@ -282,7 +219,7 @@ export function MeetingList({
           );
         })}
         {meetings.length === 0 && (
-          <div style={{ padding: "16px 12px", fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
+          <div className="p-4 text-xs text-muted-foreground">
             No meetings in scope
           </div>
         )}

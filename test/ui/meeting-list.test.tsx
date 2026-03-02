@@ -172,7 +172,7 @@ describe("MeetingList", () => {
       />,
     );
     const weekBtn = screen.getByRole("button", { name: "Week" }) as HTMLButtonElement;
-    expect(weekBtn.style.fontWeight).toBe("600");
+    expect(weekBtn.className).toContain("bg-primary");
   });
 
   it("groups two meetings on the same day under one day group", () => {
