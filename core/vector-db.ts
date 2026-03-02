@@ -38,3 +38,18 @@ export async function createFeatureTable(db: VectorDb): Promise<VectorTable> {
   if (names.includes("feature_vectors")) return db.openTable("feature_vectors");
   return db.createEmptyTable("feature_vectors", featureSchema);
 }
+
+const itemSchema = new Schema([
+  new Field("canonical_id", new Utf8()),
+  new Field("item_text", new Utf8()),
+  new Field("item_type", new Utf8()),
+  new Field("meeting_id", new Utf8()),
+  new Field("date", new Utf8()),
+  new Field("vector", new FixedSizeList(VECTOR_DIM, new Field("item", new Float32()))),
+]);
+
+export async function createItemTable(db: VectorDb): Promise<VectorTable> {
+  const names = await db.tableNames();
+  if (names.includes("item_vectors")) return db.openTable("item_vectors");
+  return db.createEmptyTable("item_vectors", itemSchema);
+}

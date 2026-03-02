@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { connectVectorDb, createMeetingTable, createFeatureTable } from "../core/vector-db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/vector-db.js";
 
 let dbPath: string;
 let db: Awaited<ReturnType<typeof connectVectorDb>>;
@@ -49,5 +49,26 @@ describe("createFeatureTable", () => {
     expect(fieldNames).toContain("client");
     expect(fieldNames).toContain("date");
     expect(fieldNames).toContain("vector");
+  });
+});
+
+describe("createItemTable", () => {
+  it("creates item_vectors table with correct schema", async () => {
+    const table = await createItemTable(db);
+    expect(table.name).toBe("item_vectors");
+    const schema = await table.schema();
+    const fieldNames = schema.fields.map((f: { name: string }) => f.name);
+    expect(fieldNames).toContain("canonical_id");
+    expect(fieldNames).toContain("item_text");
+    expect(fieldNames).toContain("item_type");
+    expect(fieldNames).toContain("meeting_id");
+    expect(fieldNames).toContain("date");
+    expect(fieldNames).toContain("vector");
+  });
+
+  it("is idempotent on second call", async () => {
+    const table1 = await createItemTable(db);
+    const table2 = await createItemTable(db);
+    expect(table1.name).toBe(table2.name);
   });
 });
