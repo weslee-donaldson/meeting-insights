@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff } from "lucide-react";
-import type { MeetingRow, Artifact, ActionItemCompletion } from "../../../electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
@@ -19,6 +19,8 @@ interface MeetingDetailProps {
   completions?: ActionItemCompletion[];
   onComplete?: (index: number, note: string) => void;
   onUncomplete?: (index: number) => void;
+  mentionStats?: MentionStat[];
+  onMentionClick?: (canonicalId: string) => void;
   artifactLoading?: boolean;
 }
 
@@ -98,7 +100,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
@@ -139,6 +141,14 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
     if (!decisionFilter) return artifact.decisions;
     return artifact.decisions.filter((d) => d.decided_by === decisionFilter);
   }, [artifact.decisions, decisionFilter]);
+
+  const mentionLookup = useMemo(() => {
+    const map = new Map<string, MentionStat>();
+    for (const stat of mentionStats) {
+      if (stat.mention_count > 1) map.set(`${stat.item_type}:${stat.item_index}`, stat);
+    }
+    return map;
+  }, [mentionStats]);
 
   const copyActionItems = useCallback(() => {
     const text = artifact.action_items
@@ -266,6 +276,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
           {filteredActions.map(({ a, i }) => {
             const isCompleted = completedSet.has(i);
             const existingNote = completions.find((c) => c.item_index === i)?.note ?? "";
+            const mention = mentionLookup.get(`action_items:${i}`);
             return (
               <li key={i} className={cn("flex gap-2.5 items-start", isCompleted && "opacity-60")}>
                 {isCompleted ? (
@@ -299,6 +310,15 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
                   {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
                   {a.requester && <Badge variant="outline">{a.requester}</Badge>}
                   {a.due_date && <Badge variant="muted">{a.due_date}</Badge>}
+                  {mention && (
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer text-[0.65rem]"
+                      onClick={() => onMentionClick?.(mention.canonical_id)}
+                    >
+                      {mention.mention_count}x
+                    </Badge>
+                  )}
                 </div>
               </li>
             );
@@ -377,7 +397,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, artifactLoading }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
@@ -515,7 +535,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
 
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (

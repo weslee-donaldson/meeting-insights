@@ -10,7 +10,7 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion } from "../../electron/channels.js";
+import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat } from "../../electron/channels.js";
 
 interface DateRange {
   after: string;
@@ -72,6 +72,12 @@ export function App() {
   const completionsQuery = useQuery<ActionItemCompletion[]>({
     queryKey: ["completions", selectedMeetingId],
     queryFn: () => window.api.getCompletions(selectedMeetingId!),
+    enabled: !!selectedMeetingId,
+  });
+
+  const mentionStatsQuery = useQuery<MentionStat[]>({
+    queryKey: ["mentionStats", selectedMeetingId],
+    queryFn: () => window.api.getMentionStats(selectedMeetingId!),
     enabled: !!selectedMeetingId,
   });
 
@@ -253,6 +259,7 @@ export function App() {
           completions={isMultiMode ? [] : (completionsQuery.data ?? [])}
           onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
           onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
+          mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
           artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
         />
       }

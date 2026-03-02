@@ -3,7 +3,7 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
-import type { MeetingRow, Artifact, ActionItemCompletion } from "../../electron-ui/electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 
@@ -442,5 +442,44 @@ describe("MeetingDetail", () => {
     expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Collapse all" }));
     expect(screen.queryByText("We discussed the roadmap.")).toBeNull();
+  });
+
+  it("renders mention badge for action items with mention_count > 1", () => {
+    const mentionStats: MentionStat[] = [
+      { canonical_id: "c1", item_type: "action_items", item_index: 0, mention_count: 3, first_mentioned_at: "2026-01-15" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", requester: "", due_date: null },
+            { description: "Review PR", owner: "Bob", requester: "", due_date: null },
+          ],
+        })}
+        mentionStats={mentionStats}
+      />,
+    );
+    expect(screen.getByText("3x")).toBeDefined();
+    expect(screen.queryAllByText(/\dx/).length).toBe(1);
+  });
+
+  it("mention badge click fires onMentionClick with canonical_id", () => {
+    const onMentionClick = vi.fn();
+    const mentionStats: MentionStat[] = [
+      { canonical_id: "c1", item_type: "action_items", item_index: 0, mention_count: 3, first_mentioned_at: "2026-01-15" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
+        })}
+        mentionStats={mentionStats}
+        onMentionClick={onMentionClick}
+      />,
+    );
+    fireEvent.click(screen.getByText("3x"));
+    expect(onMentionClick).toHaveBeenCalledWith("c1");
   });
 });
