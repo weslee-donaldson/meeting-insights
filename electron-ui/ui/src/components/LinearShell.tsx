@@ -54,23 +54,27 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen }: Linea
   }, [detailWidth]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-      <div style={{ flexShrink: 0 }}>
+    <div className="flex flex-col h-screen overflow-hidden">
+      <div className="shrink-0">
         {topBar}
       </div>
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <div data-testid="sidebar-panel" style={{ width: sidebarWidth + "px", flexShrink: 0, overflow: "hidden" }}>
+      <div className="flex flex-1 overflow-hidden">
+        <div
+          data-testid="sidebar-panel"
+          className="shrink-0 overflow-hidden"
+          style={{ width: sidebarWidth + "px" }}
+        >
           {sidebar}
         </div>
 
         <div
           data-testid="sidebar-resize-handle"
           onMouseDown={handleSidebarMouseDown}
-          style={{ width: "4px", flexShrink: 0, cursor: "col-resize", background: "var(--color-border)" }}
+          className="w-1 shrink-0 cursor-col-resize bg-border"
         />
 
-        <div style={{ flex: 1, minWidth: "200px", overflowY: "auto", overflowX: "auto" }}>
+        <div className="flex-1 min-w-[200px] overflow-auto">
           {main}
         </div>
 
@@ -78,17 +82,16 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen }: Linea
           <div
             data-testid="detail-resize-handle"
             onMouseDown={handleDetailMouseDown}
-            style={{ width: "4px", flexShrink: 0, cursor: "col-resize", background: "var(--color-border)" }}
+            className="w-1 shrink-0 cursor-col-resize bg-border"
           />
         )}
 
         <div
           data-testid="detail-panel"
+          className="overflow-hidden shrink-0"
           style={{
             width: detailOpen ? detailWidth + "px" : "0px",
-            overflow: "hidden",
             transition: "width 0.2s ease",
-            flexShrink: 0,
             borderLeft: detailOpen ? "none" : "1px solid var(--color-border)",
           }}
         >
