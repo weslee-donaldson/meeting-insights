@@ -15,6 +15,7 @@ interface MeetingListProps {
   onSelect: (id: string) => void;
   onCheck: (id: string) => void;
   onCheckGroup: (ids: string[]) => void;
+  onIgnoreGroup?: (ids: string[]) => void;
   searchLoading?: boolean;
   searchQuery?: string;
   loading?: boolean;
@@ -115,9 +116,10 @@ function formatShortDate(dateStr: string): string {
 
 interface GroupMenuProps {
   onSelectAll: () => void;
+  onIgnoreAll?: () => void;
 }
 
-function GroupMenu({ onSelectAll }: GroupMenuProps) {
+function GroupMenu({ onSelectAll, onIgnoreAll }: GroupMenuProps) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative ml-2 shrink-0">
@@ -137,6 +139,15 @@ function GroupMenu({ onSelectAll }: GroupMenuProps) {
           >
             Select all
           </button>
+          {onIgnoreAll && (
+            <button
+              onClick={() => { onIgnoreAll(); setOpen(false); }}
+              className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground bg-transparent border-none cursor-pointer"
+              aria-label="Ignore all"
+            >
+              Ignore all
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -159,6 +170,7 @@ export function MeetingList({
   onSelect,
   onCheck,
   onCheckGroup,
+  onIgnoreGroup,
   searchLoading,
   searchQuery,
   loading,
@@ -217,6 +229,7 @@ export function MeetingList({
                   </span>
                   <GroupMenu
                     onSelectAll={() => onCheckGroup(allChecked ? [] : groupIds)}
+                    onIgnoreAll={onIgnoreGroup ? () => onIgnoreGroup(groupIds) : undefined}
                   />
                 </div>
                 {showStats && (

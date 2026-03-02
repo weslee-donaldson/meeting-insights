@@ -109,6 +109,25 @@ describe("MeetingList", () => {
     expect(onCheckGroup).toHaveBeenCalledOnce();
   });
 
+  it("Ignore all in group menu fires onIgnoreGroup with group ids", () => {
+    const onIgnoreGroup = vi.fn();
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        onIgnoreGroup={onIgnoreGroup}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("button", { name: /group menu/i })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /ignore all/i }));
+    expect(onIgnoreGroup).toHaveBeenCalledWith(["dsu-3", "dsu-2", "dsu-1"]);
+  });
+
   it("renders newest meeting first within a group", () => {
     render(
       <MeetingList
