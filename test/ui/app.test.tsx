@@ -42,6 +42,7 @@ beforeAll(() => {
       return Promise.resolve(null);
     }),
     chat: vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 }),
+    conversationChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 }),
     search: vi.fn().mockResolvedValue([]),
     getCompletions: vi.fn().mockResolvedValue([]),
     completeActionItem: vi.fn().mockResolvedValue(undefined),

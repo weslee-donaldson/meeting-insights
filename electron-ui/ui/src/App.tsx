@@ -10,7 +10,7 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry } from "../../electron/channels.js";
+import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 
 interface DateRange {
@@ -213,8 +213,8 @@ export function App() {
   }, []);
 
   const handleChat = useCallback(
-    async (question: string): Promise<ChatResponse> => {
-      return window.api.chat({ meetingIds: activeMeetingIds, question });
+    async (messages: ConversationMessage[]): Promise<ConversationChatResponse> => {
+      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages });
     },
     [activeMeetingIds],
   );

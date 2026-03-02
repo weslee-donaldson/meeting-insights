@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Send, Clipboard, Paperclip, X, FileText, Code } from "lucide-react";
 import { Button } from "./ui/button.js";
-import type { ChatResponse } from "../../../electron/channels.js";
+import type { ConversationMessage, ConversationChatResponse } from "../../../electron/channels.js";
 
 function markdownToJira(md: string): string {
   return md
@@ -43,7 +43,7 @@ interface AttachmentItem {
 interface ChatPanelProps {
   activeMeetingIds: string[];
   charCount: number;
-  onChat: (question: string) => Promise<ChatResponse>;
+  onChat: (messages: ConversationMessage[]) => Promise<ConversationChatResponse>;
 }
 
 export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProps) {
@@ -65,10 +65,15 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
     const q = input.trim();
     if (!q || loading) return;
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: q }]);
+    const userMsg: InternalMessage = { role: "user", content: q };
+    setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     try {
-      const response = await onChat(q);
+      const historyForApi: ConversationMessage[] = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        { role: "user" as const, content: q },
+      ];
+      const response = await onChat(historyForApi);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
@@ -77,7 +82,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
-  }, [input, loading, onChat]);
+  }, [input, loading, onChat, messages]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

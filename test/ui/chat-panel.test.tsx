@@ -46,7 +46,7 @@ describe("ChatPanel", () => {
     expect(screen.getByText("bold text")).toBeDefined();
   });
 
-  it("submit calls onChat with the typed question", async () => {
+  it("submit calls onChat with full message history array", async () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
     render(
       <ChatPanel
@@ -57,7 +57,30 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith("What was decided?");
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }]);
+  });
+
+  it("sends full message history including prior exchanges on second question", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "First answer.", sources: [], charCount: 0 });
+    render(
+      <ChatPanel
+        activeMeetingIds={["m1"]}
+        charCount={100}
+        onChat={onChat}
+      />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Q1" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("First answer."), { timeout: 2000 });
+    onChat.mockResolvedValue({ answer: "Second answer.", sources: [], charCount: 0 });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Q2" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Second answer."), { timeout: 2000 });
+    expect(onChat).toHaveBeenLastCalledWith([
+      { role: "user", content: "Q1" },
+      { role: "assistant", content: "First answer." },
+      { role: "user", content: "Q2" },
+    ]);
   });
 
   it("displays sources beneath each assistant bubble", async () => {
