@@ -16,6 +16,7 @@ interface MeetingListProps {
   onCheckGroup: (ids: string[]) => void;
   searchLoading?: boolean;
   searchQuery?: string;
+  loading?: boolean;
 }
 
 function normalizeSeries(title: string): string {
@@ -128,6 +129,7 @@ export function MeetingList({
   onCheckGroup,
   searchLoading,
   searchQuery,
+  loading,
 }: MeetingListProps) {
   const groups = useMemo(() => {
     if (groupBy === "day") return groupByDay(meetings);
@@ -153,13 +155,23 @@ export function MeetingList({
       </div>
 
       <div className="flex-1 overflow-y-auto py-1">
-        {searchLoading && (
+        {loading && (
+          <div data-testid="meeting-list-skeleton" className="flex flex-col gap-2 px-3 py-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse flex flex-col gap-1.5">
+                <div className="h-3.5 rounded bg-muted w-2/3" />
+                <div className="h-2.5 rounded bg-muted w-1/3" />
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && searchLoading && (
           <div className="px-3 py-4 text-sm text-muted-foreground">Searching…</div>
         )}
-        {!searchLoading && (searchQuery?.length ?? 0) >= 2 && groups.length === 0 && (
+        {!loading && !searchLoading && (searchQuery?.length ?? 0) >= 2 && groups.length === 0 && (
           <div className="px-3 py-4 text-sm text-muted-foreground">No results for '{searchQuery}'</div>
         )}
-        {!searchLoading && groups.map((group) => {
+        {!loading && !searchLoading && groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));
           const groupIds = group.meetings.map((m) => m.id);
           const showStats = groupBy !== "series";

@@ -17,6 +17,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #821 | 1:09 AM | ✅ | Added test coverage for skeleton loading state in MeetingList component | ~335 |
 | #819 | 1:07 AM | ✅ | Added test coverage for success toast notification on meeting deletion | ~360 |
 | #789 | 12:48 AM | ✅ | Added test coverage for meeting ignore functionality | ~332 |
 | #728 | 12:15 AM | 🔄 | Removed chat functionality from MeetingDetail component and simplified test coverage | ~436 |

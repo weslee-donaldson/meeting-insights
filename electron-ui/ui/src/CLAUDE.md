@@ -15,6 +15,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #822 | 1:10 AM | 🟣 | Connected meetings query loading state to MeetingList skeleton UI | ~382 |
 | #806 | 12:58 AM | ✅ | Wired action item completion callback in App component | ~367 |
 | #805 | " | 🟣 | Added React Query for fetching action item completion status | ~387 |
 | #792 | 12:50 AM | 🟣 | Added setIgnored API client method for toggling meeting visibility | ~342 |

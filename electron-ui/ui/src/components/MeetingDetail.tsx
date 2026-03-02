@@ -16,6 +16,7 @@ interface MeetingDetailProps {
   onIgnore?: () => void;
   completions?: ActionItemCompletion[];
   onComplete?: (index: number, note: string) => void;
+  artifactLoading?: boolean;
 }
 
 interface SectionProps {
@@ -278,7 +279,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -382,6 +383,16 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
           <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} />
+        ) : artifactLoading ? (
+          <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse flex flex-col gap-2">
+                <div className="h-3 rounded bg-muted w-1/4" />
+                <div className="h-3 rounded bg-muted w-full" />
+                <div className="h-3 rounded bg-muted w-3/4" />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="py-4 text-xs text-muted-foreground">No artifact extracted</div>
         )}

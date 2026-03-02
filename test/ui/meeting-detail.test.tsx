@@ -264,4 +264,9 @@ describe("MeetingDetail", () => {
       "- [ ] Write tests (Alice, 2026-03-01)\n- [ ] Review PR (Bob)\n- [ ] Deploy app",
     );
   });
+
+  it("renders artifact skeleton when artifactLoading is true", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={null} artifactLoading={true} />);
+    expect(screen.getByTestId("artifact-skeleton")).toBeDefined();
+  });
 });

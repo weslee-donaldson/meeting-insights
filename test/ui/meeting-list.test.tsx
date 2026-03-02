@@ -347,4 +347,22 @@ describe("MeetingList", () => {
     );
     expect(screen.getByText("No results for 'qwerty'")).toBeDefined();
   });
+
+  it("renders skeleton rows when loading is true", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchLoading={false}
+        searchQuery=""
+        loading={true}
+        {...defaultProps()}
+      />,
+    );
+    expect(screen.getByTestId("meeting-list-skeleton")).toBeDefined();
+  });
 });

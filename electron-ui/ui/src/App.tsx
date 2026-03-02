@@ -206,6 +206,7 @@ export function App() {
           onCheckGroup={handleCheckGroup}
           searchLoading={searchFetching && searchQuery.trim().length >= 2}
           searchQuery={searchQuery}
+          loading={meetingsQuery.isLoading}
         />
       }
       detail={
@@ -218,6 +219,7 @@ export function App() {
           onIgnore={selectedMeetingId ? handleIgnore : undefined}
           completions={completionsQuery.data ?? []}
           onComplete={selectedMeetingId ? handleCompleteActionItem : undefined}
+          artifactLoading={selectedArtifactQuery.isLoading}
         />
       }
       chat={
