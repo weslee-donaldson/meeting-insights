@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -16,6 +16,8 @@ interface MeetingListProps {
   onCheck: (id: string) => void;
   onCheckGroup: (ids: string[]) => void;
   onIgnoreGroup?: (ids: string[]) => void;
+  sortAsc?: boolean;
+  onSortToggle?: () => void;
   searchLoading?: boolean;
   searchQuery?: string;
   loading?: boolean;
@@ -171,21 +173,28 @@ export function MeetingList({
   onCheck,
   onCheckGroup,
   onIgnoreGroup,
+  sortAsc,
+  onSortToggle,
   searchLoading,
   searchQuery,
   loading,
   hasFilters,
 }: MeetingListProps) {
   const groups = useMemo(() => {
-    if (groupBy === "day") return groupByDay(meetings);
-    if (groupBy === "week") return groupByWeek(meetings);
-    if (groupBy === "month") return groupByMonth(meetings);
-    return groupBySeries(meetings);
-  }, [meetings, groupBy]);
+    let g: SeriesGroup[];
+    if (groupBy === "day") g = groupByDay(meetings);
+    else if (groupBy === "week") g = groupByWeek(meetings);
+    else if (groupBy === "month") g = groupByMonth(meetings);
+    else g = groupBySeries(meetings);
+    if (sortAsc) {
+      return g.reverse().map((gr) => ({ ...gr, meetings: [...gr.meetings].reverse() }));
+    }
+    return g;
+  }, [meetings, groupBy, sortAsc]);
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex gap-1 px-3 py-1.5 shrink-0 border-b border-border">
+      <div className="flex gap-1 px-3 py-1.5 shrink-0 border-b border-border items-center">
         {GROUP_MODES.map(({ value, label }) => (
           <Button
             key={value}
@@ -197,6 +206,17 @@ export function MeetingList({
             {label}
           </Button>
         ))}
+        {onSortToggle && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto h-auto px-1.5 py-0.5"
+            onClick={onSortToggle}
+            aria-label={sortAsc ? "Sort descending" : "Sort ascending"}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+          </Button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto py-1">

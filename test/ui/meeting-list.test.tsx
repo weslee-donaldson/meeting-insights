@@ -128,7 +128,7 @@ describe("MeetingList", () => {
     expect(onIgnoreGroup).toHaveBeenCalledWith(["dsu-3", "dsu-2", "dsu-1"]);
   });
 
-  it("renders newest meeting first within a group", () => {
+  it("renders newest meeting first within a group by default", () => {
     render(
       <MeetingList
         meetings={dsuMeetings}
@@ -142,6 +142,41 @@ describe("MeetingList", () => {
     );
     const dates = screen.getAllByText(/Feb \d+, 2026/);
     expect(dates[0].textContent).toContain("Feb 26");
+  });
+
+  it("renders oldest meeting first when sortAsc is true", () => {
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        sortAsc={true}
+      />,
+    );
+    const dates = screen.getAllByText(/Feb \d+, 2026/);
+    expect(dates[0].textContent).toContain("Feb 23");
+  });
+
+  it("renders sort toggle button that calls onSortToggle", () => {
+    const onSortToggle = vi.fn();
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        onSortToggle={onSortToggle}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /sort/i }));
+    expect(onSortToggle).toHaveBeenCalledOnce();
   });
 
   it("renders four group-by selector buttons", () => {
