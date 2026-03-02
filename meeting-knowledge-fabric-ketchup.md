@@ -62,11 +62,19 @@ All state survives restarts. No in-memory-only storage in the live app.
 │   ├── output/                       # Generated artifacts
 │   ├── audit/                        # Processing run logs
 │   └── backups/                      # DB backups
-├── scripts/
+├── api/
+│   └── server.ts                     # HTTP API server (Bottle 10)
+├── cli/
 │   ├── setup.ts                      # Idempotent DB init + client seeding
 │   ├── run.ts                        # Process new meetings through full pipeline
-│   └── reset.ts                      # Clear DB + restore files to raw-transcripts
-├── src/
+│   ├── reset.ts                      # Clear DB + restore files to raw-transcripts
+│   ├── query.ts                      # CLI query tool
+│   ├── eval.ts                       # Evaluation harness
+│   └── assign-client.ts              # Manual client assignment
+├── core/
+├── electron-ui/
+│   ├── electron/                     # Main process + preload + IPC handlers
+│   └── ui/                           # React renderer
 ├── test/
 │   └── fixtures/                     # Sample Krisp files for testing (legacy format)
 ├── models/                           # ONNX model binary (gitignored)
@@ -604,6 +612,14 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 244: Fuzzy meeting_names matching in detectClient — export `normalizeTokens(s): Set<string>` (lowercase + non-alphanum→space + split); add `meetingNameMatches()` predicate (all name tokens in title tokens); integrate into `detectClient` with updated confidence table: meeting_name only → 0.7, participant+meeting_name → 0.95; tests: exact title match → detected method `meeting_name` confidence 0.7; folder-derived title `appdev_leads_dsu-019cabc` matches `AppDev Leads DSU`; participant+meeting_name → 0.95 [depends: 243]
 - [x] Burst 245: Speaker name → participant email matching in detectClient — export `nameTokensFromParticipant(entry)` (extracts local-part tokens from email, or whole entry for plain names, empty set for `@domain` patterns); export `parseSpeakerNames(rawTranscript)` (parse `Name | HH:MM` lines, deduplicated); integrate `speakerMatchesParticipants()` into `detectClient` with method prefix `speaker_name` vs `participant`; tests: full name match, first-name-only match, plain-name match, domain-pattern is skipped, speaker_name+meeting_name combo [depends: 244]
 - [x] Burst 246: `assign-client` utility script — create `scripts/assign-client.ts` with exported `assignClient(db, identifier, clientName): AssignResult`; try exact ID match then title LIKE substring; throw if client unknown or no meeting found; DELETE then INSERT with `confidence=1.0, method='manual'`; CLI wrapper via `isMain` check; add `"assign-client": "tsx scripts/assign-client.ts"` to `package.json`; tests: exact ID match, title substring (updates all), no match throws, unknown client throws, replaces pre-existing detection [depends: 243]
+
+### Bottle: Project Directory Reorganization
+
+- [x] Burst 247: `src/` → `core/` — `git mv src core`; update `tsconfig.json` include glob; bulk-replace `../src/` → `../core/` in all `test/` and `cli/` files; replace `../src/` and `../../src/` → `../../core/` in `electron/` files; 256 tests pass (commit: `1a5edc5`)
+- [x] Burst 248: `scripts/` → `cli/` — `git mv scripts cli`; update 6 `package.json` script entries; fix `test/assign-client.test.ts` import from `../scripts/` → `../cli/`; 256 tests pass (commit: `0076986`)
+- [x] Burst 249: `electron/` + `ui/` → `electron-ui/` — `git mv electron electron-ui/electron && git mv ui electron-ui/ui`; update `electron.vite.config.ts` (4 paths); add `electron-ui/**/*` to `tsconfig.json` include; fix import depths in moved files (+1 level); update all test imports; 256 tests pass (commit: `98c4218`)
+- [x] Burst 250: `api/` stub — create `api/server.ts` with placeholder comment for Bottle 10 (commit: `9a75083`)
+- [x] Burst 251: Update project structure in ketchup plan + MEMORY.md [depends: 247–250]
 
 ---
 
