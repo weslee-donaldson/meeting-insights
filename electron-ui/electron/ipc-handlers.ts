@@ -163,6 +163,10 @@ export function handleCompleteActionItem(db: Database, meetingId: string, itemIn
   ).run(`${meetingId}:${itemIndex}`, meetingId, itemIndex, new Date().toISOString(), note);
 }
 
+export function handleUncompleteActionItem(db: Database, meetingId: string, itemIndex: number): void {
+  db.prepare("DELETE FROM action_item_completions WHERE id = ?").run(`${meetingId}:${itemIndex}`);
+}
+
 export function handleGetCompletions(db: Database, meetingId: string): ActionItemCompletion[] {
   return db.prepare("SELECT * FROM action_item_completions WHERE meeting_id = ?").all(meetingId) as ActionItemCompletion[];
 }

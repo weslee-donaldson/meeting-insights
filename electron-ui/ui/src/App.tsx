@@ -150,6 +150,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleUncompleteActionItem = useCallback(async (itemIndex: number) => {
+    if (!selectedMeetingId) return;
+    await window.api.uncompleteActionItem(selectedMeetingId, itemIndex);
+    queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
+  }, [selectedMeetingId, queryClient]);
+
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
     await window.api.setIgnored(selectedMeetingId, true);
@@ -220,6 +226,7 @@ export function App() {
           onIgnore={selectedMeetingId ? handleIgnore : undefined}
           completions={completionsQuery.data ?? []}
           onComplete={selectedMeetingId ? handleCompleteActionItem : undefined}
+          onUncomplete={selectedMeetingId ? handleUncompleteActionItem : undefined}
           artifactLoading={selectedArtifactQuery.isLoading}
         />
       }

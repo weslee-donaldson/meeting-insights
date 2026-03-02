@@ -66,6 +66,11 @@ export const apiClient: ElectronAPI = {
       body: JSON.stringify({ note }),
     }).then(() => undefined),
 
+  uncompleteActionItem: (meetingId: string, itemIndex: number) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/action-items/${itemIndex}/complete`, {
+      method: "DELETE",
+    }).then(() => undefined),
+
   getCompletions: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/completions`).then((r) => r.json()),
 };

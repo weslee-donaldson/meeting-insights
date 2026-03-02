@@ -7,7 +7,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import {
   handleGetClients, handleGetMeetings, handleGetArtifact, handleChat,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
-  handleSetIgnored, handleCompleteActionItem, handleGetCompletions,
+  handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -96,6 +96,13 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const itemIndex = Number(c.req.param("index"));
     const { note } = await c.req.json() as { note: string };
     handleCompleteActionItem(db, id, itemIndex, note);
+    return c.body(null, 204);
+  });
+
+  app.delete("/api/meetings/:id/action-items/:index/complete", (c) => {
+    const id = c.req.param("id");
+    const itemIndex = Number(c.req.param("index"));
+    handleUncompleteActionItem(db, id, itemIndex);
     return c.body(null, 204);
   });
 

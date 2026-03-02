@@ -76,5 +76,6 @@ export interface ElectronAPI {
   reassignClient: (meetingId: string, clientName: string) => Promise<void>;
   setIgnored: (meetingId: string, ignored: boolean) => Promise<void>;
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;
+  uncompleteActionItem: (meetingId: string, itemIndex: number) => Promise<void>;
   getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;
 }

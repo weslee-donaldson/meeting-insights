@@ -14,6 +14,7 @@ import {
   handleReassignClient,
   handleSetIgnored,
   handleCompleteActionItem,
+  handleUncompleteActionItem,
   handleGetCompletions,
 } from "../electron-ui/electron/ipc-handlers.js";
 
@@ -273,6 +274,13 @@ describe("IPC handlers", () => {
       const c = completions.filter(r => r.item_index === 0);
       expect(c).toHaveLength(1);
       expect(c[0].note).toBe("updated");
+    });
+
+    it("uncomplete removes the completion record", () => {
+      handleCompleteActionItem(db, meetingId2, 1, "will remove");
+      expect(handleGetCompletions(db, meetingId2).filter(r => r.item_index === 1)).toHaveLength(1);
+      handleUncompleteActionItem(db, meetingId2, 1);
+      expect(handleGetCompletions(db, meetingId2).filter(r => r.item_index === 1)).toHaveLength(0);
     });
   });
 
