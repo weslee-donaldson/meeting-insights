@@ -644,11 +644,11 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 Findings from full Playwright MCP UI audit against `web:dev` + `api:dev`. Functional features confirmed working: client sidebar filter, client dropdown sync, meeting list load + grouping, meeting click → detail panel, all 8 artifact tabs (Summary/Decisions/Action Items/Open Questions/Risks/Proposed Features/Technical Topics/Additional Notes), Select all / Deselect all per group, individual checkboxes, context counter (meeting count + char count), chat input send-button enable/disable, date range filter, Reset (partial), theme cycle (deep-sea → daylight → midnight).
 
-- [ ] Burst 265: Fix Reset not clearing search text — SearchBar owns its own `query` state; lift `query`/`setQuery` to App.tsx and pass as controlled prop through TopBar → SearchBar so `handleReset` can set it to `""`; test: after Reset click, search input value is empty [depends: 264]
+- [x] Burst 265: Fix Reset not clearing search text — lift `query`/`setQuery` to App.tsx; SearchBar controlled via TopBar props; `handleReset` sets to `""`; test: after Reset click, search input value is empty (commit: `6beb1ca`)
 - [x] Burst 266: Add CORS middleware to `api/server.ts` — `app.use(cors())` via `hono/cors`; done 2026-03-01 (code in place)
-- [ ] Burst 267: Fix `web:dev` root URL — add redirect middleware in `vite.web.config.ts`: `configureServer` hook rewrites `GET /` → `/index-web.html`; test: GET root returns HTML referencing `main-web.tsx` [depends: 264]
-- [ ] Burst 268: Search error feedback — `useSearch` hook exposes `isError`; when error, SearchBar renders "Search unavailable" inline chip; test: stub fetch to return 503, verify error chip renders [depends: 264]
-- [ ] Burst 269: Fix "1 meetings" grammar — context bar uses `${n} meeting${n !== 1 ? "s" : ""}` for pluralisation; test: 1 meeting → "1 meeting", 2 meetings → "2 meetings" [depends: 262]
+- [x] Burst 267: Fix `web:dev` root URL — `configureServer` plugin in `vite.web.config.ts` rewrites `GET /` → `/index-web.html` (commit: `189d2c2`)
+- [x] Burst 268: Search error feedback — `isError` from `useSearch`; SearchBar renders "Search unavailable" inline chip on error; test: stub fetch to reject, verify chip renders (commit: `edd64ee`)
+- [x] Burst 269: Fix "1 meetings" grammar — `${n} meeting${n !== 1 ? "s" : ""}`; test: 1 → "1 meeting", 2 → "2 meetings" (commit: `0bdcd21`)
 
 ### Bottle: Meeting List Grouping + Resizable Columns (completed 2026-03-01)
 
