@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
-import { Badge } from "./ui/badge.js";
+
 
 export type GroupBy = "series" | "day" | "week" | "month";
 
@@ -222,19 +222,13 @@ export function MeetingList({
                   />
                   <div className="min-w-0 flex-1">
                     {groupBy === "series" ? (
-                      <>
-                        <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
-                          {formatShortDate(m.date)}
-                        </div>
-                        {m.client && <Badge variant="muted" className="mt-0.5">{m.client}</Badge>}
-                      </>
+                      <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                        {formatShortDate(m.date)}
+                      </div>
                     ) : (
-                      <>
-                        <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
-                          {m.title}
-                        </div>
-                        {m.client && <Badge variant="muted" className="mt-0.5">{m.client}</Badge>}
-                      </>
+                      <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                        {m.title}
+                      </div>
                     )}
                   </div>
                 </div>

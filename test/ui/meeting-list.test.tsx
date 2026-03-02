@@ -397,4 +397,19 @@ describe("MeetingList", () => {
     );
     expect(screen.getByText("No meetings yet")).toBeDefined();
   });
+
+  it("does not render client badge in meeting rows", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting", client: "Acme" })]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("Acme")).toBeNull();
+  });
 });
