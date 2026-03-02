@@ -14,10 +14,11 @@ interface SectionProps {
   title: string;
   children: React.ReactNode;
   isEmpty: boolean;
+  defaultOpen?: boolean;
 }
 
-function Section({ title, children, isEmpty }: SectionProps) {
-  const [open, setOpen] = React.useState(false);
+function Section({ title, children, isEmpty, defaultOpen = false }: SectionProps) {
+  const [open, setOpen] = React.useState(defaultOpen);
   if (isEmpty) return null;
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
@@ -25,110 +26,110 @@ function Section({ title, children, isEmpty }: SectionProps) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "4px",
+          gap: "6px",
           width: "100%",
           textAlign: "left",
-          padding: "4px 0",
-          fontSize: "0.75rem",
+          padding: "10px 0 6px",
+          fontSize: "0.8rem",
           fontWeight: 600,
           textTransform: "uppercase",
-          letterSpacing: "0.05em",
+          letterSpacing: "0.08em",
           background: "none",
           border: "none",
+          borderTop: "1px solid var(--color-border)",
           cursor: "pointer",
-          color: open ? "var(--color-text-secondary)" : "var(--color-text-muted)",
+          color: open ? "var(--color-text-primary)" : "var(--color-text-secondary)",
         }}
       >
         {open ? (
-          <ChevronDown style={{ width: "12px", height: "12px", flexShrink: 0 }} />
+          <ChevronDown style={{ width: "14px", height: "14px", flexShrink: 0 }} />
         ) : (
-          <ChevronRight style={{ width: "12px", height: "12px", flexShrink: 0 }} />
+          <ChevronRight style={{ width: "14px", height: "14px", flexShrink: 0 }} />
         )}
         {title}
       </Collapsible.Trigger>
-      <Collapsible.Content style={{ marginTop: "4px", fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>
+      <Collapsible.Content style={{ paddingBottom: "12px", fontSize: "0.875rem", color: "var(--color-text-secondary)", lineHeight: 1.65 }}>
         {children}
       </Collapsible.Content>
     </Collapsible.Root>
   );
 }
 
+function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; iconColor?: string }) {
+  return (
+    <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "6px" }}>
+      {items.map((d, i) => (
+        <li key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+          <span style={{ flexShrink: 0, color: iconColor ?? "var(--color-text-muted)", marginTop: "1px", fontSize: "0.8rem" }}>{icon}</span>
+          <span style={{ lineHeight: 1.6 }}>{d}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ArtifactView({ artifact }: { artifact: Artifact }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-      <Section title="Summary" isEmpty={!artifact.summary}>
-        <p style={{ lineHeight: 1.6, color: "var(--color-text-secondary)", margin: 0 }}>{artifact.summary}</p>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <Section title="Summary" isEmpty={!artifact.summary} defaultOpen={true}>
+        <p style={{ lineHeight: 1.65, color: "var(--color-text-secondary)", margin: 0 }}>{artifact.summary}</p>
       </Section>
 
       <Section title="Decisions" isEmpty={artifact.decisions.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {artifact.decisions.map((d, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-text-muted)" }}>—</span>
-              <span>{d}</span>
-            </li>
-          ))}
-        </ul>
+        <ItemList items={artifact.decisions} icon="—" />
       </Section>
 
       <Section title="Action Items" isEmpty={artifact.action_items.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" }}>
           {artifact.action_items.map((a, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-text-muted)" }}>□</span>
-              <span>
-                {a.description}
-                <span style={{ marginLeft: "4px", color: "var(--color-text-muted)" }}>
-                  ({a.owner}{a.due_date ? `, ${a.due_date}` : ""})
-                </span>
-              </span>
+            <li key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+              <span style={{ flexShrink: 0, color: "var(--color-accent)", marginTop: "2px" }}>□</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                <span style={{ lineHeight: 1.5 }}>{a.description}</span>
+                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  {a.owner && (
+                    <span style={{
+                      fontSize: "0.7rem",
+                      padding: "1px 6px",
+                      borderRadius: "3px",
+                      background: "var(--color-bg-elevated)",
+                      color: "var(--color-text-secondary)",
+                    }}>
+                      {a.owner}
+                    </span>
+                  )}
+                  {a.due_date && (
+                    <span style={{
+                      fontSize: "0.7rem",
+                      padding: "1px 6px",
+                      borderRadius: "3px",
+                      background: "var(--color-bg-elevated)",
+                      color: "var(--color-text-muted)",
+                    }}>
+                      {a.due_date}
+                    </span>
+                  )}
+                </div>
+              </div>
             </li>
           ))}
         </ul>
       </Section>
 
       <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {artifact.open_questions.map((q, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-text-muted)" }}>?</span>
-              <span>{q}</span>
-            </li>
-          ))}
-        </ul>
+        <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" />
       </Section>
 
       <Section title="Risks" isEmpty={artifact.risk_items.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {artifact.risk_items.map((r, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-danger)" }}>⚠</span>
-              <span>{r}</span>
-            </li>
-          ))}
-        </ul>
+        <ItemList items={artifact.risk_items} icon="⚠" iconColor="var(--color-danger)" />
       </Section>
 
       <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {artifact.proposed_features.map((f, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-accent)" }}>✦</span>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
+        <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" />
       </Section>
 
       <Section title="Technical Topics" isEmpty={artifact.technical_topics.length === 0}>
-        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
-          {artifact.technical_topics.map((t, i) => (
-            <li key={i} style={{ display: "flex", gap: "8px" }}>
-              <span style={{ flexShrink: 0, color: "var(--color-text-muted)" }}>◆</span>
-              <span>{t}</span>
-            </li>
-          ))}
-        </ul>
+        <ItemList items={artifact.technical_topics} icon="◆" />
       </Section>
 
       <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0}>
@@ -136,7 +137,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
           const entries = Object.entries(note);
           const header = entries.find(([, v]) => typeof v === "string");
           return (
-            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               {header && (
                 <div style={{ fontWeight: 500, color: "var(--color-text-secondary)" }}>
                   {String(header[1])}
@@ -147,7 +148,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
                 .map(([k, v]) => {
                   const items = Array.isArray(v) ? v : typeof v === "string" ? [v] : [];
                   return items.map((item, j) => (
-                    <div key={`${k}-${j}`} style={{ display: "flex", gap: "8px", paddingLeft: "8px" }}>
+                    <div key={`${k}-${j}`} style={{ display: "flex", gap: "10px", paddingLeft: "8px" }}>
                       <span style={{ color: "var(--color-text-muted)" }}>•</span>
                       <span>{String(item)}</span>
                     </div>
@@ -214,31 +215,38 @@ function ChatSection({
     <div style={{ display: "flex", flexDirection: "column", borderTop: "1px solid var(--color-border)" }}>
       <div
         style={{
-          padding: "8px 16px",
-          fontSize: "0.75rem",
+          padding: "6px 16px",
+          fontSize: "0.7rem",
           borderBottom: "1px solid var(--color-border)",
           color: "var(--color-text-muted)",
+          display: "flex",
+          gap: "8px",
         }}
       >
-        Context:{" "}
-        <span style={{ color: "var(--color-text-secondary)" }}>{chatContext.meetingIds.length} meetings</span>
-        {" | "}
-        <span style={{ color: "var(--color-text-secondary)" }}>{chatContext.charCount.toLocaleString()} characters</span>
+        <span><span style={{ color: "var(--color-text-secondary)" }}>{chatContext.meetingIds.length}</span> meetings</span>
+        <span>·</span>
+        <span><span style={{ color: "var(--color-text-secondary)" }}>{chatContext.charCount.toLocaleString()}</span> chars</span>
       </div>
 
-      <div style={{ overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div style={{ overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "20px" }}>
         {history.map((pair, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 500, color: "var(--color-text-muted)" }}>
-              Q: {pair.question}
+            <div style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              color: "var(--color-text-muted)",
+              paddingBottom: "4px",
+              borderBottom: "1px solid var(--color-border)",
+            }}>
+              {pair.question}
             </div>
-            <div style={{ fontSize: "0.875rem", lineHeight: 1.6, whiteSpace: "pre-wrap", color: "var(--color-text-primary)" }}>
+            <div style={{ fontSize: "0.875rem", lineHeight: 1.65, whiteSpace: "pre-wrap", color: "var(--color-text-primary)" }}>
               {pair.answer}
             </div>
             {pair.sources.length > 0 && (
-              <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                <span style={{ fontWeight: 500 }}>Sources:</span>
-                <ul style={{ margin: "2px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
+              <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)" }}>
+                <span style={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Sources</span>
+                <ul style={{ margin: "4px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "2px" }}>
                   {pair.sources.map((s, j) => (
                     <li key={j} style={{ paddingLeft: "8px" }}>— {s}</li>
                   ))}
@@ -247,9 +255,9 @@ function ChatSection({
             )}
             <button
               onClick={() => copyToClipboard(`Q: ${pair.question}\n\nA: ${pair.answer}`)}
-              style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.75rem", color: "var(--color-text-muted)", background: "none", border: "none", cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.7rem", color: "var(--color-text-muted)", background: "none", border: "none", cursor: "pointer", alignSelf: "flex-start" }}
             >
-              <Clipboard style={{ width: "12px", height: "12px" }} />
+              <Clipboard style={{ width: "11px", height: "11px" }} />
               Copy
             </button>
           </div>
@@ -262,7 +270,7 @@ function ChatSection({
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ padding: "16px", borderTop: "1px solid var(--color-border)", flexShrink: 0 }}>
+      <div style={{ padding: "12px 16px", borderTop: "1px solid var(--color-border)", flexShrink: 0 }}>
         <div style={{ display: "flex", gap: "8px" }}>
           <textarea
             value={question}
@@ -273,7 +281,7 @@ function ChatSection({
             style={{
               flex: 1,
               resize: "none",
-              borderRadius: "4px",
+              borderRadius: "6px",
               padding: "8px 12px",
               fontSize: "0.875rem",
               background: "var(--color-bg-input)",
@@ -287,7 +295,7 @@ function ChatSection({
             disabled={!question.trim() || loading}
             style={{
               padding: "8px 12px",
-              borderRadius: "4px",
+              borderRadius: "6px",
               background: "var(--color-accent)",
               color: "white",
               border: "none",
@@ -326,6 +334,7 @@ export function MeetingDetail({ meeting, artifact, chatContext, onChat }: Meetin
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {/* Header — highest visual weight */}
       <div
         style={{
           padding: "16px",
@@ -333,22 +342,31 @@ export function MeetingDetail({ meeting, artifact, chatContext, onChat }: Meetin
           flexShrink: 0,
         }}
       >
-        <div style={{ fontWeight: 500, fontSize: "0.875rem", color: "var(--color-text-primary)" }}>
+        <div style={{ fontWeight: 700, fontSize: "1rem", color: "var(--color-text-primary)", lineHeight: 1.3 }}>
           {meeting.title}
         </div>
-        <div style={{ fontSize: "0.75rem", marginTop: "2px", color: "var(--color-text-muted)" }}>
-          {meeting.date.slice(0, 10)}
+        <div style={{ fontSize: "0.75rem", marginTop: "4px", color: "var(--color-text-muted)", display: "flex", gap: "8px", alignItems: "center" }}>
+          <span>{meeting.date.slice(0, 10)}</span>
           {meeting.client && (
-            <span style={{ marginLeft: "8px" }}>[{meeting.client}]</span>
+            <span style={{
+              fontSize: "0.7rem",
+              padding: "1px 6px",
+              borderRadius: "3px",
+              background: "var(--color-bg-elevated)",
+              color: "var(--color-text-secondary)",
+            }}>
+              {meeting.client}
+            </span>
           )}
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+      {/* Artifact sections */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 16px" }}>
         {artifact ? (
           <ArtifactView artifact={artifact} />
         ) : (
-          <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>No artifact extracted</div>
+          <div style={{ padding: "16px 0", fontSize: "0.75rem", color: "var(--color-text-muted)" }}>No artifact extracted</div>
         )}
       </div>
 

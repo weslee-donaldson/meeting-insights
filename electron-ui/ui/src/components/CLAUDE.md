@@ -7,6 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #667 | 11:19 PM | 🔄 | Enhanced MeetingDetail typography and visual hierarchy with improved component structure | ~550 |
+| #664 | 11:16 PM | 🟣 | Completed month grouping and refined meeting list visual hierarchy | ~487 |
 | #657 | 11:06 PM | 🟣 | Implemented day and week grouping with action item count statistics | ~461 |
 | #656 | 11:04 PM | 🔄 | Refined meeting date display logic for different grouping modes | ~332 |
 | #647 | 11:00 PM | 🟣 | Added meeting grouping mode selector with Series/Day/Week/Month options | ~390 |

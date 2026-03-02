@@ -67,11 +67,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    const titleEls = screen.getAllByText("Alpha Meeting");
-    const rowTitle = titleEls.find(
-      (el) => el.tagName === "DIV",
-    )!;
-    fireEvent.click(rowTitle);
+    fireEvent.click(screen.getByTestId("meeting-row-m1"));
     expect(onSelect).toHaveBeenCalledWith("m1");
   });
 
@@ -124,8 +120,8 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    const dates = screen.getAllByText(/2026-02-\d+/);
-    expect(dates[0].textContent).toContain("2026-02-26");
+    const dates = screen.getAllByText(/Feb \d+, 2026/);
+    expect(dates[0].textContent).toContain("Feb 26");
   });
 
   it("renders four group-by selector buttons", () => {

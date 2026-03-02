@@ -14,6 +14,7 @@ function makeMeeting(overrides: Partial<MeetingRow> = {}): MeetingRow {
     date: "2026-02-25T10:00:00.000Z",
     client: "Acme",
     series: "alpha meeting",
+    actionItemCount: 0,
     ...overrides,
   };
 }
@@ -59,7 +60,7 @@ describe("MeetingDetail", () => {
     expect(screen.getByText("Alpha Meeting")).toBeDefined();
   });
 
-  it("renders summary section when artifact is set", () => {
+  it("renders summary content visible by default when artifact is set", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -68,8 +69,6 @@ describe("MeetingDetail", () => {
         onChat={vi.fn()}
       />,
     );
-    const trigger = screen.getByRole("button", { name: /summary/i });
-    fireEvent.click(trigger);
     expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
   });
 

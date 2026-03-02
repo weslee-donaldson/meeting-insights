@@ -101,6 +101,11 @@ function statLine(ms: MeetingRow[]): string {
   return `${mCount} meeting${mCount !== 1 ? "s" : ""} · ${aiCount} action item${aiCount !== 1 ? "s" : ""}`;
 }
 
+function formatShortDate(dateStr: string): string {
+  const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
 const GROUP_MODES: { value: GroupBy; label: string }[] = [
   { value: "series", label: "Series" },
   { value: "day", label: "Day" },
@@ -160,27 +165,21 @@ export function MeetingList({
         {groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));
           const groupIds = group.meetings.map((m) => m.id);
-          const showStats = groupBy === "day" || groupBy === "week" || groupBy === "month";
+          const showStats = groupBy !== "series";
           return (
             <div key={group.series}>
-              <div
-                style={{
-                  padding: "6px 12px",
-                  marginTop: "8px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
+              {/* Group header — prominent */}
+              <div style={{ padding: "10px 12px 4px 12px", marginTop: "4px" }}>
+                <div style={{ display: "flex", alignItems: "baseline" }}>
                   <span
                     style={{
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      textTransform: groupBy === "series" ? "uppercase" : "none",
-                      letterSpacing: groupBy === "series" ? "0.05em" : "normal",
+                      fontSize: "0.9rem",
+                      fontWeight: 700,
                       flex: 1,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      color: "var(--color-text-muted)",
+                      color: "var(--color-text-primary)",
                     }}
                   >
                     {group.label}
@@ -188,13 +187,14 @@ export function MeetingList({
                   <button
                     onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
                     style={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.7rem",
                       marginLeft: "8px",
                       flexShrink: 0,
                       color: "var(--color-text-muted)",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
+                      padding: 0,
                     }}
                   >
                     {allChecked ? "Deselect all" : "Select all"}
@@ -206,17 +206,21 @@ export function MeetingList({
                   </div>
                 )}
               </div>
+
+              {/* Meeting rows — indented under group header */}
               {group.meetings.map((m) => (
                 <div
                   key={m.id}
+                  data-testid={`meeting-row-${m.id}`}
                   onClick={() => onSelect(m.id)}
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
-                    padding: "6px 12px",
+                    padding: "5px 12px 5px 24px",
                     cursor: "pointer",
                     background: selectedId === m.id ? "var(--color-bg-elevated)" : "transparent",
+                    borderLeft: "2px solid " + (selectedId === m.id ? "var(--color-accent)" : "transparent"),
                   }}
                 >
                   <input
@@ -227,28 +231,50 @@ export function MeetingList({
                       e.stopPropagation();
                       onCheck(m.id);
                     }}
-                    style={{ width: "14px", height: "14px", flexShrink: 0, accentColor: "var(--color-accent)" }}
+                    style={{ width: "13px", height: "13px", flexShrink: 0, accentColor: "var(--color-accent)" }}
                   />
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div
-                      style={{
-                        fontSize: "0.875rem",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        color: "var(--color-text-primary)",
-                      }}
-                    >
-                      {groupBy === "series" ? m.title : m.title}
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>
-                      {groupBy === "series" && m.date.slice(0, 10)}
-                      {m.client && (
-                        <span style={{ marginLeft: groupBy === "series" ? "4px" : "0px", color: "var(--color-text-muted)" }}>
-                          [{m.client}]
-                        </span>
-                      )}
-                    </div>
+                    {groupBy === "series" ? (
+                      <>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight: 500,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            color: "var(--color-text-primary)",
+                          }}
+                        >
+                          {formatShortDate(m.date)}
+                        </div>
+                        {m.client && (
+                          <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)" }}>
+                            {m.client}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight: 500,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            color: "var(--color-text-primary)",
+                          }}
+                        >
+                          {m.title}
+                        </div>
+                        {m.client && (
+                          <div style={{ fontSize: "0.7rem", color: "var(--color-text-muted)" }}>
+                            {m.client}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

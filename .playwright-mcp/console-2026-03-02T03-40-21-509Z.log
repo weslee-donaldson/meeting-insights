@@ -19,3 +19,7 @@
 [ 1116727ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=eventsto&client=LLSA:0
 [ 1116833ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=eventstor&client=LLSA:0
 [ 1116908ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=eventstore&client=LLSA:0
+[ 1945275ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=em:0
+[ 1945445ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emm:0
+[ 1945597ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emmi:0
+[ 1945740ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/search?q=emmit:0

@@ -48,8 +48,7 @@ describe("App", () => {
 
   it("opens detail panel after meeting row click", async () => {
     render(<App />, { wrapper });
-    const dateEl = await screen.findByText("2026-01-01");
-    const row = dateEl.closest("[style*='cursor']") as HTMLElement;
+    const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => {
       const panel = screen.getByTestId("detail-panel");

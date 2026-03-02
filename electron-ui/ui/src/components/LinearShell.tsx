@@ -40,7 +40,7 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen }: Linea
     const onMouseMove = (ev: MouseEvent) => {
       if (!detailDragRef.current) return;
       const delta = detailDragRef.current.startX - ev.clientX;
-      setDetailWidth(Math.max(280, Math.min(700, detailDragRef.current.startWidth + delta)));
+      setDetailWidth(Math.max(280, detailDragRef.current.startWidth + delta));
     };
 
     const onMouseUp = () => {
@@ -70,7 +70,7 @@ export function LinearShell({ topBar, sidebar, main, detail, detailOpen }: Linea
           style={{ width: "4px", flexShrink: 0, cursor: "col-resize", background: "var(--color-border)" }}
         />
 
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, minWidth: "200px", overflowY: "auto", overflowX: "auto" }}>
           {main}
         </div>
 
