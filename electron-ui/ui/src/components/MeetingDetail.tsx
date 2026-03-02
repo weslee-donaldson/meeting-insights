@@ -20,7 +20,7 @@ interface MeetingDetailProps {
   onComplete?: (index: number, note: string) => void;
   onUncomplete?: (index: number) => void;
   mentionStats?: MentionStat[];
-  onMentionClick?: (canonicalId: string) => void;
+  onMentionClick?: (canonicalId: string, itemText: string) => void;
   artifactLoading?: boolean;
 }
 
@@ -100,7 +100,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string) => void }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
@@ -314,7 +314,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                     <Badge
                       variant="outline"
                       className="cursor-pointer text-[0.65rem]"
-                      onClick={() => onMentionClick?.(mention.canonical_id)}
+                      onClick={() => onMentionClick?.(mention.canonical_id, a.description)}
                     >
                       {mention.mention_count}x
                     </Badge>

@@ -47,6 +47,7 @@ beforeAll(() => {
     completeActionItem: vi.fn().mockResolvedValue(undefined),
     deleteMeetings: vi.fn().mockResolvedValue(undefined),
     getMentionStats: vi.fn().mockResolvedValue([]),
+    getItemHistory: vi.fn().mockResolvedValue([]),
   };
 });
 

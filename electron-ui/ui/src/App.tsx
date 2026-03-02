@@ -10,7 +10,8 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat } from "../../electron/channels.js";
+import type { MeetingRow, ChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry } from "../../electron/channels.js";
+import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 
 interface DateRange {
   after: string;
@@ -27,6 +28,7 @@ export function App() {
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
   const [searchQuery, setSearchQuery] = useState("");
+  const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -79,6 +81,12 @@ export function App() {
     queryKey: ["mentionStats", selectedMeetingId],
     queryFn: () => window.api.getMentionStats(selectedMeetingId!),
     enabled: !!selectedMeetingId,
+  });
+
+  const itemHistoryQuery = useQuery<ItemHistoryEntry[]>({
+    queryKey: ["itemHistory", historyItem?.canonicalId],
+    queryFn: () => window.api.getItemHistory(historyItem!.canonicalId),
+    enabled: !!historyItem,
   });
 
   const isMultiMode = checkedMeetingIds.size >= 2;
@@ -195,6 +203,15 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleMentionClick = useCallback((canonicalId: string, itemText: string) => {
+    setHistoryItem({ canonicalId, itemText });
+  }, []);
+
+  const handleHistorySelectMeeting = useCallback((meetingId: string) => {
+    setSelectedMeetingId(meetingId);
+    setHistoryItem(null);
+  }, []);
+
   const handleChat = useCallback(
     async (question: string): Promise<ChatResponse> => {
       return window.api.chat({ meetingIds: activeMeetingIds, question });
@@ -260,6 +277,7 @@ export function App() {
           onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
           onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
           mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
+          onMentionClick={isMultiMode ? undefined : handleMentionClick}
           artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
         />
       }
@@ -272,6 +290,13 @@ export function App() {
       }
     />
     <ToastContainer toasts={toasts} onDismiss={removeToast} />
+    <ItemHistoryDialog
+      open={!!historyItem}
+      onClose={() => setHistoryItem(null)}
+      itemText={historyItem?.itemText ?? ""}
+      history={itemHistoryQuery.data ?? []}
+      onSelectMeeting={handleHistorySelectMeeting}
+    />
     </>
   );
 }

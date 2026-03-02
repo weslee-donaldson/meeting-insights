@@ -480,6 +480,6 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByText("3x"));
-    expect(onMentionClick).toHaveBeenCalledWith("c1");
+    expect(onMentionClick).toHaveBeenCalledWith("c1", "Write tests");
   });
 });
