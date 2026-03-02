@@ -88,19 +88,13 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
 }
 
 function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void }) {
-  const [completedExpanded, setCompletedExpanded] = useState(false);
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
 
   const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
 
-  const activeWithIndex = useMemo(
-    () => artifact.action_items.map((a, i) => ({ ...a, index: i })).filter((a) => !completedSet.has(a.index)),
-    [artifact.action_items, completedSet],
-  );
-
-  const completedWithIndex = useMemo(
-    () => artifact.action_items.map((a, i) => ({ ...a, index: i })).filter((a) => completedSet.has(a.index)),
+  const activeCount = useMemo(
+    () => artifact.action_items.filter((_, i) => !completedSet.has(i)).length,
     [artifact.action_items, completedSet],
   );
 
@@ -130,7 +124,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         defaultOpen={true}
         headerExtra={
           <div className="flex items-center">
-            {onComplete && activeWithIndex.length > 0 && (
+            {onComplete && activeCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -154,58 +148,44 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
         }
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-2">
-          {activeWithIndex.map((a) => (
-            <li key={a.index} className="flex gap-2.5 items-start">
-              {onComplete ? (
-                <button
-                  onClick={() => onComplete(a.index, "")}
-                  aria-label={`Complete item ${a.index}`}
-                  className="shrink-0 mt-0.5 text-primary bg-transparent border-0 cursor-pointer p-0"
-                >
-                  □
-                </button>
-              ) : (
-                <span className="shrink-0 mt-0.5 text-primary">□</span>
-              )}
-              <div className="flex flex-col gap-0.5">
-                <span className="leading-[1.5]">{a.description}</span>
-                <div className="flex gap-1.5 flex-wrap">
-                  {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
-                  {a.due_date && <Badge variant="muted">{a.due_date}</Badge>}
+          {artifact.action_items.map((a, i) => {
+            const isCompleted = completedSet.has(i);
+            const existingNote = completions.find((c) => c.item_index === i)?.note ?? "";
+            return (
+              <li key={i} className={cn("flex gap-2.5 items-start", isCompleted && "opacity-60")}>
+                {isCompleted ? (
+                  <span className="shrink-0 mt-0.5 text-green-500">✓</span>
+                ) : onComplete ? (
+                  <button
+                    onClick={() => onComplete(i, "")}
+                    aria-label={`Complete item ${i}`}
+                    className="shrink-0 mt-0.5 text-primary bg-transparent border-0 cursor-pointer p-0"
+                  >
+                    □
+                  </button>
+                ) : (
+                  <span className="shrink-0 mt-0.5 text-primary">□</span>
+                )}
+                <div className="flex flex-col gap-0.5">
+                  {isCompleted ? (
+                    <button
+                      onClick={() => setNoteDialog({ index: i, note: existingNote })}
+                      className="text-left text-sm leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
+                    >
+                      {a.description}
+                    </button>
+                  ) : (
+                    <span className="leading-[1.5]">{a.description}</span>
+                  )}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
+                    {a.due_date && <Badge variant="muted">{a.due_date}</Badge>}
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
-        {completedWithIndex.length > 0 && (
-          <>
-            <button
-              onClick={() => setCompletedExpanded((v) => !v)}
-              className="mt-2 text-xs text-muted-foreground bg-transparent border-0 cursor-pointer p-0 flex items-center gap-1"
-            >
-              <span>{completedWithIndex.length} completed</span>
-              <span aria-hidden="true">{completedExpanded ? "▾" : "▸"}</span>
-            </button>
-            {completedExpanded && (
-              <ul className="m-0 p-0 list-none flex flex-col gap-1.5 mt-1.5">
-                {completedWithIndex.map((a) => {
-                  const existingNote = completions.find((c) => c.item_index === a.index)?.note ?? "";
-                  return (
-                    <li key={a.index} className="flex gap-2.5 items-start opacity-60">
-                      <span className="shrink-0 mt-0.5 text-green-500">✓</span>
-                      <button
-                        onClick={() => setNoteDialog({ index: a.index, note: existingNote })}
-                        className="text-left text-sm leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
-                      >
-                        {a.description}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </>
-        )}
       </Section>
 
       <Dialog open={noteDialog !== null} onOpenChange={(open) => { if (!open) setNoteDialog(null); }}>
@@ -226,7 +206,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
           <DialogTitle>Mark all complete</DialogTitle>
           <NoteDialogBody
             initialNote=""
-            onSave={(note) => { activeWithIndex.forEach((a) => onComplete?.(a.index, note)); setBulkDialog(false); }}
+            onSave={(note) => { artifact.action_items.forEach((_, i) => { if (!completedSet.has(i)) onComplete?.(i, note); }); setBulkDialog(false); }}
             onCancel={() => setBulkDialog(false)}
             saveLabel="Confirm"
           />

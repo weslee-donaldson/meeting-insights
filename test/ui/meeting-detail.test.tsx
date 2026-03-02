@@ -121,7 +121,7 @@ describe("MeetingDetail", () => {
     expect(onComplete).toHaveBeenCalledWith(0, "");
   });
 
-  it("completed items collapse into a summary row showing count", () => {
+  it("completed item renders inline with strikethrough and checkmark", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
     ];
@@ -138,28 +138,10 @@ describe("MeetingDetail", () => {
         onComplete={vi.fn()}
       />,
     );
-    expect(screen.getByText("1 completed")).toBeDefined();
-    expect(screen.getByText("Review PR")).toBeDefined();
-    expect(screen.queryByText("Write tests")).toBeNull();
-  });
-
-  it("expanding completed summary reveals completed items", () => {
-    const completions: ActionItemCompletion[] = [
-      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
-    ];
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={makeArtifact({
-          action_items: [{ description: "Write tests", owner: "Alice", due_date: null }],
-        })}
-        completions={completions}
-        onComplete={vi.fn()}
-      />,
-    );
-    expect(screen.queryByText("Write tests")).toBeNull();
-    fireEvent.click(screen.getByText("1 completed"));
     expect(screen.getByText("Write tests")).toBeDefined();
+    expect(screen.getByText("Review PR")).toBeDefined();
+    const completedItem = screen.getByText("Write tests");
+    expect(completedItem.className).toContain("line-through");
   });
 
   it("clicking a completed item description opens note dialog pre-filled with existing note", () => {
@@ -174,7 +156,6 @@ describe("MeetingDetail", () => {
         onComplete={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByText("1 completed"));
     fireEvent.click(screen.getByText("Write tests"));
     expect(screen.getByRole("textbox", { name: "Completion note" })).toBeDefined();
     expect((screen.getByRole("textbox", { name: "Completion note" }) as HTMLTextAreaElement).value).toBe("existing note");
@@ -193,7 +174,6 @@ describe("MeetingDetail", () => {
         onComplete={onComplete}
       />,
     );
-    fireEvent.click(screen.getByText("1 completed"));
     fireEvent.click(screen.getByText("Write tests"));
     const textarea = screen.getByRole("textbox", { name: "Completion note" });
     fireEvent.change(textarea, { target: { value: "new note" } });
@@ -214,7 +194,6 @@ describe("MeetingDetail", () => {
         onComplete={onComplete}
       />,
     );
-    fireEvent.click(screen.getByText("1 completed"));
     fireEvent.click(screen.getByText("Write tests"));
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(onComplete).not.toHaveBeenCalled();
