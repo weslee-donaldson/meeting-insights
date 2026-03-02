@@ -313,4 +313,38 @@ describe("MeetingList", () => {
     );
     expect(screen.getByText("1 meeting · 1 action item")).toBeTruthy();
   });
+
+  it("shows loading indicator while search is in flight", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchLoading={true}
+        searchQuery="al"
+      />,
+    );
+    expect(screen.getByText("Searching…")).toBeDefined();
+  });
+
+  it("shows no-results message when search returns empty", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchLoading={false}
+        searchQuery="qwerty"
+      />,
+    );
+    expect(screen.getByText("No results for 'qwerty'")).toBeDefined();
+  });
 });

@@ -39,7 +39,7 @@ export function App() {
       }),
   });
 
-  const { data: searchResults } = useSearch(searchQuery, selectedClient ?? undefined, dateRange.after || undefined, dateRange.before || undefined);
+  const { data: searchResults, isFetching: searchFetching } = useSearch(searchQuery, selectedClient ?? undefined, dateRange.after || undefined, dateRange.before || undefined);
 
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];
@@ -158,6 +158,8 @@ export function App() {
           onSelect={setSelectedMeetingId}
           onCheck={handleCheck}
           onCheckGroup={handleCheckGroup}
+          searchLoading={searchFetching && searchQuery.trim().length >= 2}
+          searchQuery={searchQuery}
         />
       }
       detail={

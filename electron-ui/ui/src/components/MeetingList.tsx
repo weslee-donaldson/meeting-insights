@@ -14,6 +14,8 @@ interface MeetingListProps {
   onSelect: (id: string) => void;
   onCheck: (id: string) => void;
   onCheckGroup: (ids: string[]) => void;
+  searchLoading?: boolean;
+  searchQuery?: string;
 }
 
 function normalizeSeries(title: string): string {
@@ -124,6 +126,8 @@ export function MeetingList({
   onSelect,
   onCheck,
   onCheckGroup,
+  searchLoading,
+  searchQuery,
 }: MeetingListProps) {
   const groups = useMemo(() => {
     if (groupBy === "day") return groupByDay(meetings);
@@ -149,7 +153,13 @@ export function MeetingList({
       </div>
 
       <div className="flex-1 overflow-y-auto py-1">
-        {groups.map((group) => {
+        {searchLoading && (
+          <div className="px-3 py-4 text-sm text-muted-foreground">Searching…</div>
+        )}
+        {!searchLoading && (searchQuery?.length ?? 0) >= 2 && groups.length === 0 && (
+          <div className="px-3 py-4 text-sm text-muted-foreground">No results for '{searchQuery}'</div>
+        )}
+        {!searchLoading && groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));
           const groupIds = group.meetings.map((m) => m.id);
           const showStats = groupBy !== "series";
@@ -218,7 +228,7 @@ export function MeetingList({
             </div>
           );
         })}
-        {meetings.length === 0 && (
+        {!searchLoading && (searchQuery?.length ?? 0) < 2 && meetings.length === 0 && (
           <div className="p-4 text-xs text-muted-foreground">
             No meetings in scope
           </div>
