@@ -5,6 +5,7 @@ import { Sidebar } from "./components/Sidebar.js";
 import { TopBar } from "./components/TopBar.js";
 import { MeetingList, type GroupBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
+import { ChatPanel } from "./components/ChatPanel.js";
 import { useTheme } from "./ThemeContext.js";
 import type { MeetingRow, ChatResponse, Artifact, SearchResultRow } from "../../electron/channels.js";
 
@@ -115,6 +116,7 @@ export function App() {
   return (
     <LinearShell
       detailOpen={!!selectedMeetingId}
+      chatOpen={activeMeetingIds.length > 0}
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}
@@ -154,7 +156,12 @@ export function App() {
         <MeetingDetail
           meeting={selectedMeeting}
           artifact={selectedArtifactQuery.data ?? null}
-          chatContext={{ meetingIds: activeMeetingIds, charCount }}
+        />
+      }
+      chat={
+        <ChatPanel
+          activeMeetingIds={activeMeetingIds}
+          charCount={charCount}
           onChat={handleChat}
         />
       }

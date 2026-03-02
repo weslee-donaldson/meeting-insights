@@ -17,5 +17,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #728 | 12:15 AM | 🔄 | Removed chat functionality from MeetingDetail component and simplified test coverage | ~436 |
 | #713 | 12:02 AM | ✅ | Added test coverage for shadcn/ui Button and Badge components | ~403 |
 </claude-mem-context>

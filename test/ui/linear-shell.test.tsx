@@ -122,4 +122,35 @@ describe("LinearShell", () => {
     const detailPanel = screen.getByTestId("detail-panel");
     expect(parseInt(detailPanel.style.width)).toBeGreaterThan(480);
   });
+
+  it("chat panel is absent when chatOpen is false", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={false}
+        chat={<div>chat-content</div>}
+        chatOpen={false}
+      />,
+    );
+    expect(screen.queryByTestId("chat-panel")).toBeNull();
+  });
+
+  it("chat panel is present and renders content when chatOpen is true", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        sidebar={<div>sidebar</div>}
+        main={<div>main</div>}
+        detail={<div>detail</div>}
+        detailOpen={false}
+        chat={<div>chat-content</div>}
+        chatOpen={true}
+      />,
+    );
+    expect(screen.getByTestId("chat-panel")).toBeDefined();
+    expect(screen.getByText("chat-content")).toBeDefined();
+  });
 });

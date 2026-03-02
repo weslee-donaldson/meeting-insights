@@ -64,4 +64,9 @@ describe("App", () => {
       expect((panel as HTMLElement).style.width).toBe("480px");
     });
   });
+
+  it("chat panel absent initially with no meeting selected", () => {
+    render(<App />, { wrapper });
+    expect(screen.queryByTestId("chat-panel")).toBeNull();
+  });
 });

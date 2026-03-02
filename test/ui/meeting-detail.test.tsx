@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
-import { describe, afterEach, it, expect, vi } from "vitest";
-import { render, cleanup, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, afterEach, it, expect } from "vitest";
+import { render, cleanup, screen } from "@testing-library/react";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
 import type { MeetingRow, Artifact } from "../../electron-ui/electron/channels.js";
 
@@ -33,95 +33,19 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
   };
 }
 
-const defaultChatContext = { meetingIds: ["m1", "m2"], charCount: 5000 };
-
 describe("MeetingDetail", () => {
   it("renders placeholder when meeting is null", () => {
-    render(
-      <MeetingDetail
-        meeting={null}
-        artifact={null}
-        chatContext={defaultChatContext}
-        onChat={vi.fn()}
-      />,
-    );
+    render(<MeetingDetail meeting={null} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
 
   it("renders meeting title when meeting is set", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={null}
-        chatContext={defaultChatContext}
-        onChat={vi.fn()}
-      />,
-    );
+    render(<MeetingDetail meeting={makeMeeting()} artifact={null} />);
     expect(screen.getByText("Alpha Meeting")).toBeDefined();
   });
 
   it("renders summary content visible by default when artifact is set", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={makeArtifact()}
-        chatContext={defaultChatContext}
-        onChat={vi.fn()}
-      />,
-    );
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
-  });
-
-  it("send button is disabled when textarea is empty", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={null}
-        chatContext={defaultChatContext}
-        onChat={vi.fn()}
-      />,
-    );
-    const sendBtn = screen.getByLabelText("Send");
-    expect((sendBtn as HTMLButtonElement).disabled).toBe(true);
-  });
-
-  it("calls onChat and renders the response when submitted", async () => {
-    const onChat = vi.fn().mockResolvedValue({ answer: "The answer is 42.", sources: [], charCount: 0 });
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={null}
-        chatContext={defaultChatContext}
-        onChat={onChat}
-      />,
-    );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
-    fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith("What was decided?");
-    await waitFor(() => expect(screen.getByText("The answer is 42.")).toBeDefined());
-  });
-
-  it("shows singular 'meeting' with 1 meeting in context", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={null}
-        chatContext={{ meetingIds: ["m1"], charCount: 100 }}
-        onChat={vi.fn()}
-      />,
-    );
-    expect(screen.getByText((_, el) => el?.textContent === "1 meeting")).toBeDefined();
-  });
-
-  it("shows plural 'meetings' with 2 meetings in context", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={null}
-        chatContext={{ meetingIds: ["m1", "m2"], charCount: 100 }}
-        onChat={vi.fn()}
-      />,
-    );
-    expect(screen.getByText((_, el) => el?.textContent === "2 meetings")).toBeDefined();
   });
 });
