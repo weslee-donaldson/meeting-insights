@@ -19,5 +19,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #734 | 12:19 AM | 🟣 | Added image attachment support to ChatPanel component | ~414 |
 | #720 | 12:09 AM | 🔄 | Migrated MeetingDetail to Tailwind classes and shadcn components | ~532 |
 </claude-mem-context>

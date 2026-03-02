@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
-import { render, cleanup, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, cleanup, screen, fireEvent, waitFor, createEvent } from "@testing-library/react";
 import { ChatPanel } from "../../electron-ui/ui/src/components/ChatPanel.js";
 
 afterEach(cleanup);
@@ -73,6 +73,33 @@ describe("ChatPanel", () => {
     await waitFor(() => screen.getByText("The answer."), { timeout: 2000 });
     fireEvent.click(screen.getByRole("button", { name: /copy to clipboard/i }));
     expect(writeText).toHaveBeenCalledWith("The answer.");
+  });
+
+  it("pasting an image file adds it to the attachment list", () => {
+    vi.stubGlobal("URL", { createObjectURL: vi.fn().mockReturnValue("blob:mock"), revokeObjectURL: vi.fn() });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />,
+    );
+    const textarea = screen.getByRole("textbox");
+    const file = new File([""], "screenshot.png", { type: "image/png" });
+    const pasteEvent = createEvent.paste(textarea);
+    Object.defineProperty(pasteEvent, "clipboardData", { value: { files: [file] } });
+    fireEvent(textarea, pasteEvent);
+    expect(screen.getByText("screenshot.png")).toBeDefined();
+  });
+
+  it("clicking remove on an attachment clears it from the list", () => {
+    vi.stubGlobal("URL", { createObjectURL: vi.fn().mockReturnValue("blob:mock"), revokeObjectURL: vi.fn() });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />,
+    );
+    const textarea = screen.getByRole("textbox");
+    const file = new File([""], "screenshot.png", { type: "image/png" });
+    const pasteEvent = createEvent.paste(textarea);
+    Object.defineProperty(pasteEvent, "clipboardData", { value: { files: [file] } });
+    fireEvent(textarea, pasteEvent);
+    fireEvent.click(screen.getByRole("button", { name: "Remove screenshot.png" }));
+    expect(screen.queryByText("screenshot.png")).toBeNull();
   });
 
   it("history clears when activeMeetingIds changes", async () => {
