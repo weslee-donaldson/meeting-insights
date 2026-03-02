@@ -1,0 +1,21 @@
+[   13986ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at ArtifactView (http://localhost:5173/src/components/MeetingDetail.tsx?t=1772474745191:558:93)
+    at Object.react_stack_bottom_frame (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:18509:20)
+    at renderWithHooks (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:5654:24)
+    at updateFunctionComponent (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:7475:21)
+    at beginWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:8525:20)
+    at runWithFiberInDEV (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:997:72)
+    at performUnitOfWork (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:12561:98)
+    at workLoopSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:12424:43)
+    at renderRootSync (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:12408:13)
+    at performWorkOnRoot (http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:11827:37)
+[   13986ms] [WARNING] %s
+
+%s
+ An error occurred in the <ArtifactView> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=97a04625:6965
+[  188226ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=sh2ROP6d0af_' failed:  @ http://localhost:5173/@vite/client:744
+[  188375ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
+[  188375ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0
+[  189377ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
+[  189377ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0
