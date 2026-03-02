@@ -631,13 +631,14 @@ Only **one** stubbed boundary. Everything else is real in tests.
 
 ### Bottle: Linear UI Redesign
 
-- [ ] Burst 257: `Sidebar` component — replaces `ClientsColumn`; props: `{clients, selected, onSelect}`; fixed 240px, indigo dot indicator; test: renders list, click fires onSelect, selected has aria-selected
-- [ ] Burst 258: `TopBar` component — replaces `ScopeBar`; same scope props (client dropdown, date range, reset, theme toggle) + SearchBar inline; test: date change, reset, theme cycle
-- [ ] Burst 259: `MeetingList` component — replaces `MeetingsColumn`; adds `selectedId`/`onSelect` (single-click → detail) alongside existing `checked`/`onCheck`/`onCheckGroup` (multi-select); series grouping preserved; test: series grouping, row click fires onSelect, checkbox fires onCheck
-- [ ] Burst 260: `MeetingDetail` component — combines `ContextViewColumn` + `ChatColumn`; props: `{meeting, artifact, chatContext: {meetingIds, charCount}, onChat}`; artifact sections at top (collapsible), chat at bottom; null meeting → placeholder; test: renders artifact sections, chat submit, placeholder
-- [ ] Burst 261: `LinearShell` layout — replaces `AppLayout`; props: `{topBar, sidebar, main, detail, detailOpen}`; flex column layout, 240px fixed sidebar, flex-1 main, 480px detail panel (CSS transition); no react-resizable-panels; test: all zones render, detail hidden when detailOpen=false
-- [ ] Burst 262: App.tsx rewrite + delete old components — add `selectedMeetingId` state; wire new components; `activeMeetingIds` = checked set or [selectedMeetingId]; delete 6 old components + 6 old test files; update app.test.tsx [depends: 257–261]
-- [ ] Burst 263: Design tokens (chore) — update `index.css` + `theme.ts` with indigo accent `#6366f1` across all 3 themes [depends: 262]
+- [x] Burst 257: `Sidebar` component — replaces `ClientsColumn`; props: `{clients, selected, onSelect}`; fixed 240px, indigo dot indicator; test: renders list, click fires onSelect, selected has aria-selected
+- [x] Burst 258: `TopBar` component — replaces `ScopeBar`; same scope props (client dropdown, date range, reset, theme toggle) + SearchBar inline; test: date change, reset, theme cycle
+- [x] Burst 259: `MeetingList` component — replaces `MeetingsColumn`; adds `selectedId`/`onSelect` (single-click → detail) alongside existing `checked`/`onCheck`/`onCheckGroup` (multi-select); series grouping preserved; test: series grouping, row click fires onSelect, checkbox fires onCheck
+- [x] Burst 260: `MeetingDetail` component — combines `ContextViewColumn` + `ChatColumn`; props: `{meeting, artifact, chatContext: {meetingIds, charCount}, onChat}`; artifact sections at top (collapsible), chat at bottom; null meeting → placeholder; test: renders artifact sections, chat submit, placeholder
+- [x] Burst 261: `LinearShell` layout — replaces `AppLayout`; props: `{topBar, sidebar, main, detail, detailOpen}`; flex column layout, 240px fixed sidebar, flex-1 main, 480px detail panel (CSS transition); no react-resizable-panels; test: all zones render, detail hidden when detailOpen=false
+- [x] Burst 262: App.tsx rewrite + delete old components — add `selectedMeetingId` state; wire new components; `activeMeetingIds` = checked set or [selectedMeetingId]; delete 6 old components + 6 old test files; update app.test.tsx [depends: 257–261]
+- [x] Burst 263: Design tokens (chore) — update `index.css` + `theme.ts` with indigo accent `#6366f1` across all 3 themes [depends: 262]
+- [ ] Burst 264: `web:dev` mode — `api-client.ts` (HTTP fetch impl of `ElectronAPI`); `main-web.tsx` (web entry assigns apiClient to `window.api`); `vite.web.config.ts` (standalone Vite config); `"web:dev": "vite --config vite.web.config.ts"` script; test: all 5 apiClient methods mock fetch and verify URL + return value
 
 ---
 
