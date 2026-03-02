@@ -1,6 +1,7 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getArtifact } from "../../core/extractor.js";
+import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
+import { parseTranscriptBody } from "../../core/parser.js";
 import { buildLabeledContext } from "../../core/labeled-context.js";
 import { parseCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
@@ -12,6 +13,7 @@ import type { MeetingRow, ChatRequest, ChatResponse, MeetingFilters, SearchReque
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
 interface DetectionRow { meeting_id: string; client_name: string; }
+interface RawMeetingRow { raw_transcript: string; }
 
 export function handleGetClients(db: Database): string[] {
   const rows = db.prepare("SELECT name FROM clients ORDER BY name").all() as unknown as ClientRow[];
@@ -116,6 +118,15 @@ export async function handleChat(
       : meetings.map((m) => m.title);
 
   return { answer, sources, charCount };
+}
+
+export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: string): Promise<void> {
+  const row = db.prepare("SELECT raw_transcript FROM meetings WHERE id = ?").get(meetingId) as RawMeetingRow | undefined;
+  if (!row) throw new Error(`Meeting ${meetingId} not found`);
+  const turns = parseTranscriptBody(row.raw_transcript ?? "");
+  const artifact = await extractSummary(llm, turns, 8000);
+  db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
+  storeArtifact(db, meetingId, artifact);
 }
 
 export function handleDeleteMeetings(db: Database, ids: string[]): void {

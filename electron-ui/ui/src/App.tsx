@@ -123,6 +123,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [checkedMeetingIds, selectedMeetingId, queryClient]);
 
+  const handleReExtract = useCallback(async () => {
+    if (!selectedMeetingId) return;
+    await window.api.reExtract(selectedMeetingId);
+    queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
+  }, [selectedMeetingId, queryClient]);
+
   const handleChat = useCallback(
     async (question: string): Promise<ChatResponse> => {
       return window.api.chat({ meetingIds: activeMeetingIds, question });
@@ -177,6 +183,7 @@ export function App() {
         <MeetingDetail
           meeting={selectedMeeting}
           artifact={selectedArtifactQuery.data ?? null}
+          onReExtract={selectedMeetingId ? handleReExtract : undefined}
         />
       }
       chat={

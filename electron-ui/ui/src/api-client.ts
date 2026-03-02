@@ -41,4 +41,7 @@ export const apiClient: ElectronAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
     }).then(() => undefined),
+
+  reExtract: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/re-extract`, { method: "POST" }).then(() => undefined),
 };

@@ -17,6 +17,7 @@ const api: ElectronAPI = {
   chat: (req: ChatRequest) => ipcRenderer.invoke(CHANNELS.CHAT, req),
   search: (req: SearchRequest) => ipcRenderer.invoke(CHANNELS.SEARCH_MEETINGS, req),
   deleteMeetings: (ids: string[]) => ipcRenderer.invoke(CHANNELS.DELETE_MEETINGS, ids),
+  reExtract: (meetingId: string) => ipcRenderer.invoke(CHANNELS.RE_EXTRACT, meetingId),
 };
 
 contextBridge.exposeInMainWorld("api", api);

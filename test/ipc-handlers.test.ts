@@ -10,6 +10,7 @@ import {
   handleGetArtifact,
   handleChat,
   handleDeleteMeetings,
+  handleReExtract,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -223,6 +224,28 @@ describe("IPC handlers", () => {
       const before = handleGetMeetings(db, {}).length;
       handleDeleteMeetings(db, []);
       expect(handleGetMeetings(db, {}).length).toBe(before);
+    });
+  });
+
+  describe("handleReExtract", () => {
+    it("stores re-extracted artifact for meeting", async () => {
+      const spyLlm: LlmAdapter = {
+        async complete() {
+          return {
+            summary: "Re-extracted summary",
+            decisions: [],
+            proposed_features: [],
+            action_items: [],
+            technical_topics: [],
+            open_questions: [],
+            risk_items: [],
+            additional_notes: [],
+          };
+        },
+      };
+      await handleReExtract(db, spyLlm, meetingId2);
+      const artifact = handleGetArtifact(db, meetingId2);
+      expect(artifact?.summary).toBe("Re-extracted summary");
     });
   });
 

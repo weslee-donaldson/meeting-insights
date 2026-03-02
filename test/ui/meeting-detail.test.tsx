@@ -59,6 +59,13 @@ describe("MeetingDetail", () => {
     );
   });
 
+  it("re-extract button calls onReExtract when clicked", () => {
+    const onReExtract = vi.fn();
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);
+    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    expect(onReExtract).toHaveBeenCalledOnce();
+  });
+
   it("copy action items button writes checklist to clipboard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });

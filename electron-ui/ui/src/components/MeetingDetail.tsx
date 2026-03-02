@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, RefreshCw } from "lucide-react";
 import type { MeetingRow, Artifact } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
@@ -9,6 +9,7 @@ import { cn } from "../lib/utils.js";
 interface MeetingDetailProps {
   meeting: MeetingRow | null;
   artifact: Artifact | null;
+  onReExtract?: () => void;
 }
 
 interface SectionProps {
@@ -158,7 +159,7 @@ function ArtifactView({ artifact }: { artifact: Artifact }) {
   );
 }
 
-export function MeetingDetail({ meeting, artifact }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract }: MeetingDetailProps) {
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
     const lines = [
@@ -193,18 +194,31 @@ export function MeetingDetail({ meeting, artifact }: MeetingDetailProps) {
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
             </div>
           </div>
-          {artifact && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={copySummary}
-              aria-label="Copy summary"
-              className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
-            >
-              <Clipboard className="w-3 h-3" />
-              Copy summary
-            </Button>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            {onReExtract && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onReExtract}
+                aria-label="Re-extract"
+                className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </Button>
+            )}
+            {artifact && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copySummary}
+                aria-label="Copy summary"
+                className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+              >
+                <Clipboard className="w-3 h-3" />
+                Copy summary
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
