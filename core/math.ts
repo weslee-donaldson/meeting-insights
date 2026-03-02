@@ -14,3 +14,10 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 export function l2ToCosineSim(l2Distance: number): number {
   return 1 - (l2Distance * l2Distance) / 2;
 }
+
+export function isSemanticDuplicate(
+  l2Distance: number,
+  threshold = 0.85,
+): boolean {
+  return l2ToCosineSim(l2Distance) >= threshold;
+}
