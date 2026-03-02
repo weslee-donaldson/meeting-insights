@@ -50,6 +50,19 @@ describe("apiClient", () => {
     );
   });
 
+  it("conversationChat posts to /api/chat/conversation with messages array", async () => {
+    const spy = mockFetch({ answer: "response", sources: ["Meeting A"], charCount: 100 });
+    const result = await apiClient.conversationChat({
+      meetingIds: ["m1"],
+      messages: [{ role: "user", content: "What was decided?" }],
+    });
+    expect(result).toEqual({ answer: "response", sources: ["Meeting A"], charCount: 100 });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/chat/conversation",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
   it("search fetches /api/search with query params", async () => {
     const spy = mockFetch([]);
     expect(await apiClient.search({ query: "auth", client: "Acme", limit: 5 })).toEqual([]);

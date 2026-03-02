@@ -1,4 +1,4 @@
-import type { ElectronAPI, MeetingFilters, ChatRequest, SearchRequest } from "../../electron/channels.js";
+import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest } from "../../electron/channels.js";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE || "http://localhost:3000";
 
@@ -21,6 +21,13 @@ export const apiClient: ElectronAPI = {
 
   chat: (req: ChatRequest) =>
     fetch(`${API_BASE}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then((r) => r.json()),
+
+  conversationChat: (req: ConversationChatRequest) =>
+    fetch(`${API_BASE}/api/chat/conversation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),

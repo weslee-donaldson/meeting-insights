@@ -107,6 +107,7 @@ export interface ElectronAPI {
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
   getArtifact: (meetingId: string) => Promise<import("../../core/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
+  conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;
   reExtract: (meetingId: string) => Promise<void>;
