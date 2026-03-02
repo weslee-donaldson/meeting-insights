@@ -746,7 +746,7 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 - [x] Burst 294: Delete selected meetings — danger button in TopBar when checked > 0; `window.api.deleteMeetings(ids)` IPC + handler cascades delete from `meetings`, `artifacts`, `client_detections`; test: handler removes correct rows (d7abcd7)
 - [x] Burst 295: Re-extract artifact — icon button in `MeetingDetail` header; `window.api.reExtract(id)` IPC + handler calls `extractSummary` + `storeArtifact`; invalidates artifact query; test: handler stores updated artifact (e73d382)
 - [x] Burst 296: Reassign meeting client — icon button in `MeetingDetail` header opens a shadcn `Dialog` with a searchable client list; `window.api.reassignClient(meetingId, clientName)` IPC + handler upserts `client_detections` row; meeting list refreshes; test: handler inserts/replaces detection row with new client (e0775ca)
-- [ ] Burst 297: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results
+- [x] Burst 297: Ignore meeting flag — `meetings` table adds `ignored INTEGER DEFAULT 0` column; toggle button in `MeetingDetail` header; `window.api.setIgnored(id, true/false)` IPC; ignored meetings excluded from all queries (`WHERE ignored = 0`); shown dimmed in list with "(ignored)" label; test: toggling ignored excludes meeting from `handleGetMeetings` results (37edfb8)
 
 ### Bottle: Action Item Completion
 
