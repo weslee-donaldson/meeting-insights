@@ -80,6 +80,8 @@ interface ItemMention {
   item_index: number;
   item_text: string;
   first_mentioned_at: string;
+  meeting_title: string;
+  meeting_date: string;
 }
 
 interface MentionStat {
@@ -121,7 +123,8 @@ export function recordMention(
 export function getMentionsByCanonical(db: Database, canonicalId: string): ItemMention[] {
   return db
     .prepare(`
-      SELECT im.canonical_id, im.meeting_id, im.item_type, im.item_index, im.item_text, im.first_mentioned_at
+      SELECT im.canonical_id, im.meeting_id, im.item_type, im.item_index, im.item_text, im.first_mentioned_at,
+             m.title AS meeting_title, m.date AS meeting_date
       FROM item_mentions im
       JOIN meetings m ON m.id = im.meeting_id
       WHERE im.canonical_id = ?

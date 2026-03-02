@@ -74,6 +74,8 @@ export interface ItemHistoryEntry {
   item_index: number;
   item_text: string;
   first_mentioned_at: string;
+  meeting_title: string;
+  meeting_date: string;
 }
 
 export interface MentionStat {

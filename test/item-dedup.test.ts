@@ -160,15 +160,21 @@ describe("getMentionsByCanonical", () => {
     db.prepare("INSERT INTO meetings (id, title, date) VALUES ('mt-3', 'Friday Standup', '2026-01-14')").run();
   });
 
-  it("returns all mentions sorted by date ascending", () => {
+  it("returns all mentions sorted by date ascending with meeting title and date", () => {
     recordMention(db, "can-c", "mt-3", "action_items", 0, "Deploy v3", "2026-01-14");
     recordMention(db, "can-c", "mt-1", "action_items", 0, "Deploy v1", "2026-01-10");
     recordMention(db, "can-c", "mt-2", "action_items", 0, "Deploy v2", "2026-01-12");
     const mentions = getMentionsByCanonical(db, "can-c");
     expect(mentions.length).toBe(3);
-    expect(mentions[0].meeting_id).toBe("mt-1");
-    expect(mentions[1].meeting_id).toBe("mt-2");
-    expect(mentions[2].meeting_id).toBe("mt-3");
+    expect(mentions[0]).toEqual(expect.objectContaining({
+      meeting_id: "mt-1", meeting_title: "Monday Standup", meeting_date: "2026-01-10",
+    }));
+    expect(mentions[1]).toEqual(expect.objectContaining({
+      meeting_id: "mt-2", meeting_title: "Wednesday Standup", meeting_date: "2026-01-12",
+    }));
+    expect(mentions[2]).toEqual(expect.objectContaining({
+      meeting_id: "mt-3", meeting_title: "Friday Standup", meeting_date: "2026-01-14",
+    }));
   });
 });
 
