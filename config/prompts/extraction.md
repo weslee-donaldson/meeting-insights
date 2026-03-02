@@ -15,6 +15,6 @@ Fields:
 - risk_items (string[]): Risks, blockers, concerns, or dependencies flagged
 - additional_notes (array of objects): this is dynamic based on the meeting context. Provide a detailed breakdown which is not already included in other data fields. Provide logical grouping of information and where possible have categorization and grouping within the notes.
 
-## Transcript
+{{client_context}}## Transcript
 
 {{transcript}}

@@ -138,6 +138,29 @@ describe("extractSummary with fallback adapter", () => {
   });
 });
 
+describe("extractSummary with refinementPrompt", () => {
+  const minimalTemplate = "{{client_context}}## Transcript\n\n{{transcript}}";
+
+  it("injects ## Client Context section when refinementPrompt is provided", async () => {
+    let capturedContent = "";
+    const recordingAdapter: LlmAdapter = {
+      complete: async (cap, content) => { capturedContent = content; return adapter.complete(cap, content); },
+    };
+    await extractSummary(recordingAdapter, parsed.turns, 8000, minimalTemplate, "Stace is the CTO.");
+    expect(capturedContent).toContain("## Client Context");
+    expect(capturedContent).toContain("Stace is the CTO.");
+  });
+
+  it("removes {{client_context}} placeholder when refinementPrompt is omitted", async () => {
+    let capturedContent = "";
+    const recordingAdapter: LlmAdapter = {
+      complete: async (cap, content) => { capturedContent = content; return adapter.complete(cap, content); },
+    };
+    await extractSummary(recordingAdapter, parsed.turns, 8000, minimalTemplate);
+    expect(capturedContent).not.toContain("{{client_context}}");
+  });
+});
+
 describe("storeArtifact / getArtifact", () => {
   it("inserts artifact and retrieves it by meeting_id", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);

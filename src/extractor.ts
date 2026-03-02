@@ -74,13 +74,19 @@ export async function extractSummary(
   turns: SpeakerTurn[],
   tokenLimit: number,
   promptTemplate?: string,
+  refinementPrompt?: string,
 ): Promise<Artifact> {
+  const clientSection = refinementPrompt
+    ? `## Client Context\n\n${refinementPrompt}\n\n`
+    : "";
   const chunks = chunkTranscript(turns, tokenLimit);
   const start = Date.now();
   const artifacts = await Promise.all(
     chunks.map(async (chunk) => {
       const transcript = turnsToText(chunk);
-      const content = promptTemplate ? promptTemplate.replace("{{transcript}}", transcript) : transcript;
+      const content = promptTemplate
+        ? promptTemplate.replace("{{client_context}}", clientSection).replace("{{transcript}}", transcript)
+        : transcript;
       const raw = await adapter.complete("extract_artifact", content);
       if (raw.__fallback) {
         logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
