@@ -144,6 +144,29 @@ describe("MeetingDetail", () => {
     expect(completedItem.className).toContain("line-through");
   });
 
+  it("clicking checkmark on completed item calls onUncomplete with item index", () => {
+    const onUncomplete = vi.fn();
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", requester: "", due_date: null },
+            { description: "Review PR", owner: "Bob", requester: "", due_date: null },
+          ],
+        })}
+        completions={completions}
+        onComplete={vi.fn()}
+        onUncomplete={onUncomplete}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Uncomplete item 0" }));
+    expect(onUncomplete).toHaveBeenCalledWith(0);
+  });
+
   it("clicking a completed item description opens note dialog pre-filled with existing note", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "existing note" },

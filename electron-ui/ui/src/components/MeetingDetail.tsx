@@ -16,6 +16,7 @@ interface MeetingDetailProps {
   onIgnore?: () => void;
   completions?: ActionItemCompletion[];
   onComplete?: (index: number, note: string) => void;
+  onUncomplete?: (index: number) => void;
   artifactLoading?: boolean;
 }
 
@@ -87,7 +88,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
@@ -224,7 +225,11 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
             return (
               <li key={i} className={cn("flex gap-2.5 items-start", isCompleted && "opacity-60")}>
                 {isCompleted ? (
-                  <span className="shrink-0 mt-0.5 text-green-500">✓</span>
+                  <button
+                    onClick={() => onUncomplete?.(i)}
+                    aria-label={`Uncomplete item ${i}`}
+                    className="shrink-0 mt-0.5 text-green-500 bg-transparent border-0 cursor-pointer p-0"
+                  >✓</button>
                 ) : onComplete ? (
                   <button
                     onClick={() => onComplete(i, "")}
@@ -328,7 +333,7 @@ function ArtifactView({ artifact, completions = [], onComplete }: { artifact: Ar
   );
 }
 
-export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, artifactLoading }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -431,7 +436,7 @@ export function MeetingDetail({ meeting, artifact, onReExtract, clients, onReass
 
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (
