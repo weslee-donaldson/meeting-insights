@@ -118,6 +118,14 @@ export async function handleChat(
   return { answer, sources, charCount };
 }
 
+export function handleDeleteMeetings(db: Database, ids: string[]): void {
+  if (ids.length === 0) return;
+  const placeholders = ids.map(() => "?").join(",");
+  db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
+  db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
+  db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
+}
+
 export async function handleSearchMeetings(
   vdb: VectorDb,
   session: InferenceSession & { _tokenizer: unknown },

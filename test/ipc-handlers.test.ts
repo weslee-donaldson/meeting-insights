@@ -9,6 +9,7 @@ import {
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
+  handleDeleteMeetings,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -204,6 +205,24 @@ describe("IPC handlers", () => {
       expect(capturedAttachments).toEqual([
         { name: "shot.png", base64: "abc123", mimeType: "image/png" },
       ]);
+    });
+  });
+
+  describe("handleDeleteMeetings", () => {
+    it("removes meeting, artifact, and client_detection rows for given IDs", () => {
+      const before = handleGetMeetings(db, {});
+      expect(before.some((m) => m.id === meetingId1)).toBe(true);
+      handleDeleteMeetings(db, [meetingId1]);
+      const after = handleGetMeetings(db, {});
+      expect(after.some((m) => m.id === meetingId1)).toBe(false);
+      const artifact = handleGetArtifact(db, meetingId1);
+      expect(artifact).toBeNull();
+    });
+
+    it("does nothing when given an empty list", () => {
+      const before = handleGetMeetings(db, {}).length;
+      handleDeleteMeetings(db, []);
+      expect(handleGetMeetings(db, {}).length).toBe(before);
     });
   });
 

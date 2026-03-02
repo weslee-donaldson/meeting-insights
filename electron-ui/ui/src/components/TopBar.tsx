@@ -1,6 +1,6 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
-import { ChevronDown, RotateCcw, Sun, Moon, Droplets } from "lucide-react";
+import { ChevronDown, RotateCcw, Sun, Moon, Droplets, Trash2 } from "lucide-react";
 import type { ThemeName, Theme } from "../theme.js";
 import { SearchBar } from "./SearchBar.js";
 import type { SearchResultRow } from "../../../electron/channels.js";
@@ -19,6 +19,8 @@ interface TopBarProps {
   theme: ThemeName;
   setTheme: (name: ThemeName) => void;
   themes: Theme[];
+  checkedCount?: number;
+  onDelete?: () => void;
 }
 
 const THEME_ICONS: Record<ThemeName, React.ReactNode> = {
@@ -40,6 +42,8 @@ export function TopBar({
   theme,
   setTheme,
   themes,
+  checkedCount,
+  onDelete,
 }: TopBarProps) {
   function cycleTheme() {
     const idx = themes.findIndex((t) => t.name === theme);
@@ -108,6 +112,18 @@ export function TopBar({
           onSelectResults={onSelectSearchResults}
         />
       </div>
+
+      {(checkedCount ?? 0) > 0 && (
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onDelete}
+          aria-label={`Delete ${checkedCount}`}
+        >
+          <Trash2 className="w-3 h-3" />
+          <span>Delete {checkedCount}</span>
+        </Button>
+      )}
 
       <Button
         variant="ghost"

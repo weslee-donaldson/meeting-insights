@@ -4,6 +4,7 @@ export const CHANNELS = {
   GET_ARTIFACT: "get-artifact",
   CHAT: "chat",
   SEARCH_MEETINGS: "search-meetings",
+  DELETE_MEETINGS: "delete-meetings",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -57,4 +58,5 @@ export interface ElectronAPI {
   getArtifact: (meetingId: string) => Promise<import("../../core/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
+  deleteMeetings: (ids: string[]) => Promise<void>;
 }

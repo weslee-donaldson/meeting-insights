@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { Sidebar } from "./components/Sidebar.js";
 import { TopBar } from "./components/TopBar.js";
@@ -16,6 +16,7 @@ interface DateRange {
 }
 
 export function App() {
+  const queryClient = useQueryClient();
   const { theme, setTheme, themes } = useTheme();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
@@ -114,6 +115,14 @@ export function App() {
     });
   }, []);
 
+  const handleDeleteMeetings = useCallback(async () => {
+    const ids = [...checkedMeetingIds];
+    await window.api.deleteMeetings(ids);
+    setCheckedMeetingIds(new Set());
+    if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
+    queryClient.invalidateQueries({ queryKey: ["meetings"] });
+  }, [checkedMeetingIds, selectedMeetingId, queryClient]);
+
   const handleChat = useCallback(
     async (question: string): Promise<ChatResponse> => {
       return window.api.chat({ meetingIds: activeMeetingIds, question });
@@ -139,6 +148,8 @@ export function App() {
           theme={theme}
           setTheme={setTheme}
           themes={themes}
+          checkedCount={checkedMeetingIds.size}
+          onDelete={handleDeleteMeetings}
         />
       }
       sidebar={

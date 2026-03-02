@@ -34,4 +34,11 @@ export const apiClient: ElectronAPI = {
     if (req.limit != null) params.set("limit", String(req.limit));
     return fetch(`${API_BASE}/api/search?${params}`).then((r) => r.json());
   },
+
+  deleteMeetings: (ids: string[]) =>
+    fetch(`${API_BASE}/api/meetings`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    }).then(() => undefined),
 };
