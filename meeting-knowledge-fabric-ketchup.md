@@ -638,7 +638,7 @@ Only **one** stubbed boundary. Everything else is real in tests.
 - [x] Burst 261: `LinearShell` layout — replaces `AppLayout`; props: `{topBar, sidebar, main, detail, detailOpen}`; flex column layout, 240px fixed sidebar, flex-1 main, 480px detail panel (CSS transition); no react-resizable-panels; test: all zones render, detail hidden when detailOpen=false
 - [x] Burst 262: App.tsx rewrite + delete old components — add `selectedMeetingId` state; wire new components; `activeMeetingIds` = checked set or [selectedMeetingId]; delete 6 old components + 6 old test files; update app.test.tsx [depends: 257–261]
 - [x] Burst 263: Design tokens (chore) — update `index.css` + `theme.ts` with indigo accent `#6366f1` across all 3 themes [depends: 262]
-- [ ] Burst 264: `web:dev` mode — `api-client.ts` (HTTP fetch impl of `ElectronAPI`); `main-web.tsx` (web entry assigns apiClient to `window.api`); `vite.web.config.ts` (standalone Vite config); `"web:dev": "vite --config vite.web.config.ts"` script; test: all 5 apiClient methods mock fetch and verify URL + return value
+- [x] Burst 264: `web:dev` mode — `api-client.ts` (HTTP fetch impl of `ElectronAPI`); `main-web.tsx` (web entry assigns apiClient to `window.api`); `vite.web.config.ts` (standalone Vite config); `"web:dev": "vite --config vite.web.config.ts"` script; test: all 5 apiClient methods mock fetch and verify URL + return value
 
 ---
 
