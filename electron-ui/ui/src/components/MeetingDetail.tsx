@@ -5,6 +5,7 @@ import type { MeetingRow, Artifact, ActionItemCompletion } from "../../../electr
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
+import { ScrollArea } from "./ui/scroll-area.js";
 import { cn } from "../lib/utils.js";
 
 interface MeetingDetailProps {
@@ -50,8 +51,12 @@ function Section({ title, children, isEmpty, defaultOpen = false, headerExtra }:
         </Collapsible.Trigger>
         {headerExtra}
       </div>
-      <Collapsible.Content className="pb-3 pl-5 text-sm text-secondary-foreground leading-[1.65]">
-        {children}
+      <Collapsible.Content className="pb-3 text-sm text-secondary-foreground leading-[1.65]">
+        <ScrollArea className="max-h-[40vh]">
+          <div className="pl-5 pr-1">
+            {children}
+          </div>
+        </ScrollArea>
       </Collapsible.Content>
     </Collapsible.Root>
   );
@@ -371,7 +376,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-4">
+        <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (
             <ArtifactView artifact={artifact} />
           ) : artifactLoading ? (
