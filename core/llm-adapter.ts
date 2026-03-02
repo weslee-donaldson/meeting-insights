@@ -21,7 +21,7 @@ const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     decisions: [{ text: "Decision A", decided_by: "Alice" }, { text: "Decision B", decided_by: "" }],
     proposed_features: ["Feature X", "Feature Y"],
     action_items: [{ description: "Follow up", owner: "Wesley", requester: "Stace", due_date: null }],
-    technical_topics: ["API design", "database schema"],
+    architecture: ["API design", "database schema"],
     open_questions: ["What is the timeline?"],
     risk_items: ["Scope creep risk"],
     additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }],

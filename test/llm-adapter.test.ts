@@ -16,7 +16,7 @@ describe("createLlmAdapter (stub)", () => {
     expect(result).toHaveProperty("decisions");
     expect(result).toHaveProperty("proposed_features");
     expect(result).toHaveProperty("action_items");
-    expect(result).toHaveProperty("technical_topics");
+    expect(result).toHaveProperty("architecture");
     expect(result).toHaveProperty("open_questions");
     expect(result).toHaveProperty("risk_items");
     expect(Array.isArray(result.additional_notes)).toBe(true);

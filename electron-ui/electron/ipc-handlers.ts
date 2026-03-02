@@ -92,7 +92,7 @@ export function handleGetArtifact(
     decisions,
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
     action_items,
-    technical_topics: JSON.parse(row.technical_topics ?? "[]"),
+    architecture: JSON.parse(row.architecture ?? "[]"),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
     risk_items: JSON.parse(row.risk_items ?? "[]"),
     additional_notes: JSON.parse(row.additional_notes ?? "[]"),

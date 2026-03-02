@@ -32,7 +32,7 @@ beforeAll(() => {
     decisions: [],
     proposed_features: [],
     action_items: [],
-    technical_topics: [],
+    architecture: [],
     open_questions: [],
     risk_items: [],
   });

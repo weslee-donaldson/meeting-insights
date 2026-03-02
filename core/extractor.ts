@@ -7,14 +7,14 @@ import type { SpeakerTurn } from "./parser.js";
 const log = createLogger("extract");
 const logValidate = createLogger("extract:validate");
 
-const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_items", "technical_topics", "open_questions", "risk_items", "additional_notes"] as const;
+const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_items", "architecture", "open_questions", "risk_items", "additional_notes"] as const;
 
 export interface Artifact {
   summary: string;
   decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
   action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null }>;
-  technical_topics: string[];
+  architecture: string[];
   open_questions: string[];
   risk_items: string[];
   additional_notes: Array<Record<string, unknown>>;
@@ -26,7 +26,7 @@ export interface ArtifactRow {
   decisions: string;
   proposed_features: string;
   action_items: string;
-  technical_topics: string;
+  architecture: string;
   open_questions: string;
   risk_items: string;
   additional_notes: string;
@@ -37,13 +37,17 @@ export function validateArtifact(raw: object): Artifact {
     logValidate("validation failed: not an object");
     throw new Error("Artifact must be a plain object");
   }
+  const r = raw as Record<string, unknown>;
+  if ("technical_topics" in r && !("architecture" in r)) {
+    r["architecture"] = r["technical_topics"];
+    delete r["technical_topics"];
+  }
   for (const key of REQUIRED_KEYS) {
-    if (!(key in raw)) {
+    if (!(key in r)) {
       logValidate("validation failed: missing key %s", key);
       throw new Error(`Artifact missing required key: ${key}`);
     }
   }
-  const r = raw as Record<string, unknown>;
   const decisions = r["decisions"];
   if (Array.isArray(decisions)) {
     r["decisions"] = decisions.map((d) =>
@@ -77,7 +81,7 @@ function mergeArtifacts(artifacts: Artifact[]): Artifact {
     decisions: artifacts.flatMap((a) => a.decisions),
     proposed_features: artifacts.flatMap((a) => a.proposed_features),
     action_items: artifacts.flatMap((a) => a.action_items),
-    technical_topics: artifacts.flatMap((a) => a.technical_topics),
+    architecture: artifacts.flatMap((a) => a.architecture),
     open_questions: artifacts.flatMap((a) => a.open_questions),
     risk_items: artifacts.flatMap((a) => a.risk_items),
     additional_notes: artifacts.flatMap((a) => a.additional_notes),
@@ -105,7 +109,7 @@ export async function extractSummary(
       const raw = await adapter.complete("extract_artifact", content);
       if (raw.__fallback) {
         logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
-        return { summary: "", decisions: [], proposed_features: [], action_items: [], technical_topics: [], open_questions: [], risk_items: [], additional_notes: [] };
+        return { summary: "", decisions: [], proposed_features: [], action_items: [], architecture: [], open_questions: [], risk_items: [], additional_notes: [] };
       }
       return validateArtifact(raw);
     }),
@@ -120,7 +124,7 @@ export async function extractSummary(
 
 export function storeArtifact(db: Database, meetingId: string, artifact: Artifact): void {
   db.prepare(`
-    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, technical_topics, open_questions, risk_items, additional_notes)
+    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, architecture, open_questions, risk_items, additional_notes)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     meetingId,
@@ -128,7 +132,7 @@ export function storeArtifact(db: Database, meetingId: string, artifact: Artifac
     JSON.stringify(artifact.decisions),
     JSON.stringify(artifact.proposed_features),
     JSON.stringify(artifact.action_items),
-    JSON.stringify(artifact.technical_topics),
+    JSON.stringify(artifact.architecture),
     JSON.stringify(artifact.open_questions),
     JSON.stringify(artifact.risk_items),
     JSON.stringify(artifact.additional_notes ?? []),

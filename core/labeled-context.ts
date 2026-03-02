@@ -33,7 +33,7 @@ function parseArtifactRow(row: ArtifactRow): Artifact {
     decisions: normalizeDecisions(JSON.parse(row.decisions ?? "[]")),
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
     action_items: normalizeActionItems(JSON.parse(row.action_items ?? "[]")),
-    technical_topics: JSON.parse(row.technical_topics ?? "[]"),
+    architecture: JSON.parse(row.architecture ?? "[]"),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
     risk_items: JSON.parse(row.risk_items ?? "[]"),
     additional_notes: JSON.parse(row.additional_notes ?? "[]"),
@@ -64,9 +64,9 @@ function artifactBlock(artifact: Artifact): string {
     lines.push(
       `Proposed Features:\n${artifact.proposed_features.map((f) => `- ${f}`).join("\n")}`,
     );
-  if (artifact.technical_topics.length > 0)
+  if (artifact.architecture.length > 0)
     lines.push(
-      `Technical Topics:\n${artifact.technical_topics.map((t) => `- ${t}`).join("\n")}`,
+      `Architecture:\n${artifact.architecture.map((t) => `- ${t}`).join("\n")}`,
     );
   return lines.join("\n");
 }

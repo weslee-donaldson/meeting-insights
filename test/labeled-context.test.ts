@@ -10,7 +10,7 @@ function makeArtifact() {
     decisions: [{ text: "Use TypeScript", decided_by: "CEO" }],
     proposed_features: [],
     action_items: [{ description: "Write tests", owner: "Alice", requester: "Bob", due_date: null }],
-    technical_topics: [],
+    architecture: [],
     open_questions: ["When to launch?"],
     risk_items: [],
     additional_notes: [],

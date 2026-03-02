@@ -58,9 +58,9 @@ describe("extractSummary", () => {
     });
   });
 
-  it("returns technical_topics array", async () => {
+  it("returns architecture array", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
-    expect(Array.isArray(artifact.technical_topics)).toBe(true);
+    expect(Array.isArray(artifact.architecture)).toBe(true);
   });
 
   it("returns open_questions array", async () => {
@@ -95,7 +95,7 @@ const VALID_BASE = {
   decisions: [],
   proposed_features: [],
   action_items: [],
-  technical_topics: [],
+  architecture: [],
   open_questions: [],
   risk_items: [],
 };

@@ -27,7 +27,7 @@ const apiArtifact1: Artifact = {
   decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
   proposed_features: ["API versioning"],
   action_items: [],
-  technical_topics: ["REST", "OAuth", "API gateway"],
+  architecture: ["REST", "OAuth", "API gateway"],
   open_questions: [],
   risk_items: [],
 };
@@ -37,7 +37,7 @@ const apiArtifact2: Artifact = {
   decisions: [{ text: "Bearer tokens", decided_by: "" }],
   proposed_features: ["token refresh"],
   action_items: [],
-  technical_topics: ["HTTP", "authentication", "API design"],
+  architecture: ["HTTP", "authentication", "API design"],
   open_questions: [],
   risk_items: [],
 };
@@ -47,7 +47,7 @@ const finArtifact: Artifact = {
   decisions: [{ text: "Approve budget", decided_by: "" }],
   proposed_features: [],
   action_items: [],
-  technical_topics: ["budget", "financial planning"],
+  architecture: ["budget", "financial planning"],
   open_questions: [],
   risk_items: [],
 };

@@ -299,8 +299,8 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete }: 
         <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" />
       </Section>
 
-      <Section title="Technical Topics" isEmpty={artifact.technical_topics.length === 0}>
-        <ItemList items={artifact.technical_topics} icon="◆" />
+      <Section title="Architecture" isEmpty={artifact.architecture.length === 0}>
+        <ItemList items={artifact.architecture} icon="◆" />
       </Section>
 
       <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0}>

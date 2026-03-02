@@ -23,7 +23,7 @@ const artifact: Artifact = {
   decisions: [{ text: "Use REST over GraphQL", decided_by: "" }],
   proposed_features: ["Rate limiting", "OAuth2 support"],
   action_items: [{ description: "Draft API spec", owner: "Alice", requester: "", due_date: null }],
-  technical_topics: ["REST API", "authentication"],
+  architecture: ["REST API", "authentication"],
   open_questions: ["Which OAuth provider?"],
   risk_items: ["Third party dependency"],
   additional_notes: [{ category: "Architecture", notes: ["Prefer stateless design"] }],

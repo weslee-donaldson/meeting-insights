@@ -25,7 +25,7 @@ export function migrate(db: DatabaseSync): void {
       decisions TEXT,
       proposed_features TEXT,
       action_items TEXT,
-      technical_topics TEXT,
+      architecture TEXT,
       open_questions TEXT,
       risk_items TEXT,
       needs_reextraction INTEGER DEFAULT 0,
@@ -86,5 +86,9 @@ export function migrate(db: DatabaseSync): void {
   }
   if (!clientCols.some(c => c.name === "meeting_names")) {
     db.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
+  }
+
+  if (artifactCols.some(c => c.name === "technical_topics")) {
+    db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");
   }
 }

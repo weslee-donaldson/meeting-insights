@@ -11,7 +11,7 @@ function makeArtifact() {
     decisions: [{ text: "Go with approach A", decided_by: "" }],
     proposed_features: ["Dark mode"],
     action_items: [{ description: "Write spec", owner: "Bob", requester: "", due_date: "2026-03-01" }],
-    technical_topics: ["TypeScript"],
+    architecture: ["TypeScript"],
     open_questions: ["When to ship?"],
     risk_items: ["Timeline risk"],
     additional_notes: [],
