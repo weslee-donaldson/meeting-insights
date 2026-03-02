@@ -61,7 +61,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
       ]);
     } finally {
       setLoading(false);
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
   }, [question, loading, onChat]);
 

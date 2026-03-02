@@ -33,7 +33,7 @@ export function buildEmbeddingInput(artifact: Artifact): string {
     artifact.summary,
     ...artifact.proposed_features,
     ...artifact.technical_topics,
-    ...artifact.decisions,
+    ...artifact.decisions.map((d) => d.text),
   ];
   const notes = canonicalizeNotes(artifact.additional_notes ?? []);
   if (notes) parts.push(notes);
