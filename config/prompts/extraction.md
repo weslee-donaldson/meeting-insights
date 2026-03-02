@@ -4,11 +4,14 @@ Return ONLY a valid JSON object with exactly these fields. No markdown fences, n
 
 Fields:
 - summary (string): 4-8 sentence summary of the meeting's purpose and key outcomes
-- decisions (string[]): Firm decisions made during the meeting (e.g. "Adopt OAuth2 for authentication")
+- decisions (array of objects): Firm decisions made during the meeting. Each with:
+    - text (string): the decision (e.g. "Adopt OAuth2 for authentication")
+    - decided_by (string): who made or championed this decision (use name from transcript, or "" if unclear)
 - proposed_features (string[]): Product features, capabilities, or improvements discussed or requested
 - action_items (array of objects): Each with:
     - description (string): what needs to be done
     - owner (string): who is responsible (use name from transcript, or "" if unclear)
+    - requester (string): who requested or assigned this action (use name from transcript, or "" if unclear)
     - due_date (string | null): deadline if mentioned, otherwise null
 - technical_topics (string[]): Technical subjects discussed (APIs, systems, tools, architectures, protocols)
 - open_questions (string[]): Questions raised but not resolved during the meeting

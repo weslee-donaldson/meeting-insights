@@ -152,6 +152,15 @@ describe("validateArtifact", () => {
   });
 });
 
+describe("extraction prompt", () => {
+  it("includes requester and decided_by field descriptions", async () => {
+    const { readFileSync } = await import("node:fs");
+    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
+    expect(prompt).toContain("requester");
+    expect(prompt).toContain("decided_by");
+  });
+});
+
 describe("extractSummary with fallback adapter", () => {
   it("returns minimal artifact when adapter returns __fallback sentinel", async () => {
     const fallbackAdapter: LlmAdapter = {
