@@ -39,7 +39,7 @@ export function App() {
       }),
   });
 
-  const { data: searchResults } = useSearch(searchQuery, selectedClient ?? undefined);
+  const { data: searchResults } = useSearch(searchQuery, selectedClient ?? undefined, dateRange.after || undefined, dateRange.before || undefined);
 
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];

@@ -732,7 +732,7 @@ Note: rename `--color-border` → `--color-border-val` in `[data-theme]` blocks 
 ### Bottle: Cross-Cutting Search
 
 - [x] Burst 288: Lift search state to App.tsx — `searchQuery` controlled in App; `handleReset` clears it; SearchBar becomes controlled via TopBar; test: reset clears search value (already complete from burst 265)
-- [ ] Burst 289: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results
+- [x] Burst 289: Search filters meeting list — `searchQuery >= 2 chars` → search API call; `scopeMeetings` filtered to matching IDs; empty query = all meetings; test: meeting list updates when search returns results (commit: `4a680d7`)
 - [ ] Burst 290: Search respects Client + date filters — pass current `client`/`after`/`before` to search call; test: results change with client param
 - [ ] Burst 291: Search loading + no-results state — spinner while in-flight; "No results for '…'" in list when empty; test: loading + empty states render
 

@@ -83,6 +83,17 @@ describe("useSearch", () => {
     expect(search).toHaveBeenCalledWith({ query: "quarterly review", client: "Acme" });
     expect(result.current.data).toEqual([{ meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "DSU", date: "2026-02-24" }]);
   });
+
+  it("calls search with date_after and date_before when provided", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      ...(window as unknown as { api: object }).api,
+      search,
+    };
+    renderHook(() => useSearch("alpha", undefined, "2026-01-01", "2026-03-01"), { wrapper: makeWrapper() });
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({ query: "alpha", date_after: "2026-01-01", date_before: "2026-03-01" });
+  });
 });
 
 describe("useArtifact", () => {
