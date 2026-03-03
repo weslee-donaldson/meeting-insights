@@ -163,7 +163,9 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
                 data-testid="assistant-bubble"
                 className="self-start px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-secondary text-secondary-foreground text-sm leading-[1.65]"
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                <div className="chat-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                </div>
               </div>
               {msg.sources && msg.sources.length > 0 && (
                 <div className="text-[0.7rem] text-muted-foreground pl-1">
