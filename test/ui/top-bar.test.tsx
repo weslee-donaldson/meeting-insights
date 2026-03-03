@@ -79,4 +79,14 @@ describe("TopBar", () => {
     expect(setTheme).toHaveBeenCalledWith("daylight");
   });
 
+  it("renders Client label next to dropdown", () => {
+    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
+    expect(screen.getByText("Client")).toBeDefined();
+  });
+
+  it("renders instruction text above filters", () => {
+    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
+    expect(screen.getByText("Start by selecting a client")).toBeDefined();
+  });
+
 });

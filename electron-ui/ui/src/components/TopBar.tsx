@@ -48,7 +48,10 @@ export function TopBar({
   }
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-card border-b border-border shrink-0">
+    <div className="flex flex-col gap-1 px-4 py-2 bg-card border-b border-border shrink-0">
+      <span className="text-muted-foreground text-xs">Start by selecting a client</span>
+      <div className="flex items-center gap-3">
+      <span className="text-muted-foreground text-sm">Client</span>
       <Select.Root
         value={selectedClient ?? "__all"}
         onValueChange={(v) => onClientChange(v === "__all" ? null : v)}
@@ -128,6 +131,7 @@ export function TopBar({
       >
         {THEME_ICONS[theme]}
       </Button>
+      </div>
     </div>
   );
 }
