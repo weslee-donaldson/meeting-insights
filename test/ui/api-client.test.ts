@@ -63,6 +63,17 @@ describe("apiClient", () => {
     );
   });
 
+  it("conversationChat serializes includeTranscripts flag in request body", async () => {
+    const spy = mockFetch({ answer: "response", sources: [], charCount: 10 });
+    await apiClient.conversationChat({
+      meetingIds: ["m1"],
+      messages: [{ role: "user", content: "What?" }],
+      includeTranscripts: true,
+    });
+    const body = JSON.parse((spy.mock.calls[0][1] as RequestInit).body as string) as Record<string, unknown>;
+    expect(body.includeTranscripts).toBe(true);
+  });
+
   it("search fetches /api/search with query params", async () => {
     const spy = mockFetch([]);
     expect(await apiClient.search({ query: "auth", client: "Acme", limit: 5 })).toEqual([]);

@@ -78,4 +78,13 @@ describe("CHANNELS", () => {
     expect(row.meeting_id).toBe("abc");
     expect(row.score).toBe(0.9);
   });
+
+  it("ConversationChatRequest carries includeTranscripts flag", () => {
+    const req: import("../electron-ui/electron/channels.js").ConversationChatRequest = {
+      meetingIds: [],
+      messages: [],
+      includeTranscripts: true,
+    };
+    expect(req.includeTranscripts).toBe(true);
+  });
 });

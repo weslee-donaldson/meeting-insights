@@ -129,4 +129,20 @@ describe("POST /api/chat/conversation", () => {
       charCount: expect.any(Number),
     });
   });
+
+  it("accepts includeTranscripts: false and returns distilled context response", async () => {
+    const res = await app.request("/api/chat/conversation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        meetingIds: [meetingId],
+        messages: [{ role: "user", content: "What was decided?" }],
+        includeTranscripts: false,
+      }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as { answer: string; charCount: number };
+    expect(body.answer).toBe("Stub answer based on meeting context.");
+    expect(body.charCount).toBeGreaterThan(0);
+  });
 });
