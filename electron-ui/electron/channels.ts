@@ -14,6 +14,7 @@ export const CHANNELS = {
   GET_ITEM_HISTORY: "get-item-history",
   GET_MENTION_STATS: "get-mention-stats",
   GET_DEFAULT_CLIENT: "get-default-client",
+  GET_CLIENT_ACTION_ITEMS: "get-client-action-items",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -106,6 +107,18 @@ export interface MentionStat {
   first_mentioned_at: string;
 }
 
+export interface ClientActionItem {
+  meeting_id: string;
+  meeting_title: string;
+  meeting_date: string;
+  item_index: number;
+  description: string;
+  owner: string;
+  requester: string;
+  due_date: string | null;
+  priority: "critical" | "normal";
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -123,4 +136,5 @@ export interface ElectronAPI {
   getItemHistory: (canonicalId: string) => Promise<ItemHistoryEntry[]>;
   getMentionStats: (meetingId: string) => Promise<MentionStat[]>;
   getDefaultClient: () => Promise<string | null>;
+  getClientActionItems: (clientName: string) => Promise<ClientActionItem[]>;
 }

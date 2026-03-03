@@ -29,5 +29,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1199 | 4:58 PM | 🟣 | Burst 411 Complete: currentView State and View-Based Panel Composition | ~476 |
 | #1187 | 4:02 PM | ✅ | Added includeTranscripts State to ChatPanel | ~396 |
 </claude-mem-context>

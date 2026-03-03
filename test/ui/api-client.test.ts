@@ -110,4 +110,11 @@ describe("apiClient", () => {
       expect.objectContaining({ method: "POST" }),
     );
   });
+
+  it("getClientActionItems fetches /api/clients/:name/action-items", async () => {
+    const items = [{ meeting_id: "m1", meeting_title: "Weekly", meeting_date: "2026-01-01", item_index: 0, description: "Write tests", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" }];
+    const spy = mockFetch(items);
+    expect(await apiClient.getClientActionItems("Acme")).toEqual(items);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/clients/Acme/action-items");
+  });
 });

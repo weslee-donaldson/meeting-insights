@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 15 unique non-empty channel strings", () => {
+  it("should have 16 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(15);
-    expect(new Set(values).size).toBe(15);
+    expect(values).toHaveLength(16);
+    expect(new Set(values).size).toBe(16);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -77,6 +77,26 @@ describe("CHANNELS", () => {
     };
     expect(row.meeting_id).toBe("abc");
     expect(row.score).toBe(0.9);
+  });
+
+  it("should define GET_CLIENT_ACTION_ITEMS channel", () => {
+    expect(CHANNELS.GET_CLIENT_ACTION_ITEMS).toBe("get-client-action-items");
+  });
+
+  it("ClientActionItem has correct shape", () => {
+    const item: import("../electron-ui/electron/channels.js").ClientActionItem = {
+      meeting_id: "m1",
+      meeting_title: "Weekly Sync",
+      meeting_date: "2026-01-01",
+      item_index: 0,
+      description: "Write tests",
+      owner: "Alice",
+      requester: "Bob",
+      due_date: null,
+      priority: "critical",
+    };
+    expect(item.priority).toBe("critical");
+    expect(item.meeting_id).toBe("m1");
   });
 
   it("ConversationChatRequest carries includeTranscripts flag", () => {
