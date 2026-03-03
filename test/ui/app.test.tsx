@@ -47,6 +47,10 @@ beforeAll(() => {
     deleteMeetings: vi.fn().mockResolvedValue(undefined),
     getMentionStats: vi.fn().mockResolvedValue([]),
     getItemHistory: vi.fn().mockResolvedValue([]),
+    getDefaultClient: vi.fn().mockResolvedValue("Acme"),
+    getClientActionItems: vi.fn().mockResolvedValue([
+      { meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-01", item_index: 0, description: "Deploy fix", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" },
+    ]),
   };
 });
 
@@ -140,6 +144,24 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
     expect(screen.queryByTestId("meeting-row-m1")).toBeNull();
     expect(screen.getByTestId("client-action-items-view")).toBeDefined();
+  });
+
+  it("action-items view shows client action items fetched from api", async () => {
+    render(<App />, { wrapper });
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    await waitFor(() => {
+      expect(screen.getByText("Deploy fix")).toBeDefined();
+    });
+  });
+
+  it("in action-items view with preview, activeMeetingIds uses previewMeetingId for chat", async () => {
+    render(<App />, { wrapper });
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    await waitFor(() => screen.getByText("Deploy fix"));
+    fireEvent.click(screen.getByText("Alpha Weekly"));
+    await waitFor(() => {
+      expect(screen.getByTestId("chat-panel")).toBeDefined();
+    });
   });
 
   it("checking 2 meetings shows merged multi-meeting detail header", async () => {

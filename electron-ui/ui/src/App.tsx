@@ -11,7 +11,7 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry } from "../../electron/channels.js";
+import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 
 interface DateRange {
@@ -71,7 +71,9 @@ export function App() {
   }, [meetingsQuery.data, searchQuery, searchResults]);
 
   const activeMeetingIds =
-    checkedMeetingIds.size > 0
+    currentView === "action-items"
+      ? (previewMeetingId ? [previewMeetingId] : [])
+      : checkedMeetingIds.size > 0
       ? [...checkedMeetingIds]
       : selectedMeetingId
       ? [selectedMeetingId]
@@ -103,6 +105,12 @@ export function App() {
     queryKey: ["itemHistory", historyItem?.canonicalId],
     queryFn: () => window.api.getItemHistory(historyItem!.canonicalId),
     enabled: !!historyItem,
+  });
+
+  const clientActionItemsQuery = useQuery<ClientActionItem[]>({
+    queryKey: ["clientActionItems", selectedClient],
+    queryFn: () => window.api.getClientActionItems(selectedClient!),
+    enabled: currentView === "action-items" && !!selectedClient,
   });
 
   const isMultiMode = checkedMeetingIds.size >= 2;
@@ -212,6 +220,11 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleCompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
+    await window.api.completeActionItem(meetingId, itemIndex, "");
+    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+  }, [selectedClient, queryClient]);
+
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
     await window.api.setIgnored(selectedMeetingId, true);
@@ -275,8 +288,9 @@ export function App() {
     <ClientActionItemsView
       key="client-action-items"
       clientName={selectedClient}
-      items={[]}
+      items={clientActionItemsQuery.data ?? []}
       onPreviewMeeting={setPreviewMeetingId}
+      onComplete={handleCompleteClientActionItem}
     />,
     ...(previewMeetingId ? [
       <MeetingDetail
