@@ -7,67 +7,72 @@ import { LinearShell } from "../../electron-ui/ui/src/components/LinearShell.js"
 afterEach(cleanup);
 
 describe("LinearShell", () => {
-  it("renders topBar, main, and detail content always", () => {
+  it("renders topBar and all panels passed in", () => {
     render(
       <LinearShell
         topBar={<div>top-bar-content</div>}
-        main={<div>main-content</div>}
-        detail={<div>detail-content</div>}
+        panels={[<div key="p1">panel-one</div>, <div key="p2">panel-two</div>]}
       />,
     );
     expect(screen.getByText("top-bar-content")).toBeDefined();
-    expect(screen.getByText("main-content")).toBeDefined();
-    expect(screen.getByText("detail-content")).toBeDefined();
+    expect(screen.getByText("panel-one")).toBeDefined();
+    expect(screen.getByText("panel-two")).toBeDefined();
   });
 
-  it("main panel defaults to 500px width", () => {
+  it("renders navRail when provided", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
+        panels={[<div key="p1">main</div>]}
+        navRail={<div>nav-rail-content</div>}
       />,
     );
-    const mainPanel = screen.getByTestId("main-panel");
-    expect(mainPanel.style.width).toBe("500px");
+    expect(screen.getByText("nav-rail-content")).toBeDefined();
   });
 
-  it("detail panel is always visible with flex-1 layout", () => {
+  it("renders only panels passed in — single panel", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail-content</div>}
+        panels={[<div key="only">only-panel</div>]}
       />,
     );
-    const detailPanel = screen.getByTestId("detail-panel");
-    expect(detailPanel.className).toContain("flex-1");
-    expect(screen.getByText("detail-content")).toBeDefined();
+    expect(screen.getByText("only-panel")).toBeDefined();
+    expect(screen.queryByTestId("main-resize-handle")).toBeNull();
   });
 
-  it("main resize handle is rendered", () => {
+  it("renders resize handle between panels when 2 panels passed", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
+        panels={[<div key="p1">p1</div>, <div key="p2">p2</div>]}
       />,
     );
     expect(screen.getByTestId("main-resize-handle")).toBeDefined();
   });
 
-  it("dragging main handle rightward increases main width", () => {
+  it("first panel defaults to 500px width", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    const mainPanel = screen.getByTestId("panel-0");
+    expect(mainPanel.style.width).toBe("500px");
+  });
+
+  it("dragging main handle rightward increases first panel width", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
       />,
     );
     const handle = screen.getByTestId("main-resize-handle");
     fireEvent.mouseDown(handle, { clientX: 200 });
     fireEvent.mouseMove(document, { clientX: 300 });
-    const mainPanel = screen.getByTestId("main-panel");
+    const mainPanel = screen.getByTestId("panel-0");
     expect(parseInt(mainPanel.style.width)).toBeGreaterThan(200);
   });
 
@@ -75,8 +80,7 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
         chat={<div>chat-content</div>}
         chatOpen={false}
       />,
@@ -84,12 +88,11 @@ describe("LinearShell", () => {
     expect(screen.queryByTestId("chat-panel")).toBeNull();
   });
 
-  it("chat panel is present and renders content when chatOpen is true", () => {
+  it("chat panel is present when chatOpen is true", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
         chat={<div>chat-content</div>}
         chatOpen={true}
       />,

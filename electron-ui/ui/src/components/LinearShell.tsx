@@ -2,26 +2,26 @@ import React, { useState, useRef, useCallback } from "react";
 
 interface LinearShellProps {
   topBar: React.ReactNode;
-  main: React.ReactNode;
-  detail: React.ReactNode;
+  panels: React.ReactNode[];
+  navRail?: React.ReactNode;
   chat?: React.ReactNode;
   chatOpen?: boolean;
 }
 
-export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: LinearShellProps) {
-  const [mainWidth, setMainWidth] = useState(500);
+export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false }: LinearShellProps) {
+  const [panel0Width, setPanel0Width] = useState(500);
   const [chatWidth, setChatWidth] = useState(380);
 
   const mainDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const chatDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const handleMainMouseDown = useCallback((e: React.MouseEvent) => {
-    mainDragRef.current = { startX: e.clientX, startWidth: mainWidth };
+    mainDragRef.current = { startX: e.clientX, startWidth: panel0Width };
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!mainDragRef.current) return;
       const delta = ev.clientX - mainDragRef.current.startX;
-      setMainWidth(Math.max(160, mainDragRef.current.startWidth + delta));
+      setPanel0Width(Math.max(160, mainDragRef.current.startWidth + delta));
     };
 
     const onMouseUp = () => {
@@ -32,7 +32,7 @@ export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: Li
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
-  }, [mainWidth]);
+  }, [panel0Width]);
 
   const handleChatMouseDown = useCallback((e: React.MouseEvent) => {
     chatDragRef.current = { startX: e.clientX, startWidth: chatWidth };
@@ -60,26 +60,30 @@ export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: Li
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <div
-          data-testid="main-panel"
-          className="shrink-0 overflow-auto pl-[15px]"
-          style={{ width: mainWidth + "px" }}
-        >
-          {main}
-        </div>
+        {navRail}
 
-        <div
-          data-testid="main-resize-handle"
-          onMouseDown={handleMainMouseDown}
-          className="w-1 shrink-0 cursor-col-resize bg-border"
-        />
-
-        <div
-          data-testid="detail-panel"
-          className={`flex-1 min-w-[200px] overflow-auto${chatOpen ? "" : " pr-[15px]"}`}
-        >
-          {detail}
-        </div>
+        {panels.map((panel, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && (
+              <div
+                data-testid="main-resize-handle"
+                onMouseDown={handleMainMouseDown}
+                className="w-1 shrink-0 cursor-col-resize bg-border"
+              />
+            )}
+            <div
+              data-testid={`panel-${i}`}
+              className={
+                i === 0
+                  ? "shrink-0 overflow-auto pl-[15px]"
+                  : `flex-1 min-w-[200px] overflow-auto${chatOpen ? "" : " pr-[15px]"}`
+              }
+              style={i === 0 ? { width: panel0Width + "px" } : undefined}
+            >
+              {panel}
+            </div>
+          </React.Fragment>
+        ))}
 
         {chatOpen && (
           <>

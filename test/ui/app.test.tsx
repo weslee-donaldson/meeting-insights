@@ -58,7 +58,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe("App", () => {
   it("renders detail panel always visible", () => {
     render(<App />, { wrapper });
-    const panel = screen.getByTestId("detail-panel");
+    const panel = screen.getByTestId("panel-1");
     expect(panel.className).toContain("flex-1");
   });
 

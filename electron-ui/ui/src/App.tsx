@@ -251,8 +251,9 @@ export function App() {
           themes={themes}
         />
       }
-      main={
+      panels={[
         <MeetingList
+          key="meeting-list"
           meetings={scopeMeetings}
           selectedId={selectedMeetingId}
           checked={checkedMeetingIds}
@@ -267,10 +268,9 @@ export function App() {
           hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
           checkedCount={checkedMeetingIds.size}
           onDelete={handleDeleteMeetings}
-        />
-      }
-      detail={
+        />,
         <MeetingDetail
+          key="meeting-detail"
           meeting={isMultiMode ? null : selectedMeeting}
           meetings={isMultiMode ? checkedMeetings : undefined}
           artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
@@ -284,8 +284,8 @@ export function App() {
           mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
           onMentionClick={isMultiMode ? undefined : handleMentionClick}
           artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
-        />
-      }
+        />,
+      ]}
       chat={
         <ChatPanel
           activeMeetingIds={activeMeetingIds}
