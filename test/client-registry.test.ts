@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient } from "../core/client-registry.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, buildClientContext } from "../core/client-registry.js";
 import type { Participant } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
@@ -186,5 +186,52 @@ describe("getDefaultClient", () => {
 
   it("returns null when no client has is_default flag", () => {
     expect(getDefaultClient(db)).toBeNull();
+  });
+});
+
+describe("buildClientContext", () => {
+  it("includes client name in header", () => {
+    const ctx = buildClientContext("Acme", [], [], undefined);
+    expect(ctx).toContain("## Client Context: Acme");
+  });
+
+  it("lists client team members as name + role", () => {
+    const ctx = buildClientContext(
+      "Acme",
+      [{ name: "Alice", role: "CTO" }, { name: "Bob", role: "Developer" }],
+      [],
+      undefined,
+    );
+    expect(ctx).toContain("- Alice, CTO");
+    expect(ctx).toContain("- Bob, Developer");
+  });
+
+  it("lists implementation team members as name + role", () => {
+    const ctx = buildClientContext(
+      "Acme",
+      [],
+      [{ name: "Carol", email: "carol@xolv.io", role: "Architect" }],
+      undefined,
+    );
+    expect(ctx).toContain("- Carol, Architect");
+  });
+
+  it("includes role authority guidance paragraph", () => {
+    const ctx = buildClientContext("Acme", [], [], undefined);
+    expect(ctx).toContain("determining whether a request is critical");
+  });
+
+  it("appends additional_extraction_llm_prompt after guidance when provided", () => {
+    const ctx = buildClientContext("Acme", [], [], "Alice is the lead engineer.");
+    expect(ctx).toContain("Alice is the lead engineer.");
+    const guidanceIdx = ctx.indexOf("determining whether a request is critical");
+    const promptIdx = ctx.indexOf("Alice is the lead engineer.");
+    expect(promptIdx).toBeGreaterThan(guidanceIdx);
+  });
+
+  it("omits additional_extraction_llm_prompt section when not provided", () => {
+    const ctx = buildClientContext("Acme", [{ name: "Alice", role: "CTO" }], [], undefined);
+    expect(ctx).not.toContain("null");
+    expect(ctx).not.toContain("undefined");
   });
 });

@@ -75,3 +75,47 @@ export function getDefaultClient(db: Database): string | null {
   const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
   return row?.name ?? null;
 }
+
+const ROLE_AUTHORITY_GUIDANCE = `When determining whether a request is critical, consider the role and domain:
+- A CTO or VP has broad authority but may defer to domain experts (PO on product, Architect on technical)
+- An Engineering Manager directing team work has high authority for delivery decisions
+- A Principal Developer's technical direction carries elevated weight
+- Trusted senior implementors (e.g., Architect) have authority on technical decisions comparable to senior client-side
+- A Developer or Consultant without explicit endorsement from a senior = standard priority
+- If a senior person explicitly delegates to someone junior, that direction carries the senior's weight`;
+
+export function buildClientContext(
+  name: string,
+  clientTeam: Participant[],
+  implTeam: Participant[],
+  additionalPrompt: string | undefined,
+): string {
+  const lines: string[] = [];
+  lines.push(`## Client Context: ${name}`);
+  lines.push("");
+
+  if (clientTeam.length > 0) {
+    lines.push("Client team (they direct the work — their words define your deliverables):");
+    for (const p of clientTeam) {
+      lines.push(`- ${p.name}, ${p.role}`);
+    }
+    lines.push("");
+  }
+
+  if (implTeam.length > 0) {
+    lines.push("Implementation team (delivery partner):");
+    for (const p of implTeam) {
+      lines.push(`- ${p.name}, ${p.role}`);
+    }
+    lines.push("");
+  }
+
+  lines.push(ROLE_AUTHORITY_GUIDANCE);
+
+  if (additionalPrompt) {
+    lines.push("");
+    lines.push(additionalPrompt);
+  }
+
+  return lines.join("\n");
+}
