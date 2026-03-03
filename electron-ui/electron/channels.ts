@@ -48,6 +48,7 @@ export interface ConversationChatRequest {
   meetingIds: string[];
   messages: ConversationMessage[];
   attachments?: { name: string; base64: string; mimeType: string }[];
+  includeTranscripts?: boolean;
 }
 
 export interface ConversationChatResponse {

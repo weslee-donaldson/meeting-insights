@@ -2,7 +2,8 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
 import { parseTranscriptBody } from "../../core/parser.js";
-import { buildLabeledContext } from "../../core/labeled-context.js";
+import { buildLabeledContext, buildDistilledContext } from "../../core/labeled-context.js";
+import { getMeeting } from "../../core/ingest.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
@@ -147,10 +148,23 @@ export async function handleConversationChat(
   llm: LlmAdapter,
   req: ConversationChatRequest,
 ): Promise<ConversationChatResponse> {
-  const { contextText, charCount, meetings } = buildLabeledContext(
-    db,
-    req.meetingIds,
-  );
+  let contextText: string;
+  let charCount: number;
+  let meetings: Array<{ id: string; title: string; date: string }>;
+
+  if (req.includeTranscripts) {
+    const labeled = buildLabeledContext(db, req.meetingIds);
+    contextText = labeled.contextText;
+    charCount = labeled.charCount;
+    meetings = labeled.meetings;
+  } else {
+    contextText = buildDistilledContext(db, req.meetingIds);
+    charCount = contextText.length;
+    meetings = req.meetingIds.flatMap((id) => {
+      const m = getMeeting(db, id);
+      return m ? [{ id: m.id, title: m.title, date: m.date }] : [];
+    });
+  }
 
   const system = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}`;
 

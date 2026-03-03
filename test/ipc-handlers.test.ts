@@ -214,7 +214,23 @@ describe("IPC handlers", () => {
   });
 
   describe("handleConversationChat", () => {
-    it("returns answer from converse with labeled context as system", async () => {
+    it("uses distilled context by default (no includeTranscripts)", async () => {
+      let capturedSystem = "";
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system) { capturedSystem = system; return "Distilled answer."; },
+      };
+      const result = await handleConversationChat(db, spyLlm, {
+        meetingIds: [meetingId2],
+        messages: [{ role: "user", content: "What was decided?" }],
+      });
+      expect(result.charCount).toBeGreaterThan(0);
+      expect(capturedSystem).toContain("meeting intelligence assistant");
+      expect(capturedSystem).toContain("## Beta Planning");
+      expect(capturedSystem).toContain("Summary:");
+    });
+
+    it("uses labeled context when includeTranscripts is true", async () => {
       let capturedSystem = "";
       let capturedMessages: Array<{ role: string; content: string }> = [];
       const spyLlm: LlmAdapter = {
@@ -228,6 +244,7 @@ describe("IPC handlers", () => {
       const result = await handleConversationChat(db, spyLlm, {
         meetingIds: [meetingId2],
         messages: [{ role: "user", content: "What was decided?" }],
+        includeTranscripts: true,
       });
       expect(result.answer).toContain("The team decided to go with approach A Beta Planning (");
       expect(result.sources).toEqual(["Beta Planning"]);
