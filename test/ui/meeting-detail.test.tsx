@@ -308,7 +308,7 @@ describe("MeetingDetail", () => {
     expect(bobs.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders decided_by in decisions text when decided_by is present", () => {
+  it("renders decided_by as badge in decisions when decided_by is present", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -318,7 +318,9 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByText("Decisions"));
-    expect(screen.getByText("Use TypeScript (CTO)")).toBeDefined();
+    expect(screen.getByText("Use TypeScript")).toBeDefined();
+    const ctoBadge = screen.getAllByText("CTO").find((el) => el.tagName === "SPAN" && el.className.includes("rounded-full"));
+    expect(ctoBadge).toBeDefined();
   });
 
   it("action items person filter dropdown filters by selected person", () => {
@@ -357,13 +359,13 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByText("Decisions"));
-    expect(screen.getByText("Use TypeScript (CTO)")).toBeDefined();
-    expect(screen.getByText("Ship by March (PM)")).toBeDefined();
-    expect(screen.getByText("Add dark mode (CTO)")).toBeDefined();
+    expect(screen.getByText("Use TypeScript")).toBeDefined();
+    expect(screen.getByText("Ship by March")).toBeDefined();
+    expect(screen.getByText("Add dark mode")).toBeDefined();
     fireEvent.change(screen.getByRole("combobox", { name: "Filter decisions by person" }), { target: { value: "PM" } });
-    expect(screen.queryByText("Use TypeScript (CTO)")).toBeNull();
-    expect(screen.getByText("Ship by March (PM)")).toBeDefined();
-    expect(screen.queryByText("Add dark mode (CTO)")).toBeNull();
+    expect(screen.queryByText("Use TypeScript")).toBeNull();
+    expect(screen.getByText("Ship by March")).toBeDefined();
+    expect(screen.queryByText("Add dark mode")).toBeNull();
   });
 
   it("section content has left padding for visual hierarchy", () => {

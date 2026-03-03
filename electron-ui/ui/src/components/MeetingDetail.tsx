@@ -214,7 +214,17 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           </select>
         ) : undefined}
       >
-        <ItemList items={filteredDecisions.map((d) => d.decided_by ? `${d.text} (${d.decided_by})` : d.text)} icon="—" />
+        <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
+          {filteredDecisions.map((d, i) => (
+            <li key={i} className="flex gap-2.5 items-start">
+              <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground">—</span>
+              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                <span className="leading-[1.6]">{d.text}</span>
+                {d.decided_by && <Badge variant="secondary">{d.decided_by}</Badge>}
+              </div>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section
