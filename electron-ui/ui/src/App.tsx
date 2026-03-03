@@ -101,6 +101,24 @@ export function App() {
     enabled: !!selectedMeetingId,
   });
 
+  const previewArtifactQuery = useQuery<Artifact | null>({
+    queryKey: ["artifact", previewMeetingId],
+    queryFn: () => window.api.getArtifact(previewMeetingId!),
+    enabled: !!previewMeetingId,
+  });
+
+  const previewCompletionsQuery = useQuery<ActionItemCompletion[]>({
+    queryKey: ["completions", previewMeetingId],
+    queryFn: () => window.api.getCompletions(previewMeetingId!),
+    enabled: !!previewMeetingId,
+  });
+
+  const previewMentionStatsQuery = useQuery<MentionStat[]>({
+    queryKey: ["mentionStats", previewMeetingId],
+    queryFn: () => window.api.getMentionStats(previewMeetingId!),
+    enabled: !!previewMeetingId,
+  });
+
   const itemHistoryQuery = useQuery<ItemHistoryEntry[]>({
     queryKey: ["itemHistory", historyItem?.canonicalId],
     queryFn: () => window.api.getItemHistory(historyItem!.canonicalId),
@@ -222,8 +240,23 @@ export function App() {
 
   const handleCompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
     await window.api.completeActionItem(meetingId, itemIndex, "");
+    queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
     queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
   }, [selectedClient, queryClient]);
+
+  const handleCompletePreviewActionItem = useCallback(async (itemIndex: number, note: string) => {
+    if (!previewMeetingId) return;
+    await window.api.completeActionItem(previewMeetingId, itemIndex, note);
+    queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
+    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+  }, [previewMeetingId, selectedClient, queryClient]);
+
+  const handleUncompletePreviewActionItem = useCallback(async (itemIndex: number) => {
+    if (!previewMeetingId) return;
+    await window.api.uncompleteActionItem(previewMeetingId, itemIndex);
+    queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
+    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+  }, [previewMeetingId, selectedClient, queryClient]);
 
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
@@ -296,10 +329,12 @@ export function App() {
       <MeetingDetail
         key="preview-detail"
         meeting={scopeMeetings.find((m) => m.id === previewMeetingId) ?? null}
-        artifact={selectedArtifactQuery.data ?? null}
-        completions={completionsQuery.data ?? []}
-        mentionStats={mentionStatsQuery.data ?? []}
-        artifactLoading={selectedArtifactQuery.isLoading}
+        artifact={previewArtifactQuery.data ?? null}
+        completions={previewCompletionsQuery.data ?? []}
+        onComplete={handleCompletePreviewActionItem}
+        onUncomplete={handleUncompletePreviewActionItem}
+        mentionStats={previewMentionStatsQuery.data ?? []}
+        artifactLoading={previewArtifactQuery.isLoading}
       />,
     ] : []),
   ];

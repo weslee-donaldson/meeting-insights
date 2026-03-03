@@ -164,6 +164,27 @@ describe("App", () => {
     });
   });
 
+  it("preview MeetingDetail in action-items view has onComplete wired (complete buttons rendered)", async () => {
+    render(<App />, { wrapper });
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    await waitFor(() => screen.getByText("Deploy fix"));
+    fireEvent.click(screen.getByText("Alpha Weekly"));
+    await waitFor(() => {
+      expect(screen.getByLabelText("Complete item 0")).toBeDefined();
+    });
+  });
+
+  it("completing item from action-items view calls completeActionItem with meetingId and index", async () => {
+    render(<App />, { wrapper });
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    await waitFor(() => screen.getByText("Deploy fix"));
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    await waitFor(() => {
+      expect(window.api.completeActionItem).toHaveBeenCalledWith("m1", 0, "");
+    });
+  });
+
   it("checking 2 meetings shows merged multi-meeting detail header", async () => {
     render(<App />, { wrapper });
     const checkboxes = await screen.findAllByRole("checkbox");
