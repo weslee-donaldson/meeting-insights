@@ -13,6 +13,7 @@ export const CHANNELS = {
   GET_COMPLETIONS: "get-completions",
   GET_ITEM_HISTORY: "get-item-history",
   GET_MENTION_STATS: "get-mention-stats",
+  GET_DEFAULT_CLIENT: "get-default-client",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -119,4 +120,5 @@ export interface ElectronAPI {
   getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;
   getItemHistory: (canonicalId: string) => Promise<ItemHistoryEntry[]>;
   getMentionStats: (meetingId: string) => Promise<MentionStat[]>;
+  getDefaultClient: () => Promise<string | null>;
 }

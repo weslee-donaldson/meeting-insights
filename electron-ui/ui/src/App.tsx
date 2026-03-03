@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { TopBar } from "./components/TopBar.js";
@@ -33,6 +33,19 @@ export function App() {
     queryKey: ["clients"],
     queryFn: () => window.api.getClients(),
   });
+
+  const defaultClientQuery = useQuery<string | null>({
+    queryKey: ["defaultClient"],
+    queryFn: () => window.api.getDefaultClient(),
+  });
+
+  const defaultApplied = useRef(false);
+  useEffect(() => {
+    if (!defaultApplied.current && defaultClientQuery.data) {
+      defaultApplied.current = true;
+      setSelectedClient(defaultClientQuery.data);
+    }
+  }, [defaultClientQuery.data]);
 
   const meetingsQuery = useQuery<MeetingRow[]>({
     queryKey: ["meetings", selectedClient, dateRange],

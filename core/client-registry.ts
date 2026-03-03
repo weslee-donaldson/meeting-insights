@@ -18,6 +18,7 @@ interface ClientEntry {
   known_participants: string[];
   refinement_prompt?: string;
   meeting_names?: string[];
+  is_default?: boolean;
 }
 
 export function seedClients(db: Database, filePath: string): void {
@@ -26,13 +27,14 @@ export function seedClients(db: Database, filePath: string): void {
     if (!entry.name) throw new Error("Client entry missing name");
     if (!entry.aliases) throw new Error("Client entry missing aliases");
     db.prepare(
-      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, refinement_prompt, meeting_names) VALUES (?, ?, ?, ?, ?)",
+      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, refinement_prompt, meeting_names, is_default) VALUES (?, ?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
       JSON.stringify(entry.known_participants ?? []),
       entry.refinement_prompt ?? null,
       entry.meeting_names ? JSON.stringify(entry.meeting_names) : "[]",
+      entry.is_default ? 1 : 0,
     );
   }
   log("loaded %d clients", entries.length);
@@ -49,4 +51,9 @@ export function getClientByAlias(db: Database, alias: string): ClientRow | null 
 
 export function getAllClients(db: Database): ClientRow[] {
   return db.prepare("SELECT * FROM clients").all() as ClientRow[];
+}
+
+export function getDefaultClient(db: Database): string | null {
+  const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
+  return row?.name ?? null;
 }

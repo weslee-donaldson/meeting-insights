@@ -21,6 +21,11 @@ export function handleGetClients(db: Database): string[] {
   return rows.map((r) => r.name);
 }
 
+export function handleGetDefaultClient(db: Database): string | null {
+  const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
+  return row?.name ?? null;
+}
+
 function normalizeSeries(title: string): string {
   return title.toLowerCase().replace(/\s+/g, " ").trim();
 }

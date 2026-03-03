@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients } from "../core/client-registry.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
@@ -113,5 +113,25 @@ describe("meeting_names field", () => {
   it("returns empty array meeting_names when client has none", () => {
     const client = getClientByName(db, "Revenium");
     expect(JSON.parse(client!.meeting_names)).toEqual([]);
+  });
+});
+
+describe("getDefaultClient", () => {
+  it("returns name of client with is_default flag", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-default-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([
+      { name: "Acme", aliases: ["Acme"], known_participants: [], is_default: true },
+      { name: "Beta", aliases: ["Beta"], known_participants: [] },
+    ]));
+    seedClients(localDb, file);
+    expect(getDefaultClient(localDb)).toBe("Acme");
+  });
+
+  it("returns null when no client has is_default flag", () => {
+    expect(getDefaultClient(db)).toBeNull();
   });
 });

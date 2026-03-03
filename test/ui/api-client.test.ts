@@ -75,4 +75,10 @@ describe("apiClient", () => {
     mockFetch({ error: "Search not available" }, 503);
     expect(await apiClient.search({ query: "test" })).toEqual([]);
   });
+
+  it("getDefaultClient fetches /api/default-client and returns name or null", async () => {
+    const spy = mockFetch("LLSA");
+    expect(await apiClient.getDefaultClient()).toBe("LLSA");
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/default-client");
+  });
 });

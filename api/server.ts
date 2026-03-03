@@ -8,7 +8,7 @@ import {
   handleGetClients, handleGetMeetings, handleGetArtifact, handleChat, handleConversationChat,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
-  handleGetItemHistory, handleGetMentionStats,
+  handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -32,6 +32,10 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.get("/api/clients", (c) => {
     return c.json(handleGetClients(db));
+  });
+
+  app.get("/api/default-client", (c) => {
+    return c.json(handleGetDefaultClient(db));
   });
 
   app.get("/api/meetings", (c) => {

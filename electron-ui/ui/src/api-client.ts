@@ -86,4 +86,7 @@ export const apiClient: ElectronAPI = {
 
   getMentionStats: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/mention-stats`).then((r) => r.json()),
+
+  getDefaultClient: () =>
+    fetch(`${API_BASE}/api/default-client`).then((r) => r.json()),
 };

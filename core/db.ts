@@ -97,6 +97,9 @@ export function migrate(db: DatabaseSync): void {
   if (!clientCols.some(c => c.name === "meeting_names")) {
     db.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
   }
+  if (!clientCols.some(c => c.name === "is_default")) {
+    db.exec("ALTER TABLE clients ADD COLUMN is_default INTEGER DEFAULT 0");
+  }
 
   if (artifactCols.some(c => c.name === "technical_topics")) {
     db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");

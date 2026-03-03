@@ -1,6 +1,7 @@
 [
   {
     "name": "LLSA",
+    "is_default": true,
     "aliases": [
       "Mandalore",
       "Endor",
