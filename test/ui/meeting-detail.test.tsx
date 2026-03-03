@@ -466,6 +466,33 @@ describe("MeetingDetail", () => {
     expect(screen.queryAllByText(/\dx/).length).toBe(1);
   });
 
+  it("completed action items are sorted to the bottom of the list", () => {
+    const completions: ActionItemCompletion[] = [
+      { id: "m1:1", meeting_id: "m1", item_index: 1, completed_at: "2026-03-01T00:00:00Z", note: "" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "First task", owner: null, requester: "", due_date: null },
+            { description: "Second task", owner: null, requester: "", due_date: null },
+            { description: "Third task", owner: null, requester: "", due_date: null },
+          ],
+        })}
+        completions={completions}
+        onComplete={vi.fn()}
+        onUncomplete={vi.fn()}
+      />,
+    );
+    const items = screen.getAllByRole("listitem").filter(
+      (li) => li.textContent?.includes("task"),
+    );
+    expect(items[0].textContent).toContain("First task");
+    expect(items[1].textContent).toContain("Third task");
+    expect(items[2].textContent).toContain("Second task");
+  });
+
   it("mention badge click fires onMentionClick with canonical_id", () => {
     const onMentionClick = vi.fn();
     const mentionStats: MentionStat[] = [

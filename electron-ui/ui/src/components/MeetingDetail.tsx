@@ -123,11 +123,17 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   }, [artifact.action_items]);
 
   const filteredActions = useMemo(() => {
-    if (!actionItemFilter) return artifact.action_items.map((a, i) => ({ a, i }));
-    return artifact.action_items
-      .map((a, i) => ({ a, i }))
-      .filter(({ a }) => a.owner === actionItemFilter || a.requester === actionItemFilter);
-  }, [artifact.action_items, actionItemFilter]);
+    const items = actionItemFilter
+      ? artifact.action_items
+          .map((a, i) => ({ a, i }))
+          .filter(({ a }) => a.owner === actionItemFilter || a.requester === actionItemFilter)
+      : artifact.action_items.map((a, i) => ({ a, i }));
+    return items.sort((x, y) => {
+      const xDone = completedSet.has(x.i) ? 1 : 0;
+      const yDone = completedSet.has(y.i) ? 1 : 0;
+      return xDone - yDone;
+    });
+  }, [artifact.action_items, actionItemFilter, completedSet]);
 
   const decisionPeople = useMemo(() => {
     const names = new Set<string>();

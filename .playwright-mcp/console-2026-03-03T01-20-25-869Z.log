@@ -33,3 +33,5 @@ Visit https://react.dev/link/error-boundaries to learn more about error boundari
 Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=25beec8e:6965
 [ 4699701ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/components/TopBar.tsx?t=1772505525561:0
 [ 4699702ms] [ERROR] [vite] Failed to reload /src/components/TopBar.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:808
+[ 5217032ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019caf483ab875cf8d4b8ebe43344edd/ignored:0
+[ 5223938ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019caf648d0c703a97249548fe9ae783/ignored:0
