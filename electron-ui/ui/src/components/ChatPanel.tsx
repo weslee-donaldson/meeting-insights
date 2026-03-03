@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import TurndownService from "turndown";
 import { Send, Clipboard, Paperclip, X, FileText, Code } from "lucide-react";
 import { Button } from "./ui/button.js";
 import type { ConversationMessage, ConversationChatResponse } from "../../../electron/channels.js";
@@ -111,12 +112,30 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
 
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const files = Array.from(e.clipboardData.files).filter((f) => f.type.startsWith("image/"));
-    if (files.length === 0) return;
-    e.preventDefault();
-    setAttachments((prev) => [
-      ...prev,
-      ...files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })),
-    ]);
+    if (files.length > 0) {
+      e.preventDefault();
+      setAttachments((prev) => [
+        ...prev,
+        ...files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })),
+      ]);
+      return;
+    }
+    if (e.clipboardData.types.includes("text/html")) {
+      const html = e.clipboardData.getData("text/html");
+      if (html) {
+        e.preventDefault();
+        const td = new TurndownService({ headingStyle: "atx", bulletListMarker: "-" });
+        const markdown = td.turndown(html);
+        const ta = e.currentTarget;
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const next = ta.value.slice(0, start) + markdown + ta.value.slice(end);
+        setInput(next);
+        requestAnimationFrame(() => {
+          ta.selectionStart = ta.selectionEnd = start + markdown.length;
+        });
+      }
+    }
   }, []);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

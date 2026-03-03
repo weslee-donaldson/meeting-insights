@@ -216,6 +216,25 @@ describe("ChatPanel", () => {
     expect(screen.getByText("screenshot.png")).toBeDefined();
   });
 
+  it("pasting HTML content converts to markdown in the textarea", () => {
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />);
+    const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+    const pasteEvent = createEvent.paste(textarea);
+    Object.defineProperty(pasteEvent, "clipboardData", {
+      value: {
+        files: [],
+        types: ["text/html", "text/plain"],
+        getData: (type: string) =>
+          type === "text/html"
+            ? "<h2>Title</h2><ul><li>Item one</li><li>Item two</li></ul>"
+            : "Title\nItem one\nItem two",
+      },
+    });
+    fireEvent(textarea, pasteEvent);
+    expect(textarea.value).toContain("## Title");
+    expect(textarea.value).toContain("Item one");
+  });
+
   it("clicking remove on an attachment clears it from the list", () => {
     vi.stubGlobal("URL", { createObjectURL: vi.fn().mockReturnValue("blob:mock"), revokeObjectURL: vi.fn() });
     render(
