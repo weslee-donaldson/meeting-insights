@@ -128,11 +128,12 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           .map((a, i) => ({ a, i }))
           .filter(({ a }) => a.owner === actionItemFilter || a.requester === actionItemFilter)
       : artifact.action_items.map((a, i) => ({ a, i }));
-    return items.sort((x, y) => {
-      const xDone = completedSet.has(x.i) ? 1 : 0;
-      const yDone = completedSet.has(y.i) ? 1 : 0;
-      return xDone - yDone;
-    });
+    const score = (item: { a: Artifact["action_items"][number]; i: number }) => {
+      if (completedSet.has(item.i)) return 2;
+      if (item.a.priority === "critical") return 0;
+      return 1;
+    };
+    return items.sort((x, y) => score(x) - score(y));
   }, [artifact.action_items, actionItemFilter, completedSet]);
 
   const decisionPeople = useMemo(() => {
@@ -312,6 +313,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                   <span className="shrink-0 mt-0.5 text-primary">□</span>
                 )}
                 <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                  {a.priority === "critical" && !isCompleted && <Badge variant="destructive" className="shrink-0 text-[0.65rem]">CRITICAL</Badge>}
                   {isCompleted ? (
                     <button
                       onClick={() => setNoteDialog({ index: i, note: existingNote })}
@@ -371,7 +373,15 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
       </Section>
 
       <Section title="Risks" isEmpty={artifact.risk_items.length === 0} open={!!sectionStates["Risks"]} onOpenChange={(o) => setSectionOpen("Risks", o)}>
-        <ItemList items={artifact.risk_items} icon="⚠" iconColor="var(--color-danger)" />
+        <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
+          {artifact.risk_items.map((r, i) => (
+            <li key={i} className="flex flex-wrap gap-x-1.5 gap-y-0.5 items-baseline">
+              <span className="shrink-0 mt-px text-[0.8rem]" style={{ color: "var(--color-danger)" }}>⚠</span>
+              <span className="leading-[1.6]">{r.description}</span>
+              <Badge variant="muted">{r.category}</Badge>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={!!sectionStates["Proposed Features"]} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}>

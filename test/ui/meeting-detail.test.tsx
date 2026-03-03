@@ -26,7 +26,7 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
     proposed_features: ["Dark mode"],
     action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
     open_questions: ["When to launch?"],
-    risk_items: ["Timeline slippage"],
+    risk_items: [{ category: "engineering" as const, description: "Timeline slippage" }],
     additional_notes: [],
     ...overrides,
   };
@@ -503,6 +503,62 @@ describe("MeetingDetail", () => {
     expect(items[0].textContent).toContain("First task");
     expect(items[1].textContent).toContain("Third task");
     expect(items[2].textContent).toContain("Second task");
+  });
+
+  it("critical action items render destructive badge", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Fix broken build", owner: "Carol", requester: "", due_date: null, priority: "critical" },
+            { description: "Write docs", owner: "Dave", requester: "", due_date: null, priority: "normal" },
+          ],
+        })}
+      />,
+    );
+    const criticalBadge = screen.getByText("CRITICAL");
+    expect(criticalBadge).toBeDefined();
+    expect(criticalBadge.className).toContain("destructive");
+    expect(screen.queryAllByText("CRITICAL").length).toBe(1);
+  });
+
+  it("critical action items sort before normal uncompleted items", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Normal task", owner: null, requester: "", due_date: null, priority: "normal" },
+            { description: "Critical task", owner: null, requester: "", due_date: null, priority: "critical" },
+          ],
+        })}
+        completions={[]}
+        onComplete={vi.fn()}
+      />,
+    );
+    const items = screen.getAllByRole("listitem").filter((li) => li.textContent?.includes("task"));
+    expect(items[0].textContent).toContain("Critical task");
+    expect(items[1].textContent).toContain("Normal task");
+  });
+
+  it("risk items render category badge", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          risk_items: [
+            { category: "relationship" as const, description: "Trust issue" },
+            { category: "architecture" as const, description: "Tech debt risk" },
+          ],
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByText("Risks"));
+    expect(screen.getByText("Trust issue")).toBeDefined();
+    expect(screen.getByText("Tech debt risk")).toBeDefined();
+    expect(screen.getByText("relationship")).toBeDefined();
+    expect(screen.getByText("architecture")).toBeDefined();
   });
 
   it("mention badge click fires onMentionClick with canonical_id", () => {
