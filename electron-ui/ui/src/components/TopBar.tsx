@@ -49,9 +49,9 @@ export function TopBar({
 
   return (
     <div className="flex flex-col gap-1 px-4 py-2 bg-card border-b border-border shrink-0">
-      <span className="text-muted-foreground text-xs">Start by selecting a client</span>
+      <span className="text-foreground text-xs">Start by selecting a client</span>
       <div className="flex items-center gap-3">
-      <span className="text-muted-foreground text-sm">Client</span>
+      <span className="text-foreground text-sm font-medium">Client</span>
       <Select.Root
         value={selectedClient ?? "__all"}
         onValueChange={(v) => onClientChange(v === "__all" ? null : v)}
@@ -86,7 +86,7 @@ export function TopBar({
         </Select.Portal>
       </Select.Root>
 
-      <span className="text-muted-foreground text-sm">From</span>
+      <span className="text-foreground text-sm">From</span>
       <input
         type="date"
         value={dateRange.after}
@@ -94,7 +94,7 @@ export function TopBar({
         className="px-2 py-1 rounded focus:outline-none bg-input text-foreground border border-border text-sm"
         aria-label="After date"
       />
-      <span className="text-muted-foreground text-sm">to</span>
+      <span className="text-foreground text-sm">to</span>
       <input
         type="date"
         value={dateRange.before}
