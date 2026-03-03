@@ -62,7 +62,7 @@ export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: Li
       <div className="flex flex-1 overflow-hidden">
         <div
           data-testid="main-panel"
-          className="shrink-0 overflow-auto"
+          className="shrink-0 overflow-auto pl-[15px]"
           style={{ width: mainWidth + "px" }}
         >
           {main}
@@ -76,7 +76,7 @@ export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: Li
 
         <div
           data-testid="detail-panel"
-          className="flex-1 min-w-[200px] overflow-auto"
+          className={`flex-1 min-w-[200px] overflow-auto${chatOpen ? "" : " pr-[15px]"}`}
         >
           {detail}
         </div>
@@ -90,7 +90,7 @@ export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: Li
             />
             <div
               data-testid="chat-panel"
-              className="shrink-0 overflow-hidden border-l border-border"
+              className="shrink-0 overflow-hidden border-l border-border pr-[15px]"
               style={{ width: chatWidth + "px" }}
             >
               {chat}
