@@ -25,7 +25,6 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
     decisions: [{ text: "Ship by March", decided_by: "" }],
     proposed_features: ["Dark mode"],
     action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
-    architecture: ["TypeScript"],
     open_questions: ["When to launch?"],
     risk_items: ["Timeline slippage"],
     additional_notes: [],

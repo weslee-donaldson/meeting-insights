@@ -186,7 +186,6 @@ const DEDUP_FIELDS: (keyof Artifact)[] = [
   "action_items",
   "decisions",
   "proposed_features",
-  "architecture",
   "open_questions",
   "risk_items",
 ];

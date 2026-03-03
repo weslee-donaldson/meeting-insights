@@ -841,7 +841,32 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 389: Replace client reassign dropdown with Dialog modal
 - [x] Burst 390: Increase section content maxHeight from 300 to 400
 - [x] Burst 392: Clicking meeting row also checks its checkbox
-- [ ] Burst 393: Image attachment support in chat — flow attachments through ChatPanel → App → IPC → API → LLM converse
+- [x] Burst 393: Image attachment support in chat — flow attachments through ChatPanel → App → IPC → API → LLM converse
+- [x] Burst 394: Remove architecture field end-to-end — drop from Artifact type, extraction prompt, MeetingDetail, labeled-context, merge-artifacts, ipc-handlers, all tests
+- [ ] Burst 395: Update ClientEntry type — Participant shape { name, email?, role }, client_team[], implementation_team[], additional_extraction_llm_prompt?; remove known_participants and refinement_prompt
+- [ ] Burst 396: Migrate clients.json to new structure — full LLSA roster + all 4 clients with structured participant arrays
+- [ ] Burst 397: Update client detection to read from client_team[].email and implementation_team[].email arrays
+- [ ] Burst 398: buildClientContext() — generate structured context string from participant data with role authority guidance
+- [ ] Burst 399: Wire buildClientContext() into pipeline — replace refinement_prompt usage
+- [ ] Burst 400: Rewrite extraction.md — fidelity criteria, Trigger A/B for critical, priority field, tightened decisions, typed risk_items, LLM agency on additional_notes
+- [ ] Burst 401: Add priority to action_items + restructure risk_items in Artifact type — priority: "critical"|"normal"; risk_items: { category, description }[]
+- [ ] Burst 402: handleGetArtifact normalizes priority on read — missing priority defaults to "normal"; legacy string risk items normalized to { category: "engineering", description }
+- [ ] Burst 403: labeled-context prefixes [CRITICAL] on critical action items in formatted output
+- [ ] Burst 404: MeetingDetail — CRITICAL badge + priority sort + risk category badge (relationship/architecture/engineering)
+- [ ] Burst 405: buildDistilledContext() — format artifact as chat context with summary/decisions/action_items/notes sections
+- [ ] Burst 406: handleConversationChat uses distilled context by default; includeTranscripts: true falls back to buildLabeledContext
+- [ ] Burst 407: Wire includeTranscripts through channels, API server, and api-client
+- [ ] Burst 408: ChatPanel "Include full transcripts" checkbox — unchecked by default, passes flag through onChat callback
+- [ ] Burst 409: NavRail component — Meetings + Action Items items, CalendarDays/CircleCheck icons, selected state
+- [ ] Burst 410: LinearShell dynamic panels + NavRail — refactor from fixed slots to panels: ReactNode[] prop
+- [ ] Burst 411: App.tsx currentView + previewMeetingId state — panel composition per view
+- [ ] Burst 412: ClientActionItem type + IPC channel GET_CLIENT_ACTION_ITEMS
+- [ ] Burst 413: handleGetClientActionItems — query incomplete items by client, normalize priority, sort critical first, attach meeting metadata
+- [ ] Burst 414: API route GET /api/clients/:name/action-items
+- [ ] Burst 415: ClientActionItemsView component — header with count, critical/normal sections, CRITICAL badge, owner badge, meeting source link
+- [ ] Burst 416: ClientActionItemsView preview + completion callbacks — onPreviewMeeting, onComplete
+- [ ] Burst 417: Wire action-items view into App + LinearShell — fetch items, preview column, completion invalidation
+- [ ] Burst 418: Chat context in action-items preview mode — activeMeetingIds = [previewMeetingId] when preview is set
 
 ---
 

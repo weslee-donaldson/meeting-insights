@@ -32,7 +32,6 @@ beforeAll(() => {
     decisions: [],
     proposed_features: [],
     action_items: [],
-    architecture: [],
     open_questions: [],
     risk_items: [],
   });

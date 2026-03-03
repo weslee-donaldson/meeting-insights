@@ -8,7 +8,6 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
     decisions: [],
     proposed_features: [],
     action_items: [],
-    architecture: [],
     open_questions: [],
     risk_items: [],
     additional_notes: [],
@@ -61,10 +60,10 @@ describe("mergeArtifactsDeduped", () => {
 
   it("normalizes whitespace for dedup comparison", () => {
     const result = mergeArtifactsDeduped([
-      makeArtifact({ architecture: ["API  gateway   design"] }),
-      makeArtifact({ architecture: ["API gateway design"] }),
+      makeArtifact({ open_questions: ["What  is   the  plan?"] }),
+      makeArtifact({ open_questions: ["What is the plan?"] }),
     ]);
-    expect(result.architecture).toEqual(["API  gateway   design"]);
+    expect(result.open_questions).toEqual(["What  is   the  plan?"]);
   });
 
   it("flatMaps additional_notes without dedup", () => {

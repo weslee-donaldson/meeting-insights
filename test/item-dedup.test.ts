@@ -258,7 +258,6 @@ describe("deduplicateItems", () => {
       { description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null },
       { description: "Review budget report", owner: "Carol", requester: "Bob", due_date: null },
     ],
-    architecture: ["React"],
     open_questions: ["When is the launch?"],
     risk_items: ["Budget overrun"],
     additional_notes: [],
@@ -286,10 +285,10 @@ describe("deduplicateItems", () => {
   it("creates mentions and vectors for all artifact items", async () => {
     const t = await freshItemTable();
     const result = await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
-    expect(result.mentionsCreated).toBe(7);
+    expect(result.mentionsCreated).toBe(6);
     expect(result.duplicatesAutoCompleted).toBe(0);
     const mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m1'").all();
-    expect(mentions.length).toBe(7);
+    expect(mentions.length).toBe(6);
   });
 
   it("links duplicate action items to same canonical_id across meetings", async () => {
@@ -303,7 +302,6 @@ describe("deduplicateItems", () => {
       ],
       decisions: [],
       proposed_features: [],
-      architecture: [],
       open_questions: [],
       risk_items: [],
     };
@@ -326,7 +324,6 @@ describe("deduplicateItems", () => {
       ],
       decisions: [],
       proposed_features: [],
-      architecture: [],
       open_questions: [],
       risk_items: [],
     };

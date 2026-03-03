@@ -13,11 +13,12 @@ Fields:
     - owner (string): who is responsible (use name from transcript, or "" if unclear)
     - requester (string): who requested or assigned this action (use name from transcript, or "" if unclear)
     - due_date (string | null): deadline if mentioned, otherwise null
-- architecture (string[]): Architectural insights discussed — how systems are built or planned to be built, key components, tooling choices, integration patterns, data flows, and infrastructure decisions. Capture both current system descriptions and planned architectural changes.
 - open_questions (string[]): Questions raised but not resolved during the meeting
 - risk_items (string[]): Account-level or relationship-level concerns raised — risks to the project, engagement, or client relationship. Examples: resource constraints, timeline pressure, fragile processes, stakeholder dissatisfaction. Do NOT include routine engineering trade-offs or minor technical risks.
 - additional_notes (array of objects): this is dynamic based on the meeting context. Provide a detailed breakdown which is not already included in other data fields. Provide logical grouping of information and where possible have categorization and grouping within the notes.
 
-{{client_context}}## Transcript
+{{client_context}}
+
+## Transcript
 
 {{transcript}}

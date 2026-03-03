@@ -58,11 +58,6 @@ describe("extractSummary", () => {
     });
   });
 
-  it("returns architecture array", async () => {
-    const artifact = await extractSummary(adapter, parsed.turns, 8000);
-    expect(Array.isArray(artifact.architecture)).toBe(true);
-  });
-
   it("returns open_questions array", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     expect(Array.isArray(artifact.open_questions)).toBe(true);
@@ -95,7 +90,6 @@ const VALID_BASE = {
   decisions: [],
   proposed_features: [],
   action_items: [],
-  architecture: [],
   open_questions: [],
   risk_items: [],
 };
@@ -164,13 +158,6 @@ describe("extraction prompt", () => {
     const { readFileSync } = await import("node:fs");
     const prompt = readFileSync("config/prompts/extraction.md", "utf8");
     expect(prompt).toContain("2-4 sentence");
-  });
-
-  it("architecture field describes system design insights", async () => {
-    const { readFileSync } = await import("node:fs");
-    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
-    expect(prompt).toContain("architecture");
-    expect(prompt).toContain("how systems are built");
   });
 
   it("risk_items field scoped to account-level concerns", async () => {

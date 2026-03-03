@@ -35,7 +35,6 @@ beforeAll(() => {
     decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
     proposed_features: ["API versioning"],
     action_items: [],
-    architecture: ["REST", "OAuth"],
     open_questions: [],
     risk_items: [],
   });
@@ -45,7 +44,6 @@ beforeAll(() => {
     decisions: [{ text: "Bearer tokens", decided_by: "" }],
     proposed_features: ["token refresh"],
     action_items: [],
-    architecture: ["HTTP", "authentication"],
     open_questions: [],
     risk_items: [],
   });

@@ -34,7 +34,6 @@ function parseArtifactRow(row: ArtifactRow): Artifact {
     decisions: normalizeDecisions(JSON.parse(row.decisions ?? "[]")),
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
     action_items: normalizeActionItems(JSON.parse(row.action_items ?? "[]")),
-    architecture: JSON.parse(row.architecture ?? "[]"),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
     risk_items: JSON.parse(row.risk_items ?? "[]"),
     additional_notes: JSON.parse(row.additional_notes ?? "[]"),
@@ -92,13 +91,6 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
       `Proposed Features:\n${artifact.proposed_features.map((f, i) => {
         const suffix = annotationSuffix(annotations.get(annotationKey("proposed_features", i)));
         return `- ${f}${suffix}`;
-      }).join("\n")}`,
-    );
-  if (artifact.architecture.length > 0)
-    lines.push(
-      `Architecture:\n${artifact.architecture.map((t, i) => {
-        const suffix = annotationSuffix(annotations.get(annotationKey("architecture", i)));
-        return `- ${t}${suffix}`;
       }).join("\n")}`,
     );
   return lines.join("\n");

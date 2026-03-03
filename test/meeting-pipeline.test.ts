@@ -23,7 +23,6 @@ const artifact: Artifact = {
   decisions: [{ text: "Use REST over GraphQL", decided_by: "" }],
   proposed_features: ["Rate limiting", "OAuth2 support"],
   action_items: [{ description: "Draft API spec", owner: "Alice", requester: "", due_date: null }],
-  architecture: ["REST API", "authentication"],
   open_questions: ["Which OAuth provider?"],
   risk_items: ["Third party dependency"],
   additional_notes: [{ category: "Architecture", notes: ["Prefer stateless design"] }],
@@ -54,11 +53,10 @@ afterAll(() => {
 });
 
 describe("buildEmbeddingInput", () => {
-  it("concatenates summary + features + topics + decisions from artifact", () => {
+  it("concatenates summary + features + decisions from artifact", () => {
     const input = buildEmbeddingInput(artifact);
     expect(input).toContain("Discussed API integration approach");
     expect(input).toContain("Rate limiting");
-    expect(input).toContain("REST API");
     expect(input).toContain("Use REST over GraphQL");
   });
 

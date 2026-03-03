@@ -175,7 +175,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
     setSectionStates(prev => ({ ...prev, [title]: open }));
   }, []);
 
-  const SECTION_KEYS = ["Summary", "Decisions", "Action Items", "Open Questions", "Risks", "Proposed Features", "Architecture", "Additional Notes"];
+  const SECTION_KEYS = ["Summary", "Decisions", "Action Items", "Open Questions", "Risks", "Proposed Features", "Additional Notes"];
   const allExpanded = SECTION_KEYS.every((k) => !!sectionStates[k]);
 
   const toggleAllSections = useCallback(() => {
@@ -185,7 +185,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
       setSectionStates({
         Summary: true, Decisions: true, "Action Items": true,
         "Open Questions": true, Risks: true, "Proposed Features": true,
-        Architecture: true, "Additional Notes": true,
+        "Additional Notes": true,
       });
     }
   }, [allExpanded]);
@@ -376,10 +376,6 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
 
       <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={!!sectionStates["Proposed Features"]} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}>
         <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" />
-      </Section>
-
-      <Section title="Architecture" isEmpty={artifact.architecture.length === 0} open={!!sectionStates["Architecture"]} onOpenChange={(o) => setSectionOpen("Architecture", o)}>
-        <ItemList items={artifact.architecture} icon="◆" />
       </Section>
 
       <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0} open={!!sectionStates["Additional Notes"]} onOpenChange={(o) => setSectionOpen("Additional Notes", o)}>

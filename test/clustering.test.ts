@@ -27,7 +27,6 @@ const apiArtifact1: Artifact = {
   decisions: [{ text: "Use REST", decided_by: "" }, { text: "OAuth2", decided_by: "" }],
   proposed_features: ["API versioning", "rate limiting"],
   action_items: [],
-  architecture: ["REST", "OAuth", "API gateway"],
   open_questions: [],
   risk_items: [],
 };
@@ -37,7 +36,6 @@ const apiArtifact2: Artifact = {
   decisions: [{ text: "Bearer tokens", decided_by: "" }, { text: "versioned endpoints", decided_by: "" }],
   proposed_features: ["token refresh", "endpoint documentation"],
   action_items: [],
-  architecture: ["HTTP", "authentication", "API design"],
   open_questions: [],
   risk_items: [],
 };
@@ -47,7 +45,6 @@ const financeArtifact1: Artifact = {
   decisions: [{ text: "Approve budget increases", decided_by: "" }, { text: "Review quarterly spending", decided_by: "" }],
   proposed_features: [],
   action_items: [],
-  architecture: ["budget", "financial planning", "quarterly spending", "fiscal review"],
   open_questions: [],
   risk_items: [],
 };
@@ -57,7 +54,6 @@ const financeArtifact2: Artifact = {
   decisions: [{ text: "Allocate budget to teams", decided_by: "" }, { text: "Track financial expenditure", decided_by: "" }],
   proposed_features: [],
   action_items: [],
-  architecture: ["budget", "financial analysis", "quarterly review", "fiscal allocation"],
   open_questions: [],
   risk_items: [],
 };

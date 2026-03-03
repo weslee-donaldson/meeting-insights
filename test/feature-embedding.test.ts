@@ -33,7 +33,6 @@ const artifact1 = {
   decisions: [{ text: "Use OAuth2", decided_by: "" }],
   proposed_features: ["Single sign-on via OAuth", "API key rotation"],
   action_items: [],
-  architecture: ["OAuth", "API"],
   open_questions: [],
   risk_items: [],
 };
@@ -43,7 +42,6 @@ const artifact2 = {
   decisions: [{ text: "Add SSO to customer portal", decided_by: "" }],
   proposed_features: ["Single sign-on for customer portal", "Self-service password reset"],
   action_items: [],
-  architecture: ["portal", "authentication"],
   open_questions: [],
   risk_items: [],
 };

@@ -17,7 +17,6 @@ const apiArtifact: Artifact = {
   decisions: [{ text: "Use REST over GraphQL", decided_by: "" }, { text: "OAuth2 for authentication", decided_by: "" }],
   proposed_features: ["Rate limiting", "OAuth2 support", "API versioning"],
   action_items: [],
-  architecture: ["REST API", "OAuth2", "rate limiting"],
   open_questions: [],
   risk_items: [],
 };
@@ -27,7 +26,6 @@ const unrelatedArtifact: Artifact = {
   decisions: [{ text: "Freeze hiring in Q3", decided_by: "" }, { text: "Increase marketing budget", decided_by: "" }],
   proposed_features: [],
   action_items: [],
-  architecture: ["budget", "headcount"],
   open_questions: [],
   risk_items: [],
 };
