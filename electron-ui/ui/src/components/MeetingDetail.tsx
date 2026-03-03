@@ -490,7 +490,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
             </div>
           </div>
-          <div className="relative flex items-center gap-1 shrink-0">
+          <div className="relative flex items-center gap-0.5 shrink-0">
             {onReassignClient && (
               <>
                 <Button
@@ -499,9 +499,9 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                   onClick={() => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); }}
                   aria-label="Reassign client"
                   title="Reassign client"
-                  className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+                  className="w-8 h-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10"
                 >
-                  <UserPen className="w-3 h-3" />
+                  <UserPen className="w-[18px] h-[18px]" />
                 </Button>
                 <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
                   <DialogContent>
@@ -537,9 +537,9 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 onClick={onIgnore}
                 aria-label="Ignore meeting"
                 title="Ignore meeting"
-                className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+                className="w-8 h-8 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
               >
-                <EyeOff className="w-3 h-3" />
+                <EyeOff className="w-[18px] h-[18px]" />
               </Button>
             )}
             {onReExtract && (
@@ -549,21 +549,21 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 onClick={onReExtract}
                 aria-label="Re-extract"
                 title="Re-extract"
-                className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
+                className="w-8 h-8 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-[18px] h-[18px]" />
               </Button>
             )}
             {artifact && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={copySummary}
                 aria-label="Copy summary"
-                className="shrink-0 h-auto px-1.5 py-1 text-[0.7rem] text-muted-foreground"
+                title="Copy summary"
+                className="w-8 h-8 text-sky-400 hover:text-sky-300 hover:bg-sky-500/10"
               >
-                <Clipboard className="w-3 h-3" />
-                Copy summary
+                <Clipboard className="w-[18px] h-[18px]" />
               </Button>
             )}
           </div>
