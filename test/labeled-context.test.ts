@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
-import { buildLabeledContext } from "../core/labeled-context.js";
+import { buildLabeledContext, buildDistilledContext } from "../core/labeled-context.js";
 import { recordMention } from "../core/item-dedup.js";
 
 function makeArtifact() {
@@ -149,5 +149,94 @@ describe("buildLabeledContext", () => {
     });
     const result = buildLabeledContext(db, [riskId]);
     expect(result.contextText).toContain("- Staffing risk");
+  });
+});
+
+describe("buildDistilledContext", () => {
+  let dDb: ReturnType<typeof createDb>;
+  let dId1: string;
+  let dId2: string;
+
+  beforeAll(() => {
+    dDb = createDb(":memory:");
+    migrate(dDb);
+
+    dId1 = ingestMeeting(dDb, {
+      title: "Distilled Alpha",
+      timestamp: "2026-03-01T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "d-alpha",
+    });
+    storeArtifact(dDb, dId1, {
+      summary: "Alpha summary text.",
+      decisions: [{ text: "Ship by Q2", decided_by: "CEO" }],
+      proposed_features: [],
+      action_items: [
+        { description: "Write spec", owner: "Alice", requester: "Bob", due_date: "2026-04-01", priority: "normal" as const },
+        { description: "Fix pipeline", owner: "Carol", requester: "Dave", due_date: null, priority: "critical" as const },
+      ],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [{ category: "team", notes: ["Alice is out Monday"] }],
+    });
+
+    dId2 = ingestMeeting(dDb, {
+      title: "Distilled Beta",
+      timestamp: "2026-03-02T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "B | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "d-beta",
+    });
+    storeArtifact(dDb, dId2, {
+      summary: "Beta summary text.",
+      decisions: [],
+      proposed_features: [],
+      action_items: [],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+    });
+  });
+
+  it("returns string with summary section for a meeting", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(typeof result).toBe("string");
+    expect(result).toContain("Alpha summary text.");
+  });
+
+  it("includes decisions with decided_by", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(result).toContain("Ship by Q2");
+    expect(result).toContain("CEO");
+  });
+
+  it("includes action items with owner and requester", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(result).toContain("Write spec");
+    expect(result).toContain("Alice");
+  });
+
+  it("prefixes critical action items with [CRITICAL]", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(result).toContain("[CRITICAL] Fix pipeline");
+  });
+
+  it("includes additional_notes", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(result).toContain("Alice is out Monday");
+  });
+
+  it("concatenates multiple meetings", () => {
+    const result = buildDistilledContext(dDb, [dId1, dId2]);
+    expect(result).toContain("Alpha summary text.");
+    expect(result).toContain("Beta summary text.");
+  });
+
+  it("returns empty string for unknown meeting IDs", () => {
+    const result = buildDistilledContext(dDb, ["nonexistent"]);
+    expect(result).toBe("");
   });
 });

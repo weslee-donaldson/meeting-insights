@@ -105,6 +105,42 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
   return lines.join("\n");
 }
 
+export function buildDistilledContext(
+  db: Database,
+  meetingIds: string[],
+): string {
+  const blocks: string[] = [];
+  for (const id of meetingIds) {
+    const mtg = getMeeting(db, id);
+    const art = getArtifact(db, id);
+    if (!mtg || !art) continue;
+    const artifact = parseArtifactRow(art);
+    const lines: string[] = [];
+    lines.push(`## ${mtg.title} (${mtg.date.slice(0, 10)})`);
+    if (artifact.summary) lines.push(`Summary: ${artifact.summary}`);
+    if (artifact.decisions.length > 0) {
+      lines.push("Decisions:");
+      for (const d of artifact.decisions) {
+        lines.push(`- ${d.text}${d.decided_by ? ` (decided by ${d.decided_by})` : ""}`);
+      }
+    }
+    if (artifact.action_items.length > 0) {
+      lines.push("Action Items:");
+      for (const a of artifact.action_items) {
+        const prefix = a.priority === "critical" ? "[CRITICAL] " : "";
+        const meta = [a.owner ? `owner: ${a.owner}` : "", a.requester ? `requested by: ${a.requester}` : "", a.due_date ? `due: ${a.due_date}` : ""].filter(Boolean).join(", ");
+        lines.push(meta ? `- ${prefix}${a.description} (${meta})` : `- ${prefix}${a.description}`);
+      }
+    }
+    if (artifact.additional_notes.length > 0) {
+      lines.push("Notes:");
+      lines.push(JSON.stringify(artifact.additional_notes, null, 2));
+    }
+    blocks.push(lines.join("\n"));
+  }
+  return blocks.join("\n\n---\n\n");
+}
+
 export function buildLabeledContext(
   db: Database,
   meetingIds: string[],
