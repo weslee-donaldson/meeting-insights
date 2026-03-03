@@ -7,17 +7,15 @@ import { LinearShell } from "../../electron-ui/ui/src/components/LinearShell.js"
 afterEach(cleanup);
 
 describe("LinearShell", () => {
-  it("renders topBar, sidebar, main, and detail content always", () => {
+  it("renders topBar, main, and detail content always", () => {
     render(
       <LinearShell
         topBar={<div>top-bar-content</div>}
-        sidebar={<div>sidebar-content</div>}
         main={<div>main-content</div>}
         detail={<div>detail-content</div>}
       />,
     );
     expect(screen.getByText("top-bar-content")).toBeDefined();
-    expect(screen.getByText("sidebar-content")).toBeDefined();
     expect(screen.getByText("main-content")).toBeDefined();
     expect(screen.getByText("detail-content")).toBeDefined();
   });
@@ -26,7 +24,6 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
       />,
@@ -39,7 +36,6 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail-content</div>}
       />,
@@ -49,39 +45,10 @@ describe("LinearShell", () => {
     expect(screen.getByText("detail-content")).toBeDefined();
   });
 
-  it("sidebar resize handle is rendered", () => {
-    render(
-      <LinearShell
-        topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
-      />,
-    );
-    expect(screen.getByTestId("sidebar-resize-handle")).toBeDefined();
-  });
-
-  it("dragging sidebar handle rightward increases sidebar width", () => {
-    render(
-      <LinearShell
-        topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
-        main={<div>main</div>}
-        detail={<div>detail</div>}
-      />,
-    );
-    const handle = screen.getByTestId("sidebar-resize-handle");
-    fireEvent.mouseDown(handle, { clientX: 240 });
-    fireEvent.mouseMove(document, { clientX: 300 });
-    const sidebarPanel = screen.getByTestId("sidebar-panel");
-    expect(parseInt(sidebarPanel.style.width)).toBeGreaterThan(240);
-  });
-
   it("main resize handle is rendered", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
       />,
@@ -93,7 +60,6 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
       />,
@@ -109,7 +75,6 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
         chat={<div>chat-content</div>}
@@ -123,7 +88,6 @@ describe("LinearShell", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
-        sidebar={<div>sidebar</div>}
         main={<div>main</div>}
         detail={<div>detail</div>}
         chat={<div>chat-content</div>}

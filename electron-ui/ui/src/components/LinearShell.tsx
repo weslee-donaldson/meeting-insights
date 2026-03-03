@@ -2,40 +2,18 @@ import React, { useState, useRef, useCallback } from "react";
 
 interface LinearShellProps {
   topBar: React.ReactNode;
-  sidebar: React.ReactNode;
   main: React.ReactNode;
   detail: React.ReactNode;
   chat?: React.ReactNode;
   chatOpen?: boolean;
 }
 
-export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = false }: LinearShellProps) {
-  const [sidebarWidth, setSidebarWidth] = useState(240);
+export function LinearShell({ topBar, main, detail, chat, chatOpen = false }: LinearShellProps) {
   const [mainWidth, setMainWidth] = useState(500);
   const [chatWidth, setChatWidth] = useState(380);
 
-  const sidebarDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const mainDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const chatDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
-
-  const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
-    sidebarDragRef.current = { startX: e.clientX, startWidth: sidebarWidth };
-
-    const onMouseMove = (ev: MouseEvent) => {
-      if (!sidebarDragRef.current) return;
-      const delta = ev.clientX - sidebarDragRef.current.startX;
-      setSidebarWidth(Math.max(100, sidebarDragRef.current.startWidth + delta));
-    };
-
-    const onMouseUp = () => {
-      sidebarDragRef.current = null;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-  }, [sidebarWidth]);
 
   const handleMainMouseDown = useCallback((e: React.MouseEvent) => {
     mainDragRef.current = { startX: e.clientX, startWidth: mainWidth };
@@ -82,20 +60,6 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <div
-          data-testid="sidebar-panel"
-          className="shrink-0 overflow-hidden"
-          style={{ width: sidebarWidth + "px" }}
-        >
-          {sidebar}
-        </div>
-
-        <div
-          data-testid="sidebar-resize-handle"
-          onMouseDown={handleSidebarMouseDown}
-          className="w-1 shrink-0 cursor-col-resize bg-border"
-        />
-
         <div
           data-testid="main-panel"
           className="shrink-0 overflow-auto"

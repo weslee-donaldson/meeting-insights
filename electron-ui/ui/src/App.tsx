@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
-import { Sidebar } from "./components/Sidebar.js";
 import { TopBar } from "./components/TopBar.js";
 import { MeetingList, type GroupBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
@@ -237,13 +236,6 @@ export function App() {
           theme={theme}
           setTheme={setTheme}
           themes={themes}
-        />
-      }
-      sidebar={
-        <Sidebar
-          clients={clientsQuery.data ?? []}
-          selected={selectedClient}
-          onSelect={handleClientChange}
         />
       }
       main={
