@@ -856,8 +856,8 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [ ] Burst 405: buildDistilledContext() — format artifact as chat context with summary/decisions/action_items/notes sections
 - [ ] Burst 406: handleConversationChat uses distilled context by default; includeTranscripts: true falls back to buildLabeledContext
 - [ ] Burst 407: Wire includeTranscripts through channels, API server, and api-client
-- [ ] Burst 408: ChatPanel "Include full transcripts" checkbox — unchecked by default, passes flag through onChat callback
-- [ ] Burst 409: NavRail component — Meetings + Action Items items, CalendarDays/CircleCheck icons, selected state
+- [x] Burst 408: ChatPanel "Include full transcripts" checkbox — unchecked by default, passes flag through onChat callback
+- [x] Burst 409: NavRail component — Meetings + Action Items items, CalendarDays/CircleCheck icons, selected state
 - [ ] Burst 410: LinearShell dynamic panels + NavRail — refactor from fixed slots to panels: ReactNode[] prop
 - [ ] Burst 411: App.tsx currentView + previewMeetingId state — panel composition per view
 - [ ] Burst 412: ClientActionItem type + IPC channel GET_CLIENT_ACTION_ITEMS
