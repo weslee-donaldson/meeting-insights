@@ -414,6 +414,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
 
 export function MeetingDetail({ meeting, meetings, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
+  const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -489,26 +490,38 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setClientPickerOpen((v) => !v)}
+                  onClick={() => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); }}
                   aria-label="Reassign client"
                   title="Reassign client"
                   className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
                 >
                   <UserPen className="w-3 h-3" />
                 </Button>
-                {clientPickerOpen && (
-                  <div className="absolute right-0 top-full mt-1 z-50 bg-secondary border border-border rounded shadow-lg flex flex-col min-w-[120px]">
-                    {(clients ?? []).map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => { onReassignClient(c); setClientPickerOpen(false); }}
-                        className="px-3 py-1.5 text-left text-sm hover:bg-accent text-foreground"
+                <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
+                  <DialogContent>
+                    <DialogTitle>Reassign Client</DialogTitle>
+                    <select
+                      value={reassignSelection}
+                      onChange={(e) => setReassignSelection(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded bg-input text-foreground border border-border text-sm"
+                    >
+                      {(clients ?? []).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <div className="flex gap-2 justify-end">
+                      <DialogClose asChild>
+                        <Button variant="ghost" size="sm">Cancel</Button>
+                      </DialogClose>
+                      <Button
+                        size="sm"
+                        onClick={() => { onReassignClient(reassignSelection); setClientPickerOpen(false); }}
                       >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                        Save
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
             {onIgnore && (

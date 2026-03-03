@@ -59,7 +59,7 @@ describe("MeetingDetail", () => {
     );
   });
 
-  it("reassign client button opens picker with client options", () => {
+  it("reassign client button opens dialog with client select", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -69,11 +69,14 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
-    expect(screen.getByRole("button", { name: "Acme" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Beta Co" })).toBeDefined();
+    expect(screen.getByText("Reassign Client")).toBeDefined();
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
+    expect(select.options).toHaveLength(2);
+    expect(select.options[0].text).toBe("Acme");
+    expect(select.options[1].text).toBe("Beta Co");
   });
 
-  it("selecting a client from picker calls onReassignClient", () => {
+  it("selecting a client in dialog and clicking save calls onReassignClient", () => {
     const onReassignClient = vi.fn();
     render(
       <MeetingDetail
@@ -84,8 +87,9 @@ describe("MeetingDetail", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
-    fireEvent.click(screen.getByRole("button", { name: "Acme" }));
-    expect(onReassignClient).toHaveBeenCalledWith("Acme");
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "Beta Co" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(onReassignClient).toHaveBeenCalledWith("Beta Co");
   });
 
   it("ignore button calls onIgnore when clicked", () => {
