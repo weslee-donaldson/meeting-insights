@@ -57,7 +57,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false);
   });
 
   it("sends full message history including prior exchanges on second question", async () => {
@@ -80,7 +80,23 @@ describe("ChatPanel", () => {
       { role: "user", content: "Q1" },
       { role: "assistant", content: "First answer." },
       { role: "user", content: "Q2" },
-    ], undefined);
+    ], undefined, false);
+  });
+
+  it("include full transcripts checkbox renders unchecked by default", () => {
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />);
+    const checkbox = screen.getByRole("checkbox", { name: "Include full transcripts" });
+    expect((checkbox as HTMLInputElement).checked).toBe(false);
+    expect(screen.getByText("Include full transcripts")).toBeDefined();
+  });
+
+  it("when include full transcripts is checked, onChat is called with includeTranscripts: true", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include full transcripts" }));
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true);
   });
 
   it("displays sources beneath each assistant bubble", async () => {

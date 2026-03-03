@@ -24,4 +24,10 @@
 | #777 | 12:43 AM | 🟣 | Added re-extract button to MeetingDetail header for triggering artifact regeneration | ~427 |
 | #734 | 12:19 AM | 🟣 | Added image attachment support to ChatPanel component | ~414 |
 | #720 | 12:09 AM | 🔄 | Migrated MeetingDetail to Tailwind classes and shadcn components | ~532 |
+
+### Mar 3, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1187 | 4:02 PM | ✅ | Added includeTranscripts State to ChatPanel | ~396 |
 </claude-mem-context>

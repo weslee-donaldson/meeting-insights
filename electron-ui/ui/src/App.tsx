@@ -225,8 +225,8 @@ export function App() {
   }, []);
 
   const handleChat = useCallback(
-    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[]): Promise<ConversationChatResponse> => {
-      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages, attachments });
+    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean): Promise<ConversationChatResponse> => {
+      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages, attachments, includeTranscripts });
     },
     [activeMeetingIds],
   );
