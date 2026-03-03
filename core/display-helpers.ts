@@ -9,6 +9,28 @@ export function parseCitations(text: string): number[] {
   return [...indices].sort((a, b) => a - b);
 }
 
+function formatCitationDate(isoDate: string): string {
+  const d = new Date(isoDate);
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return `${days[d.getUTCDay()]}, ${d.getUTCMonth() + 1}/${d.getUTCDate()}/${d.getUTCFullYear()}`;
+}
+
+/**
+ * Replaces [M1], [M2], etc. citation markers in text with human-readable
+ * meeting title and formatted date. Unknown markers are left unchanged.
+ */
+export function replaceCitations(
+  text: string,
+  meetings: Array<{ id: string; title: string; date: string }>,
+): string {
+  return text.replace(/\[M(\d+)\]/g, (match, numStr: string) => {
+    const idx = parseInt(numStr, 10) - 1;
+    const mtg = meetings[idx];
+    if (!mtg) return match;
+    return `${mtg.title} (${formatCitationDate(mtg.date)})`;
+  });
+}
+
 /**
  * Renders an additional_notes array as a human-readable string with group headers and bullet points.
  */

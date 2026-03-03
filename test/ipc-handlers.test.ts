@@ -231,7 +231,7 @@ describe("IPC handlers", () => {
         meetingIds: [meetingId2],
         messages: [{ role: "user", content: "What was decided?" }],
       });
-      expect(result.answer).toBe("The team decided to go with approach A [M1].");
+      expect(result.answer).toContain("The team decided to go with approach A Beta Planning (");
       expect(result.sources).toEqual(["Beta Planning"]);
       expect(result.charCount).toBeGreaterThan(0);
       expect(capturedSystem).toContain("meeting intelligence assistant");

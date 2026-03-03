@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderNotesGroups, parseCitations } from "../core/display-helpers.js";
+import { renderNotesGroups, parseCitations, replaceCitations } from "../core/display-helpers.js";
 
 describe("renderNotesGroups", () => {
   it("returns empty string for empty notes array", () => {
@@ -46,6 +46,35 @@ describe("parseCitations", () => {
 
   it("returns indices sorted ascending", () => {
     expect(parseCitations("[M3] and [M1] both agree")).toEqual([1, 3]);
+  });
+});
+
+describe("replaceCitations", () => {
+  it("replaces [M1] with meeting title and formatted date", () => {
+    const meetings = [
+      { id: "a", title: "Alpha Weekly", date: "2026-03-02T10:00:00.000Z" },
+    ];
+    expect(replaceCitations("Based on [M1], the decision was clear.", meetings))
+      .toBe("Based on Alpha Weekly (Mon, 3/2/2026), the decision was clear.");
+  });
+
+  it("replaces multiple citation markers with their respective meetings", () => {
+    const meetings = [
+      { id: "a", title: "Alpha", date: "2026-03-02T10:00:00.000Z" },
+      { id: "b", title: "Beta", date: "2026-03-03T14:00:00.000Z" },
+    ];
+    expect(replaceCitations("[M1] and [M2] both agree.", meetings))
+      .toBe("Alpha (Mon, 3/2/2026) and Beta (Tue, 3/3/2026) both agree.");
+  });
+
+  it("leaves unknown citation markers unchanged", () => {
+    const meetings = [{ id: "a", title: "Alpha", date: "2026-03-02T10:00:00.000Z" }];
+    expect(replaceCitations("[M1] and [M5] disagree.", meetings))
+      .toBe("Alpha (Mon, 3/2/2026) and [M5] disagree.");
+  });
+
+  it("returns original text when no citations present", () => {
+    expect(replaceCitations("No meetings referenced.", [])).toBe("No meetings referenced.");
   });
 });
 

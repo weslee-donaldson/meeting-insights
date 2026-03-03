@@ -3,7 +3,7 @@ import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor
 import type { Artifact } from "../../core/extractor.js";
 import { parseTranscriptBody } from "../../core/parser.js";
 import { buildLabeledContext } from "../../core/labeled-context.js";
-import { parseCitations } from "../../core/display-helpers.js";
+import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
@@ -117,9 +117,10 @@ export async function handleChat(
   const prompt = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}\n\nQuestion: ${req.question}`;
 
   const result = await llm.complete("synthesize_answer", prompt, req.attachments);
-  const answer = (result as { answer?: string }).answer ?? String(result);
+  const rawAnswer = (result as { answer?: string }).answer ?? String(result);
+  const answer = replaceCitations(rawAnswer, meetings);
 
-  const citations = parseCitations(answer);
+  const citations = parseCitations(rawAnswer);
   const sources =
     citations.length > 0
       ? citations
@@ -142,9 +143,10 @@ export async function handleConversationChat(
 
   const system = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}`;
 
-  const answer = await llm.converse(system, req.messages);
+  const rawAnswer = await llm.converse(system, req.messages);
+  const answer = replaceCitations(rawAnswer, meetings);
 
-  const citations = parseCitations(answer);
+  const citations = parseCitations(rawAnswer);
   const sources =
     citations.length > 0
       ? citations
