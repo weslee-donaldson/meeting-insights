@@ -10,9 +10,9 @@ function makeArtifact() {
     summary: "Key decisions were made.",
     decisions: [{ text: "Go with approach A", decided_by: "" }],
     proposed_features: ["Dark mode"],
-    action_items: [{ description: "Write spec", owner: "Bob", requester: "", due_date: "2026-03-01" }],
+    action_items: [{ description: "Write spec", owner: "Bob", requester: "", due_date: "2026-03-01", priority: "normal" }],
     open_questions: ["When to ship?"],
-    risk_items: ["Timeline risk"],
+    risk_items: [{ category: "engineering", description: "Timeline risk" }],
     additional_notes: [],
   };
 }

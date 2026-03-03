@@ -91,15 +91,22 @@ export function handleGetArtifact(
   const rawActions = JSON.parse(row.action_items ?? "[]") as unknown[];
   const action_items = rawActions.map((item) => {
     const a = item as Record<string, unknown>;
-    return "requester" in a ? a as Artifact["action_items"][number] : { ...a, requester: "" } as Artifact["action_items"][number];
+    const withRequester = "requester" in a ? a : { ...a, requester: "" };
+    const p = (withRequester as Record<string, unknown>).priority;
+    const priority = p === "critical" || p === "normal" ? p : "normal";
+    return { ...withRequester, priority } as Artifact["action_items"][number];
   });
+  const rawRisks = JSON.parse(row.risk_items ?? "[]") as unknown[];
+  const risk_items = rawRisks.map((r) =>
+    typeof r === "string" ? { category: "engineering" as const, description: r } : r as Artifact["risk_items"][number],
+  );
   return {
     summary: row.summary,
     decisions,
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
     action_items,
     open_questions: JSON.parse(row.open_questions ?? "[]"),
-    risk_items: JSON.parse(row.risk_items ?? "[]"),
+    risk_items,
     additional_notes: JSON.parse(row.additional_notes ?? "[]"),
   };
 }
