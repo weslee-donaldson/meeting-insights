@@ -177,6 +177,21 @@ describe("MeetingList", () => {
     expect(onSortToggle).toHaveBeenCalledOnce();
   });
 
+  it("renders Group by label before group-by buttons", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Group by:")).toBeDefined();
+  });
+
   it("renders four group-by selector buttons", () => {
     render(
       <MeetingList

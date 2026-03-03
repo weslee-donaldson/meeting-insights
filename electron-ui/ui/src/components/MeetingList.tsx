@@ -159,6 +159,7 @@ export function MeetingList({
   return (
     <div className="flex flex-col h-full">
       <div className="flex gap-1 px-3 py-1.5 shrink-0 border-b border-border items-center">
+        <span className="text-xs text-foreground font-medium">Group by:</span>
         {GROUP_MODES.map(({ value, label }) => (
           <Button
             key={value}
