@@ -260,3 +260,43 @@ describe("POST /api/meetings/:id/action-items/:index/complete and GET /api/meeti
     expect(body[0]).toMatchObject({ meeting_id: meetingId, item_index: 0, note: "done" });
   });
 });
+
+describe("GET /api/clients/:name/action-items", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+    meetingId = ingestMeeting(db, {
+      title: "Acme Weekly",
+      timestamp: "2026-03-01T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "acme-weekly-1",
+    });
+    db.prepare("INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(
+      meetingId, "Summary", "[]", "[]",
+      JSON.stringify([{ description: "Fix bug", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" }]),
+      "[]", "[]", "[]",
+    );
+    storeDetection(db, meetingId, [{ client_name: "Acme", confidence: 0.9, method: "participant" }]);
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns 200 with action items array for known client", async () => {
+    const res = await app.request("/api/clients/Acme/action-items");
+    expect(res.status).toBe(200);
+    const body = await res.json() as { description: string; priority: string }[];
+    expect(body).toHaveLength(1);
+    expect(body[0]).toMatchObject({ description: "Fix bug", priority: "critical", meeting_id: meetingId });
+  });
+
+  it("returns empty array for unknown client", async () => {
+    const res = await app.request("/api/clients/Unknown/action-items");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([]);
+  });
+});
