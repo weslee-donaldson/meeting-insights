@@ -8,33 +8,6 @@
       "LLSA",
       "llsa"
     ],
-    "known_participants": [
-      "antonio.falcao@llsa.com",
-      "bethany.duffy@llsa.com",
-      "dev.doshi@llsa.com",
-      "devon.woods@llsa.com",
-      "francis.pena@llsa.com",
-      "greg.christie@llsa.com",
-      "harry.dennen@llsa.com",
-      "itapplicationdevelopment@llsa.com",
-      "jennifer.karavakis@llsa.com",
-      "jeremy.campeau@llsa.com",
-      "jivko.ivanov@llsa.com",
-      "john.wilgus@llsa.com",
-      "lance.fallon@llsa.com",
-      "michal.kawka@llsa.com",
-      "rami.hatoum@llsa.com",
-      "ray.li@llsa.com",
-      "stace.baal@llsa.com",
-      "stephan.brauberg@llsa.com",
-      "wesley.donaldson@llsa.com",
-      "yoelvis.mulen@llsa.com",
-      "antonio.falcao@xolv.io",
-      "dev.doshi@xolv.io",
-      "sam@xolv.io",
-      "Yoelvis"
-    ],
-    "refinement_prompt": "Stace is the CTO for the client and our role is as a service provider. Action items, decisions and direction provided by Stace should be treated as high-priority explicit instructions. Jennifer is the lead engineering manager and should be viewed as secondary to Stace.",
     "meeting_names": [
       "AppDev - Weekly Demo",
       "AppDev Leads - Weekly Sync",
@@ -42,7 +15,53 @@
       "Product X AppDev Office Hours",
       "Architecture Solutioning",
       "Mandalore DSU"
-    ]
+    ],
+    "client_team": [
+      { "name": "Stace Baal",         "email": "stace.baal@llsa.com",         "role": "CTO"                  },
+      { "name": "Jennifer Karavakis", "email": "jennifer.karavakis@llsa.com", "role": "Engineering Manager"   },
+      { "name": "Yoelvis Mulen",      "email": "yoelvis.mulen@llsa.com",      "role": "Principal Developer"   },
+      { "name": "Greg Christie",      "email": "greg.christie@llsa.com",      "role": "Developer"             },
+      { "name": "Lance Fallon",       "email": "lance.fallon@llsa.com",       "role": "Developer"             },
+      { "name": "Jeremy Campeau",     "email": "jeremy.campeau@llsa.com",     "role": "Developer"             },
+      { "name": "Jivko Ivanov",       "email": "jivko.ivanov@llsa.com",       "role": "Developer"             },
+      { "name": "Bethany Duffy",      "email": "bethany.duffy@llsa.com",      "role": "Developer"             },
+      { "name": "John Wilgus",        "email": "john.wilgus@llsa.com",        "role": "Developer"             },
+      { "name": "Harry Dennen",       "email": "harry.dennen@llsa.com",       "role": "Developer"             },
+      { "name": "Ray Li",             "email": "ray.li@llsa.com",             "role": "Developer"             },
+      { "name": "Rami Hatoum",        "email": "rami.hatoum@llsa.com",        "role": "Developer"             },
+      { "name": "Michal Kawka",       "email": "michal.kawka@llsa.com",       "role": "Developer"             },
+      { "name": "Stephan Brauberg",   "email": "stephan.brauberg@llsa.com",   "role": "Developer"             },
+      { "name": "Devon Woods",        "email": "devon.woods@llsa.com",        "role": "Developer"             },
+      { "name": "Francis Pena",       "email": "francis.pena@llsa.com",       "role": "Developer"             }
+    ],
+    "implementation_team": [
+      { "name": "Sam Falco",        "email": "sam@xolv.io",              "role": "Architect"  },
+      { "name": "Dev Doshi",        "email": "dev.doshi@xolv.io",        "role": "Consultant" },
+      { "name": "Antonio Falcao",   "email": "antonio.falcao@xolv.io",   "role": "Consultant" },
+      { "name": "Wesley Donaldson", "email": "wesley.donaldson@llsa.com","role": "Consultant" }
+    ],
+    "additional_extraction_llm_prompt": "Stace is the CTO and highest authority. Jennifer manages the engineering team. Yoelvis is the principal developer — treat his technical direction with elevated weight. Sam (Architect, xolv.io) has high authority on technical decisions. The implementation team (xolv.io) is the delivery partner — action items directed at us are delivery commitments."
+  },
+  {
+    "name": "TerraQuantum",
+    "aliases": [
+      "TQ"
+    ],
+    "client_team": [
+      { "name": "Jeff Titus",         "role": "Head of Client"  },
+      { "name": "Brian DeFeyter",     "role": "Lead"            },
+      { "name": "Nicolas Berrogorry", "role": "Developer"       },
+      { "name": "Dominik Lasek",      "role": "Developer"       },
+      { "name": "Jessica",            "email": "jessica@terraquantum.swiss", "role": "Client" },
+      { "name": "Anya",               "email": "anya@terraquantum.swiss",    "role": "Client" },
+      { "name": "Cosmin Stredie",     "email": "cosmin.stredie@coremaker.io","role": "Client" },
+      { "name": "Shawn",              "email": "shawn@terraquantum.swiss",   "role": "Client" }
+    ],
+    "implementation_team": [
+      { "name": "Dev Doshi",        "email": "dev.agrawal@xolv.io", "role": "Consultant" },
+      { "name": "Wesley Donaldson",                                  "role": "Consultant" }
+    ],
+    "additional_extraction_llm_prompt": "Jeff is the head client — his direction has highest weight. Brian, Nicolas, and Dominik also provide directional instruction on tasks."
   },
   {
     "name": "Revenium",
@@ -50,38 +69,13 @@
       "Revenium",
       "REV"
     ],
-    "known_participants": [
-      "@revenium.io",
-      "@revenium.com"
-    ]
+    "client_team": []
   },
   {
     "name": "Hypercurrent",
     "aliases": [
       "Hypercurrent"
     ],
-    "known_participants": [
-      "@hypercurrent.io"
-    ]
-  },
-  {
-    "name": "TerraQuantum",
-    "aliases": [
-      "TQ"
-    ],
-    "known_participants": [
-      "jessica@terraquantum.swiss",
-      "anya@terraquantum.swiss",
-      "Brian DeFeyter",
-      "ck@terraquantum.swiss",
-      "cosmin.stredie@coremaker.io",
-      "dev.agrawal@xolv.io",
-      "Dominik Lasek",
-      "Jeff Titus",
-      "Nicolas Berrogorry",
-      "lg@terraquantum.swiss",
-      "shawn@terraquantum.swiss"
-    ],
-    "refinement_prompt": "Jeff is the head client. His direction has highest weight when it comes to actiona items.  Brian, Reuben and Florian also provide direction instruction on tasks."
+    "client_team": []
   }
 ]
