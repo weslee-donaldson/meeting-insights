@@ -5,6 +5,8 @@ import { TopBar } from "./components/TopBar.js";
 import { MeetingList, type GroupBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
+import { NavRail } from "./components/NavRail.js";
+import { ClientActionItemsView } from "./components/ClientActionItemsView.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
@@ -28,6 +30,8 @@ export function App() {
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
+  const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -231,6 +235,62 @@ export function App() {
     [activeMeetingIds],
   );
 
+  const meetingsViewPanels = [
+    <MeetingList
+      key="meeting-list"
+      meetings={scopeMeetings}
+      selectedId={selectedMeetingId}
+      checked={checkedMeetingIds}
+      groupBy={groupBy}
+      onGroupBy={setGroupBy}
+      onSelect={setSelectedMeetingId}
+      onCheck={handleCheck}
+      onCheckGroup={handleCheckGroup}
+      searchLoading={searchFetching && searchQuery.trim().length >= 2}
+      searchQuery={searchQuery}
+      loading={meetingsQuery.isLoading}
+      hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
+      checkedCount={checkedMeetingIds.size}
+      onDelete={handleDeleteMeetings}
+    />,
+    <MeetingDetail
+      key="meeting-detail"
+      meeting={isMultiMode ? null : selectedMeeting}
+      meetings={isMultiMode ? checkedMeetings : undefined}
+      artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
+      onReExtract={isMultiMode ? undefined : (selectedMeetingId ? handleReExtract : undefined)}
+      clients={clientsQuery.data}
+      onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
+      onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}
+      completions={isMultiMode ? [] : (completionsQuery.data ?? [])}
+      onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
+      onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
+      mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
+      onMentionClick={isMultiMode ? undefined : handleMentionClick}
+      artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
+    />,
+  ];
+
+  const actionItemsViewPanels: React.ReactNode[] = [
+    <ClientActionItemsView
+      key="client-action-items"
+      clientName={selectedClient}
+      onPreviewMeeting={setPreviewMeetingId}
+    />,
+    ...(previewMeetingId ? [
+      <MeetingDetail
+        key="preview-detail"
+        meeting={scopeMeetings.find((m) => m.id === previewMeetingId) ?? null}
+        artifact={selectedArtifactQuery.data ?? null}
+        completions={completionsQuery.data ?? []}
+        mentionStats={mentionStatsQuery.data ?? []}
+        artifactLoading={selectedArtifactQuery.isLoading}
+      />,
+    ] : []),
+  ];
+
+  const panels = currentView === "meetings" ? meetingsViewPanels : actionItemsViewPanels;
+
   return (
     <>
     <LinearShell
@@ -251,41 +311,8 @@ export function App() {
           themes={themes}
         />
       }
-      panels={[
-        <MeetingList
-          key="meeting-list"
-          meetings={scopeMeetings}
-          selectedId={selectedMeetingId}
-          checked={checkedMeetingIds}
-          groupBy={groupBy}
-          onGroupBy={setGroupBy}
-          onSelect={setSelectedMeetingId}
-          onCheck={handleCheck}
-          onCheckGroup={handleCheckGroup}
-          searchLoading={searchFetching && searchQuery.trim().length >= 2}
-          searchQuery={searchQuery}
-          loading={meetingsQuery.isLoading}
-          hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
-          checkedCount={checkedMeetingIds.size}
-          onDelete={handleDeleteMeetings}
-        />,
-        <MeetingDetail
-          key="meeting-detail"
-          meeting={isMultiMode ? null : selectedMeeting}
-          meetings={isMultiMode ? checkedMeetings : undefined}
-          artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
-          onReExtract={isMultiMode ? undefined : (selectedMeetingId ? handleReExtract : undefined)}
-          clients={clientsQuery.data}
-          onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
-          onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}
-          completions={isMultiMode ? [] : (completionsQuery.data ?? [])}
-          onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
-          onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
-          mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
-          onMentionClick={isMultiMode ? undefined : handleMentionClick}
-          artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
-        />,
-      ]}
+      navRail={<NavRail currentView={currentView} onNavigate={setCurrentView} />}
+      panels={panels}
       chat={
         <ChatPanel
           activeMeetingIds={activeMeetingIds}

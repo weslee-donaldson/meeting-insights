@@ -128,6 +128,20 @@ describe("App", () => {
     expect(row).toBeDefined();
   });
 
+  it("renders NavRail with Meetings and Action Items buttons", () => {
+    render(<App />, { wrapper });
+    expect(screen.getByRole("button", { name: "Meetings" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Action Items" })).toBeDefined();
+  });
+
+  it("clicking Action Items nav hides meeting list and shows action items view", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    expect(screen.queryByTestId("meeting-row-m1")).toBeNull();
+    expect(screen.getByTestId("client-action-items-view")).toBeDefined();
+  });
+
   it("checking 2 meetings shows merged multi-meeting detail header", async () => {
     render(<App />, { wrapper });
     const checkboxes = await screen.findAllByRole("checkbox");
