@@ -47,7 +47,7 @@ describe("extractSummary", () => {
     expect(Array.isArray(artifact.proposed_features)).toBe(true);
   });
 
-  it("returns action_items with description, owner, requester, due_date", async () => {
+  it("returns action_items with description, owner, requester, due_date, priority", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     expect(Array.isArray(artifact.action_items)).toBe(true);
     expect(artifact.action_items[0]).toEqual({
@@ -55,6 +55,7 @@ describe("extractSummary", () => {
       owner: "Wesley",
       requester: "Stace",
       due_date: null,
+      priority: "normal",
     });
   });
 
@@ -63,9 +64,10 @@ describe("extractSummary", () => {
     expect(Array.isArray(artifact.open_questions)).toBe(true);
   });
 
-  it("returns risk_items array", async () => {
+  it("returns risk_items as array of { category, description } objects", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     expect(Array.isArray(artifact.risk_items)).toBe(true);
+    expect(artifact.risk_items[0]).toEqual({ category: "engineering", description: "Scope creep risk" });
   });
 
   it("chunks long transcripts and merges results", async () => {
@@ -125,13 +127,43 @@ describe("validateArtifact", () => {
     ]);
   });
 
-  it("normalizes action_items without requester to empty string", () => {
+  it("normalizes action_items without requester to empty string and priority to 'normal'", () => {
     const result = validateArtifact({
       ...VALID_BASE,
       additional_notes: [],
       action_items: [{ description: "Do X", owner: "Bob", due_date: null }],
     });
-    expect(result.action_items[0]).toEqual({ description: "Do X", owner: "Bob", requester: "", due_date: null });
+    expect(result.action_items[0]).toEqual({ description: "Do X", owner: "Bob", requester: "", due_date: null, priority: "normal" });
+  });
+
+  it("normalizes action_items without priority to 'normal'", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      action_items: [{ description: "Do Y", owner: "Alice", requester: "Bob", due_date: null }],
+    });
+    expect(result.action_items[0]).toEqual({ description: "Do Y", owner: "Alice", requester: "Bob", due_date: null, priority: "normal" });
+  });
+
+  it("preserves valid priority on action_items", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      action_items: [{ description: "Fix bug", owner: "Carol", requester: "Dave", due_date: null, priority: "critical" }],
+    });
+    expect(result.action_items[0]).toEqual({ description: "Fix bug", owner: "Carol", requester: "Dave", due_date: null, priority: "critical" });
+  });
+
+  it("normalizes legacy string risk_items to { category: 'engineering', description }", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      risk_items: ["Scope creep risk", "Timeline pressure"],
+    });
+    expect(result.risk_items).toEqual([
+      { category: "engineering", description: "Scope creep risk" },
+      { category: "engineering", description: "Timeline pressure" },
+    ]);
   });
 
   it("preserves structured decisions unchanged", () => {

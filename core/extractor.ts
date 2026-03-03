@@ -13,9 +13,9 @@ export interface Artifact {
   summary: string;
   decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
-  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null }>;
+  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null; priority: "critical" | "normal" }>;
   open_questions: string[];
-  risk_items: string[];
+  risk_items: Array<{ category: "relationship" | "architecture" | "engineering"; description: string }>;
   additional_notes: Array<Record<string, unknown>>;
 }
 
@@ -51,10 +51,19 @@ export function validateArtifact(raw: object): Artifact {
   const items = r["action_items"];
   if (Array.isArray(items)) {
     r["action_items"] = items.map((item) => {
-      if (typeof item === "object" && item !== null && !("requester" in item)) {
-        return { ...item, requester: "" };
-      }
-      return item;
+      if (typeof item !== "object" || item === null) return item;
+      const obj = item as Record<string, unknown>;
+      const withRequester = !("requester" in obj) ? { ...obj, requester: "" } : obj;
+      const p = (withRequester as Record<string, unknown>).priority;
+      const priority = p === "critical" || p === "normal" ? p : "normal";
+      return { ...withRequester, priority };
+    });
+  }
+  const risks = r["risk_items"];
+  if (Array.isArray(risks)) {
+    r["risk_items"] = risks.map((risk) => {
+      if (typeof risk === "string") return { category: "engineering" as const, description: risk };
+      return risk;
     });
   }
   const notes = r["additional_notes"];
@@ -102,7 +111,7 @@ export async function extractSummary(
       const raw = await adapter.complete("extract_artifact", content);
       if (raw.__fallback) {
         logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
-        return { summary: "", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] };
+        return { summary: "", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [] as Artifact["risk_items"], additional_notes: [] };
       }
       return validateArtifact(raw);
     }),

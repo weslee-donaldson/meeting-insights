@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1155 | 3:41 PM | ✅ | Updated risk_items Test to Expect Typed Objects | ~362 |
 | #1144 | 3:34 PM | 🟣 | Burst 398 Complete: buildClientContext() Generates Structured Context from Participant Data | ~564 |
 | #1129 | 3:23 PM | 🔵 | Pipeline Test Suite Uses refinement_prompt Field | ~524 |
 | #1126 | 3:15 PM | 🟣 | Burst 394 Complete: Architecture Field Removed End-to-End | ~488 |
