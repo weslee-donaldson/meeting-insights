@@ -59,6 +59,7 @@ This creates the SQLite DB, LanceDB vector store, and seeds the client registry.
 | `pnpm query` | Query meetings from the CLI (list, search, ask) |
 | `pnpm assign-client` | Manually assign a meeting to a client |
 | `pnpm clear` | Wipe all state and reset transcripts for reprocessing |
+| `pnpm purge` | Delete DB and vector store only (transcripts untouched) |
 | `pnpm ui:dev` | Launch the Meeting Intelligence Explorer desktop app |
 | `pnpm ui:build` | Build the Electron app for distribution |
 

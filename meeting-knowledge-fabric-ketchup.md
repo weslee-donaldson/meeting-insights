@@ -856,17 +856,17 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [ ] Burst 405: buildDistilledContext() — format artifact as chat context with summary/decisions/action_items/notes sections
 - [ ] Burst 406: handleConversationChat uses distilled context by default; includeTranscripts: true falls back to buildLabeledContext
 - [ ] Burst 407: Wire includeTranscripts through channels, API server, and api-client
-- [x] Burst 408: ChatPanel "Include full transcripts" checkbox — unchecked by default, passes flag through onChat callback
-- [x] Burst 409: NavRail component — Meetings + Action Items items, CalendarDays/CircleCheck icons, selected state
-- [ ] Burst 410: LinearShell dynamic panels + NavRail — refactor from fixed slots to panels: ReactNode[] prop
-- [ ] Burst 411: App.tsx currentView + previewMeetingId state — panel composition per view
-- [ ] Burst 412: ClientActionItem type + IPC channel GET_CLIENT_ACTION_ITEMS
-- [ ] Burst 413: handleGetClientActionItems — query incomplete items by client, normalize priority, sort critical first, attach meeting metadata
-- [ ] Burst 414: API route GET /api/clients/:name/action-items
-- [ ] Burst 415: ClientActionItemsView component — header with count, critical/normal sections, CRITICAL badge, owner badge, meeting source link
-- [ ] Burst 416: ClientActionItemsView preview + completion callbacks — onPreviewMeeting, onComplete
-- [ ] Burst 417: Wire action-items view into App + LinearShell — fetch items, preview column, completion invalidation
-- [ ] Burst 418: Chat context in action-items preview mode — activeMeetingIds = [previewMeetingId] when preview is set
+- [ ] Burst 408: ChatPanel "Include full transcripts" checkbox — unchecked by default, passes flag through onChat callback
+- [ ] Burst 409: NavRail component — Meetings + Action Items items, CalendarDays/CircleCheck icons, selected state
+- [x] Burst 410: LinearShell dynamic panels + NavRail — refactor from fixed slots to panels: ReactNode[] prop (7758e7f)
+- [x] Burst 411: App.tsx currentView + previewMeetingId state — panel composition per view (98dc15c)
+- [x] Burst 412: ClientActionItem type + IPC channel GET_CLIENT_ACTION_ITEMS (1149161)
+- [x] Burst 413: handleGetClientActionItems — query incomplete items by client, normalize priority, sort critical first, attach meeting metadata (807bf47)
+- [x] Burst 414: API route GET /api/clients/:name/action-items (3f53d06)
+- [x] Burst 415: ClientActionItemsView component — header with count, critical/normal sections, CRITICAL badge, owner badge, meeting source link (05aded4)
+- [x] Burst 416: ClientActionItemsView preview + completion callbacks — onPreviewMeeting, onComplete (8947ea6)
+- [x] Burst 417: Wire action-items view into App + LinearShell — fetch items, preview column, completion invalidation (98a0008)
+- [x] Burst 418: Chat context in action-items preview mode — activeMeetingIds = [previewMeetingId] when preview is set (98a0008)
 
 ---
 

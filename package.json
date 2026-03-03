@@ -8,6 +8,7 @@
     "setup": "tsx cli/setup.ts",
     "process": "tsx cli/run.ts",
     "clear": "tsx cli/reset.ts",
+    "purge": "tsx cli/purge.ts",
     "query": "tsx cli/query.ts",
     "eval": "tsx cli/eval.ts",
     "assign-client": "tsx cli/assign-client.ts",
