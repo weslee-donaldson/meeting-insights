@@ -19,6 +19,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1144 | 3:34 PM | 🟣 | Burst 398 Complete: buildClientContext() Generates Structured Context from Participant Data | ~564 |
 | #1126 | 3:15 PM | 🟣 | Burst 394 Complete: Architecture Field Removed End-to-End | ~488 |
 | #1106 | 3:09 PM | ✅ | Removed Architecture from Fallback Artifact | ~412 |
 | #1101 | 3:05 PM | 🔵 | Labeled Context Current Implementation | ~532 |

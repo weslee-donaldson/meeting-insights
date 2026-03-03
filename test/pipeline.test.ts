@@ -96,7 +96,7 @@ describe("processNewMeetings", () => {
   });
 });
 
-describe("processNewMeetings threads client refinement_prompt into extraction", () => {
+describe("processNewMeetings threads buildClientContext into extraction", () => {
   let rDb: Database;
   let rVdb: Awaited<ReturnType<typeof connectVectorDb>>;
   let rVdbPath: string;
@@ -121,7 +121,7 @@ Let us discuss the project roadmap and upcoming priorities.`;
     rDb = createDb(":memory:");
     migrate(rDb);
     rDb.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team, refinement_prompt) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO clients (name, aliases, known_participants, client_team, additional_extraction_llm_prompt) VALUES (?, ?, ?, ?, ?)",
     ).run("TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.");
 
     rVdbPath = join(tmpdir(), `lancedb-refinement-${Date.now()}`);
@@ -153,8 +153,8 @@ Let us discuss the project roadmap and upcoming priorities.`;
     rmSync(rVdbPath, { recursive: true, force: true });
   });
 
-  it("injects client refinement_prompt as ## Client Context into extraction prompt", () => {
-    expect(capturedContent).toContain("## Client Context");
+  it("injects buildClientContext output as ## Client Context into extraction prompt", () => {
+    expect(capturedContent).toContain("## Client Context: TestClientCo");
     expect(capturedContent).toContain("Alice is the lead engineer");
   });
 });

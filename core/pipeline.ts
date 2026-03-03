@@ -6,7 +6,8 @@ import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { detectClient, storeDetection } from "./client-detection.js";
-import { getClientByName } from "./client-registry.js";
+import { getClientByName, buildClientContext } from "./client-registry.js";
+import type { Participant } from "./client-registry.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
@@ -83,8 +84,13 @@ async function processEntry(
     storeDetection(db, meetingId, detections);
     const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
     const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
-    const refinementPrompt = clientRow?.refinement_prompt ?? undefined;
-    const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, refinementPrompt);
+    const clientContext = clientRow ? buildClientContext(
+      clientRow.name,
+      JSON.parse(clientRow.client_team ?? "[]") as Participant[],
+      JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
+      clientRow.additional_extraction_llm_prompt ?? undefined,
+    ) : undefined;
+    const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, clientContext);
     storeArtifact(db, meetingId, artifact);
     await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp);
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));

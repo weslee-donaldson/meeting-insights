@@ -846,7 +846,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 395: Update ClientEntry type — Participant shape { name, email?, role }, client_team[], implementation_team[], additional_extraction_llm_prompt?; remove known_participants and refinement_prompt (c190d9e)
 - [x] Burst 396: Migrate clients.json to new structure — full LLSA roster + all 4 clients with structured participant arrays (ae3ab68)
 - [x] Burst 397: Update client detection to read from client_team[].email and implementation_team[].email arrays (9d74924)
-- [ ] Burst 398: buildClientContext() — generate structured context string from participant data with role authority guidance
+- [x] Burst 398: buildClientContext() — generate structured context string from participant data with role authority guidance (f5f7898)
 - [ ] Burst 399: Wire buildClientContext() into pipeline — replace refinement_prompt usage
 - [ ] Burst 400: Rewrite extraction.md — fidelity criteria, Trigger A/B for critical, priority field, tightened decisions, typed risk_items, LLM agency on additional_notes
 - [ ] Burst 401: Add priority to action_items + restructure risk_items in Artifact type — priority: "critical"|"normal"; risk_items: { category, description }[]
