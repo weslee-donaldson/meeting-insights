@@ -168,9 +168,11 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
             <div
               key={i}
               data-testid="user-bubble"
-              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed"
+              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto"
             >
-              {msg.content}
+              <div className="chat-markdown">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              </div>
             </div>
           ) : (
             <div key={i} className="flex flex-col gap-1.5 max-w-[90%]">
