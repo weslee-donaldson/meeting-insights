@@ -249,15 +249,17 @@ export function MeetingList({
                 )}
               </div>
 
-              {group.meetings.map((m) => (
+              {group.meetings.map((m) => {
+                const isHighlighted = selectedId === m.id || checked.has(m.id);
+                return (
                 <div
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => onSelect(m.id)}
                   className="flex items-center gap-2 py-1.5 pr-3 pl-6 cursor-pointer"
                   style={{
-                    background: selectedId === m.id ? "var(--color-bg-elevated)" : "transparent",
-                    borderLeft: "2px solid " + (selectedId === m.id ? "var(--color-accent)" : "transparent"),
+                    background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",
+                    borderLeft: "2px solid " + (isHighlighted ? "var(--color-accent)" : "transparent"),
                   }}
                 >
                   <input
@@ -283,7 +285,8 @@ export function MeetingList({
                     )}
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           );
         })}

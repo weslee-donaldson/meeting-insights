@@ -506,6 +506,26 @@ describe("MeetingList", () => {
     expect(onCheckGroup).toHaveBeenCalledWith([]);
   });
 
+  it("highlights checked meeting rows with elevated background", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" }), makeMeeting({ id: "m2", title: "Beta Meeting", series: "beta meeting" })]}
+        selectedId={null}
+        checked={new Set(["m1"])}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    const checkedRow = screen.getByTestId("meeting-row-m1");
+    expect(checkedRow.style.background).toBe("var(--color-bg-elevated)");
+    expect(checkedRow.style.borderLeft).toBe("2px solid var(--color-accent)");
+    const uncheckedRow = screen.getByTestId("meeting-row-m2");
+    expect(uncheckedRow.style.background).toBe("transparent");
+    expect(uncheckedRow.style.borderLeft).toBe("2px solid transparent");
+  });
+
   it("does not render client badge in meeting rows", () => {
     render(
       <MeetingList
