@@ -275,6 +275,7 @@ export function App() {
     <ClientActionItemsView
       key="client-action-items"
       clientName={selectedClient}
+      items={[]}
       onPreviewMeeting={setPreviewMeetingId}
     />,
     ...(previewMeetingId ? [

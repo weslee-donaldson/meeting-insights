@@ -26,5 +26,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1210 | 5:03 PM | ✅ | Added Stub items Prop to ClientActionItemsView | ~368 |
 | #1199 | 4:58 PM | 🟣 | Burst 411 Complete: currentView State and View-Based Panel Composition | ~476 |
 </claude-mem-context>
