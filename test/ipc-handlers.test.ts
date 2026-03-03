@@ -17,6 +17,7 @@ import {
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,
+  handleGetClientActionItems,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -352,6 +353,72 @@ describe("IPC handlers", () => {
       expect(handleGetCompletions(db, meetingId2).filter(r => r.item_index === 1)).toHaveLength(1);
       handleUncompleteActionItem(db, meetingId2, 1);
       expect(handleGetCompletions(db, meetingId2).filter(r => r.item_index === 1)).toHaveLength(0);
+    });
+  });
+
+  describe("handleGetClientActionItems", () => {
+    let acmeMeetingId: string;
+
+    beforeAll(() => {
+      acmeMeetingId = ingestMeeting(db, {
+        title: "Acme Planning",
+        timestamp: "2026-03-01T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "A | 00:00\nHi.",
+        turns: [],
+        sourceFilename: "acme-plan-2",
+      });
+      storeArtifact(db, acmeMeetingId, {
+        summary: "Important planning meeting.",
+        decisions: [],
+        proposed_features: [],
+        action_items: [
+          { description: "Fix the build", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" },
+          { description: "Write docs", owner: "Charlie", requester: "Alice", due_date: null, priority: "normal" },
+        ],
+        open_questions: [],
+        risk_items: [],
+        additional_notes: [],
+      });
+      storeDetection(db, acmeMeetingId, [
+        { client_name: "Acme", confidence: 0.9, method: "participant" },
+      ]);
+    });
+
+    it("returns only incomplete action items for client, critical first", () => {
+      const items = handleGetClientActionItems(db, "Acme");
+      const fromAcmePlanning = items.filter((i) => i.meeting_id === acmeMeetingId);
+      expect(fromAcmePlanning[0].priority).toBe("critical");
+      expect(fromAcmePlanning[0].description).toBe("Fix the build");
+      expect(fromAcmePlanning[1].priority).toBe("normal");
+      expect(fromAcmePlanning[1].description).toBe("Write docs");
+    });
+
+    it("excludes completed items", () => {
+      handleCompleteActionItem(db, acmeMeetingId, 1, "Done");
+      const items = handleGetClientActionItems(db, "Acme");
+      const fromAcmePlanning = items.filter((i) => i.meeting_id === acmeMeetingId);
+      expect(fromAcmePlanning.every((i) => i.item_index !== 1)).toBe(true);
+    });
+
+    it("returns empty array for unknown client", () => {
+      expect(handleGetClientActionItems(db, "Unknown Client")).toEqual([]);
+    });
+
+    it("each item has required shape with meeting metadata", () => {
+      const items = handleGetClientActionItems(db, "Acme");
+      const item = items.find((i) => i.meeting_id === acmeMeetingId);
+      expect(item).toMatchObject({
+        meeting_id: acmeMeetingId,
+        meeting_title: "Acme Planning",
+        meeting_date: expect.any(String),
+        item_index: expect.any(Number),
+        description: expect.any(String),
+        owner: expect.any(String),
+        requester: expect.any(String),
+        due_date: null,
+        priority: expect.any(String),
+      });
     });
   });
 

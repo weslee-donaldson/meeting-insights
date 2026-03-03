@@ -9,7 +9,7 @@ import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 interface ClientRow { name: string; }
@@ -246,4 +246,46 @@ export function handleGetItemHistory(db: Database, canonicalId: string): ItemHis
 
 export function handleGetMentionStats(db: Database, meetingId: string): MentionStat[] {
   return getMentionStats(db, meetingId);
+}
+
+export function handleGetClientActionItems(db: Database, clientName: string): ClientActionItem[] {
+  const meetingIds = (db.prepare(
+    "SELECT DISTINCT meeting_id FROM client_detections WHERE client_name = ?",
+  ).all(clientName) as { meeting_id: string }[]).map((r) => r.meeting_id);
+
+  if (meetingIds.length === 0) return [];
+
+  const placeholders = meetingIds.map(() => "?").join(",");
+  const completed = new Set(
+    (db.prepare(
+      `SELECT id FROM action_item_completions WHERE meeting_id IN (${placeholders})`,
+    ).all(...meetingIds) as { id: string }[]).map((r) => r.id),
+  );
+
+  const result: ClientActionItem[] = [];
+
+  for (const meetingId of meetingIds) {
+    const meeting = getMeeting(db, meetingId);
+    if (!meeting) continue;
+    const artifact = handleGetArtifact(db, meetingId);
+    if (!artifact) continue;
+
+    artifact.action_items.forEach((item, index) => {
+      if (completed.has(`${meetingId}:${index}`)) return;
+      result.push({
+        meeting_id: meetingId,
+        meeting_title: meeting.title,
+        meeting_date: meeting.date,
+        item_index: index,
+        description: item.description,
+        owner: item.owner,
+        requester: item.requester,
+        due_date: item.due_date,
+        priority: item.priority,
+      });
+    });
+  }
+
+  result.sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1));
+  return result;
 }
