@@ -160,11 +160,13 @@ describe("extraction prompt", () => {
     expect(prompt).toContain("2-4 sentence");
   });
 
-  it("risk_items field scoped to account-level concerns", async () => {
+  it("risk_items field describes systemic unresolved conditions with categories", async () => {
     const { readFileSync } = await import("node:fs");
     const prompt = readFileSync("config/prompts/extraction.md", "utf8");
-    expect(prompt).toContain("Account-level");
-    expect(prompt).toContain("Do NOT include routine engineering");
+    expect(prompt).toContain("Systemic, unresolved conditions");
+    expect(prompt).toContain("relationship");
+    expect(prompt).toContain("architecture");
+    expect(prompt).toContain("engineering");
   });
 });
 

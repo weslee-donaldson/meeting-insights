@@ -4,18 +4,45 @@ Return ONLY a valid JSON object with exactly these fields. No markdown fences, n
 
 Fields:
 - summary (string): 2-4 sentence summary of the meeting's major topics. Focus on what was discussed at a high level — enough to identify the meeting's relevance when searching across many meetings. Do not include detailed findings or conclusions.
-- decisions (array of objects): Firm decisions made during the meeting. Each with:
+- decisions (array of objects): Firm decisions made during the meeting — explicit conclusions only ("we've decided", "we're going with", "we've agreed to"). Brainstorming, proposals, and "we should consider" do NOT qualify. Each with:
     - text (string): the decision (e.g. "Adopt OAuth2 for authentication")
     - decided_by (string): who made or championed this decision (use name from transcript, or "" if unclear)
 - proposed_features (string[]): Product features, capabilities, or improvements discussed or requested
-- action_items (array of objects): Each with:
+- action_items (array of objects): Tasks with a genuine commitment. To qualify, an item must meet one of these triggers:
+
+  **Trigger A — Explicit commitment**: ALL of the following must be true:
+    - Explicit assignment language: "you will", "I will", "can you", "please do", "we need you to", or similar direct ask
+    - Named owner — cannot extract without knowing who owns it
+    - Clear intent to execute — not a suggestion, question, or discussion topic
+
+  **Trigger B — Situation-based urgency**: A broken, blocked, or degraded state is described (build broken, no PRs pushed, alerts not firing, engineers blocked, production incident, pipeline failing). Extract an action item even without explicit commitment, inferring owner from context. These are always priority "critical".
+
+  Each action item:
     - description (string): what needs to be done
     - owner (string): who is responsible (use name from transcript, or "" if unclear)
     - requester (string): who requested or assigned this action (use name from transcript, or "" if unclear)
     - due_date (string | null): deadline if mentioned, otherwise null
+    - priority ("critical" | "normal"): "critical" if directed by someone with domain authority over the task (Trigger A with authority) OR if describing a broken/blocked/degraded situation (Trigger B); "normal" otherwise
+
 - open_questions (string[]): Questions raised but not resolved during the meeting
-- risk_items (string[]): Account-level or relationship-level concerns raised — risks to the project, engagement, or client relationship. Examples: resource constraints, timeline pressure, fragile processes, stakeholder dissatisfaction. Do NOT include routine engineering trade-offs or minor technical risks.
-- additional_notes (array of objects): this is dynamic based on the meeting context. Provide a detailed breakdown which is not already included in other data fields. Provide logical grouping of information and where possible have categorization and grouping within the notes.
+- risk_items (array of objects): Systemic, unresolved conditions that threaten delivery, team alignment, or the client relationship. Apply strict criteria — a risk requires ALL of:
+    - Affects the team or project broadly — not a single person's status
+    - Unresolved — not currently being actively remediated
+    - Creates ongoing exposure if left unaddressed
+
+  Route these elsewhere instead:
+    - Current defects or broken things being worked → additional_notes (or Trigger B action item if blocking)
+    - Individual availability ("Greg is out Wednesday") → additional_notes
+    - Status updates on known issues → additional_notes
+
+  Each risk item:
+    - category ("relationship" | "architecture" | "engineering"):
+        - "relationship": risks to client trust, stakeholder alignment, engagement health, or communication breakdown
+        - "architecture": risks from technical/architectural decisions, design inconsistency, or systemic technical debt creating real exposure
+        - "engineering": risks to the team's ability to deliver — process gaps, tooling failures, knowledge silos, unclear ownership
+    - description (string): the risk
+
+- additional_notes (array of objects): Use your judgement. No cap. Preserve nuance that would otherwise require re-reading the transcript — team availability, status updates, informational context, anything worth retaining that does not fit other structured fields. Provide logical groupings with categorization where helpful. This field is load-bearing: it will be used as context for future questions, so err on the side of completeness.
 
 {{client_context}}
 
