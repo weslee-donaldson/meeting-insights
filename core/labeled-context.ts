@@ -23,9 +23,17 @@ function normalizeDecisions(raw: unknown[]): Artifact["decisions"] {
 function normalizeActionItems(raw: unknown[]): Artifact["action_items"] {
   return raw.map((item) => {
     const a = item as Record<string, unknown>;
-    if (!("requester" in a)) return { ...a, requester: "" } as Artifact["action_items"][number];
-    return a as Artifact["action_items"][number];
+    const withRequester = !("requester" in a) ? { ...a, requester: "" } : a;
+    const p = (withRequester as Record<string, unknown>).priority;
+    const priority = p === "critical" || p === "normal" ? p : "normal";
+    return { ...withRequester, priority } as Artifact["action_items"][number];
   });
+}
+
+function normalizeRiskItems(raw: unknown[]): Artifact["risk_items"] {
+  return raw.map((r) =>
+    typeof r === "string" ? { category: "engineering" as const, description: r } : r as Artifact["risk_items"][number],
+  );
 }
 
 function parseArtifactRow(row: ArtifactRow): Artifact {
@@ -35,7 +43,7 @@ function parseArtifactRow(row: ArtifactRow): Artifact {
     proposed_features: JSON.parse(row.proposed_features ?? "[]"),
     action_items: normalizeActionItems(JSON.parse(row.action_items ?? "[]")),
     open_questions: JSON.parse(row.open_questions ?? "[]"),
-    risk_items: JSON.parse(row.risk_items ?? "[]"),
+    risk_items: normalizeRiskItems(JSON.parse(row.risk_items ?? "[]")),
     additional_notes: JSON.parse(row.additional_notes ?? "[]"),
   };
 }
@@ -68,9 +76,10 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
     lines.push(
       `Action Items:\n${artifact.action_items
         .map((a, i) => {
+          const prefix = a.priority === "critical" ? "[CRITICAL] " : "";
           const meta = [a.owner, a.requester ? `requested by ${a.requester}` : "", a.due_date ? `due ${a.due_date}` : ""].filter(Boolean).join(", ");
           const suffix = annotationSuffix(annotations.get(annotationKey("action_items", i)));
-          return meta ? `- ${a.description} (${meta})${suffix}` : `- ${a.description}${suffix}`;
+          return meta ? `- ${prefix}${a.description} (${meta})${suffix}` : `- ${prefix}${a.description}${suffix}`;
         })
         .join("\n")}`,
     );
@@ -84,7 +93,7 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
   if (artifact.risk_items.length > 0)
     lines.push(`Risks:\n${artifact.risk_items.map((r, i) => {
       const suffix = annotationSuffix(annotations.get(annotationKey("risk_items", i)));
-      return `- ${r}${suffix}`;
+      return `- ${r.description}${suffix}`;
     }).join("\n")}`);
   if (artifact.proposed_features.length > 0)
     lines.push(

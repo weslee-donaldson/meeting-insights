@@ -111,4 +111,43 @@ describe("buildLabeledContext", () => {
     const decisionLine = result.contextText.split("\n").find(l => l.includes("Use TypeScript"));
     expect(decisionLine).not.toContain("[raised");
   });
+
+  it("prefixes [CRITICAL] on critical action items", () => {
+    const critId = ingestMeeting(db, {
+      title: "Critical Meeting",
+      timestamp: "2026-03-01T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "X | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "critical",
+    });
+    storeArtifact(db, critId, {
+      ...makeArtifact(),
+      action_items: [{ description: "Fix broken build", owner: "Carol", requester: "Dave", due_date: null, priority: "critical" }],
+    });
+    const result = buildLabeledContext(db, [critId]);
+    expect(result.contextText).toContain("[CRITICAL] Fix broken build");
+  });
+
+  it("does not prefix normal action items with [CRITICAL]", () => {
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).not.toContain("[CRITICAL]");
+  });
+
+  it("formats risk_items by description", () => {
+    const riskId = ingestMeeting(db, {
+      title: "Risk Meeting",
+      timestamp: "2026-03-02T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "X | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "risk",
+    });
+    storeArtifact(db, riskId, {
+      ...makeArtifact(),
+      risk_items: [{ category: "engineering" as const, description: "Staffing risk" }],
+    });
+    const result = buildLabeledContext(db, [riskId]);
+    expect(result.contextText).toContain("- Staffing risk");
+  });
 });
