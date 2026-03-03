@@ -91,4 +91,33 @@ describe("ClientActionItemsView", () => {
     fireEvent.click(checkboxes[0]);
     expect(spy).toHaveBeenCalledWith("m1", 0);
   });
+
+  it("checking an item moves it to the completed section", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onComplete={vi.fn()} />);
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    expect(screen.getByText("Completed")).toBeDefined();
+    expect(screen.getByTestId("completed-section")).toBeDefined();
+  });
+
+  it("completed section is collapsed by default after first completion", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    const section = screen.getByTestId("completed-section");
+    expect(section.getAttribute("data-open")).toBe("false");
+  });
+
+  it("clicking Completed header toggles the section open", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Completed/i }));
+    expect(screen.getByTestId("completed-section").getAttribute("data-open")).toBe("true");
+  });
+
+  it("completed item description appears in completed section when expanded", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onComplete={vi.fn()} />);
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Completed/i }));
+    expect(screen.getByTestId("completed-items-list").textContent).toContain("Fix the broken build");
+  });
 });

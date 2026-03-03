@@ -1,0 +1,10 @@
+# Architecture Solutioning - Mar, 03
+
+Please click the link to download the recording. If it does not work, please copy the link and open it in your browser.
+
+# Recording Download Link
+
+**File:** recording.mp3
+**Valid for:** 7 days
+
+[Download Recording](<https://kr-files-cdn.s3.amazonaws.com/recording/prod-team/1092776/13603869/019cb4dbf51876cda0601afa77eaf684.mp3?AWSAccessKeyId=ASIA2I62CR7VOQGXYYM6&Expires=1773181213&Signature=ueQ9ms%2B6KmfbFA8J0bZvoym76uA%3D&x-amz-security-token=IQoJb3JpZ2luX2VjENz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIEaxM%2FIK2FMZazBRdbeIB3c6V1cmKEkJLoMiA72omd70AiBUY564qdCjXr7F312vLLeVcLZAka549c8zvZ7D7s0fMiqEBAil%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAMaDDcwNjQ0MjU5NjMzMCIMOaXYEvRdq56IXCjzKtgDZQ2Q5bR7UJp55nRxPLRFWk69AYHBclyCXoozQ5R96OyPiJl72dUk1XmeHgPFyCyN30d%2BS7Etb%2BmeqcG6wHsjlPYFddnMvv4MgJIxDmObJD9nSgvq2Hspw7fycCeIkmbAtDqP9QbtlZ2C0GFNRCnkHK157uziwnJJbGj%2BkjB9%2Fcyx2VJaCRSt%2BcnavXt3if7A6O5WYR4o6%2FJwM0xvsd2IF0unsTgiIWJ3HiMwLeY0%2Fij9UGu3U%2FpNbk5AVhEPYMoObuu0p23MHomp35wZ55QyXNCRAvTdXJQ7m9ePb7bgKjoj3InD6HhPigxa6dMniU2n68WEGWhtWN%2BSFT5qYd7VTJBgF1JG0Id6kPGwM%2FAEqKBKwfYhe9thXCUq0hioajJXQw0q%2Fa1TctBFQNEFmAbusDnd%2FVHfiSGvIn8Kj0QDgQCzSSO0A1Y8rHt2i5iX%2FYsSuOytmZ%2BSRRQZxIsSHqqB8n3Sz5EfhKU%2Bab37vcfvZIew3mkpRPBu0neeM962tT5Tfyt%2BY2mabtteGB%2BcctC5rqUlbreQ0Ye6NFG30oNpVH%2Fv7SOCfFaMNfZWfp8Oeuj%2BlEyUqc30Vqvp61LJH70cY0JUCO3y%2BTWbI%2FigvuKofeQhuVJnjQ9rtzDa9JzNBjqmAc663U5PkabxN3oW6IgfAHKLLncd3%2Fi61L%2F%2BHyqP06jmsexl9xQg0MkpFOIPz%2BfQwiXUi%2FBRqsPQEwzuA%2BPRKgBNaQ%2FFm%2FQ4APrjf3MpMZrNrVK5pt%2Fp9SV0vzUw6pwF%2F5c1ULN5uaA67AzhBIKLcWwzV4G7gxyhq%2FlzA1qkd%2FG9WYhYkAqlYAxnHhVe2Yf0cISif40wttnxmcLHw2PLWSQ%2FyEfs6is%3D>)

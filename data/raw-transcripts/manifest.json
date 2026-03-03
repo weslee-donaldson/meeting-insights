@@ -1,65 +1,11 @@
 [
   {
-    "meeting_id": "019caf11414c739fbffb4caeeab3ef7e",
-    "meeting_title": "10:00 AM - LLSA, Engineering review, Recurly MVP",
-    "meeting_date": "2026-03-02T15:00:39.290Z",
+    "meeting_id": "019cb4dbe2f87192aa8343370f680081",
+    "meeting_title": "Architecture Solutioning",
+    "meeting_date": "2026-03-03T18:00:04.483Z",
     "meeting_files": [
-      "10_00_am_-_llsa,_engineering_review,_recurly_mvp-019caf11414c739fbffb4caeeab3ef7e/transcript.md",
-      "10_00_am_-_llsa,_engineering_review,_recurly_mvp-019caf11414c739fbffb4caeeab3ef7e/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019caf483ab875cf8d4b8ebe43344edd",
-    "meeting_title": "Mandalore DSU",
-    "meeting_date": "2026-03-02T16:00:41.747Z",
-    "meeting_files": [
-      "mandalore_dsu-019caf483ab875cf8d4b8ebe43344edd/transcript.md",
-      "mandalore_dsu-019caf483ab875cf8d4b8ebe43344edd/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019caf581f3e758b859079363de2dde9",
-    "meeting_title": "TQ, Internal",
-    "meeting_date": "2026-03-02T16:18:04.003Z",
-    "meeting_files": [
-      "tq,_internal-019caf581f3e758b859079363de2dde9/transcript.md",
-      "tq,_internal-019caf581f3e758b859079363de2dde9/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019caf648d0c703a97249548fe9ae783",
-    "meeting_title": "AppDev Leads DSU",
-    "meeting_date": "2026-03-02T16:31:37.789Z",
-    "meeting_files": [
-      "appdev_leads_dsu-019caf648d0c703a97249548fe9ae783/transcript.md",
-      "appdev_leads_dsu-019caf648d0c703a97249548fe9ae783/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019caf80ec9e751aa1489afcfa112b11",
-    "meeting_title": "TQ: Engineering Sync",
-    "meeting_date": "2026-03-02T17:02:38.124Z",
-    "meeting_files": [
-      "tq__engineering_sync-019caf80ec9e751aa1489afcfa112b11/transcript.md",
-      "tq__engineering_sync-019caf80ec9e751aa1489afcfa112b11/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019cafece8157750a1188cccbc332149",
-    "meeting_title": "02:00 PM - LLSA, Recurly Order Architecture",
-    "meeting_date": "2026-03-02T19:00:32.330Z",
-    "meeting_files": [
-      "02_00_pm_-_llsa,_recurly_order_architecture-019cafece8157750a1188cccbc332149/transcript.md",
-      "02_00_pm_-_llsa,_recurly_order_architecture-019cafece8157750a1188cccbc332149/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019cb00839f4742894868bf86c4c67ef",
-    "meeting_title": "02:30 PM - Recurly Product UAT",
-    "meeting_date": "2026-03-02T19:30:24.590Z",
-    "meeting_files": [
-      "02_30_pm_-_recurly_product_uat-019cb00839f4742894868bf86c4c67ef/transcript.md",
-      "02_30_pm_-_recurly_product_uat-019cb00839f4742894868bf86c4c67ef/recording_download_link.md"
+      "architecture_solutioning-019cb4dbe2f87192aa8343370f680081/transcript.md",
+      "architecture_solutioning-019cb4dbe2f87192aa8343370f680081/recording_download_link.md"
     ]
   }
 ]
