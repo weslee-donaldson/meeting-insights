@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { ArrowUpDown, Trash2, SquareCheck, Square, EyeOff } from "lucide-react";
+import { ArrowUpDown, Trash2, ListChecks, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -227,10 +227,10 @@ export function MeetingList({
                   </span>
                   <button
                     onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
-                    aria-label={allChecked ? "Deselect all" : "Select all"}
-                    className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0"
+                    aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
+                    className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0 hover:text-foreground"
                   >
-                    {allChecked ? <SquareCheck className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
+                    <ListChecks className="w-3.5 h-3.5" />
                   </button>
                   {onIgnoreGroup && (
                     <button

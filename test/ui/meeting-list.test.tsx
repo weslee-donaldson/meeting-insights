@@ -51,7 +51,7 @@ describe("MeetingList", () => {
     );
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(4);
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all in group/i })).toHaveLength(2);
   });
 
   it("clicking a row fires onSelect with the meeting id", () => {
@@ -104,7 +104,7 @@ describe("MeetingList", () => {
         onCheckGroup={onCheckGroup}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /select all/i })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: /select all in group/i })[0]);
     expect(onCheckGroup).toHaveBeenCalledOnce();
   });
 
@@ -245,7 +245,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all in group/i })).toHaveLength(2);
   });
 
   it("day group label is formatted as weekday month day year", () => {
@@ -299,7 +299,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all in group/i })).toHaveLength(2);
   });
 
   it("week group label starts with 'Week of'", () => {
@@ -334,7 +334,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getAllByRole("button", { name: /select all/i })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /select all in group/i })).toHaveLength(2);
   });
 
   it("month group label is formatted as 'Month Year'", () => {
@@ -502,7 +502,7 @@ describe("MeetingList", () => {
         onCheckGroup={onCheckGroup}
       />,
     );
-    fireEvent.click(screen.getAllByRole("button", { name: /deselect all/i })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: /deselect all in group/i })[0]);
     expect(onCheckGroup).toHaveBeenCalledWith([]);
   });
 
