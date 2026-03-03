@@ -438,7 +438,7 @@ describe("MeetingDetail", () => {
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
 
-  it("expand all button opens all collapsed sections", () => {
+  it("expand/collapse toggle opens all sections then collapses all", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -446,20 +446,13 @@ describe("MeetingDetail", () => {
       />,
     );
     expect(screen.queryByText("Ship by March")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Expand all" }));
+    const toggleBtn = screen.getByRole("button", { name: "Expand all" });
+    fireEvent.click(toggleBtn);
     expect(screen.getByText("Ship by March")).toBeDefined();
-  });
-
-  it("collapse all button closes all open sections", () => {
-    render(
-      <MeetingDetail
-        meeting={makeMeeting()}
-        artifact={makeArtifact()}
-      />,
-    );
-    expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Collapse all" })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Collapse all" }));
     expect(screen.queryByText("We discussed the roadmap.")).toBeNull();
+    expect(screen.getByRole("button", { name: "Expand all" })).toBeDefined();
   });
 
   it("renders mention badge for action items with mention_count > 1", () => {

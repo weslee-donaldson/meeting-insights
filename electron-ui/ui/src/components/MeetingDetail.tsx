@@ -175,28 +175,27 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
     setSectionStates(prev => ({ ...prev, [title]: open }));
   }, []);
 
-  const expandAll = useCallback(() => {
-    setSectionStates({
-      Summary: true, Decisions: true, "Action Items": true,
-      "Open Questions": true, Risks: true, "Proposed Features": true,
-      Architecture: true, "Additional Notes": true,
-    });
-  }, []);
+  const SECTION_KEYS = ["Summary", "Decisions", "Action Items", "Open Questions", "Risks", "Proposed Features", "Architecture", "Additional Notes"];
+  const allExpanded = SECTION_KEYS.every((k) => !!sectionStates[k]);
 
-  const collapseAll = useCallback(() => {
-    setSectionStates({});
-  }, []);
+  const toggleAllSections = useCallback(() => {
+    if (allExpanded) {
+      setSectionStates({});
+    } else {
+      setSectionStates({
+        Summary: true, Decisions: true, "Action Items": true,
+        "Open Questions": true, Risks: true, "Proposed Features": true,
+        Architecture: true, "Additional Notes": true,
+      });
+    }
+  }, [allExpanded]);
 
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-1 pt-2 pb-1">
-        <Button variant="ghost" size="sm" onClick={expandAll} aria-label="Expand all"
-          className="h-auto px-1.5 py-0.5 text-[0.7rem] text-muted-foreground">
-          Expand all
-        </Button>
-        <Button variant="ghost" size="sm" onClick={collapseAll} aria-label="Collapse all"
-          className="h-auto px-1.5 py-0.5 text-[0.7rem] text-muted-foreground">
-          Collapse all
+        <Button variant="outline" size="sm" onClick={toggleAllSections} aria-label={allExpanded ? "Collapse all" : "Expand all"}
+          className="h-auto px-2 py-0.5 text-[0.7rem]">
+          {allExpanded ? "Collapse all" : "Expand all"}
         </Button>
       </div>
       <Section title="Summary" isEmpty={!artifact.summary} open={!!sectionStates["Summary"]} onOpenChange={(o) => setSectionOpen("Summary", o)}>
