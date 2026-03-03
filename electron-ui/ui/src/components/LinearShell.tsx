@@ -24,7 +24,7 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
     const onMouseMove = (ev: MouseEvent) => {
       if (!sidebarDragRef.current) return;
       const delta = ev.clientX - sidebarDragRef.current.startX;
-      setSidebarWidth(Math.max(140, Math.min(400, sidebarDragRef.current.startWidth + delta)));
+      setSidebarWidth(Math.max(100, sidebarDragRef.current.startWidth + delta));
     };
 
     const onMouseUp = () => {
@@ -43,7 +43,7 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
     const onMouseMove = (ev: MouseEvent) => {
       if (!mainDragRef.current) return;
       const delta = ev.clientX - mainDragRef.current.startX;
-      setMainWidth(Math.max(200, Math.min(700, mainDragRef.current.startWidth + delta)));
+      setMainWidth(Math.max(160, mainDragRef.current.startWidth + delta));
     };
 
     const onMouseUp = () => {
@@ -62,7 +62,7 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
     const onMouseMove = (ev: MouseEvent) => {
       if (!chatDragRef.current) return;
       const delta = chatDragRef.current.startX - ev.clientX;
-      setChatWidth(Math.max(280, Math.min(600, chatDragRef.current.startWidth + delta)));
+      setChatWidth(Math.max(200, chatDragRef.current.startWidth + delta));
     };
 
     const onMouseUp = () => {
@@ -112,7 +112,7 @@ export function LinearShell({ topBar, sidebar, main, detail, chat, chatOpen = fa
 
         <div
           data-testid="detail-panel"
-          className="flex-1 min-w-[280px] overflow-auto"
+          className="flex-1 min-w-[200px] overflow-auto"
         >
           {detail}
         </div>
