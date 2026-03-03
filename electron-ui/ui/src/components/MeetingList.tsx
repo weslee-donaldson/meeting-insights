@@ -256,7 +256,7 @@ export function MeetingList({
                 <div
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
-                  onClick={() => onSelect(m.id)}
+                  onClick={() => { onSelect(m.id); onCheck(m.id); }}
                   className="flex items-center gap-2 py-1.5 pr-3 pl-6 cursor-pointer"
                   style={{
                     background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",

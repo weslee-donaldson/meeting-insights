@@ -54,8 +54,9 @@ describe("MeetingList", () => {
     expect(screen.getAllByRole("button", { name: /select all in group/i })).toHaveLength(2);
   });
 
-  it("clicking a row fires onSelect with the meeting id", () => {
+  it("clicking a row fires onSelect and onCheck with the meeting id", () => {
     const onSelect = vi.fn();
+    const onCheck = vi.fn();
     render(
       <MeetingList
         meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" })]}
@@ -63,12 +64,13 @@ describe("MeetingList", () => {
         checked={new Set()}
         {...defaultProps()}
         onSelect={onSelect}
-        onCheck={vi.fn()}
+        onCheck={onCheck}
         onCheckGroup={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByTestId("meeting-row-m1"));
     expect(onSelect).toHaveBeenCalledWith("m1");
+    expect(onCheck).toHaveBeenCalledWith("m1");
   });
 
   it("clicking a checkbox fires onCheck with the meeting id and does not fire onSelect", async () => {
