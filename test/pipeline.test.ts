@@ -121,8 +121,8 @@ Let us discuss the project roadmap and upcoming priorities.`;
     rDb = createDb(":memory:");
     migrate(rDb);
     rDb.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, refinement_prompt) VALUES (?, ?, ?, ?)",
-    ).run("TestClientCo", '["TestClientCo"]', '["@testclientco.com"]', "Alice is the lead engineer and her action items are high priority.");
+      "INSERT INTO clients (name, aliases, known_participants, client_team, refinement_prompt) VALUES (?, ?, ?, ?, ?)",
+    ).run("TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.");
 
     rVdbPath = join(tmpdir(), `lancedb-refinement-${Date.now()}`);
     mkdirSync(rVdbPath, { recursive: true });

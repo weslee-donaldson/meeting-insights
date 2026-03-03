@@ -1,6 +1,7 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import { createLogger } from "./logger.js";
 import { getAllClients } from "./client-registry.js";
+import type { Participant } from "./client-registry.js";
 import { getMeeting } from "./ingest.js";
 
 const log = createLogger("client:detect");
@@ -44,14 +45,15 @@ export function parseSpeakerNames(rawTranscript: string): string[] {
   return names;
 }
 
-function speakerMatchesParticipants(knownParticipants: string[], speakerNames: string[]): boolean {
+function speakerMatchesMembers(members: Participant[], speakerNames: string[]): boolean {
   const speakerTokenSets = speakerNames.map(n => normalizeTokens(n));
-  return knownParticipants
-    .filter(p => !p.startsWith("@"))
-    .some(p => {
-      const pTokens = nameTokensFromParticipant(p);
-      return pTokens.size > 0 && speakerTokenSets.some(st => [...pTokens].some(t => st.has(t)));
-    });
+  return members.some(p => {
+    const tokens = new Set([
+      ...normalizeTokens(p.name),
+      ...(p.email ? nameTokensFromParticipant(p.email) : []),
+    ]);
+    return tokens.size > 0 && speakerTokenSets.some(st => [...tokens].some(t => st.has(t)));
+  });
 }
 
 export function detectClient(db: Database, meetingId: string): DetectionResult[] {
@@ -66,13 +68,14 @@ export function detectClient(db: Database, meetingId: string): DetectionResult[]
 
   for (const client of clients) {
     const aliases: string[] = JSON.parse(client.aliases);
-    const knownParticipants: string[] = JSON.parse(client.known_participants);
+    const clientTeam: Participant[] = JSON.parse(client.client_team ?? "[]");
+    const implTeam: Participant[] = JSON.parse(client.implementation_team ?? "[]");
     const meetingNames: string[] = JSON.parse(client.meeting_names ?? "[]");
 
-    const domainMatch = participants.some((p) =>
-      knownParticipants.some((domain) => p.email.endsWith(domain)),
-    );
-    const speakerMatch = speakerMatchesParticipants(knownParticipants, speakerNames);
+    const allMembers = [...clientTeam, ...implTeam];
+    const memberEmails = allMembers.map(p => p.email).filter((e): e is string => Boolean(e));
+    const domainMatch = participants.some(p => memberEmails.some(e => p.email.endsWith(e)));
+    const speakerMatch = speakerMatchesMembers(allMembers, speakerNames);
     const hasParticipant = domainMatch || speakerMatch;
     const participantMethod = speakerMatch && !domainMatch ? "speaker_name" : "participant";
 

@@ -844,7 +844,7 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 393: Image attachment support in chat — flow attachments through ChatPanel → App → IPC → API → LLM converse
 - [x] Burst 394: Remove architecture field end-to-end — drop from Artifact type, extraction prompt, MeetingDetail, labeled-context, merge-artifacts, ipc-handlers, all tests
 - [x] Burst 395: Update ClientEntry type — Participant shape { name, email?, role }, client_team[], implementation_team[], additional_extraction_llm_prompt?; remove known_participants and refinement_prompt (c190d9e)
-- [ ] Burst 396: Migrate clients.json to new structure — full LLSA roster + all 4 clients with structured participant arrays
+- [x] Burst 396: Migrate clients.json to new structure — full LLSA roster + all 4 clients with structured participant arrays (ae3ab68)
 - [ ] Burst 397: Update client detection to read from client_team[].email and implementation_team[].email arrays
 - [ ] Burst 398: buildClientContext() — generate structured context string from participant data with role authority guidance
 - [ ] Burst 399: Wire buildClientContext() into pipeline — replace refinement_prompt usage
