@@ -57,7 +57,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }]);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined);
   });
 
   it("sends full message history including prior exchanges on second question", async () => {
@@ -80,7 +80,7 @@ describe("ChatPanel", () => {
       { role: "user", content: "Q1" },
       { role: "assistant", content: "First answer." },
       { role: "user", content: "Q2" },
-    ]);
+    ], undefined);
   });
 
   it("displays sources beneath each assistant bubble", async () => {

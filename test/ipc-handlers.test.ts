@@ -251,6 +251,23 @@ describe("IPC handlers", () => {
       expect(result.answer).toBe("No context available.");
       expect(result.sources).toEqual([]);
     });
+
+    it("forwards attachments to llm.converse", async () => {
+      let capturedAttachments: unknown;
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(_system, _messages, attachments) {
+          capturedAttachments = attachments;
+          return "I see the image.";
+        },
+      };
+      await handleConversationChat(db, spyLlm, {
+        meetingIds: [meetingId2],
+        messages: [{ role: "user", content: "What is in this image?" }],
+        attachments: [{ name: "screenshot.png", base64: "abc123", mimeType: "image/png" }],
+      });
+      expect(capturedAttachments).toEqual([{ name: "screenshot.png", base64: "abc123", mimeType: "image/png" }]);
+    });
   });
 
   describe("handleDeleteMeetings", () => {

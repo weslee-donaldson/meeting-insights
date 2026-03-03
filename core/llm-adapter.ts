@@ -13,7 +13,7 @@ export interface ImageAttachment {
 
 export interface LlmAdapter {
   complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]): Promise<Record<string, unknown>>;
-  converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>): Promise<string>;
+  converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>, attachments?: ImageAttachment[]): Promise<string>;
 }
 
 const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
@@ -92,7 +92,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
         logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, Date.now() - start);
         return result;
       },
-      async converse(_system: string, _messages: Array<{ role: "user" | "assistant"; content: string }>) {
+      async converse(_system: string, _messages: Array<{ role: "user" | "assistant"; content: string }>, _attachments?: ImageAttachment[]) {
         return STUB_FIXTURES.synthesize_answer.answer as string;
       },
     };
@@ -124,7 +124,7 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
       async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
         return withRepair((c) => localCall(capability, c, attachments), content);
       },
-      async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>) {
+      async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>, _attachments?: ImageAttachment[]) {
         const start = Date.now();
         const allMessages = [
           { role: "system" as const, content: system },
@@ -185,13 +185,32 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
     async complete(capability: LlmCapability, content: string, attachments?: ImageAttachment[]) {
       return withRepair((c) => anthropicCall(capability, c, attachments), content);
     },
-    async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>) {
+    async converse(system: string, messages: Array<{ role: "user" | "assistant"; content: string }>, attachments?: ImageAttachment[]) {
       const start = Date.now();
+      const apiMessages: Anthropic.MessageParam[] = messages.map((m, i) => {
+        if (m.role === "user" && attachments && attachments.length > 0 && i === messages.length - 1) {
+          return {
+            role: "user" as const,
+            content: [
+              ...attachments.map((a) => ({
+                type: "image" as const,
+                source: {
+                  type: "base64" as const,
+                  media_type: a.mimeType as "image/png" | "image/jpeg" | "image/gif" | "image/webp",
+                  data: a.base64,
+                },
+              })),
+              { type: "text" as const, text: m.content },
+            ],
+          };
+        }
+        return { role: m.role, content: m.content };
+      });
       const message = await client.messages.create({
         model,
         max_tokens: 4096,
         system,
-        messages,
+        messages: apiMessages,
       });
       const text = message.content[0].type === "text" ? message.content[0].text : "";
       logLlm("provider=anthropic converse model=%s latency_ms=%d tokens=%d", model, Date.now() - start, message.usage.output_tokens);

@@ -148,7 +148,7 @@ export async function handleConversationChat(
 
   const system = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}`;
 
-  const rawAnswer = await llm.converse(system, req.messages);
+  const rawAnswer = await llm.converse(system, req.messages, req.attachments);
   const answer = replaceCitations(rawAnswer, meetings);
 
   const citations = parseCitations(rawAnswer);

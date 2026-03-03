@@ -43,7 +43,7 @@ interface AttachmentItem {
 interface ChatPanelProps {
   activeMeetingIds: string[];
   charCount: number;
-  onChat: (messages: ConversationMessage[]) => Promise<ConversationChatResponse>;
+  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[]) => Promise<ConversationChatResponse>;
 }
 
 export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProps) {
@@ -65,6 +65,8 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
     const q = input.trim();
     if (!q || loading) return;
     setInput("");
+    const currentAttachments = [...attachments];
+    setAttachments([]);
     const userMsg: InternalMessage = { role: "user", content: q };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
@@ -73,7 +75,19 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
         ...messages.map((m) => ({ role: m.role, content: m.content })),
         { role: "user" as const, content: q },
       ];
-      const response = await onChat(historyForApi);
+      let base64Attachments: { name: string; base64: string; mimeType: string }[] | undefined;
+      if (currentAttachments.length > 0) {
+        base64Attachments = await Promise.all(
+          currentAttachments.map(async (a) => {
+            const resp = await fetch(a.url);
+            const buf = await resp.arrayBuffer();
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+            const mimeType = resp.headers.get("content-type") ?? "image/png";
+            return { name: a.name, base64, mimeType };
+          }),
+        );
+      }
+      const response = await onChat(historyForApi, base64Attachments);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
@@ -82,7 +96,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
-  }, [input, loading, onChat, messages]);
+  }, [input, loading, onChat, messages, attachments]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

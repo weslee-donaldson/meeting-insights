@@ -71,7 +71,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   app.post("/api/chat/conversation", async (c) => {
-    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }> };
+    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; base64: string; mimeType: string }[] };
     const result = await handleConversationChat(db, llm!, req);
     return c.json(result);
   });

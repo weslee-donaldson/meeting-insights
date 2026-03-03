@@ -774,6 +774,74 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 311: Action items inline with strikethrough — completed items stay in place in original order with ✓ and `line-through` text instead of being hidden in collapsed section; remove the "N completed ▸" collapse toggle; completed item description still opens note dialog on click; update existing tests; test: completed item renders inline with line-through style
 - [x] Burst 312: Action items counter with percent-complete progress — show "N/M" counter and a small progress bar next to "Action Items" section header; test: header renders count text and progress element with correct width
 - [x] Burst 313: Indent sub-items in artifact sections — add left padding to item lists (action items, decisions, open questions, risks, etc.) within collapsible sections for clear visual hierarchy; test: item list container has left padding class
+- [x] Burst 314: Decisions become structured objects with decided_by attribution
+- [x] Burst 315: Add requester field to action_items type
+- [x] Burst 316: Update extraction prompt for person attribution fields
+- [x] Burst 317: Format structured decisions with person attribution in labeled context
+- [x] Burst 318: Extract text from structured decisions for embedding
+- [x] Burst 319: Normalize legacy artifact formats in CLI and IPC handlers
+- [x] Burst 320: Update all artifact fixtures to structured decision and requester shapes
+- [x] Burst 321: Render requester badge on action items and decided_by in decisions
+- [x] Burst 322: Add person filter dropdowns for action items and decisions sections
+- [x] Burst 323: Fix person filter dropdown labels with "Person: All" prefix
+- [x] Burst 324: Move owner and due_date badges inline with action item description
+- [x] Burst 325: Add uncomplete action item button
+- [x] Burst 326: Add uncomplete action item handler, API route, full-stack wiring
+- [x] Burst 327: Rename technical_topics to architecture across entire codebase
+- [x] Burst 328: Refine extraction prompt for concise summary, architecture focus, account-level risks
+- [x] Burst 329: Fixed-width meeting list, detail panel always visible
+- [x] Burst 330: mergeArtifactsDeduped for multi-meeting artifact aggregation
+- [x] Burst 331: MeetingDetail multi-meeting header and read-only mode
+- [x] Burst 332: Wire multi-meeting artifact aggregation in App
+- [x] Burst 333: Move Delete button from TopBar to MeetingList
+- [x] Burst 334: Increase meeting list default width to 500px
+- [x] Burst 335: Show day of week in meeting list dates
+- [x] Burst 336: Add ScrollArea to collapsible detail sections
+- [x] Burst 337: Constrain ScrollArea sections with explicit 300px maxHeight
+- [x] Burst 338: Expand/collapse all controls for Meeting Detail sections
+- [x] Burst 339: Replace group dropdown with inline select/deselect toggle and ignore icons
+- [x] Burst 340: Extract cosineSimilarity to shared math module
+- [x] Burst 341: Add isSemanticDuplicate predicate
+- [x] Burst 342: Add Jaro-Winkler string similarity for fast pre-filter dedup
+- [x] Burst 343: Add item_mentions table for cross-meeting dedup tracking
+- [x] Burst 344: Add item_vectors table for semantic item dedup
+- [x] Burst 345: Add item embedding, storage, and semantic search for dedup
+- [x] Burst 346: Add mention tracking — record, query, stats, cleanup
+- [x] Burst 347: Add deduplicateItems orchestrator with auto-complete for duplicates
+- [x] Burst 348: Integrate deduplicateItems + cascade cleanup on delete/re-extract
+- [x] Burst 349: Add IPC channels, handlers, HTTP routes for item history and mention stats
+- [x] Burst 350: Annotate items with mention count in LLM context
+- [x] Burst 351–352: Fetch mention stats and render mention badges on action items
+- [x] Burst 353: Add ItemHistoryDialog component with enriched history data
+- [x] Burst 354–355: Wire item history dialog into App with meeting navigation
+- [x] Burst 356: Add converse method to LlmAdapter for multi-turn chat
+- [x] Burst 357: Implement converse in anthropic and local adapters
+- [x] Burst 358: Add handleConversationChat for multi-turn conversation
+- [x] Burst 359: Add conversation chat types and api-client method
+- [x] Burst 360: Add POST /api/chat/conversation route
+- [x] Burst 361: Rewrite ChatPanel with conversation bubble layout
+- [x] Burst 362: ChatPanel sends full conversation history, App uses conversationChat
+- [x] Burst 363: Wire conversationChat IPC channel and preload
+- [x] Burst 364: Add scoped markdown typography for chat bubble
+- [x] Burst 365: Remove rigid max-width caps on resizable columns
+- [x] Burst 366: Standardize decisions attribution to use Badge like action items
+- [x] Burst 367: Replace [M1] citation markers with meeting name and date
+- [x] Burst 368: Fix chat LLM to cite meetings by name and date
+- [x] Burst 369: Sort completed action items to bottom of list
+- [x] Burst 370: Add 15px edge padding to meeting list and rightmost panel
+- [x] Burst 381: Remove sidebar column, rely on TopBar client dropdown
+- [x] Burst 382: Add Client label and instruction text to TopBar
+- [x] Burst 383: Highlight checked meeting rows with elevated background
+- [x] Burst 384: Replace group checkbox with ListChecks command icon
+- [x] Burst 385: Add Group by label before group-by buttons
+- [x] Burst 386: Default client auto-selection from is_default flag in clients.json
+- [x] Burst 387: Darken TopBar labels from muted to foreground
+- [x] Burst 387b: Add title tooltips to MeetingDetail icon buttons
+- [x] Burst 388: Single expand/collapse toggle button in MeetingDetail
+- [x] Burst 389: Replace client reassign dropdown with Dialog modal
+- [x] Burst 390: Increase section content maxHeight from 300 to 400
+- [x] Burst 392: Clicking meeting row also checks its checkbox
+- [ ] Burst 393: Image attachment support in chat — flow attachments through ChatPanel → App → IPC → API → LLM converse
 
 ---
 
