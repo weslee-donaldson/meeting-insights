@@ -5,9 +5,10 @@ interface ClientActionItemsViewProps {
   clientName: string | null;
   items: ClientActionItem[];
   onPreviewMeeting?: (meetingId: string) => void;
+  onComplete?: (meetingId: string, itemIndex: number) => void;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete }: ClientActionItemsViewProps) {
   if (!clientName) {
     return (
       <div data-testid="client-action-items-view" className="flex flex-col h-full p-4">
@@ -28,10 +29,10 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting }: C
 
       <div className="flex flex-col gap-2 p-4">
         {criticalItems.map((item) => (
-          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} />
+          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={onComplete} />
         ))}
         {normalItems.map((item) => (
-          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} />
+          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={onComplete} />
         ))}
         {items.length === 0 && (
           <p className="text-muted-foreground text-sm">No open action items.</p>
@@ -41,10 +42,15 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting }: C
   );
 }
 
-function ActionItemCard({ item, onPreviewMeeting }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void }) {
+function ActionItemCard({ item, onPreviewMeeting, onComplete }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void }) {
   return (
     <div className="rounded-md border border-border p-3 flex flex-col gap-1.5 text-sm">
       <div className="flex items-start gap-2">
+        <input
+          type="checkbox"
+          className="mt-0.5 shrink-0 cursor-pointer"
+          onChange={() => onComplete?.(item.meeting_id, item.item_index)}
+        />
         {item.priority === "critical" && (
           <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">
             CRITICAL
@@ -52,7 +58,7 @@ function ActionItemCard({ item, onPreviewMeeting }: { item: ClientActionItem; on
         )}
         <span className="flex-1 leading-snug">{item.description}</span>
       </div>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap pl-5">
         <span className="font-medium text-foreground">{item.owner}</span>
         <button
           className="hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs text-muted-foreground"

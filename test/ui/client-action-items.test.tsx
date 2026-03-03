@@ -77,4 +77,18 @@ describe("ClientActionItemsView", () => {
     fireEvent.click(screen.getByText("Weekly Sync"));
     expect(spy).toHaveBeenCalledWith("m1");
   });
+
+  it("renders a checkbox for each item", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes).toHaveLength(2);
+  });
+
+  it("clicking checkbox calls onComplete with meetingId and itemIndex", () => {
+    const spy = vi.fn();
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onComplete={spy} />);
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    expect(spy).toHaveBeenCalledWith("m1", 0);
+  });
 });
