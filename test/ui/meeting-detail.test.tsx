@@ -95,6 +95,22 @@ describe("MeetingDetail", () => {
     expect(onIgnore).toHaveBeenCalledOnce();
   });
 
+  it("icon buttons have title tooltips", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        onReassignClient={vi.fn()}
+        clients={["Acme"]}
+        onIgnore={vi.fn()}
+        onReExtract={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Reassign client" }).getAttribute("title")).toBe("Reassign client");
+    expect(screen.getByRole("button", { name: "Ignore meeting" }).getAttribute("title")).toBe("Ignore meeting");
+    expect(screen.getByRole("button", { name: "Re-extract" }).getAttribute("title")).toBe("Re-extract");
+  });
+
   it("re-extract button calls onReExtract when clicked", () => {
     const onReExtract = vi.fn();
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);

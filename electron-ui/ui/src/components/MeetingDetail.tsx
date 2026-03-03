@@ -492,6 +492,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                   size="icon"
                   onClick={() => setClientPickerOpen((v) => !v)}
                   aria-label="Reassign client"
+                  title="Reassign client"
                   className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
                 >
                   <UserPen className="w-3 h-3" />
@@ -517,6 +518,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 size="icon"
                 onClick={onIgnore}
                 aria-label="Ignore meeting"
+                title="Ignore meeting"
                 className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
               >
                 <EyeOff className="w-3 h-3" />
@@ -528,6 +530,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 size="icon"
                 onClick={onReExtract}
                 aria-label="Re-extract"
+                title="Re-extract"
                 className="h-auto w-auto px-1.5 py-1 text-muted-foreground"
               >
                 <RefreshCw className="w-3 h-3" />
