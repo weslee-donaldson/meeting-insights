@@ -12,8 +12,21 @@ import { tmpdir } from "node:os";
 let db: Database;
 
 const clientsData = [
-  { name: "Revenium", aliases: ["Revenium", "REV"], known_participants: ["@revenium.com"] },
-  { name: "Mandalore", aliases: ["Mandalore"], known_participants: ["@mandalore.com"] },
+  {
+    name: "Revenium",
+    aliases: ["Revenium", "REV"],
+    client_team: [
+      { name: "John Smith", email: "john@revenium.com", role: "Developer" },
+      { name: "Dev User", email: "dev@revenium.com", role: "Developer" },
+    ],
+  },
+  {
+    name: "Mandalore",
+    aliases: ["Mandalore"],
+    client_team: [
+      { name: "Mando User", email: "user@mandalore.com", role: "Developer" },
+    ],
+  },
 ];
 
 function makeDir() {
@@ -44,7 +57,7 @@ beforeAll(() => {
 });
 
 describe("detectClient", () => {
-  it("returns client when participant email domain matches known_participants", () => {
+  it("returns client when participant email matches client_team member email", () => {
     const meeting = makeMeeting({
       participants: [{ last_name: "Smith", id: "1", first_name: "John", email: "john@revenium.com" }],
     });
@@ -69,7 +82,7 @@ describe("detectClient", () => {
     expect(results.some((r) => r.client_name === "Mandalore")).toBe(true);
   });
 
-  it("returns confidence 0.8 for participant domain match", () => {
+  it("returns confidence 0.8 for participant email match", () => {
     const meeting = makeMeeting({
       participants: [{ last_name: "D", id: "2", first_name: "Dev", email: "dev@revenium.com" }],
     });
@@ -133,7 +146,7 @@ describe("meeting_names matching", () => {
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: ["TestAlias"], known_participants: ["@testco.com"], meeting_names: ["AppDev Leads - Weekly Sync"] },
+      { name: "TestCo", aliases: ["TestAlias"], client_team: [{ name: "Test User", email: "test@testco.com", role: "Dev" }], meeting_names: ["AppDev Leads - Weekly Sync"] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({ title: "AppDev Leads - Weekly Sync" });
@@ -150,7 +163,7 @@ describe("meeting_names matching", () => {
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: [], meeting_names: ["AppDev Leads DSU"] },
+      { name: "TestCo", aliases: [], client_team: [], meeting_names: ["AppDev Leads DSU"] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({ title: "appdev_leads_dsu-019cabc" });
@@ -166,7 +179,7 @@ describe("meeting_names matching", () => {
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["@testco.com"], meeting_names: ["Weekly Sync"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "A", email: "a@testco.com", role: "Dev" }], meeting_names: ["Weekly Sync"] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({
@@ -202,14 +215,14 @@ describe("parseSpeakerNames", () => {
 });
 
 describe("speaker name matching", () => {
-  it("detects client when speaker name matches known_participant email tokens (full name)", () => {
+  it("detects client when speaker name matches client_team member email tokens (full name)", () => {
     const localDb = createDb(":memory:");
     migrate(localDb);
     const dir = join(tmpdir(), `det-sp1-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "Ray Li", email: "ray.li@testco.com", role: "Dev" }] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({
@@ -227,7 +240,7 @@ describe("speaker name matching", () => {
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "Ray Li", email: "ray.li@testco.com", role: "Dev" }] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({
@@ -238,14 +251,14 @@ describe("speaker name matching", () => {
     expect(results.some((r) => r.client_name === "TestCo")).toBe(true);
   });
 
-  it("detects client via plain-name known_participant matched by speaker", () => {
+  it("detects client via plain-name participant matched by speaker", () => {
     const localDb = createDb(":memory:");
     migrate(localDb);
     const dir = join(tmpdir(), `det-sp3-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["Brian DeFeyter"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "Brian DeFeyter", role: "Developer" }] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({
@@ -256,14 +269,14 @@ describe("speaker name matching", () => {
     expect(results.some((r) => r.client_name === "TestCo")).toBe(true);
   });
 
-  it("does not match domain-pattern entry via speaker name", () => {
+  it("does not match client when speaker name does not overlap participant name tokens", () => {
     const localDb = createDb(":memory:");
     migrate(localDb);
     const dir = join(tmpdir(), `det-sp4-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["@testco.com"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "Alice Bob", email: "alice@testco.com", role: "Dev" }] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({
@@ -281,7 +294,7 @@ describe("speaker name matching", () => {
     mkdirSync(dir, { recursive: true });
     const f = join(dir, "clients.json");
     writeFileSync(f, JSON.stringify([
-      { name: "TestCo", aliases: [], known_participants: ["ray.li@testco.com"], meeting_names: ["Weekly Sync"] },
+      { name: "TestCo", aliases: [], client_team: [{ name: "Ray Li", email: "ray.li@testco.com", role: "Dev" }], meeting_names: ["Weekly Sync"] },
     ]));
     seedClients(localDb, f);
     const meeting = makeMeeting({

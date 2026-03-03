@@ -100,6 +100,15 @@ export function migrate(db: DatabaseSync): void {
   if (!clientCols.some(c => c.name === "is_default")) {
     db.exec("ALTER TABLE clients ADD COLUMN is_default INTEGER DEFAULT 0");
   }
+  if (!clientCols.some(c => c.name === "client_team")) {
+    db.exec("ALTER TABLE clients ADD COLUMN client_team TEXT DEFAULT '[]'");
+  }
+  if (!clientCols.some(c => c.name === "implementation_team")) {
+    db.exec("ALTER TABLE clients ADD COLUMN implementation_team TEXT DEFAULT '[]'");
+  }
+  if (!clientCols.some(c => c.name === "additional_extraction_llm_prompt")) {
+    db.exec("ALTER TABLE clients ADD COLUMN additional_extraction_llm_prompt TEXT");
+  }
 
   if (artifactCols.some(c => c.name === "technical_topics")) {
     db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");

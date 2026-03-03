@@ -4,19 +4,29 @@ import { createLogger } from "./logger.js";
 
 const log = createLogger("client");
 
+export interface Participant {
+  name: string;
+  email?: string;
+  role: string;
+}
+
 export interface ClientRow {
   name: string;
   aliases: string;
   known_participants: string;
   refinement_prompt: string | null;
+  client_team: string;
+  implementation_team: string;
+  additional_extraction_llm_prompt: string | null;
   meeting_names: string;
 }
 
 interface ClientEntry {
   name: string;
   aliases: string[];
-  known_participants: string[];
-  refinement_prompt?: string;
+  client_team?: Participant[];
+  implementation_team?: Participant[];
+  additional_extraction_llm_prompt?: string;
   meeting_names?: string[];
   is_default?: boolean;
 }
@@ -26,13 +36,21 @@ export function seedClients(db: Database, filePath: string): void {
   for (const entry of entries) {
     if (!entry.name) throw new Error("Client entry missing name");
     if (!entry.aliases) throw new Error("Client entry missing aliases");
+    const clientTeam = entry.client_team ?? [];
+    const implTeam = entry.implementation_team ?? [];
+    const knownParticipants = [
+      ...clientTeam.map(p => p.email ?? p.name),
+      ...implTeam.map(p => p.email ?? p.name),
+    ].filter(Boolean);
     db.prepare(
-      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, refinement_prompt, meeting_names, is_default) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
-      JSON.stringify(entry.known_participants ?? []),
-      entry.refinement_prompt ?? null,
+      JSON.stringify(knownParticipants),
+      JSON.stringify(clientTeam),
+      JSON.stringify(implTeam),
+      entry.additional_extraction_llm_prompt ?? null,
       entry.meeting_names ? JSON.stringify(entry.meeting_names) : "[]",
       entry.is_default ? 1 : 0,
     );

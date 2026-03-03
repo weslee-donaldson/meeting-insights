@@ -7,5 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1126 | 3:15 PM | 🟣 | Burst 394 Complete: Architecture Field Removed End-to-End | ~488 |
 | #1111 | 3:10 PM | ✅ | Removed Architecture from Empty Artifact in Merge Function | ~376 |
 </claude-mem-context>

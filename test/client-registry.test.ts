@@ -4,14 +4,23 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient } from "../core/client-registry.js";
+import type { Participant } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
 let clientsFile: string;
 
 const clientsData = [
-  { name: "Revenium", aliases: ["Revenium", "REV"], known_participants: ["@revenium.com"] },
-  { name: "Mandalore", aliases: ["Mandalore"], known_participants: ["@mandalore.com"] },
+  {
+    name: "Revenium",
+    aliases: ["Revenium", "REV"],
+    client_team: [{ name: "John Smith", email: "john@revenium.com", role: "Developer" }],
+  },
+  {
+    name: "Mandalore",
+    aliases: ["Mandalore"],
+    client_team: [{ name: "Luke", email: "luke@mandalore.com", role: "Engineer" }],
+  },
 ];
 
 beforeAll(() => {
@@ -74,24 +83,63 @@ describe("getAllClients", () => {
   });
 });
 
-describe("refinement_prompt field", () => {
-  it("returns refinement_prompt when client is seeded with one", () => {
+describe("client_team and implementation_team fields", () => {
+  it("stores client_team as parseable Participant array", () => {
+    const client = getClientByName(db, "Revenium");
+    const team: Participant[] = JSON.parse(client!.client_team);
+    expect(team).toEqual([{ name: "John Smith", email: "john@revenium.com", role: "Developer" }]);
+  });
+
+  it("stores implementation_team as empty array when not provided", () => {
+    const client = getClientByName(db, "Revenium");
+    const team: Participant[] = JSON.parse(client!.implementation_team);
+    expect(team).toEqual([]);
+  });
+
+  it("stores implementation_team when provided", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-impl-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([
+      {
+        name: "TestCo",
+        aliases: ["Test"],
+        client_team: [{ name: "Alice", email: "alice@testco.com", role: "PM" }],
+        implementation_team: [{ name: "Bob", email: "bob@xolv.io", role: "Architect" }],
+      },
+    ]));
+    seedClients(localDb, file);
+    const client = getClientByName(localDb, "TestCo");
+    const implTeam: Participant[] = JSON.parse(client!.implementation_team);
+    expect(implTeam).toEqual([{ name: "Bob", email: "bob@xolv.io", role: "Architect" }]);
+  });
+});
+
+describe("additional_extraction_llm_prompt field", () => {
+  it("returns additional_extraction_llm_prompt when client is seeded with one", () => {
     const localDb = createDb(":memory:");
     migrate(localDb);
     const dir = join(tmpdir(), `clients-refine-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     const file = join(dir, "clients.json");
     writeFileSync(file, JSON.stringify([
-      { name: "TestCo", aliases: ["Test"], known_participants: ["@test.com"], refinement_prompt: "Stace is the CTO." },
+      {
+        name: "TestCo",
+        aliases: ["Test"],
+        client_team: [],
+        additional_extraction_llm_prompt: "Stace is the CTO.",
+      },
     ]));
     seedClients(localDb, file);
     const client = getClientByName(localDb, "TestCo");
-    expect(client!.refinement_prompt).toBe("Stace is the CTO.");
+    expect(client!.additional_extraction_llm_prompt).toBe("Stace is the CTO.");
   });
 
-  it("returns null refinement_prompt when client has none", () => {
+  it("returns null additional_extraction_llm_prompt when client has none", () => {
     const client = getClientByName(db, "Revenium");
-    expect(client!.refinement_prompt).toBeNull();
+    expect(client!.additional_extraction_llm_prompt).toBeNull();
   });
 });
 
@@ -103,7 +151,12 @@ describe("meeting_names field", () => {
     mkdirSync(dir, { recursive: true });
     const file = join(dir, "clients.json");
     writeFileSync(file, JSON.stringify([
-      { name: "TestCo", aliases: ["Test"], known_participants: ["@test.com"], meeting_names: ["Weekly Sync", "Team DSU"] },
+      {
+        name: "TestCo",
+        aliases: ["Test"],
+        client_team: [],
+        meeting_names: ["Weekly Sync", "Team DSU"],
+      },
     ]));
     seedClients(localDb, file);
     const client = getClientByName(localDb, "TestCo");
@@ -124,8 +177,8 @@ describe("getDefaultClient", () => {
     mkdirSync(dir, { recursive: true });
     const file = join(dir, "clients.json");
     writeFileSync(file, JSON.stringify([
-      { name: "Acme", aliases: ["Acme"], known_participants: [], is_default: true },
-      { name: "Beta", aliases: ["Beta"], known_participants: [] },
+      { name: "Acme", aliases: ["Acme"], client_team: [], is_default: true },
+      { name: "Beta", aliases: ["Beta"], client_team: [] },
     ]));
     seedClients(localDb, file);
     expect(getDefaultClient(localDb)).toBe("Acme");
