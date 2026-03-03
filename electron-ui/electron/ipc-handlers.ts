@@ -101,7 +101,7 @@ export function handleGetArtifact(
 }
 
 const SYSTEM_PROMPT = `You are a meeting intelligence assistant. Answer the user's question using ONLY the provided meeting context.
-Cite specific meetings using their labels [M1], [M2], etc. when referencing information.
+When referencing a meeting, cite it by its title and date — for example "Sprint Planning (Mon, 3/2/2026)". Do NOT use [M1], [M2] labels in your response.
 If the answer cannot be found in the context, say so clearly.`;
 
 export async function handleChat(
