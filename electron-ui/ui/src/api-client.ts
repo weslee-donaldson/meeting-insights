@@ -54,14 +54,14 @@ export const apiClient: ElectronAPI = {
 
   reassignClient: (meetingId: string, clientName: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/client`, {
-      method: "PUT",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clientName }),
     }).then(() => undefined),
 
   setIgnored: (meetingId: string, ignored: boolean) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/ignored`, {
-      method: "PUT",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ignored }),
     }).then(() => undefined),

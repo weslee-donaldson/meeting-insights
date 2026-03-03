@@ -92,4 +92,22 @@ describe("apiClient", () => {
     expect(await apiClient.getDefaultClient()).toBe("LLSA");
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/default-client");
   });
+
+  it("reassignClient posts to /api/meetings/:id/client", async () => {
+    const spy = mockFetch(null, 204);
+    await apiClient.reassignClient("m1", "Acme");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/meetings/m1/client",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("setIgnored posts to /api/meetings/:id/ignored", async () => {
+    const spy = mockFetch(null, 204);
+    await apiClient.setIgnored("m1", true);
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/meetings/m1/ignored",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 });
