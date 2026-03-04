@@ -181,7 +181,7 @@ export function MeetingList({
       <div className="flex flex-col shrink-0 border-b border-border">
         <div className="flex items-center gap-1 px-3 pt-2 pb-1.5">
           {onNewMeeting && (
-            <Button variant="outline" size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ Add Meeting</Button>
+            <Button size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ Add Meeting</Button>
           )}
           {(checkedCount ?? 0) > 0 && (
             <Button
