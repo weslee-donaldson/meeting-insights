@@ -80,7 +80,7 @@ function turnsToText(turns: SpeakerTurn[]): string {
 
 function mergeArtifacts(artifacts: Artifact[]): Artifact {
   return {
-    summary: artifacts.map((a) => a.summary).join(" "),
+    summary: artifacts.map((a) => a.summary).filter(Boolean).join("\n\n"),
     decisions: artifacts.flatMap((a) => a.decisions),
     proposed_features: artifacts.flatMap((a) => a.proposed_features),
     action_items: artifacts.flatMap((a) => a.action_items),

@@ -200,7 +200,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
         </Button>
       </div>
       <Section title="Summary" isEmpty={!artifact.summary} open={!!sectionStates["Summary"]} onOpenChange={(o) => setSectionOpen("Summary", o)}>
-        <p className="leading-[1.65] text-secondary-foreground m-0">{artifact.summary}</p>
+        <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap">{artifact.summary}</p>
       </Section>
 
       <Section
