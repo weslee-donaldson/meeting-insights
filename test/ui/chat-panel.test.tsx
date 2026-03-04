@@ -57,7 +57,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false, "");
   });
 
   it("sends full message history including prior exchanges on second question", async () => {
@@ -80,7 +80,7 @@ describe("ChatPanel", () => {
       { role: "user", content: "Q1" },
       { role: "assistant", content: "First answer." },
       { role: "user", content: "Q2" },
-    ], undefined, false);
+    ], undefined, false, "");
   });
 
   it("include full transcripts checkbox renders unchecked by default", () => {
@@ -96,7 +96,7 @@ describe("ChatPanel", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Include full transcripts" }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true, "");
   });
 
   it("displays sources beneath each assistant bubble", async () => {
@@ -247,6 +247,41 @@ describe("ChatPanel", () => {
     fireEvent(textarea, pasteEvent);
     fireEvent.click(screen.getByRole("button", { name: "Remove screenshot.png" }));
     expect(screen.queryByText("screenshot.png")).toBeNull();
+  });
+
+  it("renders template dropdown with Default option and template names when templates prop provided", () => {
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} templates={["jira-epic", "jira-ticket"]} />,
+    );
+    const select = screen.getByRole("combobox", { name: "Output template" });
+    expect(select).toBeDefined();
+    expect(screen.getByRole("option", { name: "Default" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "Jira Epic" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "Jira Ticket" })).toBeDefined();
+  });
+
+  it("selecting a template passes it as 4th arg to onChat", () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} templates={["jira-ticket"]} />,
+    );
+    fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-ticket" } });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Make a ticket" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "Make a ticket" }], undefined, false, "jira-ticket");
+  });
+
+  it("template selection resets to Default when activeMeetingIds changes", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    const { rerender } = render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} templates={["jira-ticket"]} />,
+    );
+    fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-ticket" } });
+    expect((screen.getByRole("combobox", { name: "Output template" }) as HTMLSelectElement).value).toBe("jira-ticket");
+    rerender(
+      <ChatPanel activeMeetingIds={["m2"]} charCount={100} onChat={onChat} templates={["jira-ticket"]} />,
+    );
+    expect((screen.getByRole("combobox", { name: "Output template" }) as HTMLSelectElement).value).toBe("");
   });
 
   it("history clears when activeMeetingIds changes", async () => {

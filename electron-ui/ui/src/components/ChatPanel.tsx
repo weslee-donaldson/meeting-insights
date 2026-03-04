@@ -44,15 +44,21 @@ interface AttachmentItem {
 interface ChatPanelProps {
   activeMeetingIds: string[];
   charCount: number;
-  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean) => Promise<ConversationChatResponse>;
+  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string) => Promise<ConversationChatResponse>;
+  templates?: string[];
 }
 
-export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProps) {
+function toDisplayName(stem: string): string {
+  return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<InternalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [includeTranscripts, setIncludeTranscripts] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -61,6 +67,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
   useEffect(() => {
     setMessages([]);
     setAttachments([]);
+    setSelectedTemplate("");
   }, [meetingKey]);
 
   const submit = useCallback(async () => {
@@ -89,7 +96,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
           }),
         );
       }
-      const response = await onChat(historyForApi, base64Attachments, includeTranscripts);
+      const response = await onChat(historyForApi, base64Attachments, includeTranscripts, selectedTemplate);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
@@ -98,7 +105,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
-  }, [input, loading, onChat, messages, attachments, includeTranscripts]);
+  }, [input, loading, onChat, messages, attachments, includeTranscripts, selectedTemplate]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -291,16 +298,31 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
               rows={3}
               className="w-full resize-none rounded-md px-3 py-2 text-sm bg-input text-foreground border border-border outline-none"
             />
-            <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
-              <input
-                type="checkbox"
-                aria-label="Include full transcripts"
-                checked={includeTranscripts}
-                onChange={(e) => setIncludeTranscripts(e.target.checked)}
-                className="cursor-pointer"
-              />
-              <span className="text-[0.7rem] text-muted-foreground">Include full transcripts</span>
-            </label>
+            <div className="flex items-center gap-3">
+              {templates && templates.length > 0 && (
+                <select
+                  aria-label="Output template"
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="text-[0.7rem] text-muted-foreground bg-transparent border border-border rounded px-1 py-0.5 cursor-pointer"
+                >
+                  <option value="">Default</option>
+                  {templates.map((t) => (
+                    <option key={t} value={t}>{toDisplayName(t)}</option>
+                  ))}
+                </select>
+              )}
+              <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
+                <input
+                  type="checkbox"
+                  aria-label="Include full transcripts"
+                  checked={includeTranscripts}
+                  onChange={(e) => setIncludeTranscripts(e.target.checked)}
+                  className="cursor-pointer"
+                />
+                <span className="text-[0.7rem] text-muted-foreground">Include full transcripts</span>
+              </label>
+            </div>
           </div>
           <div className="flex flex-col gap-1 self-end">
             <label className="cursor-pointer flex items-center justify-center w-8 h-8 rounded-md hover:bg-secondary text-muted-foreground">

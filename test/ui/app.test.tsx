@@ -51,6 +51,8 @@ beforeAll(() => {
     getClientActionItems: vi.fn().mockResolvedValue([
       { meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-01", item_index: 0, description: "Deploy fix", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" },
     ]),
+    getTemplates: vi.fn().mockResolvedValue(["jira-ticket"]),
+    uncompleteActionItem: vi.fn().mockResolvedValue(undefined),
   };
 });
 

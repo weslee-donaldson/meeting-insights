@@ -38,6 +38,11 @@ export function App() {
     queryFn: () => window.api.getClients(),
   });
 
+  const templatesQuery = useQuery<string[]>({
+    queryKey: ["templates"],
+    queryFn: () => window.api.getTemplates(),
+  });
+
   const defaultClientQuery = useQuery<string | null>({
     queryKey: ["defaultClient"],
     queryFn: () => window.api.getDefaultClient(),
@@ -275,8 +280,8 @@ export function App() {
   }, []);
 
   const handleChat = useCallback(
-    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean): Promise<ConversationChatResponse> => {
-      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages, attachments, includeTranscripts });
+    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string): Promise<ConversationChatResponse> => {
+      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages, attachments, includeTranscripts, template: template || undefined });
     },
     [activeMeetingIds],
   );
@@ -368,6 +373,7 @@ export function App() {
           activeMeetingIds={activeMeetingIds}
           charCount={charCount}
           onChat={handleChat}
+          templates={templatesQuery.data ?? []}
         />
       }
     />
