@@ -178,53 +178,56 @@ export function MeetingList({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-col gap-1.5 px-3 pt-2 pb-2 shrink-0 border-b border-border">
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm text-foreground font-semibold">Group by:</span>
-          {GROUP_MODES.map(({ value, label }) => (
+      <div className="flex flex-col shrink-0 border-b border-border">
+        <div className="flex items-center gap-1 px-3 pt-2 pb-1.5">
+          {onNewMeeting && (
+            <Button variant="outline" size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ Add Meeting</Button>
+          )}
+          {(checkedCount ?? 0) > 0 && (
             <Button
-              key={value}
-              variant={groupBy === value ? "default" : "secondary"}
+              variant="destructive"
               size="sm"
-              className="rounded-full h-auto px-3 py-0.5 text-sm"
-              onClick={() => onGroupBy(value)}
+              className="h-auto px-2 py-0.5 text-xs"
+              onClick={onDelete}
+              aria-label={`Delete ${checkedCount}`}
             >
-              {label}
+              <Trash2 className="w-3 h-3" />
+              <span>Delete {checkedCount}</span>
             </Button>
-          ))}
-          <div className="flex items-center gap-1 ml-auto">
-            {onNewMeeting && (
-              <Button variant="outline" size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ Add Meeting</Button>
-            )}
-            {(checkedCount ?? 0) > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-auto px-2 py-0.5 text-xs"
-                onClick={onDelete}
-                aria-label={`Delete ${checkedCount}`}
-              >
-                <Trash2 className="w-3 h-3" />
-                <span>Delete {checkedCount}</span>
-              </Button>
-            )}
-          </div>
+          )}
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm text-foreground font-semibold">Sort:</span>
-          {SORT_MODES.map(({ value, label }) =>
-            value === "relevance" && !hasRelevance ? null : (
+        <div className="border-b border-border mx-3" />
+        <div className="flex flex-col gap-1.5 px-3 pt-1.5 pb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm text-foreground font-semibold">Group by:</span>
+            {GROUP_MODES.map(({ value, label }) => (
               <Button
                 key={value}
-                variant={sortBy === value ? "default" : "secondary"}
+                variant={groupBy === value ? "default" : "secondary"}
                 size="sm"
                 className="rounded-full h-auto px-3 py-0.5 text-sm"
-                onClick={() => onSortBy(value)}
+                onClick={() => onGroupBy(value)}
               >
                 {label}
               </Button>
-            ),
-          )}
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm text-foreground font-semibold">Sort:</span>
+            {SORT_MODES.map(({ value, label }) =>
+              value === "relevance" && !hasRelevance ? null : (
+                <Button
+                  key={value}
+                  variant={sortBy === value ? "default" : "secondary"}
+                  size="sm"
+                  className="rounded-full h-auto px-3 py-0.5 text-sm"
+                  onClick={() => onSortBy(value)}
+                >
+                  {label}
+                </Button>
+              ),
+            )}
+          </div>
         </div>
       </div>
 
