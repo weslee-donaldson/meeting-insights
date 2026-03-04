@@ -1060,6 +1060,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 
 - [x] Burst 436: `handleDeleteMeetings` also removes vectors — accept `vdb: VectorDb | null`; async; delete from `meeting_vectors`, `feature_vectors`, `item_vectors` when vdb provided; test: mock vdb tables, verify `delete` called with correct filter; update existing tests to pass `null` (commit: `e6208a3`)
 - [x] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; Dialog shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; 3 new tests (commit: `110ec86`)
+- [x] Burst 438: Optimistic delete — `setQueriesData` filters deleted IDs from cache immediately before API call so list updates without waiting for refetch; `invalidateQueries` still runs after for server sync (commit: `6d689a9`)
 
 ---
 
