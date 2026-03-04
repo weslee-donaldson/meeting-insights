@@ -51,6 +51,17 @@ describe("LinearShell", () => {
     expect(screen.getByTestId("main-resize-handle")).toBeDefined();
   });
 
+  it("single panel has no fixed width style (fills available space)", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="only">only</div>]}
+      />,
+    );
+    const panel = screen.getByTestId("panel-0");
+    expect(panel.style.width).toBe("");
+  });
+
   it("first panel defaults to 500px width", () => {
     render(
       <LinearShell

@@ -62,7 +62,9 @@ export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false }:
       <div className="flex flex-1 overflow-hidden">
         {navRail}
 
-        {panels.map((panel, i) => (
+        {panels.map((panel, i) => {
+          const isOnlyPanel = panels.length === 1;
+          return (
           <React.Fragment key={i}>
             {i > 0 && (
               <div
@@ -74,16 +76,19 @@ export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false }:
             <div
               data-testid={`panel-${i}`}
               className={
-                i === 0
+                i === 0 && !isOnlyPanel
                   ? "shrink-0 overflow-auto pl-[15px]"
+                  : i === 0
+                  ? `flex-1 overflow-auto pl-[15px]${chatOpen ? "" : " pr-[15px]"}`
                   : `flex-1 min-w-[200px] overflow-auto${chatOpen ? "" : " pr-[15px]"}`
               }
-              style={i === 0 ? { width: panel0Width + "px" } : undefined}
+              style={i === 0 && !isOnlyPanel ? { width: panel0Width + "px" } : undefined}
             >
               {panel}
             </div>
           </React.Fragment>
-        ))}
+          );
+        })}
 
         {chatOpen && (
           <>
