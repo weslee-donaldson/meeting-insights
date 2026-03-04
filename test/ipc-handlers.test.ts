@@ -556,6 +556,23 @@ describe("IPC handlers", () => {
       const m = meetings.find((r) => r.id === meetingId)!;
       expect(m.date).toBe("2026-03-10T00:00:00.000Z");
     });
+
+    it("passes extraction prompt template to LLM", async () => {
+      let capturedContent = "";
+      const spyLlm: LlmAdapter = {
+        async complete(_type: string, content: string) {
+          capturedContent = content;
+          return { summary: "s", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] };
+        },
+      };
+      await handleCreateMeeting(createDb2, spyLlm, {
+        clientName: "",
+        date: "2026-03-10",
+        title: "Prompt Test",
+        rawTranscript: "Alice | 00:00\nHello.",
+      });
+      expect(capturedContent).toContain("meeting analyst");
+    });
   });
 
   describe("handleReExtract", () => {
@@ -576,6 +593,18 @@ describe("IPC handlers", () => {
       await handleReExtract(db, spyLlm, meetingId2);
       const artifact = handleGetArtifact(db, meetingId2);
       expect(artifact?.summary).toBe("Re-extracted summary");
+    });
+
+    it("passes extraction prompt template to LLM", async () => {
+      let capturedContent = "";
+      const spyLlm: LlmAdapter = {
+        async complete(_type: string, content: string) {
+          capturedContent = content;
+          return { summary: "s", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] };
+        },
+      };
+      await handleReExtract(db, spyLlm, meetingId2);
+      expect(capturedContent).toContain("meeting analyst");
     });
   });
 

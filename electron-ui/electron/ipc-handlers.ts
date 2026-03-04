@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
 import { parseTranscriptBody } from "../../core/parser.js";
+import { getClientByName, buildClientContext } from "../../core/client-registry.js";
+import type { Participant } from "../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../core/labeled-context.js";
 import { ingestMeeting, getMeeting } from "../../core/ingest.js";
 import { storeDetection } from "../../core/client-detection.js";
@@ -21,6 +23,9 @@ import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
 const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
 const chatGuidelines = existsSync(CHAT_GUIDELINES_PATH) ? readFileSync(CHAT_GUIDELINES_PATH, "utf8") : "";
+
+const EXTRACTION_PROMPT_PATH = join(REPO_ROOT, "config/prompts/extraction.md");
+const extractionPrompt = existsSync(EXTRACTION_PROMPT_PATH) ? readFileSync(EXTRACTION_PROMPT_PATH, "utf8") : undefined;
 
 const SYSTEM_CONFIG_PATH = join(REPO_ROOT, "config/system.json");
 const systemConfig = existsSync(SYSTEM_CONFIG_PATH)
@@ -215,12 +220,27 @@ export async function handleConversationChat(
   return { answer, sources, charCount };
 }
 
+function clientContextForName(db: Database, clientName: string): string | undefined {
+  const clientRow = getClientByName(db, clientName);
+  if (!clientRow) return undefined;
+  return buildClientContext(
+    clientRow.name,
+    JSON.parse(clientRow.client_team ?? "[]") as Participant[],
+    JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
+    clientRow.additional_extraction_llm_prompt ?? undefined,
+  );
+}
+
 export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: string): Promise<void> {
   const row = db.prepare("SELECT raw_transcript FROM meetings WHERE id = ?").get(meetingId) as RawMeetingRow | undefined;
   if (!row) throw new Error(`Meeting ${meetingId} not found`);
   cleanupMentions(db, meetingId);
   const turns = parseTranscriptBody(row.raw_transcript ?? "");
-  const artifact = await extractSummary(llm, turns, 8000);
+  const detection = db.prepare(
+    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+  ).get(meetingId) as { client_name: string } | undefined;
+  const clientContext = detection ? clientContextForName(db, detection.client_name) : undefined;
+  const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
   storeArtifact(db, meetingId, artifact);
 }
@@ -389,7 +409,8 @@ export async function handleCreateMeeting(
   if (turns.length === 0) {
     turns = [{ speaker_name: "Participant", timestamp: "00:00", text: req.rawTranscript }];
   }
-  const artifact = await extractSummary(llm, turns, 8000);
+  const clientContext = req.clientName ? clientContextForName(db, req.clientName) : undefined;
+  const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   storeArtifact(db, meetingId, artifact);
   return meetingId;
 }
