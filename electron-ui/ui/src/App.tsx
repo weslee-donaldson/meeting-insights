@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { LinearShell } from "./components/LinearShell.js";
 import { TopBar } from "./components/TopBar.js";
-import { MeetingList, type GroupBy } from "./components/MeetingList.js";
+import { MeetingList, type GroupBy, type SortBy } from "./components/MeetingList.js";
 import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { NavRail } from "./components/NavRail.js";
@@ -28,6 +28,7 @@ export function App() {
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
+  const [sortBy, setSortBy] = useState<SortBy>("date-desc");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
@@ -74,6 +75,19 @@ export function App() {
     const matchIds = new Set(searchResults.map((r) => r.meeting_id));
     return all.filter((m) => matchIds.has(m.id));
   }, [meetingsQuery.data, searchQuery, searchResults]);
+
+  const searchScores = useMemo(() => {
+    if (!searchResults || searchResults.length === 0) return undefined;
+    return new Map(searchResults.map((r) => [r.meeting_id, r.score]));
+  }, [searchResults]);
+
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2 && searchResults && searchResults.length > 0) {
+      setSortBy("relevance");
+    } else if (searchQuery.trim().length < 2) {
+      setSortBy("date-desc");
+    }
+  }, [searchQuery, searchResults]);
 
   const activeMeetingIds =
     currentView === "action-items"
@@ -294,6 +308,9 @@ export function App() {
       checked={checkedMeetingIds}
       groupBy={groupBy}
       onGroupBy={setGroupBy}
+      sortBy={sortBy}
+      onSortBy={setSortBy}
+      searchScores={searchScores}
       onSelect={setSelectedMeetingId}
       onCheck={handleCheck}
       onCheckGroup={handleCheckGroup}

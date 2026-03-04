@@ -4,7 +4,7 @@ import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MeetingList } from "../../electron-ui/ui/src/components/MeetingList.js";
-import type { GroupBy } from "../../electron-ui/ui/src/components/MeetingList.js";
+import type { GroupBy, SortBy } from "../../electron-ui/ui/src/components/MeetingList.js";
 import type { MeetingRow } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
@@ -21,10 +21,12 @@ function makeMeeting(overrides: Partial<MeetingRow>): MeetingRow {
   };
 }
 
-function defaultProps(overrides: Partial<{ groupBy: GroupBy; onGroupBy: (g: GroupBy) => void }> = {}) {
+function defaultProps(overrides: Partial<{ groupBy: GroupBy; onGroupBy: (g: GroupBy) => void; sortBy: SortBy; onSortBy: (s: SortBy) => void }> = {}) {
   return {
     groupBy: "series" as GroupBy,
     onGroupBy: vi.fn(),
+    sortBy: "date-desc" as SortBy,
+    onSortBy: vi.fn(),
     ...overrides,
   };
 }
@@ -144,25 +146,23 @@ describe("MeetingList", () => {
     expect(dates[0].textContent).toContain("Feb 26");
   });
 
-  it("renders oldest meeting first when sortAsc is true", () => {
+  it("renders oldest meeting first when sortBy is date-asc", () => {
     render(
       <MeetingList
         meetings={dsuMeetings}
         selectedId={null}
         checked={new Set()}
-        {...defaultProps()}
+        {...defaultProps({ sortBy: "date-asc" })}
         onSelect={vi.fn()}
         onCheck={vi.fn()}
         onCheckGroup={vi.fn()}
-        sortAsc={true}
       />,
     );
     const dates = screen.getAllByText(/Feb \d+, 2026/);
     expect(dates[0].textContent).toContain("Feb 23");
   });
 
-  it("renders sort toggle button that calls onSortToggle", () => {
-    const onSortToggle = vi.fn();
+  it("renders Sort: label and Newest/Oldest/Client buttons always", () => {
     render(
       <MeetingList
         meetings={[]}
@@ -172,11 +172,90 @@ describe("MeetingList", () => {
         onSelect={vi.fn()}
         onCheck={vi.fn()}
         onCheckGroup={vi.fn()}
-        onSortToggle={onSortToggle}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /sort/i }));
-    expect(onSortToggle).toHaveBeenCalledOnce();
+    expect(screen.getByText("Sort:")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Newest" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Oldest" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Client" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Relevance" })).toBeNull();
+  });
+
+  it("shows Relevance button when searchScores are provided", () => {
+    render(
+      <MeetingList
+        meetings={dsuMeetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchScores={new Map([["dsu-1", 0.3], ["dsu-2", 0.8]])}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Relevance" })).toBeTruthy();
+  });
+
+  it("clicking a sort button calls onSortBy with that mode", () => {
+    const onSortBy = vi.fn();
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ onSortBy })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Oldest" }));
+    expect(onSortBy).toHaveBeenCalledWith("date-asc");
+  });
+
+  it("orders meetings by relevance score ascending when sortBy is relevance", () => {
+    const meetings = [
+      makeMeeting({ id: "low", title: "Low Relevance Meeting", date: "2026-02-26T10:00:00.000Z", series: "low relevance meeting" }),
+      makeMeeting({ id: "high", title: "High Relevance Meeting", date: "2026-02-24T10:00:00.000Z", series: "high relevance meeting" }),
+    ];
+    const scores = new Map([["low", 1.2], ["high", 0.1]]);
+    render(
+      <MeetingList
+        meetings={meetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ sortBy: "relevance" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchScores={scores}
+      />,
+    );
+    // high (score 0.1) appears before low (score 1.2) in DOM order
+    const rows = screen.getAllByTestId(/meeting-row-/);
+    expect(rows[0].getAttribute("data-testid")).toBe("meeting-row-high");
+    expect(rows[1].getAttribute("data-testid")).toBe("meeting-row-low");
+  });
+
+  it("orders meetings by client alphabetically when sortBy is client", () => {
+    const meetings = [
+      makeMeeting({ id: "z-client", title: "Meeting Z", date: "2026-02-26T10:00:00.000Z", client: "Zeta Corp", series: "meeting z" }),
+      makeMeeting({ id: "a-client", title: "Meeting A", date: "2026-02-24T10:00:00.000Z", client: "Acme", series: "meeting a" }),
+    ];
+    render(
+      <MeetingList
+        meetings={meetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps({ sortBy: "client", groupBy: "day" })}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    const rows = screen.getAllByText(/Meeting [AZ]/);
+    expect(rows[0].textContent).toBe("Meeting A");
   });
 
   it("renders Group by label before group-by buttons", () => {

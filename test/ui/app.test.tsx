@@ -196,4 +196,30 @@ describe("App", () => {
       expect(screen.getByText("2 meetings selected")).toBeDefined();
     });
   });
+
+  it("Relevance sort button appears and sort switches to relevance when search returns results", async () => {
+    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+      { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
+    ]);
+    render(<App />, { wrapper });
+    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "deployment issue" } });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Relevance" })).toBeTruthy();
+    });
+  });
+
+  it("sort resets to Newest when search query is cleared", async () => {
+    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+      { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
+    ]);
+    render(<App />, { wrapper });
+    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "deployment issue" } });
+    await waitFor(() => screen.getByRole("button", { name: "Relevance" }));
+    fireEvent.change(input, { target: { value: "" } });
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "Relevance" })).toBeNull();
+    });
+  });
 });

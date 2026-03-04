@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { ArrowUpDown, Trash2, ListChecks, EyeOff } from "lucide-react";
+import { Trash2, ListChecks, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
+export type SortBy = "date-desc" | "date-asc" | "client" | "relevance";
 
 interface MeetingListProps {
   meetings: MeetingRow[];
@@ -12,12 +13,13 @@ interface MeetingListProps {
   checked: Set<string>;
   groupBy: GroupBy;
   onGroupBy: (g: GroupBy) => void;
+  sortBy: SortBy;
+  onSortBy: (s: SortBy) => void;
+  searchScores?: Map<string, number>;
   onSelect: (id: string) => void;
   onCheck: (id: string) => void;
   onCheckGroup: (ids: string[]) => void;
   onIgnoreGroup?: (ids: string[]) => void;
-  sortAsc?: boolean;
-  onSortToggle?: () => void;
   searchLoading?: boolean;
   searchQuery?: string;
   loading?: boolean;
@@ -37,9 +39,8 @@ interface SeriesGroup {
 }
 
 function groupBySeries(meetings: MeetingRow[]): SeriesGroup[] {
-  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
   const map = new Map<string, MeetingRow[]>();
-  for (const m of sorted) {
+  for (const m of meetings) {
     const key = normalizeSeries(m.title);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(m);
@@ -52,9 +53,8 @@ function groupBySeries(meetings: MeetingRow[]): SeriesGroup[] {
 }
 
 function groupByDay(meetings: MeetingRow[]): SeriesGroup[] {
-  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
   const map = new Map<string, MeetingRow[]>();
-  for (const m of sorted) {
+  for (const m of meetings) {
     const key = m.date.slice(0, 10);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(m);
@@ -79,9 +79,8 @@ function isoWeekKey(dateStr: string): { key: string; monday: Date } {
 }
 
 function groupByWeek(meetings: MeetingRow[]): SeriesGroup[] {
-  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
   const map = new Map<string, { meetings: MeetingRow[]; monday: Date }>();
-  for (const m of sorted) {
+  for (const m of meetings) {
     const { key, monday } = isoWeekKey(m.date);
     if (!map.has(key)) map.set(key, { meetings: [], monday });
     map.get(key)!.meetings.push(m);
@@ -93,9 +92,8 @@ function groupByWeek(meetings: MeetingRow[]): SeriesGroup[] {
 }
 
 function groupByMonth(meetings: MeetingRow[]): SeriesGroup[] {
-  const sorted = [...meetings].sort((a, b) => b.date.localeCompare(a.date));
   const map = new Map<string, MeetingRow[]>();
-  for (const m of sorted) {
+  for (const m of meetings) {
     const key = m.date.slice(0, 7);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(m);
@@ -125,18 +123,26 @@ const GROUP_MODES: { value: GroupBy; label: string }[] = [
   { value: "month", label: "Month" },
 ];
 
+const SORT_MODES: { value: SortBy; label: string }[] = [
+  { value: "date-desc", label: "Newest" },
+  { value: "date-asc", label: "Oldest" },
+  { value: "client", label: "Client" },
+  { value: "relevance", label: "Relevance" },
+];
+
 export function MeetingList({
   meetings,
   selectedId,
   checked,
   groupBy,
   onGroupBy,
+  sortBy,
+  onSortBy,
+  searchScores,
   onSelect,
   onCheck,
   onCheckGroup,
   onIgnoreGroup,
-  sortAsc,
-  onSortToggle,
   searchLoading,
   searchQuery,
   loading,
@@ -144,56 +150,73 @@ export function MeetingList({
   checkedCount,
   onDelete,
 }: MeetingListProps) {
-  const groups = useMemo(() => {
-    let g: SeriesGroup[];
-    if (groupBy === "day") g = groupByDay(meetings);
-    else if (groupBy === "week") g = groupByWeek(meetings);
-    else if (groupBy === "month") g = groupByMonth(meetings);
-    else g = groupBySeries(meetings);
-    if (sortAsc) {
-      return g.reverse().map((gr) => ({ ...gr, meetings: [...gr.meetings].reverse() }));
+  const sorted = useMemo(() => {
+    if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
+      return [...meetings].sort((a, b) => (searchScores.get(a.id) ?? 2) - (searchScores.get(b.id) ?? 2));
     }
-    return g;
-  }, [meetings, groupBy, sortAsc]);
+    if (sortBy === "date-asc") {
+      return [...meetings].sort((a, b) => a.date.localeCompare(b.date));
+    }
+    if (sortBy === "client") {
+      return [...meetings].sort((a, b) => a.client.localeCompare(b.client) || b.date.localeCompare(a.date));
+    }
+    return [...meetings].sort((a, b) => b.date.localeCompare(a.date));
+  }, [meetings, sortBy, searchScores]);
+
+  const groups = useMemo(() => {
+    if (groupBy === "day") return groupByDay(sorted);
+    if (groupBy === "week") return groupByWeek(sorted);
+    if (groupBy === "month") return groupByMonth(sorted);
+    return groupBySeries(sorted);
+  }, [sorted, groupBy]);
+
+  const hasRelevance = !!searchScores && searchScores.size > 0;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex gap-1 px-3 py-1.5 shrink-0 border-b border-border items-center">
-        <span className="text-xs text-foreground font-medium">Group by:</span>
-        {GROUP_MODES.map(({ value, label }) => (
-          <Button
-            key={value}
-            variant={groupBy === value ? "default" : "secondary"}
-            size="sm"
-            className="rounded-full h-auto px-2.5 py-0.5 text-xs"
-            onClick={() => onGroupBy(value)}
-          >
-            {label}
-          </Button>
-        ))}
-        <div className="flex items-center gap-1 ml-auto">
-          {(checkedCount ?? 0) > 0 && (
+      <div className="flex flex-col gap-1.5 px-3 pt-2 pb-2 shrink-0 border-b border-border">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm text-foreground font-semibold">Group by:</span>
+          {GROUP_MODES.map(({ value, label }) => (
             <Button
-              variant="destructive"
+              key={value}
+              variant={groupBy === value ? "default" : "secondary"}
               size="sm"
-              className="h-auto px-2 py-0.5 text-xs"
-              onClick={onDelete}
-              aria-label={`Delete ${checkedCount}`}
+              className="rounded-full h-auto px-3 py-0.5 text-sm"
+              onClick={() => onGroupBy(value)}
             >
-              <Trash2 className="w-3 h-3" />
-              <span>Delete {checkedCount}</span>
+              {label}
             </Button>
-          )}
-          {onSortToggle && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto px-1.5 py-0.5"
-              onClick={onSortToggle}
-              aria-label={sortAsc ? "Sort descending" : "Sort ascending"}
-            >
-              <ArrowUpDown className="w-3.5 h-3.5" />
-            </Button>
+          ))}
+          <div className="flex items-center gap-1 ml-auto">
+            {(checkedCount ?? 0) > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-auto px-2 py-0.5 text-xs"
+                onClick={onDelete}
+                aria-label={`Delete ${checkedCount}`}
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Delete {checkedCount}</span>
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm text-foreground font-semibold">Sort:</span>
+          {SORT_MODES.map(({ value, label }) =>
+            value === "relevance" && !hasRelevance ? null : (
+              <Button
+                key={value}
+                variant={sortBy === value ? "default" : "secondary"}
+                size="sm"
+                className="rounded-full h-auto px-3 py-0.5 text-sm"
+                onClick={() => onSortBy(value)}
+              >
+                {label}
+              </Button>
+            ),
           )}
         </div>
       </div>
