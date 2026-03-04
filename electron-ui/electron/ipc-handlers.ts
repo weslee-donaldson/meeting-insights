@@ -4,7 +4,7 @@ import { join, resolve, basename, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
-import { parseTranscriptBody } from "../../core/parser.js";
+import { parseTranscriptBody, parseWebVttBody } from "../../core/parser.js";
 import { getClientByName, buildClientContext } from "../../core/client-registry.js";
 import type { Participant } from "../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../core/labeled-context.js";
@@ -405,7 +405,9 @@ export async function handleCreateMeeting(
   if (req.clientName) {
     storeDetection(db, meetingId, [{ client_name: req.clientName, confidence: 1.0, method: "manual" }]);
   }
-  let turns = parseTranscriptBody(req.rawTranscript);
+  let turns = req.format === "webvtt"
+    ? parseWebVttBody(req.rawTranscript)
+    : parseTranscriptBody(req.rawTranscript);
   if (turns.length === 0) {
     turns = [{ speaker_name: "Participant", timestamp: "00:00", text: req.rawTranscript }];
   }

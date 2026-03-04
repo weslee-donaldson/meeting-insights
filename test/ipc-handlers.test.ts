@@ -515,6 +515,7 @@ describe("IPC handlers", () => {
         date: "2026-03-10",
         title: "Manual Meeting",
         rawTranscript: "Alice | 00:00\nHello world.",
+        format: "krisp",
       });
       expect(meetingId).toEqual(expect.any(String));
       const meetings = handleGetMeetings(createDb2, {});
@@ -529,6 +530,7 @@ describe("IPC handlers", () => {
         date: "2026-03-10",
         title: "Acme Manual",
         rawTranscript: "Alice | 00:00\nHello.",
+        format: "krisp",
       });
       const filtered = handleGetMeetings(createDb2, { client: "Acme" });
       expect(filtered.some((m) => m.id === meetingId)).toBe(true);
@@ -540,6 +542,7 @@ describe("IPC handlers", () => {
         date: "2026-03-10",
         title: "Plain Text Meeting",
         rawTranscript: "This is a plain text transcript without speaker headers.",
+        format: "krisp",
       });
       const artifact = handleGetArtifact(createDb2, meetingId);
       expect(artifact?.summary).toBe("Created meeting summary");
@@ -551,6 +554,7 @@ describe("IPC handlers", () => {
         date: "2026-03-10",
         title: "Date Test Meeting",
         rawTranscript: "Alice | 00:00\nHi.",
+        format: "krisp",
       });
       const meetings = handleGetMeetings(createDb2, {});
       const m = meetings.find((r) => r.id === meetingId)!;
@@ -570,8 +574,22 @@ describe("IPC handlers", () => {
         date: "2026-03-10",
         title: "Prompt Test",
         rawTranscript: "Alice | 00:00\nHello.",
+        format: "krisp",
       });
       expect(capturedContent).toContain("meeting analyst");
+    });
+
+    it("uses WebVTT parser when format is webvtt", async () => {
+      const vtt = "1\n00:00:01.000 --> 00:00:02.000\nAlice: Hello from VTT.";
+      const meetingId = await handleCreateMeeting(createDb2, stubLlm, {
+        clientName: "",
+        date: "2026-03-10",
+        title: "WebVTT Meeting",
+        rawTranscript: vtt,
+        format: "webvtt",
+      });
+      const artifact = handleGetArtifact(createDb2, meetingId);
+      expect(artifact?.summary).toBe("Created meeting summary");
     });
   });
 

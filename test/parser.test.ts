@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseKrispFile } from "../core/parser.js";
+import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile } from "../core/parser.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -142,5 +142,58 @@ describe("listTranscriptFiles", () => {
     const emptyDir = join(tmpDir, "empty");
     mkdirSync(emptyDir);
     expect(listTranscriptFiles(emptyDir)).toEqual([]);
+  });
+});
+
+describe("parseWebVttBody", () => {
+  it("extracts speaker turns from WebVTT format", () => {
+    const vtt = [
+      "WEBVTT",
+      "",
+      "1",
+      "00:00:38.020 --> 00:00:39.140",
+      "Alice: Hello, hello.",
+      "",
+      "2",
+      "00:01:00.360 --> 00:01:01.680",
+      "Bob: Hey, how are you?",
+    ].join("\n");
+    expect(parseWebVttBody(vtt)).toEqual([
+      { speaker_name: "Alice", timestamp: "00:00", text: "Hello, hello." },
+      { speaker_name: "Bob", timestamp: "00:01", text: "Hey, how are you?" },
+    ]);
+  });
+
+  it("merges consecutive lines from same speaker", () => {
+    const vtt = [
+      "1",
+      "00:03:13.280 --> 00:03:14.100",
+      "Sam: First line.",
+      "",
+      "2",
+      "00:03:15.260 --> 00:03:15.980",
+      "Sam: Second line.",
+    ].join("\n");
+    const turns = parseWebVttBody(vtt);
+    expect(turns).toEqual([
+      { speaker_name: "Sam", timestamp: "00:03", text: "First line.\nSecond line." },
+    ]);
+  });
+
+  it("returns empty array for non-WebVTT content", () => {
+    expect(parseWebVttBody("Just some plain text without timestamps.")).toEqual([]);
+  });
+
+  it("handles WEBVTT header line gracefully", () => {
+    const vtt = [
+      "WEBVTT",
+      "",
+      "1",
+      "00:00:01.000 --> 00:00:02.000",
+      "Alice: Hi.",
+    ].join("\n");
+    expect(parseWebVttBody(vtt)).toEqual([
+      { speaker_name: "Alice", timestamp: "00:00", text: "Hi." },
+    ]);
   });
 });

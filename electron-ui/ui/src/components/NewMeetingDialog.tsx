@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
-import type { CreateMeetingRequest } from "../../../electron/channels.js";
+import type { CreateMeetingRequest, TranscriptFormat } from "../../../electron/channels.js";
 
 interface NewMeetingDialogProps {
   open: boolean;
@@ -15,16 +15,18 @@ export function NewMeetingDialog({ open, onOpenChange, clients, onSubmit }: NewM
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [title, setTitle] = useState("");
   const [rawTranscript, setRawTranscript] = useState("");
+  const [format, setFormat] = useState<TranscriptFormat>("webvtt");
 
   const isValid = title.trim().length > 0 && rawTranscript.trim().length > 0 && date.length > 0;
 
   function handleImport() {
-    onSubmit({ clientName, date, title: title.trim(), rawTranscript: rawTranscript.trim() });
+    onSubmit({ clientName, date, title: title.trim(), rawTranscript: rawTranscript.trim(), format });
     onOpenChange(false);
     setTitle("");
     setRawTranscript("");
     setClientName(clients[0] ?? "");
     setDate(new Date().toISOString().slice(0, 10));
+    setFormat("webvtt");
   }
 
   return (
@@ -63,6 +65,23 @@ export function NewMeetingDialog({ open, onOpenChange, clients, onSubmit }: NewM
               className="rounded border border-border bg-background px-2 py-1.5 text-sm text-foreground"
             />
           </label>
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+            <span>Transcript format</span>
+            <div className="flex gap-1">
+              {(["webvtt", "krisp"] as const).map((f) => (
+                <Button
+                  key={f}
+                  type="button"
+                  variant={format === f ? "default" : "secondary"}
+                  size="sm"
+                  className="rounded-full h-auto px-3 py-0.5 text-xs"
+                  onClick={() => setFormat(f)}
+                >
+                  {f === "webvtt" ? "WebVTT" : "Krisp"}
+                </Button>
+              ))}
+            </div>
+          </div>
           <label className="flex flex-col gap-1 text-xs text-muted-foreground">
             Transcript
             <textarea

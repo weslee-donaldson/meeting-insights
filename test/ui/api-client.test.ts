@@ -131,6 +131,7 @@ describe("apiClient", () => {
       date: "2026-03-10",
       title: "Manual Meeting",
       rawTranscript: "Alice | 00:00\nHello.",
+      format: "krisp",
     });
     expect(result).toEqual({ meetingId: "new-id" });
     expect(spy).toHaveBeenCalledWith(

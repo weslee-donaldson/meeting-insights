@@ -123,11 +123,14 @@ export interface ClientActionItem {
   priority: "critical" | "normal";
 }
 
+export type TranscriptFormat = "krisp" | "webvtt";
+
 export interface CreateMeetingRequest {
   clientName: string;
   date: string;
   title: string;
   rawTranscript: string;
+  format: TranscriptFormat;
 }
 
 export interface ElectronAPI {

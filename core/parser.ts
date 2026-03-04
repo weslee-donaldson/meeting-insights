@@ -75,6 +75,34 @@ export function parseTranscriptBody(transcript: string): SpeakerTurn[] {
   return turns;
 }
 
+const WEBVTT_TIMESTAMP_RE = /^\d{2}:\d{2}:\d{2}\.\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}\.\d{3}/;
+const WEBVTT_SPEAKER_RE = /^(.+?):\s+(.+)$/;
+
+export function parseWebVttBody(content: string): SpeakerTurn[] {
+  const lines = content.split("\n");
+  const turns: SpeakerTurn[] = [];
+  let lastTimestamp = "00:00";
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (WEBVTT_TIMESTAMP_RE.test(trimmed)) {
+      lastTimestamp = trimmed.slice(0, 5);
+      continue;
+    }
+    const speakerMatch = trimmed.match(WEBVTT_SPEAKER_RE);
+    if (speakerMatch) {
+      const prev = turns[turns.length - 1];
+      if (prev && prev.speaker_name === speakerMatch[1]) {
+        prev.text += "\n" + speakerMatch[2];
+      } else {
+        turns.push({ speaker_name: speakerMatch[1], timestamp: lastTimestamp, text: speakerMatch[2] });
+      }
+    }
+  }
+  logBody("parsed %d speaker turns (webvtt)", turns.length);
+  return turns;
+}
+
 const logParser = createLogger("parser");
 
 export interface ParsedMeeting {

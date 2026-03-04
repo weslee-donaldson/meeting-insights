@@ -43,7 +43,25 @@ describe("NewMeetingDialog", () => {
       date: expect.any(String),
       title: "My Meeting",
       rawTranscript: "Hello world",
+      format: "webvtt",
     });
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("renders format selector with WebVTT selected by default", () => {
+    render(<NewMeetingDialog open={true} onOpenChange={vi.fn()} clients={CLIENTS} onSubmit={vi.fn()} />);
+    expect(screen.getByText("Transcript format")).toBeDefined();
+    expect(screen.getByRole("button", { name: "WebVTT" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Krisp" })).toBeDefined();
+  });
+
+  it("switching format to Krisp passes krisp in onSubmit payload", () => {
+    const onSubmit = vi.fn();
+    render(<NewMeetingDialog open={true} onOpenChange={vi.fn()} clients={CLIENTS} onSubmit={onSubmit} />);
+    fireEvent.click(screen.getByRole("button", { name: "Krisp" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Weekly Sync"), { target: { value: "Test" } });
+    fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "text" } });
+    fireEvent.click(screen.getByRole("button", { name: "Import" }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ format: "krisp" }));
   });
 });
