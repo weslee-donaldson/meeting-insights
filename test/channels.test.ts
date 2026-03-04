@@ -5,8 +5,8 @@ import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/cha
 describe("CHANNELS", () => {
   it("should have 17 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(17);
-    expect(new Set(values).size).toBe(17);
+    expect(values).toHaveLength(18);
+    expect(new Set(values).size).toBe(18);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -39,6 +39,10 @@ describe("CHANNELS", () => {
 
   it("should define RE_EXTRACT channel", () => {
     expect(CHANNELS.RE_EXTRACT).toBe("re-extract");
+  });
+
+  it("should define RE_EMBED_MEETING channel", () => {
+    expect(CHANNELS.RE_EMBED_MEETING).toBe("re-embed-meeting");
   });
 
   it("should define REASSIGN_CLIENT channel", () => {

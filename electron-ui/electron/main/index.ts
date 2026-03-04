@@ -22,6 +22,7 @@ import {
   handleGetDefaultClient,
   handleGetClientActionItems,
   handleGetTemplates,
+  handleUpdateMeetingVector,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
@@ -119,6 +120,9 @@ app.whenReady().then(async () => {
     .then((vdb) => loadModel(MODEL_PATH, TOKENIZER_PATH).then((session) => {
       ipcMain.handle(CHANNELS.SEARCH_MEETINGS, (_e, req) =>
         handleSearchMeetings(vdb, session, req),
+      );
+      ipcMain.handle(CHANNELS.RE_EMBED_MEETING, (_e, meetingId: string) =>
+        handleUpdateMeetingVector(db, vdb, session, meetingId),
       );
       console.log("[main] Vector search ready");
     }))

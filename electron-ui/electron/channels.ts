@@ -6,6 +6,7 @@ export const CHANNELS = {
   SEARCH_MEETINGS: "search-meetings",
   DELETE_MEETINGS: "delete-meetings",
   RE_EXTRACT: "re-extract",
+  RE_EMBED_MEETING: "re-embed-meeting",
   REASSIGN_CLIENT: "reassign-client",
   SET_IGNORED: "set-ignored",
   COMPLETE_ACTION_ITEM: "complete-action-item",
@@ -130,6 +131,7 @@ export interface ElectronAPI {
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;
   reExtract: (meetingId: string) => Promise<void>;
+  reEmbedMeeting: (meetingId: string) => Promise<void>;
   reassignClient: (meetingId: string, clientName: string) => Promise<void>;
   setIgnored: (meetingId: string, ignored: boolean) => Promise<void>;
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;

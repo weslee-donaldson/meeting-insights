@@ -52,6 +52,9 @@ export const apiClient: ElectronAPI = {
   reExtract: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/re-extract`, { method: "POST" }).then(() => undefined),
 
+  reEmbedMeeting: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/re-embed`, { method: "POST" }).then(() => undefined),
+
   reassignClient: (meetingId: string, clientName: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/client`, {
       method: "POST",

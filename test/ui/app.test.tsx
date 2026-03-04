@@ -54,6 +54,7 @@ beforeAll(() => {
     getTemplates: vi.fn().mockResolvedValue(["jira-ticket"]),
     uncompleteActionItem: vi.fn().mockResolvedValue(undefined),
     reExtract: vi.fn().mockResolvedValue(undefined),
+    reEmbedMeeting: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -153,6 +154,26 @@ describe("App", () => {
     await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
     fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
     await waitFor(() => expect(screen.getByText("Re-extraction failed")).toBeDefined());
+  });
+
+  it("calls reEmbedMeeting and shows indexing toast after successful re-extract", async () => {
+    render(<App />, { wrapper });
+    const row = await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(row);
+    await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
+    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    await waitFor(() => expect(window.api.reEmbedMeeting).toHaveBeenCalledWith("m1"));
+    await waitFor(() => expect(screen.getByText("Search index updated")).toBeDefined());
+  });
+
+  it("shows search index failed toast when reEmbedMeeting fails", async () => {
+    (window.api.reEmbedMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("no search"));
+    render(<App />, { wrapper });
+    const row = await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(row);
+    await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
+    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    await waitFor(() => expect(screen.getByText("Search index update failed")).toBeDefined());
   });
 
   it("renders NavRail with Meetings and Action Items buttons", () => {

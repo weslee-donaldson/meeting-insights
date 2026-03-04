@@ -239,6 +239,11 @@ export function App() {
       queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
       queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
       addToast("Re-extraction complete", "success");
+      window.api.reEmbedMeeting(selectedMeetingId).then(() => {
+        addToast("Search index updated", "success");
+      }).catch(() => {
+        addToast("Search index update failed", "error");
+      });
     } catch {
       addToast("Re-extraction failed", "error");
     } finally {
