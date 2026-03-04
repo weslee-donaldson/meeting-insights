@@ -586,4 +586,18 @@ describe("MeetingDetail", () => {
     fireEvent.click(screen.getByText("3x"));
     expect(onMentionClick).toHaveBeenCalledWith("c1", "Write tests");
   });
+
+  it("shows empty-state message when all artifact sections are empty", () => {
+    const emptyArtifact = makeArtifact({
+      summary: "",
+      decisions: [],
+      proposed_features: [],
+      action_items: [],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+    });
+    render(<MeetingDetail meeting={makeMeeting()} artifact={emptyArtifact} />);
+    expect(screen.getByText("No meeting details were extracted. Try re-extracting or check the transcript format.")).toBeDefined();
+  });
 });

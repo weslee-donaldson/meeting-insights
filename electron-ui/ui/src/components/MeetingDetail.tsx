@@ -192,6 +192,22 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
     }
   }, [allExpanded]);
 
+  const allEmpty = !artifact.summary
+    && artifact.decisions.length === 0
+    && artifact.action_items.length === 0
+    && artifact.open_questions.length === 0
+    && artifact.risk_items.length === 0
+    && artifact.proposed_features.length === 0
+    && artifact.additional_notes.length === 0;
+
+  if (allEmpty) {
+    return (
+      <div className="px-4 py-6 text-sm text-muted-foreground" data-testid="empty-artifact-message">
+        No meeting details were extracted. Try re-extracting or check the transcript format.
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-1 pt-2 pb-1">
