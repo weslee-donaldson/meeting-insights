@@ -59,7 +59,7 @@ export function mergeArtifactsDeduped(artifacts: Artifact[]): Artifact {
   }
 
   return {
-    summary: artifacts.map((a) => a.summary).filter(Boolean).join(" "),
+    summary: artifacts.map((a) => a.summary).filter(Boolean).join("\n"),
     decisions,
     proposed_features: dedupStrings(artifacts.map((a) => a.proposed_features)),
     action_items,

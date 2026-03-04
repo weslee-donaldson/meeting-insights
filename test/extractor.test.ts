@@ -186,10 +186,10 @@ describe("extraction prompt", () => {
     expect(prompt).toContain("decided_by");
   });
 
-  it("summary field requests 2-4 sentences for searchability", async () => {
+  it("summary field requests bullet points for searchability", async () => {
     const { readFileSync } = await import("node:fs");
     const prompt = readFileSync("config/prompts/extraction.md", "utf8");
-    expect(prompt).toContain("2-4 sentence");
+    expect(prompt).toContain("3-5 bullet points");
   });
 
   it("risk_items field describes systemic unresolved conditions with categories", async () => {

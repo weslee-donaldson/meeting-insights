@@ -25,13 +25,13 @@ describe("mergeArtifactsDeduped", () => {
     expect(mergeArtifactsDeduped([single])).toBe(single);
   });
 
-  it("joins non-empty summaries with space separator", () => {
+  it("joins non-empty summaries with newline separator", () => {
     const result = mergeArtifactsDeduped([
       makeArtifact({ summary: "Alpha summary." }),
       makeArtifact({ summary: "" }),
       makeArtifact({ summary: "Beta summary." }),
     ]);
-    expect(result.summary).toBe("Alpha summary. Beta summary.");
+    expect(result.summary).toBe("Alpha summary.\nBeta summary.");
   });
 
   it("deduplicates string fields preserving first occurrence case", () => {
