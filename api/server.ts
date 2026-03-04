@@ -88,7 +88,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.delete("/api/meetings", async (c) => {
     const { ids } = await c.req.json() as { ids: string[] };
-    handleDeleteMeetings(db, ids);
+    await handleDeleteMeetings(db, searchDeps?.vdb ?? null, ids);
     return c.body(null, 204);
   });
 

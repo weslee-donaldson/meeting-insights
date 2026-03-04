@@ -235,7 +235,7 @@ export function handleReassignClient(db: Database, meetingId: string, clientName
   ).run(meetingId, clientName);
 }
 
-export function handleDeleteMeetings(db: Database, ids: string[]): void {
+export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, ids: string[]): Promise<void> {
   if (ids.length === 0) return;
   const placeholders = ids.map(() => "?").join(",");
   for (const id of ids) cleanupMentions(db, id);
@@ -243,6 +243,12 @@ export function handleDeleteMeetings(db: Database, ids: string[]): void {
   db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
+  if (vdb) {
+    const filter = ids.map((id) => `meeting_id = '${id.replace(/'/g, "''")}'`).join(" OR ");
+    const names = await vdb.tableNames();
+    const targets = ["meeting_vectors", "feature_vectors", "item_vectors"].filter((n) => names.includes(n));
+    await Promise.all(targets.map(async (name) => (await vdb.openTable(name)).delete(filter)));
+  }
 }
 
 export function handleCompleteActionItem(db: Database, meetingId: string, itemIndex: number, note: string): void {

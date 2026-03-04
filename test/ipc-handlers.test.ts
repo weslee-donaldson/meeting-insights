@@ -315,20 +315,47 @@ describe("IPC handlers", () => {
   });
 
   describe("handleDeleteMeetings", () => {
-    it("removes meeting, artifact, and client_detection rows for given IDs", () => {
+    it("removes meeting, artifact, and client_detection rows for given IDs", async () => {
       const before = handleGetMeetings(db, {});
       expect(before.some((m) => m.id === meetingId1)).toBe(true);
-      handleDeleteMeetings(db, [meetingId1]);
+      await handleDeleteMeetings(db, null, [meetingId1]);
       const after = handleGetMeetings(db, {});
       expect(after.some((m) => m.id === meetingId1)).toBe(false);
       const artifact = handleGetArtifact(db, meetingId1);
       expect(artifact).toBeNull();
     });
 
-    it("does nothing when given an empty list", () => {
+    it("does nothing when given an empty list", async () => {
       const before = handleGetMeetings(db, {}).length;
-      handleDeleteMeetings(db, []);
+      await handleDeleteMeetings(db, null, []);
       expect(handleGetMeetings(db, {}).length).toBe(before);
+    });
+
+    it("deletes from all vector tables when vdb is provided", async () => {
+      const freshDb = createDb(":memory:");
+      migrate(freshDb);
+      const tempId = ingestMeeting(freshDb, {
+        title: "Temp",
+        timestamp: "2026-03-04T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "",
+        turns: [],
+        sourceFilename: "temp-delete-test",
+      });
+      const deletedFilters: Record<string, string[]> = { meeting_vectors: [], feature_vectors: [], item_vectors: [] };
+      const makeTable = (name: string) => ({
+        delete: async (filter: string) => { deletedFilters[name].push(filter); },
+      });
+      const vdb = {
+        tableNames: async () => ["meeting_vectors", "feature_vectors", "item_vectors"],
+        openTable: async (name: string) => makeTable(name),
+      } as unknown as import("../core/vector-db.js").VectorDb;
+      await handleDeleteMeetings(freshDb, vdb, [tempId]);
+      expect(deletedFilters).toEqual({
+        meeting_vectors: [`meeting_id = '${tempId}'`],
+        feature_vectors: [`meeting_id = '${tempId}'`],
+        item_vectors: [`meeting_id = '${tempId}'`],
+      });
     });
   });
 

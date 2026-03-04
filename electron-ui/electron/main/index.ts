@@ -101,7 +101,8 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_ARTIFACT, (_e, meetingId: string) => handleGetArtifact(db, meetingId));
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
   ipcMain.handle(CHANNELS.CONVERSATION_CHAT, (_e, opts) => handleConversationChat(db, llm, opts));
-  ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, ids));
+  let vdbRef: import("../../../core/vector-db.js").VectorDb | null = null;
+  ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, vdbRef, ids));
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
   ipcMain.handle(CHANNELS.SET_IGNORED, (_e, meetingId: string, ignored: boolean) => handleSetIgnored(db, meetingId, ignored));
@@ -118,6 +119,7 @@ app.whenReady().then(async () => {
   // Load vector search infrastructure in background — non-blocking
   connectVectorDb(VECTOR_PATH)
     .then((vdb) => loadModel(MODEL_PATH, TOKENIZER_PATH).then((session) => {
+      vdbRef = vdb;
       ipcMain.handle(CHANNELS.SEARCH_MEETINGS, (_e, req) =>
         handleSearchMeetings(vdb, session, req),
       );
