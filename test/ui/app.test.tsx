@@ -55,6 +55,7 @@ beforeAll(() => {
     uncompleteActionItem: vi.fn().mockResolvedValue(undefined),
     reExtract: vi.fn().mockResolvedValue(undefined),
     reEmbedMeeting: vi.fn().mockResolvedValue(undefined),
+    createMeeting: vi.fn().mockResolvedValue({ meetingId: "new-meeting-123" }),
   };
 });
 
@@ -291,5 +292,35 @@ describe("App", () => {
     await waitFor(() => {
       expect(screen.queryByRole("button", { name: "Relevance" })).toBeNull();
     });
+  });
+
+  it("+ New button opens NewMeetingDialog", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    await waitFor(() => expect(screen.getByText("New Meeting")).toBeDefined());
+  });
+
+  it("shows Meeting imported toast after createMeeting resolves", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    await waitFor(() => screen.getByText("New Meeting"));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Weekly Sync"), { target: { value: "Test Meeting" } });
+    fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "Some transcript" } });
+    fireEvent.click(screen.getByRole("button", { name: "Import" }));
+    await waitFor(() => expect(screen.getByText("Meeting imported")).toBeDefined());
+  });
+
+  it("shows Meeting import failed toast when createMeeting rejects", async () => {
+    (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    await waitFor(() => screen.getByText("New Meeting"));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Weekly Sync"), { target: { value: "Test" } });
+    fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "text" } });
+    fireEvent.click(screen.getByRole("button", { name: "Import" }));
+    await waitFor(() => expect(screen.getByText("Meeting import failed")).toBeDefined());
   });
 });

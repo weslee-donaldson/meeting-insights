@@ -26,6 +26,8 @@ interface MeetingListProps {
   hasFilters?: boolean;
   checkedCount?: number;
   onDelete?: () => void;
+  onNewMeeting?: () => void;
+  newMeetingIds?: Set<string>;
 }
 
 function normalizeSeries(title: string): string {
@@ -149,6 +151,8 @@ export function MeetingList({
   hasFilters,
   checkedCount,
   onDelete,
+  onNewMeeting,
+  newMeetingIds,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
@@ -189,6 +193,9 @@ export function MeetingList({
             </Button>
           ))}
           <div className="flex items-center gap-1 ml-auto">
+            {onNewMeeting && (
+              <Button variant="outline" size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ New</Button>
+            )}
             {(checkedCount ?? 0) > 0 && (
               <Button
                 variant="destructive"
@@ -308,6 +315,9 @@ export function MeetingList({
                       </div>
                     )}
                   </div>
+                  {newMeetingIds?.has(m.id) && (
+                    <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
+                  )}
                 </div>
               );
               })}

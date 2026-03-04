@@ -11,10 +11,11 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem } from "../../electron/channels.js";
+import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem, CreateMeetingRequest } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
 import { Button } from "./components/ui/button.js";
+import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
 
 interface DateRange {
   after: string;
@@ -38,6 +39,8 @@ export function App() {
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
+  const [newMeetingOpen, setNewMeetingOpen] = useState(false);
+  const [newMeetingIds, setNewMeetingIds] = useState<Set<string>>(new Set());
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -261,6 +264,21 @@ export function App() {
     }
   }, [selectedMeetingId, selectedClient, queryClient, addToast]);
 
+  const handleNewMeeting = useCallback(async (req: CreateMeetingRequest) => {
+    addToast("Importing meeting...", "success");
+    try {
+      const { meetingId } = await window.api.createMeeting(req);
+      setNewMeetingIds((prev) => new Set([...prev, meetingId]));
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      addToast("Meeting imported", "success");
+      window.api.reEmbedMeeting(meetingId).then(() => {
+        addToast("Search index updated", "success");
+      }).catch(() => {});
+    } catch {
+      addToast("Meeting import failed", "error");
+    }
+  }, [queryClient, addToast]);
+
   const handleReassignClient = useCallback(async (clientName: string) => {
     if (!selectedMeetingId) return;
     await window.api.reassignClient(selectedMeetingId, clientName);
@@ -342,6 +360,8 @@ export function App() {
       hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
       checkedCount={checkedMeetingIds.size}
       onDelete={handleDeleteMeetings}
+      onNewMeeting={() => setNewMeetingOpen(true)}
+      newMeetingIds={newMeetingIds}
     />,
     <MeetingDetail
       key="meeting-detail"
@@ -424,6 +444,12 @@ export function App() {
       itemText={historyItem?.itemText ?? ""}
       history={itemHistoryQuery.data ?? []}
       onSelectMeeting={handleHistorySelectMeeting}
+    />
+    <NewMeetingDialog
+      open={newMeetingOpen}
+      onOpenChange={setNewMeetingOpen}
+      clients={clientsQuery.data ?? []}
+      onSubmit={handleNewMeeting}
     />
     <Dialog open={pendingDeleteIds !== null} onOpenChange={(o) => { if (!o) setPendingDeleteIds(null); }}>
       <DialogContent aria-describedby={undefined}>

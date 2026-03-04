@@ -636,4 +636,55 @@ describe("MeetingList", () => {
     );
     expect(screen.queryByText("Acme")).toBeNull();
   });
+
+  describe("+ New button", () => {
+    it("renders when onNewMeeting is provided", () => {
+      render(
+        <MeetingList
+          meetings={dsuMeetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          onNewMeeting={vi.fn()}
+        />,
+      );
+      expect(screen.getByRole("button", { name: "+ New" })).toBeDefined();
+    });
+
+    it("not rendered when onNewMeeting is not provided", () => {
+      render(
+        <MeetingList
+          meetings={dsuMeetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "+ New" })).toBeNull();
+    });
+
+    it("clicking fires onNewMeeting", () => {
+      const onNewMeeting = vi.fn();
+      render(
+        <MeetingList
+          meetings={dsuMeetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          onNewMeeting={onNewMeeting}
+        />,
+      );
+      fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+      expect(onNewMeeting).toHaveBeenCalledOnce();
+    });
+  });
 });
