@@ -637,7 +637,7 @@ describe("MeetingList", () => {
     expect(screen.queryByText("Acme")).toBeNull();
   });
 
-  describe("+ New button", () => {
+  describe("+ Add Meeting button", () => {
     it("renders when onNewMeeting is provided", () => {
       render(
         <MeetingList
@@ -651,7 +651,7 @@ describe("MeetingList", () => {
           onNewMeeting={vi.fn()}
         />,
       );
-      expect(screen.getByRole("button", { name: "+ New" })).toBeDefined();
+      expect(screen.getByRole("button", { name: "+ Add Meeting" })).toBeDefined();
     });
 
     it("not rendered when onNewMeeting is not provided", () => {
@@ -666,7 +666,7 @@ describe("MeetingList", () => {
           onCheckGroup={vi.fn()}
         />,
       );
-      expect(screen.queryByRole("button", { name: "+ New" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "+ Add Meeting" })).toBeNull();
     });
 
     it("clicking fires onNewMeeting", () => {
@@ -683,7 +683,7 @@ describe("MeetingList", () => {
           onNewMeeting={onNewMeeting}
         />,
       );
-      fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+      fireEvent.click(screen.getByRole("button", { name: "+ Add Meeting" }));
       expect(onNewMeeting).toHaveBeenCalledOnce();
     });
   });

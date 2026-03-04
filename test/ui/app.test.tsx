@@ -294,17 +294,17 @@ describe("App", () => {
     });
   });
 
-  it("+ New button opens NewMeetingDialog", async () => {
+  it("+ Add Meeting button opens NewMeetingDialog", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
-    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Meeting" }));
     await waitFor(() => expect(screen.getByText("New Meeting")).toBeDefined());
   });
 
   it("shows Meeting imported toast after createMeeting resolves", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
-    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Meeting" }));
     await waitFor(() => screen.getByText("New Meeting"));
     fireEvent.change(screen.getByPlaceholderText("e.g. Weekly Sync"), { target: { value: "Test Meeting" } });
     fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "Some transcript" } });
@@ -316,7 +316,7 @@ describe("App", () => {
     (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
-    fireEvent.click(screen.getByRole("button", { name: "+ New" }));
+    fireEvent.click(screen.getByRole("button", { name: "+ Add Meeting" }));
     await waitFor(() => screen.getByText("New Meeting"));
     fireEvent.change(screen.getByPlaceholderText("e.g. Weekly Sync"), { target: { value: "Test" } });
     fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "text" } });
