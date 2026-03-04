@@ -483,7 +483,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
         </div>
         <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (
-            <ArtifactView artifact={artifact} />
+            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} />
           ) : artifactLoading ? (
             <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
               {[1, 2, 3].map((i) => (

@@ -19,6 +19,26 @@ function dedupStrings(arrs: string[][]): string[] {
   return result;
 }
 
+export interface ActionItemOrigin {
+  meetingId: string;
+  itemIndex: number;
+}
+
+export function computeActionItemOrigins(artifacts: Artifact[], meetingIds: string[]): ActionItemOrigin[] {
+  const seen = new Set<string>();
+  const origins: ActionItemOrigin[] = [];
+  for (let a = 0; a < artifacts.length; a++) {
+    for (let i = 0; i < artifacts[a].action_items.length; i++) {
+      const key = normalizeString(artifacts[a].action_items[i].description);
+      if (!seen.has(key)) {
+        seen.add(key);
+        origins.push({ meetingId: meetingIds[a], itemIndex: i });
+      }
+    }
+  }
+  return origins;
+}
+
 export function mergeArtifactsDeduped(artifacts: Artifact[]): Artifact {
   if (artifacts.length === 0) {
     return {

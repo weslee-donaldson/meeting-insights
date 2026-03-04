@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mergeArtifactsDeduped } from "../../electron-ui/ui/src/lib/merge-artifacts.js";
+import { mergeArtifactsDeduped, computeActionItemOrigins } from "../../electron-ui/ui/src/lib/merge-artifacts.js";
 import type { Artifact } from "../../electron-ui/electron/channels.js";
 
 function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
@@ -90,6 +90,26 @@ describe("mergeArtifactsDeduped", () => {
     expect(result.risk_items).toEqual([
       { category: "architecture", description: "Timeline slip" },
       { category: "relationship", description: "Staffing" },
+    ]);
+  });
+
+  it("tracks action item origins across deduplicated merge", () => {
+    const artifacts = [
+      makeArtifact({ action_items: [
+        { description: "Write tests", owner: "Alice", requester: "", due_date: null, priority: "normal" },
+        { description: "Review PR", owner: "Alice", requester: "", due_date: null, priority: "normal" },
+      ] }),
+      makeArtifact({ action_items: [
+        { description: "write tests", owner: "Bob", requester: "", due_date: null, priority: "normal" },
+        { description: "Deploy staging", owner: "Bob", requester: "", due_date: "2026-03-05", priority: "normal" },
+      ] }),
+    ];
+    const meetingIds = ["meeting-a", "meeting-b"];
+    const origins = computeActionItemOrigins(artifacts, meetingIds);
+    expect(origins).toEqual([
+      { meetingId: "meeting-a", itemIndex: 0 },
+      { meetingId: "meeting-a", itemIndex: 1 },
+      { meetingId: "meeting-b", itemIndex: 1 },
     ]);
   });
 

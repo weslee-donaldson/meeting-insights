@@ -430,7 +430,7 @@ describe("MeetingDetail", () => {
     expect(screen.queryByRole("button", { name: "Reassign client" })).toBeNull();
   });
 
-  it("multi-mode renders action items without completion checkboxes", () => {
+  it("multi-mode renders action item completion checkboxes when onComplete is passed", () => {
     render(
       <MeetingDetail
         meeting={null}
@@ -440,7 +440,7 @@ describe("MeetingDetail", () => {
       />,
     );
     expect(screen.getByText("Write tests")).toBeDefined();
-    expect(screen.queryByRole("button", { name: "Complete item 0" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Complete item 0" })).toBeDefined();
   });
 
   it("shows empty state when meeting is null and meetings is empty", () => {

@@ -10,7 +10,7 @@ import { ClientActionItemsView } from "./components/ClientActionItemsView.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
-import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
+import { mergeArtifactsDeduped, computeActionItemOrigins } from "./lib/merge-artifacts.js";
 import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem, CreateMeetingRequest } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
@@ -173,15 +173,49 @@ export function App() {
     })),
   });
 
-  const mergedArtifact = useMemo(() => {
-    if (!isMultiMode) return null;
+  const { mergedArtifact, actionItemOrigins } = useMemo(() => {
+    if (!isMultiMode) return { mergedArtifact: null, actionItemOrigins: [] };
     const artifacts = checkedArtifactQueries
       .map((q) => q.data)
       .filter((a): a is Artifact => a != null);
-    return artifacts.length > 0 ? mergeArtifactsDeduped(artifacts) : null;
-  }, [isMultiMode, checkedArtifactQueries]);
+    if (artifacts.length === 0) return { mergedArtifact: null, actionItemOrigins: [] };
+    const meetingIds = checkedMeetings
+      .filter((_, idx) => checkedArtifactQueries[idx].data != null)
+      .map((m) => m.id);
+    return {
+      mergedArtifact: mergeArtifactsDeduped(artifacts),
+      actionItemOrigins: computeActionItemOrigins(artifacts, meetingIds),
+    };
+  }, [isMultiMode, checkedArtifactQueries, checkedMeetings]);
 
   const mergedArtifactLoading = isMultiMode && checkedArtifactQueries.some((q) => q.isLoading);
+
+  const checkedCompletionQueries = useQueries({
+    queries: checkedMeetings.map((m) => ({
+      queryKey: ["completions", m.id] as const,
+      queryFn: () => window.api.getCompletions(m.id),
+      enabled: isMultiMode,
+    })),
+  });
+
+  const mergedCompletions = useMemo((): ActionItemCompletion[] => {
+    if (!isMultiMode || actionItemOrigins.length === 0) return [];
+    const completionsByMeeting = new Map<string, ActionItemCompletion[]>();
+    for (let i = 0; i < checkedMeetings.length; i++) {
+      const data = checkedCompletionQueries[i]?.data;
+      if (data) completionsByMeeting.set(checkedMeetings[i].id, data);
+    }
+    const result: ActionItemCompletion[] = [];
+    for (let mergedIdx = 0; mergedIdx < actionItemOrigins.length; mergedIdx++) {
+      const origin = actionItemOrigins[mergedIdx];
+      const meetingCompletions = completionsByMeeting.get(origin.meetingId) ?? [];
+      const match = meetingCompletions.find((c) => c.item_index === origin.itemIndex);
+      if (match) {
+        result.push({ ...match, item_index: mergedIdx });
+      }
+    }
+    return result;
+  }, [isMultiMode, actionItemOrigins, checkedMeetings, checkedCompletionQueries]);
 
   const charCount = isMultiMode
     ? (mergedArtifact ? JSON.stringify(mergedArtifact).length : 0)
@@ -297,6 +331,20 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleMultiCompleteActionItem = useCallback(async (mergedIndex: number, note: string) => {
+    const origin = actionItemOrigins[mergedIndex];
+    if (!origin) return;
+    await window.api.completeActionItem(origin.meetingId, origin.itemIndex, note);
+    queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
+  }, [actionItemOrigins, queryClient]);
+
+  const handleMultiUncompleteActionItem = useCallback(async (mergedIndex: number) => {
+    const origin = actionItemOrigins[mergedIndex];
+    if (!origin) return;
+    await window.api.uncompleteActionItem(origin.meetingId, origin.itemIndex);
+    queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
+  }, [actionItemOrigins, queryClient]);
+
   const handleCompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
     await window.api.completeActionItem(meetingId, itemIndex, "");
     queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
@@ -373,9 +421,9 @@ export function App() {
       clients={clientsQuery.data}
       onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
       onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}
-      completions={isMultiMode ? [] : (completionsQuery.data ?? [])}
-      onComplete={isMultiMode ? undefined : (selectedMeetingId ? handleCompleteActionItem : undefined)}
-      onUncomplete={isMultiMode ? undefined : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
+      completions={isMultiMode ? mergedCompletions : (completionsQuery.data ?? [])}
+      onComplete={isMultiMode ? handleMultiCompleteActionItem : (selectedMeetingId ? handleCompleteActionItem : undefined)}
+      onUncomplete={isMultiMode ? handleMultiUncompleteActionItem : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
       mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
       onMentionClick={isMultiMode ? undefined : handleMentionClick}
       artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
