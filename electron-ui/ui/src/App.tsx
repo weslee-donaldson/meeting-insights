@@ -11,7 +11,7 @@ import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, SearchResultRow, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem } from "../../electron/channels.js";
+import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 
 interface DateRange {
@@ -29,6 +29,7 @@ export function App() {
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
   const [sortBy, setSortBy] = useState<SortBy>("date-desc");
+  const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
@@ -67,7 +68,7 @@ export function App() {
       }),
   });
 
-  const { data: searchResults, isFetching: searchFetching } = useSearch(searchQuery, selectedClient ?? undefined, dateRange.after || undefined, dateRange.before || undefined);
+  const { data: searchResults, isFetching: searchFetching } = useSearch(searchQuery);
 
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];
@@ -192,16 +193,12 @@ export function App() {
     });
   }, [scopeMeetings]);
 
-  const handleSelectSearchResults = useCallback((results: SearchResultRow[]) => {
-    setCheckedMeetingIds(new Set(results.map((r) => r.meeting_id)));
-    if (results.length > 0) setSelectedMeetingId(results[0].meeting_id);
-  }, []);
-
   const handleReset = useCallback(() => {
     setSelectedClient(null);
     setDateRange({ after: "", before: "" });
     setSelectedMeetingId(null);
     setCheckedMeetingIds(new Set());
+    setTypedSearchQuery("");
     setSearchQuery("");
   }, []);
 
@@ -372,12 +369,12 @@ export function App() {
           clients={clientsQuery.data ?? []}
           selectedClient={selectedClient}
           dateRange={dateRange}
-          searchQuery={searchQuery}
+          searchQuery={typedSearchQuery}
           onClientChange={handleClientChange}
           onDateChange={handleDateChange}
-          onSearchQueryChange={setSearchQuery}
+          onSearchQueryChange={setTypedSearchQuery}
+          onSubmitSearch={setSearchQuery}
           onReset={handleReset}
-          onSelectSearchResults={handleSelectSearchResults}
           theme={theme}
           setTheme={setTheme}
           themes={themes}

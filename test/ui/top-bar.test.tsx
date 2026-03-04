@@ -24,7 +24,7 @@ const defaultProps = {
   onDateChange: vi.fn(),
   onSearchQueryChange: vi.fn(),
   onReset: vi.fn(),
-  onSelectSearchResults: vi.fn(),
+  onSubmitSearch: vi.fn(),
   theme: "deep-sea" as const,
   setTheme: vi.fn(),
   themes,

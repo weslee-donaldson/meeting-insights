@@ -1,95 +1,44 @@
 // @vitest-environment jsdom
-import React, { useState } from "react";
+import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { SearchBar } from "../../electron-ui/ui/src/components/SearchBar.js";
 
 afterEach(cleanup);
 
-function makeQC() {
-  return new QueryClient({ defaultOptions: { queries: { retry: false } } });
-}
-
-function ControlledWrapper({ onSelectResults }: { onSelectResults: (r: unknown[]) => void }) {
-  const [query, setQuery] = useState("");
-  return (
-    <SearchBar query={query} onQueryChange={setQuery} onSelectResults={onSelectResults} />
-  );
-}
-
-const mockResult = {
-  meeting_id: "m1",
-  score: 0.92,
-  client: "Acme",
-  meeting_type: "DSU",
-  date: "2026-02-24T10:00:00Z",
-};
-
 describe("SearchBar", () => {
   it("renders search input", () => {
-    render(
-      <QueryClientProvider client={makeQC()}>
-        <SearchBar query="" onQueryChange={vi.fn()} onSelectResults={vi.fn()} />
-      </QueryClientProvider>,
-    );
+    render(<SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} />);
     expect(screen.getByRole("textbox", { name: /search meetings/i })).toBeDefined();
   });
 
-  it("does not show results when query is less than 2 characters", async () => {
-    (window as unknown as Record<string, unknown>).api = {
-      search: vi.fn().mockResolvedValue([mockResult]),
-    };
-    render(
-      <QueryClientProvider client={makeQC()}>
-        <ControlledWrapper onSelectResults={vi.fn()} />
-      </QueryClientProvider>,
-    );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a" } });
-    await new Promise((r) => setTimeout(r, 50));
-    expect(screen.queryByRole("listbox")).toBeNull();
+  it("typing calls onQueryChange but not onSubmit", () => {
+    const onQueryChange = vi.fn();
+    const onSubmit = vi.fn();
+    render(<SearchBar query="" onQueryChange={onQueryChange} onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "blue" } });
+    expect(onQueryChange).toHaveBeenCalledWith("blue");
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it("shows results from search when query is at least 2 characters", async () => {
-    (window as unknown as Record<string, unknown>).api = {
-      search: vi.fn().mockResolvedValue([mockResult]),
-    };
-    render(
-      <QueryClientProvider client={makeQC()}>
-        <ControlledWrapper onSelectResults={vi.fn()} />
-      </QueryClientProvider>,
-    );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeDefined(), { timeout: 2000 });
-    expect(screen.getByText("DSU")).toBeDefined();
+  it("pressing Enter calls onSubmit with trimmed query value", () => {
+    const onSubmit = vi.fn();
+    render(<SearchBar query="  blue green  " onQueryChange={vi.fn()} onSubmit={onSubmit} />);
+    fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter" });
+    expect(onSubmit).toHaveBeenCalledWith("blue green");
   });
 
-  it("renders search unavailable chip when search API errors", async () => {
-    (window as unknown as Record<string, unknown>).api = {
-      search: vi.fn().mockRejectedValue(new Error("503")),
-    };
-    render(
-      <QueryClientProvider client={makeQC()}>
-        <ControlledWrapper onSelectResults={vi.fn()} />
-      </QueryClientProvider>,
-    );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
-    await waitFor(() => expect(screen.getByText("Search unavailable")).toBeDefined(), { timeout: 2000 });
+  it("clear button calls onQueryChange('') and onSubmit('')", () => {
+    const onQueryChange = vi.fn();
+    const onSubmit = vi.fn();
+    render(<SearchBar query="blue" onQueryChange={onQueryChange} onSubmit={onSubmit} />);
+    fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
+    expect(onQueryChange).toHaveBeenCalledWith("");
+    expect(onSubmit).toHaveBeenCalledWith("");
   });
 
-  it("calls onSelectResults with the clicked result", async () => {
-    const onSelectResults = vi.fn();
-    (window as unknown as Record<string, unknown>).api = {
-      search: vi.fn().mockResolvedValue([mockResult]),
-    };
-    render(
-      <QueryClientProvider client={makeQC()}>
-        <ControlledWrapper onSelectResults={onSelectResults} />
-      </QueryClientProvider>,
-    );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "qu" } });
-    await waitFor(() => screen.getByRole("listbox"), { timeout: 2000 });
-    fireEvent.mouseDown(screen.getByRole("option"));
-    expect(onSelectResults).toHaveBeenCalledWith([mockResult]);
+  it("clear button is not shown when query is empty", () => {
+    render(<SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: /clear search/i })).toBeNull();
   });
 });

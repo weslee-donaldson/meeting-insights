@@ -3,7 +3,6 @@ import * as Select from "@radix-ui/react-select";
 import { ChevronDown, RotateCcw, Sun, Moon, Droplets } from "lucide-react";
 import type { ThemeName, Theme } from "../theme.js";
 import { SearchBar } from "./SearchBar.js";
-import type { SearchResultRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
 interface TopBarProps {
@@ -14,8 +13,8 @@ interface TopBarProps {
   onClientChange: (name: string | null) => void;
   onDateChange: (field: "after" | "before", value: string) => void;
   onSearchQueryChange: (q: string) => void;
+  onSubmitSearch: (q: string) => void;
   onReset: () => void;
-  onSelectSearchResults: (results: SearchResultRow[]) => void;
   theme: ThemeName;
   setTheme: (name: ThemeName) => void;
   themes: Theme[];
@@ -35,8 +34,8 @@ export function TopBar({
   onClientChange,
   onDateChange,
   onSearchQueryChange,
+  onSubmitSearch,
   onReset,
-  onSelectSearchResults,
   theme,
   setTheme,
   themes,
@@ -107,8 +106,7 @@ export function TopBar({
         <SearchBar
           query={searchQuery}
           onQueryChange={onSearchQueryChange}
-          client={selectedClient ?? undefined}
-          onSelectResults={onSelectSearchResults}
+          onSubmit={onSubmitSearch}
         />
       </div>
 
