@@ -23,6 +23,7 @@ import {
   handleGetClientActionItems,
   handleGetTemplates,
   handleUpdateMeetingVector,
+  handleCreateMeeting,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
@@ -113,6 +114,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_DEFAULT_CLIENT, () => handleGetDefaultClient(db));
   ipcMain.handle(CHANNELS.GET_CLIENT_ACTION_ITEMS, (_e, clientName: string) => handleGetClientActionItems(db, clientName));
   ipcMain.handle(CHANNELS.GET_TEMPLATES, () => handleGetTemplates());
+  ipcMain.handle(CHANNELS.CREATE_MEETING, (_e, req) => handleCreateMeeting(db, llm, req).then((meetingId) => ({ meetingId })));
 
   createWindow();
 

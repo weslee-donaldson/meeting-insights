@@ -123,4 +123,19 @@ describe("apiClient", () => {
     expect(await apiClient.getTemplates()).toEqual(["jira-epic", "jira-ticket"]);
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/templates");
   });
+
+  it("createMeeting posts to /api/meetings and returns meetingId", async () => {
+    const spy = mockFetch({ meetingId: "new-id" }, 201);
+    const result = await apiClient.createMeeting({
+      clientName: "Acme",
+      date: "2026-03-10",
+      title: "Manual Meeting",
+      rawTranscript: "Alice | 00:00\nHello.",
+    });
+    expect(result).toEqual({ meetingId: "new-id" });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/meetings",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
 });

@@ -1,4 +1,4 @@
-import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest } from "../../electron/channels.js";
+import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest, CreateMeetingRequest } from "../../electron/channels.js";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE || "http://localhost:3000";
 
@@ -98,4 +98,11 @@ export const apiClient: ElectronAPI = {
 
   getTemplates: () =>
     fetch(`${API_BASE}/api/templates`).then((r) => r.json()),
+
+  createMeeting: (req: CreateMeetingRequest) =>
+    fetch(`${API_BASE}/api/meetings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then((r) => r.json() as Promise<{ meetingId: string }>),
 };
