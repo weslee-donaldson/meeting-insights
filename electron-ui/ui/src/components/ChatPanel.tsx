@@ -288,7 +288,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat }: ChatPanelProp
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
               placeholder="Ask a question about these meetings…"
-              rows={2}
+              rows={3}
               className="w-full resize-none rounded-md px-3 py-2 text-sm bg-input text-foreground border border-border outline-none"
             />
             <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
