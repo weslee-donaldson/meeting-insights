@@ -92,4 +92,7 @@ export const apiClient: ElectronAPI = {
 
   getClientActionItems: (clientName: string) =>
     fetch(`${API_BASE}/api/clients/${encodeURIComponent(clientName)}/action-items`).then((r) => r.json()),
+
+  getTemplates: () =>
+    fetch(`${API_BASE}/api/templates`).then((r) => r.json()),
 };

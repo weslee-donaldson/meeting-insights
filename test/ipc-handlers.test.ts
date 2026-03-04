@@ -18,6 +18,7 @@ import {
   handleUncompleteActionItem,
   handleGetCompletions,
   handleGetClientActionItems,
+  handleGetTemplates,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -446,6 +447,13 @@ describe("IPC handlers", () => {
         due_date: null,
         priority: expect.any(String),
       });
+    });
+  });
+
+  describe("handleGetTemplates", () => {
+    it("returns sorted list of template names from chat-templates directory", () => {
+      const templates = handleGetTemplates();
+      expect(templates).toEqual(["jira-epic", "jira-ticket"]);
     });
   });
 

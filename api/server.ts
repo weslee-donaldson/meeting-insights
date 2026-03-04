@@ -9,6 +9,7 @@ import {
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
+  handleGetTemplates,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -135,6 +136,10 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   app.get("/api/clients/:name/action-items", (c) => {
     const name = c.req.param("name");
     return c.json(handleGetClientActionItems(db, name));
+  });
+
+  app.get("/api/templates", (c) => {
+    return c.json(handleGetTemplates());
   });
 
   app.get("/api/search", async (c) => {

@@ -27,6 +27,9 @@ const api: ElectronAPI = {
   getItemHistory: (canonicalId: string) => ipcRenderer.invoke(CHANNELS.GET_ITEM_HISTORY, canonicalId),
   getMentionStats: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MENTION_STATS, meetingId),
   getDefaultClient: () => ipcRenderer.invoke(CHANNELS.GET_DEFAULT_CLIENT),
+  uncompleteActionItem: (_meetingId: string, _itemIndex: number) => Promise.resolve(),
+  getClientActionItems: (clientName: string) => ipcRenderer.invoke(CHANNELS.GET_CLIENT_ACTION_ITEMS, clientName),
+  getTemplates: () => ipcRenderer.invoke(CHANNELS.GET_TEMPLATES),
 };
 
 contextBridge.exposeInMainWorld("api", api);

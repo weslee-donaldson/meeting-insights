@@ -300,3 +300,20 @@ describe("GET /api/clients/:name/action-items", () => {
     expect(await res.json()).toEqual([]);
   });
 });
+
+describe("GET /api/templates", () => {
+  let app: ReturnType<typeof createApp>;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns sorted list of template names", async () => {
+    const res = await app.request("/api/templates");
+    expect(res.status).toBe(200);
+    const body = await res.json() as string[];
+    expect(body).toEqual(["jira-epic", "jira-ticket"]);
+  });
+});

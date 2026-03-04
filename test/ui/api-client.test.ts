@@ -117,4 +117,10 @@ describe("apiClient", () => {
     expect(await apiClient.getClientActionItems("Acme")).toEqual(items);
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/clients/Acme/action-items");
   });
+
+  it("getTemplates fetches /api/templates and returns string array", async () => {
+    const spy = mockFetch(["jira-epic", "jira-ticket"]);
+    expect(await apiClient.getTemplates()).toEqual(["jira-epic", "jira-ticket"]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/templates");
+  });
 });
