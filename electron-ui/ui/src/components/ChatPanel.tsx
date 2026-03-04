@@ -300,17 +300,20 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
             />
             <div className="flex items-center gap-3">
               {templates && templates.length > 0 && (
-                <select
-                  aria-label="Output template"
-                  value={selectedTemplate}
-                  onChange={(e) => setSelectedTemplate(e.target.value)}
-                  className="text-[0.7rem] text-muted-foreground bg-transparent border border-border rounded px-1 py-0.5 cursor-pointer"
-                >
-                  <option value="">Default</option>
-                  {templates.map((t) => (
-                    <option key={t} value={t}>{toDisplayName(t)}</option>
-                  ))}
-                </select>
+                <label className="flex items-center gap-1.5 select-none">
+                  <span className="text-[0.7rem] text-muted-foreground">Output Template</span>
+                  <select
+                    aria-label="Output template"
+                    value={selectedTemplate}
+                    onChange={(e) => setSelectedTemplate(e.target.value)}
+                    className="text-[0.7rem] text-muted-foreground bg-transparent border border-border rounded px-1 py-0.5 cursor-pointer"
+                  >
+                    <option value="">Default</option>
+                    {templates.map((t) => (
+                      <option key={t} value={t}>{toDisplayName(t)}</option>
+                    ))}
+                  </select>
+                </label>
               )}
               <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
                 <input

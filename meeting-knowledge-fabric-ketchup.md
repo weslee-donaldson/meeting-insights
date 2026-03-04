@@ -867,6 +867,11 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 416: ClientActionItemsView preview + completion callbacks — onPreviewMeeting, onComplete (8947ea6)
 - [x] Burst 417: Wire action-items view into App + LinearShell — fetch items, preview column, completion invalidation (98a0008)
 - [x] Burst 418: Chat context in action-items preview mode — activeMeetingIds = [previewMeetingId] when preview is set (98a0008)
+- [x] Burst 419: ClientActionItemsView collapsible Completed section — local state captures completed items, displays at bottom with strikethrough (72bb714)
+- [x] Burst 420: Sync preview MeetingDetail completion on ClientActionItemsView complete — dedicated previewArtifactQuery/previewCompletionsQuery keyed by previewMeetingId (6277327)
+- [x] Burst 421: Chat output templates — config/chat-templates/ auto-discovery at startup, template injected into system prompt per-request (3d56ab0)
+- [x] Burst 422: GET_TEMPLATES IPC channel + API route + api-client + Electron main/preload registration (a7a62da)
+- [x] Burst 423: ChatPanel template dropdown — selectedTemplate state, reset on meeting change, templates prop, 4th onChat arg (5fc336e)
 
 ---
 
