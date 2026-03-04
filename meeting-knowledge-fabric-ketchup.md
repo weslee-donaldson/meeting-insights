@@ -1058,8 +1058,8 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 
 ### Bottle: Delete Meeting — Complete Cleanup (2026-03-04)
 
-- [ ] Burst 436: `handleDeleteMeetings` also removes vectors — accept `vdb: VectorDb | null`; async; delete from `meeting_vectors`, `feature_vectors`, `item_vectors` when vdb provided; test: mock vdb tables, verify `delete` called with correct filter; update existing tests to pass `null`
-- [ ] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; `ConfirmDeleteDialog` shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; test: cancel does not call api, confirm does
+- [x] Burst 436: `handleDeleteMeetings` also removes vectors — accept `vdb: VectorDb | null`; async; delete from `meeting_vectors`, `feature_vectors`, `item_vectors` when vdb provided; test: mock vdb tables, verify `delete` called with correct filter; update existing tests to pass `null` (commit: `e6208a3`)
+- [x] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; Dialog shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; 3 new tests (commit: `110ec86`)
 
 ---
 
