@@ -58,13 +58,25 @@ export function mergeArtifactsDeduped(artifacts: Artifact[]): Artifact {
     }
   }
 
+  const seenRisks = new Set<string>();
+  const risk_items: Artifact["risk_items"] = [];
+  for (const a of artifacts) {
+    for (const r of a.risk_items) {
+      const key = normalizeString(r.description);
+      if (!seenRisks.has(key)) {
+        seenRisks.add(key);
+        risk_items.push(r);
+      }
+    }
+  }
+
   return {
     summary: artifacts.map((a) => a.summary).filter(Boolean).join("\n"),
     decisions,
     proposed_features: dedupStrings(artifacts.map((a) => a.proposed_features)),
     action_items,
     open_questions: dedupStrings(artifacts.map((a) => a.open_questions)),
-    risk_items: dedupStrings(artifacts.map((a) => a.risk_items)),
+    risk_items,
     additional_notes: artifacts.flatMap((a) => a.additional_notes),
   };
 }

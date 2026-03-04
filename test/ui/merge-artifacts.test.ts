@@ -76,11 +76,21 @@ describe("mergeArtifactsDeduped", () => {
 
   it("deduplicates across all string array fields independently", () => {
     const result = mergeArtifactsDeduped([
-      makeArtifact({ open_questions: ["When to launch?"], risk_items: ["Timeline slip"] }),
-      makeArtifact({ open_questions: ["when to launch?", "Budget?"], risk_items: ["timeline slip", "Staffing"] }),
+      makeArtifact({ open_questions: ["When to launch?"] }),
+      makeArtifact({ open_questions: ["when to launch?", "Budget?"] }),
     ]);
     expect(result.open_questions).toEqual(["When to launch?", "Budget?"]);
-    expect(result.risk_items).toEqual(["Timeline slip", "Staffing"]);
+  });
+
+  it("deduplicates risk_items by description preserving first occurrence", () => {
+    const result = mergeArtifactsDeduped([
+      makeArtifact({ risk_items: [{ category: "architecture", description: "Timeline slip" }] }),
+      makeArtifact({ risk_items: [{ category: "engineering", description: "timeline slip" }, { category: "relationship", description: "Staffing" }] }),
+    ]);
+    expect(result.risk_items).toEqual([
+      { category: "architecture", description: "Timeline slip" },
+      { category: "relationship", description: "Staffing" },
+    ]);
   });
 
   it("merges non-overlapping action items from multiple artifacts", () => {
