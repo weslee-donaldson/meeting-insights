@@ -83,32 +83,32 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
 
 function ActionItemCard({ item, onPreviewMeeting, onComplete, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; completed?: boolean }) {
   return (
-    <div className={`rounded-md border border-border p-3 flex flex-col gap-1.5 text-sm${completed ? " opacity-50" : ""}`}>
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          className="mt-0.5 shrink-0 cursor-pointer"
-          checked={completed}
-          readOnly={completed}
-          onChange={completed ? undefined : () => onComplete?.(item.meeting_id, item.item_index)}
-        />
-        {item.priority === "critical" && !completed && (
-          <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">
-            CRITICAL
-          </span>
-        )}
-        <span className={`flex-1 leading-snug${completed ? " line-through" : ""}`}>{item.description}</span>
-      </div>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap pl-5">
-        <span className="font-medium text-foreground">{item.owner}</span>
-        <button
-          className="hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs text-muted-foreground"
-          onClick={() => onPreviewMeeting?.(item.meeting_id)}
-        >
-          {item.meeting_title}
-        </button>
-        <span>{item.meeting_date.slice(0, 10)}</span>
-      </div>
+    <div className={`rounded-md border border-border px-3 py-2 flex items-start gap-2 text-sm${completed ? " opacity-50" : ""}`}>
+      <input
+        type="checkbox"
+        className="mt-0.5 shrink-0 cursor-pointer"
+        checked={completed}
+        readOnly={completed}
+        onChange={completed ? undefined : () => onComplete?.(item.meeting_id, item.item_index)}
+      />
+      {item.priority === "critical" && !completed && (
+        <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">
+          CRITICAL
+        </span>
+      )}
+      <span className="flex-1 leading-snug">
+        <span className={completed ? "line-through" : ""}>{item.description}</span>
+        <span className="ml-1.5 text-xs text-muted-foreground">
+          {" — "}
+          <button
+            className="hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs text-muted-foreground"
+            onClick={() => onPreviewMeeting?.(item.meeting_id)}
+          >
+            {item.meeting_title}
+          </button>
+          {" · "}{item.owner}{item.requester ? ` · ${item.requester}` : ""}
+        </span>
+      </span>
     </div>
   );
 }

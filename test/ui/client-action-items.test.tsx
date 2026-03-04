@@ -50,10 +50,12 @@ describe("ClientActionItemsView", () => {
     expect(screen.getByText("CRITICAL")).toBeDefined();
   });
 
-  it("renders owner for each item", () => {
-    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    expect(screen.getByText("Alice")).toBeDefined();
-    expect(screen.getByText("Charlie")).toBeDefined();
+  it("renders owner and requester inline for each item", () => {
+    const { container } = render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    const text = container.textContent ?? "";
+    expect(text).toContain("Alice");   // owner of item 0 and requester of item 1
+    expect(text).toContain("Charlie"); // owner of item 1
+    expect(text).toContain("Bob");     // requester of item 0
   });
 
   it("renders meeting source link with title", () => {
