@@ -158,6 +158,18 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     return c.json(result);
   });
 
+  app.post("/api/meetings/:id/re-embed", async (c) => {
+    if (!searchDeps) return c.json({ error: "Search not available" }, 503);
+    const id = c.req.param("id");
+    const { handleUpdateMeetingVector } = await import("../electron-ui/electron/ipc-handlers.js");
+    try {
+      await handleUpdateMeetingVector(db, searchDeps.vdb, searchDeps.session, id);
+      return c.json({});
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 404);
+    }
+  });
+
   app.get("/api/search", async (c) => {
     if (!searchDeps) return c.json({ error: "Search not available" }, 503);
     const q = c.req.query("q") ?? "";

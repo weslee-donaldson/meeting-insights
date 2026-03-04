@@ -360,3 +360,29 @@ export async function handleReEmbed(
 
   return { embedded, skipped };
 }
+
+export async function handleUpdateMeetingVector(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  meetingId: string,
+): Promise<void> {
+  const artifact = handleGetArtifact(db, meetingId);
+  if (!artifact) throw new Error(`No artifact found for meeting ${meetingId}`);
+
+  const table = await createMeetingTable(vdb);
+  await table.delete(`meeting_id = '${meetingId}'`);
+
+  const detection = db.prepare(
+    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+  ).get(meetingId) as { client_name: string } | undefined;
+  const client = detection?.client_name ?? "";
+
+  const meeting = db.prepare("SELECT title, date FROM meetings WHERE id = ?").get(meetingId) as { title: string; date: string };
+  const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
+  await storeMeetingVector(table, meetingId, vec, {
+    client,
+    meeting_type: meeting.title,
+    date: meeting.date,
+  });
+}

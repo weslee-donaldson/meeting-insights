@@ -17,14 +17,15 @@ vi.mock("../core/meeting-pipeline.js", () => ({
 }));
 
 const mockToArray = vi.fn().mockResolvedValue([]);
-const mockTable = { query: () => ({ toArray: mockToArray }), add: vi.fn() };
+const mockDelete = vi.fn().mockResolvedValue(undefined);
+const mockTable = { query: () => ({ toArray: mockToArray }), add: vi.fn(), delete: mockDelete };
 const mockCreateMeetingTable = vi.fn().mockResolvedValue(mockTable);
 
 vi.mock("../core/vector-db.js", () => ({
   createMeetingTable: mockCreateMeetingTable,
 }));
 
-const { handleReEmbed } = await import("../electron-ui/electron/ipc-handlers.js");
+const { handleReEmbed, handleUpdateMeetingVector } = await import("../electron-ui/electron/ipc-handlers.js");
 
 const mockVdb = {} as VectorDb;
 const mockSession = {} as InferenceSession & { _tokenizer: unknown };
@@ -83,5 +84,68 @@ describe("handleReEmbed", () => {
 
     expect(result).toEqual({ embedded: 0, skipped: 1 });
     expect(mockStoreMeetingVector).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleUpdateMeetingVector", () => {
+  let db: ReturnType<typeof createDb>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    db = createDb(":memory:");
+    migrate(db);
+    db.prepare("INSERT OR IGNORE INTO clients (name) VALUES (?)").run("Acme");
+
+    meetingId = ingestMeeting(db, {
+      title: "Architecture Solutioning",
+      timestamp: "2026-01-10T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHello.",
+      turns: [],
+      sourceFilename: "arch-sol-update",
+    });
+    storeArtifact(db, meetingId, {
+      summary: "Discussed blue-green deployment strategy",
+      decisions: [],
+      proposed_features: [],
+      action_items: [],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+    });
+    storeDetection(db, meetingId, [
+      { client_name: "Acme", confidence: 0.9, method: "participant" },
+    ]);
+  });
+
+  it("deletes existing vector then stores new one for meeting with artifact", async () => {
+    mockDelete.mockClear();
+    mockStoreMeetingVector.mockClear();
+
+    await handleUpdateMeetingVector(db, mockVdb, mockSession, meetingId);
+
+    expect(mockDelete).toHaveBeenCalledWith(`meeting_id = '${meetingId}'`);
+    expect(mockStoreMeetingVector).toHaveBeenCalledWith(
+      mockTable,
+      meetingId,
+      expect.any(Float32Array),
+      { client: "Acme", meeting_type: "Architecture Solutioning", date: "2026-01-10T10:00:00.000Z" },
+    );
+  });
+
+  it("throws when meeting has no artifact", async () => {
+    const noArtifactDb = createDb(":memory:");
+    migrate(noArtifactDb);
+    const id = ingestMeeting(noArtifactDb, {
+      title: "No Artifact",
+      timestamp: "2026-01-15T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "A | 00:00\nHi.",
+      turns: [],
+      sourceFilename: "no-artifact-update",
+    });
+
+    await expect(handleUpdateMeetingVector(noArtifactDb, mockVdb, mockSession, id))
+      .rejects.toThrow(`No artifact found for meeting ${id}`);
   });
 });

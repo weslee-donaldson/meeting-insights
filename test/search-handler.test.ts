@@ -1,7 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import type { SearchResultRow } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
+
+const systemConfig = JSON.parse(readFileSync("config/system.json", "utf8")) as { search?: { maxDistance?: number; limit?: number } };
+const EXPECTED_MAX_DISTANCE = systemConfig.search?.maxDistance ?? 1.0;
+const EXPECTED_LIMIT = systemConfig.search?.limit ?? 50;
 
 const fakeResults: SearchResultRow[] = [
   { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "DSU", date: "2026-02-24" },
@@ -41,14 +46,14 @@ describe("handleSearchMeetings", () => {
     );
   });
 
-  it("uses SEARCH_LIMIT from config (50) regardless of request limit field", async () => {
+  it("uses SEARCH_LIMIT from config regardless of request limit field", async () => {
     searchMeetingsMock.mockClear();
     await handleSearchMeetings(mockVdb, mockSession, { query: "auth" });
     expect(searchMeetingsMock).toHaveBeenCalledWith(
       mockVdb,
       mockSession,
       "auth",
-      expect.objectContaining({ limit: 50 }),
+      expect.objectContaining({ limit: EXPECTED_LIMIT }),
     );
   });
 
@@ -59,7 +64,7 @@ describe("handleSearchMeetings", () => {
       mockVdb,
       mockSession,
       "auth",
-      expect.objectContaining({ maxDistance: 1.0 }),
+      expect.objectContaining({ maxDistance: EXPECTED_MAX_DISTANCE }),
     );
   });
 });
