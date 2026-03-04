@@ -10,7 +10,9 @@ import { getMeeting } from "../../core/ingest.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
+import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
+import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
@@ -319,4 +321,42 @@ export function handleGetClientActionItems(db: Database, clientName: string): Cl
 
   result.sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1));
   return result;
+}
+
+export async function handleReEmbed(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+): Promise<{ embedded: number; skipped: number }> {
+  const table = await createMeetingTable(vdb);
+  const existingRows = await table.query().toArray();
+  const existingIds = new Set(existingRows.map((r: Record<string, unknown>) => r.meeting_id as string));
+
+  const meetings = db.prepare(
+    "SELECT m.id, m.date, m.title FROM meetings m WHERE EXISTS (SELECT 1 FROM artifacts WHERE meeting_id = m.id)",
+  ).all() as { id: string; date: string; title: string }[];
+
+  let embedded = 0;
+  let skipped = 0;
+
+  for (const meeting of meetings) {
+    if (existingIds.has(meeting.id)) {
+      skipped++;
+      continue;
+    }
+    const artifact = handleGetArtifact(db, meeting.id)!;
+    const detection = db.prepare(
+      "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+    ).get(meeting.id) as { client_name: string } | undefined;
+    const client = detection?.client_name ?? "";
+    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
+    await storeMeetingVector(table, meeting.id, vec, {
+      client,
+      meeting_type: meeting.title,
+      date: meeting.date,
+    });
+    embedded++;
+  }
+
+  return { embedded, skipped };
 }

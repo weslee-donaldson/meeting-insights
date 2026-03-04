@@ -151,6 +151,13 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     return c.json(handleGetTemplates());
   });
 
+  app.post("/api/re-embed", async (c) => {
+    if (!searchDeps) return c.json({ error: "Search not available" }, 503);
+    const { handleReEmbed } = await import("../electron-ui/electron/ipc-handlers.js");
+    const result = await handleReEmbed(db, searchDeps.vdb, searchDeps.session);
+    return c.json(result);
+  });
+
   app.get("/api/search", async (c) => {
     if (!searchDeps) return c.json({ error: "Search not available" }, 503);
     const q = c.req.query("q") ?? "";
