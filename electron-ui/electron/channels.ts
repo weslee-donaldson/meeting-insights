@@ -17,6 +17,7 @@ export const CHANNELS = {
   GET_DEFAULT_CLIENT: "get-default-client",
   GET_CLIENT_ACTION_ITEMS: "get-client-action-items",
   GET_TEMPLATES: "get-templates",
+  CREATE_MEETING: "create-meeting",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -122,6 +123,13 @@ export interface ClientActionItem {
   priority: "critical" | "normal";
 }
 
+export interface CreateMeetingRequest {
+  clientName: string;
+  date: string;
+  title: string;
+  rawTranscript: string;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -142,4 +150,5 @@ export interface ElectronAPI {
   getDefaultClient: () => Promise<string | null>;
   getClientActionItems: (clientName: string) => Promise<ClientActionItem[]>;
   getTemplates: () => Promise<string[]>;
+  createMeeting: (req: CreateMeetingRequest) => Promise<{ meetingId: string }>;
 }

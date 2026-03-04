@@ -9,10 +9,11 @@ import {
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
-  handleGetTemplates,
+  handleGetTemplates, handleCreateMeeting,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
+import type { CreateMeetingRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -84,6 +85,12 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; base64: string; mimeType: string }[]; includeTranscripts?: boolean };
     const result = await handleConversationChat(db, llm!, req);
     return c.json(result);
+  });
+
+  app.post("/api/meetings", async (c) => {
+    const req = await c.req.json() as CreateMeetingRequest;
+    const meetingId = await handleCreateMeeting(db, llm!, req);
+    return c.json({ meetingId }, 201);
   });
 
   app.delete("/api/meetings", async (c) => {

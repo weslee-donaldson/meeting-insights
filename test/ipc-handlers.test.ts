@@ -19,6 +19,7 @@ import {
   handleGetCompletions,
   handleGetClientActionItems,
   handleGetTemplates,
+  handleCreateMeeting,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -481,6 +482,79 @@ describe("IPC handlers", () => {
     it("returns sorted list of template names from chat-templates directory", () => {
       const templates = handleGetTemplates();
       expect(templates).toEqual(["jira-epic", "jira-ticket"]);
+    });
+  });
+
+  describe("handleCreateMeeting", () => {
+    let createDb2: ReturnType<typeof createDb>;
+    const stubLlm: LlmAdapter = {
+      async complete() {
+        return {
+          summary: "Created meeting summary",
+          decisions: [],
+          proposed_features: [],
+          action_items: [],
+          open_questions: [],
+          risk_items: [],
+          additional_notes: [],
+        };
+      },
+    };
+
+    beforeAll(() => {
+      createDb2 = createDb(":memory:");
+      migrate(createDb2);
+      createDb2.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
+        "Acme", "[]", "[]",
+      );
+    });
+
+    it("ingests meeting, stores artifact, returns new meeting id", async () => {
+      const meetingId = await handleCreateMeeting(createDb2, stubLlm, {
+        clientName: "Acme",
+        date: "2026-03-10",
+        title: "Manual Meeting",
+        rawTranscript: "Alice | 00:00\nHello world.",
+      });
+      expect(meetingId).toEqual(expect.any(String));
+      const meetings = handleGetMeetings(createDb2, {});
+      expect(meetings.some((m) => m.id === meetingId)).toBe(true);
+      const artifact = handleGetArtifact(createDb2, meetingId);
+      expect(artifact?.summary).toBe("Created meeting summary");
+    });
+
+    it("stores manual client detection when clientName is provided", async () => {
+      const meetingId = await handleCreateMeeting(createDb2, stubLlm, {
+        clientName: "Acme",
+        date: "2026-03-10",
+        title: "Acme Manual",
+        rawTranscript: "Alice | 00:00\nHello.",
+      });
+      const filtered = handleGetMeetings(createDb2, { client: "Acme" });
+      expect(filtered.some((m) => m.id === meetingId)).toBe(true);
+    });
+
+    it("wraps plain text transcript as single turn for extraction", async () => {
+      const meetingId = await handleCreateMeeting(createDb2, stubLlm, {
+        clientName: "",
+        date: "2026-03-10",
+        title: "Plain Text Meeting",
+        rawTranscript: "This is a plain text transcript without speaker headers.",
+      });
+      const artifact = handleGetArtifact(createDb2, meetingId);
+      expect(artifact?.summary).toBe("Created meeting summary");
+    });
+
+    it("sets date as ISO timestamp from YYYY-MM-DD input", async () => {
+      const meetingId = await handleCreateMeeting(createDb2, stubLlm, {
+        clientName: "",
+        date: "2026-03-10",
+        title: "Date Test Meeting",
+        rawTranscript: "Alice | 00:00\nHi.",
+      });
+      const meetings = handleGetMeetings(createDb2, {});
+      const m = meetings.find((r) => r.id === meetingId)!;
+      expect(m.date).toBe("2026-03-10T00:00:00.000Z");
     });
   });
 

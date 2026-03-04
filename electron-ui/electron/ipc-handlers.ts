@@ -6,7 +6,8 @@ import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor
 import type { Artifact } from "../../core/extractor.js";
 import { parseTranscriptBody } from "../../core/parser.js";
 import { buildLabeledContext, buildDistilledContext } from "../../core/labeled-context.js";
-import { getMeeting } from "../../core/ingest.js";
+import { ingestMeeting, getMeeting } from "../../core/ingest.js";
+import { storeDetection } from "../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { searchMeetings } from "../../core/vector-search.js";
@@ -14,7 +15,7 @@ import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
@@ -365,6 +366,32 @@ export async function handleReEmbed(
   }
 
   return { embedded, skipped };
+}
+
+export async function handleCreateMeeting(
+  db: Database,
+  llm: LlmAdapter,
+  req: CreateMeetingRequest,
+): Promise<string> {
+  const timestamp = `${req.date}T00:00:00.000Z`;
+  const meetingId = ingestMeeting(db, {
+    title: req.title,
+    timestamp,
+    participants: [],
+    rawTranscript: req.rawTranscript,
+    turns: [],
+    sourceFilename: `manual-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  });
+  if (req.clientName) {
+    storeDetection(db, meetingId, [{ client_name: req.clientName, confidence: 1.0, method: "manual" }]);
+  }
+  let turns = parseTranscriptBody(req.rawTranscript);
+  if (turns.length === 0) {
+    turns = [{ speaker_name: "Participant", timestamp: "00:00", text: req.rawTranscript }];
+  }
+  const artifact = await extractSummary(llm, turns, 8000);
+  storeArtifact(db, meetingId, artifact);
+  return meetingId;
 }
 
 export async function handleUpdateMeetingVector(
