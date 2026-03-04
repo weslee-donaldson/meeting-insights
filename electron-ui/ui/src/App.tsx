@@ -231,10 +231,12 @@ export function App() {
 
   const handleConfirmDelete = useCallback(async () => {
     const ids = pendingDeleteIds ?? [];
+    const idSet = new Set(ids);
     setPendingDeleteIds(null);
-    await window.api.deleteMeetings(ids);
+    queryClient.setQueriesData<MeetingRow[]>({ queryKey: ["meetings"] }, (old) => old?.filter((m) => !idSet.has(m.id)));
     setCheckedMeetingIds(new Set());
     if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
+    await window.api.deleteMeetings(ids);
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
     addToast(`${ids.length} meeting(s) deleted`, "success");
   }, [pendingDeleteIds, selectedMeetingId, queryClient, addToast]);
