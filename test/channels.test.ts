@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 16 unique non-empty channel strings", () => {
+  it("should have 17 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(16);
-    expect(new Set(values).size).toBe(16);
+    expect(values).toHaveLength(17);
+    expect(new Set(values).size).toBe(17);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -106,5 +106,19 @@ describe("CHANNELS", () => {
       includeTranscripts: true,
     };
     expect(req.includeTranscripts).toBe(true);
+  });
+
+  it("should define GET_TEMPLATES channel", () => {
+    expect(CHANNELS.GET_TEMPLATES).toBe("get-templates");
+  });
+
+  it("ConversationChatRequest accepts optional template", () => {
+    const req: import("../electron-ui/electron/channels.js").ConversationChatRequest = {
+      meetingIds: [],
+      messages: [],
+      includeTranscripts: false,
+      template: "jira-ticket",
+    };
+    expect(req.template).toBe("jira-ticket");
   });
 });

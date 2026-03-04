@@ -268,6 +268,33 @@ describe("IPC handlers", () => {
       expect(result.sources).toEqual([]);
     });
 
+    it("injects template content into system prompt when template is set", async () => {
+      let capturedSystem = "";
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system) { capturedSystem = system; return "ok"; },
+      };
+      await handleConversationChat(db, spyLlm, {
+        meetingIds: [],
+        messages: [{ role: "user", content: "Make a Jira ticket" }],
+        template: "jira-ticket",
+      });
+      expect(capturedSystem).toContain("Output Template: Jira Ticket");
+    });
+
+    it("does not inject template content when template is not set", async () => {
+      let capturedSystem = "";
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system) { capturedSystem = system; return "ok"; },
+      };
+      await handleConversationChat(db, spyLlm, {
+        meetingIds: [],
+        messages: [{ role: "user", content: "Hello" }],
+      });
+      expect(capturedSystem).not.toContain("Output Template");
+    });
+
     it("forwards attachments to llm.converse", async () => {
       let capturedAttachments: unknown;
       const spyLlm: LlmAdapter = {

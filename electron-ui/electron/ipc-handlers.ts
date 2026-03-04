@@ -1,6 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { readFileSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { join, resolve, basename, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
@@ -15,9 +15,21 @@ import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
-const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../../..");
+const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
 const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
 const chatGuidelines = existsSync(CHAT_GUIDELINES_PATH) ? readFileSync(CHAT_GUIDELINES_PATH, "utf8") : "";
+
+const CHAT_TEMPLATES_DIR = join(REPO_ROOT, "config/chat-templates");
+const chatTemplates = new Map<string, string>();
+if (existsSync(CHAT_TEMPLATES_DIR)) {
+  for (const file of readdirSync(CHAT_TEMPLATES_DIR).filter((f) => extname(f) === ".md")) {
+    chatTemplates.set(basename(file, ".md"), readFileSync(join(CHAT_TEMPLATES_DIR, file), "utf8"));
+  }
+}
+
+export function handleGetTemplates(): string[] {
+  return [...chatTemplates.keys()].sort();
+}
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -176,7 +188,8 @@ export async function handleConversationChat(
     });
   }
 
-  const system = `${SYSTEM_PROMPT}\n\nMeeting Context:\n${contextText}`;
+  const templateContent = req.template ? chatTemplates.get(req.template) : undefined;
+  const system = [SYSTEM_PROMPT, templateContent, `Meeting Context:\n${contextText}`].filter(Boolean).join("\n\n");
 
   const rawAnswer = await llm.converse(system, req.messages, req.attachments);
   const answer = replaceCitations(rawAnswer, meetings);

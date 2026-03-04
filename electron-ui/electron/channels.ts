@@ -15,6 +15,7 @@ export const CHANNELS = {
   GET_MENTION_STATS: "get-mention-stats",
   GET_DEFAULT_CLIENT: "get-default-client",
   GET_CLIENT_ACTION_ITEMS: "get-client-action-items",
+  GET_TEMPLATES: "get-templates",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -50,6 +51,7 @@ export interface ConversationChatRequest {
   messages: ConversationMessage[];
   attachments?: { name: string; base64: string; mimeType: string }[];
   includeTranscripts?: boolean;
+  template?: string;
 }
 
 export interface ConversationChatResponse {
@@ -137,4 +139,5 @@ export interface ElectronAPI {
   getMentionStats: (meetingId: string) => Promise<MentionStat[]>;
   getDefaultClient: () => Promise<string | null>;
   getClientActionItems: (clientName: string) => Promise<ClientActionItem[]>;
+  getTemplates: () => Promise<string[]>;
 }
