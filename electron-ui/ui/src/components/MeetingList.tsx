@@ -221,7 +221,7 @@ export function MeetingList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-1">
+      <div className="flex-1 overflow-y-auto py-1 pb-[10px]">
         {loading && (
           <div data-testid="meeting-list-skeleton" className="flex flex-col gap-2 px-3 py-3">
             {[1, 2, 3, 4].map((i) => (
