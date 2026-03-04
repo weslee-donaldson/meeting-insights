@@ -1,4 +1,7 @@
 import type { DatabaseSync as Database } from "node:sqlite";
+import { readFileSync, existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { getArtifact, extractSummary, storeArtifact } from "../../core/extractor.js";
 import type { Artifact } from "../../core/extractor.js";
 import { parseTranscriptBody } from "../../core/parser.js";
@@ -11,6 +14,10 @@ import type { VectorDb } from "../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
+
+const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../../..");
+const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
+const chatGuidelines = existsSync(CHAT_GUIDELINES_PATH) ? readFileSync(CHAT_GUIDELINES_PATH, "utf8") : "";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -112,9 +119,12 @@ export function handleGetArtifact(
   };
 }
 
-const SYSTEM_PROMPT = `You are a meeting intelligence assistant. Answer the user's question using ONLY the provided meeting context.
-When referencing a meeting, cite it by its title and date — for example "Sprint Planning (Mon, 3/2/2026)". Do NOT use [M1], [M2] labels in your response.
-If the answer cannot be found in the context, say so clearly.`;
+const SYSTEM_PROMPT = [
+  `You are a meeting intelligence assistant. Answer the user's question using ONLY the provided meeting context.`,
+  `When referencing a meeting, cite it by its title and date — for example "Sprint Planning (Mon, 3/2/2026)". Do NOT use [M1], [M2] labels in your response.`,
+  `If the answer cannot be found in the context, say so clearly.`,
+  chatGuidelines,
+].filter(Boolean).join("\n\n");
 
 export async function handleChat(
   db: Database,
