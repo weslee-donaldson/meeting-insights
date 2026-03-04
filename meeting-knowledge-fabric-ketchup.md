@@ -873,6 +873,32 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 422: GET_TEMPLATES IPC channel + API route + api-client + Electron main/preload registration (a7a62da)
 - [x] Burst 423: ChatPanel template dropdown — selectedTemplate state, reset on meeting change, templates prop, 4th onChat arg (5fc336e)
 
+### Bottle: Search Quality + Sort By (2026-03-03)
+
+- [x] Burst 424: Configurable search distance threshold + limit — `config/system.json` with `maxDistance` and `limit`; `searchMeetings` filters post-KNN by `maxDistance`; `handleSearchMeetings` reads config at module load; tests validate config passthrough (8fe801b)
+- [x] Burst 425: Sort By control in MeetingList — `SortBy` type (`date-desc`|`date-asc`|`client`|`relevance`); group functions receive pre-sorted array; `searchScores` map from search results; auto-switch to Relevance on search; Newest/Oldest/Client/Relevance buttons in header (680441b)
+- [x] Burst 426: Single panel fills full width in action items view — LinearShell single-panel mode uses `flex-1` on panel-0 (e5afa5b)
+- [x] Burst 427-428: Search on Enter only; remove client filter from search bar — TopBar fires search on Enter keypress only; client param dropped from search request (57796a5)
+- [x] Burst 429: Vector count in debug endpoint — `GET /api/debug` returns `vector_count` from LanceDB table; test added (14bfbcf)
+
+### Bottle: Vector Re-Embedding API (2026-03-03)
+
+- [x] Burst 430: `POST /api/re-embed` — `handleReEmbed` bulk-embeds all meetings with artifacts that have no existing vector; skips already-embedded; returns `{ embedded, skipped }`; 2 tests (2087068)
+- [x] Burst 431: `POST /api/meetings/:id/re-embed` — `handleUpdateMeetingVector` deletes existing vector then stores fresh one from current artifact; throws if no artifact; `test/re-embed-handler.test.ts` with 4 tests; search-handler tests dynamically read maxDistance from config (cf0eae8)
+
+### Bottle: Inline Action Item Layout + Auto Re-Embed (2026-03-04)
+
+- [x] Burst 432: Compact inline action item layout in ClientActionItemsView — CRITICAL badge inline before description text; owner/requester/meeting title inline at end as muted text; single-row card replaces two-row card (833a1b4)
+- [x] Burst 433: CRITICAL badge inline in MeetingDetail — badge moved inside description `<span>` as `inline` element; no longer a sibling flex item that could wrap independently (22f5a00)
+- [x] Burst 434: Action item attributes inline in MeetingDetail — owner/requester/due_date/mention all inline after description separated by `·`; mention stays a button; dropped `flex-wrap` container (e6b539c)
+- [x] Burst 435: Auto re-embed after re-extract — `reEmbedMeeting(meetingId)` added to `ElectronAPI`, `api-client`, `preload`, `main` (IPC under search deps); App.tsx fires re-embed background after successful re-extract; toasts: "Search index updated" / "Search index update failed"; 2 new app tests (0133cf7)
+
+### Bottle: Delete Meeting — Complete Cleanup (2026-03-04)
+
+- [x] Burst 436: `handleDeleteMeetings` also removes vectors — accept `vdb: VectorDb | null`; async; delete from `meeting_vectors`, `feature_vectors`, `item_vectors` when vdb provided; test: mock vdb tables, verify `delete` called with correct filter; update existing tests to pass `null` (e6208a3)
+- [x] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; Dialog shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; 3 new tests (110ec86)
+- [x] Burst 438: Optimistic delete — `setQueriesData` filters deleted IDs from cache immediately before API call so list updates without waiting for refetch; `invalidateQueries` still runs after for server sync (6d689a9)
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
