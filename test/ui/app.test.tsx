@@ -126,13 +126,39 @@ describe("App", () => {
     });
   });
 
-  it("shows success toast after deleting checked meetings", async () => {
+  it("shows confirmation dialog when Delete button clicked", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    await waitFor(() => expect(screen.getByRole("button", { name: /Delete 1/i })).toBeDefined());
+    fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
+    await waitFor(() => expect(screen.getByText("Permanently delete 1 meeting(s)?")).toBeDefined());
+  });
+
+  it("canceling confirmation dialog does not call deleteMeetings", async () => {
+    const deleteFn = vi.fn().mockResolvedValue(undefined);
+    (window as unknown as Record<string, unknown>).api = { ...(window as unknown as Record<string, { deleteMeetings: unknown }>).api, deleteMeetings: deleteFn };
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    await waitFor(() => screen.getByRole("button", { name: /Delete 1/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
+    await waitFor(() => screen.getByText("Permanently delete 1 meeting(s)?"));
+    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+    expect(deleteFn).not.toHaveBeenCalled();
+  });
+
+  it("shows success toast after confirming delete", async () => {
     render(<App />, { wrapper });
     const row = await screen.findByTestId("meeting-row-m1");
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[0]);
-    await waitFor(() => expect(screen.getByRole("button", { name: /Delete/i })).toBeDefined());
-    fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
+    await waitFor(() => screen.getByRole("button", { name: /Delete 1/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
+    await waitFor(() => screen.getByText("Permanently delete 1 meeting(s)?"));
+    fireEvent.click(screen.getByRole("button", { name: /Delete permanently/i }));
     await waitFor(() => expect(screen.getByText("1 meeting(s) deleted")).toBeDefined());
     expect(row).toBeDefined();
   });

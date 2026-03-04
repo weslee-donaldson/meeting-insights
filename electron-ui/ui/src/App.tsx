@@ -13,6 +13,8 @@ import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped } from "./lib/merge-artifacts.js";
 import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
+import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
+import { Button } from "./components/ui/button.js";
 
 interface DateRange {
   after: string;
@@ -35,6 +37,7 @@ export function App() {
   const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -222,14 +225,19 @@ export function App() {
     });
   }, []);
 
-  const handleDeleteMeetings = useCallback(async () => {
-    const ids = [...checkedMeetingIds];
+  const handleDeleteMeetings = useCallback(() => {
+    setPendingDeleteIds([...checkedMeetingIds]);
+  }, [checkedMeetingIds]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    const ids = pendingDeleteIds ?? [];
+    setPendingDeleteIds(null);
     await window.api.deleteMeetings(ids);
     setCheckedMeetingIds(new Set());
     if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
     addToast(`${ids.length} meeting(s) deleted`, "success");
-  }, [checkedMeetingIds, selectedMeetingId, queryClient, addToast]);
+  }, [pendingDeleteIds, selectedMeetingId, queryClient, addToast]);
 
   const handleReExtract = useCallback(async () => {
     if (!selectedMeetingId) return;
@@ -415,6 +423,19 @@ export function App() {
       history={itemHistoryQuery.data ?? []}
       onSelectMeeting={handleHistorySelectMeeting}
     />
+    <Dialog open={pendingDeleteIds !== null} onOpenChange={(o) => { if (!o) setPendingDeleteIds(null); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Delete meetings</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Permanently delete {pendingDeleteIds?.length ?? 0} meeting(s)?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingDeleteIds(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmDelete}>Delete permanently</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
