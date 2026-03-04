@@ -314,7 +314,6 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                   <span className="shrink-0 mt-0.5 text-primary">□</span>
                 )}
                 <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                  {a.priority === "critical" && !isCompleted && <Badge variant="destructive" className="shrink-0 text-[0.65rem]">CRITICAL</Badge>}
                   {isCompleted ? (
                     <button
                       onClick={() => setNoteDialog({ index: i, note: existingNote })}
@@ -323,7 +322,10 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                       {a.description}
                     </button>
                   ) : (
-                    <span className="leading-[1.5]">{a.description}</span>
+                    <span className="leading-[1.5]">
+                      {a.priority === "critical" && <Badge variant="destructive" className="inline mr-1 text-[0.65rem]">CRITICAL</Badge>}
+                      {a.description}
+                    </span>
                   )}
                   {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
                   {a.requester && <Badge variant="outline">{a.requester}</Badge>}
