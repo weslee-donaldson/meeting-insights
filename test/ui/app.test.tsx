@@ -53,6 +53,7 @@ beforeAll(() => {
     ]),
     getTemplates: vi.fn().mockResolvedValue(["jira-ticket"]),
     uncompleteActionItem: vi.fn().mockResolvedValue(undefined),
+    reExtract: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -133,6 +134,25 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: /Delete/i }));
     await waitFor(() => expect(screen.getByText("1 meeting(s) deleted")).toBeDefined());
     expect(row).toBeDefined();
+  });
+
+  it("shows success toast after re-extract completes", async () => {
+    render(<App />, { wrapper });
+    const row = await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(row);
+    await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
+    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    await waitFor(() => expect(screen.getByText("Re-extraction complete")).toBeDefined());
+  });
+
+  it("shows error toast when re-extract fails", async () => {
+    (window.api.reExtract as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
+    render(<App />, { wrapper });
+    const row = await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(row);
+    await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
+    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    await waitFor(() => expect(screen.getByText("Re-extraction failed")).toBeDefined());
   });
 
   it("renders NavRail with Meetings and Action Items buttons", () => {

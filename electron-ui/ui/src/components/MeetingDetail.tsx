@@ -13,6 +13,7 @@ interface MeetingDetailProps {
   meetings?: MeetingRow[];
   artifact: Artifact | null;
   onReExtract?: () => void;
+  reExtractPending?: boolean;
   clients?: string[];
   onReassignClient?: (clientName: string) => void;
   onIgnore?: () => void;
@@ -418,7 +419,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -547,11 +548,12 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, client
                 variant="ghost"
                 size="icon"
                 onClick={onReExtract}
+                disabled={reExtractPending}
                 aria-label="Re-extract"
                 title="Re-extract"
                 className="w-8 h-8 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
               >
-                <RefreshCw className="w-[18px] h-[18px]" />
+                <RefreshCw className={cn("w-[18px] h-[18px]", reExtractPending && "animate-spin")} />
               </Button>
             )}
             {artifact && (

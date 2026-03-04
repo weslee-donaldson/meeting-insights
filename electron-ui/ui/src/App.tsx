@@ -34,6 +34,7 @@ export function App() {
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
+  const [isReExtracting, setIsReExtracting] = useState(false);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -232,9 +233,18 @@ export function App() {
 
   const handleReExtract = useCallback(async () => {
     if (!selectedMeetingId) return;
-    await window.api.reExtract(selectedMeetingId);
-    queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
-  }, [selectedMeetingId, queryClient]);
+    setIsReExtracting(true);
+    try {
+      await window.api.reExtract(selectedMeetingId);
+      queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Re-extraction complete", "success");
+    } catch {
+      addToast("Re-extraction failed", "error");
+    } finally {
+      setIsReExtracting(false);
+    }
+  }, [selectedMeetingId, selectedClient, queryClient, addToast]);
 
   const handleReassignClient = useCallback(async (clientName: string) => {
     if (!selectedMeetingId) return;
@@ -324,6 +334,7 @@ export function App() {
       meetings={isMultiMode ? checkedMeetings : undefined}
       artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
       onReExtract={isMultiMode ? undefined : (selectedMeetingId ? handleReExtract : undefined)}
+      reExtractPending={isReExtracting}
       clients={clientsQuery.data}
       onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
       onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}

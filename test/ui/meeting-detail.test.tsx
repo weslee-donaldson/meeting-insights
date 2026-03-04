@@ -121,6 +121,13 @@ describe("MeetingDetail", () => {
     expect(onReExtract).toHaveBeenCalledOnce();
   });
 
+  it("re-extract button is disabled and spinner shown when reExtractPending is true", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={vi.fn()} reExtractPending={true} />);
+    const btn = screen.getByRole("button", { name: "Re-extract" }) as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
+    expect(btn.querySelector(".animate-spin")).not.toBeNull();
+  });
+
   it("clicking action item checkbox calls onComplete with its index and empty note", () => {
     const onComplete = vi.fn();
     render(
