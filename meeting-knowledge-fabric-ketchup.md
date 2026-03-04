@@ -899,6 +899,12 @@ Action items extracted per meeting need a completion lifecycle: check off, add a
 - [x] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; Dialog shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; 3 new tests (110ec86)
 - [x] Burst 438: Optimistic delete — `setQueriesData` filters deleted IDs from cache immediately before API call so list updates without waiting for refetch; `invalidateQueries` still runs after for server sync (6d689a9)
 
+### Bottle: Create Meeting Manually (2026-03-04)
+
+- [x] Burst 439: `handleCreateMeeting` + `POST /api/meetings` + 4 tests — `CreateMeetingRequest` type + `CREATE_MEETING` channel in channels.ts; handler ingests meeting, stores manual client detection, parses transcript (falls back to single turn for plain text), extracts artifact via LLM; API route returns `{ meetingId }` with 201; channel count test 18→19 (953939d)
+- [x] Burst 440: Wire createMeeting through preload, main, api-client — preload invokes `CREATE_MEETING` IPC; main registers handler; api-client POSTs to `/api/meetings`; api-client test added (974a37f)
+- [x] Burst 441: NewMeetingDialog + MeetingList `+ New` button + App wiring + NEW badge — dialog with client/date/title/transcript form; fire-and-forget handler with toasts (importing → imported → indexed); `newMeetingIds` Set tracks session-created meetings for NEW badge; 4 dialog tests + 3 button tests + 3 app integration tests (7889f8c)
+
 ---
 
 # DEPENDENCY GRAPH — PARALLELIZATION MAP
@@ -1087,6 +1093,9 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 436: `handleDeleteMeetings` also removes vectors — accept `vdb: VectorDb | null`; async; delete from `meeting_vectors`, `feature_vectors`, `item_vectors` when vdb provided; test: mock vdb tables, verify `delete` called with correct filter; update existing tests to pass `null` (commit: `e6208a3`)
 - [x] Burst 437: Confirmation dialog before delete — `pendingDeleteIds` state in App.tsx; clicking Delete sets state rather than immediately deleting; Dialog shows count + "This cannot be undone"; Confirm executes delete, Cancel clears state; 3 new tests (commit: `110ec86`)
 - [x] Burst 438: Optimistic delete — `setQueriesData` filters deleted IDs from cache immediately before API call so list updates without waiting for refetch; `invalidateQueries` still runs after for server sync (commit: `6d689a9`)
+- [x] Burst 439: `handleCreateMeeting` + `POST /api/meetings` + 4 tests — `CreateMeetingRequest` type + `CREATE_MEETING` channel; handler ingests meeting, stores manual client detection, parses transcript, extracts artifact; channel count 18→19 (commit: `953939d`)
+- [x] Burst 440: Wire createMeeting through preload, main, api-client — IPC + fetch plumbing + test (commit: `974a37f`)
+- [x] Burst 441: NewMeetingDialog + MeetingList `+ New` button + App wiring + NEW badge — form dialog, fire-and-forget handler with toasts, `newMeetingIds` Set, 10 new tests (commit: `7889f8c`)
 
 ---
 
