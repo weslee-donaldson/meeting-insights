@@ -313,33 +313,39 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                 ) : (
                   <span className="shrink-0 mt-0.5 text-primary">□</span>
                 )}
-                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                <span className="text-sm leading-[1.5]">
                   {isCompleted ? (
                     <button
                       onClick={() => setNoteDialog({ index: i, note: existingNote })}
-                      className="text-left text-sm leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
+                      className="text-left leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
                     >
                       {a.description}
                     </button>
                   ) : (
-                    <span className="leading-[1.5]">
+                    <>
                       {a.priority === "critical" && <Badge variant="destructive" className="inline mr-1 text-[0.65rem]">CRITICAL</Badge>}
                       {a.description}
+                    </>
+                  )}
+                  {(a.owner || a.requester || a.due_date || mention) && (
+                    <span className="ml-1.5 text-xs text-muted-foreground">
+                      {a.owner && <span> · {a.owner}</span>}
+                      {a.requester && <span> · {a.requester}</span>}
+                      {a.due_date && <span> · {a.due_date}</span>}
+                      {mention && (
+                        <span>
+                          {" · "}
+                          <button
+                            className="hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs text-muted-foreground"
+                            onClick={() => onMentionClick?.(mention.canonical_id, a.description)}
+                          >
+                            {mention.mention_count}x
+                          </button>
+                        </span>
+                      )}
                     </span>
                   )}
-                  {a.owner && <Badge variant="secondary">{a.owner}</Badge>}
-                  {a.requester && <Badge variant="outline">{a.requester}</Badge>}
-                  {a.due_date && <Badge variant="muted">{a.due_date}</Badge>}
-                  {mention && (
-                    <Badge
-                      variant="outline"
-                      className="cursor-pointer text-[0.65rem]"
-                      onClick={() => onMentionClick?.(mention.canonical_id, a.description)}
-                    >
-                      {mention.mention_count}x
-                    </Badge>
-                  )}
-                </div>
+                </span>
               </li>
             );
           })}
