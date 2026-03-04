@@ -23,34 +23,43 @@ describe("handleSearchMeetings", () => {
     const result = await handleSearchMeetings(mockVdb, mockSession, {
       query: "authentication",
       client: "Acme",
-      limit: 3,
     });
     expect(result).toEqual(fakeResults);
   });
 
-  it("passes query and options to searchMeetings", async () => {
+  it("passes query and client options to searchMeetings", async () => {
     searchMeetingsMock.mockClear();
     await handleSearchMeetings(mockVdb, mockSession, {
       query: "auth",
       client: "Acme",
-      limit: 3,
     });
     expect(searchMeetingsMock).toHaveBeenCalledWith(
       mockVdb,
       mockSession,
       "auth",
-      expect.objectContaining({ limit: 3, client: "Acme" }),
+      expect.objectContaining({ client: "Acme" }),
     );
   });
 
-  it("defaults limit to 6 when not provided", async () => {
+  it("uses SEARCH_LIMIT from config (50) regardless of request limit field", async () => {
     searchMeetingsMock.mockClear();
     await handleSearchMeetings(mockVdb, mockSession, { query: "auth" });
     expect(searchMeetingsMock).toHaveBeenCalledWith(
       mockVdb,
       mockSession,
       "auth",
-      expect.objectContaining({ limit: 6 }),
+      expect.objectContaining({ limit: 50 }),
+    );
+  });
+
+  it("passes maxDistance from config to searchMeetings", async () => {
+    searchMeetingsMock.mockClear();
+    await handleSearchMeetings(mockVdb, mockSession, { query: "auth" });
+    expect(searchMeetingsMock).toHaveBeenCalledWith(
+      mockVdb,
+      mockSession,
+      "auth",
+      expect.objectContaining({ maxDistance: 1.0 }),
     );
   });
 });

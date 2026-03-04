@@ -97,4 +97,16 @@ describe("searchMeetings", () => {
     // Logging is a side effect; verify no error thrown
     await expect(searchMeetings(vdb, session, "test query", { limit: 1 })).resolves.toBeDefined();
   });
+
+  it("filters out results exceeding maxDistance threshold", async () => {
+    // A tight threshold that keeps the API meeting but drops the unrelated budget meeting
+    const results = await searchMeetings(vdb, session, "REST API OAuth authentication", { limit: 2, maxDistance: 0.5 });
+    expect(results.every((r) => r.score <= 0.5)).toBe(true);
+    expect(results.some((r) => r.meeting_id === budgetMeetingId)).toBe(false);
+  });
+
+  it("returns all results when maxDistance is not set", async () => {
+    const results = await searchMeetings(vdb, session, "REST API OAuth authentication", { limit: 2 });
+    expect(results.length).toBe(2);
+  });
 });

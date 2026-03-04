@@ -1,0 +1,6 @@
+{
+  "search": {
+    "maxDistance": 1.0,
+    "limit": 50
+  }
+}

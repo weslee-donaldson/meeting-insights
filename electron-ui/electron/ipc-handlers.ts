@@ -19,6 +19,13 @@ const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
 const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
 const chatGuidelines = existsSync(CHAT_GUIDELINES_PATH) ? readFileSync(CHAT_GUIDELINES_PATH, "utf8") : "";
 
+const SYSTEM_CONFIG_PATH = join(REPO_ROOT, "config/system.json");
+const systemConfig = existsSync(SYSTEM_CONFIG_PATH)
+  ? JSON.parse(readFileSync(SYSTEM_CONFIG_PATH, "utf8")) as { search?: { maxDistance?: number; limit?: number } }
+  : {};
+const SEARCH_MAX_DISTANCE = systemConfig.search?.maxDistance ?? 1.0;
+const SEARCH_LIMIT = systemConfig.search?.limit ?? 50;
+
 const CHAT_TEMPLATES_DIR = join(REPO_ROOT, "config/chat-templates");
 const chatTemplates = new Map<string, string>();
 if (existsSync(CHAT_TEMPLATES_DIR)) {
@@ -256,10 +263,11 @@ export async function handleSearchMeetings(
   req: SearchRequest,
 ): Promise<SearchResultRow[]> {
   return searchMeetings(vdb, session, req.query, {
-    limit: req.limit ?? 6,
+    limit: SEARCH_LIMIT,
     client: req.client,
     date_after: req.date_after,
     date_before: req.date_before,
+    maxDistance: SEARCH_MAX_DISTANCE,
   }) as Promise<SearchResultRow[]>;
 }
 

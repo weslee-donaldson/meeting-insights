@@ -11,6 +11,7 @@ interface SearchOptions {
   meeting_type?: string;
   date_after?: string;
   date_before?: string;
+  maxDistance?: number;
 }
 
 interface SearchResult {
@@ -50,6 +51,9 @@ export async function searchMeetings(
     date: r.date as string,
   }));
 
-  log("query=%s results=%d", query, results.length);
-  return results;
+  const filtered = options.maxDistance !== undefined
+    ? results.filter((r) => r.score <= options.maxDistance!)
+    : results;
+  log("query=%s results=%d filtered=%d", query, results.length, filtered.length);
+  return filtered;
 }
