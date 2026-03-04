@@ -78,14 +78,64 @@ function turnsToText(turns: SpeakerTurn[]): string {
   return turns.map((t) => `${t.speaker_name} | ${t.timestamp}\n${t.text}`).join("\n\n");
 }
 
+function normalizeString(s: string): string {
+  return s.toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+function dedupStrings(items: string[]): string[] {
+  const seen = new Set<string>();
+  return items.filter((s) => {
+    const key = normalizeString(s);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function mergeArtifacts(artifacts: Artifact[]): Artifact {
+  const seenDecisions = new Set<string>();
+  const decisions: Artifact["decisions"] = [];
+  for (const a of artifacts) {
+    for (const d of a.decisions) {
+      const key = normalizeString(d.text);
+      if (!seenDecisions.has(key)) {
+        seenDecisions.add(key);
+        decisions.push(d);
+      }
+    }
+  }
+
+  const seenActions = new Set<string>();
+  const action_items: Artifact["action_items"] = [];
+  for (const a of artifacts) {
+    for (const item of a.action_items) {
+      const key = normalizeString(item.description);
+      if (!seenActions.has(key)) {
+        seenActions.add(key);
+        action_items.push(item);
+      }
+    }
+  }
+
+  const seenRisks = new Set<string>();
+  const risk_items: Artifact["risk_items"] = [];
+  for (const a of artifacts) {
+    for (const r of a.risk_items) {
+      const key = normalizeString(r.description);
+      if (!seenRisks.has(key)) {
+        seenRisks.add(key);
+        risk_items.push(r);
+      }
+    }
+  }
+
   return {
     summary: artifacts.map((a) => a.summary).filter(Boolean).join("\n\n"),
-    decisions: artifacts.flatMap((a) => a.decisions),
-    proposed_features: artifacts.flatMap((a) => a.proposed_features),
-    action_items: artifacts.flatMap((a) => a.action_items),
-    open_questions: artifacts.flatMap((a) => a.open_questions),
-    risk_items: artifacts.flatMap((a) => a.risk_items),
+    decisions,
+    proposed_features: dedupStrings(artifacts.flatMap((a) => a.proposed_features)),
+    action_items,
+    open_questions: dedupStrings(artifacts.flatMap((a) => a.open_questions)),
+    risk_items,
     additional_notes: artifacts.flatMap((a) => a.additional_notes),
   };
 }

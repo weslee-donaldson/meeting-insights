@@ -80,6 +80,25 @@ describe("extractSummary", () => {
     expect(typeof artifact.summary).toBe("string");
   });
 
+  it("deduplicates array fields across chunks", async () => {
+    const manyTurns = Array.from({ length: 40 }, () => ({
+      speaker_name: "Alice",
+      timestamp: "00:01",
+      text: Array.from({ length: 30 }, () => "word").join(" "),
+    }));
+    const artifact = await extractSummary(adapter, manyTurns, 50);
+    expect(artifact.decisions).toEqual([
+      { text: "Decision A", decided_by: "Alice" },
+      { text: "Decision B", decided_by: "" },
+    ]);
+    expect(artifact.proposed_features).toEqual(["Feature X", "Feature Y"]);
+    expect(artifact.action_items).toEqual([
+      { description: "Follow up", owner: "Wesley", requester: "Stace", due_date: null, priority: "normal" },
+    ]);
+    expect(artifact.open_questions).toEqual(["What is the timeline?"]);
+    expect(artifact.risk_items).toEqual([{ category: "engineering", description: "Scope creep risk" }]);
+  });
+
   it("returns additional_notes as array and resolves without error (notes_count + notes_size logged)", async () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     expect(Array.isArray(artifact.additional_notes)).toBe(true);
