@@ -53,6 +53,25 @@ export function updateFts(db: Database, meetingId: string): void {
   log("updated fts for meeting=%s chars=%d", meetingId, content.length);
 }
 
+interface FtsResult {
+  meeting_id: string;
+  score: number;
+}
+
+export function sanitizeFtsQuery(raw: string): string {
+  return raw.replace(/[*"'():^~{}<>?!@#$%&|\\[\]+,;=]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function searchFts(db: Database, query: string, limit: number): FtsResult[] {
+  const sanitized = sanitizeFtsQuery(query);
+  if (!sanitized) return [];
+  const rows = db.prepare(
+    "SELECT meeting_id, bm25(artifact_fts) as score FROM artifact_fts WHERE artifact_fts MATCH ? ORDER BY bm25(artifact_fts) LIMIT ?",
+  ).all(sanitized, limit) as { meeting_id: string; score: number }[];
+  log("fts query=%s results=%d", sanitized, rows.length);
+  return rows;
+}
+
 export function populateFts(db: Database): void {
   db.prepare("DELETE FROM artifact_fts").run();
   const rows = db.prepare("SELECT * FROM artifacts").all() as ArtifactRow[];

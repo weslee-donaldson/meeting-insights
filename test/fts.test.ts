@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { storeArtifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { updateFts, populateFts } from "../core/fts.js";
+import { updateFts, populateFts, searchFts, sanitizeFtsQuery } from "../core/fts.js";
 import type { Database } from "../core/db.js";
 
 let db: Database;
@@ -51,6 +51,39 @@ describe("updateFts", () => {
     expect(db.prepare("SELECT meeting_id FROM artifact_fts WHERE artifact_fts MATCH 'monitoring'").all().length).toBe(1);
     expect(db.prepare("SELECT meeting_id FROM artifact_fts WHERE artifact_fts MATCH 'broker'").all().length).toBe(1);
     expect(db.prepare("SELECT meeting_id FROM artifact_fts WHERE artifact_fts MATCH 'backlog'").all().length).toBe(1);
+  });
+});
+
+describe("sanitizeFtsQuery", () => {
+  it("strips FTS5 special characters", () => {
+    expect(sanitizeFtsQuery("hello*world")).toBe("hello world");
+  });
+
+  it("returns empty string for all-special input", () => {
+    expect(sanitizeFtsQuery("***")).toBe("");
+  });
+
+  it("preserves normal text", () => {
+    expect(sanitizeFtsQuery("DLQ dead letter queue")).toBe("DLQ dead letter queue");
+  });
+});
+
+describe("searchFts", () => {
+  it("returns matching meeting_id and bm25 score for exact keyword", () => {
+    updateFts(db, meetingId);
+    const results = searchFts(db, "DLQ", 10);
+    expect(results.length).toBe(1);
+    expect(results[0].meeting_id).toBe(meetingId);
+    expect(typeof results[0].score).toBe("number");
+  });
+
+  it("returns empty array for unmatched query", () => {
+    const results = searchFts(db, "xyznonexistent", 10);
+    expect(results).toEqual([]);
+  });
+
+  it("handles special characters without crashing", () => {
+    expect(() => searchFts(db, "DLQ: what's the * plan?", 10)).not.toThrow();
   });
 });
 
