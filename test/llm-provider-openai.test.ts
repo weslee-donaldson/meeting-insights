@@ -80,6 +80,19 @@ describe("createOpenaiAdapter", () => {
       const adapter = createOpenaiAdapter("test-key");
       await expect(adapter.complete("cluster_tags", "input")).rejects.toThrow("[api_error]");
     });
+
+    it("sends image attachments as image_url content parts", async () => {
+      mockCompletion('{"result":"ok"}');
+      const adapter = createOpenaiAdapter("test-key");
+      await adapter.complete("extract_artifact", "describe", [
+        { name: "screenshot.png", base64: "abc123", mimeType: "image/png" },
+      ]);
+      const messages = mockCreate.mock.calls[0][0].messages;
+      expect(messages[0].content).toEqual([
+        { type: "image_url", image_url: { url: "data:image/png;base64,abc123" } },
+        { type: "text", text: "describe" },
+      ]);
+    });
   });
 
   describe("converse", () => {
@@ -104,6 +117,23 @@ describe("createOpenaiAdapter", () => {
       mockCreate.mockRejectedValueOnce(new APIError(500, "server error"));
       const adapter = createOpenaiAdapter("test-key");
       await expect(adapter.converse("sys", [{ role: "user", content: "hi" }])).rejects.toThrow("[api_error]");
+    });
+
+    it("sends image attachments on last user message", async () => {
+      mockCompletion("response with image context");
+      const adapter = createOpenaiAdapter("test-key");
+      await adapter.converse("sys", [
+        { role: "user", content: "first" },
+        { role: "assistant", content: "reply" },
+        { role: "user", content: "with image" },
+      ], [{ name: "img.jpg", base64: "xyz", mimeType: "image/jpeg" }]);
+      const messages = mockCreate.mock.calls[0][0].messages;
+      expect(messages[1]).toEqual({ role: "user", content: "first" });
+      expect(messages[2]).toEqual({ role: "assistant", content: "reply" });
+      expect(messages[3].content).toEqual([
+        { type: "image_url", image_url: { url: "data:image/jpeg;base64,xyz" } },
+        { type: "text", text: "with image" },
+      ]);
     });
   });
 });
