@@ -82,4 +82,30 @@ describe("deepSearch", () => {
       },
     ]);
   });
+
+  it("skips meetings with no artifact without error", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    seedMeeting(db, "m1", "DLQ Triage", ARTIFACT);
+    ingestMeeting(db, {
+      externalId: "m2",
+      title: "No Artifact Meeting",
+      timestamp: "2026-03-05T11:00:00Z",
+      participants: [],
+      turns: [{ speaker_name: "Bob", timestamp: "11:00:00", text: "hi" }],
+      rawTranscript: "Bob | 11:00:00\nhi",
+      sourceFilename: "m2.txt",
+    });
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const results = await deepSearch(llm, db, ["m1", "m2"], "DLQ issue", PROMPT);
+
+    expect(results).toEqual([
+      {
+        meeting_id: "m1",
+        relevanceSummary: expect.any(String),
+        relevanceScore: expect.any(Number),
+      },
+    ]);
+  });
 });
