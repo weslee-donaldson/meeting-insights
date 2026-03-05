@@ -1096,6 +1096,10 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 439: `handleCreateMeeting` + `POST /api/meetings` + 4 tests — `CreateMeetingRequest` type + `CREATE_MEETING` channel; handler ingests meeting, stores manual client detection, parses transcript, extracts artifact; channel count 18→19 (commit: `953939d`)
 - [x] Burst 440: Wire createMeeting through preload, main, api-client — IPC + fetch plumbing + test (commit: `974a37f`)
 - [x] Burst 441: NewMeetingDialog + MeetingList `+ New` button + App wiring + NEW badge — form dialog, fire-and-forget handler with toasts, `newMeetingIds` Set, 10 new tests (commit: `7889f8c`)
+- [x] Burst 442: Clear chat history on template change — `useEffect` clears messages when `selectedTemplate` changes so LLM does not follow prior template pattern; test: send message with jira-ticket, switch to jira-epic, verify old answer disappears (commit: `80ecd38`)
+- [x] Burst 443: Fix user bubble text cutoff — add `break-words` class to user bubble div so long words wrap instead of overflowing; test: verify `break-words` in user-bubble className (commit: `80ecd38`)
+- [x] Burst 444: Align send/attach buttons vertically centered — change button column from `self-end` to `self-center` so buttons sit at vertical middle of input area; test: verify `self-center` present and `self-end` absent on button column (commit: `80ecd38`)
+- [x] Burst 445: Fix API type assertion — add `template?: string` to conversation chat endpoint type assertion in server.ts (commit: `58d2e46`)
 
 ---
 
