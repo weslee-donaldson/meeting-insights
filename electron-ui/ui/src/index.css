@@ -47,6 +47,7 @@ body {
   --color-accent-muted:   #1e1b4b;
   --color-danger:         #ef4444;
   --color-success:        #22c55e;
+  --color-search-deep:    #f97316;
 }
 
 [data-theme="daylight"] {
@@ -67,6 +68,7 @@ body {
   --color-accent-muted:   #ede9fe;
   --color-danger:         #dc2626;
   --color-success:        #16a34a;
+  --color-search-deep:    #ea580c;
 }
 
 .chat-markdown h1 {
@@ -227,4 +229,5 @@ body {
   --color-accent-muted:   #1e1b4b;
   --color-danger:         #ef4444;
   --color-success:        #22c55e;
+  --color-search-deep:    #fb923c;
 }
