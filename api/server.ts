@@ -250,7 +250,16 @@ if (isMain) {
   migrate(db);
   const ftsCount = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
   if (ftsCount === 0) populateFts(db);
-  const llm = createLlmAdapter({ type: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  const provider = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "openai" | "stub";
+  const llmConfig =
+    provider === "local"
+      ? { type: "local" as const, baseUrl: process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434", model: process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b" }
+      : provider === "openai"
+        ? { type: "openai" as const, apiKey: process.env.OPENAI_API_KEY ?? "", model: process.env.OPENAI_MODEL }
+        : provider === "stub"
+          ? { type: "stub" as const }
+          : { type: "anthropic" as const, apiKey: process.env.ANTHROPIC_API_KEY ?? "", model: process.env.ANTHROPIC_MODEL };
+  const llm = createLlmAdapter(llmConfig);
 
   let searchDeps: SearchDeps | undefined;
   try {

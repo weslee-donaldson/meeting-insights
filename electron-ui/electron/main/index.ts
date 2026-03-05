@@ -53,8 +53,10 @@ const TOKENIZER_PATH = join(APP_ROOT, "models/tokenizer.json");
 const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"
   | "local"
+  | "openai"
   | "stub";
 const API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
+const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 const LOCAL_BASE_URL =
   process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
 const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
@@ -96,9 +98,11 @@ app.whenReady().then(async () => {
   const llmConfig =
     PROVIDER === "local"
       ? { type: "local" as const, baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL }
-      : PROVIDER === "stub"
-        ? { type: "stub" as const }
-        : { type: "anthropic" as const, apiKey: API_KEY };
+      : PROVIDER === "openai"
+        ? { type: "openai" as const, apiKey: OPENAI_KEY, model: process.env.OPENAI_MODEL }
+        : PROVIDER === "stub"
+          ? { type: "stub" as const }
+          : { type: "anthropic" as const, apiKey: API_KEY, model: process.env.ANTHROPIC_MODEL };
 
   const llm = createLlmAdapter(llmConfig);
 
