@@ -84,12 +84,12 @@ function buildLabeledContext(db: Database, results: SearchResult[]): string {
     const mtg = getMeeting(db, r.meeting_id);
     const art = getArtifact(db, r.meeting_id);
     if (!art) return "";
-    const decisions  = parseDecisions(art.decisions);
-    const actions    = JSON.parse(art.action_items) as ActionItem[];
-    const questions  = JSON.parse(art.open_questions) as string[];
-    const risks      = JSON.parse(art.risk_items) as string[];
-    const features   = JSON.parse(art.proposed_features) as string[];
-    const topics     = JSON.parse(art.architecture) as string[];
+    const decisions  = parseDecisions(art.decisions ?? "[]");
+    const actions    = JSON.parse(art.action_items ?? "[]") as ActionItem[];
+    const questions  = JSON.parse(art.open_questions ?? "[]") as string[];
+    const risks      = JSON.parse(art.risk_items ?? "[]") as string[];
+    const features   = JSON.parse(art.proposed_features ?? "[]") as string[];
+    const topics     = JSON.parse(art.architecture ?? "[]") as string[];
     const notes = JSON.parse(art.additional_notes ?? "[]") as Array<Record<string, unknown>>;
     const notesText = renderNotesGroups(notes);
     const notesSection = notesText.length > 0
@@ -141,12 +141,12 @@ function printSummary(db: Database, ids: string[]): void {
     console.log(meetingHeader(mtg.title, mtg.date, client));
     if (!art) { console.log("\n  (no artifact extracted)\n"); continue; }
 
-    const decisions = parseDecisions(art.decisions);
-    const actions   = JSON.parse(art.action_items) as ActionItem[];
-    const questions = JSON.parse(art.open_questions) as string[];
-    const risks     = JSON.parse(art.risk_items) as string[];
-    const features  = JSON.parse(art.proposed_features) as string[];
-    const topics    = JSON.parse(art.architecture) as string[];
+    const decisions = parseDecisions(art.decisions ?? "[]");
+    const actions   = JSON.parse(art.action_items ?? "[]") as ActionItem[];
+    const questions = JSON.parse(art.open_questions ?? "[]") as string[];
+    const risks     = JSON.parse(art.risk_items ?? "[]") as string[];
+    const features  = JSON.parse(art.proposed_features ?? "[]") as string[];
+    const topics    = JSON.parse(art.architecture ?? "[]") as string[];
 
     console.log("\nSUMMARY");
     console.log(`  ${art.summary}`);
@@ -170,12 +170,12 @@ function printField(db: Database, ids: string[], type: string): void {
     if (!art) continue;
 
     let items: string[] = [];
-    if (type === "decisions")  items = parseDecisions(art.decisions).map(d => d.text);
-    if (type === "features")   items = JSON.parse(art.proposed_features) as string[];
-    if (type === "questions")  items = JSON.parse(art.open_questions) as string[];
-    if (type === "risks")      items = JSON.parse(art.risk_items) as string[];
+    if (type === "decisions")  items = parseDecisions(art.decisions ?? "[]").map(d => d.text);
+    if (type === "features")   items = JSON.parse(art.proposed_features ?? "[]") as string[];
+    if (type === "questions")  items = JSON.parse(art.open_questions ?? "[]") as string[];
+    if (type === "risks")      items = JSON.parse(art.risk_items ?? "[]") as string[];
     if (type === "actions") {
-      items = (JSON.parse(art.action_items) as ActionItem[])
+      items = (JSON.parse(art.action_items ?? "[]") as ActionItem[])
         .map(a => `[${a.owner || "?"}] ${a.description}${a.due_date ? `  (due: ${a.due_date})` : ""}`);
     }
     if (items.length === 0) continue;
