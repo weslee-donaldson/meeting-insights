@@ -82,6 +82,11 @@ describe("migrate", () => {
     });
   });
 
+  it("creates artifact_fts virtual table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='artifact_fts'").get();
+    expect(row).toEqual({ name: "artifact_fts" });
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });

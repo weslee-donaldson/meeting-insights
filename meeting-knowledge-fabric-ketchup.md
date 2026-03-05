@@ -1107,7 +1107,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 450: `mergeSearchResults` pure function — merge `{ meeting_id, score }[]` arrays, pick min score per meeting_id (commit: `c630977`)
 - [x] Burst 451: `hybridVectorSearch` orchestrator — single embed, search 3 tables in parallel, merge, enrich metadata from SQLite
 - [x] Burst 452: Wire `hybridVectorSearch` into `handleSearchMeetings` — handler gains `db` param
-- [ ] Burst 453: FTS5 table migration — `CREATE VIRTUAL TABLE artifact_fts USING fts5(...)` in `migrate()`
+- [x] Burst 453: FTS5 table migration — `CREATE VIRTUAL TABLE artifact_fts USING fts5(...)` in `migrate()`
 - [ ] Burst 454: `populateFts` + `updateFts` — build/rebuild FTS content from artifact fields
 - [ ] Burst 455: `searchFts` — sanitize query, run FTS5 MATCH, return ranked results
 - [ ] Burst 456: Reciprocal Rank Fusion — `reciprocalRankFusion` merges ranked lists with RRF scoring

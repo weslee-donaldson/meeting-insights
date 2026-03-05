@@ -78,6 +78,12 @@ export function migrate(db: DatabaseSync): void {
       first_mentioned_at TEXT,
       FOREIGN KEY (meeting_id) REFERENCES meetings(id)
     );
+
+    CREATE VIRTUAL TABLE IF NOT EXISTS artifact_fts USING fts5(
+      meeting_id UNINDEXED,
+      content,
+      tokenize='porter unicode61'
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
