@@ -108,4 +108,33 @@ describe("deepSearch", () => {
       },
     ]);
   });
+
+  it("excludes meetings where LLM throws without killing the batch", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    seedMeeting(db, "m1", "DLQ Triage", ARTIFACT);
+    seedMeeting(db, "m2", "Sprint Planning", ARTIFACT);
+
+    let callCount = 0;
+    const spyLlm: LlmAdapter = {
+      async complete(_capability, _content) {
+        callCount++;
+        if (callCount === 2) {
+          throw new Error("[api_error] LLM unavailable");
+        }
+        return { relevant: true, relevance_summary: "DLQ evidence.", relevance_score: 85 };
+      },
+      async converse() { return ""; },
+    };
+
+    const results = await deepSearch(spyLlm, db, ["m1", "m2"], "DLQ issue", PROMPT);
+
+    expect(results).toEqual([
+      {
+        meeting_id: "m1",
+        relevanceSummary: "DLQ evidence.",
+        relevanceScore: 85,
+      },
+    ]);
+  });
 });

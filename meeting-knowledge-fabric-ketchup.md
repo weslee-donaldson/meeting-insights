@@ -1122,7 +1122,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [ ] Burst 462: `deepSearch` core function happy path — per-meeting LLM evaluation via `Promise.all`, returns `{ meeting_id, relevanceSummary, relevanceScore }[]` for relevant meetings
 - [x] Burst 463: `deepSearch` filters out irrelevant meetings — spy LLM returns `relevant: false`, assert excluded from results
 - [x] Burst 464: `deepSearch` handles missing artifact — skip meeting if `getArtifact` returns null, no error thrown
-- [ ] Burst 465: `deepSearch` handles LLM error gracefully — per-meeting catch, one failure does not kill the batch
+- [x] Burst 465: `deepSearch` handles LLM error gracefully — per-meeting catch, one failure does not kill the batch
 - [ ] Burst 466: Add `DeepSearchResultRow`, `DeepSearchRequest`, `DEEP_SEARCH` channel to `channels.ts`
 - [ ] Burst 467: `handleDeepSearch` in `ipc-handlers.ts` — load deep-search prompt, delegate to core `deepSearch`
 - [ ] Burst 468: Register `DEEP_SEARCH` IPC in Electron main + preload

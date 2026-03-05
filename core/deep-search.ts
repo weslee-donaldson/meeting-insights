@@ -68,7 +68,12 @@ export async function deepSearch(
   const promises = meetingIds.map(async (id) => {
     const art = getArtifact(db, id);
     if (!art) return null;
-    return evaluateMeeting(llm, id, art, query, template);
+    try {
+      return await evaluateMeeting(llm, id, art, query, template);
+    } catch (err) {
+      log("deep-search error meeting=%s err=%s", id, String(err));
+      return null;
+    }
   });
   const settled = await Promise.all(promises);
   const results = settled.filter((r): r is DeepSearchResult => r !== null);
