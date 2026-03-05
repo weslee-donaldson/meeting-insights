@@ -31,6 +31,7 @@ interface MeetingListProps {
   deepSearchSummaries?: Map<string, string>;
   isDeepSearchActive?: boolean;
   deepSearchLoading?: boolean;
+  deepSearchEmpty?: boolean;
 }
 
 function normalizeSeries(title: string): string {
@@ -159,6 +160,7 @@ export function MeetingList({
   deepSearchSummaries,
   isDeepSearchActive,
   deepSearchLoading,
+  deepSearchEmpty,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
@@ -263,7 +265,9 @@ export function MeetingList({
           <div className="px-3 py-4 text-sm text-muted-foreground">Searching…</div>
         )}
         {!loading && !searchLoading && (searchQuery?.length ?? 0) >= 2 && groups.length === 0 && (
-          <div className="px-3 py-4 text-sm text-muted-foreground">No results for '{searchQuery}'</div>
+          <div className="px-3 py-4 text-sm text-muted-foreground">
+            {deepSearchEmpty ? `Deep search found no relevant results for '${searchQuery}'` : `No results for '${searchQuery}'`}
+          </div>
         )}
         {!loading && !searchLoading && groups.map((group) => {
           const allChecked = group.meetings.every((m) => checked.has(m.id));

@@ -713,6 +713,23 @@ describe("MeetingList", () => {
     });
   });
 
+  it("shows no-results message when deep search returns empty", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+        searchQuery="emmit package"
+        deepSearchEmpty={true}
+      />,
+    );
+    expect(screen.getByText(/no relevant results/i)).toBeDefined();
+  });
+
   describe("+ Add Meeting button", () => {
     it("renders when onNewMeeting is provided", () => {
       render(

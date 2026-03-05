@@ -92,6 +92,7 @@ export function App() {
 
   const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
   const deepSearchLoading = deepSearchEnabled && deepSearchFetching && searchQuery.trim().length >= 2;
+  const deepSearchEmpty = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length === 0 && searchQuery.trim().length >= 2 && !deepSearchFetching;
 
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];
@@ -100,9 +101,10 @@ export function App() {
       const deepIds = new Set(deepSearchResults!.map((r) => r.meeting_id));
       return all.filter((m) => deepIds.has(m.id));
     }
+    if (deepSearchEmpty) return [];
     const matchIds = new Set(searchResults.map((r) => r.meeting_id));
     return all.filter((m) => matchIds.has(m.id));
-  }, [meetingsQuery.data, searchQuery, searchResults, isDeepSearchActive, deepSearchResults]);
+  }, [meetingsQuery.data, searchQuery, searchResults, isDeepSearchActive, deepSearchResults, deepSearchEmpty]);
 
   const searchScores = useMemo(() => {
     if (isDeepSearchActive) {
@@ -447,6 +449,7 @@ export function App() {
       deepSearchSummaries={deepSearchSummaries}
       isDeepSearchActive={isDeepSearchActive}
       deepSearchLoading={deepSearchLoading}
+      deepSearchEmpty={deepSearchEmpty}
     />,
     <MeetingDetail
       key="meeting-detail"

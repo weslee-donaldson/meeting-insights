@@ -118,6 +118,9 @@ describe("App", () => {
     (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValue([
       { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "Alpha Weekly", date: "2026-01-01" },
     ]);
+    (window.api.deepSearch as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { meeting_id: "m1", relevanceSummary: "Relevant", relevanceScore: 85 },
+    ]);
     render(<App />, { wrapper });
     const input = screen.getByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "al" } });
