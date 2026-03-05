@@ -204,7 +204,10 @@ export async function handleConversationChat(
   }
 
   const templateContent = req.template ? chatTemplates.get(req.template) : undefined;
-  const system = [SYSTEM_PROMPT, templateContent, `Meeting Context:\n${contextText}`].filter(Boolean).join("\n\n");
+  const templateDirective = templateContent
+    ? `IMPORTANT: The user has selected the "${req.template}" output template. You MUST follow ONLY the template below for your response structure. Disregard any formatting or structure from earlier messages in this conversation.\n\n${templateContent}`
+    : undefined;
+  const system = [SYSTEM_PROMPT, templateDirective, `Meeting Context:\n${contextText}`].filter(Boolean).join("\n\n");
 
   const rawAnswer = await llm.converse(system, req.messages, req.attachments);
   const answer = replaceCitations(rawAnswer, meetings);

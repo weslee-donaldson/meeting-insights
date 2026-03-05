@@ -284,16 +284,22 @@ describe("ChatPanel", () => {
     expect((screen.getByRole("combobox", { name: "Output template" }) as HTMLSelectElement).value).toBe("");
   });
 
-  it("history clears when template selection changes", async () => {
+  it("passes updated template to onChat after template change", async () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "Ticket answer.", sources: [], charCount: 0 });
     render(
       <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} templates={["jira-ticket", "jira-epic"]} />,
     );
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q1" } });
     fireEvent.click(screen.getByLabelText("Send"));
     await waitFor(() => screen.getByText("Ticket answer."), { timeout: 2000 });
+    expect(onChat.mock.calls[0][3]).toBe("");
     fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-epic" } });
-    expect(screen.queryByText("Ticket answer.")).toBeNull();
+    onChat.mockResolvedValueOnce({ answer: "Epic answer.", sources: [], charCount: 0 });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q2" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Epic answer."), { timeout: 2000 });
+    expect(onChat.mock.calls[1][3]).toBe("jira-epic");
+    expect(screen.getByText("Ticket answer.")).toBeTruthy();
   });
 
   it("user bubble has break-words class for word wrapping", async () => {

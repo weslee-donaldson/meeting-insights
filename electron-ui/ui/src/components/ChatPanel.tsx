@@ -70,10 +70,6 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
     setSelectedTemplate("");
   }, [meetingKey]);
 
-  useEffect(() => {
-    setMessages([]);
-  }, [selectedTemplate]);
-
   const submit = useCallback(async () => {
     const q = input.trim();
     if (!q || loading) return;

@@ -270,7 +270,7 @@ describe("IPC handlers", () => {
       expect(result.sources).toEqual([]);
     });
 
-    it("injects template content into system prompt when template is set", async () => {
+    it("injects template content with directive into system prompt when template is set", async () => {
       let capturedSystem = "";
       const spyLlm: LlmAdapter = {
         async complete() { return { answer: "" }; },
@@ -282,6 +282,8 @@ describe("IPC handlers", () => {
         template: "jira-ticket",
       });
       expect(capturedSystem).toContain("Output Template: Jira Ticket");
+      expect(capturedSystem).toContain('selected the "jira-ticket" output template');
+      expect(capturedSystem).toContain("Disregard any formatting or structure from earlier messages");
     });
 
     it("does not inject template content when template is not set", async () => {
