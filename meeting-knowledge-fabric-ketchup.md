@@ -1137,6 +1137,32 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 477: NavRail navigation clears deep search state — clicking Meetings/Action Items resets search
 - [x] Burst 478: Update `docs/applications.md` — Deep Search docs, `--deepsearch` flag, config file
 
+### Bottle: Deep Search Polish + Error Handling (2026-03-05)
+
+- [x] Burst 479: Show full deep search summary without line clamp (2e4e5ce)
+- [x] Burst 480: Increase search bar width 50% and center in TopBar (e23add5)
+- [x] Burst 481: Align checkbox with date/title row, deep summary below (fbc4c4a)
+- [x] Burst 482: Collapse all respects explicit user collapse over search match auto-expand (b32acf8)
+- [x] Burst 483: Show 'no relevant results' message when deep search returns empty (8e8bb12)
+- [x] Burst 484: Client filter uses top-confidence detection, excludes low-confidence matches (ebb5fa8)
+- [x] Burst 485: Strip markdown code fences from LLM JSON responses — `stripCodeFences` in `parseJsonOrThrow` (aa79c4e)
+- [x] Burst 486: `deepSearch` throws when all LLM evaluations fail — discriminated union outcomes, throw first error when all artifact-bearing meetings error (6848829)
+- [x] Burst 488: API server returns 502 with error when deep search throws (9a38c47)
+- [x] Burst 489: API client `deepSearch` throws on non-OK response (3235e39)
+- [x] Burst 490: App.tsx shows error toast on deep search failure, falls back to hybrid results (75f4f9b)
+- [x] Burst 491: Structured errors for all LLM endpoints — null-check guards (503) + try/catch (502) on `/api/chat`, `/api/chat/conversation`, `/api/meetings` POST, `/api/meetings/:id/re-extract`; api-client checks `r.ok`; ChatPanel catch block displays errors as assistant bubbles (1193abd)
+
+### Bottle: OpenAI LLM Provider Support
+
+- [ ] Burst 492: Fix `.env.local` OpenAI key format — rename `OpenAI_API_KEY-sk-...` to `OPENAI_API_KEY=sk-...`; add `"openai"` to `MTNINSIGHTS_LLM_PROVIDER` union type in Electron main; no test (infra)
+- [ ] Burst 493: Install `openai` SDK + add `OpenaiConfig` to `createLlmAdapter` — `npm add openai`; add `OpenaiConfig { type: "openai"; apiKey: string; model?: string }` to config union; default model `gpt-4o`; test: `createLlmAdapter({ type: "openai", apiKey: "test" })` returns adapter with `complete` and `converse` methods
+- [ ] Burst 494: OpenAI `complete` implementation — `client.chat.completions.create` with single user message; map `LlmCapability` to same prompt routing; JSON parsing via `parseJsonOrThrow` + `withRepair`; error mapping: `APIError` → `[api_error]`, `RateLimitError` → `[rate_limit]`; test: stub fetch → 200 with JSON content → returns parsed object
+- [ ] Burst 495: OpenAI `complete` with image attachments — map `ImageAttachment` to OpenAI vision format (`{ type: "image_url", image_url: { url: "data:{mime};base64,{data}" } }`); test: spy on completions.create, verify image_url content block in messages
+- [ ] Burst 496: OpenAI `converse` implementation — system message + multi-turn messages array; image attachments on last user message; test: stub fetch → 200 → returns text string
+- [ ] Burst 497: OpenAI error handling parity — test: 429 → `[rate_limit]`; 500+ → `[api_error]`; invalid JSON → `[json_parse]` with repair; credit/quota errors → `[api_error]` with message
+- [ ] Burst 498: Wire OpenAI provider in API server startup — read `OPENAI_API_KEY` from env; when `MTNINSIGHTS_LLM_PROVIDER=openai`, pass `{ type: "openai", apiKey }` to `createLlmAdapter`; log `[api] LLM provider: openai`; test: integration test with stub OpenAI adapter (server boots, 503 without key)
+- [ ] Burst 499: Wire OpenAI provider in Electron main — add `"openai"` branch to `PROVIDER` switch; read `OPENAI_API_KEY` from env; test: verify config type selection logic
+
 ---
 
 # INFRASTRUCTURE COMMITS (NO TESTS REQUIRED)
