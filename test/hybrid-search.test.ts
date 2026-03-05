@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { mergeSearchResults, hybridVectorSearch } from "../core/hybrid-search.js";
+import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion } from "../core/hybrid-search.js";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
@@ -48,6 +48,33 @@ describe("mergeSearchResults", () => {
     const c = [{ meeting_id: "m1", score: 1.5 }];
     const merged = mergeSearchResults([a, b, c]);
     expect(merged).toEqual(new Map([["m1", 0.9]]));
+  });
+});
+
+describe("reciprocalRankFusion", () => {
+  it("assigns higher score to items appearing in multiple ranked lists", () => {
+    const vectorRanked = [{ meeting_id: "m1" }, { meeting_id: "m2" }, { meeting_id: "m3" }];
+    const ftsRanked = [{ meeting_id: "m2" }, { meeting_id: "m1" }];
+    const scores = reciprocalRankFusion([vectorRanked, ftsRanked]);
+    expect(scores.get("m2")!).toBeGreaterThan(scores.get("m3")!);
+    expect(scores.get("m1")!).toBeGreaterThan(scores.get("m3")!);
+  });
+
+  it("uses k=60 by default for RRF calculation", () => {
+    const list = [{ meeting_id: "m1" }];
+    const scores = reciprocalRankFusion([list]);
+    expect(scores.get("m1")).toBeCloseTo(1 / (60 + 1), 10);
+  });
+
+  it("accepts custom k parameter", () => {
+    const list = [{ meeting_id: "m1" }];
+    const scores = reciprocalRankFusion([list], 10);
+    expect(scores.get("m1")).toBeCloseTo(1 / (10 + 1), 10);
+  });
+
+  it("returns empty map for empty input", () => {
+    const scores = reciprocalRankFusion([[], []]);
+    expect(scores).toEqual(new Map());
   });
 });
 

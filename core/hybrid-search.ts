@@ -44,6 +44,22 @@ export function mergeSearchResults(
   return merged;
 }
 
+export function reciprocalRankFusion(
+  rankedLists: { meeting_id: string }[][],
+  k = 60,
+): Map<string, number> {
+  const scores = new Map<string, number>();
+  for (const list of rankedLists) {
+    for (let i = 0; i < list.length; i++) {
+      const id = list[i].meeting_id;
+      const rrf = 1 / (k + i + 1);
+      scores.set(id, (scores.get(id) ?? 0) + rrf);
+    }
+  }
+  log("rrf merged %d lists → %d unique meetings", rankedLists.length, scores.size);
+  return scores;
+}
+
 function enrichFromDb(db: Database, meetingIds: string[]): Map<string, { client: string; meeting_type: string; date: string }> {
   const meta = new Map<string, { client: string; meeting_type: string; date: string }>();
   for (const id of meetingIds) {
