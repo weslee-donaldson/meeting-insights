@@ -7,6 +7,7 @@ import type {
   ConversationChatRequest,
   SearchRequest,
   CreateMeetingRequest,
+  DeepSearchRequest,
   ElectronAPI,
 } from "../channels.js";
 
@@ -33,6 +34,7 @@ const api: ElectronAPI = {
   getClientActionItems: (clientName: string) => ipcRenderer.invoke(CHANNELS.GET_CLIENT_ACTION_ITEMS, clientName),
   getTemplates: () => ipcRenderer.invoke(CHANNELS.GET_TEMPLATES),
   createMeeting: (req: CreateMeetingRequest) => ipcRenderer.invoke(CHANNELS.CREATE_MEETING, req),
+  deepSearch: (req: DeepSearchRequest) => ipcRenderer.invoke(CHANNELS.DEEP_SEARCH, req),
 };
 
 contextBridge.exposeInMainWorld("api", api);

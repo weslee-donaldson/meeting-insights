@@ -24,6 +24,7 @@ import {
   handleGetTemplates,
   handleUpdateMeetingVector,
   handleCreateMeeting,
+  handleDeepSearch,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { populateFts } from "../../../core/fts.js";
@@ -119,6 +120,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_CLIENT_ACTION_ITEMS, (_e, clientName: string) => handleGetClientActionItems(db, clientName));
   ipcMain.handle(CHANNELS.GET_TEMPLATES, () => handleGetTemplates());
   ipcMain.handle(CHANNELS.CREATE_MEETING, (_e, req) => handleCreateMeeting(db, llm, req).then((meetingId) => ({ meetingId })));
+  ipcMain.handle(CHANNELS.DEEP_SEARCH, (_e, req) => handleDeepSearch(db, llm, req));
 
   createWindow();
 

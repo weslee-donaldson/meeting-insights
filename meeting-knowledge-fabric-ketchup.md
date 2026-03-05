@@ -1125,7 +1125,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 465: `deepSearch` handles LLM error gracefully — per-meeting catch, one failure does not kill the batch
 - [x] Burst 466: Add `DeepSearchResultRow`, `DeepSearchRequest`, `DEEP_SEARCH` channel to `channels.ts`
 - [x] Burst 467: `handleDeepSearch` in `ipc-handlers.ts` — load deep-search prompt, delegate to core `deepSearch`
-- [ ] Burst 468: Register `DEEP_SEARCH` IPC in Electron main + preload
+- [x] Burst 468: Register `DEEP_SEARCH` IPC in Electron main + preload
 - [ ] Burst 469: `POST /api/deep-search` route in `server.ts` — requires LLM dep, returns 503 without
 - [ ] Burst 470: `deepSearch` method in `api-client.ts` — POST fetch wrapper
 - [ ] Burst 471: `--deepsearch` flag in CLI `query.ts` — LLM filter after vector search, display relevance summary + score
