@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CHANNELS } from "../electron-ui/electron/channels.js";
-import type { SearchRequest, SearchResultRow } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 19 unique non-empty channel strings", () => {
+  it("should have 20 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(19);
-    expect(new Set(values).size).toBe(19);
+    expect(values).toHaveLength(20);
+    expect(new Set(values).size).toBe(20);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -118,6 +118,27 @@ describe("CHANNELS", () => {
 
   it("should define CREATE_MEETING channel", () => {
     expect(CHANNELS.CREATE_MEETING).toBe("create-meeting");
+  });
+
+  it("should define DEEP_SEARCH channel", () => {
+    expect(CHANNELS.DEEP_SEARCH).toBe("deep-search");
+  });
+
+  it("DeepSearchRequest has correct shape", () => {
+    const req: DeepSearchRequest = { meetingIds: ["m1", "m2"], query: "DLQ issue" };
+    expect(req.meetingIds).toEqual(["m1", "m2"]);
+    expect(req.query).toBe("DLQ issue");
+  });
+
+  it("DeepSearchResultRow has correct shape", () => {
+    const row: DeepSearchResultRow = {
+      meeting_id: "m1",
+      relevanceSummary: "Evidence of DLQ discussion.",
+      relevanceScore: 85,
+    };
+    expect(row.meeting_id).toBe("m1");
+    expect(row.relevanceSummary).toBe("Evidence of DLQ discussion.");
+    expect(row.relevanceScore).toBe(85);
   });
 
   it("ConversationChatRequest accepts optional template", () => {

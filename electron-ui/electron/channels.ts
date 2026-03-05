@@ -18,6 +18,7 @@ export const CHANNELS = {
   GET_CLIENT_ACTION_ITEMS: "get-client-action-items",
   GET_TEMPLATES: "get-templates",
   CREATE_MEETING: "create-meeting",
+  DEEP_SEARCH: "deep-search",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -133,6 +134,17 @@ export interface CreateMeetingRequest {
   format: TranscriptFormat;
 }
 
+export interface DeepSearchRequest {
+  meetingIds: string[];
+  query: string;
+}
+
+export interface DeepSearchResultRow {
+  meeting_id: string;
+  relevanceSummary: string;
+  relevanceScore: number;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -154,4 +166,5 @@ export interface ElectronAPI {
   getClientActionItems: (clientName: string) => Promise<ClientActionItem[]>;
   getTemplates: () => Promise<string[]>;
   createMeeting: (req: CreateMeetingRequest) => Promise<{ meetingId: string }>;
+  deepSearch: (req: DeepSearchRequest) => Promise<DeepSearchResultRow[]>;
 }
