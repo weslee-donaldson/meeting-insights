@@ -2,8 +2,8 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 
-vi.mock("../core/vector-search.js", () => ({
-  searchMeetings: vi.fn().mockResolvedValue([
+vi.mock("../core/hybrid-search.js", () => ({
+  hybridVectorSearch: vi.fn().mockResolvedValue([
     { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },
   ]),
 }));
@@ -21,7 +21,7 @@ describe("GET /api/search", () => {
     app = createApp(db, ":memory:", llm, { vdb: mockVdb, session: mockSession });
   });
 
-  it("should return search results from searchMeetings for a valid query", async () => {
+  it("should return search results from hybridVectorSearch for a valid query", async () => {
     const res = await app.request("/api/search?q=auth&client=Acme&limit=3");
     expect(res.status).toBe(200);
     const body = await res.json() as { meeting_id: string; score: number }[];

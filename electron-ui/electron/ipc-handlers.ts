@@ -12,7 +12,7 @@ import { ingestMeeting, getMeeting } from "../../core/ingest.js";
 import { storeDetection } from "../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
-import { searchMeetings } from "../../core/vector-search.js";
+import { hybridVectorSearch } from "../../core/hybrid-search.js";
 import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
@@ -290,15 +290,14 @@ export function handleGetCompletions(db: Database, meetingId: string): ActionIte
 }
 
 export async function handleSearchMeetings(
+  db: Database,
   vdb: VectorDb,
   session: InferenceSession & { _tokenizer: unknown },
   req: SearchRequest,
 ): Promise<SearchResultRow[]> {
-  return searchMeetings(vdb, session, req.query, {
+  return hybridVectorSearch(db, vdb, session, req.query, {
     limit: SEARCH_LIMIT,
     client: req.client,
-    date_after: req.date_after,
-    date_before: req.date_before,
     maxDistance: SEARCH_MAX_DISTANCE,
   }) as Promise<SearchResultRow[]>;
 }

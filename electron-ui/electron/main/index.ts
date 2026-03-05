@@ -123,7 +123,7 @@ app.whenReady().then(async () => {
     .then((vdb) => loadModel(MODEL_PATH, TOKENIZER_PATH).then((session) => {
       vdbRef = vdb;
       ipcMain.handle(CHANNELS.SEARCH_MEETINGS, (_e, req) =>
-        handleSearchMeetings(vdb, session, req),
+        handleSearchMeetings(db, vdb, session, req),
       );
       ipcMain.handle(CHANNELS.RE_EMBED_MEETING, (_e, meetingId: string) =>
         handleUpdateMeetingVector(db, vdb, session, meetingId),

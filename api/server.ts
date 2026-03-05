@@ -184,7 +184,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const client = c.req.query("client");
     const limitParam = c.req.query("limit");
     const { handleSearchMeetings } = await import("../electron-ui/electron/ipc-handlers.js");
-    const results = await handleSearchMeetings(searchDeps.vdb, searchDeps.session, {
+    const results = await handleSearchMeetings(db, searchDeps.vdb, searchDeps.session, {
       query: q,
       ...(client ? { client } : {}),
       ...(limitParam ? { limit: Number(limitParam) } : {}),
