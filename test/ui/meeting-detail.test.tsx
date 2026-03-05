@@ -465,6 +465,20 @@ describe("MeetingDetail", () => {
     expect(screen.getByRole("button", { name: "Expand all" })).toBeDefined();
   });
 
+  it("Collapse all collapses sections even when search matches are present", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        searchQuery="roadmap"
+      />,
+    );
+    expect(screen.getByText("roadmap")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Expand all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Collapse all" }));
+    expect(screen.queryByText("roadmap")).toBeNull();
+  });
+
   it("renders mention badge for action items with mention_count > 1", () => {
     const mentionStats: MentionStat[] = [
       { canonical_id: "c1", item_type: "action_items", item_index: 0, mention_count: 3, first_mentioned_at: "2026-01-15" },

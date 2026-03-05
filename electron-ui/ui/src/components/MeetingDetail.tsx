@@ -171,7 +171,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
     navigator.clipboard.writeText(text).catch(() => {});
   }, [artifact.action_items]);
 
-  const [sectionStates, setSectionStates] = useState<Record<string, boolean>>({
+  const [sectionStates, setSectionStates] = useState<Record<string, boolean | undefined>>({
     Summary: true,
     "Action Items": true,
   });
@@ -185,7 +185,9 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
 
   const toggleAllSections = useCallback(() => {
     if (allExpanded) {
-      setSectionStates({});
+      const collapsed: Record<string, false> = {};
+      for (const k of SECTION_KEYS) collapsed[k] = false;
+      setSectionStates(collapsed);
     } else {
       setSectionStates({
         Summary: true, Decisions: true, "Action Items": true,
@@ -197,9 +199,11 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
 
   const { matchedTerms, matchesBySection } = useArtifactSearch(artifact, searchQuery ?? "");
 
-  const effectiveOpen = useCallback((key: string) =>
-    !!sectionStates[key] || (matchesBySection[key] ?? 0) > 0,
-  [sectionStates, matchesBySection]);
+  const effectiveOpen = useCallback((key: string) => {
+    const explicit = sectionStates[key];
+    if (explicit !== undefined) return explicit;
+    return (matchesBySection[key] ?? 0) > 0;
+  }, [sectionStates, matchesBySection]);
 
   const allEmpty = !artifact.summary
     && artifact.decisions.length === 0
