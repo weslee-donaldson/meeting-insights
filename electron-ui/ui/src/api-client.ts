@@ -1,4 +1,4 @@
-import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest, CreateMeetingRequest } from "../../electron/channels.js";
+import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest, CreateMeetingRequest, DeepSearchRequest } from "../../electron/channels.js";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE || "http://localhost:3000";
 
@@ -105,4 +105,11 @@ export const apiClient: ElectronAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
     }).then((r) => r.json() as Promise<{ meetingId: string }>),
+
+  deepSearch: (req: DeepSearchRequest) =>
+    fetch(`${API_BASE}/api/deep-search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then((r) => r.json()),
 };
