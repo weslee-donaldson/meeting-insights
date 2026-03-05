@@ -205,15 +205,21 @@ pnpm query --list actions --client=LLSA --after=2024-03-01
 
 Each of these prints only the named field from each meeting artifact, grouped under a meeting header. Meetings with no entries for that field are silently skipped.
 
-### Semantic search (no LLM)
+### Hybrid search (no LLM)
 
 ```bash
 pnpm query --search "authentication token refresh"
-pnpm query --search "deployment pipeline failures" --client=LLSA
-pnpm query --search "API rate limiting" --limit=10
+pnpm query --search "DLQ dead letter queue" --client=LLSA
+pnpm query --search "Recurly Commerce" --limit=10
 ```
 
-Embeds the query with the local ONNX model, runs a KNN search in LanceDB, and prints ranked results with scores and summary excerpts. Does not call Claude or any external API. Requires the ONNX model files.
+Runs a hybrid search combining multi-table vector search with FTS5 keyword matching:
+
+1. **Multi-table vector search** — embeds the query with the local ONNX model, then searches three LanceDB tables in parallel (`meeting_vectors`, `feature_vectors`, `item_vectors`). This finds meetings where the query is semantically similar to the summary, a proposed feature, or an action item/decision/risk.
+2. **FTS5 keyword search** — runs a full-text search on `artifact_fts` (SQLite FTS5 with porter stemming). This catches exact keyword/acronym matches (e.g. "DLQ", "Recurly") that tokenize poorly in the embedding model.
+3. **Reciprocal Rank Fusion** — merges the two ranked lists using RRF (`score = Σ 1/(k + rank)`), producing a single relevance-ordered result set.
+
+Does not call Claude or any external API. Requires the ONNX model files.
 
 ### Ask a question (full Q&A)
 
@@ -245,8 +251,8 @@ The `--limit` flag controls how many meetings are retrieved from the vector sear
          stdout (no model loaded)
 
 
---search mode
-─────────────
+--search mode (hybrid)
+─────────────────────
   query string
        │
        ▼
@@ -255,13 +261,24 @@ The `--limit` flag controls how many meetings are retrieved from the vector sear
        ▼
   embed(query)  →  384-dim vector
        │
-       ▼
-  searchMeetings(vdb, vector, { client, after, before, limit })
-       │        ←  LanceDB KNN
-       ▼
-  ranked results  →  stdout
-  [score]  title  (date)  [client]
-           summary excerpt
+       ├──────────────────────────────────┐
+       ▼                                  ▼
+  searchMeetingsByVector()          searchFts(db, query)
+  searchFeaturesByVector()          ← SQLite FTS5 (bm25)
+  searchSimilarItemsByVector()
+  ← LanceDB KNN (3 tables)
+       │                                  │
+       └──────────┬───────────────────────┘
+                  ▼
+       reciprocalRankFusion()
+                  │
+                  ▼
+       enrichFromDb() → metadata (client, type, date)
+                  │
+                  ▼
+       ranked results  →  stdout
+       [score]  title  (date)  [client]
+                summary excerpt
 
 
 ask mode
@@ -349,7 +366,7 @@ The scope bar at the top of the window controls the global filter state:
 
 - **Client dropdown** — filters meetings by client assignment. Selecting a client also constrains semantic searches to that client.
 - **From / to date pickers** — narrow the meetings list to a date window.
-- **Search field** — runs a live semantic search as you type (via the ONNX model loaded in the background). Results appear in a dropdown; selecting a result pins those meetings into the active selection and clears the date/client scope.
+- **Search field** — runs a live hybrid search as you type, combining multi-table vector search with FTS5 keyword matching. Supports natural language queries ("when did we discuss billing") and exact keyword/acronym matches ("DLQ", "Recurly"). Results appear in a dropdown; selecting a result pins those meetings into the active selection and clears the date/client scope.
 - **Reset button** — clears all filters and selections, returning to the full unfiltered view.
 - **Theme button** — cycles through available themes (Deep Sea, Daylight, Midnight).
 
@@ -379,7 +396,7 @@ The embedded HTTP API server runs alongside the Electron app and is also accessi
 | `GET` | `/api/meetings` | List meetings (filters: `?client=&after=&before=`) |
 | `GET` | `/api/meetings/:id/artifact` | Structured artifact for a single meeting |
 | `POST` | `/api/chat` | Natural-language Q&A (body: `{ meetingIds, question }`) |
-| `GET` | `/api/search` | Semantic search (params: `?query=&client=&limit=`) |
+| `GET` | `/api/search` | Hybrid search — vector + FTS5 keyword (params: `?q=&client=&limit=`) |
 
 ### Diagnostic endpoint
 

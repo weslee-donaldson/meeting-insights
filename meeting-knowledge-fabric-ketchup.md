@@ -1113,7 +1113,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 456: Reciprocal Rank Fusion — `reciprocalRankFusion` merges ranked lists with RRF scoring
 - [x] Burst 457: Full hybrid search — vector + FTS5 + RRF merge
 - [x] Burst 458: Wire FTS5 into pipeline + handler — `updateFts` after store/re-extract, `populateFts` at startup
-- [ ] Burst 459: Update docs/applications.md search documentation
+- [x] Burst 459: Update docs/applications.md search documentation
 
 ---
 
