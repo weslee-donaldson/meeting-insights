@@ -309,39 +309,33 @@ export function MeetingList({
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
-                  className="flex items-center gap-2 py-1.5 pr-3 pl-6 cursor-pointer"
+                  className="flex flex-col py-1.5 pr-3 pl-6 cursor-pointer"
                   style={{
                     background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",
                     borderLeft: "2px solid " + (deepActive ? "var(--color-search-deep)" : isHighlighted ? "var(--color-accent)" : "transparent"),
                   }}
                 >
-                  <input
-                    type="checkbox"
-                    checked={checked.has(m.id)}
-                    onChange={() => {}}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCheck(m.id);
-                    }}
-                    className="w-3.5 h-3.5 shrink-0"
-                    style={{ accentColor: "var(--color-accent)" }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    {groupBy === "series" ? (
-                      <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
-                        {formatShortDate(m.date)}
-                      </div>
-                    ) : (
-                      <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
-                        {m.title}
-                      </div>
-                    )}
-                    {deepSummary && (
-                      <div className="text-xs text-muted-foreground mt-0.5">{deepSummary}</div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={checked.has(m.id)}
+                      onChange={() => {}}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onCheck(m.id);
+                      }}
+                      className="w-3.5 h-3.5 shrink-0"
+                      style={{ accentColor: "var(--color-accent)" }}
+                    />
+                    <div className="min-w-0 flex-1 text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                      {groupBy === "series" ? formatShortDate(m.date) : m.title}
+                    </div>
+                    {newMeetingIds?.has(m.id) && (
+                      <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
                     )}
                   </div>
-                  {newMeetingIds?.has(m.id) && (
-                    <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
+                  {deepSummary && (
+                    <div className="text-xs text-muted-foreground mt-0.5 pl-5.5">{deepSummary}</div>
                   )}
                 </div>
               );
