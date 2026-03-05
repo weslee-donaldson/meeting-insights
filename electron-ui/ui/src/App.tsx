@@ -400,6 +400,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
+  const handleNavigate = useCallback((view: "meetings" | "action-items") => {
+    setCurrentView(view);
+    setTypedSearchQuery("");
+    setSearchQuery("");
+  }, []);
+
   const handleMentionClick = useCallback((canonicalId: string, itemText: string) => {
     setHistoryItem({ canonicalId, itemText });
   }, []);
@@ -508,7 +514,7 @@ export function App() {
           themes={themes}
         />
       }
-      navRail={<NavRail currentView={currentView} onNavigate={setCurrentView} />}
+      navRail={<NavRail currentView={currentView} onNavigate={handleNavigate} />}
       panels={panels}
       chat={
         <ChatPanel

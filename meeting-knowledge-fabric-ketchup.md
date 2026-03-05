@@ -1134,7 +1134,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 474: Deep Search checkbox in `SearchBar` — default checked, toggles deep search feature
 - [x] Burst 475: Wire deep search state in `App.tsx` — `deepSearchEnabled`, scores override `searchScores`, summaries + loading to MeetingList
 - [x] Burst 476: MeetingList blocking overlay + orange border + relevance summary — semi-transparent overlay during loading, orange `borderLeft` + summary text when active
-- [ ] Burst 477: NavRail navigation clears deep search state — clicking Meetings/Action Items resets search
+- [x] Burst 477: NavRail navigation clears deep search state — clicking Meetings/Action Items resets search
 - [ ] Burst 478: Update `docs/applications.md` — Deep Search docs, `--deepsearch` flag, config file
 
 ---

@@ -314,6 +314,17 @@ describe("App", () => {
     await waitFor(() => expect(screen.getByText("Meeting imported")).toBeDefined());
   });
 
+  it("clicking Meetings nav clears search query", async () => {
+    render(<App />, { wrapper });
+    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "DLQ" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect((input as HTMLInputElement).value).toBe("DLQ");
+    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
+    fireEvent.click(screen.getByRole("button", { name: "Meetings" }));
+    expect((input as HTMLInputElement).value).toBe("");
+  });
+
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
     (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });
