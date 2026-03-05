@@ -8,6 +8,7 @@ import {
   embedItem,
   storeItemVector,
   searchSimilarItems,
+  searchSimilarItemsByVector,
   recordMention,
   getMentionsByCanonical,
   getMentionStats,
@@ -243,6 +244,17 @@ describe("cleanupItemVectors", () => {
     expect(rows.length).toBe(0);
     const remaining = await cleanupTable.query().where("meeting_id = 'cleanup-m2'").toArray();
     expect(remaining.length).toBe(1);
+  });
+});
+
+describe("searchSimilarItemsByVector", () => {
+  it("returns same results as searchSimilarItems for the same pre-computed vector", async () => {
+    const { embed } = await import("../core/embedder.js");
+    const vec = await embed(session as Parameters<typeof embed>[0], "Deploy to production");
+    const fromText = await searchSimilarItems(table, session, "Deploy to production", { limit: 3 });
+    const fromVec = await searchSimilarItemsByVector(table, vec, { limit: 3 });
+    expect(fromVec.map((r) => r.meeting_id)).toEqual(fromText.map((r) => r.meeting_id));
+    expect(fromVec.map((r) => r.distance)).toEqual(fromText.map((r) => r.distance));
   });
 });
 

@@ -1100,6 +1100,20 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 443: Fix user bubble text cutoff — add `break-words` class to user bubble div so long words wrap instead of overflowing; test: verify `break-words` in user-bubble className (commit: `80ecd38`)
 - [x] Burst 444: Align send/attach buttons vertically centered — change button column from `self-end` to `self-center` so buttons sit at vertical middle of input area; test: verify `self-center` present and `self-end` absent on button column (commit: `80ecd38`)
 - [x] Burst 445: Fix API type assertion — add `template?: string` to conversation chat endpoint type assertion in server.ts (commit: `58d2e46`)
+- [x] Burst 446: Template directive injection — instead of clearing chat history on template change, inject strong directive in system prompt telling LLM to follow ONLY current template; revert useEffect clear (commit: `57a4092`)
+- [x] Burst 447: Expand `buildEmbeddingInput` — include action_items, open_questions, risk_items in meeting embedding text for richer semantic search (commit: `192f4f8`)
+- [x] Burst 448: Extract `searchMeetingsByVector` — accept pre-computed Float32Array, `searchMeetings` delegates to it; avoids redundant embed calls in hybrid search (commit: `cd9eb0f`)
+- [ ] Burst 449: Extract `searchFeaturesByVector` + `searchSimilarItemsByVector` — vector-accepting variants for feature and item search; `searchFeatures` and `searchSimilarItems` delegate to them
+- [ ] Burst 450: `mergeSearchResults` pure function — merge `{ meeting_id, score }[]` arrays, pick min score per meeting_id
+- [ ] Burst 451: `hybridVectorSearch` orchestrator — single embed, search 3 tables in parallel, merge, enrich metadata from SQLite
+- [ ] Burst 452: Wire `hybridVectorSearch` into `handleSearchMeetings` — handler gains `db` param
+- [ ] Burst 453: FTS5 table migration — `CREATE VIRTUAL TABLE artifact_fts USING fts5(...)` in `migrate()`
+- [ ] Burst 454: `populateFts` + `updateFts` — build/rebuild FTS content from artifact fields
+- [ ] Burst 455: `searchFts` — sanitize query, run FTS5 MATCH, return ranked results
+- [ ] Burst 456: Reciprocal Rank Fusion — `reciprocalRankFusion` merges ranked lists with RRF scoring
+- [ ] Burst 457: Full hybrid search — vector + FTS5 + RRF merge
+- [ ] Burst 458: Wire FTS5 into pipeline + handler — `updateFts` after store/re-extract, `populateFts` at startup
+- [ ] Burst 459: Update docs/applications.md search documentation
 
 ---
 

@@ -46,13 +46,11 @@ export async function storeFeatureVector(
   ]);
 }
 
-export async function searchFeatures(
+export async function searchFeaturesByVector(
   vdb: VectorDb,
-  session: InferenceSession & { _tokenizer: unknown },
-  query: string,
+  vec: Float32Array,
   options: FeatureSearchOptions,
 ): Promise<FeatureSearchResult[]> {
-  const vec = await embed(session as Parameters<typeof embed>[0], query);
   const table = await vdb.openTable("feature_vectors");
   const rows = await table.search(Array.from(vec)).limit(options.limit).toArray();
   const results: FeatureSearchResult[] = rows.map((r: Record<string, unknown>) => ({
@@ -61,6 +59,18 @@ export async function searchFeatures(
     client: r.client as string,
     score: r._distance as number,
   }));
+  log("results=%d", results.length);
+  return results;
+}
+
+export async function searchFeatures(
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  query: string,
+  options: FeatureSearchOptions,
+): Promise<FeatureSearchResult[]> {
+  const vec = await embed(session as Parameters<typeof embed>[0], query);
+  const results = await searchFeaturesByVector(vdb, vec, options);
   log("query=%s results=%d", query, results.length);
   return results;
 }

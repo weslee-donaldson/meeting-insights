@@ -49,13 +49,11 @@ export async function storeItemVector(
   log("stored canonical=%s type=%s meeting=%s", canonicalId, itemType, meetingId);
 }
 
-export async function searchSimilarItems(
+export async function searchSimilarItemsByVector(
   table: VectorTable,
-  session: InferenceSession & { _tokenizer: unknown },
-  text: string,
+  vec: Float32Array,
   options: SearchSimilarItemsOptions = {},
 ): Promise<ItemSearchResult[]> {
-  const vec = await embed(session as Parameters<typeof embed>[0], text);
   let query = table.search(Array.from(vec)).limit(options.limit ?? 10);
   if (options.itemType) {
     query = query.where(`item_type = '${options.itemType}'`);
@@ -69,6 +67,18 @@ export async function searchSimilarItems(
     date: r.date as string,
     distance: r._distance as number,
   }));
+  log("results=%d", results.length);
+  return results;
+}
+
+export async function searchSimilarItems(
+  table: VectorTable,
+  session: InferenceSession & { _tokenizer: unknown },
+  text: string,
+  options: SearchSimilarItemsOptions = {},
+): Promise<ItemSearchResult[]> {
+  const vec = await embed(session as Parameters<typeof embed>[0], text);
+  const results = await searchSimilarItemsByVector(table, vec, options);
   log("search text=%s results=%d", text.slice(0, 40), results.length);
   return results;
 }

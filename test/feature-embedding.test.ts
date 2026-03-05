@@ -7,7 +7,7 @@ import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { connectVectorDb, createFeatureTable } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
-import { embedFeature, storeFeatureVector, searchFeatures } from "../core/feature-embedding.js";
+import { embedFeature, storeFeatureVector, searchFeatures, searchFeaturesByVector } from "../core/feature-embedding.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
@@ -125,5 +125,16 @@ describe("searchFeatures", () => {
 
   it("logs query and result count via mtninsights:embed:feature", async () => {
     await expect(searchFeatures(vdb, session, "OAuth", { limit: 4 })).resolves.toBeDefined();
+  });
+});
+
+describe("searchFeaturesByVector", () => {
+  it("returns same meeting_ids and scores as searchFeatures for the same query", async () => {
+    const { embed } = await import("../core/embedder.js");
+    const vec = await embed(session as Parameters<typeof embed>[0], "OAuth single sign-on");
+    const fromText = await searchFeatures(vdb, session, "OAuth single sign-on", { limit: 4 });
+    const fromVec = await searchFeaturesByVector(vdb, vec, { limit: 4 });
+    expect(fromVec.map((r) => r.meeting_id)).toEqual(fromText.map((r) => r.meeting_id));
+    expect(fromVec.map((r) => r.score)).toEqual(fromText.map((r) => r.score));
   });
 });
