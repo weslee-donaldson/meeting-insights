@@ -3,7 +3,7 @@ import { createLogger } from "./logger.js";
 
 const logLlm = createLogger("llm");
 
-export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer";
+export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter";
 
 export interface ImageAttachment {
   name: string;
@@ -36,6 +36,11 @@ const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
   },
   synthesize_answer: {
     answer: "Stub answer based on meeting context.",
+  },
+  deep_search_filter: {
+    relevant: true,
+    relevance_summary: "Stub relevance summary for deep search.",
+    relevance_score: 85,
   },
 };
 

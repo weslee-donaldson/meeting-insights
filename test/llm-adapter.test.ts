@@ -45,6 +45,19 @@ describe("createLlmAdapter (stub)", () => {
     expect((result.answer as string).length).toBeGreaterThan(0);
   });
 
+  it("stub complete returns deep_search_filter fixture with relevant, relevance_summary, relevance_score", async () => {
+    const adapter = createLlmAdapter({ type: "stub" });
+    const result = await adapter.complete("deep_search_filter", "some meeting context");
+    expect(result).toEqual({
+      relevant: true,
+      relevance_summary: expect.any(String),
+      relevance_score: expect.any(Number),
+    });
+    expect((result.relevance_summary as string).length).toBeGreaterThan(0);
+    expect(result.relevance_score as number).toBeGreaterThanOrEqual(0);
+    expect(result.relevance_score as number).toBeLessThanOrEqual(100);
+  });
+
   it("stub converse returns fixture answer for conversation messages", async () => {
     const adapter = createLlmAdapter({ type: "stub" });
     const result = await adapter.converse("system prompt", [

@@ -1115,6 +1115,28 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 458: Wire FTS5 into pipeline + handler — `updateFts` after store/re-extract, `populateFts` at startup
 - [x] Burst 459: Update docs/applications.md search documentation
 
+### Bottle: Deep Search — LLM-Powered Post-Filtering (2026-03-05)
+
+- [ ] Burst 460: Add `deep_search_filter` LlmCapability + stub fixture — new capability type, deterministic fixture with `relevant`, `relevance_summary`, `relevance_score`
+- [ ] Burst 461: Create `config/prompts/deep-search.md` — prompt template with `{{query}}` + `{{meeting_context}}` placeholders, two-axis scoring guidance (specificity + breadth, 0-100 calibration bands)
+- [ ] Burst 462: `deepSearch` core function happy path — per-meeting LLM evaluation via `Promise.all`, returns `{ meeting_id, relevanceSummary, relevanceScore }[]` for relevant meetings
+- [ ] Burst 463: `deepSearch` filters out irrelevant meetings — spy LLM returns `relevant: false`, assert excluded from results
+- [ ] Burst 464: `deepSearch` handles missing artifact — skip meeting if `getArtifact` returns null, no error thrown
+- [ ] Burst 465: `deepSearch` handles LLM error gracefully — per-meeting catch, one failure does not kill the batch
+- [ ] Burst 466: Add `DeepSearchResultRow`, `DeepSearchRequest`, `DEEP_SEARCH` channel to `channels.ts`
+- [ ] Burst 467: `handleDeepSearch` in `ipc-handlers.ts` — load deep-search prompt, delegate to core `deepSearch`
+- [ ] Burst 468: Register `DEEP_SEARCH` IPC in Electron main + preload
+- [ ] Burst 469: `POST /api/deep-search` route in `server.ts` — requires LLM dep, returns 503 without
+- [ ] Burst 470: `deepSearch` method in `api-client.ts` — POST fetch wrapper
+- [ ] Burst 471: `--deepsearch` flag in CLI `query.ts` — LLM filter after vector search, display relevance summary + score
+- [ ] Burst 472: Add `--color-search-deep` CSS variable to all 3 themes (orange values)
+- [ ] Burst 473: `useDeepSearch` React Query hook — fires after hybrid search, returns filtered results
+- [ ] Burst 474: Deep Search checkbox in `SearchBar` — default checked, toggles deep search feature
+- [ ] Burst 475: Wire deep search state in `App.tsx` — `deepSearchEnabled`, scores override `searchScores`, summaries + loading to MeetingList
+- [ ] Burst 476: MeetingList blocking overlay + orange border + relevance summary — semi-transparent overlay during loading, orange `borderLeft` + summary text when active
+- [ ] Burst 477: NavRail navigation clears deep search state — clicking Meetings/Action Items resets search
+- [ ] Burst 478: Update `docs/applications.md` — Deep Search docs, `--deepsearch` flag, config file
+
 ---
 
 # INFRASTRUCTURE COMMITS (NO TESTS REQUIRED)
