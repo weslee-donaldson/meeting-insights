@@ -13,12 +13,13 @@ import { storeDetection } from "../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import { hybridSearch } from "../../core/hybrid-search.js";
+import { deepSearch } from "../../core/deep-search.js";
 import { updateFts } from "../../core/fts.js";
 import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow } from "./channels.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
@@ -27,6 +28,9 @@ const chatGuidelines = existsSync(CHAT_GUIDELINES_PATH) ? readFileSync(CHAT_GUID
 
 const EXTRACTION_PROMPT_PATH = join(REPO_ROOT, "config/prompts/extraction.md");
 const extractionPrompt = existsSync(EXTRACTION_PROMPT_PATH) ? readFileSync(EXTRACTION_PROMPT_PATH, "utf8") : undefined;
+
+const DEEP_SEARCH_PROMPT_PATH = join(REPO_ROOT, "config/prompts/deep-search.md");
+const deepSearchPrompt = existsSync(DEEP_SEARCH_PROMPT_PATH) ? readFileSync(DEEP_SEARCH_PROMPT_PATH, "utf8") : undefined;
 
 const SYSTEM_CONFIG_PATH = join(REPO_ROOT, "config/system.json");
 const systemConfig = existsSync(SYSTEM_CONFIG_PATH)
@@ -421,6 +425,14 @@ export async function handleCreateMeeting(
   storeArtifact(db, meetingId, artifact);
   updateFts(db, meetingId);
   return meetingId;
+}
+
+export async function handleDeepSearch(
+  db: Database,
+  llm: LlmAdapter,
+  req: DeepSearchRequest,
+): Promise<DeepSearchResultRow[]> {
+  return deepSearch(llm, db, req.meetingIds, req.query, deepSearchPrompt);
 }
 
 export async function handleUpdateMeetingVector(

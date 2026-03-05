@@ -20,6 +20,7 @@ import {
   handleGetClientActionItems,
   handleGetTemplates,
   handleCreateMeeting,
+  handleDeepSearch,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -592,6 +593,21 @@ describe("IPC handlers", () => {
       });
       const artifact = handleGetArtifact(createDb2, meetingId);
       expect(artifact?.summary).toBe("Created meeting summary");
+    });
+  });
+
+  describe("handleDeepSearch", () => {
+    it("returns deep search results using stub LLM", async () => {
+      const stubLlm = createLlmAdapter({ type: "stub" });
+      const results = await handleDeepSearch(db, stubLlm, { meetingIds: [meetingId2], query: "engineering" });
+      expect(results).toEqual([
+        {
+          meeting_id: meetingId2,
+          relevanceSummary: expect.any(String),
+          relevanceScore: expect.any(Number),
+        },
+      ]);
+      expect(results[0].relevanceSummary.length).toBeGreaterThan(0);
     });
   });
 
