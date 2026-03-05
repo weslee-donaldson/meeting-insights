@@ -124,6 +124,18 @@ describe("apiClient", () => {
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/templates");
   });
 
+  it("deepSearch throws with error message when server responds with non-OK status", async () => {
+    mockFetch({ error: "[api_error] credit balance too low" }, 502);
+    await expect(apiClient.deepSearch({ meetingIds: ["m1"], query: "test" }))
+      .rejects.toThrow("[api_error] credit balance too low");
+  });
+
+  it("deepSearch returns results on 200", async () => {
+    mockFetch([{ meeting_id: "m1", relevanceSummary: "Found", relevanceScore: 80 }]);
+    const result = await apiClient.deepSearch({ meetingIds: ["m1"], query: "test" });
+    expect(result).toEqual([{ meeting_id: "m1", relevanceSummary: "Found", relevanceScore: 80 }]);
+  });
+
   it("createMeeting posts to /api/meetings and returns meetingId", async () => {
     const spy = mockFetch({ meetingId: "new-id" }, 201);
     const result = await apiClient.createMeeting({

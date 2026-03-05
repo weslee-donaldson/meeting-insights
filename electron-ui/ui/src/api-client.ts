@@ -111,5 +111,11 @@ export const apiClient: ElectronAPI = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json() as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 };
