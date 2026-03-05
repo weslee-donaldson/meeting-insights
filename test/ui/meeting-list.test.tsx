@@ -637,6 +637,82 @@ describe("MeetingList", () => {
     expect(screen.queryByText("Acme")).toBeNull();
   });
 
+  describe("deep search overlay", () => {
+    it("shows blocking overlay when deepSearchLoading is true", () => {
+      render(
+        <MeetingList
+          meetings={dsuMeetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          deepSearchLoading={true}
+        />,
+      );
+      const overlay = screen.getByTestId("deep-search-overlay");
+      expect(overlay).toBeDefined();
+      expect(overlay.textContent).toContain("Deep searching 4 meetings");
+    });
+
+    it("does not show overlay when deepSearchLoading is false", () => {
+      render(
+        <MeetingList
+          meetings={dsuMeetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          deepSearchLoading={false}
+        />,
+      );
+      expect(screen.queryByTestId("deep-search-overlay")).toBeNull();
+    });
+  });
+
+  describe("deep search active results", () => {
+    it("renders orange border and relevance summary when isDeepSearchActive", () => {
+      const summaries = new Map([["dsu-1", "Discussed DLQ retry strategy."]]);
+      render(
+        <MeetingList
+          meetings={[makeMeeting({ id: "dsu-1", title: "Mandalore DSU", date: "2026-02-24T10:00:00.000Z", series: "mandalore dsu" })]}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          isDeepSearchActive={true}
+          deepSearchSummaries={summaries}
+        />,
+      );
+      const row = screen.getByTestId("meeting-row-dsu-1");
+      expect(row.style.borderLeft).toBe("2px solid var(--color-search-deep)");
+      expect(screen.getByText("Discussed DLQ retry strategy.")).toBeDefined();
+    });
+
+    it("does not show orange border when isDeepSearchActive is false", () => {
+      render(
+        <MeetingList
+          meetings={[makeMeeting({ id: "dsu-1", title: "Mandalore DSU", date: "2026-02-24T10:00:00.000Z", series: "mandalore dsu" })]}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+          isDeepSearchActive={false}
+          deepSearchSummaries={new Map([["dsu-1", "Some summary"]])}
+        />,
+      );
+      const row = screen.getByTestId("meeting-row-dsu-1");
+      expect(row.style.borderLeft).not.toContain("var(--color-search-deep)");
+    });
+  });
+
   describe("+ Add Meeting button", () => {
     it("renders when onNewMeeting is provided", () => {
       render(

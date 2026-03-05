@@ -28,6 +28,9 @@ interface MeetingListProps {
   onDelete?: () => void;
   onNewMeeting?: () => void;
   newMeetingIds?: Set<string>;
+  deepSearchSummaries?: Map<string, string>;
+  isDeepSearchActive?: boolean;
+  deepSearchLoading?: boolean;
 }
 
 function normalizeSeries(title: string): string {
@@ -153,6 +156,9 @@ export function MeetingList({
   onDelete,
   onNewMeeting,
   newMeetingIds,
+  deepSearchSummaries,
+  isDeepSearchActive,
+  deepSearchLoading,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
@@ -231,7 +237,18 @@ export function MeetingList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-1 pb-[10px]">
+      <div className="flex-1 overflow-y-auto py-1 pb-[10px] relative">
+        {deepSearchLoading && (
+          <div
+            data-testid="deep-search-overlay"
+            className="absolute inset-0 z-10 flex items-center justify-center bg-card/80"
+            style={{ pointerEvents: "auto" }}
+          >
+            <div className="text-sm text-muted-foreground animate-pulse">
+              Deep searching {meetings.length} meetings…
+            </div>
+          </div>
+        )}
         {loading && (
           <div data-testid="meeting-list-skeleton" className="flex flex-col gap-2 px-3 py-3">
             {[1, 2, 3, 4].map((i) => (
@@ -285,6 +302,8 @@ export function MeetingList({
 
               {group.meetings.map((m) => {
                 const isHighlighted = selectedId === m.id || checked.has(m.id);
+                const deepActive = isDeepSearchActive && !deepSearchLoading;
+                const deepSummary = deepActive ? deepSearchSummaries?.get(m.id) : undefined;
                 return (
                 <div
                   key={m.id}
@@ -293,7 +312,7 @@ export function MeetingList({
                   className="flex items-center gap-2 py-1.5 pr-3 pl-6 cursor-pointer"
                   style={{
                     background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",
-                    borderLeft: "2px solid " + (isHighlighted ? "var(--color-accent)" : "transparent"),
+                    borderLeft: "2px solid " + (deepActive ? "var(--color-search-deep)" : isHighlighted ? "var(--color-accent)" : "transparent"),
                   }}
                 >
                   <input
@@ -316,6 +335,9 @@ export function MeetingList({
                       <div className="text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                         {m.title}
                       </div>
+                    )}
+                    {deepSummary && (
+                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{deepSummary}</div>
                     )}
                   </div>
                   {newMeetingIds?.has(m.id) && (
