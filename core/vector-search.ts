@@ -22,13 +22,11 @@ interface SearchResult {
   date: string;
 }
 
-export async function searchMeetings(
+export async function searchMeetingsByVector(
   db: VectorDb,
-  session: InferenceSession & { _tokenizer: unknown },
-  query: string,
+  vec: Float32Array,
   options: SearchOptions,
 ): Promise<SearchResult[]> {
-  const vec = await embed(session as Parameters<typeof embed>[0], query);
   const table = await db.openTable("meeting_vectors");
 
   const filters: string[] = [];
@@ -54,6 +52,18 @@ export async function searchMeetings(
   const filtered = options.maxDistance !== undefined
     ? results.filter((r) => r.score <= options.maxDistance!)
     : results;
-  log("query=%s results=%d filtered=%d", query, results.length, filtered.length);
+  log("results=%d filtered=%d", results.length, filtered.length);
   return filtered;
+}
+
+export async function searchMeetings(
+  db: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  query: string,
+  options: SearchOptions,
+): Promise<SearchResult[]> {
+  const vec = await embed(session as Parameters<typeof embed>[0], query);
+  const results = await searchMeetingsByVector(db, vec, options);
+  log("query=%s results=%d", query, results.length);
+  return results;
 }

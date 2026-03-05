@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { connectVectorDb, createMeetingTable } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
-import { searchMeetings } from "../core/vector-search.js";
+import { searchMeetings, searchMeetingsByVector } from "../core/vector-search.js";
 import type { Artifact } from "../core/extractor.js";
 
 let vdbPath: string;
@@ -108,5 +108,16 @@ describe("searchMeetings", () => {
   it("returns all results when maxDistance is not set", async () => {
     const results = await searchMeetings(vdb, session, "REST API OAuth authentication", { limit: 2 });
     expect(results.length).toBe(2);
+  });
+});
+
+describe("searchMeetingsByVector", () => {
+  it("returns same results as searchMeetings when given the same pre-computed vector", async () => {
+    const { embed } = await import("../core/embedder.js");
+    const vec = await embed(session as Parameters<typeof embed>[0], "REST API integration");
+    const fromText = await searchMeetings(vdb, session, "REST API integration", { limit: 2 });
+    const fromVec = await searchMeetingsByVector(vdb, vec, { limit: 2 });
+    expect(fromVec.map((r) => r.meeting_id)).toEqual(fromText.map((r) => r.meeting_id));
+    expect(fromVec.map((r) => r.score)).toEqual(fromText.map((r) => r.score));
   });
 });
