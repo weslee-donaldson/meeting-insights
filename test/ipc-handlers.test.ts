@@ -107,6 +107,30 @@ describe("IPC handlers", () => {
       expect(meetings[0].title).toBe("Acme DSU");
     });
 
+    it("should exclude meeting where selected client is not the top detection", () => {
+      const mid = ingestMeeting(db, {
+        title: "Shared Meeting",
+        timestamp: "2026-02-24T15:00:00.000Z",
+        participants: [],
+        rawTranscript: "Hello.",
+        turns: [],
+        sourceFilename: "shared-meeting-1",
+      });
+      storeDetection(db, mid, [
+        { client_name: "Acme", confidence: 0.3, method: "title" },
+        { client_name: "Beta Co", confidence: 0.9, method: "participant" },
+      ]);
+      try {
+        const acmeMeetings = handleGetMeetings(db, { client: "Acme" });
+        expect(acmeMeetings.find((m) => m.id === mid)).toBeUndefined();
+        const betaMeetings = handleGetMeetings(db, { client: "Beta Co" });
+        expect(betaMeetings.find((m) => m.id === mid)).toBeDefined();
+      } finally {
+        db.prepare("DELETE FROM client_detections WHERE meeting_id = ?").run(mid);
+        db.prepare("DELETE FROM meetings WHERE id = ?").run(mid);
+      }
+    });
+
     it("should filter meetings by after date", () => {
       const meetings = handleGetMeetings(db, { after: "2026-02-25" });
       expect(meetings).toHaveLength(1);

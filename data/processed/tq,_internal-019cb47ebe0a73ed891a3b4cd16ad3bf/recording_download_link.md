@@ -1,0 +1,10 @@
+# TQ, Internal - Mar, 03
+
+Please click the link to download the recording. If it does not work, please copy the link and open it in your browser.
+
+# Recording Download Link
+
+**File:** recording.mp3
+**Valid for:** 7 days
+
+[Download Recording](<https://kr-files-cdn.s3.amazonaws.com/recording/prod-team/1092776/13603869/019cb47ec28e75eaa13c48460227b8fd.mp3?AWSAccessKeyId=ASIA2I62CR7VEKTDTCE3&Expires=1773325765&Signature=MUv7%2FHeBJlxbc%2F%2FA4Xe1sY7eDQI%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEAcaCXVzLWVhc3QtMSJHMEUCIQDn50qwgFkOV9h%2FzYtDGJOQpk4gXVUzOGku3RwYCZhWeAIgbFyYdLg9cTnRK5UeYlJwCowQse8pTK71A0EoO1gi%2BF8qhAQIz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw3MDY0NDI1OTYzMzAiDHga6xcbnnYso25wNirYA5%2BzUXZEAZLagTMzt%2FjZWI%2Fo6FZFBlkcLVhS%2F6qWYjxsxWuNzIOf7vuTFwsIFiZ7LljtiqxEzWx8XCWYbnDogjlRRPE5waYWlrgAPX6fuDOeKhVomBFGyVAXBTu8CBxti6x6Ui5ZouJLffBqGRKBchimlDAVrOrGvJWH81c6jtLp0o4OzKcEBAosVz6L7s52MPuN7CLC5hZ1h5m56VP0AQFGOpV0FKlwCksCVJqVyUJNEcG%2BamK5kGSYEZlgN8Ml%2B1F6cS57zgLUVArXS1eDj0jV3eFY0WqLDTlxhqo8vdg5RqbW8VYFTushJAc9prMbmXDHRp1SxP3kQBhUNTW1Sf126c%2Fyy%2Fnfq868fnFjs%2F%2Fa2H9A8Ajc9Me6ycftUrVKLLraT8ipUqnJI6i1%2FjrQ%2FBD%2FmuAZT5g%2BtNsbqXLR2UqX8jSXuSsyG3Ri13ayvQmJGw%2FTxEMk3z86ri4HNuqie5R%2Bll01r8rcZnP81OcD4zBtzRqwKz85FQwCnSlNXs%2BpPJISe9kZxrmgB%2FQvG5EFp3%2FGsSRNPmvGDcKgmIs4CsTTqyIhP%2FPlnYcZuRk5PWkvFS7NlXrm5ZDI0qF8Lh6r6augwAmjZtylXb2IAO6YMf0gs%2Fn7iWuAXj8w7ZumzQY6pQHzQvee%2B4lkc659dAQGl5rR2B04Y7%2BHZ9yItF60CP0tl%2Fp8ggADABgKc48u7YbYP6%2BBjghudnJFlumTdGGdPpApx28560%2FKg0O02CiFvtJkcpOMGyI9WFNVxFqIS0UYejnazCl2Qe3i0k6nBQ%2FohHzQoZUUBZTE222h72hv%2BJc8f%2B3j3BBIUSl%2B2BFzzYaKJba7l6sc3oSb5PUjP0eUbwdscKiXhCI%3D>)

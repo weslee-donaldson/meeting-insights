@@ -53,7 +53,7 @@ export function handleGetTemplates(): string[] {
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
-interface DetectionRow { meeting_id: string; client_name: string; }
+
 interface RawMeetingRow { raw_transcript: string; }
 
 export function handleGetClients(db: Database): string[] {
@@ -95,27 +95,16 @@ export function handleGetMeetings(
   if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
   if (opts.before)
     rows = rows.filter((r) => r.date <= opts.before! + "T23:59:59Z");
-  if (opts.client) {
-    const clientIds = new Set(
-      (
-        db
-          .prepare(
-            "SELECT meeting_id FROM client_detections WHERE client_name = ?",
-          )
-          .all(opts.client) as unknown as DetectionRow[]
-      ).map((r) => r.meeting_id),
-    );
-    rows = rows.filter((r) => clientIds.has(r.id));
-  }
-
-  return rows.map((r) => ({
-    id: r.id,
-    title: r.title,
-    date: r.date,
-    client: topClientForMeeting(db, r.id),
-    series: normalizeSeries(r.title),
-    actionItemCount: r.action_item_count,
-  }));
+  return rows
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      date: r.date,
+      client: topClientForMeeting(db, r.id),
+      series: normalizeSeries(r.title),
+      actionItemCount: r.action_item_count,
+    }))
+    .filter((r) => !opts.client || r.client === opts.client);
 }
 
 export function handleGetArtifact(
