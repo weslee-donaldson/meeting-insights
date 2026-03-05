@@ -136,6 +136,32 @@ describe("apiClient", () => {
     expect(result).toEqual([{ meeting_id: "m1", relevanceSummary: "Found", relevanceScore: 80 }]);
   });
 
+  it("chat throws with error message when server responds with non-OK status", async () => {
+    mockFetch({ error: "credit balance too low" }, 502);
+    await expect(apiClient.chat({ meetingIds: ["m1"], question: "q?" }))
+      .rejects.toThrow("credit balance too low");
+  });
+
+  it("conversationChat throws with error message when server responds with non-OK status", async () => {
+    mockFetch({ error: "credit balance too low" }, 502);
+    await expect(apiClient.conversationChat({
+      meetingIds: ["m1"],
+      messages: [{ role: "user", content: "What?" }],
+    })).rejects.toThrow("credit balance too low");
+  });
+
+  it("reExtract throws with error message when server responds with non-OK status", async () => {
+    mockFetch({ error: "credit balance too low" }, 502);
+    await expect(apiClient.reExtract("m1")).rejects.toThrow("credit balance too low");
+  });
+
+  it("createMeeting throws with error message when server responds with non-OK status", async () => {
+    mockFetch({ error: "credit balance too low" }, 502);
+    await expect(apiClient.createMeeting({
+      clientName: "Acme", date: "2026-03-05", title: "Test", rawTranscript: "hi",
+    })).rejects.toThrow("credit balance too low");
+  });
+
   it("createMeeting posts to /api/meetings and returns meetingId", async () => {
     const spy = mockFetch({ meetingId: "new-id" }, 201);
     const result = await apiClient.createMeeting({

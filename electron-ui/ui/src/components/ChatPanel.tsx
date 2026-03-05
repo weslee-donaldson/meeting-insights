@@ -101,6 +101,12 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
       ]);
+    } catch (err) {
+      const msg = (err as Error).message.replace(/^\[api_error\]\s*/, "").replace(/^\[rate_limit\]\s*/, "");
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `Error: ${msg}` },
+      ]);
     } finally {
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);

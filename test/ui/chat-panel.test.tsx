@@ -320,6 +320,18 @@ describe("ChatPanel", () => {
     expect(buttonColumn.className).not.toContain("self-end");
   });
 
+  it("shows error message as assistant bubble when onChat rejects", async () => {
+    const onChat = vi.fn().mockRejectedValue(new Error("[api_error] credit balance too low"));
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Error: credit balance too low"), { timeout: 2000 });
+    const bubble = screen.getByTestId("assistant-bubble");
+    expect(bubble.textContent).toContain("Error: credit balance too low");
+  });
+
   it("history clears when activeMeetingIds changes", async () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "Old answer.", sources: [], charCount: 0 });
     const { rerender } = render(

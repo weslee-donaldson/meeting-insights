@@ -76,21 +76,36 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   app.post("/api/chat", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
     const req = await c.req.json() as { meetingIds: string[]; question: string };
-    const result = await handleChat(db, llm!, req);
-    return c.json(result);
+    try {
+      const result = await handleChat(db, llm, req);
+      return c.json(result);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 502);
+    }
   });
 
   app.post("/api/chat/conversation", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
     const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; base64: string; mimeType: string }[]; includeTranscripts?: boolean; template?: string };
-    const result = await handleConversationChat(db, llm!, req);
-    return c.json(result);
+    try {
+      const result = await handleConversationChat(db, llm, req);
+      return c.json(result);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 502);
+    }
   });
 
   app.post("/api/meetings", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
     const req = await c.req.json() as CreateMeetingRequest;
-    const meetingId = await handleCreateMeeting(db, llm!, req);
-    return c.json({ meetingId }, 201);
+    try {
+      const meetingId = await handleCreateMeeting(db, llm, req);
+      return c.json({ meetingId }, 201);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 502);
+    }
   });
 
   app.delete("/api/meetings", async (c) => {
@@ -100,9 +115,14 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   app.post("/api/meetings/:id/re-extract", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
     const id = c.req.param("id");
-    await handleReExtract(db, llm!, id);
-    return c.json({});
+    try {
+      await handleReExtract(db, llm, id);
+      return c.json({});
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 502);
+    }
   });
 
   app.post("/api/meetings/:id/client", async (c) => {
