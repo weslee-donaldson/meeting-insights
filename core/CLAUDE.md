@@ -29,5 +29,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1451 | 3:57 PM | 🔄 | LLM Adapter Refactored into Interface + Provider File Architecture | ~394 |
 | #1436 | 3:53 PM | 🟣 | Test coverage for stub LLM provider | ~283 |
 </claude-mem-context>

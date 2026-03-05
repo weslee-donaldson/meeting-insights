@@ -65,6 +65,9 @@ importers:
       onnxruntime-node:
         specifier: ^1.24.2
         version: 1.24.2
+      openai:
+        specifier: ^6.26.0
+        version: 6.26.0
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -2129,6 +2132,18 @@ packages:
   onnxruntime-node@1.24.2:
     resolution: {integrity: sha512-ZtTkUHNNk+Xpi2Sq2BcFjzc9Vx4n3o5RxYLgRvdrFzCBsGUU1dQRFf4LM9tCc7vFhPSoZqbvzZtkzRMXoDqKNg==}
     os: [win32, darwin, linux]
+
+  openai@6.26.0:
+    resolution: {integrity: sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   p-cancelable@2.1.1:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
@@ -4603,6 +4618,8 @@ snapshots:
       adm-zip: 0.5.16
       global-agent: 3.0.0
       onnxruntime-common: 1.24.2
+
+  openai@6.26.0: {}
 
   p-cancelable@2.1.1: {}
 

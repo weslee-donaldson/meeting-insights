@@ -1,6 +1,7 @@
 import { createStubAdapter } from "./llm-provider-stub.js";
 import { createLocalAdapter } from "./llm-provider-local.js";
 import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
+import { createOpenaiAdapter } from "./llm-provider-openai.js";
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter";
 
@@ -31,13 +32,23 @@ interface LocalConfig {
   model: string;
 }
 
-export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig): LlmAdapter {
+interface OpenaiConfig {
+  type: "openai";
+  apiKey: string;
+  model?: string;
+}
+
+export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig | OpenaiConfig): LlmAdapter {
   if (config.type === "stub") {
     return createStubAdapter();
   }
 
   if (config.type === "local") {
     return createLocalAdapter(config.baseUrl, config.model);
+  }
+
+  if (config.type === "openai") {
+    return createOpenaiAdapter(config.apiKey, config.model);
   }
 
   return createAnthropicAdapter(config.apiKey, config.model);
