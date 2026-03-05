@@ -6,6 +6,8 @@ import { getMeeting } from "../core/ingest.js";
 import { getArtifact } from "../core/extractor.js";
 import { renderNotesGroups, parseCitations } from "../core/display-helpers.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
+import { deepSearch } from "../core/deep-search.js";
+import { readFileSync, existsSync } from "node:fs";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 process.loadEnvFile?.(".env.local");
@@ -27,6 +29,7 @@ const afterFilter   = args.find(a => a.startsWith("--after="))?.slice(8);
 const beforeFilter  = args.find(a => a.startsWith("--before="))?.slice(9);
 const limit         = parseInt(args.find(a => a.startsWith("--limit="))?.slice(8) ?? "6");
 const searchMode    = args.includes("--search");
+const deepSearchMode = args.includes("--deepsearch");
 
 const listIdx  = args.indexOf("--list");
 const listType = args.find(a => a.startsWith("--list="))?.slice(7)
@@ -225,7 +228,7 @@ if (listType) {
 if (!question && !searchMode) {
   console.error("Usage:");
   console.error("  pnpm query \"<question>\" [--client=X] [--after=YYYY-MM-DD] [--limit=N]");
-  console.error("  pnpm query --search \"<topic>\" [--client=X]");
+  console.error("  pnpm query --search \"<topic>\" [--client=X] [--deepsearch]");
   console.error("  pnpm query --list <meetings|summary|decisions|actions|questions|risks|features>");
   console.error("             [--client=X] [--meeting=\"title\"] [--after=YYYY-MM-DD] [--before=YYYY-MM-DD]");
   process.exit(1);
@@ -247,6 +250,33 @@ const results = await searchMeetings(vdb, session, searchQuery, {
 
 if (searchMode) {
   if (results.length === 0) { console.log("No results found."); process.exit(0); }
+
+  if (deepSearchMode) {
+    const llm = PROVIDER === "local"
+      ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
+      : PROVIDER === "stub"
+        ? createLlmAdapter({ type: "stub" })
+        : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
+
+    const promptPath = "config/prompts/deep-search.md";
+    const promptTemplate = existsSync(promptPath) ? readFileSync(promptPath, "utf8") : undefined;
+
+    process.stderr.write(`Deep searching ${results.length} meetings...\n`);
+    const deepResults = await deepSearch(llm, db, results.map(r => r.meeting_id), searchQuery, promptTemplate);
+    if (deepResults.length === 0) { console.log("No relevant meetings found after deep search."); process.exit(0); }
+
+    const sorted = deepResults.sort((a, b) => b.relevanceScore - a.relevanceScore);
+    for (const dr of sorted) {
+      const mtg = getMeeting(db, dr.meeting_id);
+      const r = results.find(r => r.meeting_id === dr.meeting_id)!;
+      const clientTag = r.client ? `  [${r.client}]` : "";
+      console.log(`[${dr.relevanceScore}]  ${mtg.title}  (${r.date.slice(0, 10)})${clientTag}`);
+      console.log(`        ${dr.relevanceSummary}`);
+      console.log();
+    }
+    process.exit(0);
+  }
+
   for (const r of results) {
     const mtg = getMeeting(db, r.meeting_id);
     const art = getArtifact(db, r.meeting_id);
