@@ -9,6 +9,7 @@ import { NavRail } from "./components/NavRail.js";
 import { ClientActionItemsView } from "./components/ClientActionItemsView.js";
 import { useTheme } from "./ThemeContext.js";
 import { useSearch } from "./hooks/useSearch.js";
+import { useDeepSearch } from "./hooks/useDeepSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "./lib/merge-artifacts.js";
 import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem, CreateMeetingRequest } from "../../electron/channels.js";
@@ -41,6 +42,7 @@ export function App() {
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
   const [newMeetingOpen, setNewMeetingOpen] = useState(false);
   const [newMeetingIds, setNewMeetingIds] = useState<Set<string>>(new Set());
+  const [deepSearchEnabled, setDeepSearchEnabled] = useState(true);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -77,17 +79,43 @@ export function App() {
 
   const { data: searchResults, isFetching: searchFetching } = useSearch(searchQuery);
 
+  const hybridMeetingIds = useMemo(
+    () => (searchResults ?? []).map((r) => r.meeting_id),
+    [searchResults],
+  );
+
+  const { data: deepSearchResults, isFetching: deepSearchFetching } = useDeepSearch(
+    hybridMeetingIds,
+    searchQuery,
+    deepSearchEnabled && searchQuery.trim().length >= 2 && !searchFetching,
+  );
+
+  const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
+  const deepSearchLoading = deepSearchEnabled && deepSearchFetching && searchQuery.trim().length >= 2;
+
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];
     if (searchQuery.trim().length < 2 || !searchResults) return all;
+    if (isDeepSearchActive) {
+      const deepIds = new Set(deepSearchResults!.map((r) => r.meeting_id));
+      return all.filter((m) => deepIds.has(m.id));
+    }
     const matchIds = new Set(searchResults.map((r) => r.meeting_id));
     return all.filter((m) => matchIds.has(m.id));
-  }, [meetingsQuery.data, searchQuery, searchResults]);
+  }, [meetingsQuery.data, searchQuery, searchResults, isDeepSearchActive, deepSearchResults]);
 
   const searchScores = useMemo(() => {
+    if (isDeepSearchActive) {
+      return new Map(deepSearchResults!.map((r) => [r.meeting_id, r.relevanceScore]));
+    }
     if (!searchResults || searchResults.length === 0) return undefined;
     return new Map(searchResults.map((r) => [r.meeting_id, r.score]));
-  }, [searchResults]);
+  }, [searchResults, isDeepSearchActive, deepSearchResults]);
+
+  const deepSearchSummaries = useMemo(() => {
+    if (!isDeepSearchActive) return undefined;
+    return new Map(deepSearchResults!.map((r) => [r.meeting_id, r.relevanceSummary]));
+  }, [isDeepSearchActive, deepSearchResults]);
 
   useEffect(() => {
     if (searchQuery.trim().length >= 2 && searchResults && searchResults.length > 0) {
@@ -410,6 +438,9 @@ export function App() {
       onDelete={handleDeleteMeetings}
       onNewMeeting={() => setNewMeetingOpen(true)}
       newMeetingIds={newMeetingIds}
+      deepSearchSummaries={deepSearchSummaries}
+      isDeepSearchActive={isDeepSearchActive}
+      deepSearchLoading={deepSearchLoading}
     />,
     <MeetingDetail
       key="meeting-detail"
@@ -469,6 +500,8 @@ export function App() {
           onDateChange={handleDateChange}
           onSearchQueryChange={setTypedSearchQuery}
           onSubmitSearch={setSearchQuery}
+          deepSearchEnabled={deepSearchEnabled}
+          onDeepSearchToggle={setDeepSearchEnabled}
           onReset={handleReset}
           theme={theme}
           setTheme={setTheme}

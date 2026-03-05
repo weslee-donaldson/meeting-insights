@@ -14,6 +14,8 @@ interface TopBarProps {
   onDateChange: (field: "after" | "before", value: string) => void;
   onSearchQueryChange: (q: string) => void;
   onSubmitSearch: (q: string) => void;
+  deepSearchEnabled?: boolean;
+  onDeepSearchToggle?: (enabled: boolean) => void;
   onReset: () => void;
   theme: ThemeName;
   setTheme: (name: ThemeName) => void;
@@ -35,6 +37,8 @@ export function TopBar({
   onDateChange,
   onSearchQueryChange,
   onSubmitSearch,
+  deepSearchEnabled,
+  onDeepSearchToggle,
   onReset,
   theme,
   setTheme,
@@ -107,6 +111,8 @@ export function TopBar({
           query={searchQuery}
           onQueryChange={onSearchQueryChange}
           onSubmit={onSubmitSearch}
+          deepSearchEnabled={deepSearchEnabled}
+          onDeepSearchToggle={onDeepSearchToggle}
         />
       </div>
 

@@ -56,6 +56,7 @@ beforeAll(() => {
     reExtract: vi.fn().mockResolvedValue(undefined),
     reEmbedMeeting: vi.fn().mockResolvedValue(undefined),
     createMeeting: vi.fn().mockResolvedValue({ meetingId: "new-meeting-123" }),
+    deepSearch: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -130,7 +131,7 @@ describe("App", () => {
   it("shows confirmation dialog when Delete button clicked", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
-    const checkboxes = screen.getAllByRole("checkbox");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
     await waitFor(() => expect(screen.getByRole("button", { name: /Delete 1/i })).toBeDefined());
     fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
@@ -142,7 +143,7 @@ describe("App", () => {
     (window as unknown as Record<string, unknown>).api = { ...(window as unknown as Record<string, { deleteMeetings: unknown }>).api, deleteMeetings: deleteFn };
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
-    const checkboxes = screen.getAllByRole("checkbox");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
     await waitFor(() => screen.getByRole("button", { name: /Delete 1/i }));
     fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
@@ -154,7 +155,7 @@ describe("App", () => {
   it("shows success toast after confirming delete", async () => {
     render(<App />, { wrapper });
     const row = await screen.findByTestId("meeting-row-m1");
-    const checkboxes = screen.getAllByRole("checkbox");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
     await waitFor(() => screen.getByRole("button", { name: /Delete 1/i }));
     fireEvent.click(screen.getByRole("button", { name: /Delete 1/i }));
@@ -249,7 +250,7 @@ describe("App", () => {
     render(<App />, { wrapper });
     fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
     await waitFor(() => screen.getByText("Deploy fix"));
-    const checkboxes = screen.getAllByRole("checkbox");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
     await waitFor(() => {
       expect(window.api.completeActionItem).toHaveBeenCalledWith("m1", 0, "");
@@ -258,7 +259,8 @@ describe("App", () => {
 
   it("checking 2 meetings shows merged multi-meeting detail header", async () => {
     render(<App />, { wrapper });
-    const checkboxes = await screen.findAllByRole("checkbox");
+    await screen.findByTestId("meeting-row-m1");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
     fireEvent.click(checkboxes[1]);
     await waitFor(() => {
