@@ -5,6 +5,7 @@ import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
+import type { LlmAdapter } from "../core/llm-adapter.js";
 import { deepSearch } from "../core/deep-search.js";
 
 function seedMeeting(db: Database, id: string, title: string, artifact: Artifact): void {
@@ -51,5 +52,34 @@ describe("deepSearch", () => {
     expect(results[0].relevanceSummary.length).toBeGreaterThan(0);
     expect(results[0].relevanceScore).toBeGreaterThanOrEqual(0);
     expect(results[0].relevanceScore).toBeLessThanOrEqual(100);
+  });
+
+  it("excludes meetings where LLM returns relevant=false", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    seedMeeting(db, "m1", "DLQ Triage", ARTIFACT);
+    seedMeeting(db, "m2", "Sprint Planning", ARTIFACT);
+
+    let callCount = 0;
+    const spyLlm: LlmAdapter = {
+      async complete(_capability, _content) {
+        callCount++;
+        if (callCount === 2) {
+          return { relevant: false, relevance_summary: "", relevance_score: 0 };
+        }
+        return { relevant: true, relevance_summary: "DLQ evidence found.", relevance_score: 90 };
+      },
+      async converse() { return ""; },
+    };
+
+    const results = await deepSearch(spyLlm, db, ["m1", "m2"], "DLQ issue", PROMPT);
+
+    expect(results).toEqual([
+      {
+        meeting_id: "m1",
+        relevanceSummary: "DLQ evidence found.",
+        relevanceScore: 90,
+      },
+    ]);
   });
 });

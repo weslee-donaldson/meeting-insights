@@ -1120,7 +1120,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [ ] Burst 460: Add `deep_search_filter` LlmCapability + stub fixture — new capability type, deterministic fixture with `relevant`, `relevance_summary`, `relevance_score`
 - [ ] Burst 461: Create `config/prompts/deep-search.md` — prompt template with `{{query}}` + `{{meeting_context}}` placeholders, two-axis scoring guidance (specificity + breadth, 0-100 calibration bands)
 - [ ] Burst 462: `deepSearch` core function happy path — per-meeting LLM evaluation via `Promise.all`, returns `{ meeting_id, relevanceSummary, relevanceScore }[]` for relevant meetings
-- [ ] Burst 463: `deepSearch` filters out irrelevant meetings — spy LLM returns `relevant: false`, assert excluded from results
+- [x] Burst 463: `deepSearch` filters out irrelevant meetings — spy LLM returns `relevant: false`, assert excluded from results
 - [ ] Burst 464: `deepSearch` handles missing artifact — skip meeting if `getArtifact` returns null, no error thrown
 - [ ] Burst 465: `deepSearch` handles LLM error gracefully — per-meeting catch, one failure does not kill the batch
 - [ ] Burst 466: Add `DeepSearchResultRow`, `DeepSearchRequest`, `DEEP_SEARCH` channel to `channels.ts`
