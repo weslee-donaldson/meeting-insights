@@ -587,6 +587,51 @@ describe("MeetingDetail", () => {
     expect(onMentionClick).toHaveBeenCalledWith("c1", "Write tests");
   });
 
+  it("highlights search terms in summary text with mark elements", () => {
+    const { container } = render(
+      <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ summary: "We discussed the roadmap." })} searchQuery="roadmap" />,
+    );
+    const marks = container.querySelectorAll("mark");
+    expect(marks.length).toBeGreaterThanOrEqual(1);
+    expect(marks[0].textContent).toBe("roadmap");
+  });
+
+  it("highlights search terms in action item descriptions", () => {
+    const { container } = render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({ action_items: [{ description: "Write unit tests for parser", owner: "", requester: "", due_date: null }] })}
+        searchQuery="tests"
+      />,
+    );
+    const marks = container.querySelectorAll("mark");
+    expect(marks.length).toBeGreaterThanOrEqual(1);
+    expect(marks[0].textContent).toBe("tests");
+  });
+
+  it("does not render mark elements when searchQuery is empty", () => {
+    const { container } = render(
+      <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} searchQuery="" />,
+    );
+    expect(container.querySelectorAll("mark").length).toBe(0);
+  });
+
+  it("shows match count badge on section header when search matches", () => {
+    render(
+      <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ summary: "Sprint planning for the roadmap." })} searchQuery="roadmap" />,
+    );
+    expect(screen.getByText("1 match")).toBeDefined();
+  });
+
+  it("auto-expands closed section when search matches its content", () => {
+    render(
+      <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ open_questions: ["What about the roadmap?"] })} searchQuery="roadmap" />,
+    );
+    const items = screen.getAllByRole("listitem");
+    const roadmapItem = items.find((li) => li.textContent?.includes("What about the roadmap?"));
+    expect(roadmapItem).toBeDefined();
+  });
+
   it("shows empty-state message when all artifact sections are empty", () => {
     const emptyArtifact = makeArtifact({
       summary: "",

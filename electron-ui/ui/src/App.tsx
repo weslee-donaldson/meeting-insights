@@ -427,6 +427,7 @@ export function App() {
       mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
       onMentionClick={isMultiMode ? undefined : handleMentionClick}
       artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
+      searchQuery={searchQuery}
     />,
   ];
 

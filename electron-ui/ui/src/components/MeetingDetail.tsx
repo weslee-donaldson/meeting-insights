@@ -7,6 +7,8 @@ import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { cn } from "../lib/utils.js";
+import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
+import { HighlightText } from "./HighlightText.js";
 
 interface MeetingDetailProps {
   meeting: MeetingRow | null;
@@ -23,6 +25,7 @@ interface MeetingDetailProps {
   mentionStats?: MentionStat[];
   onMentionClick?: (canonicalId: string, itemText: string) => void;
   artifactLoading?: boolean;
+  searchQuery?: string;
 }
 
 interface SectionProps {
@@ -69,13 +72,13 @@ function Section({ title, children, isEmpty, defaultOpen = false, open: controll
   );
 }
 
-function ItemList({ items, icon, iconColor }: { items: string[]; icon: string; iconColor?: string }) {
+function ItemList({ items, icon, iconColor, highlightTerms = [] }: { items: string[]; icon: string; iconColor?: string; highlightTerms?: string[] }) {
   return (
     <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
       {items.map((d, i) => (
         <li key={i} className="flex gap-2.5 items-start">
           <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground" style={iconColor ? { color: iconColor } : undefined}>{icon}</span>
-          <span className="leading-[1.6]">{d}</span>
+          <span className="leading-[1.6]">{highlightTerms.length > 0 ? <HighlightText text={d} terms={highlightTerms} /> : d}</span>
         </li>
       ))}
     </ul>
@@ -101,7 +104,7 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
@@ -192,6 +195,12 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
     }
   }, [allExpanded]);
 
+  const { matchedTerms, matchesBySection } = useArtifactSearch(artifact, searchQuery ?? "");
+
+  const effectiveOpen = useCallback((key: string) =>
+    !!sectionStates[key] || (matchesBySection[key] ?? 0) > 0,
+  [sectionStates, matchesBySection]);
+
   const allEmpty = !artifact.summary
     && artifact.decisions.length === 0
     && artifact.action_items.length === 0
@@ -216,33 +225,40 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           {allExpanded ? "Collapse all" : "Expand all"}
         </Button>
       </div>
-      <Section title="Summary" isEmpty={!artifact.summary} open={!!sectionStates["Summary"]} onOpenChange={(o) => setSectionOpen("Summary", o)}>
-        <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap">{artifact.summary}</p>
+      <Section title="Summary" isEmpty={!artifact.summary} open={effectiveOpen("Summary")} onOpenChange={(o) => setSectionOpen("Summary", o)}
+        headerExtra={matchesBySection["Summary"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Summary"]} match{matchesBySection["Summary"] > 1 ? "es" : ""}</span> : undefined}
+      >
+        <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
       </Section>
 
       <Section
         title="Decisions"
         isEmpty={artifact.decisions.length === 0}
-        open={!!sectionStates["Decisions"]}
+        open={effectiveOpen("Decisions")}
         onOpenChange={(o) => setSectionOpen("Decisions", o)}
-        headerExtra={decisionPeople.length > 0 ? (
-          <select
-            value={decisionFilter}
-            onChange={(e) => setDecisionFilter(e.target.value)}
-            aria-label="Filter decisions by person"
-            className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
-          >
-            <option value="">Person: All</option>
-            {decisionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
-          </select>
-        ) : undefined}
+        headerExtra={
+          <div className="flex items-center gap-2">
+            {matchesBySection["Decisions"] && <span className="text-[0.65rem] text-yellow-500">{matchesBySection["Decisions"]} match{matchesBySection["Decisions"] > 1 ? "es" : ""}</span>}
+            {decisionPeople.length > 0 && (
+              <select
+                value={decisionFilter}
+                onChange={(e) => setDecisionFilter(e.target.value)}
+                aria-label="Filter decisions by person"
+                className="text-[0.7rem] bg-transparent border border-border rounded px-1.5 py-0.5 text-muted-foreground"
+              >
+                <option value="">Person: All</option>
+                {decisionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            )}
+          </div>
+        }
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
           {filteredDecisions.map((d, i) => (
             <li key={i} className="flex gap-2.5 items-start">
               <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground">—</span>
               <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                <span className="leading-[1.6]">{d.text}</span>
+                <span className="leading-[1.6]"><HighlightText text={d.text} terms={matchedTerms} /></span>
                 {d.decided_by && <Badge variant="secondary">{d.decided_by}</Badge>}
               </div>
             </li>
@@ -253,10 +269,11 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
       <Section
         title="Action Items"
         isEmpty={artifact.action_items.length === 0}
-        open={!!sectionStates["Action Items"]}
+        open={effectiveOpen("Action Items")}
         onOpenChange={(o) => setSectionOpen("Action Items", o)}
         headerExtra={
           <div className="flex items-center gap-2">
+            {matchesBySection["Action Items"] && <span className="text-[0.65rem] text-yellow-500">{matchesBySection["Action Items"]} match{matchesBySection["Action Items"] > 1 ? "es" : ""}</span>}
             {actionPeople.length > 0 && (
               <select
                 value={actionItemFilter}
@@ -335,12 +352,12 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                       onClick={() => setNoteDialog({ index: i, note: existingNote })}
                       className="text-left leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
                     >
-                      {a.description}
+                      <HighlightText text={a.description} terms={matchedTerms} />
                     </button>
                   ) : (
                     <>
                       {a.priority === "critical" && <Badge variant="destructive" className="inline mr-1 text-[0.65rem]">CRITICAL</Badge>}
-                      {a.description}
+                      <HighlightText text={a.description} terms={matchedTerms} />
                     </>
                   )}
                   {(a.owner || a.requester || a.due_date || mention) && (
@@ -393,27 +410,35 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
         </DialogContent>
       </Dialog>
 
-      <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={!!sectionStates["Open Questions"]} onOpenChange={(o) => setSectionOpen("Open Questions", o)}>
-        <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" />
+      <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={effectiveOpen("Open Questions")} onOpenChange={(o) => setSectionOpen("Open Questions", o)}
+        headerExtra={matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
+      >
+        <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} />
       </Section>
 
-      <Section title="Risks" isEmpty={artifact.risk_items.length === 0} open={!!sectionStates["Risks"]} onOpenChange={(o) => setSectionOpen("Risks", o)}>
+      <Section title="Risks" isEmpty={artifact.risk_items.length === 0} open={effectiveOpen("Risks")} onOpenChange={(o) => setSectionOpen("Risks", o)}
+        headerExtra={matchesBySection["Risks"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Risks"]} match{matchesBySection["Risks"] > 1 ? "es" : ""}</span> : undefined}
+      >
         <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
           {artifact.risk_items.map((r, i) => (
             <li key={i} className="flex flex-wrap gap-x-1.5 gap-y-0.5 items-baseline">
               <span className="shrink-0 mt-px text-[0.8rem]" style={{ color: "var(--color-danger)" }}>⚠</span>
-              <span className="leading-[1.6]">{r.description}</span>
+              <span className="leading-[1.6]"><HighlightText text={r.description} terms={matchedTerms} /></span>
               <Badge variant="muted">{r.category}</Badge>
             </li>
           ))}
         </ul>
       </Section>
 
-      <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={!!sectionStates["Proposed Features"]} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}>
-        <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" />
+      <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={effectiveOpen("Proposed Features")} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}
+        headerExtra={matchesBySection["Proposed Features"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Proposed Features"]} match{matchesBySection["Proposed Features"] > 1 ? "es" : ""}</span> : undefined}
+      >
+        <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} />
       </Section>
 
-      <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0} open={!!sectionStates["Additional Notes"]} onOpenChange={(o) => setSectionOpen("Additional Notes", o)}>
+      <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0} open={effectiveOpen("Additional Notes")} onOpenChange={(o) => setSectionOpen("Additional Notes", o)}
+        headerExtra={matchesBySection["Additional Notes"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Additional Notes"]} match{matchesBySection["Additional Notes"] > 1 ? "es" : ""}</span> : undefined}
+      >
         {artifact.additional_notes.map((note, i) => {
           const entries = Object.entries(note);
           const header = entries.find(([, v]) => typeof v === "string");
@@ -421,7 +446,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             <div key={i} className="flex flex-col gap-1">
               {header && (
                 <div className="font-medium text-secondary-foreground">
-                  {String(header[1])}
+                  <HighlightText text={String(header[1])} terms={matchedTerms} />
                 </div>
               )}
               {entries
@@ -431,7 +456,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                   return items.map((item, j) => (
                     <div key={`${k}-${j}`} className="flex gap-2.5 pl-2">
                       <span className="text-muted-foreground">•</span>
-                      <span>{String(item)}</span>
+                      <span><HighlightText text={String(item)} terms={matchedTerms} /></span>
                     </div>
                   ));
                 })}
@@ -443,7 +468,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -483,7 +508,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
         </div>
         <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (
-            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} />
+            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} searchQuery={searchQuery} />
           ) : artifactLoading ? (
             <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
               {[1, 2, 3].map((i) => (
@@ -598,7 +623,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
 
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (
