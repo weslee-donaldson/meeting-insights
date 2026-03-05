@@ -1130,7 +1130,7 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 470: `deepSearch` method in `api-client.ts` — POST fetch wrapper
 - [x] Burst 471: `--deepsearch` flag in CLI `query.ts` — LLM filter after vector search, display relevance summary + score
 - [x] Burst 472: Add `--color-search-deep` CSS variable to all 3 themes (orange values)
-- [ ] Burst 473: `useDeepSearch` React Query hook — fires after hybrid search, returns filtered results
+- [x] Burst 473: `useDeepSearch` React Query hook — fires after hybrid search, returns filtered results
 - [ ] Burst 474: Deep Search checkbox in `SearchBar` — default checked, toggles deep search feature
 - [ ] Burst 475: Wire deep search state in `App.tsx` — `deepSearchEnabled`, scores override `searchScores`, summaries + loading to MeetingList
 - [ ] Burst 476: MeetingList blocking overlay + orange border + relevance summary — semi-transparent overlay during loading, orange `borderLeft` + summary text when active
