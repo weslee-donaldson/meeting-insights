@@ -328,6 +328,24 @@ describe("App", () => {
     expect((input as HTMLInputElement).value).toBe("");
   });
 
+  it("shows error toast when deep search fails with LLM error", async () => {
+    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "Alpha Weekly", date: "2026-01-01" },
+    ]);
+    (window.api.deepSearch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("[api_error] credit balance too low"),
+    );
+    render(<App />, { wrapper });
+    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "test query" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => {
+      expect(screen.getByText(/Deep search failed/i)).toBeDefined();
+    });
+    expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
+    expect(screen.queryByText(/no relevant results/i)).toBeNull();
+  });
+
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
     (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });

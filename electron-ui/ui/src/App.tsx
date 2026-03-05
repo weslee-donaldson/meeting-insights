@@ -84,15 +84,22 @@ export function App() {
     [searchResults],
   );
 
-  const { data: deepSearchResults, isFetching: deepSearchFetching } = useDeepSearch(
+  const { data: deepSearchResults, isFetching: deepSearchFetching, isError: deepSearchError, error: deepSearchErrorObj } = useDeepSearch(
     hybridMeetingIds,
     searchQuery,
     deepSearchEnabled && searchQuery.trim().length >= 2 && !searchFetching,
   );
 
+  useEffect(() => {
+    if (deepSearchError && deepSearchErrorObj) {
+      const msg = (deepSearchErrorObj as Error).message.replace(/^\[api_error\]\s*/, "").replace(/^\[rate_limit\]\s*/, "");
+      addToast(`Deep search failed: ${msg}`, "error");
+    }
+  }, [deepSearchError, deepSearchErrorObj, addToast]);
+
   const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
   const deepSearchLoading = deepSearchEnabled && deepSearchFetching && searchQuery.trim().length >= 2;
-  const deepSearchEmpty = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length === 0 && searchQuery.trim().length >= 2 && !deepSearchFetching;
+  const deepSearchEmpty = deepSearchEnabled && !deepSearchError && !!deepSearchResults && deepSearchResults.length === 0 && searchQuery.trim().length >= 2 && !deepSearchFetching;
 
   const scopeMeetings = useMemo(() => {
     const all = meetingsQuery.data ?? [];
