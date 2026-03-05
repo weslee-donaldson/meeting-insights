@@ -2,6 +2,7 @@ import { embed } from "./embedder.js";
 import { searchMeetingsByVector } from "./vector-search.js";
 import { searchFeaturesByVector } from "./feature-embedding.js";
 import { searchSimilarItemsByVector } from "./item-dedup.js";
+import { searchFts } from "./fts.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
@@ -125,5 +126,45 @@ export async function hybridVectorSearch(
 
   results.sort((a, b) => a.score - b.score);
   log("query=%s results=%d", query, results.length);
+  return results;
+}
+
+export async function hybridSearch(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  query: string,
+  options: HybridSearchOptions,
+): Promise<SearchResult[]> {
+  const [vectorResults, ftsResults] = await Promise.all([
+    hybridVectorSearch(db, vdb, session, query, options),
+    Promise.resolve(searchFts(db, query, options.limit)),
+  ]);
+
+  const vectorRanked = vectorResults.map((r) => ({ meeting_id: r.meeting_id }));
+  const ftsRanked = ftsResults.map((r) => ({ meeting_id: r.meeting_id }));
+
+  const rrfScores = reciprocalRankFusion([vectorRanked, ftsRanked]);
+
+  const metaFromVector = new Map(vectorResults.map((r) => [r.meeting_id, r]));
+  const ftsOnlyIds = ftsResults
+    .map((r) => r.meeting_id)
+    .filter((id) => !metaFromVector.has(id));
+  const metaFromDb = enrichFromDb(db, ftsOnlyIds);
+
+  const results: SearchResult[] = [...rrfScores.keys()].map((id) => {
+    const vMeta = metaFromVector.get(id);
+    const dbMeta = metaFromDb.get(id);
+    return {
+      meeting_id: id,
+      score: rrfScores.get(id)!,
+      client: vMeta?.client ?? dbMeta?.client ?? "",
+      meeting_type: vMeta?.meeting_type ?? dbMeta?.meeting_type ?? "",
+      date: vMeta?.date ?? dbMeta?.date ?? "",
+    };
+  });
+
+  results.sort((a, b) => b.score - a.score);
+  log("hybrid query=%s results=%d", query, results.length);
   return results;
 }

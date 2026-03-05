@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion } from "../core/hybrid-search.js";
+import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion, hybridSearch } from "../core/hybrid-search.js";
+import { populateFts } from "../core/fts.js";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
@@ -125,6 +126,28 @@ beforeAll(async () => {
 
   const dlqVec = await embedItem(session, "Implement DLQ for failed webhook messages");
   await storeItemVector(itemTable, "can-dlq", "Implement DLQ for failed webhook messages", "action_items", opsMeetingId, "2026-01-15T10:00:00Z", dlqVec);
+
+  db.prepare("INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(
+    apiMeetingId,
+    "Discussion about REST API integration and billing",
+    JSON.stringify([{ text: "Use Recurly Commerce for billing integration" }]),
+    JSON.stringify(["OAuth2 SSO"]),
+    JSON.stringify([{ description: "Set up API keys for production" }]),
+    JSON.stringify(["Which auth provider to use?"]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+  );
+  db.prepare("INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(
+    opsMeetingId,
+    "Production monitoring review and alerting setup",
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([{ description: "Implement DLQ for failed webhook messages" }]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+    JSON.stringify([]),
+  );
+  populateFts(db);
 }, 30000);
 
 afterAll(() => {
@@ -156,6 +179,36 @@ describe("hybridVectorSearch", () => {
     const results = await hybridVectorSearch(db, vdb, session, "API authentication", { limit: 10 });
     for (let i = 1; i < results.length; i++) {
       expect(results[i].score).toBeGreaterThanOrEqual(results[i - 1].score);
+    }
+  });
+});
+
+describe("hybridSearch", () => {
+  it("finds meeting with DLQ via combined FTS keyword and vector search", async () => {
+    const results = await hybridSearch(db, vdb, session, "DLQ", { limit: 10 });
+    const opsResult = results.find((r) => r.meeting_id === opsMeetingId);
+    expect(opsResult).toBeDefined();
+    expect(opsResult!.score).toBeGreaterThan(0);
+  });
+
+  it("finds meeting with exact keyword Recurly via FTS", async () => {
+    const results = await hybridSearch(db, vdb, session, "Recurly Commerce", { limit: 10 });
+    const apiResult = results.find((r) => r.meeting_id === apiMeetingId);
+    expect(apiResult).toBeDefined();
+    expect(apiResult!.client).toBe("Acme");
+  });
+
+  it("returns results sorted by RRF score descending (best first)", async () => {
+    const results = await hybridSearch(db, vdb, session, "API authentication", { limit: 10 });
+    for (let i = 1; i < results.length; i++) {
+      expect(results[i].score).toBeLessThanOrEqual(results[i - 1].score);
+    }
+  });
+
+  it("enriches metadata for FTS-only results from SQLite", async () => {
+    const results = await hybridSearch(db, vdb, session, "Recurly Commerce billing", { limit: 10 });
+    for (const r of results) {
+      expect(r.date).not.toBe("");
     }
   });
 });
