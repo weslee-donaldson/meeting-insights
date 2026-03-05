@@ -79,6 +79,16 @@ describe("createLlmAdapter (local)", () => {
     await expect(adapter.complete("extract_artifact", "test")).rejects.toThrow(/^\[rate_limit\]/);
   });
 
+  it("parses JSON wrapped in markdown code fences", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      status: 200,
+      json: async () => ({ message: { content: '```json\n{"tags": ["api", "review"]}\n```' } }),
+    }));
+    const adapter = createLlmAdapter({ type: "local", baseUrl: "http://localhost:11434", model: "llama3.1:8b" });
+    const result = await adapter.complete("cluster_tags", "test");
+    expect(result).toEqual({ tags: ["api", "review"] });
+  });
+
   it("returns __fallback sentinel after two non-JSON responses (repair loop)", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       status: 200,

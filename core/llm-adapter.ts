@@ -60,9 +60,15 @@ interface LocalConfig {
   model: string;
 }
 
+function stripCodeFences(text: string): string {
+  const trimmed = text.trim();
+  const match = trimmed.match(/^```(?:json)?\s*\n([\s\S]*?)\n\s*```$/);
+  return match ? match[1].trim() : trimmed;
+}
+
 function parseJsonOrThrow(text: string): Record<string, unknown> {
   try {
-    return JSON.parse(text) as Record<string, unknown>;
+    return JSON.parse(stripCodeFences(text)) as Record<string, unknown>;
   } catch {
     throw new Error(`[json_parse] Response was not valid JSON: ${text.slice(0, 200)}`);
   }
