@@ -106,7 +106,7 @@ export function TopBar({
         aria-label="Before date"
       />
 
-      <div className="ml-auto">
+      <div className="flex-1 flex justify-center">
         <SearchBar
           query={searchQuery}
           onQueryChange={onSearchQueryChange}

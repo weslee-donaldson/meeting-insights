@@ -24,7 +24,7 @@ export function SearchBar({ query, onQueryChange, onSubmit, deepSearchEnabled, o
         onKeyDown={(e) => {
           if (e.key === "Enter") onSubmit(query.trim());
         }}
-        className="bg-transparent focus:outline-none text-sm w-44"
+        className="bg-transparent focus:outline-none text-sm w-66"
         style={{ color: "var(--color-text-primary)" }}
         aria-label="Search meetings"
       />
