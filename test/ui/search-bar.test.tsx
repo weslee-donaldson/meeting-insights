@@ -41,4 +41,27 @@ describe("SearchBar", () => {
     render(<SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} />);
     expect(screen.queryByRole("button", { name: /clear search/i })).toBeNull();
   });
+
+  it("renders Deep Search checkbox when onDeepSearchToggle is provided", () => {
+    render(
+      <SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} deepSearchEnabled={true} onDeepSearchToggle={vi.fn()} />,
+    );
+    const checkbox = screen.getByRole("checkbox", { name: /deep search/i });
+    expect(checkbox).toBeDefined();
+    expect((checkbox as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("toggling Deep Search checkbox fires onDeepSearchToggle", () => {
+    const onToggle = vi.fn();
+    render(
+      <SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} deepSearchEnabled={true} onDeepSearchToggle={onToggle} />,
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: /deep search/i }));
+    expect(onToggle).toHaveBeenCalledWith(false);
+  });
+
+  it("hides Deep Search checkbox when onDeepSearchToggle is not provided", () => {
+    render(<SearchBar query="" onQueryChange={vi.fn()} onSubmit={vi.fn()} />);
+    expect(screen.queryByRole("checkbox", { name: /deep search/i })).toBeNull();
+  });
 });
