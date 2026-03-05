@@ -87,6 +87,12 @@ describe("processNewMeetings", () => {
     expect(detections.n).toBeGreaterThanOrEqual(0);
   });
 
+  it("populates artifact_fts for each processed meeting", () => {
+    const meetings = db.prepare("SELECT id FROM meetings").all() as { id: string }[];
+    const ftsCount = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
+    expect(ftsCount).toBe(meetings.length);
+  });
+
   it("logs full pipeline summary via mtninsights:pipeline", async () => {
     const llm = createLlmAdapter({ type: "stub" });
     const newRaw = join(tmpdir(), `raw-log-test-${Date.now()}`);

@@ -12,7 +12,8 @@ import { ingestMeeting, getMeeting } from "../../core/ingest.js";
 import { storeDetection } from "../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../core/display-helpers.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
-import { hybridVectorSearch } from "../../core/hybrid-search.js";
+import { hybridSearch } from "../../core/hybrid-search.js";
+import { updateFts } from "../../core/fts.js";
 import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
@@ -246,6 +247,7 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
   storeArtifact(db, meetingId, artifact);
+  updateFts(db, meetingId);
 }
 
 export function handleSetIgnored(db: Database, meetingId: string, ignored: boolean): void {
@@ -265,6 +267,7 @@ export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, i
   for (const id of ids) cleanupMentions(db, id);
   db.prepare(`DELETE FROM action_item_completions WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
+  db.prepare(`DELETE FROM artifact_fts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
   if (vdb) {
@@ -295,7 +298,7 @@ export async function handleSearchMeetings(
   session: InferenceSession & { _tokenizer: unknown },
   req: SearchRequest,
 ): Promise<SearchResultRow[]> {
-  return hybridVectorSearch(db, vdb, session, req.query, {
+  return hybridSearch(db, vdb, session, req.query, {
     limit: SEARCH_LIMIT,
     client: req.client,
     maxDistance: SEARCH_MAX_DISTANCE,
@@ -416,6 +419,7 @@ export async function handleCreateMeeting(
   const clientContext = req.clientName ? clientContextForName(db, req.clientName) : undefined;
   const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   storeArtifact(db, meetingId, artifact);
+  updateFts(db, meetingId);
   return meetingId;
 }
 

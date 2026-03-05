@@ -11,6 +11,7 @@ import type { Participant } from "./client-registry.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
+import { updateFts } from "./fts.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "./vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -92,6 +93,7 @@ async function processEntry(
     ) : undefined;
     const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, clientContext);
     storeArtifact(db, meetingId, artifact);
+    updateFts(db, meetingId);
     await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp);
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     const client = topClient?.client_name ?? "";

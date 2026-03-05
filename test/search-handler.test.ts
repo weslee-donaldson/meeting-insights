@@ -13,10 +13,10 @@ const fakeResults: SearchResultRow[] = [
   { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "DSU", date: "2026-02-24" },
 ];
 
-const hybridVectorSearchMock = vi.fn().mockResolvedValue(fakeResults);
+const hybridSearchMock = vi.fn().mockResolvedValue(fakeResults);
 
 vi.mock("../core/hybrid-search.js", () => ({
-  hybridVectorSearch: hybridVectorSearchMock,
+  hybridSearch: hybridSearchMock,
 }));
 
 const { handleSearchMeetings } = await import("../electron-ui/electron/ipc-handlers.js");
@@ -26,7 +26,7 @@ const mockVdb = {} as VectorDb;
 const mockSession = {} as InferenceSession & { _tokenizer: unknown };
 
 describe("handleSearchMeetings", () => {
-  it("returns results from hybridVectorSearch", async () => {
+  it("returns results from hybridSearch", async () => {
     const result = await handleSearchMeetings(mockDb, mockVdb, mockSession, {
       query: "authentication",
       client: "Acme",
@@ -34,13 +34,13 @@ describe("handleSearchMeetings", () => {
     expect(result).toEqual(fakeResults);
   });
 
-  it("passes db, vdb, session, query and options to hybridVectorSearch", async () => {
-    hybridVectorSearchMock.mockClear();
+  it("passes db, vdb, session, query and options to hybridSearch", async () => {
+    hybridSearchMock.mockClear();
     await handleSearchMeetings(mockDb, mockVdb, mockSession, {
       query: "auth",
       client: "Acme",
     });
-    expect(hybridVectorSearchMock).toHaveBeenCalledWith(
+    expect(hybridSearchMock).toHaveBeenCalledWith(
       mockDb,
       mockVdb,
       mockSession,
@@ -50,9 +50,9 @@ describe("handleSearchMeetings", () => {
   });
 
   it("uses SEARCH_LIMIT from config regardless of request limit field", async () => {
-    hybridVectorSearchMock.mockClear();
+    hybridSearchMock.mockClear();
     await handleSearchMeetings(mockDb, mockVdb, mockSession, { query: "auth" });
-    expect(hybridVectorSearchMock).toHaveBeenCalledWith(
+    expect(hybridSearchMock).toHaveBeenCalledWith(
       mockDb,
       mockVdb,
       mockSession,
@@ -61,10 +61,10 @@ describe("handleSearchMeetings", () => {
     );
   });
 
-  it("passes maxDistance from config to hybridVectorSearch", async () => {
-    hybridVectorSearchMock.mockClear();
+  it("passes maxDistance from config to hybridSearch", async () => {
+    hybridSearchMock.mockClear();
     await handleSearchMeetings(mockDb, mockVdb, mockSession, { query: "auth" });
-    expect(hybridVectorSearchMock).toHaveBeenCalledWith(
+    expect(hybridSearchMock).toHaveBeenCalledWith(
       mockDb,
       mockVdb,
       mockSession,
