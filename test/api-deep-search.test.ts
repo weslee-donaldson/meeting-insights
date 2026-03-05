@@ -50,6 +50,41 @@ describe("POST /api/deep-search", () => {
     ]);
   });
 
+  it("returns 502 with error when all LLM evaluations fail", async () => {
+    const failDb = createDb(":memory:");
+    migrate(failDb);
+    const mid = ingestMeeting(failDb, {
+      title: "Test Meeting",
+      timestamp: "2026-03-05T10:00:00Z",
+      participants: [],
+      turns: [{ speaker_name: "Alice", timestamp: "10:00:00", text: "hello" }],
+      rawTranscript: "Alice | 10:00:00\nhello",
+      sourceFilename: "fail-test.txt",
+    });
+    storeArtifact(failDb, mid, {
+      summary: "Discussed Recurly.",
+      decisions: [],
+      proposed_features: [],
+      action_items: [],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+    });
+    const failLlm = {
+      async complete() { throw new Error("[api_error] credit balance too low"); },
+      async converse() { return ""; },
+    };
+    const failApp = createApp(failDb, ":memory:", failLlm);
+    const res = await failApp.request("/api/deep-search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meetingIds: [mid], query: "Recurly" }),
+    });
+    expect(res.status).toBe(502);
+    const body = await res.json() as { error: string };
+    expect(body).toEqual({ error: "[api_error] credit balance too low" });
+  });
+
   it("returns 503 when LLM is not configured", async () => {
     const db = createDb(":memory:");
     migrate(db);

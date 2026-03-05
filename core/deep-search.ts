@@ -74,7 +74,7 @@ export async function deepSearch(
       return result ? { type: "success", result } : { type: "not_relevant" };
     } catch (err) {
       log("deep-search error meeting=%s err=%s", id, String(err));
-      return { type: "error", message: String(err) };
+      return { type: "error", message: err instanceof Error ? err.message : String(err) };
     }
   }));
   const successes = outcomes.filter((o): o is { type: "success"; result: DeepSearchResult } => o.type === "success");

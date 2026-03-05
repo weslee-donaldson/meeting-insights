@@ -180,8 +180,12 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   app.post("/api/deep-search", async (c) => {
     if (!llm) return c.json({ error: "LLM not available" }, 503);
     const req = await c.req.json() as DeepSearchRequest;
-    const results = await handleDeepSearch(db, llm, req);
-    return c.json(results);
+    try {
+      const results = await handleDeepSearch(db, llm, req);
+      return c.json(results);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 502);
+    }
   });
 
   app.get("/api/search", async (c) => {
