@@ -109,6 +109,21 @@ describe("deepSearch", () => {
     ]);
   });
 
+  it("throws when all artifact-bearing meetings fail with LLM errors", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    seedMeeting(db, "m1", "DLQ Triage", ARTIFACT);
+    seedMeeting(db, "m2", "Sprint Planning", ARTIFACT);
+
+    const spyLlm: LlmAdapter = {
+      async complete() { throw new Error("[api_error] credit balance too low"); },
+      async converse() { return ""; },
+    };
+
+    await expect(deepSearch(spyLlm, db, ["m1", "m2"], "DLQ issue", PROMPT))
+      .rejects.toThrow("[api_error] credit balance too low");
+  });
+
   it("excludes meetings where LLM throws without killing the batch", async () => {
     const db = createDb(":memory:");
     migrate(db);
