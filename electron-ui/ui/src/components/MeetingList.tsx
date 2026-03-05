@@ -337,7 +337,7 @@ export function MeetingList({
                       </div>
                     )}
                     {deepSummary && (
-                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{deepSummary}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{deepSummary}</div>
                     )}
                   </div>
                   {newMeetingIds?.has(m.id) && (
