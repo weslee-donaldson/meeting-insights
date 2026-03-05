@@ -284,6 +284,36 @@ describe("ChatPanel", () => {
     expect((screen.getByRole("combobox", { name: "Output template" }) as HTMLSelectElement).value).toBe("");
   });
 
+  it("history clears when template selection changes", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "Ticket answer.", sources: [], charCount: 0 });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} templates={["jira-ticket", "jira-epic"]} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Ticket answer."), { timeout: 2000 });
+    fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-epic" } });
+    expect(screen.queryByText("Ticket answer.")).toBeNull();
+  });
+
+  it("user bubble has break-words class for word wrapping", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "test" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByTestId("user-bubble"), { timeout: 2000 });
+    expect(screen.getByTestId("user-bubble").className).toContain("break-words");
+  });
+
+  it("send and attach buttons are vertically centered to input", () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />);
+    const sendButton = screen.getByLabelText("Send");
+    const buttonColumn = sendButton.closest("div.flex.flex-col")!;
+    expect(buttonColumn.className).toContain("self-center");
+    expect(buttonColumn.className).not.toContain("self-end");
+  });
+
   it("history clears when activeMeetingIds changes", async () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "Old answer.", sources: [], charCount: 0 });
     const { rerender } = render(

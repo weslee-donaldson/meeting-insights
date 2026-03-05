@@ -70,6 +70,10 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
     setSelectedTemplate("");
   }, [meetingKey]);
 
+  useEffect(() => {
+    setMessages([]);
+  }, [selectedTemplate]);
+
   const submit = useCallback(async () => {
     const q = input.trim();
     if (!q || loading) return;
@@ -194,7 +198,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
             <div
               key={i}
               data-testid="user-bubble"
-              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto"
+              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto break-words"
             >
               <div className="chat-markdown">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
@@ -327,7 +331,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates }: Ch
               </label>
             </div>
           </div>
-          <div className="flex flex-col gap-1 self-end">
+          <div className="flex flex-col gap-1 self-center">
             <label className="cursor-pointer flex items-center justify-center w-8 h-8 rounded-md hover:bg-secondary text-muted-foreground">
               <input
                 ref={fileInputRef}
