@@ -72,6 +72,13 @@ describe("buildEmbeddingInput", () => {
     expect(input).toContain("Discussed API integration approach");
     expect(input).not.toContain("Architecture");
   });
+
+  it("includes action item descriptions, open questions, and risk item descriptions", () => {
+    const input = buildEmbeddingInput(artifact);
+    expect(input).toContain("Draft API spec");
+    expect(input).toContain("Which OAuth provider?");
+    expect(input).toContain("Third party dependency");
+  });
 });
 
 describe("embedMeeting", () => {

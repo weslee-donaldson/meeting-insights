@@ -33,6 +33,9 @@ export function buildEmbeddingInput(artifact: Artifact): string {
     artifact.summary,
     ...artifact.proposed_features,
     ...artifact.decisions.map((d) => d.text),
+    ...artifact.action_items.map((a) => a.description),
+    ...artifact.open_questions,
+    ...artifact.risk_items.map((r) => typeof r === "string" ? r : r.description),
   ];
   const notes = canonicalizeNotes(artifact.additional_notes ?? []);
   if (notes) parts.push(notes);
