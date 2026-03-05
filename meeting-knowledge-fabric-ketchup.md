@@ -1103,9 +1103,9 @@ Internal meetings (xolv.io / xolvio.com participants only) return no client matc
 - [x] Burst 446: Template directive injection — instead of clearing chat history on template change, inject strong directive in system prompt telling LLM to follow ONLY current template; revert useEffect clear (commit: `57a4092`)
 - [x] Burst 447: Expand `buildEmbeddingInput` — include action_items, open_questions, risk_items in meeting embedding text for richer semantic search (commit: `192f4f8`)
 - [x] Burst 448: Extract `searchMeetingsByVector` — accept pre-computed Float32Array, `searchMeetings` delegates to it; avoids redundant embed calls in hybrid search (commit: `cd9eb0f`)
-- [ ] Burst 449: Extract `searchFeaturesByVector` + `searchSimilarItemsByVector` — vector-accepting variants for feature and item search; `searchFeatures` and `searchSimilarItems` delegate to them
-- [ ] Burst 450: `mergeSearchResults` pure function — merge `{ meeting_id, score }[]` arrays, pick min score per meeting_id
-- [ ] Burst 451: `hybridVectorSearch` orchestrator — single embed, search 3 tables in parallel, merge, enrich metadata from SQLite
+- [x] Burst 449: Extract `searchFeaturesByVector` + `searchSimilarItemsByVector` — vector-accepting variants for feature and item search; `searchFeatures` and `searchSimilarItems` delegate to them (commit: `01cc8d5`)
+- [x] Burst 450: `mergeSearchResults` pure function — merge `{ meeting_id, score }[]` arrays, pick min score per meeting_id (commit: `c630977`)
+- [x] Burst 451: `hybridVectorSearch` orchestrator — single embed, search 3 tables in parallel, merge, enrich metadata from SQLite
 - [ ] Burst 452: Wire `hybridVectorSearch` into `handleSearchMeetings` — handler gains `db` param
 - [ ] Burst 453: FTS5 table migration — `CREATE VIRTUAL TABLE artifact_fts USING fts5(...)` in `migrate()`
 - [ ] Burst 454: `populateFts` + `updateFts` — build/rebuild FTS content from artifact fields
