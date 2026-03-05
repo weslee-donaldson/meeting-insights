@@ -221,6 +221,18 @@ Runs a hybrid search combining multi-table vector search with FTS5 keyword match
 
 Does not call Claude or any external API. Requires the ONNX model files.
 
+### Deep search (LLM-filtered results)
+
+```bash
+pnpm query --search --deepsearch "DLQ dead letter queue" --client=LLSA
+```
+
+Runs hybrid search first, then sends each result's summary and action items to the LLM individually. The LLM evaluates whether each meeting is genuinely relevant to the query and assigns a 0-100 relevance score. Only meetings where the LLM confirms relevance are shown, each with a 1-2 sentence evidence summary.
+
+The evaluation prompt is loaded from `config/prompts/deep-search.md`. It uses two-axis scoring: **specificity** (how directly the content addresses the query) and **breadth** (what proportion of the meeting is about the topic). Each LLM call receives only one meeting's small artifact (~300-500 tokens), keeping costs manageable.
+
+Requires `ANTHROPIC_API_KEY` in `.env.local`.
+
 ### Ask a question (full Q&A)
 
 ```bash
@@ -366,7 +378,7 @@ The scope bar at the top of the window controls the global filter state:
 
 - **Client dropdown** — filters meetings by client assignment. Selecting a client also constrains semantic searches to that client.
 - **From / to date pickers** — narrow the meetings list to a date window.
-- **Search field** — runs a live hybrid search as you type, combining multi-table vector search with FTS5 keyword matching. Supports natural language queries ("when did we discuss billing") and exact keyword/acronym matches ("DLQ", "Recurly"). Results appear in a dropdown; selecting a result pins those meetings into the active selection and clears the date/client scope.
+- **Search field** — runs a live hybrid search as you type, combining multi-table vector search with FTS5 keyword matching. Supports natural language queries ("when did we discuss billing") and exact keyword/acronym matches ("DLQ", "Recurly"). Results appear in a dropdown; selecting a result pins those meetings into the active selection and clears the date/client scope. When **Deep Search** is enabled (checkbox next to the search input, on by default), hybrid results are further filtered by the LLM — each meeting's artifact is evaluated for genuine relevance. Matching meetings display an orange left border and a 1-2 sentence evidence summary. The LLM evaluation prompt can be customized in `config/prompts/deep-search.md`.
 - **Reset button** — clears all filters and selections, returning to the full unfiltered view.
 - **Theme button** — cycles through available themes (Deep Sea, Daylight, Midnight).
 
@@ -397,6 +409,7 @@ The embedded HTTP API server runs alongside the Electron app and is also accessi
 | `GET` | `/api/meetings/:id/artifact` | Structured artifact for a single meeting |
 | `POST` | `/api/chat` | Natural-language Q&A (body: `{ meetingIds, question }`) |
 | `GET` | `/api/search` | Hybrid search — vector + FTS5 keyword (params: `?q=&client=&limit=`) |
+| `POST` | `/api/deep-search` | LLM-filtered search (body: `{ meetingIds, query }`) — returns 503 if no LLM configured |
 
 ### Diagnostic endpoint
 
