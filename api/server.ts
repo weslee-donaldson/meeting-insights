@@ -9,11 +9,11 @@ import {
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
-  handleGetTemplates, handleCreateMeeting,
+  handleGetTemplates, handleCreateMeeting, handleDeepSearch,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
-import type { CreateMeetingRequest } from "../electron-ui/electron/channels.js";
+import type { CreateMeetingRequest, DeepSearchRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -175,6 +175,13 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     } catch (err) {
       return c.json({ error: (err as Error).message }, 404);
     }
+  });
+
+  app.post("/api/deep-search", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
+    const req = await c.req.json() as DeepSearchRequest;
+    const results = await handleDeepSearch(db, llm, req);
+    return c.json(results);
   });
 
   app.get("/api/search", async (c) => {
