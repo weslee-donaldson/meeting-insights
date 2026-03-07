@@ -48,6 +48,13 @@ describe("CreateThreadDialog", () => {
     });
   });
 
+  it("cancel button calls onClose", () => {
+    const onClose = vi.fn();
+    render(<CreateThreadDialog open onClose={onClose} onSubmit={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it("edit mode pre-fills form fields and shows Save button", () => {
     render(
       <CreateThreadDialog

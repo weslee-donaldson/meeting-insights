@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 
 interface ThreadFormData {
@@ -52,7 +52,7 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
             <span>Title</span>
             <input
               aria-label="Title"
-              className="border border-border rounded px-2 py-1 bg-background text-foreground"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -61,7 +61,7 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
             <span>Shorthand</span>
             <input
               aria-label="Shorthand"
-              className="border border-border rounded px-2 py-1 bg-background text-foreground"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
               value={shorthand}
               maxLength={10}
               onChange={(e) => setShorthand(e.target.value.slice(0, 10))}
@@ -71,7 +71,7 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
             <span>Description</span>
             <textarea
               aria-label="Description"
-              className="border border-border rounded px-2 py-1 bg-background text-foreground min-h-[60px]"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[80px]"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -80,13 +80,15 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
             <span>Criteria Prompt</span>
             <textarea
               aria-label="Criteria Prompt"
-              className="border border-border rounded px-2 py-1 bg-background text-foreground min-h-[60px]"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[80px]"
               value={criteriaPrompt}
               onChange={(e) => setCriteriaPrompt(e.target.value)}
             />
           </label>
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
             <Button disabled={!canSubmit} onClick={handleSubmit}>
               {isEdit ? "Save" : "Create"}
             </Button>
