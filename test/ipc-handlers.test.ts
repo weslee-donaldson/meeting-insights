@@ -4,6 +4,7 @@ import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
+import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
 import {
   handleGetClients,
   handleGetMeetings,
@@ -700,6 +701,37 @@ describe("IPC handlers", () => {
       handleDeleteThread(db, thread.id);
       const list = handleListThreads(db, "Acme");
       expect(list.find((t) => t.id === thread.id)).toBeUndefined();
+    });
+  });
+
+  describe("meeting deletion marks thread messages stale", () => {
+    it("deleting a meeting marks associated thread messages as context_stale", async () => {
+      const staleDb = createDb(":memory:");
+      migrate(staleDb);
+      staleDb.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+      const mId = ingestMeeting(staleDb, {
+        title: "Stale Test Meeting",
+        timestamp: "2026-03-05T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "",
+        turns: [],
+        sourceFilename: "stale-test",
+      });
+      const thread = createThread(staleDb, { client_name: "Acme", title: "Stale Thread", shorthand: "STALE", description: "", criteria_prompt: "" });
+      addThreadMeeting(staleDb, { thread_id: thread.id, meeting_id: mId, relevance_summary: "related", relevance_score: 80 });
+      appendThreadMessage(staleDb, { thread_id: thread.id, role: "user", content: "Question?" });
+      appendThreadMessage(staleDb, { thread_id: thread.id, role: "assistant", content: "Answer." });
+
+      await handleDeleteMeetings(staleDb, null, [mId]);
+
+      const messages = getThreadMessages(staleDb, thread.id);
+      expect(messages.length).toBe(2);
+      expect(messages[0].context_stale).toBe(true);
+      expect(messages[1].context_stale).toBe(true);
+      expect(JSON.parse(messages[0].stale_details!)).toEqual([{ id: mId, title: "Stale Test Meeting" }]);
+
+      const associations = staleDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(thread.id) as unknown[];
+      expect(associations.length).toBe(0);
     });
   });
 

@@ -20,7 +20,7 @@ import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, ThreadChatResponse } from "./channels.js";
-import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread } from "../../core/threads.js";
+import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread, markThreadMessagesStale } from "../../core/threads.js";
 import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
@@ -264,6 +264,15 @@ export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, i
   db.prepare(`DELETE FROM client_detections WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifact_fts WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM artifacts WHERE meeting_id IN (${placeholders})`).run(...ids);
+  // Mark thread messages stale before removing associations
+  for (const id of ids) {
+    const threadRows = db.prepare('SELECT DISTINCT thread_id FROM thread_meetings WHERE meeting_id = ?').all(id) as { thread_id: string }[];
+    const meeting = db.prepare('SELECT title FROM meetings WHERE id = ?').get(id) as { title: string } | undefined;
+    for (const row of threadRows) {
+      markThreadMessagesStale(db, row.thread_id, [{ id, title: meeting?.title ?? '' }]);
+    }
+  }
+  db.prepare(`DELETE FROM thread_meetings WHERE meeting_id IN (${placeholders})`).run(...ids);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
   if (vdb) {
     const filter = ids.map((id) => `meeting_id = '${id.replace(/'/g, "''")}'`).join(" OR ");
