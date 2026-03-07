@@ -484,6 +484,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
   }, [selectedThreadId, selectedClient, queryClient]);
 
+  const handleResolveThread = useCallback(async (status: "open" | "resolved") => {
+    if (!selectedThreadId) return;
+    await window.api.updateThread(selectedThreadId, { status });
+    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+  }, [selectedThreadId, selectedClient, queryClient]);
+
   const handleFindCandidates = useCallback(async () => {
     if (!selectedThreadId) return;
     const result = await window.api.getThreadCandidates(selectedThreadId);
@@ -617,6 +623,7 @@ export function App() {
         onRegenerateSummary={handleRegenerateThreadSummary}
         onMeetingClick={setSelectedMeetingId}
         onEvaluateCandidates={handleEvaluateCandidates}
+        onResolve={handleResolveThread}
       />,
     ] : []),
   ];

@@ -204,6 +204,44 @@ describe("ThreadDetailView", () => {
     expect(onEvaluate).toHaveBeenCalledWith(["c1"], true);
   });
 
+  it("resolve button fires onResolve with resolved status for open thread", () => {
+    const onResolve = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread({ status: "open" })}
+        meetings={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onResolve={onResolve}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /resolve/i }));
+    expect(onResolve).toHaveBeenCalledWith("resolved");
+  });
+
+  it("reopen button fires onResolve with open status for resolved thread", () => {
+    const onResolve = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread({ status: "resolved" })}
+        meetings={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onResolve={onResolve}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /reopen/i }));
+    expect(onResolve).toHaveBeenCalledWith("open");
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];

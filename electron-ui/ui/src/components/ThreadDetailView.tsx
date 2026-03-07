@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
-import { Search, RefreshCw, Pencil, Trash2 } from "lucide-react";
+import { Search, RefreshCw, Pencil, Trash2, Check, RotateCcw } from "lucide-react";
 import type { Thread, ThreadMeeting } from "../../../../core/threads.js";
 
 interface ThreadCandidate {
@@ -23,6 +23,7 @@ interface ThreadDetailViewProps {
   onRegenerateSummary: (meetingIds?: string[]) => void;
   onMeetingClick: (meetingId: string) => void;
   onEvaluateCandidates?: (meetingIds: string[], overrideExisting: boolean) => void;
+  onResolve?: (status: "open" | "resolved") => void;
 }
 
 export function ThreadDetailView({
@@ -36,6 +37,7 @@ export function ThreadDetailView({
   onRegenerateSummary,
   onMeetingClick,
   onEvaluateCandidates,
+  onResolve,
 }: ThreadDetailViewProps) {
   const sorted = [...meetings].sort((a, b) => b.relevance_score - a.relevance_score);
   const maxEvaluatedAt = meetings.length > 0
@@ -67,6 +69,17 @@ export function ThreadDetailView({
         <Button size="sm" variant="ghost" onClick={onDelete} aria-label="Delete">
           <Trash2 className="w-4 h-4" />
         </Button>
+        {onResolve && (
+          thread.status === "open" ? (
+            <Button size="sm" variant="ghost" onClick={() => onResolve("resolved")} aria-label="Resolve">
+              <Check className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button size="sm" variant="ghost" onClick={() => onResolve("open")} aria-label="Reopen">
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+          )
+        )}
       </div>
 
       {criteriaStale && (
