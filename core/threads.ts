@@ -92,6 +92,50 @@ export function getThread(db: Database, id: string): Thread | null {
   return row ? rowToThread(row) : null;
 }
 
+export interface UpdateThreadInput {
+  title?: string;
+  shorthand?: string;
+  description?: string;
+  status?: "open" | "resolved";
+  summary?: string;
+  criteria_prompt?: string;
+}
+
+export function updateThread(db: Database, id: string, input: UpdateThreadInput): Thread {
+  const current = db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow;
+  const now = new Date().toISOString();
+  const criteriaChanged = input.criteria_prompt !== undefined && input.criteria_prompt !== current.criteria_prompt;
+  db.prepare(`
+    UPDATE threads SET
+      title = ?,
+      shorthand = ?,
+      description = ?,
+      status = ?,
+      summary = ?,
+      criteria_prompt = ?,
+      criteria_changed_at = ?,
+      updated_at = ?
+    WHERE id = ?
+  `).run(
+    input.title ?? current.title,
+    input.shorthand ?? current.shorthand,
+    input.description ?? current.description,
+    input.status ?? current.status,
+    input.summary ?? current.summary,
+    input.criteria_prompt ?? current.criteria_prompt,
+    criteriaChanged ? now : current.criteria_changed_at,
+    now,
+    id,
+  );
+  return rowToThread(db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow);
+}
+
+export function deleteThread(db: Database, id: string): void {
+  db.prepare("DELETE FROM thread_messages WHERE thread_id = ?").run(id);
+  db.prepare("DELETE FROM thread_meetings WHERE thread_id = ?").run(id);
+  db.prepare("DELETE FROM threads WHERE id = ?").run(id);
+}
+
 export function listThreadsByClient(db: Database, clientName: string): Thread[] {
   const rows = db.prepare(`
     SELECT t.*, COUNT(tm.meeting_id) AS meeting_count
