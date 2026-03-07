@@ -1,0 +1,98 @@
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
+import { Button } from "./ui/button.js";
+
+interface ThreadFormData {
+  title: string;
+  shorthand: string;
+  description: string;
+  criteria_prompt: string;
+}
+
+interface CreateThreadDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: ThreadFormData) => void;
+  thread?: ThreadFormData;
+}
+
+export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateThreadDialogProps) {
+  const [title, setTitle] = useState("");
+  const [shorthand, setShorthand] = useState("");
+  const [description, setDescription] = useState("");
+  const [criteriaPrompt, setCriteriaPrompt] = useState("");
+
+  useEffect(() => {
+    if (thread) {
+      setTitle(thread.title);
+      setShorthand(thread.shorthand);
+      setDescription(thread.description);
+      setCriteriaPrompt(thread.criteria_prompt);
+    } else {
+      setTitle("");
+      setShorthand("");
+      setDescription("");
+      setCriteriaPrompt("");
+    }
+  }, [thread, open]);
+
+  const isEdit = !!thread;
+  const canSubmit = title.trim().length > 0 && shorthand.trim().length > 0;
+
+  function handleSubmit() {
+    onSubmit({ title, shorthand, description, criteria_prompt: criteriaPrompt });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>{isEdit ? "Edit Thread" : "Create Thread"}</DialogTitle>
+        <div className="flex flex-col gap-3 mt-2">
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Title</span>
+            <input
+              aria-label="Title"
+              className="border border-border rounded px-2 py-1 bg-background text-foreground"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Shorthand</span>
+            <input
+              aria-label="Shorthand"
+              className="border border-border rounded px-2 py-1 bg-background text-foreground"
+              value={shorthand}
+              maxLength={10}
+              onChange={(e) => setShorthand(e.target.value.slice(0, 10))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Description</span>
+            <textarea
+              aria-label="Description"
+              className="border border-border rounded px-2 py-1 bg-background text-foreground min-h-[60px]"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Criteria Prompt</span>
+            <textarea
+              aria-label="Criteria Prompt"
+              className="border border-border rounded px-2 py-1 bg-background text-foreground min-h-[60px]"
+              value={criteriaPrompt}
+              onChange={(e) => setCriteriaPrompt(e.target.value)}
+            />
+          </label>
+          <div className="flex justify-end gap-2 mt-2">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button disabled={!canSubmit} onClick={handleSubmit}>
+              {isEdit ? "Save" : "Create"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
