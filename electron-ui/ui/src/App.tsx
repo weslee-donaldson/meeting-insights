@@ -17,6 +17,10 @@ import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
 import { Button } from "./components/ui/button.js";
 import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
+import { ThreadsView } from "./components/ThreadsView.js";
+import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
+import { ThreadDetailView } from "./components/ThreadDetailView.js";
+import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
 
 interface DateRange {
   after: string;
@@ -43,6 +47,10 @@ export function App() {
   const [newMeetingOpen, setNewMeetingOpen] = useState(false);
   const [newMeetingIds, setNewMeetingIds] = useState<Set<string>>(new Set());
   const [deepSearchEnabled, setDeepSearchEnabled] = useState(true);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [editThreadOpen, setEditThreadOpen] = useState(false);
+  const [createThreadOpen, setCreateThreadOpen] = useState(false);
+  const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -196,6 +204,28 @@ export function App() {
     queryFn: () => window.api.getClientActionItems(selectedClient!),
     enabled: currentView === "action-items" && !!selectedClient,
   });
+
+  const threadsQuery = useQuery<Thread[]>({
+    queryKey: ["threads", selectedClient],
+    queryFn: () => window.api.listThreads(selectedClient!),
+    enabled: currentView === "threads" && !!selectedClient,
+  });
+
+  const threadMeetingsQuery = useQuery<ThreadMeeting[]>({
+    queryKey: ["threadMeetings", selectedThreadId],
+    queryFn: () => window.api.getThreadMeetings(selectedThreadId!),
+    enabled: !!selectedThreadId,
+  });
+
+  const threadMessagesQuery = useQuery<ThreadMessage[]>({
+    queryKey: ["threadMessages", selectedThreadId],
+    queryFn: () => window.api.getThreadMessages(selectedThreadId!),
+    enabled: !!selectedThreadId,
+  });
+
+  const selectedThread = useMemo(() => {
+    return threadsQuery.data?.find((t) => t.id === selectedThreadId) ?? null;
+  }, [threadsQuery.data, selectedThreadId]);
 
   const isMultiMode = checkedMeetingIds.size >= 2;
 
@@ -411,7 +441,7 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [selectedMeetingId, queryClient]);
 
-  const handleNavigate = useCallback((view: "meetings" | "action-items") => {
+  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads") => {
     setCurrentView(view);
     setTypedSearchQuery("");
     setSearchQuery("");
@@ -432,6 +462,69 @@ export function App() {
     },
     [activeMeetingIds],
   );
+
+  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
+    if (!selectedClient) return;
+    await window.api.createThread({ ...data, client_name: selectedClient });
+    setCreateThreadOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+  }, [selectedClient, queryClient]);
+
+  const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
+    if (!selectedThreadId) return;
+    await window.api.updateThread(selectedThreadId, data);
+    setEditThreadOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+  }, [selectedThreadId, selectedClient, queryClient]);
+
+  const handleDeleteThread = useCallback(async () => {
+    if (!selectedThreadId) return;
+    await window.api.deleteThread(selectedThreadId);
+    setSelectedThreadId(null);
+    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+  }, [selectedThreadId, selectedClient, queryClient]);
+
+  const handleFindCandidates = useCallback(async () => {
+    if (!selectedThreadId) return;
+    const result = await window.api.getThreadCandidates(selectedThreadId);
+    setThreadCandidates(result);
+  }, [selectedThreadId]);
+
+  const handleEvaluateCandidates = useCallback(async (meetingIds: string[], overrideExisting: boolean) => {
+    if (!selectedThreadId) return;
+    await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
+    setThreadCandidates([]);
+    queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+  }, [selectedThreadId, queryClient]);
+
+  const handleRemoveThreadMeeting = useCallback(async (meetingId: string) => {
+    if (!selectedThreadId) return;
+    await window.api.removeThreadMeeting(selectedThreadId, meetingId);
+    queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+  }, [selectedThreadId, queryClient]);
+
+  const handleRegenerateThreadSummary = useCallback(async (meetingIds?: string[]) => {
+    if (!selectedThreadId) return;
+    await window.api.regenerateThreadSummary(selectedThreadId, meetingIds);
+    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+  }, [selectedThreadId, selectedClient, queryClient]);
+
+  const handleThreadSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+    if (!selectedThreadId) return;
+    await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts });
+    queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+  }, [selectedThreadId, queryClient]);
+
+  const handleClearThreadMessages = useCallback(async () => {
+    if (!selectedThreadId) return;
+    await window.api.clearThreadMessages(selectedThreadId);
+    queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+  }, [selectedThreadId, queryClient]);
+
+  const handleThreadClick = useCallback((threadId: string) => {
+    setCurrentView("threads");
+    setSelectedThreadId(threadId);
+  }, []);
 
   const meetingsViewPanels = [
     <MeetingList
@@ -502,8 +595,30 @@ export function App() {
     ] : []),
   ];
 
-  const threadsViewPanels = [
-    <div key="threads-placeholder" className="flex items-center justify-center h-full text-muted-foreground">Threads</div>,
+  const threadsViewPanels: React.ReactNode[] = [
+    <ThreadsView
+      key="threads-list"
+      threads={threadsQuery.data ?? []}
+      clientName={selectedClient ?? "All"}
+      onSelectThread={setSelectedThreadId}
+      onCreateThread={() => setCreateThreadOpen(true)}
+      selectedThreadId={selectedThreadId}
+    />,
+    ...(selectedThread ? [
+      <ThreadDetailView
+        key="thread-detail"
+        thread={selectedThread}
+        meetings={threadMeetingsQuery.data ?? []}
+        candidates={threadCandidates.length > 0 ? threadCandidates : undefined}
+        onEdit={() => setEditThreadOpen(true)}
+        onDelete={handleDeleteThread}
+        onFindCandidates={handleFindCandidates}
+        onRemoveMeeting={handleRemoveThreadMeeting}
+        onRegenerateSummary={handleRegenerateThreadSummary}
+        onMeetingClick={setSelectedMeetingId}
+        onEvaluateCandidates={handleEvaluateCandidates}
+      />,
+    ] : []),
   ];
 
   const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : threadsViewPanels;
@@ -533,12 +648,23 @@ export function App() {
       navRail={<NavRail currentView={currentView} onNavigate={handleNavigate} />}
       panels={panels}
       chat={
-        <ChatPanel
-          activeMeetingIds={activeMeetingIds}
-          charCount={charCount}
-          onChat={handleChat}
-          templates={templatesQuery.data ?? []}
-        />
+        currentView === "threads" && selectedThreadId ? (
+          <ChatPanel
+            activeMeetingIds={[]}
+            charCount={0}
+            onChat={handleChat}
+            persistedMessages={threadMessagesQuery.data ?? []}
+            onSendMessage={handleThreadSendMessage}
+            onClearMessages={handleClearThreadMessages}
+          />
+        ) : (
+          <ChatPanel
+            activeMeetingIds={activeMeetingIds}
+            charCount={charCount}
+            onChat={handleChat}
+            templates={templatesQuery.data ?? []}
+          />
+        )
       }
     />
     <ToastContainer toasts={toasts} onDismiss={removeToast} />
@@ -568,6 +694,19 @@ export function App() {
         </div>
       </DialogContent>
     </Dialog>
+    <CreateThreadDialog
+      open={createThreadOpen}
+      onOpenChange={setCreateThreadOpen}
+      onSubmit={handleCreateThread}
+    />
+    {selectedThread && (
+      <CreateThreadDialog
+        open={editThreadOpen}
+        onOpenChange={setEditThreadOpen}
+        onSubmit={handleUpdateThread}
+        thread={selectedThread}
+      />
+    )}
     </>
   );
 }

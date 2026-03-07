@@ -57,6 +57,19 @@ beforeAll(() => {
     reEmbedMeeting: vi.fn().mockResolvedValue(undefined),
     createMeeting: vi.fn().mockResolvedValue({ meetingId: "new-meeting-123" }),
     deepSearch: vi.fn().mockResolvedValue([]),
+    listThreads: vi.fn().mockResolvedValue([]),
+    createThread: vi.fn().mockResolvedValue({ id: "t1", client_name: "Acme", title: "Test", shorthand: "TEST", description: "", status: "open", summary: "", criteria_prompt: "", criteria_changed_at: "2026-01-01", created_at: "2026-01-01", updated_at: "2026-01-01" }),
+    updateThread: vi.fn().mockResolvedValue({ id: "t1", client_name: "Acme", title: "Updated", shorthand: "TEST", description: "", status: "open", summary: "", criteria_prompt: "", criteria_changed_at: "2026-01-01", created_at: "2026-01-01", updated_at: "2026-01-01" }),
+    deleteThread: vi.fn().mockResolvedValue(undefined),
+    getThreadMeetings: vi.fn().mockResolvedValue([]),
+    getThreadCandidates: vi.fn().mockResolvedValue([]),
+    evaluateThreadCandidates: vi.fn().mockResolvedValue({ added: 0, updated: 0 }),
+    removeThreadMeeting: vi.fn().mockResolvedValue(undefined),
+    regenerateThreadSummary: vi.fn().mockResolvedValue({ summary: "" }),
+    getThreadMessages: vi.fn().mockResolvedValue([]),
+    threadChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
+    clearThreadMessages: vi.fn().mockResolvedValue(undefined),
+    getMeetingThreads: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -344,6 +357,14 @@ describe("App", () => {
     });
     expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
     expect(screen.queryByText(/no relevant results/i)).toBeNull();
+  });
+
+  it("clicking Threads nav renders ThreadsView with client header", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Threads"));
+    await waitFor(() => expect(screen.getByText("Acme Threads")).toBeDefined());
+    expect(window.api.listThreads).toHaveBeenCalled();
   });
 
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
