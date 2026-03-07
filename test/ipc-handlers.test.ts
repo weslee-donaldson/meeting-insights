@@ -519,7 +519,7 @@ describe("IPC handlers", () => {
   describe("handleGetTemplates", () => {
     it("returns sorted list of template names from chat-templates directory", () => {
       const templates = handleGetTemplates();
-      expect(templates).toEqual(["jira-epic", "jira-ticket"]);
+      expect(templates).toEqual(["jira-epic", "jira-ticket", "thread-discovery"]);
     });
   });
 
