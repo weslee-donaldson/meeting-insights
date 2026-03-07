@@ -136,6 +136,58 @@ export function deleteThread(db: Database, id: string): void {
   db.prepare("DELETE FROM threads WHERE id = ?").run(id);
 }
 
+export interface AddThreadMeetingInput {
+  thread_id: string;
+  meeting_id: string;
+  relevance_summary: string;
+  relevance_score: number;
+}
+
+export function addThreadMeeting(db: Database, input: AddThreadMeetingInput): void {
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO thread_meetings (thread_id, meeting_id, relevance_summary, relevance_score, evaluated_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(thread_id, meeting_id) DO UPDATE SET
+      relevance_summary = excluded.relevance_summary,
+      relevance_score = excluded.relevance_score,
+      evaluated_at = excluded.evaluated_at
+  `).run(input.thread_id, input.meeting_id, input.relevance_summary, input.relevance_score, now);
+}
+
+export function removeThreadMeeting(db: Database, threadId: string, meetingId: string): void {
+  db.prepare("DELETE FROM thread_meetings WHERE thread_id = ? AND meeting_id = ?").run(threadId, meetingId);
+}
+
+interface ThreadMeetingRow {
+  thread_id: string;
+  meeting_id: string;
+  relevance_summary: string;
+  relevance_score: number;
+  evaluated_at: string;
+  meeting_title: string;
+  meeting_date: string;
+}
+
+export function getThreadMeetings(db: Database, threadId: string): ThreadMeeting[] {
+  const rows = db.prepare(`
+    SELECT tm.*, m.title AS meeting_title, m.date AS meeting_date
+    FROM thread_meetings tm
+    JOIN meetings m ON tm.meeting_id = m.id
+    WHERE tm.thread_id = ?
+    ORDER BY tm.relevance_score DESC
+  `).all(threadId) as ThreadMeetingRow[];
+  return rows.map((r) => ({
+    thread_id: r.thread_id,
+    meeting_id: r.meeting_id,
+    meeting_title: r.meeting_title,
+    meeting_date: r.meeting_date,
+    relevance_summary: r.relevance_summary,
+    relevance_score: r.relevance_score,
+    evaluated_at: r.evaluated_at,
+  }));
+}
+
 export function listThreadsByClient(db: Database, clientName: string): Thread[] {
   const rows = db.prepare(`
     SELECT t.*, COUNT(tm.meeting_id) AS meeting_count
