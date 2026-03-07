@@ -46,6 +46,9 @@ import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact } from "./extractor.js";
 import type { LlmAdapter } from "./llm-adapter.js";
+import { embed } from "./embedder.js";
+import type { InferenceSession } from "onnxruntime-node";
+import type { VectorDb } from "./vector-db.js";
 
 interface ThreadRow {
   id: string;
@@ -308,4 +311,36 @@ export function listThreadsByClient(db: Database, clientName: string): Thread[] 
     ORDER BY t.created_at DESC
   `).all(clientName) as ThreadRow[];
   return rows.map(rowToThread);
+}
+
+interface MeetingTitleRow { id: string; title: string; date: string; }
+
+export async function getThreadCandidates(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  thread: Thread,
+  clientName: string,
+  topN: number = 20,
+): Promise<Array<{ meeting_id: string; title: string; date: string; similarity: number }>> {
+  const query = [thread.title, thread.description, thread.criteria_prompt].filter(Boolean).join(" ");
+  const vec = await embed(session as Parameters<typeof embed>[0], query);
+  const table = await vdb.openTable("meeting_vectors");
+  const rows = await table
+    .search(Array.from(vec))
+    .limit(topN)
+    .where(`client = '${clientName.replace(/'/g, "''")}'`)
+    .toArray() as Array<Record<string, unknown>>;
+  const meetingRows = db.prepare("SELECT id, title, date FROM meetings WHERE id IN (" + rows.map(() => "?").join(",") + ")")
+    .all(...rows.map((r) => r.meeting_id as string)) as MeetingTitleRow[];
+  const titleMap = new Map(meetingRows.map((m) => [m.id, { title: m.title, date: m.date }]));
+  return rows.map((r) => {
+    const meta = titleMap.get(r.meeting_id as string);
+    return {
+      meeting_id: r.meeting_id as string,
+      title: meta?.title ?? "",
+      date: meta?.date ?? "",
+      similarity: 1 - (r._distance as number),
+    };
+  });
 }
