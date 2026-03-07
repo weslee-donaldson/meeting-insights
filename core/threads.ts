@@ -396,3 +396,47 @@ export async function getThreadCandidates(
     };
   });
 }
+
+export async function getThreadChatContext(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  threadId: string,
+  userMessage: string,
+  includeTranscripts: boolean,
+  topK: number = 7,
+): Promise<{ systemContext: string; meetingIds: string[] }> {
+  const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as ThreadRow;
+  const associated = getThreadMeetings(db, threadId);
+  if (associated.length === 0) {
+    const parts = [`Thread: ${thread.title}`];
+    if (thread.description) parts.push(`Description: ${thread.description}`);
+    if (thread.summary) parts.push(`Summary: ${thread.summary}`);
+    return { systemContext: parts.join("\n"), meetingIds: [] };
+  }
+  const vec = await embed(session as Parameters<typeof embed>[0], userMessage);
+  const associatedIds = associated.map((m) => m.meeting_id);
+  const idList = associatedIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(",");
+  const table = await vdb.openTable("meeting_vectors");
+  const rows = await table
+    .search(Array.from(vec))
+    .limit(topK)
+    .where(`meeting_id IN (${idList})`)
+    .toArray() as Array<Record<string, unknown>>;
+  const selectedIds = rows.map((r) => r.meeting_id as string);
+  const parts: string[] = [`Thread: ${thread.title}`];
+  if (thread.description) parts.push(`Description: ${thread.description}`);
+  if (thread.summary) parts.push(`Summary: ${thread.summary}`);
+  if (selectedIds.length > 0) {
+    parts.push("\nRelevant Meetings:");
+    for (const id of selectedIds) {
+      const art = getArtifact(db, id);
+      const meta = associated.find((m) => m.meeting_id === id);
+      if (art && meta) {
+        const content = includeTranscripts ? buildMeetingContextFromArtifact(art) : `Summary: ${art.summary}`;
+        parts.push(`- ${meta.meeting_title} (${meta.meeting_date}):\n  ${content.replace(/\n/g, "\n  ")}`);
+      }
+    }
+  }
+  return { systemContext: parts.join("\n"), meetingIds: selectedIds };
+}
