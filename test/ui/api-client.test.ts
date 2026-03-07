@@ -177,4 +177,111 @@ describe("apiClient", () => {
       expect.objectContaining({ method: "POST" }),
     );
   });
+
+  it("listThreads fetches /api/threads with client query param", async () => {
+    const spy = mockFetch([{ id: "t1", title: "Deployment issues" }]);
+    expect(await apiClient.listThreads("Acme")).toEqual([{ id: "t1", title: "Deployment issues" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/threads?client=Acme");
+  });
+
+  it("createThread posts to /api/threads and returns thread", async () => {
+    const spy = mockFetch({ id: "t1", title: "New thread" });
+    const result = await apiClient.createThread({ client_name: "Acme", title: "New thread", shorthand: "NT", description: "", criteria_prompt: "" });
+    expect(result).toEqual({ id: "t1", title: "New thread" });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("updateThread puts to /api/threads/:id and returns updated thread", async () => {
+    const spy = mockFetch({ id: "t1", title: "Updated" });
+    const result = await apiClient.updateThread("t1", { title: "Updated" });
+    expect(result).toEqual({ id: "t1", title: "Updated" });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1",
+      expect.objectContaining({ method: "PUT" }),
+    );
+  });
+
+  it("deleteThread deletes /api/threads/:id", async () => {
+    const spy = mockFetch({});
+    await apiClient.deleteThread("t1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("getThreadMeetings fetches /api/threads/:id/meetings", async () => {
+    const spy = mockFetch([{ meeting_id: "m1", relevance_score: 90 }]);
+    expect(await apiClient.getThreadMeetings("t1")).toEqual([{ meeting_id: "m1", relevance_score: 90 }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/threads/t1/meetings");
+  });
+
+  it("getThreadCandidates fetches /api/threads/:id/candidates", async () => {
+    const spy = mockFetch(["m1", "m2"]);
+    expect(await apiClient.getThreadCandidates("t1")).toEqual(["m1", "m2"]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/threads/t1/candidates");
+  });
+
+  it("evaluateThreadCandidates posts to /api/threads/:id/evaluate", async () => {
+    const spy = mockFetch({ added: 2, updated: 0 });
+    const result = await apiClient.evaluateThreadCandidates("t1", ["m1", "m2"], false);
+    expect(result).toEqual({ added: 2, updated: 0 });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/evaluate",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("removeThreadMeeting deletes /api/threads/:threadId/meetings/:meetingId", async () => {
+    const spy = mockFetch({});
+    await apiClient.removeThreadMeeting("t1", "m1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/meetings/m1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("regenerateThreadSummary posts to /api/threads/:id/regenerate-summary", async () => {
+    const spy = mockFetch({ summary: "Stub summary." });
+    const result = await apiClient.regenerateThreadSummary("t1");
+    expect(result).toEqual({ summary: "Stub summary." });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/regenerate-summary",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("getThreadMessages fetches /api/threads/:id/messages", async () => {
+    const spy = mockFetch([{ id: "msg1", role: "user", content: "Hello" }]);
+    expect(await apiClient.getThreadMessages("t1")).toEqual([{ id: "msg1", role: "user", content: "Hello" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/threads/t1/messages");
+  });
+
+  it("threadChat posts to /api/threads/:id/chat and returns answer", async () => {
+    const spy = mockFetch({ answer: "Stub answer.", sources: ["m1"] });
+    const result = await apiClient.threadChat({ threadId: "t1", message: "What happened?" });
+    expect(result).toEqual({ answer: "Stub answer.", sources: ["m1"] });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/chat",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("clearThreadMessages deletes /api/threads/:id/messages", async () => {
+    const spy = mockFetch({});
+    await apiClient.clearThreadMessages("t1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/messages",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("getMeetingThreads fetches /api/meetings/:id/threads", async () => {
+    const spy = mockFetch([{ id: "t1", title: "Deployment issues" }]);
+    expect(await apiClient.getMeetingThreads("m1")).toEqual([{ id: "t1", title: "Deployment issues" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/meetings/m1/threads");
+  });
 });

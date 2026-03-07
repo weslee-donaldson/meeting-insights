@@ -1,4 +1,4 @@
-import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest, CreateMeetingRequest, DeepSearchRequest } from "../../electron/channels.js";
+import type { ElectronAPI, MeetingFilters, ChatRequest, ConversationChatRequest, SearchRequest, CreateMeetingRequest, DeepSearchRequest , CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest} from "../../electron/channels.js";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE || "http://localhost:3000";
 
@@ -141,4 +141,63 @@ export const apiClient: ElectronAPI = {
       }
       return r.json();
     }),
+  listThreads: (clientName: string) =>
+    fetch(`${API_BASE}/api/threads?client=${encodeURIComponent(clientName)}`).then((r) => r.json()),
+
+  createThread: (req: CreateThreadRequest) =>
+    fetch(`${API_BASE}/api/threads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }).then((r) => r.json()),
+
+  updateThread: (threadId: string, req: UpdateThreadRequest) =>
+    fetch(`${API_BASE}/api/threads/${threadId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    }).then((r) => r.json()),
+
+  deleteThread: (threadId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}`, { method: 'DELETE' }).then((r) => r.json()),
+
+  getThreadMeetings: (threadId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/meetings`).then((r) => r.json()),
+
+  getThreadCandidates: (threadId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/candidates`).then((r) => r.json()),
+
+  evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meetingIds, overrideExisting }),
+    }).then((r) => r.json()),
+
+  removeThreadMeeting: (threadId: string, meetingId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`, { method: 'DELETE' }).then((r) => r.json()),
+
+  regenerateThreadSummary: (threadId: string, meetingIds?: string[]) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/regenerate-summary`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meetingIds }),
+    }).then((r) => r.json()),
+
+  getThreadMessages: (threadId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/messages`).then((r) => r.json()),
+
+  threadChat: (req: ThreadChatRequest) =>
+    fetch(`${API_BASE}/api/threads/${req.threadId}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: req.message, includeTranscripts: req.includeTranscripts }),
+    }).then((r) => r.json()),
+
+  clearThreadMessages: (threadId: string) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/messages`, { method: 'DELETE' }).then((r) => r.json()),
+
+  getMeetingThreads: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/threads`).then((r) => r.json()),
+
 };

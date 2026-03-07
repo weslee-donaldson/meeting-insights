@@ -35,6 +35,19 @@ const api: ElectronAPI = {
   getTemplates: () => ipcRenderer.invoke(CHANNELS.GET_TEMPLATES),
   createMeeting: (req: CreateMeetingRequest) => ipcRenderer.invoke(CHANNELS.CREATE_MEETING, req),
   deepSearch: (req: DeepSearchRequest) => ipcRenderer.invoke(CHANNELS.DEEP_SEARCH, req),
+  listThreads: (clientName: string) => ipcRenderer.invoke(CHANNELS.LIST_THREADS, clientName),
+  createThread: (req: CreateThreadRequest) => ipcRenderer.invoke(CHANNELS.CREATE_THREAD, req),
+  updateThread: (threadId: string, req: UpdateThreadRequest) => ipcRenderer.invoke(CHANNELS.UPDATE_THREAD, threadId, req),
+  deleteThread: (threadId: string) => ipcRenderer.invoke(CHANNELS.DELETE_THREAD, threadId),
+  getThreadMeetings: (threadId: string) => ipcRenderer.invoke(CHANNELS.GET_THREAD_MEETINGS, threadId),
+  getThreadCandidates: (threadId: string) => ipcRenderer.invoke(CHANNELS.GET_THREAD_CANDIDATES, threadId),
+  evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) => ipcRenderer.invoke(CHANNELS.EVALUATE_THREAD_CANDIDATES, threadId, meetingIds, overrideExisting),
+  removeThreadMeeting: (threadId: string, meetingId: string) => ipcRenderer.invoke(CHANNELS.REMOVE_THREAD_MEETING, threadId, meetingId),
+  regenerateThreadSummary: (threadId: string, meetingIds?: string[]) => ipcRenderer.invoke(CHANNELS.REGENERATE_THREAD_SUMMARY, threadId, meetingIds),
+  getThreadMessages: (threadId: string) => ipcRenderer.invoke(CHANNELS.GET_THREAD_MESSAGES, threadId),
+  threadChat: (req: ThreadChatRequest) => ipcRenderer.invoke(CHANNELS.THREAD_CHAT, req),
+  clearThreadMessages: (threadId: string) => ipcRenderer.invoke(CHANNELS.CLEAR_THREAD_MESSAGES, threadId),
+  getMeetingThreads: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MEETING_THREADS, meetingId),
 };
 
 contextBridge.exposeInMainWorld("api", api);

@@ -25,6 +25,18 @@ import {
   handleUpdateMeetingVector,
   handleCreateMeeting,
   handleDeepSearch,
+  handleListThreads,
+  handleCreateThread,
+  handleUpdateThread,
+  handleDeleteThread,
+  handleGetThreadMeetings,
+  handleEvaluateThreadCandidates,
+  handleRemoveThreadMeeting,
+  handleRegenerateThreadSummary,
+  handleGetThreadMessages,
+  handleThreadChat,
+  handleClearThreadMessages,
+  handleGetMeetingThreads,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { populateFts } from "../../../core/fts.js";
@@ -125,6 +137,17 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_TEMPLATES, () => handleGetTemplates());
   ipcMain.handle(CHANNELS.CREATE_MEETING, (_e, req) => handleCreateMeeting(db, llm, req).then((meetingId) => ({ meetingId })));
   ipcMain.handle(CHANNELS.DEEP_SEARCH, (_e, req) => handleDeepSearch(db, llm, req));
+  ipcMain.handle(CHANNELS.LIST_THREADS, (_e, clientName: string) => handleListThreads(db, clientName));
+  ipcMain.handle(CHANNELS.CREATE_THREAD, (_e, req) => handleCreateThread(db, req));
+  ipcMain.handle(CHANNELS.UPDATE_THREAD, (_e, threadId: string, req) => handleUpdateThread(db, threadId, req));
+  ipcMain.handle(CHANNELS.DELETE_THREAD, (_e, threadId: string) => handleDeleteThread(db, threadId));
+  ipcMain.handle(CHANNELS.GET_THREAD_MEETINGS, (_e, threadId: string) => handleGetThreadMeetings(db, threadId));
+  ipcMain.handle(CHANNELS.EVALUATE_THREAD_CANDIDATES, (_e, threadId: string, meetingIds: string[], overrideExisting: boolean) => handleEvaluateThreadCandidates(db, llm, threadId, meetingIds, overrideExisting));
+  ipcMain.handle(CHANNELS.REMOVE_THREAD_MEETING, (_e, threadId: string, meetingId: string) => handleRemoveThreadMeeting(db, threadId, meetingId));
+  ipcMain.handle(CHANNELS.REGENERATE_THREAD_SUMMARY, (_e, threadId: string, meetingIds?: string[]) => handleRegenerateThreadSummary(db, llm, threadId, meetingIds));
+  ipcMain.handle(CHANNELS.GET_THREAD_MESSAGES, (_e, threadId: string) => handleGetThreadMessages(db, threadId));
+  ipcMain.handle(CHANNELS.CLEAR_THREAD_MESSAGES, (_e, threadId: string) => handleClearThreadMessages(db, threadId));
+  ipcMain.handle(CHANNELS.GET_MEETING_THREADS, (_e, meetingId: string) => handleGetMeetingThreads(db, meetingId));
 
   createWindow();
 
