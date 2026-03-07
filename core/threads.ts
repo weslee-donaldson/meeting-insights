@@ -10,6 +10,7 @@ export interface Thread {
   criteria_changed_at: string;
   created_at: string;
   updated_at: string;
+  meeting_count?: number;
 }
 
 export interface ThreadMeeting {
@@ -31,4 +32,74 @@ export interface ThreadMessage {
   context_stale: boolean;
   stale_details: string | null;
   created_at: string;
+}
+
+export interface CreateThreadInput {
+  client_name: string;
+  title: string;
+  shorthand: string;
+  description: string;
+  criteria_prompt: string;
+}
+
+import { randomUUID } from "node:crypto";
+import type { DatabaseSync as Database } from "node:sqlite";
+
+interface ThreadRow {
+  id: string;
+  client_name: string;
+  title: string;
+  shorthand: string;
+  description: string;
+  status: string;
+  summary: string;
+  criteria_prompt: string;
+  criteria_changed_at: string;
+  created_at: string;
+  updated_at: string;
+  meeting_count?: number;
+}
+
+function rowToThread(row: ThreadRow): Thread {
+  return {
+    id: row.id,
+    client_name: row.client_name,
+    title: row.title,
+    shorthand: row.shorthand,
+    description: row.description,
+    status: row.status as "open" | "resolved",
+    summary: row.summary,
+    criteria_prompt: row.criteria_prompt,
+    criteria_changed_at: row.criteria_changed_at,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    ...(row.meeting_count !== undefined ? { meeting_count: row.meeting_count } : {}),
+  };
+}
+
+export function createThread(db: Database, input: CreateThreadInput): Thread {
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO threads (id, client_name, title, shorthand, description, status, summary, criteria_prompt, criteria_changed_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?)
+  `).run(id, input.client_name, input.title, input.shorthand, input.description, input.criteria_prompt, now, now, now);
+  return rowToThread(db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow);
+}
+
+export function getThread(db: Database, id: string): Thread | null {
+  const row = db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow | undefined;
+  return row ? rowToThread(row) : null;
+}
+
+export function listThreadsByClient(db: Database, clientName: string): Thread[] {
+  const rows = db.prepare(`
+    SELECT t.*, COUNT(tm.meeting_id) AS meeting_count
+    FROM threads t
+    LEFT JOIN thread_meetings tm ON t.id = tm.thread_id
+    WHERE t.client_name = ?
+    GROUP BY t.id
+    ORDER BY t.created_at DESC
+  `).all(clientName) as ThreadRow[];
+  return rows.map(rowToThread);
 }
