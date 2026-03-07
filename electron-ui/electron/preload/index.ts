@@ -43,6 +43,7 @@ const api: ElectronAPI = {
   getThreadCandidates: (threadId: string) => ipcRenderer.invoke(CHANNELS.GET_THREAD_CANDIDATES, threadId),
   evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) => ipcRenderer.invoke(CHANNELS.EVALUATE_THREAD_CANDIDATES, threadId, meetingIds, overrideExisting),
   removeThreadMeeting: (threadId: string, meetingId: string) => ipcRenderer.invoke(CHANNELS.REMOVE_THREAD_MEETING, threadId, meetingId),
+  addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) => ipcRenderer.invoke(CHANNELS.ADD_THREAD_MEETING, threadId, meetingId, summary, score),
   regenerateThreadSummary: (threadId: string, meetingIds?: string[]) => ipcRenderer.invoke(CHANNELS.REGENERATE_THREAD_SUMMARY, threadId, meetingIds),
   getThreadMessages: (threadId: string) => ipcRenderer.invoke(CHANNELS.GET_THREAD_MESSAGES, threadId),
   threadChat: (req: ThreadChatRequest) => ipcRenderer.invoke(CHANNELS.THREAD_CHAT, req),

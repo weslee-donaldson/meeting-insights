@@ -31,7 +31,7 @@ import {
   handleDeleteThread,
   handleGetThreadMeetings,
   handleEvaluateThreadCandidates,
-  handleRemoveThreadMeeting,
+  handleRemoveThreadMeeting, handleAddThreadMeeting,
   handleRegenerateThreadSummary,
   handleGetThreadMessages,
   handleThreadChat,
@@ -144,6 +144,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_THREAD_MEETINGS, (_e, threadId: string) => handleGetThreadMeetings(db, threadId));
   ipcMain.handle(CHANNELS.EVALUATE_THREAD_CANDIDATES, (_e, threadId: string, meetingIds: string[], overrideExisting: boolean) => handleEvaluateThreadCandidates(db, llm, threadId, meetingIds, overrideExisting));
   ipcMain.handle(CHANNELS.REMOVE_THREAD_MEETING, (_e, threadId: string, meetingId: string) => handleRemoveThreadMeeting(db, threadId, meetingId));
+  ipcMain.handle(CHANNELS.ADD_THREAD_MEETING, (_e, threadId: string, meetingId: string, summary: string, score: number) => handleAddThreadMeeting(db, threadId, meetingId, summary, score));
   ipcMain.handle(CHANNELS.REGENERATE_THREAD_SUMMARY, (_e, threadId: string, meetingIds?: string[]) => handleRegenerateThreadSummary(db, llm, threadId, meetingIds));
   ipcMain.handle(CHANNELS.GET_THREAD_MESSAGES, (_e, threadId: string) => handleGetThreadMessages(db, threadId));
   ipcMain.handle(CHANNELS.CLEAR_THREAD_MESSAGES, (_e, threadId: string) => handleClearThreadMessages(db, threadId));

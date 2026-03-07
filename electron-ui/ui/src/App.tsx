@@ -51,6 +51,7 @@ export function App() {
   const [editThreadOpen, setEditThreadOpen] = useState(false);
   const [createThreadOpen, setCreateThreadOpen] = useState(false);
   const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
+  const [threadInitialDescription, setThreadInitialDescription] = useState("");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -463,12 +464,23 @@ export function App() {
     [activeMeetingIds],
   );
 
+  const handleSaveAsThread = useCallback((content: string) => {
+    setThreadInitialDescription(content);
+    setCreateThreadOpen(true);
+  }, []);
+
   const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
     if (!selectedClient) return;
-    await window.api.createThread({ ...data, client_name: selectedClient });
+    const thread = await window.api.createThread({ ...data, client_name: selectedClient });
     setCreateThreadOpen(false);
+    setThreadInitialDescription("");
+    if (activeMeetingIds.length > 0) {
+      for (const meetingId of activeMeetingIds) {
+        await window.api.addThreadMeeting(thread.id, meetingId, "Linked from chat", 100);
+      }
+    }
     queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedClient, queryClient]);
+  }, [selectedClient, activeMeetingIds, queryClient]);
 
   const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
     if (!selectedThreadId) return;
@@ -670,6 +682,7 @@ export function App() {
             charCount={charCount}
             onChat={handleChat}
             templates={templatesQuery.data ?? []}
+            onSaveAsThread={selectedClient ? handleSaveAsThread : undefined}
           />
         )
       }
@@ -705,6 +718,7 @@ export function App() {
       open={createThreadOpen}
       onOpenChange={setCreateThreadOpen}
       onSubmit={handleCreateThread}
+      initialDescription={threadInitialDescription}
     />
     {selectedThread && (
       <CreateThreadDialog

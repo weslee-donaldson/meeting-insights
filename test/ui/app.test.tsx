@@ -65,6 +65,7 @@ beforeAll(() => {
     getThreadCandidates: vi.fn().mockResolvedValue([]),
     evaluateThreadCandidates: vi.fn().mockResolvedValue({ added: 0, updated: 0 }),
     removeThreadMeeting: vi.fn().mockResolvedValue(undefined),
+    addThreadMeeting: vi.fn().mockResolvedValue(undefined),
     regenerateThreadSummary: vi.fn().mockResolvedValue({ summary: "" }),
     getThreadMessages: vi.fn().mockResolvedValue([]),
     threadChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),

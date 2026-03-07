@@ -177,6 +177,13 @@ export const apiClient: ElectronAPI = {
   removeThreadMeeting: (threadId: string, meetingId: string) =>
     fetch(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`, { method: 'DELETE' }).then((r) => r.json()),
 
+  addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) =>
+    fetch(`${API_BASE}/api/threads/${threadId}/meetings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meetingId, summary, score }),
+    }).then((r) => r.json()),
+
   regenerateThreadSummary: (threadId: string, meetingIds?: string[]) =>
     fetch(`${API_BASE}/api/threads/${threadId}/regenerate-summary`, {
       method: 'POST',

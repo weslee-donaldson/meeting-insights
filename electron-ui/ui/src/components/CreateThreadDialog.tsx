@@ -11,12 +11,13 @@ interface ThreadFormData {
 
 interface CreateThreadDialogProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   onSubmit: (data: ThreadFormData) => void;
   thread?: ThreadFormData;
+  initialDescription?: string;
 }
 
-export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateThreadDialogProps) {
+export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initialDescription }: CreateThreadDialogProps) {
   const [title, setTitle] = useState("");
   const [shorthand, setShorthand] = useState("");
   const [description, setDescription] = useState("");
@@ -31,10 +32,10 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
     } else {
       setTitle("");
       setShorthand("");
-      setDescription("");
+      setDescription(initialDescription ?? "");
       setCriteriaPrompt("");
     }
-  }, [thread, open]);
+  }, [thread, open, initialDescription]);
 
   const isEdit = !!thread;
   const canSubmit = title.trim().length > 0 && shorthand.trim().length > 0;
@@ -44,7 +45,7 @@ export function CreateThreadDialog({ open, onClose, onSubmit, thread }: CreateTh
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>{isEdit ? "Edit Thread" : "Create Thread"}</DialogTitle>
         <div className="flex flex-col gap-3 mt-2">

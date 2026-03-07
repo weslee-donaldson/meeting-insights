@@ -20,7 +20,7 @@ import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, ThreadChatResponse } from "./channels.js";
-import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread, markThreadMessagesStale } from "../../core/threads.js";
+import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread, markThreadMessagesStale } from "../../core/threads.js";
 import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
@@ -499,6 +499,10 @@ export async function handleEvaluateThreadCandidates(
 
 export function handleRemoveThreadMeeting(db: Database, threadId: string, meetingId: string): void {
   removeThreadMeeting(db, threadId, meetingId);
+}
+
+export function handleAddThreadMeeting(db: Database, threadId: string, meetingId: string, summary: string, score: number): void {
+  coreAddThreadMeeting(db, { thread_id: threadId, meeting_id: meetingId, relevance_summary: summary, relevance_score: score });
 }
 
 export async function handleRegenerateThreadSummary(db: Database, llm: LlmAdapter, threadId: string, meetingIds?: string[]) {

@@ -5,8 +5,8 @@ import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResul
 describe("CHANNELS", () => {
   it("should have 33 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(33);
-    expect(new Set(values).size).toBe(33);
+    expect(values).toHaveLength(34);
+    expect(new Set(values).size).toBe(34);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);

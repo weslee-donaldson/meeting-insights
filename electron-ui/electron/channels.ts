@@ -31,6 +31,7 @@ export const CHANNELS = {
   GET_THREAD_MESSAGES: "get-thread-messages",
   THREAD_CHAT: "thread-chat",
   CLEAR_THREAD_MESSAGES: "clear-thread-messages",
+  ADD_THREAD_MEETING: "add-thread-meeting",
   GET_MEETING_THREADS: "get-meeting-threads",
 } as const;
 
@@ -221,5 +222,6 @@ export interface ElectronAPI {
   getThreadMessages: (threadId: string) => Promise<import("../../core/threads.js").ThreadMessage[]>;
   threadChat: (req: ThreadChatRequest) => Promise<ThreadChatResponse>;
   clearThreadMessages: (threadId: string) => Promise<void>;
+  addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) => Promise<void>;
   getMeetingThreads: (meetingId: string) => Promise<Array<{ thread_id: string; title: string; shorthand: string }>>;
 }

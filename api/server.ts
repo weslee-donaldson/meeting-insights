@@ -12,7 +12,7 @@ import {
   handleGetTemplates, handleCreateMeeting, handleDeepSearch,
   handleListThreads, handleCreateThread, handleUpdateThread, handleDeleteThread,
   handleGetThreadMeetings, handleGetThreadCandidates, handleEvaluateThreadCandidates,
-  handleRemoveThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
+  handleRemoveThreadMeeting, handleAddThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
   handleThreadChat, handleClearThreadMessages, handleGetMeetingThreads,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
@@ -268,6 +268,12 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.delete('/api/threads/:threadId/meetings/:meetingId', (c) => {
     handleRemoveThreadMeeting(db, c.req.param('threadId'), c.req.param('meetingId'));
+    return c.json({ ok: true });
+  });
+
+  app.post('/api/threads/:threadId/meetings', async (c) => {
+    const body = await c.req.json() as { meetingId: string; summary: string; score: number };
+    handleAddThreadMeeting(db, c.req.param('threadId'), body.meetingId, body.summary, body.score);
     return c.json({ ok: true });
   });
 

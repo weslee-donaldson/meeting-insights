@@ -244,6 +244,15 @@ describe("apiClient", () => {
     );
   });
 
+  it("addThreadMeeting posts to /api/threads/:threadId/meetings", async () => {
+    const spy = mockFetch({});
+    await apiClient.addThreadMeeting("t1", "m1", "Linked from chat", 100);
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/threads/t1/meetings",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
   it("regenerateThreadSummary posts to /api/threads/:id/regenerate-summary", async () => {
     const spy = mockFetch({ summary: "Stub summary." });
     const result = await apiClient.regenerateThreadSummary("t1");
