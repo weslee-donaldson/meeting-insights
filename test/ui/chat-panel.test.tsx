@@ -404,6 +404,48 @@ describe("ChatPanel", () => {
     expect(screen.getByText(/source meetings have changed/i)).toBeDefined();
   });
 
+  it("Save as Thread button appears on assistant bubbles when onSaveAsThread provided", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "Thread-worthy insight", sources: [], charCount: 0 });
+    const onSave = vi.fn();
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} onSaveAsThread={onSave} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Thread-worthy insight"), { timeout: 2000 });
+    const btn = screen.getByRole("button", { name: "Save as Thread" });
+    fireEvent.click(btn);
+    expect(onSave).toHaveBeenCalledWith("Thread-worthy insight");
+  });
+
+  it("Save as Thread button does not appear when onSaveAsThread is not provided", async () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "Regular answer", sources: [], charCount: 0 });
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Regular answer"), { timeout: 2000 });
+    expect(screen.queryByRole("button", { name: "Save as Thread" })).toBeNull();
+  });
+
+  it("Save as Thread button does not appear in persisted mode", () => {
+    const persisted: ThreadMessage[] = [
+      { id: "msg1", thread_id: "t1", role: "assistant", content: "Thread response", sources: null, context_stale: false, stale_details: null, created_at: "2026-03-01T10:00:00.000Z" },
+    ];
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        persistedMessages={persisted}
+        onSendMessage={vi.fn()}
+        onSaveAsThread={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Save as Thread" })).toBeNull();
+  });
+
   it("history clears when activeMeetingIds changes", async () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "Old answer.", sources: [], charCount: 0 });
     const { rerender } = render(

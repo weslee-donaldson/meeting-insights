@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import TurndownService from "turndown";
-import { Send, Clipboard, Paperclip, X, FileText, Code, Trash2 } from "lucide-react";
+import { Send, Clipboard, Paperclip, X, FileText, Code, Trash2, Bookmark } from "lucide-react";
 import { Button } from "./ui/button.js";
 import type { ConversationMessage, ConversationChatResponse } from "../../../electron/channels.js";
 import type { ThreadMessage } from "../../../../core/threads.js";
@@ -50,13 +50,14 @@ interface ChatPanelProps {
   persistedMessages?: ThreadMessage[];
   onSendMessage?: (message: string, includeTranscripts: boolean) => void;
   onClearMessages?: () => void;
+  onSaveAsThread?: (content: string) => void;
 }
 
 function toDisplayName(stem: string): string {
   return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages }: ChatPanelProps) {
+export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread }: ChatPanelProps) {
   const isPersisted = persistedMessages !== undefined;
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<InternalMessage[]>([]);
@@ -287,6 +288,18 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                   <FileText className="w-[10px] h-[10px]" />
                   Copy as Rich Text
                 </Button>
+                {onSaveAsThread && !isPersisted && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSaveAsThread(msg.content)}
+                    aria-label="Save as Thread"
+                    className="h-auto px-1 py-0.5 text-[0.65rem] text-muted-foreground"
+                  >
+                    <Bookmark className="w-[10px] h-[10px]" />
+                    Save as Thread
+                  </Button>
+                )}
               </div>
             </div>
           ),
