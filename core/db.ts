@@ -84,6 +84,44 @@ export function migrate(db: DatabaseSync): void {
       content,
       tokenize='porter unicode61'
     );
+
+    CREATE TABLE IF NOT EXISTS threads (
+      id TEXT PRIMARY KEY,
+      client_name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      shorthand TEXT DEFAULT '',
+      description TEXT DEFAULT '',
+      status TEXT DEFAULT 'open',
+      summary TEXT DEFAULT '',
+      criteria_prompt TEXT DEFAULT '',
+      criteria_changed_at TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (client_name) REFERENCES clients(name)
+    );
+
+    CREATE TABLE IF NOT EXISTS thread_meetings (
+      thread_id TEXT NOT NULL,
+      meeting_id TEXT NOT NULL,
+      relevance_summary TEXT DEFAULT '',
+      relevance_score REAL DEFAULT 0,
+      evaluated_at TEXT NOT NULL,
+      PRIMARY KEY (thread_id, meeting_id),
+      FOREIGN KEY (thread_id) REFERENCES threads(id),
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS thread_messages (
+      id TEXT PRIMARY KEY,
+      thread_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sources TEXT,
+      context_stale INTEGER DEFAULT 0,
+      stale_details TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (thread_id) REFERENCES threads(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];

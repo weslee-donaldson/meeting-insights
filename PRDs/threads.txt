@@ -1,0 +1,467 @@
+Threads: Cross-Meeting Client-Scoped Issue Tracking
+Context
+Common issues recur across multiple meetings within a client (e.g., "PR Deployments broken", "Production outages"). Currently there's no way to track these cross-meeting concerns. Users must manually scan meeting summaries to piece together the story.
+
+Threads let users create named, client-scoped tracking items with a criteria prompt for LLM evaluation. Meetings are evaluated against threads using a two-step flow: embedding + FTS candidate preview → user-confirmed LLM classification. A dedicated nav view shows threads, their associated meetings (grouped/selectable, ordered by relevance), an LLM-generated summary (manually regenerated from selected meetings), and a persisted chat interface scoped to the thread context. Meetings display thread tags for cross-feature discoverability.
+
+Design Decisions
+Per-client scoped — each thread belongs to one client
+Thread tags on meetings — each thread has a shorthand (max 10 chars) displayed as badges on meeting rows + MeetingDetail header
+Single criteria_prompt — no separate keywords field; keywords go in the prompt
+Two-step evaluation — preview candidates (embedding + FTS, free) → user confirms → LLM evaluates (costs tokens)
+Append-mode re-evaluation — new associations appended by default; optional "override existing" checkbox re-evaluates previously associated meetings
+Persisted chat — thread conversations stored in SQLite thread_messages table, survive app restarts
+LanceDB chat context — embed user's question, KNN against associated meeting vectors, top-K most relevant meetings included (not all)
+Manual summary regeneration — user clicks "Regenerate"; can select which meetings to include via inline checkboxes with group-by-day/series
+Stale criteria indicator — when criteria_prompt changes, criteria_changed_at tracked; UI shows "stale" badge on associations evaluated before that timestamp with re-evaluate option
+Meeting deletion resilience — FK cascade removes thread_meetings rows; thread_messages get context_stale flag + list of deleted meeting IDs
+Meeting-side discoverability — thread tags on MeetingDetail header, "Part of Thread" sort on MeetingList
+Phase 1: Data Model + CRUD
+Burst 511: threads + thread_meetings + thread_messages tables and types
+New file: core/threads.ts
+
+
+interface Thread {
+  id: string;
+  client_name: string;
+  title: string;
+  shorthand: string;            // max 10 chars, displayed as tag on meetings
+  description: string;
+  status: "open" | "resolved";
+  summary: string;              // LLM-generated, manually regenerated
+  criteria_prompt: string;      // single field — keywords go in the prompt
+  criteria_changed_at: string;  // tracks when criteria last edited
+  created_at: string;
+  updated_at: string;
+}
+
+interface ThreadMeeting {
+  thread_id: string;
+  meeting_id: string;
+  meeting_title: string;        // joined
+  meeting_date: string;         // joined
+  relevance_summary: string;
+  relevance_score: number;      // 0-100
+  evaluated_at: string;
+}
+
+interface ThreadMessage {
+  id: string;                   // UUID
+  thread_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources: string | null;       // JSON array of source labels, nullable
+  context_stale: boolean;       // set true when associated meetings deleted
+  stale_details: string | null; // JSON: deleted meeting IDs/titles
+  created_at: string;
+}
+Modified: core/db.ts — Add migration:
+
+
+CREATE TABLE IF NOT EXISTS threads (
+  id TEXT PRIMARY KEY,
+  client_name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  shorthand TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  status TEXT DEFAULT 'open',
+  summary TEXT DEFAULT '',
+  criteria_prompt TEXT DEFAULT '',
+  criteria_changed_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (client_name) REFERENCES clients(name)
+);
+
+CREATE TABLE IF NOT EXISTS thread_meetings (
+  thread_id TEXT NOT NULL,
+  meeting_id TEXT NOT NULL,
+  relevance_summary TEXT DEFAULT '',
+  relevance_score REAL DEFAULT 0,
+  evaluated_at TEXT NOT NULL,
+  PRIMARY KEY (thread_id, meeting_id),
+  FOREIGN KEY (thread_id) REFERENCES threads(id),
+  FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+);
+
+CREATE TABLE IF NOT EXISTS thread_messages (
+  id TEXT PRIMARY KEY,
+  thread_id TEXT NOT NULL,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  sources TEXT,
+  context_stale INTEGER DEFAULT 0,
+  stale_details TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (thread_id) REFERENCES threads(id)
+);
+Test: test/threads.test.ts — Tables created, all columns exist.
+
+Burst 512: createThread + getThread + listThreadsByClient
+createThread(db, { client_name, title, shorthand, description, criteria_prompt }) → Thread (summary starts empty, criteria_changed_at = now)
+getThread(db, id) → Thread | null
+listThreadsByClient(db, clientName) → Thread[] (ordered by created_at desc, includes meeting count via subquery)
+Test: Round-trip create → get, list filters by client, returns null for missing id.
+
+Burst 513: updateThread + deleteThread
+updateThread(db, id, { title?, shorthand?, description?, status?, summary?, criteria_prompt? }) → Thread
+If criteria_prompt changed, auto-set criteria_changed_at = now
+deleteThread(db, id) → void (cascading delete: thread_meetings + thread_messages)
+Test: Update changes fields + updated_at, criteria_prompt change updates criteria_changed_at, delete cascades both associations and messages.
+
+Burst 514: addThreadMeeting + removeThreadMeeting + getThreadMeetings
+addThreadMeeting(db, { thread_id, meeting_id, relevance_summary, relevance_score }) → void (upsert on PK)
+removeThreadMeeting(db, threadId, meetingId) → void
+getThreadMeetings(db, threadId) → ThreadMeeting[] (joined with meetings for title/date, ordered by relevance_score desc)
+Test: Add association, remove it, list returns joined meeting info sorted by score. Upsert overwrites existing.
+
+Burst 515: appendThreadMessage + getThreadMessages + clearThreadMessages + markThreadMessagesStale
+appendThreadMessage(db, { thread_id, role, content, sources? }) → ThreadMessage
+getThreadMessages(db, threadId) → ThreadMessage[] (ordered by created_at asc)
+clearThreadMessages(db, threadId) → void
+markThreadMessagesStale(db, threadId, deletedMeetings: { id: string; title: string }[]) → void
+Sets context_stale = 1 and stale_details = JSON on all messages for the thread
+Test: Append user + assistant messages, get returns in order, clear removes all, markStale sets flags.
+
+Phase 2: Evaluation
+Burst 516: evaluate_thread LLM capability + prompt template + stub
+Modified: core/llm-adapter.ts — Add "evaluate_thread" to LlmCapability.
+
+Modified: core/llm-provider-stub.ts — Add fixture: { related: true, relevance_summary: "Stub relevance.", relevance_score: 75 }
+
+New file: config/prompts/thread-evaluation.md — Prompt template modeled on deep-search.md:
+
+
+You are evaluating whether a meeting is related to a tracked thread.
+
+## Thread
+Title: {{thread_title}}
+Description: {{thread_description}}
+Evaluation criteria: {{criteria_prompt}}
+
+## Meeting Context
+{{meeting_context}}
+
+## Instructions
+Determine if this meeting contains discussion, decisions, or actions related to the thread.
+Return ONLY valid JSON:
+- `related` (boolean)
+- `relevance_summary` (string): 1-2 sentences citing specific evidence. Empty string if not related.
+- `relevance_score` (integer 0-100)
+Test: test/llm-adapter.test.ts — Stub returns expected shape.
+
+Burst 517: evaluateMeetingAgainstThread function
+In core/threads.ts:
+
+
+async function evaluateMeetingAgainstThread(
+  db: DatabaseSync, llm: LlmAdapter, meetingId: string, thread: Thread
+): Promise<{ related: boolean; relevance_summary: string; relevance_score: number }>
+Fetch artifact. If none → not related.
+Build meeting context (summary + decisions + action items — same as deep-search.ts pattern).
+Load template, substitute placeholders.
+Call llm.complete("evaluate_thread", prompt).
+Return parsed result.
+Test: Stub returns related → function returns result. No artifact → returns not-related.
+
+Burst 518: getThreadCandidates — embedding + FTS preview (no LLM)
+
+async function getThreadCandidates(
+  db: DatabaseSync, vdb: VectorDb, session: InferenceSession,
+  thread: Thread, clientName: string, topN: number = 20
+): Promise<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>
+Embed thread.title + " " + thread.description + " " + thread.criteria_prompt using embed().
+KNN search meeting_vectors filtered to client = clientName, limit topN.
+Return candidate list with similarity scores — no LLM calls.
+This is the free preview step. The UI shows candidates before user confirms LLM evaluation.
+
+Test: With stub embedder, returns candidate list. Zero vectors → empty array.
+
+Burst 519: evaluateConfirmedCandidates — batch LLM evaluate
+
+async function evaluateConfirmedCandidates(
+  db: DatabaseSync, llm: LlmAdapter, thread: Thread,
+  meetingIds: string[], overrideExisting: boolean
+): Promise<{ added: number; updated: number }>
+If !overrideExisting, filter out meetingIds already in thread_meetings.
+For each remaining meeting, call evaluateMeetingAgainstThread.
+If related, addThreadMeeting (upsert handles override case).
+Return counts of new vs updated associations.
+Test: With stub, appends new. Override mode re-evaluates existing. Non-override skips existing.
+
+Burst 520: regenerateThreadSummary — manual summary from selected meetings
+
+async function regenerateThreadSummary(
+  db: DatabaseSync, llm: LlmAdapter, threadId: string,
+  meetingIds?: string[]  // if undefined, use all associated meetings
+): Promise<string>
+Fetch thread.
+If meetingIds provided, fetch those specific meetings; otherwise fetch all via getThreadMeetings.
+Build context: thread title/description + each meeting's relevance_summary.
+Call llm.converse() with system prompt: "Summarize the current state of this thread based on the associated meetings. Be concise."
+updateThread(db, threadId, { summary: result }).
+Return the new summary.
+Test: Stub returns summary string, thread row updated. With meetingIds filter, only those meetings in context.
+
+Burst 521: getThreadChatContext — LanceDB-powered context selection
+
+async function getThreadChatContext(
+  db: DatabaseSync, vdb: VectorDb, session: InferenceSession,
+  threadId: string, userMessage: string, includeTranscripts: boolean,
+  topK: number = 7
+): Promise<{ systemContext: string; meetingIds: string[] }>
+Embed userMessage using embed().
+Get thread's associated meeting IDs from thread_meetings.
+KNN search meeting_vectors filtered to those meeting IDs, limit topK.
+Fetch thread info + selected meetings' summaries (or transcripts if includeTranscripts).
+Build system context string: thread summary + thread description + selected meeting contexts.
+Return context + which meetingIds were included (for source attribution).
+Test: With stub, returns context string containing thread title. Empty associations → context has thread info only.
+
+Phase 3: IPC/API Layer
+Burst 522: Thread CRUD channels + handlers
+Modified: electron-ui/electron/channels.ts
+
+Channels: LIST_THREADS, CREATE_THREAD, UPDATE_THREAD, DELETE_THREAD
+Types: CreateThreadRequest (title, shorthand, description, criteria_prompt, client_name), UpdateThreadRequest
+ElectronAPI: listThreads, createThread, updateThread, deleteThread
+Modified: electron-ui/electron/ipc-handlers.ts — 4 handlers wrapping core/threads.ts functions.
+
+Test: test/ipc-handlers.test.ts + test/channels.test.ts — CRUD round-trip, channel count.
+
+Burst 523: Thread-meeting + evaluation + chat channels
+Modified: electron-ui/electron/channels.ts
+
+Channels: GET_THREAD_MEETINGS, GET_THREAD_CANDIDATES, EVALUATE_THREAD_CANDIDATES, REMOVE_THREAD_MEETING, REGENERATE_THREAD_SUMMARY, GET_THREAD_MESSAGES, THREAD_CHAT, CLEAR_THREAD_MESSAGES, GET_MEETING_THREADS
+ElectronAPI: corresponding methods
+Modified: electron-ui/electron/ipc-handlers.ts
+
+handleGetThreadMeetings(db, threadId) → ThreadMeeting[]
+handleGetThreadCandidates(db, vdb, session, threadId) → candidate list (free preview)
+handleEvaluateThreadCandidates(db, llm, threadId, meetingIds, overrideExisting) → { added, updated }
+handleRemoveThreadMeeting(db, threadId, meetingId) → void
+handleRegenerateThreadSummary(db, llm, threadId, meetingIds?) → { summary: string }
+handleGetThreadMessages(db, threadId) → ThreadMessage[]
+handleThreadChat(db, llm, vdb, session, req: ThreadChatRequest) → ThreadChatResponse
+Calls getThreadChatContext to select relevant meetings via LanceDB
+Appends user message to thread_messages
+Calls llm.converse() with selected context + full message history
+Appends assistant response to thread_messages
+Returns response + sources (which meetings were in context)
+handleClearThreadMessages(db, threadId) → void
+handleGetMeetingThreads(db, meetingId) → Array<{ thread_id, title, shorthand }> (for meeting-side tags)
+ThreadChatRequest:
+
+
+interface ThreadChatRequest {
+  threadId: string;
+  message: string;
+  includeTranscripts?: boolean;
+}
+Test: Evaluate creates associations, chat persists messages, clear removes them, getMeetingThreads returns tags.
+
+Burst 524: API routes + preload + api-client
+Modified: api/server.ts — Add 13 routes:
+
+GET /api/threads?client=X
+POST /api/threads
+PUT /api/threads/:id
+DELETE /api/threads/:id
+GET /api/threads/:id/meetings
+GET /api/threads/:id/candidates (free preview)
+POST /api/threads/:id/evaluate (body: { meetingIds, overrideExisting })
+DELETE /api/threads/:threadId/meetings/:meetingId
+POST /api/threads/:id/regenerate-summary (body: { meetingIds? })
+GET /api/threads/:id/messages
+POST /api/threads/:id/chat
+DELETE /api/threads/:id/messages
+GET /api/meetings/:id/threads (meeting-side tags)
+Modified: preload/index.ts, main/index.ts, api-client.ts — wire all methods.
+
+Test: test/ui/api-client.test.ts — New methods call correct endpoints.
+
+Phase 4: Pipeline Integration
+Burst 525: Auto-evaluate threads after extraction
+Modified: core/pipeline.ts
+
+After storeArtifact + embedMeeting, if client detected:
+
+List open threads for client.
+For each thread, embed thread description, KNN search for this single meeting's vector.
+If similarity above threshold (0.3), call evaluateMeetingAgainstThread.
+If related, addThreadMeeting.
+This is cheaper than full candidate flow — only 1 meeting tested per thread, with embedding pre-filter.
+
+Test: test/pipeline.test.ts — After processing, thread association created for matching thread. Resolved threads skipped.
+
+Burst 526: Meeting deletion → stale thread context
+Modified: electron-ui/electron/ipc-handlers.ts (or core/threads.ts)
+
+When a meeting is deleted (existing delete handler):
+
+Query thread_meetings for all threads associated with the meeting.
+For each thread, call markThreadMessagesStale(db, threadId, [{ id, title }]).
+FK cascade removes thread_meetings rows automatically.
+Test: Delete a meeting → thread_messages get context_stale flag + stale_details with deleted meeting info.
+
+Phase 5: UI
+Burst 527: NavRail "Threads" item + view routing
+Modified: NavRail.tsx — Add "threads" to View type, add { view: "threads", label: "Threads", Icon: Link2 }.
+
+Modified: App.tsx — Extend currentView union, add threadsViewPanels, route conditionally.
+
+Test: test/ui/nav-rail.test.tsx — Three nav items, threads button fires navigate.
+
+Burst 528: ThreadsView component — thread list + management
+New file: electron-ui/ui/src/components/ThreadsView.tsx
+
+Left panel:
+
+Header: {clientName} Threads with + New Thread button
+Filter: open/resolved/all toggle + date range picker (created_at)
+Group by: day / month toggle
+Thread list rows: title, shorthand badge, status badge, meeting count, click → onSelectThread
+Batch resolve: checkbox on each row + "Resolve Selected" button when any checked
+Test: test/ui/threads-view.test.tsx — Renders list, create button, click selects, filter works, batch resolve fires callback for checked threads.
+
+Burst 529: CreateThreadDialog component
+New file: electron-ui/ui/src/components/CreateThreadDialog.tsx
+
+Form: Title (required), Shorthand (max 10 chars, required), Description, Criteria Prompt (textarea). Supports edit mode via optional thread prop.
+
+No separate keywords field — keywords go in the criteria prompt.
+
+Test: test/ui/create-thread-dialog.test.tsx — Form renders, Create disabled until title+shorthand, shorthand max 10 enforced, submit returns data, edit mode pre-fills.
+
+Burst 530: ThreadDetailView — info + meetings with selection + grouping
+New file: electron-ui/ui/src/components/ThreadDetailView.tsx
+
+Center panel showing:
+
+Thread title + shorthand badge + status badge + Edit / Delete buttons
+Stale criteria indicator: if criteria_changed_at > max(evaluated_at) across associations, show amber "Criteria changed — re-evaluate?" badge
+Summary section (or "No summary yet — click Regenerate" empty state)
+Regenerate controls: [Regenerate ▾] dropdown — "All meetings" | "Selected (N)"
+── N Meetings ── header with "Find Candidates" button
+Group toggle: [Day] [Series] [None] + Select: [All] [None]
+Inline checkboxes on each meeting row
+When grouped by day: date headers with [Select Day] button
+When grouped by series: series headers (normalized title) with [Select Series] button
+Meeting rows: checkbox | score | title | date | relevance_summary snippet
+Each row: click → drill into meeting, × button → remove association
+Back navigation when drilled into a meeting
+Test: test/ui/thread-detail-view.test.tsx — Renders info, meetings sorted by score, group-by-day renders date headers, select-all checks all, regenerate fires with selected IDs, stale criteria badge shown when criteria newer than evaluations.
+
+Burst 531: Evaluate flow — preview candidates → confirm → LLM
+Modified: ThreadDetailView.tsx — "Find Candidates" button flow:
+
+Click "Find Candidates" → calls getThreadCandidates (free, fast)
+Shows candidate list in expandable section below meetings with similarity scores
+Each candidate has checkbox (default checked)
+"Override existing" checkbox (default unchecked) — if checked, re-evaluates already-associated meetings
+[Evaluate Selected (N)] button → calls evaluateConfirmedCandidates with checked IDs
+Loading state during evaluation, results refresh meeting list
+Test: test/ui/thread-detail-view.test.tsx — Find candidates shows preview list, uncheck filters candidate, evaluate fires with confirmed IDs + override flag.
+
+Burst 532: Thread chat — persisted, thread-scoped, LanceDB context
+Reuse existing ChatPanel component with adaptations:
+
+Modified: ChatPanel.tsx — Accept optional persistedMessages prop + onSendMessage callback. When persistedMessages provided, render from those instead of local state. Add includeTranscripts checkbox in thread context header.
+Chat stays thread-scoped regardless of meeting drill-down state (keyed on threadId, not activeMeetingIds).
+Messages loaded from getThreadMessages on thread selection, persisted via threadChat handler.
+Stale context indicator: if any message has context_stale = true, show amber banner "Source meetings have changed — some context may be outdated" with details on hover (list of deleted meetings).
+"Clear conversation" button calls clearThreadMessages.
+Test: test/ui/chat-panel.test.tsx — New tests for persisted mode: renders persistedMessages, onSendMessage fires, clear button fires callback, stale banner shown when context_stale messages present.
+
+Burst 533: Meeting-side thread tags — MeetingDetail + MeetingList
+Modified: MeetingDetail.tsx — In header metadata row (after client badge), show thread tags:
+
+Fetch via getMeetingThreads(meetingId) query
+Render as clickable badges: [shorthand] per thread
+Click navigates to threads view + selects that thread (onThreadClick(threadId))
+Modified: MeetingList.tsx:
+
+Add "thread" to SortBy type, add entry to SORT_MODES: { value: "thread", label: "Thread" }
+Sort logic: meetings with thread associations first (sorted by thread title), then meetings without threads (sorted by date)
+Conditionally show sort button only when thread data available (same pattern as relevance)
+Modified: channels.ts — Add thread_tags field to MeetingRow: thread_tags?: Array<{ thread_id: string; title: string; shorthand: string }>
+
+Modified: ipc-handlers.ts — In handleGetMeetings, join thread_meetings + threads to populate thread_tags on each MeetingRow.
+
+Test: test/ui/meeting-detail.test.tsx — Thread tags render as badges, click fires onThreadClick. test/ui/meeting-list.test.tsx** — Thread sort option appears, sorts correctly.
+
+Burst 534: Wire everything into App.tsx
+Modified: App.tsx
+
+State: selectedThreadId, drillMeetingId, editThreadOpen, threadCheckedIds (for batch resolve)
+Queries: threadsQuery, threadMeetingsQuery, threadCandidatesQuery, threadMessagesQuery, drillArtifactQuery, meetingThreadsQuery
+Handlers: handleCreateThread, handleUpdateThread, handleDeleteThread, handleBatchResolve, handleRemoveThreadMeeting, handleFindCandidates, handleEvaluateCandidates, handleRegenerateThreadSummary, handleThreadChat, handleClearThreadMessages, handleThreadClick (from meeting-side, navigates to threads view)
+Build threadsViewPanels: [ThreadsView, ThreadDetailView, ChatPanel (thread mode)]
+Test: test/ui/app.test.tsx — Threads nav renders, create calls API, chat persists, thread tag click navigates.
+
+Burst 535: Edit + delete + resolve thread
+Edit: reuse CreateThreadDialog with thread prop
+Delete: confirmation dialog (reuse existing pattern)
+Resolve: toggle status open ↔ resolved via updateThread
+Batch resolve: selected thread IDs → loop updateThread with status = "resolved"
+Test: Edit saves, delete confirms + removes, resolve toggles status badge, batch resolve updates multiple.
+
+Critical Files
+File	Bursts	Change
+core/db.ts	511	Add 3 tables
+core/threads.ts	511-521	New — types, CRUD, messages, evaluation, chat context
+core/llm-adapter.ts	516	Add evaluate_thread capability
+core/llm-provider-stub.ts	516	Add stub fixture
+config/prompts/thread-evaluation.md	516	New — evaluation prompt
+core/pipeline.ts	525	Auto-evaluate after extraction
+electron-ui/electron/channels.ts	522-523, 533	Add 13 channels + types + thread_tags on MeetingRow
+electron-ui/electron/ipc-handlers.ts	522-523, 526, 533	Add 13 handlers + deletion cascade + thread_tags join
+api/server.ts	524	Add 13 routes
+electron-ui/electron/preload/index.ts	524	Add methods
+electron-ui/electron/main/index.ts	524	Register handlers
+electron-ui/ui/src/api-client.ts	524	Add HTTP methods
+electron-ui/ui/src/components/NavRail.tsx	527	Add threads nav item
+electron-ui/ui/src/components/ThreadsView.tsx	528	New — thread list + batch resolve
+electron-ui/ui/src/components/CreateThreadDialog.tsx	529	New — create/edit form
+electron-ui/ui/src/components/ThreadDetailView.tsx	530-531	New — detail + grouped meetings + evaluate flow
+electron-ui/ui/src/components/ChatPanel.tsx	532	Add persisted mode + stale banner
+electron-ui/ui/src/components/MeetingDetail.tsx	533	Add thread tag badges
+electron-ui/ui/src/components/MeetingList.tsx	533	Add "Thread" sort option
+electron-ui/ui/src/App.tsx	527, 534-535	Wire views + state + chat + navigation
+Existing Code to Reuse
+core/db.ts migrate() — append new CREATE TABLEs
+core/deep-search.ts — meeting context builder pattern for LLM evaluation prompt
+core/vector-search.ts searchMeetings() — KNN search pattern for embedding pre-filter
+core/embedder.ts embed() — embed thread description for pre-filter + chat question for context selection
+config/prompts/deep-search.md — prompt structure reference
+LlmCapability union + STUB_FIXTURES — extend for evaluate_thread
+ChatPanel component — extend with persistedMessages prop for thread chat
+NavRail ITEMS array + View type
+MeetingList SortBy type + SORT_MODES array + sort logic pattern
+MeetingDetail header metadata row (date + client badge) — add thread tags after
+MeetingList groupBySeries() / normalizeSeries() — reuse for thread detail meeting grouping
+Dialog/DialogContent/DialogTitle/Badge/Button/ScrollArea — UI primitives
+ClientActionItemsView — structural reference for ThreadsView
+NewMeetingDialog — form dialog pattern
+handleConversationChat — reference for thread chat handler (multi-turn with context)
+Verification
+pnpm test --run — all tests pass after each burst
+Create a thread with title, shorthand, description, criteria prompt
+Click "Find Candidates" — verify free preview shows candidate list with similarity scores
+Uncheck some candidates, click "Evaluate Selected" — only checked go to LLM
+Meetings listed by relevance score descending, groupable by day/series
+Select meetings via group checkboxes, click "Regenerate Summary" → "Selected (N)" — verify only selected meetings feed summary
+Open chat panel — type a question — verify LanceDB selects relevant meetings for context (not all)
+Navigate away and back — verify chat messages persisted
+"Include transcripts" checked — verify next message includes transcript context for top-K
+Delete a meeting associated with a thread — verify stale banner appears in chat
+Click "Clear conversation" — verify messages removed
+Drill into a meeting from thread detail — verify MeetingDetail renders with back navigation
+Verify chat stays thread-scoped during drill-down (no reset)
+On MeetingDetail, thread tags appear as badges; clicking navigates to threads view
+On MeetingList, "Thread" sort groups threaded meetings first
+Process a new meeting transcript — verify pipeline auto-evaluates against open threads
+Edit thread criteria — verify stale indicator appears on old associations
+Resolve thread — verify pipeline skips it
+Batch resolve multiple threads — verify all toggle to resolved
+"Override existing" + re-evaluate — verify existing associations get new scores
