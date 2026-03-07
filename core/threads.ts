@@ -313,6 +313,31 @@ export function listThreadsByClient(db: Database, clientName: string): Thread[] 
   return rows.map(rowToThread);
 }
 
+export async function regenerateThreadSummary(
+  db: Database,
+  llm: LlmAdapter,
+  threadId: string,
+  meetingIds?: string[],
+): Promise<string> {
+  const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as ThreadRow;
+  const allMeetings = getThreadMeetings(db, threadId);
+  const meetings = meetingIds
+    ? allMeetings.filter((m) => meetingIds.includes(m.meeting_id))
+    : allMeetings;
+  const context = [
+    `Thread: ${thread.title}`,
+    thread.description ? `Description: ${thread.description}` : null,
+    meetings.length > 0 ? "\nAssociated Meetings:" : null,
+    ...meetings.map((m) => `- ${m.meeting_title} (${m.meeting_date}): ${m.relevance_summary}`),
+  ].filter(Boolean).join("\n");
+  const summary = await llm.converse(
+    "Summarize the current state of this thread based on the associated meetings. Be concise.",
+    [{ role: "user", content: context }],
+  );
+  updateThread(db, threadId, { summary });
+  return summary;
+}
+
 export async function evaluateConfirmedCandidates(
   db: Database,
   llm: LlmAdapter,
