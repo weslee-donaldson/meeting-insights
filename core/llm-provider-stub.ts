@@ -29,6 +29,11 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     relevance_summary: "Stub relevance summary for deep search.",
     relevance_score: 85,
   },
+  evaluate_thread: {
+    related: true,
+    relevance_summary: "Stub relevance.",
+    relevance_score: 75,
+  },
 };
 
 export function createStubAdapter(): LlmAdapter {

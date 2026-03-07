@@ -45,6 +45,16 @@ describe("createLlmAdapter (stub)", () => {
     expect((result.answer as string).length).toBeGreaterThan(0);
   });
 
+  it("stub complete returns evaluate_thread fixture with related, relevance_summary, relevance_score", async () => {
+    const adapter = createLlmAdapter({ type: "stub" });
+    const result = await adapter.complete("evaluate_thread", "some thread evaluation context");
+    expect(result).toEqual({
+      related: true,
+      relevance_summary: "Stub relevance.",
+      relevance_score: 75,
+    });
+  });
+
   it("stub complete returns deep_search_filter fixture with relevant, relevance_summary, relevance_score", async () => {
     const adapter = createLlmAdapter({ type: "stub" });
     const result = await adapter.complete("deep_search_filter", "some meeting context");
