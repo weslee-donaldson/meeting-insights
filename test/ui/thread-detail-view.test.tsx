@@ -129,6 +129,81 @@ describe("ThreadDetailView", () => {
     expect(onRegen).toHaveBeenCalled();
   });
 
+  it("renders candidate list when candidates provided", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Candidate B", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Candidate A")).toBeDefined();
+    expect(screen.getByText("Candidate B")).toBeDefined();
+    expect(screen.getByText(/evaluate selected/i)).toBeDefined();
+  });
+
+  it("unchecking a candidate excludes it from evaluation", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Candidate B", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+    ];
+    const onEvaluate = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={onEvaluate}
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox").filter((cb) => !cb.closest("[data-override]"));
+    fireEvent.click(checkboxes[1]);
+    fireEvent.click(screen.getByText(/evaluate selected/i));
+    expect(onEvaluate).toHaveBeenCalledWith(["c1"], false);
+  });
+
+  it("evaluate fires with override flag when override checkbox checked", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+    ];
+    const onEvaluate = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={onEvaluate}
+      />,
+    );
+    const overrideCheckbox = screen.getByRole("checkbox", { name: /override existing/i });
+    fireEvent.click(overrideCheckbox);
+    fireEvent.click(screen.getByText(/evaluate selected/i));
+    expect(onEvaluate).toHaveBeenCalledWith(["c1"], true);
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
