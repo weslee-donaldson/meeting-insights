@@ -188,6 +188,61 @@ export function getThreadMeetings(db: Database, threadId: string): ThreadMeeting
   }));
 }
 
+export interface AppendThreadMessageInput {
+  thread_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: string;
+}
+
+interface ThreadMessageRow {
+  id: string;
+  thread_id: string;
+  role: string;
+  content: string;
+  sources: string | null;
+  context_stale: number;
+  stale_details: string | null;
+  created_at: string;
+}
+
+function rowToMessage(row: ThreadMessageRow): ThreadMessage {
+  return {
+    id: row.id,
+    thread_id: row.thread_id,
+    role: row.role as "user" | "assistant",
+    content: row.content,
+    sources: row.sources,
+    context_stale: row.context_stale === 1,
+    stale_details: row.stale_details,
+    created_at: row.created_at,
+  };
+}
+
+export function appendThreadMessage(db: Database, input: AppendThreadMessageInput): ThreadMessage {
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO thread_messages (id, thread_id, role, content, sources, context_stale, stale_details, created_at)
+    VALUES (?, ?, ?, ?, ?, 0, NULL, ?)
+  `).run(id, input.thread_id, input.role, input.content, input.sources ?? null, now);
+  return rowToMessage(db.prepare("SELECT * FROM thread_messages WHERE id = ?").get(id) as ThreadMessageRow);
+}
+
+export function getThreadMessages(db: Database, threadId: string): ThreadMessage[] {
+  const rows = db.prepare("SELECT * FROM thread_messages WHERE thread_id = ? ORDER BY created_at ASC").all(threadId) as ThreadMessageRow[];
+  return rows.map(rowToMessage);
+}
+
+export function clearThreadMessages(db: Database, threadId: string): void {
+  db.prepare("DELETE FROM thread_messages WHERE thread_id = ?").run(threadId);
+}
+
+export function markThreadMessagesStale(db: Database, threadId: string, deletedMeetings: { id: string; title: string }[]): void {
+  const staleDetails = JSON.stringify(deletedMeetings);
+  db.prepare("UPDATE thread_messages SET context_stale = 1, stale_details = ? WHERE thread_id = ?").run(staleDetails, threadId);
+}
+
 export function listThreadsByClient(db: Database, clientName: string): Thread[] {
   const rows = db.prepare(`
     SELECT t.*, COUNT(tm.meeting_id) AS meeting_count
