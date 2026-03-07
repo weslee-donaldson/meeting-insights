@@ -659,4 +659,24 @@ describe("MeetingDetail", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={emptyArtifact} />);
     expect(screen.getByText("No meeting details were extracted. Try re-extracting or check the transcript format.")).toBeDefined();
   });
+
+  it("renders thread tags as badges and click fires onThreadClick", () => {
+    const onThreadClick = vi.fn();
+    const tags = [
+      { thread_id: "t1", title: "Deploy issues", shorthand: "DEPLOY" },
+      { thread_id: "t2", title: "Auth bugs", shorthand: "AUTH" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        threadTags={tags}
+        onThreadClick={onThreadClick}
+      />,
+    );
+    expect(screen.getByText("DEPLOY")).toBeDefined();
+    expect(screen.getByText("AUTH")).toBeDefined();
+    fireEvent.click(screen.getByText("DEPLOY"));
+    expect(onThreadClick).toHaveBeenCalledWith("t1");
+  });
 });

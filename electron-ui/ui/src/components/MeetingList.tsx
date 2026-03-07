@@ -5,7 +5,7 @@ import { Button } from "./ui/button.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
-export type SortBy = "date-desc" | "date-asc" | "client" | "relevance";
+export type SortBy = "date-desc" | "date-asc" | "client" | "relevance" | "thread";
 
 interface MeetingListProps {
   meetings: MeetingRow[];
@@ -134,6 +134,7 @@ const SORT_MODES: { value: SortBy; label: string }[] = [
   { value: "date-asc", label: "Oldest" },
   { value: "client", label: "Client" },
   { value: "relevance", label: "Relevance" },
+  { value: "thread", label: "Thread" },
 ];
 
 export function MeetingList({
@@ -172,6 +173,16 @@ export function MeetingList({
     if (sortBy === "client") {
       return [...meetings].sort((a, b) => a.client.localeCompare(b.client) || b.date.localeCompare(a.date));
     }
+    if (sortBy === "thread") {
+      return [...meetings].sort((a, b) => {
+        const aHas = (a.thread_tags?.length ?? 0) > 0 ? 0 : 1;
+        const bHas = (b.thread_tags?.length ?? 0) > 0 ? 0 : 1;
+        if (aHas !== bHas) return aHas - bHas;
+        const aTitle = a.thread_tags?.[0]?.title ?? "";
+        const bTitle = b.thread_tags?.[0]?.title ?? "";
+        return aTitle.localeCompare(bTitle) || b.date.localeCompare(a.date);
+      });
+    }
     return [...meetings].sort((a, b) => b.date.localeCompare(a.date));
   }, [meetings, sortBy, searchScores]);
 
@@ -183,6 +194,7 @@ export function MeetingList({
   }, [sorted, groupBy]);
 
   const hasRelevance = !!searchScores && searchScores.size > 0;
+  const hasThreads = meetings.some((m) => (m.thread_tags?.length ?? 0) > 0);
 
   return (
     <div className="flex flex-col h-full">
@@ -223,7 +235,7 @@ export function MeetingList({
           <div className="flex items-center gap-1.5">
             <span className="text-sm text-foreground font-semibold">Sort:</span>
             {SORT_MODES.map(({ value, label }) =>
-              value === "relevance" && !hasRelevance ? null : (
+              (value === "relevance" && !hasRelevance) || (value === "thread" && !hasThreads) ? null : (
                 <Button
                   key={value}
                   variant={sortBy === value ? "default" : "secondary"}

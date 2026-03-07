@@ -26,6 +26,8 @@ interface MeetingDetailProps {
   onMentionClick?: (canonicalId: string, itemText: string) => void;
   artifactLoading?: boolean;
   searchQuery?: string;
+  threadTags?: Array<{ thread_id: string; title: string; shorthand: string }>;
+  onThreadClick?: (threadId: string) => void;
 }
 
 interface SectionProps {
@@ -472,7 +474,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -542,6 +544,16 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
               <span>{meeting.date.slice(0, 10)}</span>
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
+              {threadTags && threadTags.map((tag) => (
+                <Badge
+                  key={tag.thread_id}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
+                >
+                  {tag.shorthand}
+                </Badge>
+              ))}
             </div>
           </div>
           <div className="relative flex items-center gap-0.5 shrink-0">

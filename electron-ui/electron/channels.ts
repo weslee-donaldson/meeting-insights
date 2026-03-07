@@ -43,6 +43,7 @@ export interface MeetingRow {
   client: string;
   series: string;
   actionItemCount: number;
+  thread_tags?: Array<{ thread_id: string; title: string; shorthand: string }>;
 }
 
 export interface ChatRequest {

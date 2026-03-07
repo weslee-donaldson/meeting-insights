@@ -780,4 +780,61 @@ describe("MeetingList", () => {
       expect(onNewMeeting).toHaveBeenCalledOnce();
     });
   });
+
+  describe("thread sort", () => {
+    it("Thread sort button appears when meetings have thread_tags", () => {
+      const meetings = [
+        makeMeeting({ id: "m1", thread_tags: [{ thread_id: "t1", title: "Deploy", shorthand: "DEP" }] }),
+      ];
+      render(
+        <MeetingList
+          meetings={meetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+        />,
+      );
+      expect(screen.getByRole("button", { name: "Thread" })).toBeDefined();
+    });
+
+    it("Thread sort button hidden when no meetings have thread_tags", () => {
+      const meetings = [makeMeeting({ id: "m1" })];
+      render(
+        <MeetingList
+          meetings={meetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "Thread" })).toBeNull();
+    });
+
+    it("thread sort puts threaded meetings first", () => {
+      const meetings = [
+        makeMeeting({ id: "m1", title: "No thread" }),
+        makeMeeting({ id: "m2", title: "Has thread", thread_tags: [{ thread_id: "t1", title: "Deploy", shorthand: "DEP" }] }),
+      ];
+      render(
+        <MeetingList
+          meetings={meetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps({ sortBy: "thread" })}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+        />,
+      );
+      const allText = screen.getAllByText(/Has thread|No thread/);
+      expect(allText[0].textContent).toBe("Has thread");
+      expect(allText[1].textContent).toBe("No thread");
+    });
+  });
 });
