@@ -44,6 +44,8 @@ export interface CreateThreadInput {
 
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
+import { getArtifact } from "./extractor.js";
+import type { LlmAdapter } from "./llm-adapter.js";
 
 interface ThreadRow {
   id: string;
@@ -241,6 +243,59 @@ export function clearThreadMessages(db: Database, threadId: string): void {
 export function markThreadMessagesStale(db: Database, threadId: string, deletedMeetings: { id: string; title: string }[]): void {
   const staleDetails = JSON.stringify(deletedMeetings);
   db.prepare("UPDATE thread_messages SET context_stale = 1, stale_details = ? WHERE thread_id = ?").run(staleDetails, threadId);
+}
+
+const DEFAULT_EVAL_TEMPLATE = `You are evaluating whether a meeting is related to a tracked thread.
+
+## Thread
+Title: {{thread_title}}
+Description: {{thread_description}}
+Evaluation criteria: {{criteria_prompt}}
+
+## Meeting Context
+{{meeting_context}}
+
+## Instructions
+Determine if this meeting contains discussion, decisions, or actions related to the thread.
+Return ONLY valid JSON with fields: related (boolean), relevance_summary (string), relevance_score (integer 0-100)`;
+
+function buildMeetingContextFromArtifact(art: import("./extractor.js").ArtifactRow): string {
+  const parts: string[] = [`Summary: ${art.summary}`];
+  const actions = JSON.parse(art.action_items ?? "[]") as Array<{ description: string; owner: string }>;
+  if (actions.length > 0) {
+    parts.push("Action Items:");
+    for (const a of actions) parts.push(`- ${a.description} (owner: ${a.owner})`);
+  }
+  const decisions = JSON.parse(art.decisions ?? "[]") as Array<{ text: string }>;
+  if (decisions.length > 0) {
+    parts.push("Decisions:");
+    for (const d of decisions) parts.push(`- ${d.text}`);
+  }
+  return parts.join("\n");
+}
+
+export async function evaluateMeetingAgainstThread(
+  db: Database,
+  llm: LlmAdapter,
+  meetingId: string,
+  thread: Thread,
+  promptTemplate?: string,
+): Promise<{ related: boolean; relevance_summary: string; relevance_score: number }> {
+  const art = getArtifact(db, meetingId);
+  if (!art) return { related: false, relevance_summary: "", relevance_score: 0 };
+  const context = buildMeetingContextFromArtifact(art);
+  const template = promptTemplate ?? DEFAULT_EVAL_TEMPLATE;
+  const prompt = template
+    .replace("{{thread_title}}", thread.title)
+    .replace("{{thread_description}}", thread.description)
+    .replace("{{criteria_prompt}}", thread.criteria_prompt)
+    .replace("{{meeting_context}}", context);
+  const result = await llm.complete("evaluate_thread", prompt);
+  return {
+    related: result.related === true,
+    relevance_summary: typeof result.relevance_summary === "string" ? result.relevance_summary : "",
+    relevance_score: typeof result.relevance_score === "number" ? result.relevance_score : 0,
+  };
 }
 
 export function listThreadsByClient(db: Database, clientName: string): Thread[] {
