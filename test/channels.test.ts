@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CHANNELS } from "../electron-ui/electron/channels.js";
-import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 24 unique non-empty channel strings", () => {
+  it("should have 33 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(24);
-    expect(new Set(values).size).toBe(24);
+    expect(values).toHaveLength(33);
+    expect(new Set(values).size).toBe(33);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -141,6 +141,16 @@ describe("CHANNELS", () => {
     expect(row.relevanceScore).toBe(85);
   });
 
+  it("ConversationChatRequest accepts optional template", () => {
+    const req: import("../electron-ui/electron/channels.js").ConversationChatRequest = {
+      meetingIds: [],
+      messages: [],
+      includeTranscripts: false,
+      template: "jira-ticket",
+    };
+    expect(req.template).toBe("jira-ticket");
+  });
+
   it("should define LIST_THREADS channel", () => {
     expect(CHANNELS.LIST_THREADS).toBe("list-threads");
   });
@@ -169,13 +179,29 @@ describe("CHANNELS", () => {
     expect(req.status).toBe("resolved");
   });
 
-  it("ConversationChatRequest accepts optional template", () => {
-    const req: import("../electron-ui/electron/channels.js").ConversationChatRequest = {
-      meetingIds: [],
-      messages: [],
-      includeTranscripts: false,
-      template: "jira-ticket",
-    };
-    expect(req.template).toBe("jira-ticket");
+  it("should define GET_THREAD_MEETINGS channel", () => {
+    expect(CHANNELS.GET_THREAD_MEETINGS).toBe("get-thread-meetings");
+  });
+
+  it("should define GET_THREAD_CANDIDATES channel", () => {
+    expect(CHANNELS.GET_THREAD_CANDIDATES).toBe("get-thread-candidates");
+  });
+
+  it("should define EVALUATE_THREAD_CANDIDATES channel", () => {
+    expect(CHANNELS.EVALUATE_THREAD_CANDIDATES).toBe("evaluate-thread-candidates");
+  });
+
+  it("should define THREAD_CHAT channel", () => {
+    expect(CHANNELS.THREAD_CHAT).toBe("thread-chat");
+  });
+
+  it("should define GET_MEETING_THREADS channel", () => {
+    expect(CHANNELS.GET_MEETING_THREADS).toBe("get-meeting-threads");
+  });
+
+  it("ThreadChatRequest has correct shape", () => {
+    const req: ThreadChatRequest = { threadId: "t1", message: "What happened?", includeTranscripts: true };
+    expect(req.threadId).toBe("t1");
+    expect(req.includeTranscripts).toBe(true);
   });
 });

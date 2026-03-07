@@ -25,6 +25,12 @@ import {
   handleCreateThread,
   handleUpdateThread,
   handleDeleteThread,
+  handleGetThreadMeetings,
+  handleRemoveThreadMeeting,
+  handleRegenerateThreadSummary,
+  handleGetThreadMessages,
+  handleClearThreadMessages,
+  handleGetMeetingThreads,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {

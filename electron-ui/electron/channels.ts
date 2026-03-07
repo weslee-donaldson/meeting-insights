@@ -23,6 +23,15 @@ export const CHANNELS = {
   CREATE_THREAD: "create-thread",
   UPDATE_THREAD: "update-thread",
   DELETE_THREAD: "delete-thread",
+  GET_THREAD_MEETINGS: "get-thread-meetings",
+  GET_THREAD_CANDIDATES: "get-thread-candidates",
+  EVALUATE_THREAD_CANDIDATES: "evaluate-thread-candidates",
+  REMOVE_THREAD_MEETING: "remove-thread-meeting",
+  REGENERATE_THREAD_SUMMARY: "regenerate-thread-summary",
+  GET_THREAD_MESSAGES: "get-thread-messages",
+  THREAD_CHAT: "thread-chat",
+  CLEAR_THREAD_MESSAGES: "clear-thread-messages",
+  GET_MEETING_THREADS: "get-meeting-threads",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -166,6 +175,17 @@ export interface UpdateThreadRequest {
   criteria_prompt?: string;
 }
 
+export interface ThreadChatRequest {
+  threadId: string;
+  message: string;
+  includeTranscripts?: boolean;
+}
+
+export interface ThreadChatResponse {
+  answer: string;
+  sources: string[];
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -192,4 +212,13 @@ export interface ElectronAPI {
   createThread: (req: CreateThreadRequest) => Promise<import("../../core/threads.js").Thread>;
   updateThread: (threadId: string, req: UpdateThreadRequest) => Promise<import("../../core/threads.js").Thread>;
   deleteThread: (threadId: string) => Promise<void>;
+  getThreadMeetings: (threadId: string) => Promise<import("../../core/threads.js").ThreadMeeting[]>;
+  getThreadCandidates: (threadId: string) => Promise<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>;
+  evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) => Promise<{ added: number; updated: number }>;
+  removeThreadMeeting: (threadId: string, meetingId: string) => Promise<void>;
+  regenerateThreadSummary: (threadId: string, meetingIds?: string[]) => Promise<{ summary: string }>;
+  getThreadMessages: (threadId: string) => Promise<import("../../core/threads.js").ThreadMessage[]>;
+  threadChat: (req: ThreadChatRequest) => Promise<ThreadChatResponse>;
+  clearThreadMessages: (threadId: string) => Promise<void>;
+  getMeetingThreads: (meetingId: string) => Promise<Array<{ thread_id: string; title: string; shorthand: string }>>;
 }
