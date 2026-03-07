@@ -1,8 +1,8 @@
 import React from "react";
-import { CalendarDays, CircleCheck } from "lucide-react";
+import { CalendarDays, CircleCheck, Link2 } from "lucide-react";
 import { cn } from "../lib/utils.js";
 
-type View = "meetings" | "action-items";
+type View = "meetings" | "action-items" | "threads";
 
 interface NavRailProps {
   currentView: View;
@@ -12,6 +12,7 @@ interface NavRailProps {
 const ITEMS: { view: View; label: string; Icon: React.ElementType }[] = [
   { view: "meetings", label: "Meetings", Icon: CalendarDays },
   { view: "action-items", label: "Action Items", Icon: CircleCheck },
+  { view: "threads", label: "Threads", Icon: Link2 },
 ];
 
 export function NavRail({ currentView, onNavigate }: NavRailProps) {

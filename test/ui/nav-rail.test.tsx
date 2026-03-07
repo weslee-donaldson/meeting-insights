@@ -7,10 +7,11 @@ import { NavRail } from "../../electron-ui/ui/src/components/NavRail.js";
 afterEach(cleanup);
 
 describe("NavRail", () => {
-  it("renders Meetings and Action Items items", () => {
+  it("renders Meetings, Action Items, and Threads items", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     expect(screen.getByText("Meetings")).toBeDefined();
     expect(screen.getByText("Action Items")).toBeDefined();
+    expect(screen.getByText("Threads")).toBeDefined();
   });
 
   it("clicking Meetings fires onNavigate with meetings", () => {
@@ -37,5 +38,12 @@ describe("NavRail", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     const actionBtn = screen.getByRole("button", { name: "Action Items" });
     expect(actionBtn.className).toContain("text-muted-foreground");
+  });
+
+  it("clicking Threads fires onNavigate with threads", () => {
+    const onNavigate = vi.fn();
+    render(<NavRail currentView="meetings" onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByText("Threads"));
+    expect(onNavigate).toHaveBeenCalledWith("threads");
   });
 });

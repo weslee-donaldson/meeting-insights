@@ -36,7 +36,7 @@ export function App() {
   const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
-  const [currentView, setCurrentView] = useState<"meetings" | "action-items">("meetings");
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads">("meetings");
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
@@ -137,6 +137,8 @@ export function App() {
   const activeMeetingIds =
     currentView === "action-items"
       ? (previewMeetingId ? [previewMeetingId] : [])
+      : currentView === "threads"
+      ? []
       : checkedMeetingIds.size > 0
       ? [...checkedMeetingIds]
       : selectedMeetingId
@@ -500,7 +502,11 @@ export function App() {
     ] : []),
   ];
 
-  const panels = currentView === "meetings" ? meetingsViewPanels : actionItemsViewPanels;
+  const threadsViewPanels = [
+    <div key="threads-placeholder" className="flex items-center justify-center h-full text-muted-foreground">Threads</div>,
+  ];
+
+  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : threadsViewPanels;
 
   return (
     <>
