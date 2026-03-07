@@ -1,0 +1,55 @@
+import { describe, it, expect, beforeEach } from "vitest";
+import { createDb, migrate } from "../core/db.js";
+import type { Database } from "../core/db.js";
+import { createThread, addThreadMeeting, evaluateConfirmedCandidates, getThreadMeetings } from "../core/threads.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
+import { storeArtifact } from "../core/extractor.js";
+
+const llm = createLlmAdapter({ type: "stub" });
+let db: Database;
+let threadId: string;
+
+beforeEach(() => {
+  db = createDb(":memory:");
+  migrate(db);
+  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+  db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m1', 'Sprint Planning', '2026-03-01')").run();
+  db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m2', 'Retrospective', '2026-03-08')").run();
+  db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m3', 'Design Review', '2026-03-15')").run();
+  storeArtifact(db, "m1", { summary: "Deployment failed.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
+  storeArtifact(db, "m2", { summary: "Discussed rollback.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
+  storeArtifact(db, "m3", { summary: "New feature design.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
+  const thread = createThread(db, { client_name: "Acme", title: "Deployment issues", shorthand: "DEPLOY", description: "", criteria_prompt: "CI failures" });
+  threadId = thread.id;
+});
+
+describe("evaluateConfirmedCandidates", () => {
+  it("adds new associations when no existing meetings", async () => {
+    const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
+    const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], false);
+    expect(result.added).toBe(2);
+    expect(result.updated).toBe(0);
+    const meetings = getThreadMeetings(db, threadId);
+    expect(meetings).toHaveLength(2);
+  });
+
+  it("non-override mode skips meetings already associated", async () => {
+    addThreadMeeting(db, { thread_id: threadId, meeting_id: "m1", relevance_summary: "Old", relevance_score: 40 });
+    const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
+    const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], false);
+    expect(result.added).toBe(1);
+    expect(result.updated).toBe(0);
+    const meetings = getThreadMeetings(db, threadId);
+    expect(meetings.find((m) => m.meeting_id === "m1")?.relevance_score).toBe(40);
+  });
+
+  it("override mode re-evaluates existing associations", async () => {
+    addThreadMeeting(db, { thread_id: threadId, meeting_id: "m1", relevance_summary: "Old", relevance_score: 40 });
+    const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
+    const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], true);
+    expect(result.added).toBe(1);
+    expect(result.updated).toBe(1);
+    const meetings = getThreadMeetings(db, threadId);
+    expect(meetings.find((m) => m.meeting_id === "m1")?.relevance_score).toBe(75);
+  });
+});

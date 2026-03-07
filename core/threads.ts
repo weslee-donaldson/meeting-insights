@@ -313,6 +313,33 @@ export function listThreadsByClient(db: Database, clientName: string): Thread[] 
   return rows.map(rowToThread);
 }
 
+export async function evaluateConfirmedCandidates(
+  db: Database,
+  llm: LlmAdapter,
+  thread: Thread,
+  meetingIds: string[],
+  overrideExisting: boolean,
+): Promise<{ added: number; updated: number }> {
+  const existingRows = db.prepare("SELECT meeting_id FROM thread_meetings WHERE thread_id = ?").all(thread.id) as { meeting_id: string }[];
+  const existingSet = new Set(existingRows.map((r) => r.meeting_id));
+  const toEvaluate = overrideExisting ? meetingIds : meetingIds.filter((id) => !existingSet.has(id));
+  let added = 0;
+  let updated = 0;
+  for (const meetingId of toEvaluate) {
+    const evalResult = await evaluateMeetingAgainstThread(db, llm, meetingId, thread);
+    if (evalResult.related) {
+      const isExisting = existingSet.has(meetingId);
+      addThreadMeeting(db, { thread_id: thread.id, meeting_id: meetingId, relevance_summary: evalResult.relevance_summary, relevance_score: evalResult.relevance_score });
+      if (isExisting) {
+        updated++;
+      } else {
+        added++;
+      }
+    }
+  }
+  return { added, updated };
+}
+
 interface MeetingTitleRow { id: string; title: string; date: string; }
 
 export async function getThreadCandidates(
