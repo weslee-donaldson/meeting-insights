@@ -3,6 +3,7 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent, waitFor, createEvent } from "@testing-library/react";
 import { ChatPanel } from "../../electron-ui/ui/src/components/ChatPanel.js";
+import type { ThreadMessage } from "../../core/threads.js";
 
 afterEach(cleanup);
 
@@ -330,6 +331,77 @@ describe("ChatPanel", () => {
     await waitFor(() => screen.getByText("Error: credit balance too low"), { timeout: 2000 });
     const bubble = screen.getByTestId("assistant-bubble");
     expect(bubble.textContent).toContain("Error: credit balance too low");
+  });
+
+  it("renders persistedMessages instead of local state when provided", () => {
+    const persisted: ThreadMessage[] = [
+      { id: "msg1", thread_id: "t1", role: "user", content: "Hello thread", sources: null, context_stale: false, stale_details: null, created_at: "2026-03-01T10:00:00.000Z" },
+      { id: "msg2", thread_id: "t1", role: "assistant", content: "Thread response", sources: null, context_stale: false, stale_details: null, created_at: "2026-03-01T10:01:00.000Z" },
+    ];
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        persistedMessages={persisted}
+        onSendMessage={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Hello thread")).toBeDefined();
+    expect(screen.getByText("Thread response")).toBeDefined();
+  });
+
+  it("onSendMessage fires in persisted mode instead of onChat", () => {
+    const onSend = vi.fn();
+    const onChat = vi.fn();
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={onChat}
+        persistedMessages={[]}
+        onSendMessage={onSend}
+      />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Thread question" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    expect(onSend).toHaveBeenCalledWith("Thread question", false);
+    expect(onChat).not.toHaveBeenCalled();
+  });
+
+  it("clear button fires onClearMessages in persisted mode", () => {
+    const onClear = vi.fn();
+    const persisted: ThreadMessage[] = [
+      { id: "msg1", thread_id: "t1", role: "user", content: "Hello", sources: null, context_stale: false, stale_details: null, created_at: "2026-03-01T10:00:00.000Z" },
+    ];
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        persistedMessages={persisted}
+        onSendMessage={vi.fn()}
+        onClearMessages={onClear}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /clear conversation/i }));
+    expect(onClear).toHaveBeenCalled();
+  });
+
+  it("shows stale context banner when any persisted message has context_stale", () => {
+    const persisted: ThreadMessage[] = [
+      { id: "msg1", thread_id: "t1", role: "assistant", content: "Old answer", sources: null, context_stale: true, stale_details: JSON.stringify([{ id: "m1", title: "Deleted Meeting" }]), created_at: "2026-03-01T10:00:00.000Z" },
+    ];
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        persistedMessages={persisted}
+        onSendMessage={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/source meetings have changed/i)).toBeDefined();
   });
 
   it("history clears when activeMeetingIds changes", async () => {
