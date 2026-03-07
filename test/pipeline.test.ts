@@ -7,6 +7,7 @@ import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
+import { createThread } from "../core/threads.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 
@@ -239,5 +240,83 @@ Let us discuss progress events and run logging.`;
     const skippedEvent = skipped[0] as Extract<PipelineEvent, { type: "skipped" }>;
     expect(typeof skippedEvent.index).toBe("number");
     expect(typeof skippedEvent.total).toBe("number");
+  });
+});
+
+describe("auto-evaluate threads after extraction", () => {
+  let tDb: Database;
+  let tVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let tVdbPath: string;
+  let tBaseDir: string;
+
+  const FILENAME = " 2026-03-02T00:00:00.000ZAPI Deployment Review";
+  const CONTENT = `Attendance:
+{'last_name': 'Smith', 'id': '014200be-9999-9999-9999-000000000001', 'first_name': 'Alice', 'email': 'alice@deploycorp.com'}
+Transcript:
+Alice Smith | 00:11
+The deployment pipeline is broken again. We need to fix the CI/CD configuration.`;
+
+  beforeAll(async () => {
+    tBaseDir = join(tmpdir(), `pipeline-threads-${Date.now()}`);
+    const rawDir = join(tBaseDir, "raw");
+    const processedDir = join(tBaseDir, "processed");
+    const failedDir = join(tBaseDir, "failed");
+    const auditDir = join(tBaseDir, "audit");
+    mkdirSync(rawDir, { recursive: true });
+
+    tDb = createDb(":memory:");
+    migrate(tDb);
+    tDb.prepare(
+      "INSERT INTO clients (name, aliases, known_participants, client_team) VALUES (?, ?, ?, ?)",
+    ).run("DeployCorp", '["DeployCorp"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@deploycorp.com", role: "Client" }]));
+
+    tVdbPath = join(tmpdir(), `lancedb-threads-${Date.now()}`);
+    mkdirSync(tVdbPath, { recursive: true });
+    tVdb = await connectVectorDb(tVdbPath);
+
+    createThread(tDb, {
+      client_name: "DeployCorp",
+      title: "Deployment pipeline broken",
+      shorthand: "DEPLOY",
+      description: "CI/CD deployment pipeline failures",
+      criteria_prompt: "deployment pipeline CI/CD broken failures",
+    });
+
+    createThread(tDb, {
+      client_name: "DeployCorp",
+      title: "Resolved issue",
+      shorthand: "RESOLVED",
+      description: "Old resolved thread",
+      criteria_prompt: "deployment",
+    });
+    const resolvedThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'RESOLVED'").get() as { id: string };
+    tDb.prepare("UPDATE threads SET status = 'resolved' WHERE id = ?").run(resolvedThread.id);
+
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    await processNewMeetings({
+      rawDir, processedDir, failedDir, auditDir,
+      db: tDb, vdb: tVdb, session, llm,
+      threadSimilarityThreshold: 0.1,
+    });
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(tBaseDir, { recursive: true, force: true });
+    rmSync(tVdbPath, { recursive: true, force: true });
+  });
+
+  it("creates thread association for matching open thread after processing", () => {
+    const openThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'DEPLOY'").get() as { id: string };
+    const associations = tDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(openThread.id) as Array<{ thread_id: string; meeting_id: string; relevance_score: number }>;
+    expect(associations.length).toBe(1);
+    expect(associations[0].relevance_score).toBe(75);
+  });
+
+  it("skips resolved threads during auto-evaluation", () => {
+    const resolvedThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'RESOLVED'").get() as { id: string };
+    const associations = tDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(resolvedThread.id) as Array<Record<string, unknown>>;
+    expect(associations.length).toBe(0);
   });
 });

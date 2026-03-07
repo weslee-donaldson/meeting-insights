@@ -12,6 +12,9 @@ import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
 import { updateFts } from "./fts.js";
+import { listThreadsByClient, evaluateMeetingAgainstThread, addThreadMeeting } from "./threads.js";
+import { embed } from "./embedder.js";
+import { cosineSimilarity } from "./math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "./vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -44,6 +47,7 @@ interface PipelineConfig {
   tokenLimit?: number;
   extractionPromptPath?: string;
   onProgress?: (event: PipelineEvent) => void;
+  threadSimilarityThreshold?: number;
 }
 
 interface PipelineResult {
@@ -71,6 +75,7 @@ async function processEntry(
   llm: LlmAdapter,
   tokenLimit: number,
   promptTemplate: string | undefined,
+  threadSimilarityThreshold: number,
 ): Promise<EntryResult> {
   const start = Date.now();
   if (!parsed) {
@@ -98,6 +103,24 @@ async function processEntry(
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     const client = topClient?.client_name ?? "";
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
+    if (client) {
+      const openThreads = listThreadsByClient(db, client).filter((t) => t.status === "open");
+      for (const thread of openThreads) {
+        const threadVec = await embed(session as Parameters<typeof embed>[0], `${thread.title} ${thread.description} ${thread.criteria_prompt}`);
+        const similarity = cosineSimilarity(Array.from(threadVec), Array.from(vec));
+        if (similarity > threadSimilarityThreshold) {
+          const evalResult = await evaluateMeetingAgainstThread(db, llm, meetingId, thread);
+          if (evalResult.related) {
+            addThreadMeeting(db, {
+              thread_id: thread.id,
+              meeting_id: meetingId,
+              relevance_summary: evalResult.relevance_summary,
+              relevance_score: evalResult.relevance_score,
+            });
+          }
+        }
+      }
+    }
     moveToProcessed(rawDir, processedDir, name);
     return { status: "ok", client, elapsed_ms: Date.now() - start };
   } catch (err) {
@@ -109,7 +132,7 @@ async function processEntry(
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3 } = config;
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
@@ -145,7 +168,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
       onProgress?.({ type: "processing", name: folderName, title: entry.meeting_title, index, total });
       const parsed = parseKrispFolder(rawDir, folderName, entry);
-      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate);
+      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold);
 
       if (result.status === "ok") {
         onProgress?.({ type: "ok", name: folderName, title: entry.meeting_title, client: result.client, elapsed_ms: result.elapsed_ms });
@@ -177,7 +200,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
     onProgress?.({ type: "processing", name: filename, title: filename, index, total });
     const parsed = parseKrispFile(join(rawDir, filename), filename);
-    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate);
+    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold);
 
     if (result.status === "ok") {
       onProgress?.({ type: "ok", name: filename, title: filename, client: result.client, elapsed_ms: result.elapsed_ms });
