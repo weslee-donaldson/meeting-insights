@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CHANNELS } from "../electron-ui/electron/channels.js";
-import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 20 unique non-empty channel strings", () => {
+  it("should have 24 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(20);
-    expect(new Set(values).size).toBe(20);
+    expect(values).toHaveLength(24);
+    expect(new Set(values).size).toBe(24);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -139,6 +139,34 @@ describe("CHANNELS", () => {
     expect(row.meeting_id).toBe("m1");
     expect(row.relevanceSummary).toBe("Evidence of DLQ discussion.");
     expect(row.relevanceScore).toBe(85);
+  });
+
+  it("should define LIST_THREADS channel", () => {
+    expect(CHANNELS.LIST_THREADS).toBe("list-threads");
+  });
+
+  it("should define CREATE_THREAD channel", () => {
+    expect(CHANNELS.CREATE_THREAD).toBe("create-thread");
+  });
+
+  it("should define UPDATE_THREAD channel", () => {
+    expect(CHANNELS.UPDATE_THREAD).toBe("update-thread");
+  });
+
+  it("should define DELETE_THREAD channel", () => {
+    expect(CHANNELS.DELETE_THREAD).toBe("delete-thread");
+  });
+
+  it("CreateThreadRequest has correct shape", () => {
+    const req: CreateThreadRequest = { client_name: "Acme", title: "Deploy", shorthand: "DEPLOY", description: "desc", criteria_prompt: "CI failures" };
+    expect(req.client_name).toBe("Acme");
+    expect(req.shorthand).toBe("DEPLOY");
+  });
+
+  it("UpdateThreadRequest has correct shape", () => {
+    const req: UpdateThreadRequest = { title: "New title", status: "resolved" };
+    expect(req.title).toBe("New title");
+    expect(req.status).toBe("resolved");
   });
 
   it("ConversationChatRequest accepts optional template", () => {

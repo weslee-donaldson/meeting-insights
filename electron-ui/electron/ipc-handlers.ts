@@ -19,7 +19,9 @@ import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest } from "./channels.js";
+import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread } from "../../core/threads.js";
+import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
@@ -448,4 +450,20 @@ export async function handleUpdateMeetingVector(
     meeting_type: meeting.title,
     date: meeting.date,
   });
+}
+
+export function handleListThreads(db: Database, clientName: string): Thread[] {
+  return listThreadsByClient(db, clientName);
+}
+
+export function handleCreateThread(db: Database, req: CreateThreadRequest): Thread {
+  return coreCreateThread(db, req);
+}
+
+export function handleUpdateThread(db: Database, threadId: string, req: UpdateThreadRequest): Thread {
+  return coreUpdateThread(db, threadId, req);
+}
+
+export function handleDeleteThread(db: Database, threadId: string): void {
+  coreDeleteThread(db, threadId);
 }

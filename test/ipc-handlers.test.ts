@@ -21,6 +21,10 @@ import {
   handleGetTemplates,
   handleCreateMeeting,
   handleDeepSearch,
+  handleListThreads,
+  handleCreateThread,
+  handleUpdateThread,
+  handleDeleteThread,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -665,6 +669,31 @@ describe("IPC handlers", () => {
       };
       await handleReExtract(db, spyLlm, meetingId2);
       expect(capturedContent).toContain("meeting analyst");
+    });
+  });
+
+  describe("Thread CRUD handlers", () => {
+    it("createThread creates a thread and listThreads returns it", () => {
+      const thread = handleCreateThread(db, { client_name: "Acme", title: "Deploy issues", shorthand: "DEPLOY", description: "Track CI", criteria_prompt: "CI failures" });
+      expect(thread.title).toBe("Deploy issues");
+      expect(thread.shorthand).toBe("DEPLOY");
+      const list = handleListThreads(db, "Acme");
+      expect(list).toHaveLength(1);
+      expect(list[0].title).toBe("Deploy issues");
+    });
+
+    it("updateThread updates thread fields", () => {
+      const thread = handleCreateThread(db, { client_name: "Acme", title: "Old", shorthand: "OLD", description: "", criteria_prompt: "" });
+      const updated = handleUpdateThread(db, thread.id, { title: "New title", status: "resolved" });
+      expect(updated.title).toBe("New title");
+      expect(updated.status).toBe("resolved");
+    });
+
+    it("deleteThread removes thread from list", () => {
+      const thread = handleCreateThread(db, { client_name: "Acme", title: "To delete", shorthand: "DEL", description: "", criteria_prompt: "" });
+      handleDeleteThread(db, thread.id);
+      const list = handleListThreads(db, "Acme");
+      expect(list.find((t) => t.id === thread.id)).toBeUndefined();
     });
   });
 

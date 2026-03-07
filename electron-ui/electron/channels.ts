@@ -19,6 +19,10 @@ export const CHANNELS = {
   GET_TEMPLATES: "get-templates",
   CREATE_MEETING: "create-meeting",
   DEEP_SEARCH: "deep-search",
+  LIST_THREADS: "list-threads",
+  CREATE_THREAD: "create-thread",
+  UPDATE_THREAD: "update-thread",
+  DELETE_THREAD: "delete-thread",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -145,6 +149,23 @@ export interface DeepSearchResultRow {
   relevanceScore: number;
 }
 
+export interface CreateThreadRequest {
+  client_name: string;
+  title: string;
+  shorthand: string;
+  description: string;
+  criteria_prompt: string;
+}
+
+export interface UpdateThreadRequest {
+  title?: string;
+  shorthand?: string;
+  description?: string;
+  status?: "open" | "resolved";
+  summary?: string;
+  criteria_prompt?: string;
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -167,4 +188,8 @@ export interface ElectronAPI {
   getTemplates: () => Promise<string[]>;
   createMeeting: (req: CreateMeetingRequest) => Promise<{ meetingId: string }>;
   deepSearch: (req: DeepSearchRequest) => Promise<DeepSearchResultRow[]>;
+  listThreads: (clientName: string) => Promise<import("../../core/threads.js").Thread[]>;
+  createThread: (req: CreateThreadRequest) => Promise<import("../../core/threads.js").Thread>;
+  updateThread: (threadId: string, req: UpdateThreadRequest) => Promise<import("../../core/threads.js").Thread>;
+  deleteThread: (threadId: string) => Promise<void>;
 }
