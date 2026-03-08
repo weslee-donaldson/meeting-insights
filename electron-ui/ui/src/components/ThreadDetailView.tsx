@@ -142,7 +142,7 @@ export function ThreadDetailView({
                 size="sm"
                 variant="outline"
                 className="h-auto px-2 py-0.5 text-[0.7rem]"
-                aria-label={checkedCandidates.size === candidates.length ? "Collapse all" : "Expand all"}
+                aria-label={checkedCandidates.size === candidates.length ? "Deselect all" : "Select all"}
                 onClick={() => {
                   if (checkedCandidates.size === candidates.length) {
                     setCheckedCandidates(new Set());
@@ -154,7 +154,7 @@ export function ThreadDetailView({
                   }
                 }}
               >
-                {checkedCandidates.size === candidates.length ? "Collapse all" : "Expand all"}
+                {checkedCandidates.size === candidates.length ? "Deselect all" : "Select all"}
               </Button>
               <label className="flex items-center gap-1 text-xs" data-override="">
                 <input

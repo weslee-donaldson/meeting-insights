@@ -94,6 +94,7 @@ export function migrate(db: DatabaseSync): void {
       status TEXT DEFAULT 'open',
       summary TEXT DEFAULT '',
       criteria_prompt TEXT DEFAULT '',
+      keywords TEXT DEFAULT '',
       criteria_changed_at TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,

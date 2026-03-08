@@ -27,6 +27,7 @@ describe("migrate - threads tables", () => {
     expect(names).toContain("status");
     expect(names).toContain("summary");
     expect(names).toContain("criteria_prompt");
+    expect(names).toContain("keywords");
     expect(names).toContain("criteria_changed_at");
     expect(names).toContain("created_at");
     expect(names).toContain("updated_at");
@@ -77,6 +78,7 @@ describe("Thread type shape", () => {
       status: "open",
       summary: "",
       criteria_prompt: "Look for deployment failures",
+      keywords: "",
       criteria_changed_at: "2026-03-07T00:00:00Z",
       created_at: "2026-03-07T00:00:00Z",
       updated_at: "2026-03-07T00:00:00Z",

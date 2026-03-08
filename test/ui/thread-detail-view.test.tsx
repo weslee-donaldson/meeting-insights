@@ -17,6 +17,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     status: "open",
     summary: "Pipeline keeps failing on main.",
     criteria_prompt: "deployment",
+    keywords: "",
     criteria_changed_at: "2026-03-01T00:00:00.000Z",
     created_at: "2026-03-01T00:00:00.000Z",
     updated_at: "2026-03-01T00:00:00.000Z",
@@ -260,7 +261,7 @@ describe("ThreadDetailView", () => {
     expect(screen.getByText(longSummary)).toBeDefined();
   });
 
-  it("Collapse all deselects all candidates and Expand all reselects them", () => {
+  it("Deselect all deselects all candidates and Select all reselects them", () => {
     const candidates = [
       { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
       { meeting_id: "c2", title: "Candidate B", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
@@ -281,11 +282,11 @@ describe("ThreadDetailView", () => {
         onCandidateCheck={onCandidateCheck}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /collapse all/i }));
+    fireEvent.click(screen.getByRole("button", { name: /deselect all/i }));
     expect(onCandidateCheck).toHaveBeenCalledWith(new Set());
     const candidateCheckboxes = screen.getAllByRole("checkbox").filter((cb) => !cb.closest("[data-override]"));
     expect(candidateCheckboxes.every((cb) => !(cb as HTMLInputElement).checked)).toBe(true);
-    fireEvent.click(screen.getByRole("button", { name: /expand all/i }));
+    fireEvent.click(screen.getByRole("button", { name: /select all/i }));
     expect(onCandidateCheck).toHaveBeenCalledWith(new Set(["c1", "c2"]));
   });
 

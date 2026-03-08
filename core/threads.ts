@@ -7,6 +7,7 @@ export interface Thread {
   status: "open" | "resolved";
   summary: string;
   criteria_prompt: string;
+  keywords: string;
   criteria_changed_at: string;
   created_at: string;
   updated_at: string;
@@ -40,6 +41,7 @@ export interface CreateThreadInput {
   shorthand: string;
   description: string;
   criteria_prompt: string;
+  keywords?: string;
 }
 
 import { randomUUID } from "node:crypto";
@@ -59,6 +61,7 @@ interface ThreadRow {
   status: string;
   summary: string;
   criteria_prompt: string;
+  keywords: string;
   criteria_changed_at: string;
   created_at: string;
   updated_at: string;
@@ -75,6 +78,7 @@ function rowToThread(row: ThreadRow): Thread {
     status: row.status as "open" | "resolved",
     summary: row.summary,
     criteria_prompt: row.criteria_prompt,
+    keywords: row.keywords,
     criteria_changed_at: row.criteria_changed_at,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -86,9 +90,9 @@ export function createThread(db: Database, input: CreateThreadInput): Thread {
   const id = randomUUID();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO threads (id, client_name, title, shorthand, description, status, summary, criteria_prompt, criteria_changed_at, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?)
-  `).run(id, input.client_name, input.title, input.shorthand, input.description, input.criteria_prompt, now, now, now);
+    INSERT INTO threads (id, client_name, title, shorthand, description, status, summary, criteria_prompt, keywords, criteria_changed_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?, ?)
+  `).run(id, input.client_name, input.title, input.shorthand, input.description, input.criteria_prompt, input.keywords ?? "", now, now, now);
   return rowToThread(db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow);
 }
 
@@ -104,12 +108,15 @@ export interface UpdateThreadInput {
   status?: "open" | "resolved";
   summary?: string;
   criteria_prompt?: string;
+  keywords?: string;
 }
 
 export function updateThread(db: Database, id: string, input: UpdateThreadInput): Thread {
   const current = db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow;
   const now = new Date().toISOString();
-  const criteriaChanged = input.criteria_prompt !== undefined && input.criteria_prompt !== current.criteria_prompt;
+  const criteriaChanged =
+    (input.criteria_prompt !== undefined && input.criteria_prompt !== current.criteria_prompt) ||
+    (input.keywords !== undefined && input.keywords !== current.keywords);
   db.prepare(`
     UPDATE threads SET
       title = ?,
@@ -118,6 +125,7 @@ export function updateThread(db: Database, id: string, input: UpdateThreadInput)
       status = ?,
       summary = ?,
       criteria_prompt = ?,
+      keywords = ?,
       criteria_changed_at = ?,
       updated_at = ?
     WHERE id = ?
@@ -128,6 +136,7 @@ export function updateThread(db: Database, id: string, input: UpdateThreadInput)
     input.status ?? current.status,
     input.summary ?? current.summary,
     input.criteria_prompt ?? current.criteria_prompt,
+    input.keywords ?? current.keywords,
     criteriaChanged ? now : current.criteria_changed_at,
     now,
     id,

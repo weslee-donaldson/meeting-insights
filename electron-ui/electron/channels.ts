@@ -166,6 +166,7 @@ export interface CreateThreadRequest {
   shorthand: string;
   description: string;
   criteria_prompt: string;
+  keywords?: string;
 }
 
 export interface UpdateThreadRequest {
@@ -175,6 +176,7 @@ export interface UpdateThreadRequest {
   status?: "open" | "resolved";
   summary?: string;
   criteria_prompt?: string;
+  keywords?: string;
 }
 
 export interface ThreadChatRequest {
