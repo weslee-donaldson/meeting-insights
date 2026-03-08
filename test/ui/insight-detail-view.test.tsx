@@ -210,6 +210,57 @@ describe("InsightDetailView", () => {
     expect(onDelete).toHaveBeenCalled();
   });
 
+  it("renders checkboxes for each meeting that toggle on click", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes).toHaveLength(2);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(checkboxes[0]);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
+  });
+
+  it("Remove Selected button calls onRemoveMeetings with unchecked meeting ids", () => {
+    const onRemoveMeetings = vi.fn();
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={onRemoveMeetings}
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    const removeBtn = screen.getByRole("button", { name: "Remove Unchecked" });
+    fireEvent.click(removeBtn);
+    expect(onRemoveMeetings).toHaveBeenCalledWith(["m1"]);
+  });
+
+  it("Remove Unchecked button is hidden when all meetings are checked", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Remove Unchecked" })).toBeNull();
+  });
+
   it("shows no summary placeholder when executive_summary is empty", () => {
     const emptyInsight = { ...INSIGHT, executive_summary: "", rag_rationale: "" };
     render(

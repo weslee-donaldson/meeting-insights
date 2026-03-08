@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
-import { RefreshCw, Check, RotateCcw, Trash2 } from "lucide-react";
+import { RefreshCw, Check, RotateCcw, Trash2, X } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
@@ -19,6 +19,7 @@ interface InsightDetailViewProps {
   onDelete: () => void;
   onRegenerate: () => void;
   onFinalize: () => void;
+  onRemoveMeetings?: (meetingIds: string[]) => void;
 }
 
 const RAG_COLORS = {
@@ -51,8 +52,25 @@ export function InsightDetailView({
   onDelete,
   onRegenerate,
   onFinalize,
+  onRemoveMeetings,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
+  const [checked, setChecked] = useState<Set<string>>(() => new Set(meetings.map((m) => m.meeting_id)));
+
+  useEffect(() => {
+    setChecked(new Set(meetings.map((m) => m.meeting_id)));
+  }, [meetings]);
+
+  const uncheckedIds = meetings.filter((m) => !checked.has(m.meeting_id)).map((m) => m.meeting_id);
+
+  function toggleMeeting(meetingId: string) {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(meetingId)) next.delete(meetingId);
+      else next.add(meetingId);
+      return next;
+    });
+  }
 
   return (
     <div className="flex flex-col h-full" data-testid="insight-detail-view">
@@ -123,13 +141,34 @@ export function InsightDetailView({
         )}
         {meetings.length > 0 && (
           <div className="px-4 py-3 border-t border-border">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2">Source Meetings</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold text-muted-foreground">Source Meetings</h3>
+              {uncheckedIds.length > 0 && onRemoveMeetings && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-auto px-2 py-0.5 text-xs"
+                  onClick={() => onRemoveMeetings(uncheckedIds)}
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Remove Unchecked
+                </Button>
+              )}
+            </div>
             <div className="flex flex-col">
               {meetings.map((m) => (
-                <div key={m.meeting_id} className="px-4 py-2 text-sm border-b border-border last:border-b-0">
-                  <p className="font-medium">{m.meeting_title}</p>
-                  <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
-                </div>
+                <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checked.has(m.meeting_id)}
+                    onChange={() => toggleMeeting(m.meeting_id)}
+                    className="mt-1 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium">{m.meeting_title}</p>
+                    <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                  </div>
+                </label>
               ))}
             </div>
           </div>
