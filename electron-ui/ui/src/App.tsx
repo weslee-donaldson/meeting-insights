@@ -713,6 +713,7 @@ export function App() {
         artifact={isCandidateMulti ? candidateMergedArtifact : (candidateArtifactQueries[0]?.data ?? null)}
         completions={isCandidateMulti ? candidateMergedCompletions : (candidateSingleCompletionsQuery.data ?? [])}
         artifactLoading={candidateArtifactLoading}
+        searchQuery={selectedThread?.keywords}
       />,
     ] : []),
   ];
