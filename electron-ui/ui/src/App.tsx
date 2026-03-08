@@ -824,7 +824,7 @@ export function App() {
   return (
     <>
     <LinearShell
-      chatOpen={activeMeetingIds.length > 0}
+      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0)}
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}

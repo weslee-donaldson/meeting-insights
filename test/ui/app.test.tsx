@@ -368,6 +368,37 @@ describe("App", () => {
     expect(window.api.listThreads).toHaveBeenCalled();
   });
 
+  it("shows thread chat panel when selected thread has meetings", async () => {
+    (window.api.listThreads as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "t1", client_name: "Acme", title: "Test Thread", shorthand: "TT", description: "", status: "open", summary: "A summary", criteria_prompt: "", keywords: "", criteria_changed_at: "2026-01-01", created_at: "2026-01-01", updated_at: "2026-01-01", meeting_count: 1 },
+    ]);
+    (window.api.getThreadMeetings as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { meeting_id: "m1", meeting_title: "Alpha Weekly", relevance_score: 80, relevance_summary: "Relevant", evaluated_at: "2026-01-01" },
+    ]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Threads"));
+    await screen.findByText("Test Thread");
+    fireEvent.click(screen.getByText("Test Thread"));
+    await screen.findByText("A summary");
+    await waitFor(() => expect(screen.getByPlaceholderText(/Ask a question/)).toBeDefined());
+  });
+
+  it("hides thread chat panel when selected thread has no meetings", async () => {
+    (window.api.listThreads as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "t1", client_name: "Acme", title: "Empty Thread", shorthand: "ET", description: "", status: "open", summary: "", criteria_prompt: "", keywords: "", criteria_changed_at: "2026-01-01", created_at: "2026-01-01", updated_at: "2026-01-01", meeting_count: 0 },
+    ]);
+    (window.api.getThreadMeetings as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Threads"));
+    await waitFor(() => expect(screen.getByText("Acme Threads")).toBeDefined());
+    await waitFor(() => expect(screen.getByText("Empty Thread")).toBeDefined());
+    fireEvent.click(screen.getByText("Empty Thread"));
+    await waitFor(() => expect(screen.getByText(/No summary yet/)).toBeDefined());
+    expect(screen.queryByPlaceholderText(/Ask a question/)).toBeNull();
+  });
+
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
     (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });
