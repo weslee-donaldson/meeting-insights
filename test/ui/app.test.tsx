@@ -81,6 +81,7 @@ beforeAll(() => {
     getInsightMessages: vi.fn().mockResolvedValue([]),
     insightChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
     clearInsightMessages: vi.fn().mockResolvedValue(undefined),
+    removeInsightMeeting: vi.fn().mockResolvedValue(undefined),
   };
 });
 

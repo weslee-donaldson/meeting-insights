@@ -309,4 +309,7 @@ export const apiClient: ElectronAPI = {
   clearInsightMessages: (insightId: string) =>
     fetch(`${API_BASE}/api/insights/${insightId}/messages`, { method: 'DELETE' }).then(() => undefined),
 
+  removeInsightMeeting: (insightId: string, meetingId: string) =>
+    fetch(`${API_BASE}/api/insights/${insightId}/meetings/${meetingId}`, { method: 'DELETE' }).then(r => { if (!r.ok) throw new Error(`remove insight meeting: ${r.status}`); }),
+
 };

@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 44 unique non-empty channel strings", () => {
+  it("should have 45 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(44);
-    expect(new Set(values).size).toBe(44);
+    expect(values).toHaveLength(45);
+    expect(new Set(values).size).toBe(45);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);

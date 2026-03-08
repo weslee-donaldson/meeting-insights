@@ -43,6 +43,7 @@ export const CHANNELS = {
   GET_INSIGHT_MESSAGES: "get-insight-messages",
   INSIGHT_CHAT: "insight-chat",
   CLEAR_INSIGHT_MESSAGES: "clear-insight-messages",
+  REMOVE_INSIGHT_MEETING: "remove-insight-meeting",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -272,4 +273,5 @@ export interface ElectronAPI {
   getInsightMessages: (insightId: string) => Promise<import("../../core/insights.js").InsightMessage[]>;
   insightChat: (req: InsightChatRequest) => Promise<InsightChatResponse>;
   clearInsightMessages: (insightId: string) => Promise<void>;
+  removeInsightMeeting: (insightId: string, meetingId: string) => Promise<void>;
 }

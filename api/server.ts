@@ -16,7 +16,7 @@ import {
   handleThreadChat, handleClearThreadMessages, handleGetMeetingThreads,
   handleListInsights, handleCreateInsight, handleUpdateInsight, handleDeleteInsight,
   handleGetInsightMeetings, handleDiscoverInsightMeetings, handleGenerateInsight,
-  handleGetInsightMessages, handleInsightChat, handleClearInsightMessages,
+  handleGetInsightMessages, handleInsightChat, handleClearInsightMessages, handleRemoveInsightMeeting,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -361,6 +361,11 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const req: InsightChatRequest = { insightId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
     const result = await handleInsightChat(db, llm, searchDeps.vdb, searchDeps.session, req);
     return c.json(result);
+  });
+
+  app.delete('/api/insights/:id/meetings/:meetingId', (c) => {
+    handleRemoveInsightMeeting(db, c.req.param('id'), c.req.param('meetingId'));
+    return c.json({ ok: true });
   });
 
   app.delete('/api/insights/:id/messages', (c) => {

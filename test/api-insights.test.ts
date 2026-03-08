@@ -113,6 +113,22 @@ describe("Insight API routes", () => {
     expect(body).toEqual([]);
   });
 
+  it("DELETE /api/insights/:id/meetings/:meetingId removes a linked meeting", async () => {
+    const createRes = await app.request("/api/insights", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
+    });
+    const created = await createRes.json() as Insight;
+    await app.request(`/api/insights/${created.id}/discover-meetings`, { method: "POST" });
+    const res = await app.request(`/api/insights/${created.id}/meetings/m1`, { method: "DELETE" });
+    expect(res.status).toBe(200);
+    const meetingsRes = await app.request(`/api/insights/${created.id}/meetings`);
+    const meetings = await meetingsRes.json() as { meeting_id: string }[];
+    expect(meetings.find((m) => m.meeting_id === "m1")).toBeUndefined();
+    expect(meetings.find((m) => m.meeting_id === "m2")).toBeDefined();
+  });
+
   it("DELETE /api/insights/:id/messages clears messages", async () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",

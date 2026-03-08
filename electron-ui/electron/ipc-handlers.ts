@@ -23,7 +23,7 @@ import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, Co
 import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread, markThreadMessagesStale } from "../../core/threads.js";
 import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
-import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext } from "../../core/insights.js";
+import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext, removeInsightMeeting } from "../../core/insights.js";
 import type { Insight, InsightMeeting, InsightMessage } from "../../core/insights.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
@@ -591,4 +591,8 @@ export async function handleInsightChat(
 
 export function handleClearInsightMessages(db: Database, insightId: string): void {
   coreClearInsightMessages(db, insightId);
+}
+
+export function handleRemoveInsightMeeting(db: Database, insightId: string, meetingId: string): void {
+  removeInsightMeeting(db, insightId, meetingId);
 }

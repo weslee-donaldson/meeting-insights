@@ -11,6 +11,7 @@ import {
   handleDeleteInsight,
   handleGetInsightMeetings,
   handleDiscoverInsightMeetings,
+  handleRemoveInsightMeeting,
   handleGenerateInsight,
   handleGetInsightMessages,
   handleClearInsightMessages,
@@ -69,6 +70,16 @@ describe("insight IPC handlers", () => {
     expect(meetingIds).toContain("m2");
     const meetings = handleGetInsightMeetings(db, insight.id);
     expect(meetings).toHaveLength(2);
+  });
+
+  it("handleRemoveInsightMeeting unlinks a meeting from an insight", () => {
+    const insight = handleCreateInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
+    handleDiscoverInsightMeetings(db, insight.id);
+    expect(handleGetInsightMeetings(db, insight.id)).toHaveLength(2);
+    handleRemoveInsightMeeting(db, insight.id, "m1");
+    const remaining = handleGetInsightMeetings(db, insight.id);
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].meeting_id).toBe("m2");
   });
 
   it("handleGenerateInsight calls LLM and stores result", async () => {

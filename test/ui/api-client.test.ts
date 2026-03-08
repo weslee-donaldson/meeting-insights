@@ -288,6 +288,15 @@ describe("apiClient", () => {
     );
   });
 
+  it("removeInsightMeeting deletes /api/insights/:insightId/meetings/:meetingId", async () => {
+    const spy = mockFetch({});
+    await apiClient.removeInsightMeeting("i1", "m1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/insights/i1/meetings/m1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
   it("getMeetingThreads fetches /api/meetings/:id/threads", async () => {
     const spy = mockFetch([{ id: "t1", title: "Deployment issues" }]);
     expect(await apiClient.getMeetingThreads("m1")).toEqual([{ id: "t1", title: "Deployment issues" }]);
