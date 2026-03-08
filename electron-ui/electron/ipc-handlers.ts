@@ -74,16 +74,16 @@ function normalizeSeries(title: string): string {
   return title.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-function topClientForMeeting(
+function clientNameForMeeting(
   db: Database,
   meetingId: string,
 ): string {
   const row = db
     .prepare(
-      "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
+      "SELECT c.name FROM meetings m JOIN clients c ON m.client_id = c.id WHERE m.id = ?",
     )
-    .get(meetingId) as { client_name: string } | undefined;
-  return row?.client_name ?? "";
+    .get(meetingId) as { name: string } | undefined;
+  return row?.name ?? "";
 }
 
 export function handleGetMeetings(
@@ -237,10 +237,8 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   if (!row) throw new Error(`Meeting ${meetingId} not found`);
   cleanupMentions(db, meetingId);
   const turns = parseTranscriptBody(row.raw_transcript ?? "");
-  const detection = db.prepare(
-    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
-  ).get(meetingId) as { client_name: string } | undefined;
-  const clientContext = detection ? clientContextForName(db, detection.client_name) : undefined;
+  const clientName = clientNameForMeeting(db, meetingId);
+  const clientContext = clientName ? clientContextForName(db, clientName) : undefined;
   const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
   storeArtifact(db, meetingId, artifact);
@@ -387,10 +385,7 @@ export async function handleReEmbed(
       continue;
     }
     const artifact = handleGetArtifact(db, meeting.id)!;
-    const detection = db.prepare(
-      "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
-    ).get(meeting.id) as { client_name: string } | undefined;
-    const client = detection?.client_name ?? "";
+    const client = clientNameForMeeting(db, meeting.id);
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     await storeMeetingVector(table, meeting.id, vec, {
       client,
@@ -453,10 +448,7 @@ export async function handleUpdateMeetingVector(
   const table = await createMeetingTable(vdb);
   await table.delete(`meeting_id = '${meetingId}'`);
 
-  const detection = db.prepare(
-    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
-  ).get(meetingId) as { client_name: string } | undefined;
-  const client = detection?.client_name ?? "";
+  const client = clientNameForMeeting(db, meetingId);
 
   const meeting = db.prepare("SELECT title, date FROM meetings WHERE id = ?").get(meetingId) as { title: string; date: string };
   const vec = await embedMeeting(session, buildEmbeddingInput(artifact));

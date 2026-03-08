@@ -37,7 +37,7 @@ describe("handleReEmbed", () => {
   beforeAll(() => {
     db = createDb(":memory:");
     migrate(db);
-    db.prepare("INSERT OR IGNORE INTO clients (name) VALUES (?)").run("Acme");
+    db.prepare("INSERT OR IGNORE INTO clients (name, id) VALUES (?, ?)").run("Acme", "client-acme");
 
     meetingId = ingestMeeting(db, {
       title: "Architecture Solutioning",
@@ -94,7 +94,7 @@ describe("handleUpdateMeetingVector", () => {
   beforeAll(() => {
     db = createDb(":memory:");
     migrate(db);
-    db.prepare("INSERT OR IGNORE INTO clients (name) VALUES (?)").run("Acme");
+    db.prepare("INSERT OR IGNORE INTO clients (name, id) VALUES (?, ?)").run("Acme", "client-acme");
 
     meetingId = ingestMeeting(db, {
       title: "Architecture Solutioning",
