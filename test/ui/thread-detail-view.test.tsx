@@ -260,6 +260,32 @@ describe("ThreadDetailView", () => {
     expect(screen.getByText(longSummary)).toBeDefined();
   });
 
+  it("toggling candidate checkbox calls onCandidateCheck with updated set", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Candidate B", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+    ];
+    const onCandidateCheck = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+        onCandidateCheck={onCandidateCheck}
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox").filter((cb) => !cb.closest("[data-override]"));
+    fireEvent.click(checkboxes[1]);
+    expect(onCandidateCheck).toHaveBeenCalledWith(new Set(["c1"]));
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];

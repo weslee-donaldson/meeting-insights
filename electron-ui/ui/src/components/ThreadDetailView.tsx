@@ -23,6 +23,7 @@ interface ThreadDetailViewProps {
   onRegenerateSummary: (meetingIds?: string[]) => void;
   onMeetingClick: (meetingId: string) => void;
   onEvaluateCandidates?: (meetingIds: string[], overrideExisting: boolean) => void;
+  onCandidateCheck?: (checkedIds: Set<string>) => void;
   onResolve?: (status: "open" | "resolved") => void;
 }
 
@@ -37,6 +38,7 @@ export function ThreadDetailView({
   onRegenerateSummary,
   onMeetingClick,
   onEvaluateCandidates,
+  onCandidateCheck,
   onResolve,
 }: ThreadDetailViewProps) {
   const sorted = [...meetings].sort((a, b) => b.relevance_score - a.relevance_score);
@@ -170,6 +172,7 @@ export function ThreadDetailView({
                         } else {
                           next.add(c.meeting_id);
                         }
+                        onCandidateCheck?.(next);
                         return next;
                       });
                     }}
