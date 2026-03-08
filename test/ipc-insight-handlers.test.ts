@@ -23,10 +23,10 @@ const llm = createLlmAdapter({ type: "stub" });
 beforeAll(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
-  db.prepare("INSERT INTO clients (name) VALUES ('Beta')").run();
-  db.prepare("INSERT INTO meetings (id, title, date, ignored) VALUES ('m1', 'Sprint Review', '2026-03-01', 0)").run();
-  db.prepare("INSERT INTO meetings (id, title, date, ignored) VALUES ('m2', 'Client Sync', '2026-03-02', 0)").run();
+  db.prepare("INSERT INTO clients (name, id) VALUES ('Acme', 'client-acme')").run();
+  db.prepare("INSERT INTO clients (name, id) VALUES ('Beta', 'client-beta')").run();
+  db.prepare("INSERT INTO meetings (id, title, date, ignored, client_id) VALUES ('m1', 'Sprint Review', '2026-03-01', 0, 'client-acme')").run();
+  db.prepare("INSERT INTO meetings (id, title, date, ignored, client_id) VALUES ('m2', 'Client Sync', '2026-03-02', 0, 'client-acme')").run();
   db.prepare("INSERT INTO meetings (id, title, date, ignored) VALUES ('m3', 'Ignored', '2026-03-03', 1)").run();
   storeDetection(db, "m1", [{ client_name: "Acme", confidence: 0.9, method: "auto" }]);
   storeDetection(db, "m2", [{ client_name: "Acme", confidence: 0.9, method: "auto" }]);

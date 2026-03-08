@@ -7,7 +7,7 @@
 ## TODO
 
 - [x] Burst 614: handleGetClientActionItems uses meetings.client_id (fixes bug)
-- [ ] Burst 616: discoverMeetingsForPeriod uses meetings.client_id
+- [x] Burst 616: discoverMeetingsForPeriod uses meetings.client_id
 - [ ] Burst 617: enrichFromDb (hybrid-search) uses meetings.client_id
 - [ ] Burst 618: handleReExtract + handleReEmbed use meetings.client_id
 - [ ] Burst 619: threads — add client_id column, update CRUD + listByClient

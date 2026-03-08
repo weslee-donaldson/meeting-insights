@@ -14,10 +14,10 @@ let db: Database;
 beforeAll(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
-  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m1', 'Standup Mon', '2026-03-02')").run();
-  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m2', 'Standup Tue', '2026-03-03')").run();
-  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m3', 'Standup Wed', '2026-03-04')").run();
+  db.prepare("INSERT INTO clients (name, id) VALUES ('Acme', 'client-acme')").run();
+  db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m1', 'Standup Mon', '2026-03-02', 'client-acme')").run();
+  db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m2', 'Standup Tue', '2026-03-03', 'client-acme')").run();
+  db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m3', 'Standup Wed', '2026-03-04', 'client-acme')").run();
   db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m1', 'Acme', 0.9, 'alias')").run();
   db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m2', 'Acme', 0.9, 'alias')").run();
   db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m3', 'Acme', 0.9, 'alias')").run();
@@ -93,8 +93,8 @@ describe("discoverMeetingsForPeriod", () => {
   });
 
   it("excludes meetings where client is not the top-confidence detection", () => {
-    db.prepare("INSERT INTO clients (name) VALUES ('Beta')").run();
-    db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m4', 'Cross-client', '2026-03-02')").run();
+    db.prepare("INSERT INTO clients (name, id) VALUES ('Beta', 'client-beta')").run();
+    db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m4', 'Cross-client', '2026-03-02', 'client-beta')").run();
     db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m4', 'Acme', 0.3, 'alias')").run();
     db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m4', 'Beta', 0.9, 'alias')").run();
     const result = discoverMeetingsForPeriod(db, "Acme", "2026-03-02", "2026-03-04");

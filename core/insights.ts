@@ -204,8 +204,8 @@ export function removeInsightMeeting(db: Database, insightId: string, meetingId:
 export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
   const rows = db.prepare(`
     SELECT m.id FROM meetings m
-    WHERE m.date >= ? AND m.date <= ? AND m.ignored = 0
-      AND (SELECT cd.client_name FROM client_detections cd WHERE cd.meeting_id = m.id ORDER BY cd.confidence DESC LIMIT 1) = ?
+    JOIN clients c ON m.client_id = c.id
+    WHERE m.date >= ? AND m.date <= ? AND m.ignored = 0 AND c.name = ?
     ORDER BY m.date ASC
   `).all(periodStart, periodEnd, clientName) as { id: string }[];
   return rows.map((r) => r.id);
