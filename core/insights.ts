@@ -184,6 +184,72 @@ export function discoverMeetingsForPeriod(db: Database, clientName: string, peri
   return rows.map((r) => r.id);
 }
 
+export interface InsightMessage {
+  id: string;
+  insight_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources: string | null;
+  context_stale: boolean;
+  stale_details: string | null;
+  created_at: string;
+}
+
+export interface AppendInsightMessageInput {
+  insight_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: string;
+}
+
+interface InsightMessageRow {
+  id: string;
+  insight_id: string;
+  role: string;
+  content: string;
+  sources: string | null;
+  context_stale: number;
+  stale_details: string | null;
+  created_at: string;
+}
+
+function rowToMessage(row: InsightMessageRow): InsightMessage {
+  return {
+    id: row.id,
+    insight_id: row.insight_id,
+    role: row.role as "user" | "assistant",
+    content: row.content,
+    sources: row.sources,
+    context_stale: row.context_stale === 1,
+    stale_details: row.stale_details,
+    created_at: row.created_at,
+  };
+}
+
+export function appendInsightMessage(db: Database, input: AppendInsightMessageInput): InsightMessage {
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO insight_messages (id, insight_id, role, content, sources, context_stale, stale_details, created_at)
+    VALUES (?, ?, ?, ?, ?, 0, NULL, ?)
+  `).run(id, input.insight_id, input.role, input.content, input.sources ?? null, now);
+  return rowToMessage(db.prepare("SELECT * FROM insight_messages WHERE id = ?").get(id) as InsightMessageRow);
+}
+
+export function getInsightMessages(db: Database, insightId: string): InsightMessage[] {
+  const rows = db.prepare("SELECT * FROM insight_messages WHERE insight_id = ? ORDER BY created_at ASC").all(insightId) as InsightMessageRow[];
+  return rows.map(rowToMessage);
+}
+
+export function clearInsightMessages(db: Database, insightId: string): void {
+  db.prepare("DELETE FROM insight_messages WHERE insight_id = ?").run(insightId);
+}
+
+export function markInsightMessagesStale(db: Database, insightId: string, deletedMeetings: { id: string; title: string }[]): void {
+  const staleDetails = JSON.stringify(deletedMeetings);
+  db.prepare("UPDATE insight_messages SET context_stale = 1, stale_details = ? WHERE insight_id = ?").run(staleDetails, insightId);
+}
+
 function formatDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
