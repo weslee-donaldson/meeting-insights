@@ -17,7 +17,7 @@
 - [x] Burst 572: API routes for insights CRUD
 - [x] Burst 573: API routes for insight meetings + generation
 - [x] Burst 574: API routes for insight messages + chat
-- [ ] Burst 575: api-client.ts insight methods
+- [x] Burst 575: api-client.ts insight methods
 
 ### Phase 4: UI
 - [ ] Burst 576: NavRail adds Insights view with Brain icon
