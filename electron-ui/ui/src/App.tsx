@@ -40,7 +40,7 @@ export function App() {
   const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
-  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads">("meetings");
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights">("meetings");
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
@@ -554,7 +554,7 @@ export function App() {
     }
   }, [selectedMeetingId, queryClient, addToast]);
 
-  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads") => {
+  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights") => {
     setCurrentView(view);
     setTypedSearchQuery("");
     setSearchQuery("");
@@ -827,7 +827,11 @@ export function App() {
     ] : []),
   ];
 
-  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : threadsViewPanels;
+  const insightsViewPanels: React.ReactNode[] = [
+    <div key="insights-placeholder" data-testid="insights-view" className="flex-1 flex items-center justify-center text-muted-foreground">Insights coming soon</div>,
+  ];
+
+  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : insightsViewPanels;
 
   return (
     <>

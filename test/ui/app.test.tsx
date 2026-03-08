@@ -71,6 +71,16 @@ beforeAll(() => {
     threadChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
     clearThreadMessages: vi.fn().mockResolvedValue(undefined),
     getMeetingThreads: vi.fn().mockResolvedValue([]),
+    listInsights: vi.fn().mockResolvedValue([]),
+    createInsight: vi.fn().mockResolvedValue({ id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-01", period_end: "2026-01-07", status: "draft", rag_status: "green", rag_rationale: "", executive_summary: "", topic_details: "[]", generated_at: "", created_at: "2026-01-01", updated_at: "2026-01-01" }),
+    updateInsight: vi.fn().mockResolvedValue({ id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-01", period_end: "2026-01-07", status: "draft", rag_status: "green", rag_rationale: "", executive_summary: "", topic_details: "[]", generated_at: "", created_at: "2026-01-01", updated_at: "2026-01-01" }),
+    deleteInsight: vi.fn().mockResolvedValue(undefined),
+    getInsightMeetings: vi.fn().mockResolvedValue([]),
+    discoverInsightMeetings: vi.fn().mockResolvedValue([]),
+    generateInsight: vi.fn().mockResolvedValue({ id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-01", period_end: "2026-01-07", status: "draft", rag_status: "yellow", rag_rationale: "Some open items", executive_summary: "Summary", topic_details: "[]", generated_at: "2026-01-01", created_at: "2026-01-01", updated_at: "2026-01-01" }),
+    getInsightMessages: vi.fn().mockResolvedValue([]),
+    insightChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
+    clearInsightMessages: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -397,6 +407,13 @@ describe("App", () => {
     fireEvent.click(screen.getByText("Empty Thread"));
     await waitFor(() => expect(screen.getByText(/No summary yet/)).toBeDefined());
     expect(screen.queryByPlaceholderText(/Ask a question/)).toBeNull();
+  });
+
+  it("clicking Insights nav renders insights placeholder view", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Insights"));
+    await waitFor(() => expect(screen.queryByTestId("meeting-row-m1")).toBeNull());
   });
 
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
