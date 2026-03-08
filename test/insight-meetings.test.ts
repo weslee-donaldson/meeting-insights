@@ -69,4 +69,13 @@ describe("discoverMeetingsForPeriod", () => {
     const result = discoverMeetingsForPeriod(db, "Acme", "2026-04-01", "2026-04-30");
     expect(result).toEqual([]);
   });
+
+  it("excludes meetings where client is not the top-confidence detection", () => {
+    db.prepare("INSERT INTO clients (name) VALUES ('Beta')").run();
+    db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m4', 'Cross-client', '2026-03-02')").run();
+    db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m4', 'Acme', 0.3, 'alias')").run();
+    db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m4', 'Beta', 0.9, 'alias')").run();
+    const result = discoverMeetingsForPeriod(db, "Acme", "2026-03-02", "2026-03-04");
+    expect(result).toEqual(["m1", "m2", "m3"]);
+  });
 });

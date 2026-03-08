@@ -186,6 +186,7 @@ export function discoverMeetingsForPeriod(db: Database, clientName: string, peri
     SELECT DISTINCT m.id FROM meetings m
     JOIN client_detections cd ON m.id = cd.meeting_id
     WHERE cd.client_name = ? AND m.date >= ? AND m.date <= ? AND m.ignored = 0
+      AND cd.confidence = (SELECT MAX(cd2.confidence) FROM client_detections cd2 WHERE cd2.meeting_id = m.id)
     ORDER BY m.date ASC
   `).all(clientName, periodStart, periodEnd) as { id: string }[];
   return rows.map((r) => r.id);
