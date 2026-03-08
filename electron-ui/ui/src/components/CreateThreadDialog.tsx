@@ -50,7 +50,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined}>
+      <DialogContent aria-describedby={undefined} className="min-w-[800px]">
         <DialogTitle>{isEdit ? "Edit Thread" : "Create Thread"}</DialogTitle>
         <div className="flex flex-col gap-3 mt-2">
           <label className="flex flex-col gap-1 text-sm">
@@ -82,15 +82,6 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span>Criteria Prompt</span>
-            <textarea
-              aria-label="Criteria Prompt"
-              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[160px] min-w-[400px]"
-              value={criteriaPrompt}
-              onChange={(e) => setCriteriaPrompt(e.target.value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
             <span>Keywords</span>
             <input
               aria-label="Keywords"
@@ -98,6 +89,15 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
               placeholder='e.g. deploy "ftp bug" rollback'
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Criteria Prompt</span>
+            <textarea
+              aria-label="Criteria Prompt"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[160px]"
+              value={criteriaPrompt}
+              onChange={(e) => setCriteriaPrompt(e.target.value)}
             />
           </label>
           <div className="flex justify-end gap-2 mt-2">

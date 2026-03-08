@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pid=$(lsof -ti :3000 2>/dev/null || true)
-if [ -n "$pid" ]; then
-  echo "Killing process on port 3000 (PID: $pid)"
-  kill "$pid"
+pids=$(lsof -ti :3000 2>/dev/null || true)
+if [ -n "$pids" ]; then
+  echo "Killing processes on port 3000: $pids"
+  echo "$pids" | xargs kill -9
   sleep 1
 fi
 

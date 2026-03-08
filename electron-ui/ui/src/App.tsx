@@ -404,9 +404,15 @@ export function App() {
     queryClient.setQueriesData<MeetingRow[]>({ queryKey: ["meetings"] }, (old) => old?.filter((m) => !idSet.has(m.id)));
     setCheckedMeetingIds(new Set());
     if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
-    await window.api.deleteMeetings(ids);
-    queryClient.invalidateQueries({ queryKey: ["meetings"] });
-    addToast(`${ids.length} meeting(s) deleted`, "success");
+    try {
+      await window.api.deleteMeetings(ids);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      addToast(`${ids.length} meeting(s) deleted`, "success");
+    } catch (err) {
+      console.error("Delete meetings failed:", err);
+      addToast(`Delete failed: ${(err as Error).message}`, "error");
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    }
   }, [pendingDeleteIds, selectedMeetingId, queryClient, addToast]);
 
   const handleReExtract = useCallback(async () => {
@@ -446,62 +452,107 @@ export function App() {
 
   const handleReassignClient = useCallback(async (clientName: string) => {
     if (!selectedMeetingId) return;
-    await window.api.reassignClient(selectedMeetingId, clientName);
-    queryClient.invalidateQueries({ queryKey: ["meetings"] });
-  }, [selectedMeetingId, queryClient]);
+    try {
+      await window.api.reassignClient(selectedMeetingId, clientName);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    } catch (err) {
+      console.error("Reassign client failed:", err);
+      addToast(`Reassign failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
 
   const handleCompleteActionItem = useCallback(async (itemIndex: number, note: string) => {
     if (!selectedMeetingId) return;
-    await window.api.completeActionItem(selectedMeetingId, itemIndex, note);
-    queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
-  }, [selectedMeetingId, queryClient]);
+    try {
+      await window.api.completeActionItem(selectedMeetingId, itemIndex, note);
+      queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
+    } catch (err) {
+      console.error("Complete action item failed:", err);
+      addToast(`Complete failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
 
   const handleUncompleteActionItem = useCallback(async (itemIndex: number) => {
     if (!selectedMeetingId) return;
-    await window.api.uncompleteActionItem(selectedMeetingId, itemIndex);
-    queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
-  }, [selectedMeetingId, queryClient]);
+    try {
+      await window.api.uncompleteActionItem(selectedMeetingId, itemIndex);
+      queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
+    } catch (err) {
+      console.error("Uncomplete action item failed:", err);
+      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
 
   const handleMultiCompleteActionItem = useCallback(async (mergedIndex: number, note: string) => {
     const origin = actionItemOrigins[mergedIndex];
     if (!origin) return;
-    await window.api.completeActionItem(origin.meetingId, origin.itemIndex, note);
-    queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
-  }, [actionItemOrigins, queryClient]);
+    try {
+      await window.api.completeActionItem(origin.meetingId, origin.itemIndex, note);
+      queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
+    } catch (err) {
+      console.error("Complete action item failed:", err);
+      addToast(`Complete failed: ${(err as Error).message}`, "error");
+    }
+  }, [actionItemOrigins, queryClient, addToast]);
 
   const handleMultiUncompleteActionItem = useCallback(async (mergedIndex: number) => {
     const origin = actionItemOrigins[mergedIndex];
     if (!origin) return;
-    await window.api.uncompleteActionItem(origin.meetingId, origin.itemIndex);
-    queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
-  }, [actionItemOrigins, queryClient]);
+    try {
+      await window.api.uncompleteActionItem(origin.meetingId, origin.itemIndex);
+      queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
+    } catch (err) {
+      console.error("Uncomplete action item failed:", err);
+      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
+    }
+  }, [actionItemOrigins, queryClient, addToast]);
 
   const handleCompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
-    await window.api.completeActionItem(meetingId, itemIndex, "");
-    queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
-    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-  }, [selectedClient, queryClient]);
+    try {
+      await window.api.completeActionItem(meetingId, itemIndex, "");
+      queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+    } catch (err) {
+      console.error("Complete action item failed:", err);
+      addToast(`Complete failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
 
   const handleCompletePreviewActionItem = useCallback(async (itemIndex: number, note: string) => {
     if (!previewMeetingId) return;
-    await window.api.completeActionItem(previewMeetingId, itemIndex, note);
-    queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
-    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-  }, [previewMeetingId, selectedClient, queryClient]);
+    try {
+      await window.api.completeActionItem(previewMeetingId, itemIndex, note);
+      queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+    } catch (err) {
+      console.error("Complete action item failed:", err);
+      addToast(`Complete failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
 
   const handleUncompletePreviewActionItem = useCallback(async (itemIndex: number) => {
     if (!previewMeetingId) return;
-    await window.api.uncompleteActionItem(previewMeetingId, itemIndex);
-    queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
-    queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-  }, [previewMeetingId, selectedClient, queryClient]);
+    try {
+      await window.api.uncompleteActionItem(previewMeetingId, itemIndex);
+      queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+    } catch (err) {
+      console.error("Uncomplete action item failed:", err);
+      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
 
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
-    await window.api.setIgnored(selectedMeetingId, true);
-    setSelectedMeetingId(null);
-    queryClient.invalidateQueries({ queryKey: ["meetings"] });
-  }, [selectedMeetingId, queryClient]);
+    try {
+      await window.api.setIgnored(selectedMeetingId, true);
+      setSelectedMeetingId(null);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    } catch (err) {
+      console.error("Ignore meeting failed:", err);
+      addToast(`Ignore failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
 
   const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads") => {
     setCurrentView(view);
@@ -532,42 +583,67 @@ export function App() {
 
   const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     if (!selectedClient) return;
-    const thread = await window.api.createThread({ ...data, client_name: selectedClient });
-    setCreateThreadOpen(false);
-    setThreadInitialDescription("");
-    if (activeMeetingIds.length > 0) {
-      for (const meetingId of activeMeetingIds) {
-        await window.api.addThreadMeeting(thread.id, meetingId, "Linked from chat", 100);
+    try {
+      const thread = await window.api.createThread({ ...data, client_name: selectedClient });
+      setCreateThreadOpen(false);
+      setThreadInitialDescription("");
+      if (activeMeetingIds.length > 0) {
+        for (const meetingId of activeMeetingIds) {
+          await window.api.addThreadMeeting(thread.id, meetingId, "Linked from chat", 100);
+        }
       }
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+    } catch (err) {
+      console.error("Create thread failed:", err);
+      addToast(`Create thread failed: ${(err as Error).message}`, "error");
     }
-    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedClient, activeMeetingIds, queryClient]);
+  }, [selectedClient, activeMeetingIds, queryClient, addToast]);
 
   const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     if (!selectedThreadId) return;
-    await window.api.updateThread(selectedThreadId, data);
-    setEditThreadOpen(false);
-    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedThreadId, selectedClient, queryClient]);
+    try {
+      await window.api.updateThread(selectedThreadId, data);
+      setEditThreadOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+    } catch (err) {
+      console.error("Update thread failed:", err);
+      addToast(`Update thread failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
   const handleDeleteThread = useCallback(async () => {
     if (!selectedThreadId) return;
-    await window.api.deleteThread(selectedThreadId);
-    setSelectedThreadId(null);
-    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedThreadId, selectedClient, queryClient]);
+    try {
+      await window.api.deleteThread(selectedThreadId);
+      setSelectedThreadId(null);
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+    } catch (err) {
+      console.error("Delete thread failed:", err);
+      addToast(`Delete thread failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
   const handleResolveThread = useCallback(async (status: "open" | "resolved") => {
     if (!selectedThreadId) return;
-    await window.api.updateThread(selectedThreadId, { status });
-    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedThreadId, selectedClient, queryClient]);
+    try {
+      await window.api.updateThread(selectedThreadId, { status });
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+    } catch (err) {
+      console.error("Resolve thread failed:", err);
+      addToast(`Resolve thread failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
   const handleFindCandidates = useCallback(async () => {
     if (!selectedThreadId) return;
-    const result = await window.api.getThreadCandidates(selectedThreadId);
-    setThreadCandidates(result);
-  }, [selectedThreadId]);
+    try {
+      const result = await window.api.getThreadCandidates(selectedThreadId);
+      setThreadCandidates(result);
+    } catch (err) {
+      console.error("Find candidates failed:", err);
+      addToast(`Find candidates failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, addToast]);
 
   const handleCandidateCheck = useCallback((checkedIds: Set<string>) => {
     setThreadPreviewCandidateIds(new Set(checkedIds));
@@ -575,35 +651,60 @@ export function App() {
 
   const handleEvaluateCandidates = useCallback(async (meetingIds: string[], overrideExisting: boolean) => {
     if (!selectedThreadId) return;
-    await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
-    setThreadCandidates([]);
-    setThreadPreviewCandidateIds(new Set());
-    queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
-  }, [selectedThreadId, queryClient]);
+    try {
+      await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
+      setThreadCandidates([]);
+      setThreadPreviewCandidateIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+    } catch (err) {
+      console.error("Evaluate candidates failed:", err);
+      addToast(`Evaluate candidates failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, queryClient, addToast]);
 
   const handleRemoveThreadMeeting = useCallback(async (meetingId: string) => {
     if (!selectedThreadId) return;
-    await window.api.removeThreadMeeting(selectedThreadId, meetingId);
-    queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
-  }, [selectedThreadId, queryClient]);
+    try {
+      await window.api.removeThreadMeeting(selectedThreadId, meetingId);
+      queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+    } catch (err) {
+      console.error("Remove thread meeting failed:", err);
+      addToast(`Remove meeting failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, queryClient, addToast]);
 
   const handleRegenerateThreadSummary = useCallback(async (meetingIds?: string[]) => {
     if (!selectedThreadId) return;
-    await window.api.regenerateThreadSummary(selectedThreadId, meetingIds);
-    queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-  }, [selectedThreadId, selectedClient, queryClient]);
+    try {
+      await window.api.regenerateThreadSummary(selectedThreadId, meetingIds);
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+    } catch (err) {
+      console.error("Regenerate summary failed:", err);
+      addToast(`Regenerate summary failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
   const handleThreadSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
     if (!selectedThreadId) return;
-    await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts });
-    queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
-  }, [selectedThreadId, queryClient]);
+    try {
+      await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts });
+      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+    } catch (err) {
+      console.error("Thread chat failed:", err);
+      addToast(`Thread chat failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, queryClient, addToast]);
 
   const handleClearThreadMessages = useCallback(async () => {
     if (!selectedThreadId) return;
-    await window.api.clearThreadMessages(selectedThreadId);
-    queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
-  }, [selectedThreadId, queryClient]);
+    try {
+      await window.api.clearThreadMessages(selectedThreadId);
+      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+    } catch (err) {
+      console.error("Clear messages failed:", err);
+      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedThreadId, queryClient, addToast]);
 
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
