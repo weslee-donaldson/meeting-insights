@@ -333,6 +333,70 @@ describe("InsightDetailView", () => {
     expect(headers[1].textContent).toContain("Jan 6");
   });
 
+  it("groups meetings by week when Week button is clicked", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-05", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-12", contribution_summary: "s2" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Week" }));
+    const headers = screen.getAllByTestId("meeting-group-header");
+    expect(headers).toHaveLength(2);
+    expect(headers[0].textContent).toContain("Week of Jan 12");
+    expect(headers[1].textContent).toContain("Week of Jan 5");
+  });
+
+  it("groups meetings by month when Month button is clicked", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-02-10", contribution_summary: "s2" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+    const headers = screen.getAllByTestId("meeting-group-header");
+    expect(headers).toHaveLength(2);
+    expect(headers[0].textContent).toContain("February 2026");
+    expect(headers[1].textContent).toContain("January 2026");
+  });
+
+  it("groups meetings by series when Series button is clicked", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Alpha Weekly", meeting_date: "2026-01-13", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Beta Daily", meeting_date: "2026-01-07", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Series" }));
+    const headers = screen.getAllByTestId("meeting-group-header");
+    expect(headers).toHaveLength(2);
+    expect(headers[0].textContent).toContain("Alpha Weekly");
+    expect(headers[1].textContent).toContain("Beta Daily");
+  });
+
   it("shows empty state message when no source meetings exist", () => {
     render(
       <InsightDetailView

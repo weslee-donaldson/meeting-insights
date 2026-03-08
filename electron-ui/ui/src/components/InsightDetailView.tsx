@@ -57,6 +57,58 @@ function groupMeetingsByDay(meetings: InsightMeeting[]): MeetingGroup[] {
     .map(([key, ms]) => ({ key, label: formatDayLabel(key), meetings: ms }));
 }
 
+function groupMeetingsByWeek(meetings: InsightMeeting[]): MeetingGroup[] {
+  const map = new Map<string, { meetings: InsightMeeting[]; monday: Date }>();
+  for (const m of meetings) {
+    const d = new Date(m.meeting_date.slice(0, 10) + "T12:00:00Z");
+    const day = d.getUTCDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(d);
+    monday.setUTCDate(d.getUTCDate() + diff);
+    const key = monday.toISOString().slice(0, 10);
+    if (!map.has(key)) map.set(key, { meetings: [], monday });
+    map.get(key)!.meetings.push(m);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, { meetings: ms, monday }]) => ({
+      key,
+      label: "Week of " + monday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }),
+      meetings: ms,
+    }));
+}
+
+function groupMeetingsByMonth(meetings: InsightMeeting[]): MeetingGroup[] {
+  const map = new Map<string, InsightMeeting[]>();
+  for (const m of meetings) {
+    const key = m.meeting_date.slice(0, 7);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, ms]) => {
+      const d = new Date(key + "-15T12:00:00Z");
+      return { key, label: d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }), meetings: ms };
+    });
+}
+
+function groupMeetingsBySeries(meetings: InsightMeeting[]): MeetingGroup[] {
+  const map = new Map<string, InsightMeeting[]>();
+  for (const m of meetings) {
+    const key = m.meeting_title.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return [...map.entries()]
+    .sort(([, a], [, b]) => b.length - a.length)
+    .map(([, ms]) => ({
+      key: ms[0].meeting_title,
+      label: ms[0].meeting_title,
+      meetings: ms.sort((a, b) => b.meeting_date.localeCompare(a.meeting_date)),
+    }));
+}
+
 function formatPeriodLabel(insight: Insight): string {
   const fmt = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -215,7 +267,10 @@ export function InsightDetailView({
             </div>
           ) : (
             <div className="flex flex-col">
-              {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings) : []).map((group) => (
+              {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings)
+                : meetingGroupBy === "week" ? groupMeetingsByWeek(meetings)
+                : meetingGroupBy === "month" ? groupMeetingsByMonth(meetings)
+                : groupMeetingsBySeries(meetings)).map((group) => (
                 <div key={group.key}>
                   <div data-testid="meeting-group-header" className="px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
                     {group.label}
