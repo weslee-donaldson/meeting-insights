@@ -1,3 +1,13 @@
+export function parseKeywords(input: string): string[] {
+  const terms: string[] = [];
+  const regex = /"([^"]+)"|(\S+)/g;
+  let match;
+  while ((match = regex.exec(input)) !== null) {
+    terms.push(match[1] ?? match[2]);
+  }
+  return terms;
+}
+
 export interface Thread {
   id: string;
   client_name: string;
