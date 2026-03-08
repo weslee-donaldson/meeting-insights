@@ -8,6 +8,21 @@ import { embed } from "./embedder.js";
 import type { VectorDb } from "./vector-db.js";
 import { createLogger } from "./logger.js";
 
+export function plainTextToHtml(text: string): string {
+  if (!text) return "";
+  return text.split(/\n\n+/).map((p) => `<p>${p}</p>`).join("");
+}
+
+export function stripHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export interface Insight {
   id: string;
   client_name: string;
