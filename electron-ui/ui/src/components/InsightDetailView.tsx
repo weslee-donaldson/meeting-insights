@@ -4,6 +4,13 @@ import { ScrollArea } from "./ui/scroll-area.js";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
+interface TopicDetail {
+  topic: string;
+  summary: string;
+  status: "green" | "yellow" | "red";
+  meeting_ids: string[];
+}
+
 interface InsightDetailViewProps {
   insight: Insight;
   meetings: InsightMeeting[];
@@ -43,6 +50,8 @@ export function InsightDetailView({
   onRegenerate,
   onFinalize,
 }: InsightDetailViewProps) {
+  const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
+
   return (
     <div className="flex flex-col h-full" data-testid="insight-detail-view">
       <div className="px-4 py-3 border-b border-border">
@@ -70,6 +79,38 @@ export function InsightDetailView({
             <p className="text-sm text-muted-foreground">No summary yet. Generate to create one.</p>
           )}
         </div>
+        {topics.length > 0 && (
+          <div className="px-4 py-3 border-t border-border">
+            <h3 className="text-xs font-semibold text-muted-foreground mb-2">Topic Details</h3>
+            <div className="flex flex-col gap-3">
+              {topics.map((topic) => (
+                <div key={topic.topic} className="flex items-start gap-2">
+                  <span
+                    data-testid="topic-rag-badge"
+                    className={cn("w-2.5 h-2.5 rounded-full shrink-0 mt-1", RAG_COLORS[topic.status])}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{topic.topic}</p>
+                    <p className="text-xs text-muted-foreground">{topic.summary}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {meetings.length > 0 && (
+          <div className="px-4 py-3 border-t border-border">
+            <h3 className="text-xs font-semibold text-muted-foreground mb-2">Source Meetings</h3>
+            <div className="flex flex-col">
+              {meetings.map((m) => (
+                <div key={m.meeting_id} className="px-4 py-2 text-sm border-b border-border last:border-b-0">
+                  <p className="font-medium">{m.meeting_title}</p>
+                  <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

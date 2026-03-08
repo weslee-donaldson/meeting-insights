@@ -90,6 +90,58 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("Final")).toBeDefined();
   });
 
+  it("renders topic details with per-topic RAG badges", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Topic Details")).toBeDefined();
+    expect(screen.getByText("Feature Delivery")).toBeDefined();
+    expect(screen.getByText("On track")).toBeDefined();
+    expect(screen.getByText("Open Issues")).toBeDefined();
+    expect(screen.getByText("Two blockers")).toBeDefined();
+    const topicBadges = screen.getAllByTestId("topic-rag-badge");
+    expect(topicBadges).toHaveLength(2);
+    expect(topicBadges[0].className).toContain("bg-green");
+    expect(topicBadges[1].className).toContain("bg-red");
+  });
+
+  it("renders source meetings with titles and contribution summaries", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Source Meetings")).toBeDefined();
+    expect(screen.getByText("Alpha Weekly")).toBeDefined();
+    expect(screen.getByText("Discussed features")).toBeDefined();
+    expect(screen.getByText("Beta Daily")).toBeDefined();
+    expect(screen.getByText("Reviewed blockers")).toBeDefined();
+  });
+
+  it("shows no topics section when topic_details is empty array", () => {
+    const noTopics = { ...INSIGHT, topic_details: "[]" };
+    render(
+      <InsightDetailView
+        insight={noTopics}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("Topic Details")).toBeNull();
+  });
+
   it("shows no summary placeholder when executive_summary is empty", () => {
     const emptyInsight = { ...INSIGHT, executive_summary: "", rag_rationale: "" };
     render(

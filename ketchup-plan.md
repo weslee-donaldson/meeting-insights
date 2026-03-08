@@ -25,7 +25,7 @@
 - [x] Burst 578: InsightsView component (list with RAG badges)
 - [x] Burst 579: CreateInsightDialog (period picker + date selector)
 - [x] Burst 580: App.tsx wires insightsQuery and insight creation
-- [ ] Burst 581: InsightDetailView header + RAG badge + executive summary
+- [x] Burst 581: InsightDetailView header + RAG badge + executive summary
 - [ ] Burst 582: InsightDetailView topic details + source meetings
 - [ ] Burst 583: InsightDetailView regenerate + finalize/reopen buttons
 - [ ] Burst 584: App.tsx wires insight detail + delete + update handlers
