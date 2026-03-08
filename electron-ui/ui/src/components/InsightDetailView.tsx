@@ -140,6 +140,17 @@ export function InsightDetailView({
 
   const uncheckedIds = meetings.filter((m) => !checked.has(m.meeting_id)).map((m) => m.meeting_id);
 
+  function checkGroup(meetingIds: string[], value: boolean) {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      for (const id of meetingIds) {
+        if (value) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  }
+
   function toggleMeeting(meetingId: string) {
     setChecked((prev) => {
       const next = new Set(prev);
@@ -272,8 +283,27 @@ export function InsightDetailView({
                 : meetingGroupBy === "month" ? groupMeetingsByMonth(meetings)
                 : groupMeetingsBySeries(meetings)).map((group) => (
                 <div key={group.key}>
-                  <div data-testid="meeting-group-header" className="px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
-                    {group.label}
+                  <div data-testid="meeting-group-header" className="flex items-center justify-between px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
+                    <span>{group.label}</span>
+                    {group.meetings.every((m) => checked.has(m.meeting_id)) ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto px-1 py-0 text-xs"
+                        onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), false)}
+                      >
+                        Deselect all
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto px-1 py-0 text-xs"
+                        onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), true)}
+                      >
+                        Select all
+                      </Button>
+                    )}
                   </div>
                   {group.meetings.map((m) => (
                     <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">

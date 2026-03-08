@@ -397,6 +397,59 @@ describe("InsightDetailView", () => {
     expect(headers[1].textContent).toContain("Beta Daily");
   });
 
+  it("per-group select all selects only meetings in that group", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Beta", meeting_date: "2026-01-07", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    const checkboxes = screen.getAllByRole("checkbox");
+    checkboxes.forEach((cb) => fireEvent.click(cb));
+    expect(checkboxes.every((cb) => !(cb as HTMLInputElement).checked)).toBe(true);
+    const selectBtns = screen.getAllByRole("button", { name: "Select all" });
+    expect(selectBtns).toHaveLength(2);
+    fireEvent.click(selectBtns[0]);
+    const group1Checkboxes = checkboxes.slice(0, 1);
+    const group2Checkboxes = checkboxes.slice(1);
+    expect(group1Checkboxes.every((cb) => (cb as HTMLInputElement).checked)).toBe(true);
+    expect(group2Checkboxes.every((cb) => !(cb as HTMLInputElement).checked)).toBe(true);
+  });
+
+  it("per-group deselect all deselects only meetings in that group", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-07", contribution_summary: "s2" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    const deselectBtns = screen.getAllByRole("button", { name: "Deselect all" });
+    expect(deselectBtns).toHaveLength(2);
+    fireEvent.click(deselectBtns[0]);
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+  });
+
   it("shows empty state message when no source meetings exist", () => {
     render(
       <InsightDetailView
