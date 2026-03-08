@@ -310,13 +310,13 @@ export function ThreadDetailView({
               </Button>
             </div>
             <div className="px-4 py-1 flex items-center gap-1">
-              <span className="text-[0.65rem] text-muted-foreground mr-1">Group:</span>
+              <span className="text-xs text-muted-foreground mr-1">Group:</span>
               {CANDIDATE_GROUP_MODES.map(({ value, label }) => (
                 <Button
                   key={value}
                   size="sm"
                   variant={candidateGroupBy === value ? "default" : "outline"}
-                  className="h-auto px-2 py-0.5 text-[0.65rem]"
+                  className="h-auto px-2 py-0.5 text-xs"
                   onClick={() => setCandidateGroupBy(value)}
                 >
                   {label}
