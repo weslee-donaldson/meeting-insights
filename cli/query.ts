@@ -59,20 +59,20 @@ function resolveMeetingIds(db: Database, opts: { client?: string; meeting?: stri
     r.title.toLowerCase().includes(opts.meeting!.toLowerCase()) || r.id.startsWith(opts.meeting!),
   );
   if (opts.client) {
-    const clientIds = new Set(
-      (db.prepare("SELECT meeting_id FROM client_detections WHERE client_name = ?").all(opts.client) as unknown as { meeting_id: string }[])
+    const clientMeetings = new Set(
+      (db.prepare("SELECT m.id AS meeting_id FROM meetings m JOIN clients c ON m.client_id = c.id WHERE c.name = ?").all(opts.client) as unknown as { meeting_id: string }[])
         .map(r => r.meeting_id),
     );
-    rows = rows.filter(r => clientIds.has(r.id));
+    rows = rows.filter(r => clientMeetings.has(r.id));
   }
   return rows.map(r => r.id);
 }
 
 function clientForMeeting(db: Database, meetingId: string): string {
   const row = db.prepare(
-    "SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
-  ).get(meetingId) as { client_name: string } | undefined;
-  return row?.client_name ?? "";
+    "SELECT c.name FROM meetings m JOIN clients c ON m.client_id = c.id WHERE m.id = ?",
+  ).get(meetingId) as { name: string } | undefined;
+  return row?.name ?? "";
 }
 
 function meetingHeader(title: string, date: string, client: string): string {
@@ -121,15 +121,15 @@ function printMeetingsList(db: Database, ids: string[]): void {
   console.log("─".repeat(header.length));
   for (const id of ids) {
     const mtg = getMeeting(db, id);
-    const cd  = db.prepare(
-      "SELECT client_name, confidence FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1",
-    ).get(id) as { client_name: string; confidence: number } | undefined;
+    const clientRow = db.prepare(
+      "SELECT c.name FROM meetings m JOIN clients c ON m.client_id = c.id WHERE m.id = ?",
+    ).get(id) as { name: string } | undefined;
     console.log([
       id.slice(0, 8).padEnd(10),
       (mtg.title.length > 38 ? mtg.title.slice(0, 37) + "…" : mtg.title).padEnd(40),
       mtg.date.slice(0, 10).padEnd(12),
-      (cd?.client_name ?? "").padEnd(16),
-      cd ? cd.confidence.toFixed(2) : "",
+      (clientRow?.name ?? "").padEnd(16),
+      "",
     ].join("  "));
   }
   console.log();
