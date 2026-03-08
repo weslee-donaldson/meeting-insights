@@ -129,8 +129,7 @@ test.describe("Insights E2E", () => {
       await expect(page.getByText("No insights")).toBeVisible();
     });
 
-    test("creates insight and shows in-progress then success toast", async ({ page }) => {
-      test.setTimeout(120_000);
+    test("creates insight and shows discovery then success toast", async ({ page }) => {
       await selectClient(page, CLIENT);
       await navigateToInsights(page);
       await page.getByLabel("New Insight").click();
@@ -140,15 +139,14 @@ test.describe("Insights E2E", () => {
       await page.getByRole("button", { name: "Week" }).click();
       await page.getByRole("button", { name: "Create", exact: true }).click();
 
-      await waitForToast(page, "Generating insight...");
+      await waitForToast(page, "Discovering meetings...");
       const container = page.locator(".fixed.top-4.right-4");
-      await expect(container.getByText(/Insight created|Create insight failed/)).toBeVisible({ timeout: 90_000 });
+      await expect(container.getByText(/Insight created|Create insight failed/)).toBeVisible({ timeout: 15_000 });
 
       await expect(page.getByText("No insights")).toBeHidden();
     });
 
-    test("created insight appears in list with RAG badge and period type", async ({ page }) => {
-      test.setTimeout(120_000);
+    test("created insight appears in list with period type badge", async ({ page }) => {
       await selectClient(page, CLIENT);
       await navigateToInsights(page);
       await page.getByLabel("New Insight").click();
@@ -156,10 +154,9 @@ test.describe("Insights E2E", () => {
       await page.getByRole("button", { name: "Week" }).click();
       await page.getByRole("button", { name: "Create", exact: true }).click();
       const container = page.locator(".fixed.top-4.right-4");
-      await expect(container.getByText(/Insight created|Create insight failed/)).toBeVisible({ timeout: 90_000 });
+      await expect(container.getByText(/Insight created|Create insight failed/)).toBeVisible({ timeout: 15_000 });
 
       const insightsView = page.getByTestId("insights-view");
-      await expect(insightsView.getByTestId("rag-badge")).toBeVisible();
       await expect(insightsView.getByText("Week")).toBeVisible();
     });
   });
@@ -188,11 +185,11 @@ test.describe("Insights E2E", () => {
       await expect(checkboxes.first()).toBeVisible();
     });
 
-    test("action buttons (Regenerate, Finalize, Delete) are visible", async ({ page }) => {
+    test("action buttons (Generate, Finalize, Delete) are visible for empty draft", async ({ page }) => {
       await setupInsightAndNavigate(page, CLIENT);
       await clickInsightRow(page);
       const detail = page.getByTestId("insight-detail-view");
-      await expect(detail.getByText("Regenerate")).toBeVisible();
+      await expect(detail.getByText("Generate")).toBeVisible();
       await expect(detail.getByText("Finalize")).toBeVisible();
       await expect(detail.getByText("Delete")).toBeVisible();
     });
@@ -219,15 +216,15 @@ test.describe("Insights E2E", () => {
     });
   });
 
-  test.describe("Regenerate", () => {
-    test("regenerate shows in-progress and completion toasts", async ({ page }) => {
+  test.describe("Generate", () => {
+    test("generate shows in-progress and completion toasts for empty draft", async ({ page }) => {
       test.setTimeout(120_000);
       await setupInsightAndNavigate(page, CLIENT);
       await clickInsightRow(page);
-      await page.getByTestId("insight-detail-view").getByText("Regenerate").click();
-      await waitForToast(page, "Regenerating insight...");
+      await page.getByTestId("insight-detail-view").getByText("Generate").click();
+      await waitForToast(page, "Generating insight...");
       const container = page.locator(".fixed.top-4.right-4");
-      await expect(container.getByText(/Insight regenerated|Regenerate insight failed/)).toBeVisible({ timeout: 90_000 });
+      await expect(container.getByText(/Insight generated|Generate insight failed/)).toBeVisible({ timeout: 90_000 });
     });
   });
 
