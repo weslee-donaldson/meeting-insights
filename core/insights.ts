@@ -181,7 +181,10 @@ export function getInsightMeetings(db: Database, insightId: string): InsightMeet
   }));
 }
 
-export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
+
+export function removeInsightMeeting(db: Database, insightId: string, meetingId: string): void {
+  db.prepare("DELETE FROM insight_meetings WHERE insight_id = ? AND meeting_id = ?").run(insightId, meetingId);
+}export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
   const rows = db.prepare(`
     SELECT DISTINCT m.id FROM meetings m
     JOIN client_detections cd ON m.id = cd.meeting_id

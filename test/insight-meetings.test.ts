@@ -4,6 +4,7 @@ import type { Database } from "../core/db.js";
 import {
   createInsight,
   addInsightMeeting,
+  removeInsightMeeting,
   getInsightMeetings,
   discoverMeetingsForPeriod,
 } from "../core/insights.js";
@@ -49,6 +50,27 @@ describe("getInsightMeetings", () => {
       { insight_id: ins.id, meeting_id: "m1", meeting_title: "Standup Mon", meeting_date: "2026-03-02", contribution_summary: "Monday update" },
       { insight_id: ins.id, meeting_id: "m2", meeting_title: "Standup Tue", meeting_date: "2026-03-03", contribution_summary: "Tuesday update" },
     ]);
+  });
+});
+
+describe("removeInsightMeeting", () => {
+  it("removes a linked meeting from an insight", () => {
+    const ins = createInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-02", period_end: "2026-03-08" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "Monday" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m2", contribution_summary: "Tuesday" });
+    removeInsightMeeting(db, ins.id, "m1");
+    const remaining = getInsightMeetings(db, ins.id);
+    expect(remaining).toEqual([
+      { insight_id: ins.id, meeting_id: "m2", meeting_title: "Standup Tue", meeting_date: "2026-03-03", contribution_summary: "Tuesday" },
+    ]);
+  });
+
+  it("is a no-op when meeting is not linked", () => {
+    const ins = createInsight(db, { client_name: "Acme", period_type: "day", period_start: "2026-03-02", period_end: "2026-03-02" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "v1" });
+    removeInsightMeeting(db, ins.id, "m99");
+    const remaining = getInsightMeetings(db, ins.id);
+    expect(remaining).toHaveLength(1);
   });
 });
 
