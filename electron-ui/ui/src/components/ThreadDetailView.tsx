@@ -137,7 +137,7 @@ function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: Can
     <div className="flex flex-col">
       {groups.map((g) => (
         <div key={g.key}>
-          <div data-group-header="" className="px-4 py-1 text-[0.65rem] font-semibold text-muted-foreground bg-secondary/40">{g.label}</div>
+          <div data-group-header="" className="px-4 py-1.5 text-xs font-semibold text-muted-foreground bg-secondary/60">{g.label}</div>
           {g.candidates.map((c) => (
             <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} indented />
           ))}
