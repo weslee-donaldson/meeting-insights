@@ -365,13 +365,19 @@ export async function evaluateConfirmedCandidates(
   thread: Thread,
   meetingIds: string[],
   overrideExisting: boolean,
-): Promise<{ added: number; updated: number }> {
+): Promise<{ added: number; updated: number; errors: Array<{ meetingId: string; reason: string }> }> {
   const existingRows = db.prepare("SELECT meeting_id FROM thread_meetings WHERE thread_id = ?").all(thread.id) as { meeting_id: string }[];
   const existingSet = new Set(existingRows.map((r) => r.meeting_id));
   const toEvaluate = overrideExisting ? meetingIds : meetingIds.filter((id) => !existingSet.has(id));
   let added = 0;
   let updated = 0;
+  const errors: Array<{ meetingId: string; reason: string }> = [];
   for (const meetingId of toEvaluate) {
+    const art = getArtifact(db, meetingId);
+    if (!art) {
+      errors.push({ meetingId, reason: "No artifact found" });
+      continue;
+    }
     const evalResult = await evaluateMeetingAgainstThread(db, llm, meetingId, thread);
     if (evalResult.related) {
       const isExisting = existingSet.has(meetingId);
@@ -383,7 +389,7 @@ export async function evaluateConfirmedCandidates(
       }
     }
   }
-  return { added, updated };
+  return { added, updated, errors };
 }
 
 interface MeetingTitleRow { id: string; title: string; date: string; }

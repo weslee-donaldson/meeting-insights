@@ -27,8 +27,7 @@ describe("evaluateConfirmedCandidates", () => {
   it("adds new associations when no existing meetings", async () => {
     const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
     const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], false);
-    expect(result.added).toBe(2);
-    expect(result.updated).toBe(0);
+    expect(result).toEqual({ added: 2, updated: 0, errors: [] });
     const meetings = getThreadMeetings(db, threadId);
     expect(meetings).toHaveLength(2);
   });
@@ -37,8 +36,7 @@ describe("evaluateConfirmedCandidates", () => {
     addThreadMeeting(db, { thread_id: threadId, meeting_id: "m1", relevance_summary: "Old", relevance_score: 40 });
     const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
     const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], false);
-    expect(result.added).toBe(1);
-    expect(result.updated).toBe(0);
+    expect(result).toEqual({ added: 1, updated: 0, errors: [] });
     const meetings = getThreadMeetings(db, threadId);
     expect(meetings.find((m) => m.meeting_id === "m1")?.relevance_score).toBe(40);
   });
@@ -47,9 +45,24 @@ describe("evaluateConfirmedCandidates", () => {
     addThreadMeeting(db, { thread_id: threadId, meeting_id: "m1", relevance_summary: "Old", relevance_score: 40 });
     const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
     const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m2"], true);
-    expect(result.added).toBe(1);
-    expect(result.updated).toBe(1);
+    expect(result).toEqual({ added: 1, updated: 1, errors: [] });
     const meetings = getThreadMeetings(db, threadId);
     expect(meetings.find((m) => m.meeting_id === "m1")?.relevance_score).toBe(75);
+  });
+
+  it("reports errors for meetings with missing artifacts", async () => {
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m-no-art', 'No Artifact', '2026-03-20')").run();
+    const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
+    const result = await evaluateConfirmedCandidates(db, llm, thread, ["m1", "m-no-art"], false);
+    expect(result).toEqual({ added: 1, updated: 0, errors: [{ meetingId: "m-no-art", reason: "No artifact found" }] });
+  });
+
+  it("reports not_related for meetings the LLM marks as unrelated", async () => {
+    const rejectLlm = createLlmAdapter({ type: "stub" });
+    rejectLlm.complete = async () => ({ related: false, relevance_summary: "Not related", relevance_score: 10 });
+    const thread = db.prepare("SELECT * FROM threads WHERE id = ?").get(threadId) as Parameters<typeof evaluateConfirmedCandidates>[2];
+    const result = await evaluateConfirmedCandidates(db, rejectLlm, thread, ["m1", "m2"], false);
+    expect(result).toEqual({ added: 0, updated: 0, errors: [] });
+    expect(getThreadMeetings(db, threadId)).toHaveLength(0);
   });
 });
