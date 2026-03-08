@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createThread, evaluateMeetingAgainstThread } from "../core/threads.js";
@@ -43,6 +43,23 @@ describe("evaluateMeetingAgainstThread", () => {
       relevance_summary: "Stub relevance.",
       relevance_score: 75,
     });
+  });
+
+  it("injects keywords into the evaluation prompt", async () => {
+    const thread = createThread(db, {
+      client_name: "Acme",
+      title: "FTP issues",
+      shorthand: "FTP",
+      description: "FTP failures",
+      criteria_prompt: "Look for FTP",
+      keywords: '"ftp bug" rollback',
+    });
+    const spyLlm = createLlmAdapter({ type: "stub" });
+    const completeSpy = vi.spyOn(spyLlm, "complete");
+    await evaluateMeetingAgainstThread(db, spyLlm, "m1", thread);
+    const prompt = completeSpy.mock.calls[0][1] as string;
+    expect(prompt).toContain('"ftp bug" rollback');
+    expect(prompt).toContain("Keywords to look for:");
   });
 
   it("returns not-related when no artifact exists for the meeting", async () => {

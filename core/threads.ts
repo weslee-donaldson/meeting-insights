@@ -273,6 +273,7 @@ const DEFAULT_EVAL_TEMPLATE = `You are evaluating whether a meeting is related t
 Title: {{thread_title}}
 Description: {{thread_description}}
 Evaluation criteria: {{criteria_prompt}}
+Keywords to look for: {{keywords}}
 
 ## Meeting Context
 {{meeting_context}}
@@ -311,6 +312,7 @@ export async function evaluateMeetingAgainstThread(
     .replace("{{thread_title}}", thread.title)
     .replace("{{thread_description}}", thread.description)
     .replace("{{criteria_prompt}}", thread.criteria_prompt)
+    .replace("{{keywords}}", thread.keywords)
     .replace("{{meeting_context}}", context);
   const result = await llm.complete("evaluate_thread", prompt);
   return {
