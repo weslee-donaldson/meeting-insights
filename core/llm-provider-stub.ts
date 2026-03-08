@@ -34,6 +34,15 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     relevance_summary: "Stub relevance.",
     relevance_score: 75,
   },
+  generate_insight: {
+    executive_summary: "Stub executive summary of the reporting period.",
+    rag_status: "yellow",
+    rag_rationale: "Some action items remain open from previous period.",
+    topic_details: [
+      { topic: "Feature Delivery", summary: "Feature X is on track.", status: "green", meeting_ids: [] },
+      { topic: "Open Issues", summary: "Two unresolved blockers.", status: "yellow", meeting_ids: [] },
+    ],
+  },
 };
 
 export function createStubAdapter(): LlmAdapter {

@@ -3,7 +3,7 @@ import { createLocalAdapter } from "./llm-provider-local.js";
 import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
 import { createOpenaiAdapter } from "./llm-provider-openai.js";
 
-export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread";
+export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight";
 
 export interface ImageAttachment {
   name: string;

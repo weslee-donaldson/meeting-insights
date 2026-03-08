@@ -32,6 +32,10 @@ describe("createStubAdapter", () => {
     }
   });
 
+  it("complete returns fixture for generate_insight", async () => {
+    expect(await adapter.complete("generate_insight", "meetings")).toEqual(STUB_FIXTURES.generate_insight);
+  });
+
   it("converse returns stub answer string", async () => {
     expect(await adapter.converse("system prompt", [{ role: "user", content: "hello" }])).toBe("Stub answer based on meeting context.");
   });
