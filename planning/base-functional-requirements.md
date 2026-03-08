@@ -13,6 +13,7 @@ Rules that apply to every interactive view in the application. Treat these as de
 - Every user-initiated mutation surfaces a toast on completion: success or error.
 - Success toasts confirm what happened (e.g., "Insight deleted").
 - Error toasts include the error message so the user can report or retry.
+- Long-running operations (LLM generation, multi-step workflows) show an immediate "in progress" toast when the command is received, then a completion toast when the result arrives. The user should never wonder whether their click was registered.
 
 ## State Consistency
 

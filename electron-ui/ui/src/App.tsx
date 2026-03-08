@@ -60,6 +60,9 @@ export function App() {
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [createInsightOpen, setCreateInsightOpen] = useState(false);
   const [pendingDeleteInsightId, setPendingDeleteInsightId] = useState<string | null>(null);
+  const [pendingDeleteThreadId, setPendingDeleteThreadId] = useState<string | null>(null);
+  const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
+  const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -484,6 +487,7 @@ export function App() {
     try {
       await window.api.reassignClient(selectedMeetingId, clientName);
       queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      addToast(`Client reassigned to ${clientName}`, "success");
     } catch (err) {
       console.error("Reassign client failed:", err);
       addToast(`Reassign failed: ${(err as Error).message}`, "error");
@@ -577,6 +581,7 @@ export function App() {
       await window.api.setIgnored(selectedMeetingId, true);
       setSelectedMeetingId(null);
       queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      addToast("Meeting hidden", "success");
     } catch (err) {
       console.error("Ignore meeting failed:", err);
       addToast(`Ignore failed: ${(err as Error).message}`, "error");
@@ -622,6 +627,7 @@ export function App() {
         }
       }
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      addToast("Thread created", "success");
     } catch (err) {
       console.error("Create thread failed:", err);
       addToast(`Create thread failed: ${(err as Error).message}`, "error");
@@ -634,29 +640,40 @@ export function App() {
       await window.api.updateThread(selectedThreadId, data);
       setEditThreadOpen(false);
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      addToast("Thread updated", "success");
     } catch (err) {
       console.error("Update thread failed:", err);
       addToast(`Update thread failed: ${(err as Error).message}`, "error");
     }
   }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
-  const handleDeleteThread = useCallback(async () => {
+  const handleDeleteThread = useCallback(() => {
     if (!selectedThreadId) return;
+    setPendingDeleteThreadId(selectedThreadId);
+  }, [selectedThreadId]);
+
+  const handleConfirmDeleteThread = useCallback(async () => {
+    const id = pendingDeleteThreadId;
+    setPendingDeleteThreadId(null);
+    if (!id) return;
+    setSelectedThreadId(null);
     try {
-      await window.api.deleteThread(selectedThreadId);
-      setSelectedThreadId(null);
+      await window.api.deleteThread(id);
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      addToast("Thread deleted", "success");
     } catch (err) {
       console.error("Delete thread failed:", err);
       addToast(`Delete thread failed: ${(err as Error).message}`, "error");
+      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
     }
-  }, [selectedThreadId, selectedClient, queryClient, addToast]);
+  }, [pendingDeleteThreadId, selectedClient, queryClient, addToast]);
 
   const handleResolveThread = useCallback(async (status: "open" | "resolved") => {
     if (!selectedThreadId) return;
     try {
       await window.api.updateThread(selectedThreadId, { status });
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      addToast(status === "resolved" ? "Thread resolved" : "Thread reopened", "success");
     } catch (err) {
       console.error("Resolve thread failed:", err);
       addToast(`Resolve thread failed: ${(err as Error).message}`, "error");
@@ -704,6 +721,7 @@ export function App() {
     try {
       await window.api.removeThreadMeeting(selectedThreadId, meetingId);
       queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+      addToast("Meeting removed from thread", "success");
     } catch (err) {
       console.error("Remove thread meeting failed:", err);
       addToast(`Remove meeting failed: ${(err as Error).message}`, "error");
@@ -713,8 +731,10 @@ export function App() {
   const handleRegenerateThreadSummary = useCallback(async (meetingIds?: string[]) => {
     if (!selectedThreadId) return;
     try {
+      addToast("Regenerating summary...", "success");
       await window.api.regenerateThreadSummary(selectedThreadId, meetingIds);
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      addToast("Summary regenerated", "success");
     } catch (err) {
       console.error("Regenerate summary failed:", err);
       addToast(`Regenerate summary failed: ${(err as Error).message}`, "error");
@@ -732,11 +752,18 @@ export function App() {
     }
   }, [selectedThreadId, queryClient, addToast]);
 
-  const handleClearThreadMessages = useCallback(async () => {
+  const handleClearThreadMessages = useCallback(() => {
+    if (!selectedThreadId) return;
+    setPendingClearThreadMessages(true);
+  }, [selectedThreadId]);
+
+  const handleConfirmClearThreadMessages = useCallback(async () => {
+    setPendingClearThreadMessages(false);
     if (!selectedThreadId) return;
     try {
       await window.api.clearThreadMessages(selectedThreadId);
       queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+      addToast("Messages cleared", "success");
     } catch (err) {
       console.error("Clear messages failed:", err);
       addToast(`Clear messages failed: ${(err as Error).message}`, "error");
@@ -746,12 +773,14 @@ export function App() {
   const handleCreateInsight = useCallback(async (data: { period_type: "day" | "week" | "month"; period_start: string; period_end: string }) => {
     if (!selectedClient) return;
     try {
-      const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
       setCreateInsightOpen(false);
+      addToast("Generating insight...", "success");
+      const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
       await window.api.discoverInsightMeetings(insight.id);
       await window.api.generateInsight(insight.id);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
       setSelectedInsightId(insight.id);
+      addToast("Insight created", "success");
     } catch (err) {
       console.error("Create insight failed:", err);
       addToast(`Create insight failed: ${(err as Error).message}`, "error");
@@ -785,6 +814,7 @@ export function App() {
     try {
       await window.api.updateInsight(selectedInsightId, { status: newStatus });
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast(newStatus === "final" ? "Insight finalized" : "Insight reopened", "success");
     } catch (err) {
       console.error("Update insight failed:", err);
       addToast(`Update insight failed: ${(err as Error).message}`, "error");
@@ -794,6 +824,7 @@ export function App() {
   const handleRegenerateInsight = useCallback(async () => {
     if (!selectedInsightId) return;
     try {
+      addToast("Regenerating insight...", "success");
       await window.api.generateInsight(selectedInsightId);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
       addToast("Insight regenerated", "success");
@@ -814,11 +845,18 @@ export function App() {
     }
   }, [selectedInsightId, queryClient, addToast]);
 
-  const handleClearInsightMessages = useCallback(async () => {
+  const handleClearInsightMessages = useCallback(() => {
+    if (!selectedInsightId) return;
+    setPendingClearInsightMessages(true);
+  }, [selectedInsightId]);
+
+  const handleConfirmClearInsightMessages = useCallback(async () => {
+    setPendingClearInsightMessages(false);
     if (!selectedInsightId) return;
     try {
       await window.api.clearInsightMessages(selectedInsightId);
       queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
+      addToast("Messages cleared", "success");
     } catch (err) {
       console.error("Clear insight messages failed:", err);
       addToast(`Clear messages failed: ${(err as Error).message}`, "error");
@@ -1087,6 +1125,45 @@ export function App() {
         <div className="flex gap-2 justify-end">
           <Button variant="outline" size="sm" onClick={() => setPendingDeleteInsightId(null)}>Cancel</Button>
           <Button variant="destructive" size="sm" onClick={handleConfirmDeleteInsight}>Delete permanently</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={pendingDeleteThreadId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteThreadId(null); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Delete thread</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Permanently delete this thread and its associated data?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingDeleteThreadId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteThread}>Delete permanently</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={pendingClearThreadMessages} onOpenChange={(o) => { if (!o) setPendingClearThreadMessages(false); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Clear messages</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Clear all chat messages for this thread?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingClearThreadMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmClearThreadMessages}>Clear messages</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={pendingClearInsightMessages} onOpenChange={(o) => { if (!o) setPendingClearInsightMessages(false); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Clear messages</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Clear all chat messages for this insight?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingClearInsightMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmClearInsightMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>
