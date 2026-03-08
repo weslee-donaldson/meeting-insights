@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Trash2, ListChecks, EyeOff } from "lucide-react";
+import { Trash2, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
@@ -292,13 +292,15 @@ export function MeetingList({
                   <span className="text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                     {group.label}
                   </span>
-                  <button
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-auto px-2 py-0.5 text-xs"
                     onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
                     aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
-                    className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0 hover:text-foreground"
                   >
-                    <ListChecks className="w-3.5 h-3.5" />
-                  </button>
+                    {allChecked ? "Deselect all" : "Select all"}
+                  </Button>
                   {onIgnoreGroup && (
                     <button
                       onClick={() => onIgnoreGroup(groupIds)}
