@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createStubAdapter } from "../core/llm-provider-stub.js";
+import { createStubAdapter, STUB_FIXTURES } from "../core/llm-provider-stub.js";
+import type { LlmAdapter } from "../core/llm-adapter.js";
 import { createInsight, addInsightMeeting, getInsight, generateInsight } from "../core/insights.js";
 
 let db: Database;
@@ -63,3 +64,23 @@ describe("generateInsight", () => {
     expect(result.rag_status).toBe("green");
   });
 });
+
+  it("sends prompt with template instructions to LLM", async () => {
+    let capturedPrompt = "";
+    const spyLlm: LlmAdapter = {
+      async complete(_cap, content) {
+        capturedPrompt = content;
+        return STUB_FIXTURES.generate_insight;
+      },
+      async converse() { return ""; },
+    };
+    const insight = createInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
+    addInsightMeeting(db, { insight_id: insight.id, meeting_id: "m1", contribution_summary: "" });
+
+    await generateInsight(db, spyLlm, insight.id);
+
+    expect(capturedPrompt).toContain("Return ONLY valid JSON");
+    expect(capturedPrompt).toContain("## Client\nAcme");
+    expect(capturedPrompt).toContain("week: 2026-03-01 to 2026-03-07");
+    expect(capturedPrompt).toContain("Sprint review covered feature delivery.");
+  });

@@ -264,6 +264,35 @@ export function markInsightMessagesStale(db: Database, insightId: string, delete
 
 const log = createLogger("insights");
 
+const DEFAULT_INSIGHT_TEMPLATE = `You are generating an executive insight report for a client over a specific time period.
+
+## Client
+{{client_name}}
+
+## Period
+{{period_type}}: {{period_start}} to {{period_end}}
+
+## Meeting Artifacts
+{{meeting_artifacts}}
+
+## Instructions
+Analyze all meeting artifacts above and produce a structured executive report.
+
+Assess overall client health using RAG criteria:
+- GREEN: On track, no blockers, commitments being met
+- YELLOW: Minor concerns, open items needing attention, some risk
+- RED: Significant blockers, stalled progress, relationship strain
+
+Return ONLY valid JSON:
+- \`executive_summary\` (string): 3-5 sentence overview covering the most important developments, decisions, and concerns across the period. Write for a leadership audience who needs to understand client status quickly.
+- \`rag_status\` ("red" | "yellow" | "green"): Overall health assessment
+- \`rag_rationale\` (string): 1-2 sentences explaining the RAG assessment with specific evidence
+- \`topic_details\` (array of objects): Group findings by topic. Each:
+    - \`topic\` (string): Topic name (e.g. "Feature Delivery", "Team Capacity", "Client Relationship")
+    - \`summary\` (string): 2-3 sentences covering what happened in this area
+    - \`status\` ("red" | "yellow" | "green"): Per-topic health
+    - \`meeting_ids\` (string[]): IDs of meetings that informed this topic`;
+
 function buildMeetingArtifactContext(meetingId: string, title: string, art: ArtifactRow): string {
   const parts: string[] = [`### Meeting: ${title} (${meetingId})`];
   parts.push(`Summary: ${art.summary}`);
@@ -297,7 +326,12 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
     const art = getArtifact(db, m.meeting_id);
     if (art) contextParts.push(buildMeetingArtifactContext(m.meeting_id, m.meeting_title, art));
   }
-  const prompt = `Client: ${insight.client_name}\nPeriod: ${insight.period_type} (${insight.period_start} to ${insight.period_end})\n\n${contextParts.join("\n\n")}`;
+  const prompt = DEFAULT_INSIGHT_TEMPLATE
+    .replace("{{client_name}}", insight.client_name)
+    .replace("{{period_type}}", insight.period_type)
+    .replace("{{period_start}}", insight.period_start)
+    .replace("{{period_end}}", insight.period_end)
+    .replace("{{meeting_artifacts}}", contextParts.join("\n\n"));
   const result = await llm.complete("generate_insight", prompt);
   const now = new Date().toISOString();
   const topicDetails = JSON.stringify(result.topic_details ?? []);
