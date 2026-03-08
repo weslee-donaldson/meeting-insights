@@ -192,6 +192,13 @@ export function migrate(db: DatabaseSync): void {
   if (!clientCols.some(c => c.name === "additional_extraction_llm_prompt")) {
     db.exec("ALTER TABLE clients ADD COLUMN additional_extraction_llm_prompt TEXT");
   }
+  if (!clientCols.some(c => c.name === "id")) {
+    db.exec("ALTER TABLE clients ADD COLUMN id TEXT");
+  }
+
+  if (!meetingCols.some(c => c.name === "client_id")) {
+    db.exec("ALTER TABLE meetings ADD COLUMN client_id TEXT");
+  }
 
   if (artifactCols.some(c => c.name === "technical_topics")) {
     db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");

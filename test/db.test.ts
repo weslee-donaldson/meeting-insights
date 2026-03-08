@@ -102,6 +102,16 @@ describe("migrate", () => {
     expect(row).toEqual({ name: "insight_messages" });
   });
 
+  it("clients table has id column", () => {
+    const cols = db.prepare("PRAGMA table_info(clients)").all() as { name: string }[];
+    expect(cols.some(c => c.name === "id")).toBe(true);
+  });
+
+  it("meetings table has client_id column", () => {
+    const cols = db.prepare("PRAGMA table_info(meetings)").all() as { name: string }[];
+    expect(cols.some(c => c.name === "client_id")).toBe(true);
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });

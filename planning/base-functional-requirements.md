@@ -31,3 +31,16 @@ Rules that apply to every interactive view in the application. Treat these as de
 
 - Disable the submit button when required fields are missing.
 - Show inline validation messages next to the offending field.
+
+## Data Modeling
+
+- Entities use short opaque IDs (GUIDs), never natural-language strings, as primary keys. Display names are a mutable column, not the key.
+- Foreign keys reference IDs, never names. A rename should update one row, not cascade across every referencing table.
+- Probabilistic or multi-valued data (detection scores, candidate matches) is resolved to a single deterministic value before it leaves the processing pipeline. Downstream queries, UI, and API routes never filter on probabilistic tables directly — they read the resolved value from the owning entity.
+- Every entity that "belongs to" another entity stores that relationship as a single FK column on the child (e.g., `meetings.client_id`), not via a join through an intermediate scoring table.
+
+## API and Query Boundaries
+
+- API routes and IPC handlers receive and return entity IDs, not display names. The UI resolves IDs to names for display.
+- Query logic lives in core modules, not in route/handler files. Routes are thin wiring: parse input, call core, format output.
+- Client-filtering queries use a direct FK join (e.g., `WHERE m.client_id = ?`), never subqueries against detection/scoring tables.
