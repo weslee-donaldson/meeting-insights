@@ -1,5 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
+import type { LlmAdapter } from "./llm-adapter.js";
+import { getArtifact } from "./extractor.js";
+import type { ArtifactRow } from "./extractor.js";
+import { createLogger } from "./logger.js";
 
 export interface Insight {
   id: string;
@@ -248,6 +252,67 @@ export function clearInsightMessages(db: Database, insightId: string): void {
 export function markInsightMessagesStale(db: Database, insightId: string, deletedMeetings: { id: string; title: string }[]): void {
   const staleDetails = JSON.stringify(deletedMeetings);
   db.prepare("UPDATE insight_messages SET context_stale = 1, stale_details = ? WHERE insight_id = ?").run(staleDetails, insightId);
+}
+
+const log = createLogger("insights");
+
+function buildMeetingArtifactContext(meetingId: string, title: string, art: ArtifactRow): string {
+  const parts: string[] = [`### Meeting: ${title} (${meetingId})`];
+  parts.push(`Summary: ${art.summary}`);
+  const decisions = JSON.parse(art.decisions ?? "[]") as Array<{ text: string }>;
+  if (decisions.length > 0) {
+    parts.push("Decisions:");
+    for (const d of decisions) parts.push(`- ${d.text}`);
+  }
+  const actions = JSON.parse(art.action_items ?? "[]") as Array<{ description: string; owner: string }>;
+  if (actions.length > 0) {
+    parts.push("Action Items:");
+    for (const a of actions) parts.push(`- ${a.description} (owner: ${a.owner})`);
+  }
+  const risks = JSON.parse(art.risk_items ?? "[]") as Array<{ description: string }>;
+  if (risks.length > 0) {
+    parts.push("Risks:");
+    for (const r of risks) parts.push(`- ${r.description}`);
+  }
+  return parts.join("\n");
+}
+
+export async function generateInsight(db: Database, llm: LlmAdapter, insightId: string): Promise<Insight> {
+  const insight = getInsight(db, insightId)!;
+  const meetings = getInsightMeetings(db, insightId);
+  if (meetings.length === 0) {
+    log("no meetings linked to insight %s, skipping generation", insightId);
+    return insight;
+  }
+  const contextParts: string[] = [];
+  for (const m of meetings) {
+    const art = getArtifact(db, m.meeting_id);
+    if (art) contextParts.push(buildMeetingArtifactContext(m.meeting_id, m.meeting_title, art));
+  }
+  const prompt = `Client: ${insight.client_name}\nPeriod: ${insight.period_type} (${insight.period_start} to ${insight.period_end})\n\n${contextParts.join("\n\n")}`;
+  const result = await llm.complete("generate_insight", prompt);
+  const now = new Date().toISOString();
+  const topicDetails = JSON.stringify(result.topic_details ?? []);
+  db.prepare(`
+    UPDATE insights SET
+      rag_status = ?,
+      rag_rationale = ?,
+      executive_summary = ?,
+      topic_details = ?,
+      generated_at = ?,
+      updated_at = ?
+    WHERE id = ?
+  `).run(
+    result.rag_status as string,
+    result.rag_rationale as string,
+    result.executive_summary as string,
+    topicDetails,
+    now,
+    now,
+    insightId,
+  );
+  log("generated insight %s rag=%s meetings=%d", insightId, result.rag_status, meetings.length);
+  return getInsight(db, insightId)!;
 }
 
 function formatDate(d: Date): string {
