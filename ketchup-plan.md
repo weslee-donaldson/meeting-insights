@@ -29,7 +29,7 @@
 - [x] Burst 582: InsightDetailView topic details + source meetings
 - [x] Burst 583: InsightDetailView regenerate + finalize/reopen buttons
 - [x] Burst 584: App.tsx wires insight detail + delete + update handlers
-- [ ] Burst 585: App.tsx wires insight chat panel (persistent mode)
+- [x] Burst 585: App.tsx wires insight chat panel (persistent mode)
 
 ## DONE
 
