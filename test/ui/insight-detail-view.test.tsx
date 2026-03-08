@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { InsightDetailView } from "../../electron-ui/ui/src/components/InsightDetailView.js";
 import type { Insight, InsightMeeting } from "../../core/insights.js";
 
@@ -140,6 +140,74 @@ describe("InsightDetailView", () => {
       />,
     );
     expect(screen.queryByText("Topic Details")).toBeNull();
+  });
+
+  it("renders Regenerate button that calls onRegenerate", () => {
+    const onRegenerate = vi.fn();
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={onRegenerate}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: "Regenerate" });
+    expect(btn).toBeDefined();
+    fireEvent.click(btn);
+    expect(onRegenerate).toHaveBeenCalled();
+  });
+
+  it("renders Finalize button for draft insight that calls onFinalize", () => {
+    const onFinalize = vi.fn();
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={onFinalize}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: "Finalize" });
+    expect(btn).toBeDefined();
+    fireEvent.click(btn);
+    expect(onFinalize).toHaveBeenCalled();
+  });
+
+  it("renders Reopen button for final insight that calls onFinalize", () => {
+    const onFinalize = vi.fn();
+    const finalInsight = { ...INSIGHT, status: "final" as const };
+    render(
+      <InsightDetailView
+        insight={finalInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={onFinalize}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Finalize" })).toBeNull();
+    const btn = screen.getByRole("button", { name: "Reopen" });
+    fireEvent.click(btn);
+    expect(onFinalize).toHaveBeenCalled();
+  });
+
+  it("renders Delete button that calls onDelete", () => {
+    const onDelete = vi.fn();
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={onDelete}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: "Delete" });
+    fireEvent.click(btn);
+    expect(onDelete).toHaveBeenCalled();
   });
 
   it("shows no summary placeholder when executive_summary is empty", () => {

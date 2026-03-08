@@ -1,6 +1,8 @@
 import React from "react";
+import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
+import { RefreshCw, Check, RotateCcw, Trash2 } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
@@ -69,6 +71,27 @@ export function InsightDetailView({
         {insight.rag_rationale && (
           <p className="text-xs text-muted-foreground mt-1 ml-6.5">{insight.rag_rationale}</p>
         )}
+        <div className="flex gap-1 mt-2 ml-6.5">
+          <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onRegenerate}>
+            <RefreshCw className="w-3 h-3 mr-1" />
+            Regenerate
+          </Button>
+          {insight.status === "draft" ? (
+            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>
+              <Check className="w-3 h-3 mr-1" />
+              Finalize
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>
+              <RotateCcw className="w-3 h-3 mr-1" />
+              Reopen
+            </Button>
+          )}
+          <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onDelete}>
+            <Trash2 className="w-3 h-3 mr-1" />
+            Delete
+          </Button>
+        </div>
       </div>
       <ScrollArea className="flex-1">
         <div className="px-4 py-3">
