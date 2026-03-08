@@ -455,7 +455,7 @@ describe("App", () => {
     expect(screen.getByText("Good week")).toBeDefined();
   });
 
-  it("delete insight calls deleteInsight and clears selection", async () => {
+  it("delete insight shows confirmation dialog and calls deleteInsight on confirm", async () => {
     (window.api.listInsights as ReturnType<typeof vi.fn>).mockResolvedValue([
       { id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-05", period_end: "2026-01-11", status: "draft", rag_status: "green", rag_rationale: "", executive_summary: "Summary", topic_details: "[]", generated_at: "2026-01-11", created_at: "2026-01-11", updated_at: "2026-01-11", meeting_count: 1 },
     ]);
@@ -466,7 +466,11 @@ describe("App", () => {
     fireEvent.click(screen.getByText("Jan 5 – Jan 11"));
     await waitFor(() => screen.getByTestId("insight-detail-view"));
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(screen.getByText("Permanently delete this insight and its associated data?")).toBeDefined());
+    expect(window.api.deleteInsight).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Delete permanently" }));
     await waitFor(() => expect(window.api.deleteInsight).toHaveBeenCalledWith("i1"));
+    await waitFor(() => expect(screen.getByText("Insight deleted")).toBeDefined());
   });
 
   it("shows insight chat panel when selected insight has meetings", async () => {

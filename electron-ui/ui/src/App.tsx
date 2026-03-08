@@ -59,6 +59,7 @@ export function App() {
   const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [createInsightOpen, setCreateInsightOpen] = useState(false);
+  const [pendingDeleteInsightId, setPendingDeleteInsightId] = useState<string | null>(null);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -757,17 +758,26 @@ export function App() {
     }
   }, [selectedClient, queryClient, addToast]);
 
-  const handleDeleteInsight = useCallback(async () => {
+  const handleDeleteInsight = useCallback(() => {
     if (!selectedInsightId) return;
+    setPendingDeleteInsightId(selectedInsightId);
+  }, [selectedInsightId]);
+
+  const handleConfirmDeleteInsight = useCallback(async () => {
+    const id = pendingDeleteInsightId;
+    setPendingDeleteInsightId(null);
+    if (!id) return;
+    setSelectedInsightId(null);
     try {
-      await window.api.deleteInsight(selectedInsightId);
-      setSelectedInsightId(null);
+      await window.api.deleteInsight(id);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast("Insight deleted", "success");
     } catch (err) {
       console.error("Delete insight failed:", err);
       addToast(`Delete insight failed: ${(err as Error).message}`, "error");
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
     }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+  }, [pendingDeleteInsightId, selectedClient, queryClient, addToast]);
 
   const handleFinalizeInsight = useCallback(async () => {
     if (!selectedInsightId || !selectedInsight) return;
@@ -1067,6 +1077,19 @@ export function App() {
       onOpenChange={setCreateInsightOpen}
       onSubmit={handleCreateInsight}
     />
+    <Dialog open={pendingDeleteInsightId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteInsightId(null); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Delete insight</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Permanently delete this insight and its associated data?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingDeleteInsightId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteInsight}>Delete permanently</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
