@@ -92,7 +92,7 @@ export function InsightDetailView({
         <div className="flex gap-1 mt-2 ml-6.5">
           <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onRegenerate}>
             <RefreshCw className="w-3 h-3 mr-1" />
-            Regenerate
+            {insight.executive_summary ? "Regenerate" : "Generate"}
           </Button>
           {insight.status === "draft" ? (
             <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>

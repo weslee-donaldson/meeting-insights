@@ -275,6 +275,25 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("No summary yet. Generate to create one.")).toBeDefined();
   });
 
+  it("shows Generate button when executive_summary is empty", () => {
+    const emptyInsight = { ...INSIGHT, executive_summary: "" };
+    const onRegenerate = vi.fn();
+    render(
+      <InsightDetailView
+        insight={emptyInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={onRegenerate}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: "Generate" });
+    expect(btn).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Regenerate" })).toBeNull();
+    fireEvent.click(btn);
+    expect(onRegenerate).toHaveBeenCalled();
+  });
+
   it("shows empty state message when no source meetings exist", () => {
     render(
       <InsightDetailView

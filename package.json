@@ -5,6 +5,7 @@
   "main": "electron-ui/out/main/index.js",
   "scripts": {
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "setup": "tsx cli/setup.ts",
     "process": "tsx cli/run.ts",
     "clear": "tsx cli/reset.ts",
@@ -22,6 +23,7 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/debug": "^4.1.12",
