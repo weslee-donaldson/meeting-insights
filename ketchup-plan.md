@@ -20,7 +20,7 @@
 - [x] Burst 575: api-client.ts insight methods
 
 ### Phase 4: UI
-- [ ] Burst 576: NavRail adds Insights view with Brain icon
+- [x] Burst 576: NavRail adds Insights view with Brain icon
 - [ ] Burst 577: App.tsx adds insights to currentView type and state
 - [ ] Burst 578: InsightsView component (list with RAG badges)
 - [ ] Burst 579: CreateInsightDialog (period picker + date selector)
