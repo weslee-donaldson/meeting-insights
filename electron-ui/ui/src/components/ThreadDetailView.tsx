@@ -119,11 +119,13 @@ export function ThreadDetailView({
             <button
               key={m.meeting_id}
               onClick={() => onMeetingClick(m.meeting_id)}
-              className="flex items-center gap-2 px-4 py-2 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full hover:bg-secondary/60"
+              className="flex flex-col gap-1 px-4 py-2 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full hover:bg-secondary/60"
             >
-              <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{m.relevance_score}</span>
-              <span className="flex-1 truncate">{m.meeting_title}</span>
-              <span className="text-xs text-muted-foreground">{m.relevance_summary.slice(0, 60)}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{m.relevance_score}</span>
+                <span className="flex-1 truncate">{m.meeting_title}</span>
+              </div>
+              <p className="text-xs text-muted-foreground pl-10">{m.relevance_summary}</p>
             </button>
           ))}
         </div>

@@ -242,6 +242,24 @@ describe("ThreadDetailView", () => {
     expect(onResolve).toHaveBeenCalledWith("open");
   });
 
+  it("renders full relevance summary on second line below meeting title", () => {
+    const longSummary = "The meeting extensively discussed blue-green deployment issues and rollback strategies for the CI pipeline";
+    const meetings = [makeMeeting({ relevance_summary: longSummary })];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={meetings}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(longSummary)).toBeDefined();
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
