@@ -1,9 +1,33 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
-import { computePeriodBounds } from "../../../../core/insights.js";
 
 type PeriodType = "day" | "week" | "month";
+
+function fmtDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function computePeriodBounds(periodType: PeriodType, referenceDate: string): { start: string; end: string } {
+  const [year, month, day] = referenceDate.split("-").map(Number);
+  if (periodType === "day") {
+    return { start: referenceDate, end: referenceDate };
+  }
+  if (periodType === "week") {
+    const d = new Date(year, month - 1, day);
+    const dow = d.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(year, month - 1, day + mondayOffset);
+    const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+    return { start: fmtDate(monday), end: fmtDate(sunday) };
+  }
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  return { start: fmtDate(firstDay), end: fmtDate(lastDay) };
+}
 
 interface CreateInsightSubmitData {
   period_type: PeriodType;
@@ -60,7 +84,7 @@ export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsi
   const previewText = bounds
     ? bounds.start === bounds.end
       ? formatPreviewDate(bounds.start)
-      : `${formatPreviewDate(bounds.start)} – ${formatPreviewDate(bounds.end)}`
+      : `${formatPreviewDate(bounds.start)} \u2013 ${formatPreviewDate(bounds.end)}`
     : "";
 
   return (
