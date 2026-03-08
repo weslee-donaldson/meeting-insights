@@ -10,7 +10,7 @@
 - [ ] Burst 624: API routes use client ID params instead of names
 - [ ] Burst 625: UI App.tsx uses client IDs, resolves to names for display
 - [x] Burst 626: resolveMeetingSources + handleThreadChat/handleInsightChat return "Title (date)" labels
-- [ ] Burst 627: ChatPanel structured sources with onSourceClick prop
+- [x] Burst 627: ChatPanel structured sources with onSourceClick prop
 - [ ] Burst 628: Wire onSourceClick to open meeting detail overlay without navigation
 
 ## DONE

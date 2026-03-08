@@ -989,6 +989,15 @@ export function App() {
         searchQuery={selectedThread?.keywords}
       />,
     ] : []),
+    ...(!isCandidatePreview && selectedMeeting ? [
+      <MeetingDetail
+        key="source-preview"
+        meeting={selectedMeeting}
+        artifact={selectedArtifactQuery.data ?? null}
+        completions={completionsQuery.data ?? []}
+        artifactLoading={selectedArtifactQuery.isLoading}
+      />,
+    ] : []),
   ];
 
   const insightsViewPanels: React.ReactNode[] = [
@@ -1009,6 +1018,15 @@ export function App() {
         onRegenerate={handleRegenerateInsight}
         onFinalize={handleFinalizeInsight}
         onRemoveMeetings={handleRemoveInsightMeetings}
+      />,
+    ] : []),
+    ...(selectedMeeting ? [
+      <MeetingDetail
+        key="source-preview"
+        meeting={selectedMeeting}
+        artifact={selectedArtifactQuery.data ?? null}
+        completions={completionsQuery.data ?? []}
+        artifactLoading={selectedArtifactQuery.isLoading}
       />,
     ] : []),
   ];
@@ -1048,6 +1066,7 @@ export function App() {
             persistedMessages={insightMessagesQuery.data ?? []}
             onSendMessage={handleInsightSendMessage}
             onClearMessages={handleClearInsightMessages}
+            onSourceClick={setSelectedMeetingId}
           />
         ) : currentView === "threads" && selectedThreadId ? (
           <ChatPanel
@@ -1057,6 +1076,7 @@ export function App() {
             persistedMessages={threadMessagesQuery.data ?? []}
             onSendMessage={handleThreadSendMessage}
             onClearMessages={handleClearThreadMessages}
+            onSourceClick={setSelectedMeetingId}
           />
         ) : (
           <ChatPanel
