@@ -1,8 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
+import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm-adapter.js";
 import { getArtifact } from "./extractor.js";
 import type { ArtifactRow } from "./extractor.js";
+import { embed } from "./embedder.js";
+import type { VectorDb } from "./vector-db.js";
 import { createLogger } from "./logger.js";
 
 export interface Insight {
@@ -313,6 +316,48 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
   );
   log("generated insight %s rag=%s meetings=%d", insightId, result.rag_status, meetings.length);
   return getInsight(db, insightId)!;
+}
+
+export async function getInsightChatContext(
+  db: Database,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  insightId: string,
+  userMessage: string,
+  includeTranscripts: boolean,
+  topK: number = 7,
+): Promise<{ systemContext: string; meetingIds: string[] }> {
+  const insight = getInsight(db, insightId)!;
+  const associated = getInsightMeetings(db, insightId);
+  const parts: string[] = [
+    `Insight: ${insight.client_name} — ${insight.period_type} (${insight.period_start} to ${insight.period_end})`,
+  ];
+  if (insight.executive_summary) parts.push(`Executive Summary: ${insight.executive_summary}`);
+  if (associated.length === 0) {
+    return { systemContext: parts.join("\n"), meetingIds: [] };
+  }
+  const vec = await embed(session as Parameters<typeof embed>[0], userMessage);
+  const associatedIds = associated.map((m) => m.meeting_id);
+  const idList = associatedIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(",");
+  const table = await vdb.openTable("meeting_vectors");
+  const rows = await table
+    .search(Array.from(vec))
+    .limit(topK)
+    .where(`meeting_id IN (${idList})`)
+    .toArray() as Array<Record<string, unknown>>;
+  const selectedIds = rows.map((r) => r.meeting_id as string);
+  if (selectedIds.length > 0) {
+    parts.push("\nRelevant Meetings:");
+    for (const id of selectedIds) {
+      const art = getArtifact(db, id);
+      const meta = associated.find((m) => m.meeting_id === id);
+      if (art && meta) {
+        const content = includeTranscripts ? buildMeetingArtifactContext(id, meta.meeting_title, art) : `Summary: ${art.summary}`;
+        parts.push(`- ${meta.meeting_title} (${meta.meeting_date}):\n  ${content.replace(/\n/g, "\n  ")}`);
+      }
+    }
+  }
+  return { systemContext: parts.join("\n"), meetingIds: selectedIds };
 }
 
 function formatDate(d: Date): string {

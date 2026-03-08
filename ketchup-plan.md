@@ -6,7 +6,7 @@
 - [x] Burst 563: Add generate_insight to LlmCapability union + stub fixture
 - [x] Burst 564: Create insight-generation.md prompt template
 - [x] Burst 565: generateInsight calls LLM and stores structured result
-- [ ] Burst 566: getInsightChatContext builds system context from insight meetings
+- [x] Burst 566: getInsightChatContext builds system context from insight meetings
 
 ### Phase 3: IPC + API
 - [ ] Burst 567: Insight IPC channel constants + request/response types
