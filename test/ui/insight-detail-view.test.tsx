@@ -311,6 +311,28 @@ describe("InsightDetailView", () => {
     expect(screen.queryByTestId("meeting-group-header")).toBeNull();
   });
 
+  it("groups meetings by day when Day button is clicked", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-06", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Gamma", meeting_date: "2026-01-07", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    const headers = screen.getAllByTestId("meeting-group-header");
+    expect(headers).toHaveLength(2);
+    expect(headers[0].textContent).toContain("Jan 7");
+    expect(headers[1].textContent).toContain("Jan 6");
+  });
+
   it("shows empty state message when no source meetings exist", () => {
     render(
       <InsightDetailView

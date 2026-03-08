@@ -34,6 +34,29 @@ const RAG_LABELS = {
   red: "Red",
 } as const;
 
+interface MeetingGroup {
+  key: string;
+  label: string;
+  meetings: InsightMeeting[];
+}
+
+function formatDayLabel(dateStr: string): string {
+  const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+function groupMeetingsByDay(meetings: InsightMeeting[]): MeetingGroup[] {
+  const map = new Map<string, InsightMeeting[]>();
+  for (const m of meetings) {
+    const key = m.meeting_date.slice(0, 10);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, ms]) => ({ key, label: formatDayLabel(key), meetings: ms }));
+}
+
 function formatPeriodLabel(insight: Insight): string {
   const fmt = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -173,7 +196,7 @@ export function InsightDetailView({
           )}
           {meetings.length === 0 ? (
             <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
-          ) : (
+          ) : meetingGroupBy === "none" ? (
             <div className="flex flex-col">
               {meetings.map((m) => (
                 <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
@@ -188,6 +211,30 @@ export function InsightDetailView({
                     <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
                   </div>
                 </label>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings) : []).map((group) => (
+                <div key={group.key}>
+                  <div data-testid="meeting-group-header" className="px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
+                    {group.label}
+                  </div>
+                  {group.meetings.map((m) => (
+                    <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked.has(m.meeting_id)}
+                        onChange={() => toggleMeeting(m.meeting_id)}
+                        className="mt-1 shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium">{m.meeting_title}</p>
+                        <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               ))}
             </div>
           )}
