@@ -92,9 +92,9 @@ export function handleGetMeetings(
 ): MeetingRow[] {
   let rows = db
     .prepare(
-      "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id WHERE m.ignored = 0 ORDER BY m.date DESC",
+      "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count, COALESCE(c.name, '') AS client_name FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id LEFT JOIN clients c ON m.client_id = c.id WHERE m.ignored = 0 ORDER BY m.date DESC",
     )
-    .all() as unknown as DbMeetingRow[];
+    .all() as unknown as (DbMeetingRow & { client_name: string })[];
 
   if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
   if (opts.before)
@@ -104,7 +104,7 @@ export function handleGetMeetings(
       id: r.id,
       title: r.title,
       date: r.date,
-      client: topClientForMeeting(db, r.id),
+      client: r.client_name,
       series: normalizeSeries(r.title),
       actionItemCount: r.action_item_count,
     }))
@@ -256,6 +256,10 @@ export function handleReassignClient(db: Database, meetingId: string, clientName
   db.prepare(
     "INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, 1.0, 'manual')",
   ).run(meetingId, clientName);
+  const clientRow = db.prepare("SELECT id FROM clients WHERE name = ?").get(clientName) as { id: string } | undefined;
+  if (clientRow?.id) {
+    db.prepare("UPDATE meetings SET client_id = ? WHERE id = ?").run(clientRow.id, meetingId);
+  }
 }
 
 export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, ids: string[]): Promise<void> {

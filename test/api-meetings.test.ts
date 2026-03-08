@@ -6,8 +6,8 @@ import { createLlmAdapter } from "../core/llm-adapter.js";
 import { createApp } from "../api/server.js";
 
 function seedClientRaw(db: ReturnType<typeof createDb>, name: string) {
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
-    name, JSON.stringify([name]), JSON.stringify(["@testco.com"]),
+  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+    name, JSON.stringify([name]), JSON.stringify(["@testco.com"]), `client-${name.toLowerCase().replace(/\s+/g, "-")}`,
   );
 }
 
@@ -175,7 +175,7 @@ describe("POST /api/meetings/:id/client", () => {
   beforeAll(() => {
     const db = createDb(":memory:");
     migrate(db);
-    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run("Acme", "[]", "[]", "client-acme");
     meetingId = ingestMeeting(db, {
       title: "Reassign Test",
       timestamp: "2026-02-24T10:00:00.000Z",
@@ -268,7 +268,7 @@ describe("GET /api/clients/:name/action-items", () => {
   beforeAll(() => {
     const db = createDb(":memory:");
     migrate(db);
-    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run("Acme", "[]", "[]", "client-acme");
     meetingId = ingestMeeting(db, {
       title: "Acme Weekly",
       timestamp: "2026-03-01T10:00:00.000Z",

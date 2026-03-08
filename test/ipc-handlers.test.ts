@@ -35,11 +35,11 @@ import {
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
-    "Acme", JSON.stringify(["Acme Corp"]), JSON.stringify(["@acme.com"]),
+  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+    "Acme", JSON.stringify(["Acme Corp"]), JSON.stringify(["@acme.com"]), "client-acme",
   );
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
-    "Beta Co", JSON.stringify(["Beta"]), JSON.stringify(["@beta.io"]),
+  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+    "Beta Co", JSON.stringify(["Beta"]), JSON.stringify(["@beta.io"]), "client-beta",
   );
 }
 
@@ -542,8 +542,8 @@ describe("IPC handlers", () => {
     beforeAll(() => {
       createDb2 = createDb(":memory:");
       migrate(createDb2);
-      createDb2.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
-        "Acme", "[]", "[]",
+      createDb2.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+        "Acme", "[]", "[]", "client-acme-create",
       );
     });
 
