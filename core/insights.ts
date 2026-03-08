@@ -126,6 +126,64 @@ export function deleteInsight(db: Database, id: string): void {
   db.prepare("DELETE FROM insights WHERE id = ?").run(id);
 }
 
+export interface InsightMeeting {
+  insight_id: string;
+  meeting_id: string;
+  meeting_title: string;
+  meeting_date: string;
+  contribution_summary: string;
+}
+
+export interface AddInsightMeetingInput {
+  insight_id: string;
+  meeting_id: string;
+  contribution_summary: string;
+}
+
+export function addInsightMeeting(db: Database, input: AddInsightMeetingInput): void {
+  db.prepare(`
+    INSERT INTO insight_meetings (insight_id, meeting_id, contribution_summary)
+    VALUES (?, ?, ?)
+    ON CONFLICT(insight_id, meeting_id) DO UPDATE SET
+      contribution_summary = excluded.contribution_summary
+  `).run(input.insight_id, input.meeting_id, input.contribution_summary);
+}
+
+interface InsightMeetingRow {
+  insight_id: string;
+  meeting_id: string;
+  contribution_summary: string;
+  meeting_title: string;
+  meeting_date: string;
+}
+
+export function getInsightMeetings(db: Database, insightId: string): InsightMeeting[] {
+  const rows = db.prepare(`
+    SELECT im.*, m.title AS meeting_title, m.date AS meeting_date
+    FROM insight_meetings im
+    JOIN meetings m ON im.meeting_id = m.id
+    WHERE im.insight_id = ?
+    ORDER BY m.date ASC
+  `).all(insightId) as InsightMeetingRow[];
+  return rows.map((r) => ({
+    insight_id: r.insight_id,
+    meeting_id: r.meeting_id,
+    meeting_title: r.meeting_title,
+    meeting_date: r.meeting_date,
+    contribution_summary: r.contribution_summary,
+  }));
+}
+
+export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
+  const rows = db.prepare(`
+    SELECT DISTINCT m.id FROM meetings m
+    JOIN client_detections cd ON m.id = cd.meeting_id
+    WHERE cd.client_name = ? AND m.date >= ? AND m.date <= ? AND m.ignored = 0
+    ORDER BY m.date ASC
+  `).all(clientName, periodStart, periodEnd) as { id: string }[];
+  return rows.map((r) => r.id);
+}
+
 function formatDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");

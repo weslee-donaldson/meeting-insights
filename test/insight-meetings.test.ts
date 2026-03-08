@@ -1,0 +1,72 @@
+import { describe, it, expect, beforeAll } from "vitest";
+import { createDb, migrate } from "../core/db.js";
+import type { Database } from "../core/db.js";
+import {
+  createInsight,
+  addInsightMeeting,
+  getInsightMeetings,
+  discoverMeetingsForPeriod,
+} from "../core/insights.js";
+
+let db: Database;
+
+beforeAll(() => {
+  db = createDb(":memory:");
+  migrate(db);
+  db.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
+  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m1', 'Standup Mon', '2026-03-02')").run();
+  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m2', 'Standup Tue', '2026-03-03')").run();
+  db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m3', 'Standup Wed', '2026-03-04')").run();
+  db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m1', 'Acme', 0.9, 'alias')").run();
+  db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m2', 'Acme', 0.9, 'alias')").run();
+  db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES ('m3', 'Acme', 0.9, 'alias')").run();
+});
+
+describe("addInsightMeeting", () => {
+  it("links a meeting to an insight", () => {
+    const ins = createInsight(db, { client_name: "Acme", period_type: "day", period_start: "2026-03-02", period_end: "2026-03-02" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "Discussed deploy" });
+    const rows = db.prepare("SELECT * FROM insight_meetings WHERE insight_id = ?").all(ins.id) as { insight_id: string; meeting_id: string; contribution_summary: string }[];
+    expect(rows).toEqual([{ insight_id: ins.id, meeting_id: "m1", contribution_summary: "Discussed deploy" }]);
+  });
+
+  it("upserts on conflict", () => {
+    const ins = createInsight(db, { client_name: "Acme", period_type: "day", period_start: "2026-03-02", period_end: "2026-03-02" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "v1" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "v2" });
+    const rows = db.prepare("SELECT contribution_summary FROM insight_meetings WHERE insight_id = ? AND meeting_id = 'm1'").all(ins.id) as { contribution_summary: string }[];
+    expect(rows).toEqual([{ contribution_summary: "v2" }]);
+  });
+});
+
+describe("getInsightMeetings", () => {
+  it("returns linked meetings with titles and dates ordered by date", () => {
+    const ins = createInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-02", period_end: "2026-03-08" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m2", contribution_summary: "Tuesday update" });
+    addInsightMeeting(db, { insight_id: ins.id, meeting_id: "m1", contribution_summary: "Monday update" });
+    const result = getInsightMeetings(db, ins.id);
+    expect(result).toEqual([
+      { insight_id: ins.id, meeting_id: "m1", meeting_title: "Standup Mon", meeting_date: "2026-03-02", contribution_summary: "Monday update" },
+      { insight_id: ins.id, meeting_id: "m2", meeting_title: "Standup Tue", meeting_date: "2026-03-03", contribution_summary: "Tuesday update" },
+    ]);
+  });
+});
+
+describe("discoverMeetingsForPeriod", () => {
+  it("returns meeting ids for a client within date range", () => {
+    const result = discoverMeetingsForPeriod(db, "Acme", "2026-03-02", "2026-03-03");
+    expect(result).toEqual(["m1", "m2"]);
+  });
+
+  it("excludes ignored meetings", () => {
+    db.prepare("UPDATE meetings SET ignored = 1 WHERE id = 'm3'").run();
+    const result = discoverMeetingsForPeriod(db, "Acme", "2026-03-02", "2026-03-04");
+    expect(result).toEqual(["m1", "m2"]);
+    db.prepare("UPDATE meetings SET ignored = 0 WHERE id = 'm3'").run();
+  });
+
+  it("returns empty array when no meetings match", () => {
+    const result = discoverMeetingsForPeriod(db, "Acme", "2026-04-01", "2026-04-30");
+    expect(result).toEqual([]);
+  });
+});
