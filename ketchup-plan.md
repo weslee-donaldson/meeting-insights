@@ -32,12 +32,11 @@
 - [x] Burst 585: App.tsx wires insight chat panel (persistent mode)
 
 ### Phase 5: Insight meeting curation
-- [ ] Burst 586: removeInsightMeeting core function + test
-- [ ] Burst 587: removeInsightMeeting IPC channel + handler + API route + api-client
-- [ ] Burst 588: InsightDetailView meeting checkboxes (checked state + toggle)
-- [ ] Burst 589: InsightDetailView remove selected meetings button + onRemoveMeetings callback
+- [x] Burst 586: removeInsightMeeting core function + test
+- [x] Burst 587: removeInsightMeeting IPC channel + handler + API route + api-client
+- [x] Burst 588-589: InsightDetailView meeting checkboxes + Remove Unchecked button
 - [ ] Burst 590: InsightDetailView group-by options for source meetings (series/day/week/month)
-- [ ] Burst 591: App.tsx wires removeInsightMeetings + regenerate-with-selection flow
+- [x] Burst 591: App.tsx wires removeInsightMeetings to InsightDetailView
 
 ## DONE
 
