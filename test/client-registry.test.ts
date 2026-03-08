@@ -60,11 +60,28 @@ describe("seedClients", () => {
   });
 });
 
+describe("seedClients generates client IDs", () => {
+  it("each client has a non-empty id after seeding", () => {
+    const all = getAllClients(db);
+    for (const client of all) {
+      expect(client.id).toEqual(expect.any(String));
+      expect(client.id.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("client IDs are unique", () => {
+    const all = getAllClients(db);
+    const ids = all.map(c => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
 describe("getClientByName", () => {
-  it("retrieves client row by name", () => {
+  it("retrieves client row by name with id", () => {
     const client = getClientByName(db, "Revenium");
     expect(client).not.toBeNull();
     expect(client!.name).toBe("Revenium");
+    expect(client!.id).toEqual(expect.any(String));
   });
 });
 

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { createLogger } from "./logger.js";
 
@@ -11,6 +12,7 @@ export interface Participant {
 }
 
 export interface ClientRow {
+  id: string;
   name: string;
   aliases: string;
   known_participants: string;
@@ -42,8 +44,10 @@ export function seedClients(db: Database, filePath: string): void {
       ...clientTeam.map(p => p.email ?? p.name),
       ...implTeam.map(p => p.email ?? p.name),
     ].filter(Boolean);
+    const existing = db.prepare("SELECT id FROM clients WHERE name = ?").get(entry.name) as { id: string | null } | undefined;
+    if (existing) continue;
     db.prepare(
-      "INSERT OR IGNORE INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
@@ -53,6 +57,7 @@ export function seedClients(db: Database, filePath: string): void {
       entry.additional_extraction_llm_prompt ?? null,
       entry.meeting_names ? JSON.stringify(entry.meeting_names) : "[]",
       entry.is_default ? 1 : 0,
+      randomUUID(),
     );
   }
   log("loaded %d clients", entries.length);
