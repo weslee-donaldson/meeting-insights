@@ -64,12 +64,13 @@ export function reciprocalRankFusion(
 function enrichFromDb(db: Database, meetingIds: string[]): Map<string, { client: string; meeting_type: string; date: string }> {
   const meta = new Map<string, { client: string; meeting_type: string; date: string }>();
   for (const id of meetingIds) {
-    const meeting = db.prepare("SELECT meeting_type, date FROM meetings WHERE id = ?").get(id) as { meeting_type: string | null; date: string } | undefined;
-    const detection = db.prepare("SELECT client_name FROM client_detections WHERE meeting_id = ? ORDER BY confidence DESC LIMIT 1").get(id) as { client_name: string } | undefined;
+    const row = db.prepare(
+      "SELECT m.meeting_type, m.date, COALESCE(c.name, '') AS client_name FROM meetings m LEFT JOIN clients c ON m.client_id = c.id WHERE m.id = ?",
+    ).get(id) as { meeting_type: string | null; date: string; client_name: string } | undefined;
     meta.set(id, {
-      client: detection?.client_name ?? "",
-      meeting_type: meeting?.meeting_type ?? "",
-      date: meeting?.date ?? "",
+      client: row?.client_name ?? "",
+      meeting_type: row?.meeting_type ?? "",
+      date: row?.date ?? "",
     });
   }
   return meta;
