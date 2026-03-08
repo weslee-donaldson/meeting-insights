@@ -104,9 +104,9 @@ interface CandidateListProps {
   onToggle: (meetingId: string) => void;
 }
 
-function CandidateRow({ c, checked, onToggle }: { c: ThreadCandidate; checked: boolean; onToggle: () => void }) {
+function CandidateRow({ c, checked, onToggle, indented }: { c: ThreadCandidate; checked: boolean; onToggle: () => void; indented?: boolean }) {
   return (
-    <label className="flex items-center gap-2 px-4 py-1.5 text-sm border-b border-border cursor-pointer hover:bg-secondary/60">
+    <label className={`flex items-center gap-2 ${indented ? "pl-8 pr-4" : "px-4"} py-1.5 text-sm border-b border-border cursor-pointer hover:bg-secondary/60`}>
       <input type="checkbox" checked={checked} onChange={onToggle} />
       <span className="text-xs font-mono text-muted-foreground w-10 shrink-0">{(c.similarity * 100).toFixed(0)}%</span>
       <span className="flex-1 truncate">{c.title}</span>
@@ -139,7 +139,7 @@ function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: Can
         <div key={g.key}>
           <div data-group-header="" className="px-4 py-1 text-[0.65rem] font-semibold text-muted-foreground bg-secondary/40">{g.label}</div>
           {g.candidates.map((c) => (
-            <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} />
+            <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} indented />
           ))}
         </div>
       ))}
