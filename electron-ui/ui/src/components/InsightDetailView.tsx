@@ -61,6 +61,8 @@ export function InsightDetailView({
     setChecked(new Set(meetings.map((m) => m.meeting_id)));
   }, [meetings]);
 
+  const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
+
   const uncheckedIds = meetings.filter((m) => !checked.has(m.meeting_id)).map((m) => m.meeting_id);
 
   function toggleMeeting(meetingId: string) {
@@ -154,6 +156,21 @@ export function InsightDetailView({
               </Button>
             )}
           </div>
+          {meetings.length > 0 && (
+            <div className="flex gap-1 mb-2">
+              {(["series", "day", "week", "month"] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  size="sm"
+                  variant={meetingGroupBy === mode ? "default" : "outline"}
+                  className="h-auto px-2 py-0.5 text-xs capitalize"
+                  onClick={() => setMeetingGroupBy(meetingGroupBy === mode ? "none" : mode)}
+                >
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </Button>
+              ))}
+            </div>
+          )}
           {meetings.length === 0 ? (
             <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
           ) : (

@@ -294,6 +294,23 @@ describe("InsightDetailView", () => {
     expect(onRegenerate).toHaveBeenCalled();
   });
 
+  it("renders group-by buttons in source meetings section", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Series" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Day" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Week" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Month" })).toBeDefined();
+    expect(screen.queryByTestId("meeting-group-header")).toBeNull();
+  });
+
   it("shows empty state message when no source meetings exist", () => {
     render(
       <InsightDetailView
