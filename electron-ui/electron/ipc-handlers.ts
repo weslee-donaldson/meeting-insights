@@ -325,7 +325,7 @@ export function handleGetMentionStats(db: Database, meetingId: string): MentionS
 
 export function handleGetClientActionItems(db: Database, clientName: string): ClientActionItem[] {
   const meetingIds = (db.prepare(
-    "SELECT DISTINCT meeting_id FROM client_detections WHERE client_name = ?",
+    "SELECT m.id AS meeting_id FROM meetings m JOIN clients c ON m.client_id = c.id WHERE c.name = ? AND m.ignored = 0",
   ).all(clientName) as { meeting_id: string }[]).map((r) => r.meeting_id);
 
   if (meetingIds.length === 0) return [];
