@@ -7,6 +7,7 @@ interface ThreadFormData {
   shorthand: string;
   description: string;
   criteria_prompt: string;
+  keywords: string;
 }
 
 interface CreateThreadDialogProps {
@@ -22,6 +23,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
   const [shorthand, setShorthand] = useState("");
   const [description, setDescription] = useState("");
   const [criteriaPrompt, setCriteriaPrompt] = useState("");
+  const [keywords, setKeywords] = useState("");
 
   useEffect(() => {
     if (thread) {
@@ -29,11 +31,13 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
       setShorthand(thread.shorthand);
       setDescription(thread.description);
       setCriteriaPrompt(thread.criteria_prompt);
+      setKeywords(thread.keywords);
     } else {
       setTitle("");
       setShorthand("");
       setDescription(initialDescription ?? "");
       setCriteriaPrompt("");
+      setKeywords("");
     }
   }, [thread, open, initialDescription]);
 
@@ -41,7 +45,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
   const canSubmit = title.trim().length > 0 && shorthand.trim().length > 0;
 
   function handleSubmit() {
-    onSubmit({ title, shorthand, description, criteria_prompt: criteriaPrompt });
+    onSubmit({ title, shorthand, description, criteria_prompt: criteriaPrompt, keywords });
   }
 
   return (
@@ -84,6 +88,16 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
               className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[160px] min-w-[400px]"
               value={criteriaPrompt}
               onChange={(e) => setCriteriaPrompt(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Keywords</span>
+            <input
+              aria-label="Keywords"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+              placeholder='e.g. deploy "ftp bug" rollback'
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
             />
           </label>
           <div className="flex justify-end gap-2 mt-2">

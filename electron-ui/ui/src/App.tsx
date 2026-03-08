@@ -530,7 +530,7 @@ export function App() {
     setCreateThreadOpen(true);
   }, []);
 
-  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
+  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     if (!selectedClient) return;
     const thread = await window.api.createThread({ ...data, client_name: selectedClient });
     setCreateThreadOpen(false);
@@ -543,7 +543,7 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
   }, [selectedClient, activeMeetingIds, queryClient]);
 
-  const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string }) => {
+  const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     if (!selectedThreadId) return;
     await window.api.updateThread(selectedThreadId, data);
     setEditThreadOpen(false);

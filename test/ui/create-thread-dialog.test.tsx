@@ -7,12 +7,13 @@ import { CreateThreadDialog } from "../../electron-ui/ui/src/components/CreateTh
 afterEach(cleanup);
 
 describe("CreateThreadDialog", () => {
-  it("renders form fields: Title, Shorthand, Description, Criteria Prompt", () => {
+  it("renders form fields: Title, Shorthand, Description, Criteria Prompt, Keywords", () => {
     render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={vi.fn()} />);
     expect(screen.getByLabelText("Title")).toBeDefined();
     expect(screen.getByLabelText("Shorthand")).toBeDefined();
     expect(screen.getByLabelText("Description")).toBeDefined();
     expect(screen.getByLabelText("Criteria Prompt")).toBeDefined();
+    expect(screen.getByLabelText("Keywords")).toBeDefined();
   });
 
   it("Create button is disabled until title and shorthand are filled", () => {
@@ -32,19 +33,21 @@ describe("CreateThreadDialog", () => {
     expect(input.value.length).toBeLessThanOrEqual(10);
   });
 
-  it("submit returns form data and calls onSubmit", () => {
+  it("submit returns form data including keywords and calls onSubmit", () => {
     const onSubmit = vi.fn();
     render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={onSubmit} />);
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Deploy" } });
     fireEvent.change(screen.getByLabelText("Shorthand"), { target: { value: "DEP" } });
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Criteria Prompt"), { target: { value: "CI failures" } });
+    fireEvent.change(screen.getByLabelText("Keywords"), { target: { value: '"ftp bug" deploy' } });
     fireEvent.click(screen.getByRole("button", { name: /create/i }));
     expect(onSubmit).toHaveBeenCalledWith({
       title: "Deploy",
       shorthand: "DEP",
       description: "Desc",
       criteria_prompt: "CI failures",
+      keywords: '"ftp bug" deploy',
     });
   });
 
@@ -61,11 +64,12 @@ describe("CreateThreadDialog", () => {
         open
         onOpenChange={vi.fn()}
         onSubmit={vi.fn()}
-        thread={{ title: "Old", shorthand: "OLD", description: "D", criteria_prompt: "CP" }}
+        thread={{ title: "Old", shorthand: "OLD", description: "D", criteria_prompt: "CP", keywords: "kw1" }}
       />,
     );
     expect((screen.getByLabelText("Title") as HTMLInputElement).value).toBe("Old");
     expect((screen.getByLabelText("Shorthand") as HTMLInputElement).value).toBe("OLD");
+    expect((screen.getByLabelText("Keywords") as HTMLInputElement).value).toBe("kw1");
     expect(screen.getByRole("button", { name: /save/i })).toBeDefined();
   });
 
