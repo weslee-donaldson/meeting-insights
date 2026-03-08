@@ -74,6 +74,23 @@ function normalizeSeries(title: string): string {
   return title.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+export function resolveMeetingSources(
+  db: Database,
+  meetingIds: string[],
+): { id: string; label: string }[] {
+  if (meetingIds.length === 0) return [];
+  const result: { id: string; label: string }[] = [];
+  for (const id of meetingIds) {
+    const row = db
+      .prepare("SELECT title, date FROM meetings WHERE id = ?")
+      .get(id) as { title: string; date: string } | undefined;
+    if (row) {
+      result.push({ id, label: `${row.title} (${row.date.slice(0, 10)})` });
+    }
+  }
+  return result;
+}
+
 function clientNameForMeeting(
   db: Database,
   meetingId: string,
@@ -519,7 +536,8 @@ export async function handleThreadChat(
   appendThreadMessage(db, { thread_id: req.threadId, role: 'user', content: req.message });
   const history = getThreadMessages(db, req.threadId).map((m) => ({ role: m.role, content: m.content }));
   const answer = await llm.converse(systemContext, history);
-  const sources = meetingIds;
+  const resolved = resolveMeetingSources(db, meetingIds);
+  const sources = resolved.map((s) => s.label);
   appendThreadMessage(db, { thread_id: req.threadId, role: 'assistant', content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };
 }
@@ -580,7 +598,8 @@ export async function handleInsightChat(
   appendInsightMessage(db, { insight_id: req.insightId, role: "user", content: req.message });
   const history = getInsightMessages(db, req.insightId).map((m) => ({ role: m.role, content: m.content }));
   const answer = await llm.converse(systemContext, history);
-  const sources = meetingIds;
+  const resolved = resolveMeetingSources(db, meetingIds);
+  const sources = resolved.map((s) => s.label);
   appendInsightMessage(db, { insight_id: req.insightId, role: "assistant", content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };
 }
