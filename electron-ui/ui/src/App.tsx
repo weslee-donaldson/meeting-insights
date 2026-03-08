@@ -24,7 +24,7 @@ import { InsightsView } from "./components/InsightsView.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
 import { InsightDetailView } from "./components/InsightDetailView.js";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
-import type { Insight, InsightMeeting } from "../../../core/insights.js";
+import type { Insight, InsightMeeting, InsightMessage } from "../../../core/insights.js";
 
 interface DateRange {
   after: string;
@@ -228,6 +228,12 @@ export function App() {
   const insightMeetingsQuery = useQuery<InsightMeeting[]>({
     queryKey: ["insightMeetings", selectedInsightId],
     queryFn: () => window.api.getInsightMeetings(selectedInsightId!),
+    enabled: !!selectedInsightId,
+  });
+
+  const insightMessagesQuery = useQuery<InsightMessage[]>({
+    queryKey: ["insightMessages", selectedInsightId],
+    queryFn: () => window.api.getInsightMessages(selectedInsightId!),
     enabled: !!selectedInsightId,
   });
 
@@ -787,6 +793,28 @@ export function App() {
     }
   }, [selectedInsightId, selectedClient, queryClient, addToast]);
 
+  const handleInsightSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.insightChat({ insightId: selectedInsightId, message, includeTranscripts });
+      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
+    } catch (err) {
+      console.error("Insight chat failed:", err);
+      addToast(`Insight chat failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, queryClient, addToast]);
+
+  const handleClearInsightMessages = useCallback(async () => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.clearInsightMessages(selectedInsightId);
+      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
+    } catch (err) {
+      console.error("Clear insight messages failed:", err);
+      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, queryClient, addToast]);
+
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
     setSelectedThreadId(threadId);
@@ -926,7 +954,7 @@ export function App() {
   return (
     <>
     <LinearShell
-      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0)}
+      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "insights" && (insightMeetingsQuery.data?.length ?? 0) > 0)}
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}
@@ -948,7 +976,16 @@ export function App() {
       navRail={<NavRail currentView={currentView} onNavigate={handleNavigate} />}
       panels={panels}
       chat={
-        currentView === "threads" && selectedThreadId ? (
+        currentView === "insights" && selectedInsightId ? (
+          <ChatPanel
+            activeMeetingIds={[]}
+            charCount={0}
+            onChat={handleChat}
+            persistedMessages={insightMessagesQuery.data ?? []}
+            onSendMessage={handleInsightSendMessage}
+            onClearMessages={handleClearInsightMessages}
+          />
+        ) : currentView === "threads" && selectedThreadId ? (
           <ChatPanel
             activeMeetingIds={[]}
             charCount={0}

@@ -5,7 +5,12 @@ import TurndownService from "turndown";
 import { Send, Clipboard, Paperclip, X, FileText, Code, Trash2, Bookmark } from "lucide-react";
 import { Button } from "./ui/button.js";
 import type { ConversationMessage, ConversationChatResponse } from "../../../electron/channels.js";
-import type { ThreadMessage } from "../../../../core/threads.js";
+interface PersistedMessage {
+  role: "user" | "assistant";
+  content: string;
+  sources: string | null;
+  context_stale: boolean;
+}
 
 function markdownToJira(md: string): string {
   return md
@@ -47,7 +52,7 @@ interface ChatPanelProps {
   charCount: number;
   onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string) => Promise<ConversationChatResponse>;
   templates?: string[];
-  persistedMessages?: ThreadMessage[];
+  persistedMessages?: PersistedMessage[];
   onSendMessage?: (message: string, includeTranscripts: boolean) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
