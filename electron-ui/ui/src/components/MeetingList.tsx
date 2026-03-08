@@ -327,7 +327,7 @@ export function MeetingList({
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
-                  className="flex flex-col py-1.5 pr-3 pl-6 cursor-pointer"
+                  className="flex flex-col px-4 py-2 cursor-pointer"
                   style={{
                     background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",
                     borderLeft: "2px solid " + (deepActive ? "var(--color-search-deep)" : isHighlighted ? "var(--color-accent)" : "transparent"),
