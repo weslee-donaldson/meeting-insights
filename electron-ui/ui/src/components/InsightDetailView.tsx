@@ -139,22 +139,24 @@ export function InsightDetailView({
             </div>
           </div>
         )}
-        {meetings.length > 0 && (
-          <div className="px-4 py-3 border-t border-border">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-semibold text-muted-foreground">Source Meetings</h3>
-              {uncheckedIds.length > 0 && onRemoveMeetings && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-auto px-2 py-0.5 text-xs"
-                  onClick={() => onRemoveMeetings(uncheckedIds)}
-                >
-                  <X className="w-3 h-3 mr-1" />
-                  Remove Unchecked
-                </Button>
-              )}
-            </div>
+        <div className="px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-semibold text-muted-foreground">Source Meetings</h3>
+            {uncheckedIds.length > 0 && onRemoveMeetings && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-auto px-2 py-0.5 text-xs"
+                onClick={() => onRemoveMeetings(uncheckedIds)}
+              >
+                <X className="w-3 h-3 mr-1" />
+                Remove Unchecked
+              </Button>
+            )}
+          </div>
+          {meetings.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
+          ) : (
             <div className="flex flex-col">
               {meetings.map((m) => (
                 <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
@@ -171,8 +173,8 @@ export function InsightDetailView({
                 </label>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </ScrollArea>
     </div>
   );

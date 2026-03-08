@@ -24,6 +24,7 @@ Rules that apply to every interactive view in the application. Treat these as de
 
 - Data-fetching views show a skeleton or spinner while loading.
 - Empty collections show a descriptive placeholder, not a blank panel.
+- Listing areas with zero records display a contextual message explaining why the list is empty and, when possible, how the user can populate it (e.g., "No source meetings found for this period. Try a wider date range or assign meetings to this client.").
 
 ## Form Validation
 

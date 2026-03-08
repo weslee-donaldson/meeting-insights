@@ -274,4 +274,18 @@ describe("InsightDetailView", () => {
     );
     expect(screen.getByText("No summary yet. Generate to create one.")).toBeDefined();
   });
+
+  it("shows empty state message when no source meetings exist", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={[]}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Source Meetings")).toBeDefined();
+    expect(screen.getByText(/No source meetings found/)).toBeDefined();
+  });
 });
