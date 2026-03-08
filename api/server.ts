@@ -14,10 +14,13 @@ import {
   handleGetThreadMeetings, handleGetThreadCandidates, handleEvaluateThreadCandidates,
   handleRemoveThreadMeeting, handleAddThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
   handleThreadChat, handleClearThreadMessages, handleGetMeetingThreads,
+  handleListInsights, handleCreateInsight, handleUpdateInsight, handleDeleteInsight,
+  handleGetInsightMeetings, handleDiscoverInsightMeetings, handleGenerateInsight,
+  handleGetInsightMessages, handleInsightChat, handleClearInsightMessages,
 } from "../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
-import type { CreateMeetingRequest, DeepSearchRequest, ThreadChatRequest } from "../electron-ui/electron/channels.js";
+import type { CreateMeetingRequest, DeepSearchRequest, ThreadChatRequest, InsightChatRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -309,6 +312,60 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.get('/api/meetings/:id/threads', (c) => {
     return c.json(handleGetMeetingThreads(db, c.req.param('id')));
+  });
+
+  // Insight routes
+  app.get('/api/insights', (c) => {
+    const client = c.req.query('client') ?? '';
+    return c.json(handleListInsights(db, client));
+  });
+
+  app.post('/api/insights', async (c) => {
+    const body = await c.req.json() as import('../electron-ui/electron/channels.js').CreateInsightRequest;
+    return c.json(handleCreateInsight(db, body), 201);
+  });
+
+  app.put('/api/insights/:id', async (c) => {
+    const body = await c.req.json() as import('../electron-ui/electron/channels.js').UpdateInsightRequest;
+    return c.json(handleUpdateInsight(db, c.req.param('id'), body));
+  });
+
+  app.delete('/api/insights/:id', (c) => {
+    handleDeleteInsight(db, c.req.param('id'));
+    return c.json({ ok: true });
+  });
+
+  app.get('/api/insights/:id/meetings', (c) => {
+    return c.json(handleGetInsightMeetings(db, c.req.param('id')));
+  });
+
+  app.post('/api/insights/:id/discover-meetings', (c) => {
+    const meetingIds = handleDiscoverInsightMeetings(db, c.req.param('id'));
+    return c.json({ meetingIds });
+  });
+
+  app.post('/api/insights/:id/generate', async (c) => {
+    if (!llm) return c.json({ error: 'LLM not available' }, 503);
+    const result = await handleGenerateInsight(db, llm, c.req.param('id'));
+    return c.json(result);
+  });
+
+  app.get('/api/insights/:id/messages', (c) => {
+    return c.json(handleGetInsightMessages(db, c.req.param('id')));
+  });
+
+  app.post('/api/insights/:id/chat', async (c) => {
+    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
+    if (!llm) return c.json({ error: 'LLM not available' }, 503);
+    if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
+    const req: InsightChatRequest = { insightId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
+    const result = await handleInsightChat(db, llm, searchDeps.vdb, searchDeps.session, req);
+    return c.json(result);
+  });
+
+  app.delete('/api/insights/:id/messages', (c) => {
+    handleClearInsightMessages(db, c.req.param('id'));
+    return c.json({ ok: true });
   });
 
   return app;

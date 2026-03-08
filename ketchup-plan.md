@@ -14,9 +14,9 @@
 - [x] Burst 569: IPC handlers for insight CRUD
 - [x] Burst 570: IPC handlers for insight meetings + generation
 - [x] Burst 571: IPC handlers for insight messages + chat
-- [ ] Burst 572: API routes for insights CRUD
-- [ ] Burst 573: API routes for insight meetings + generation
-- [ ] Burst 574: API routes for insight messages + chat
+- [x] Burst 572: API routes for insights CRUD
+- [x] Burst 573: API routes for insight meetings + generation
+- [x] Burst 574: API routes for insight messages + chat
 - [ ] Burst 575: api-client.ts insight methods
 
 ### Phase 4: UI
