@@ -427,7 +427,7 @@ describe("App", () => {
     await waitFor(() => expect(screen.getByText("Create Insight")).toBeDefined());
   });
 
-  it("creating insight calls createInsight + discoverInsightMeetings + generateInsight", async () => {
+  it("creating insight calls createInsight + discoverInsightMeetings without generateInsight", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
     fireEvent.click(screen.getByLabelText("Insights"));
@@ -439,7 +439,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
     await waitFor(() => expect(window.api.createInsight).toHaveBeenCalled());
     await waitFor(() => expect(window.api.discoverInsightMeetings).toHaveBeenCalledWith("i1"));
-    await waitFor(() => expect(window.api.generateInsight).toHaveBeenCalledWith("i1"));
+    expect(window.api.generateInsight).not.toHaveBeenCalled();
   });
 
   it("selecting insight shows InsightDetailView with detail content", async () => {

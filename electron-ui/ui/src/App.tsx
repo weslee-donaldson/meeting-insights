@@ -774,13 +774,12 @@ export function App() {
     if (!selectedClient) return;
     try {
       setCreateInsightOpen(false);
-      addToast("Generating insight...", "success");
+      addToast("Discovering meetings...", "success");
       const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
       await window.api.discoverInsightMeetings(insight.id);
-      await window.api.generateInsight(insight.id);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
       setSelectedInsightId(insight.id);
-      addToast("Insight created", "success");
+      addToast("Insight created — review meetings and generate", "success");
     } catch (err) {
       console.error("Create insight failed:", err);
       addToast(`Create insight failed: ${(err as Error).message}`, "error");
@@ -823,16 +822,17 @@ export function App() {
 
   const handleRegenerateInsight = useCallback(async () => {
     if (!selectedInsightId) return;
+    const isFirst = !selectedInsight?.executive_summary;
     try {
-      addToast("Regenerating insight...", "success");
+      addToast(isFirst ? "Generating insight..." : "Regenerating insight...", "success");
       await window.api.generateInsight(selectedInsightId);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast("Insight regenerated", "success");
+      addToast(isFirst ? "Insight generated" : "Insight regenerated", "success");
     } catch (err) {
       console.error("Regenerate insight failed:", err);
-      addToast(`Regenerate insight failed: ${(err as Error).message}`, "error");
+      addToast(`${isFirst ? "Generate" : "Regenerate"} insight failed: ${(err as Error).message}`, "error");
     }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+  }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
 
   const handleInsightSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
     if (!selectedInsightId) return;
