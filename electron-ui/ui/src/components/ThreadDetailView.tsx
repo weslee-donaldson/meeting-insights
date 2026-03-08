@@ -12,7 +12,7 @@ interface ThreadCandidate {
   similarity: number;
 }
 
-type CandidateGroupBy = "none" | "day" | "week" | "month";
+type CandidateGroupBy = "none" | "series" | "day" | "week" | "month";
 
 interface CandidateGroup {
   key: string;
@@ -73,8 +73,25 @@ function groupCandidatesByMonth(candidates: ThreadCandidate[]): CandidateGroup[]
     });
 }
 
+function groupCandidatesBySeries(candidates: ThreadCandidate[]): CandidateGroup[] {
+  const map = new Map<string, ThreadCandidate[]>();
+  for (const c of candidates) {
+    const key = c.title.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(c);
+  }
+  return [...map.entries()]
+    .sort(([, a], [, b]) => b.length - a.length)
+    .map(([, cs]) => ({
+      key: cs[0].title,
+      label: cs[0].title,
+      candidates: cs.sort((a, b) => b.date.localeCompare(a.date)),
+    }));
+}
+
 const CANDIDATE_GROUP_MODES: { value: CandidateGroupBy; label: string }[] = [
   { value: "none", label: "Score" },
+  { value: "series", label: "Series" },
   { value: "day", label: "Day" },
   { value: "week", label: "Week" },
   { value: "month", label: "Month" },
@@ -111,6 +128,7 @@ function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: Can
   }
 
   const groups =
+    groupBy === "series" ? groupCandidatesBySeries(candidates) :
     groupBy === "day" ? groupCandidatesByDay(candidates) :
     groupBy === "week" ? groupCandidatesByWeek(candidates) :
     groupCandidatesByMonth(candidates);
@@ -119,7 +137,7 @@ function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: Can
     <div className="flex flex-col">
       {groups.map((g) => (
         <div key={g.key}>
-          <div className="px-4 py-1 text-[0.65rem] font-semibold text-muted-foreground bg-secondary/40">{g.label}</div>
+          <div data-group-header="" className="px-4 py-1 text-[0.65rem] font-semibold text-muted-foreground bg-secondary/40">{g.label}</div>
           {g.candidates.map((c) => (
             <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} />
           ))}

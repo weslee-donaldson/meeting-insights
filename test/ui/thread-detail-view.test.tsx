@@ -344,6 +344,34 @@ describe("ThreadDetailView", () => {
     expect(screen.getByText(/Tue, Mar 3/)).toBeDefined();
   });
 
+  it("groups candidates by series when Series button clicked", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Mandalore DSU", date: "2026-03-04T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Mandalore DSU", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+      { meeting_id: "c3", title: "Mandalore DSU", date: "2026-03-02T10:00:00.000Z", similarity: 0.60 },
+      { meeting_id: "c4", title: "Architecture Solutioning", date: "2026-03-03T14:00:00.000Z", similarity: 0.55 },
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Series" }));
+    const headers = screen.getAllByText(/Mandalore DSU|Architecture Solutioning/).filter((el) => el.closest("[data-group-header]"));
+    expect(headers).toHaveLength(2);
+    expect(headers[0].textContent).toBe("Mandalore DSU");
+    expect(headers[1].textContent).toBe("Architecture Solutioning");
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
