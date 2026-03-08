@@ -63,7 +63,7 @@ beforeAll(() => {
     deleteThread: vi.fn().mockResolvedValue(undefined),
     getThreadMeetings: vi.fn().mockResolvedValue([]),
     getThreadCandidates: vi.fn().mockResolvedValue([]),
-    evaluateThreadCandidates: vi.fn().mockResolvedValue({ added: 0, updated: 0 }),
+    evaluateThreadCandidates: vi.fn().mockResolvedValue({ added: 0, updated: 0, errors: [] }),
     removeThreadMeeting: vi.fn().mockResolvedValue(undefined),
     addThreadMeeting: vi.fn().mockResolvedValue(undefined),
     regenerateThreadSummary: vi.fn().mockResolvedValue({ summary: "" }),

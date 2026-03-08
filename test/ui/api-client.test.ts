@@ -226,9 +226,9 @@ describe("apiClient", () => {
   });
 
   it("evaluateThreadCandidates posts to /api/threads/:id/evaluate", async () => {
-    const spy = mockFetch({ added: 2, updated: 0 });
+    const spy = mockFetch({ added: 2, updated: 0, errors: [] });
     const result = await apiClient.evaluateThreadCandidates("t1", ["m1", "m2"], false);
-    expect(result).toEqual({ added: 2, updated: 0 });
+    expect(result).toEqual({ added: 2, updated: 0, errors: [] });
     expect(spy).toHaveBeenCalledWith(
       "http://localhost:3000/api/threads/t1/evaluate",
       expect.objectContaining({ method: "POST" }),

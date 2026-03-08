@@ -652,10 +652,18 @@ export function App() {
   const handleEvaluateCandidates = useCallback(async (meetingIds: string[], overrideExisting: boolean) => {
     if (!selectedThreadId) return;
     try {
-      await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
-      setThreadCandidates([]);
-      setThreadPreviewCandidateIds(new Set());
-      queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+      const result = await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
+      const total = result.added + result.updated;
+      if (total > 0) {
+        setThreadCandidates([]);
+        setThreadPreviewCandidateIds(new Set());
+        queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
+        addToast(`Evaluated: ${result.added} added, ${result.updated} updated`, "success");
+      } else if (result.errors.length > 0) {
+        addToast(`Evaluation failed: ${result.errors.map((e) => e.reason).join(", ")}`, "error");
+      } else {
+        addToast("No meetings were evaluated as related", "error");
+      }
     } catch (err) {
       console.error("Evaluate candidates failed:", err);
       addToast(`Evaluate candidates failed: ${(err as Error).message}`, "error");

@@ -218,7 +218,7 @@ export interface ElectronAPI {
   deleteThread: (threadId: string) => Promise<void>;
   getThreadMeetings: (threadId: string) => Promise<import("../../core/threads.js").ThreadMeeting[]>;
   getThreadCandidates: (threadId: string) => Promise<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>;
-  evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) => Promise<{ added: number; updated: number }>;
+  evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) => Promise<{ added: number; updated: number; errors: Array<{ meetingId: string; reason: string }> }>;
   removeThreadMeeting: (threadId: string, meetingId: string) => Promise<void>;
   regenerateThreadSummary: (threadId: string, meetingIds?: string[]) => Promise<{ summary: string }>;
   getThreadMessages: (threadId: string) => Promise<import("../../core/threads.js").ThreadMessage[]>;
