@@ -220,13 +220,13 @@ export function MeetingList({
         <div className="border-b border-border mx-3" />
         <div className="flex flex-col gap-1.5 px-3 pt-1.5 pb-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-foreground font-semibold">Group by:</span>
+            <span className="text-xs text-foreground font-semibold">Group by:</span>
             {GROUP_MODES.map(({ value, label }) => (
               <Button
                 key={value}
                 variant={groupBy === value ? "default" : "secondary"}
                 size="sm"
-                className="rounded-full h-auto px-3 py-0.5 text-sm"
+                className="rounded-full h-auto px-3 py-0.5 text-xs"
                 onClick={() => onGroupBy(value)}
               >
                 {label}
@@ -234,14 +234,14 @@ export function MeetingList({
             ))}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm text-foreground font-semibold">Sort:</span>
+            <span className="text-xs text-foreground font-semibold">Sort:</span>
             {SORT_MODES.map(({ value, label }) =>
               (value === "relevance" && !hasRelevance) || (value === "thread" && !hasThreads) ? null : (
                 <Button
                   key={value}
                   variant={sortBy === value ? "default" : "secondary"}
                   size="sm"
-                  className="rounded-full h-auto px-3 py-0.5 text-sm"
+                  className="rounded-full h-auto px-3 py-0.5 text-xs"
                   onClick={() => onSortBy(value)}
                 >
                   {label}
