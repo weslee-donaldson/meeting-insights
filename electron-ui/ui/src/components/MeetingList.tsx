@@ -287,9 +287,9 @@ export function MeetingList({
           const showStats = groupBy !== "series";
           return (
             <div key={group.series}>
-              <div className="px-3 pt-2.5 pb-1 mt-1">
+              <div className="px-4 py-1.5 bg-secondary/60">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-bold overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                  <span className="text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground">
                     {group.label}
                   </span>
                   <Button
