@@ -81,7 +81,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
             <span>Criteria Prompt</span>
             <textarea
               aria-label="Criteria Prompt"
-              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[80px]"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground min-h-[160px] min-w-[400px]"
               value={criteriaPrompt}
               onChange={(e) => setCriteriaPrompt(e.target.value)}
             />
