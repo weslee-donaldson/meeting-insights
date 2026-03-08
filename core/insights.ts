@@ -362,7 +362,7 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
   `).run(
     result.rag_status as string,
     result.rag_rationale as string,
-    result.executive_summary as string,
+    plainTextToHtml(result.executive_summary as string),
     topicDetails,
     now,
     now,
