@@ -12,6 +12,123 @@ interface ThreadCandidate {
   similarity: number;
 }
 
+type CandidateGroupBy = "none" | "day" | "week" | "month";
+
+interface CandidateGroup {
+  key: string;
+  label: string;
+  candidates: ThreadCandidate[];
+}
+
+function formatDayLabel(dateStr: string): string {
+  const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+function groupCandidatesByDay(candidates: ThreadCandidate[]): CandidateGroup[] {
+  const map = new Map<string, ThreadCandidate[]>();
+  for (const c of candidates) {
+    const key = c.date.slice(0, 10);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(c);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, cs]) => ({ key, label: formatDayLabel(key), candidates: cs }));
+}
+
+function groupCandidatesByWeek(candidates: ThreadCandidate[]): CandidateGroup[] {
+  const map = new Map<string, { candidates: ThreadCandidate[]; monday: Date }>();
+  for (const c of candidates) {
+    const d = new Date(c.date.slice(0, 10) + "T12:00:00Z");
+    const day = d.getUTCDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(d);
+    monday.setUTCDate(d.getUTCDate() + diff);
+    const key = monday.toISOString().slice(0, 10);
+    if (!map.has(key)) map.set(key, { candidates: [], monday });
+    map.get(key)!.candidates.push(c);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, { candidates: cs, monday }]) => ({
+      key,
+      label: "Week of " + monday.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }),
+      candidates: cs,
+    }));
+}
+
+function groupCandidatesByMonth(candidates: ThreadCandidate[]): CandidateGroup[] {
+  const map = new Map<string, ThreadCandidate[]>();
+  for (const c of candidates) {
+    const key = c.date.slice(0, 7);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(c);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, cs]) => {
+      const d = new Date(key + "-15T12:00:00Z");
+      return { key, label: d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }), candidates: cs };
+    });
+}
+
+const CANDIDATE_GROUP_MODES: { value: CandidateGroupBy; label: string }[] = [
+  { value: "none", label: "Score" },
+  { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
+];
+
+interface CandidateListProps {
+  candidates: ThreadCandidate[];
+  groupBy: CandidateGroupBy;
+  checkedCandidates: Set<string>;
+  onToggle: (meetingId: string) => void;
+}
+
+function CandidateRow({ c, checked, onToggle }: { c: ThreadCandidate; checked: boolean; onToggle: () => void }) {
+  return (
+    <label className="flex items-center gap-2 px-4 py-1.5 text-sm border-b border-border cursor-pointer hover:bg-secondary/60">
+      <input type="checkbox" checked={checked} onChange={onToggle} />
+      <span className="text-xs font-mono text-muted-foreground w-10 shrink-0">{(c.similarity * 100).toFixed(0)}%</span>
+      <span className="flex-1 truncate">{c.title}</span>
+      <span className="text-xs text-muted-foreground shrink-0">{new Date(c.date).toLocaleDateString()}</span>
+    </label>
+  );
+}
+
+function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: CandidateListProps) {
+  if (groupBy === "none") {
+    const sorted = [...candidates].sort((a, b) => b.similarity - a.similarity);
+    return (
+      <div className="flex flex-col">
+        {sorted.map((c) => (
+          <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} />
+        ))}
+      </div>
+    );
+  }
+
+  const groups =
+    groupBy === "day" ? groupCandidatesByDay(candidates) :
+    groupBy === "week" ? groupCandidatesByWeek(candidates) :
+    groupCandidatesByMonth(candidates);
+
+  return (
+    <div className="flex flex-col">
+      {groups.map((g) => (
+        <div key={g.key}>
+          <div className="px-4 py-1 text-[0.65rem] font-semibold text-muted-foreground bg-secondary/40">{g.label}</div>
+          {g.candidates.map((c) => (
+            <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface ThreadDetailViewProps {
   thread: Thread;
   meetings: ThreadMeeting[];
@@ -51,6 +168,7 @@ export function ThreadDetailView({
     () => new Set(candidates?.map((c) => c.meeting_id) ?? []),
   );
   const [overrideExisting, setOverrideExisting] = useState(false);
+  const [candidateGroupBy, setCandidateGroupBy] = useState<CandidateGroupBy>("none");
 
   const prevCandidateIds = React.useRef<string>("");
   const candidateIds = candidates?.map((c) => c.meeting_id).join(",") ?? "";
@@ -173,36 +291,34 @@ export function ThreadDetailView({
                 Evaluate Selected ({checkedCandidates.size})
               </Button>
             </div>
-            <div className="flex flex-col">
-              {candidates.map((c) => (
-                <label
-                  key={c.meeting_id}
-                  className="flex items-center gap-2 px-4 py-2 text-sm border-b border-border cursor-pointer hover:bg-secondary/60"
+            <div className="px-4 py-1 flex items-center gap-1">
+              <span className="text-[0.65rem] text-muted-foreground mr-1">Group:</span>
+              {CANDIDATE_GROUP_MODES.map(({ value, label }) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={candidateGroupBy === value ? "default" : "outline"}
+                  className="h-auto px-2 py-0.5 text-[0.65rem]"
+                  onClick={() => setCandidateGroupBy(value)}
                 >
-                  <input
-                    type="checkbox"
-                    checked={checkedCandidates.has(c.meeting_id)}
-                    onChange={() => {
-                      setCheckedCandidates((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(c.meeting_id)) {
-                          next.delete(c.meeting_id);
-                        } else {
-                          next.add(c.meeting_id);
-                        }
-                        onCandidateCheck?.(next);
-                        return next;
-                      });
-                    }}
-                  />
-                  <span className="text-xs font-mono text-muted-foreground w-12 shrink-0">
-                    {(c.similarity * 100).toFixed(0)}%
-                  </span>
-                  <span className="flex-1 truncate">{c.title}</span>
-                  <span className="text-xs text-muted-foreground">{c.date.slice(0, 10)}</span>
-                </label>
+                  {label}
+                </Button>
               ))}
             </div>
+            <CandidateList
+              candidates={candidates}
+              groupBy={candidateGroupBy}
+              checkedCandidates={checkedCandidates}
+              onToggle={(meetingId) => {
+                setCheckedCandidates((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(meetingId)) next.delete(meetingId);
+                  else next.add(meetingId);
+                  onCandidateCheck?.(next);
+                  return next;
+                });
+              }}
+            />
           </div>
         )}
       </ScrollArea>

@@ -316,6 +316,34 @@ describe("ThreadDetailView", () => {
     expect(onCandidateCheck).toHaveBeenCalledWith(new Set(["c1"]));
   });
 
+  it("renders candidate group-by buttons and groups candidates by day when clicked", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Morning standup", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Afternoon retro", date: "2026-03-02T14:00:00.000Z", similarity: 0.72 },
+      { meeting_id: "c3", title: "Planning", date: "2026-03-03T10:00:00.000Z", similarity: 0.60 },
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Day" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Week" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Month" })).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    expect(screen.getByText(/Mon, Mar 2/)).toBeDefined();
+    expect(screen.getByText(/Tue, Mar 3/)).toBeDefined();
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
