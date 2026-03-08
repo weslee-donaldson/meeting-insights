@@ -318,4 +318,17 @@ describe("storeDetection", () => {
     const rows = db.prepare("SELECT * FROM client_detections WHERE meeting_id = ?").all(mid);
     expect(rows.length).toBeGreaterThan(0);
   });
+
+  it("sets meetings.client_id to the top-confidence client id", () => {
+    const meeting = makeMeeting({
+      title: "Revenium Sync",
+      participants: [{ last_name: "S", id: "6", first_name: "John", email: "john@revenium.com" }],
+    });
+    const mid = ingestMeeting(db, meeting);
+    const results = detectClient(db, mid);
+    storeDetection(db, mid, results);
+    const row = db.prepare("SELECT client_id FROM meetings WHERE id = ?").get(mid) as { client_id: string | null };
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = 'Revenium'").get() as { id: string };
+    expect(row.client_id).toBe(clientRow.id);
+  });
 });

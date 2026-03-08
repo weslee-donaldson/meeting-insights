@@ -125,4 +125,11 @@ export function storeDetection(db: Database, meetingId: string, results: Detecti
   for (const r of results) {
     stmt.run(meetingId, r.client_name, r.confidence, r.method);
   }
+  const top = [...results].sort((a, b) => b.confidence - a.confidence)[0];
+  if (top) {
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = ?").get(top.client_name) as { id: string } | undefined;
+    if (clientRow?.id) {
+      db.prepare("UPDATE meetings SET client_id = ? WHERE id = ?").run(clientRow.id, meetingId);
+    }
+  }
 }
