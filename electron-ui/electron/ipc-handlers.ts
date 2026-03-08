@@ -19,10 +19,12 @@ import { createMeetingTable } from "../../core/vector-db.js";
 import type { VectorDb } from "../../core/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, ThreadChatResponse } from "./channels.js";
+import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, SearchRequest, SearchResultRow, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, ThreadChatResponse, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, InsightChatResponse } from "./channels.js";
 import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread, markThreadMessagesStale } from "../../core/threads.js";
 import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
+import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext } from "../../core/insights.js";
+import type { Insight, InsightMeeting, InsightMessage } from "../../core/insights.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
 const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
@@ -536,4 +538,57 @@ export function handleGetMeetingThreads(db: Database, meetingId: string): Meetin
   return db.prepare(
     'SELECT tm.thread_id, t.title, t.shorthand FROM thread_meetings tm JOIN threads t ON tm.thread_id = t.id WHERE tm.meeting_id = ?'
   ).all(meetingId) as MeetingThreadRow[];
+}
+
+export function handleListInsights(db: Database, clientName: string): Insight[] {
+  return listInsightsByClient(db, clientName);
+}
+
+export function handleCreateInsight(db: Database, req: CreateInsightRequest): Insight {
+  return coreCreateInsight(db, req);
+}
+
+export function handleUpdateInsight(db: Database, insightId: string, req: UpdateInsightRequest): Insight {
+  return coreUpdateInsight(db, insightId, req);
+}
+
+export function handleDeleteInsight(db: Database, insightId: string): void {
+  coreDeleteInsight(db, insightId);
+}
+
+export function handleGetInsightMeetings(db: Database, insightId: string): InsightMeeting[] {
+  return getInsightMeetings(db, insightId);
+}
+
+export function handleDiscoverInsightMeetings(db: Database, insightId: string): string[] {
+  const insight = getInsight(db, insightId)!;
+  const meetingIds = discoverMeetingsForPeriod(db, insight.client_name, insight.period_start, insight.period_end);
+  for (const meetingId of meetingIds) {
+    addInsightMeeting(db, { insight_id: insightId, meeting_id: meetingId, contribution_summary: "" });
+  }
+  return meetingIds;
+}
+
+export async function handleGenerateInsight(db: Database, llm: LlmAdapter, insightId: string): Promise<Insight> {
+  return coreGenerateInsight(db, llm, insightId);
+}
+
+export function handleGetInsightMessages(db: Database, insightId: string): InsightMessage[] {
+  return getInsightMessages(db, insightId);
+}
+
+export async function handleInsightChat(
+  db: Database, llm: LlmAdapter, vdb: VectorDb, session: InferenceSession & { _tokenizer: unknown }, req: InsightChatRequest
+): Promise<InsightChatResponse> {
+  const { systemContext, meetingIds } = await getInsightChatContext(db, vdb, session, req.insightId, req.message, req.includeTranscripts ?? false);
+  appendInsightMessage(db, { insight_id: req.insightId, role: "user", content: req.message });
+  const history = getInsightMessages(db, req.insightId).map((m) => ({ role: m.role, content: m.content }));
+  const answer = await llm.converse(systemContext, history);
+  const sources = meetingIds;
+  appendInsightMessage(db, { insight_id: req.insightId, role: "assistant", content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
+  return { answer, sources };
+}
+
+export function handleClearInsightMessages(db: Database, insightId: string): void {
+  coreClearInsightMessages(db, insightId);
 }

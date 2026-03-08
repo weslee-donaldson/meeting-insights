@@ -11,9 +11,9 @@
 ### Phase 3: IPC + API
 - [x] Burst 567: Insight IPC channel constants + request/response types
 - [x] Burst 568: ElectronAPI interface insight methods
-- [ ] Burst 569: IPC handlers for insight CRUD
-- [ ] Burst 570: IPC handlers for insight meetings + generation
-- [ ] Burst 571: IPC handlers for insight messages + chat
+- [x] Burst 569: IPC handlers for insight CRUD
+- [x] Burst 570: IPC handlers for insight meetings + generation
+- [x] Burst 571: IPC handlers for insight messages + chat
 - [ ] Burst 572: API routes for insights CRUD
 - [ ] Burst 573: API routes for insight meetings + generation
 - [ ] Burst 574: API routes for insight messages + chat
