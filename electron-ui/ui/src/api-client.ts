@@ -149,17 +149,35 @@ export const apiClient: ElectronAPI = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   updateThread: (threadId: string, req: UpdateThreadRequest) =>
     fetch(`${API_BASE}/api/threads/${threadId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   deleteThread: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}`, { method: 'DELETE' }).then((r) => r.json()),
+    fetch(`${API_BASE}/api/threads/${threadId}`, { method: 'DELETE' }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   getThreadMeetings: (threadId: string) =>
     fetch(`${API_BASE}/api/threads/${threadId}/meetings`).then((r) => r.json()),
@@ -172,24 +190,48 @@ export const apiClient: ElectronAPI = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ meetingIds, overrideExisting }),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   removeThreadMeeting: (threadId: string, meetingId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`, { method: 'DELETE' }).then((r) => r.json()),
+    fetch(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`, { method: 'DELETE' }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) =>
     fetch(`${API_BASE}/api/threads/${threadId}/meetings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ meetingId, summary, score }),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   regenerateThreadSummary: (threadId: string, meetingIds?: string[]) =>
     fetch(`${API_BASE}/api/threads/${threadId}/regenerate-summary`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ meetingIds }),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   getThreadMessages: (threadId: string) =>
     fetch(`${API_BASE}/api/threads/${threadId}/messages`).then((r) => r.json()),
@@ -199,10 +241,22 @@ export const apiClient: ElectronAPI = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: req.message, includeTranscripts: req.includeTranscripts }),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   clearThreadMessages: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/messages`, { method: 'DELETE' }).then((r) => r.json()),
+    fetch(`${API_BASE}/api/threads/${threadId}/messages`, { method: 'DELETE' }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
 
   getMeetingThreads: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/threads`).then((r) => r.json()),

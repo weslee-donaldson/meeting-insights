@@ -158,4 +158,9 @@ export function migrate(db: DatabaseSync): void {
   if (artifactCols.some(c => c.name === "technical_topics")) {
     db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");
   }
+
+  const threadCols = db.prepare("PRAGMA table_info(threads)").all() as { name: string }[];
+  if (threadCols.length > 0 && !threadCols.some(c => c.name === "keywords")) {
+    db.exec("ALTER TABLE threads ADD COLUMN keywords TEXT DEFAULT ''");
+  }
 }

@@ -239,9 +239,14 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     return req.then((body) => c.json(handleCreateThread(db, body as import('../electron-ui/electron/channels.js').CreateThreadRequest), 201));
   });
 
-  app.put('/api/threads/:id', (c) => {
-    const req = c.req.json();
-    return req.then((body) => c.json(handleUpdateThread(db, c.req.param('id'), body as import('../electron-ui/electron/channels.js').UpdateThreadRequest)));
+  app.put('/api/threads/:id', async (c) => {
+    try {
+      const body = await c.req.json() as import('../electron-ui/electron/channels.js').UpdateThreadRequest;
+      return c.json(handleUpdateThread(db, c.req.param('id'), body));
+    } catch (err) {
+      console.error("Update thread failed:", err);
+      return c.json({ error: (err as Error).message }, 500);
+    }
   });
 
   app.delete('/api/threads/:id', (c) => {
