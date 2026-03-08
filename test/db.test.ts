@@ -87,6 +87,21 @@ describe("migrate", () => {
     expect(row).toEqual({ name: "artifact_fts" });
   });
 
+  it("creates insights table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='insights'").get();
+    expect(row).toEqual({ name: "insights" });
+  });
+
+  it("creates insight_meetings table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='insight_meetings'").get();
+    expect(row).toEqual({ name: "insight_meetings" });
+  });
+
+  it("creates insight_messages table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='insight_messages'").get();
+    expect(row).toEqual({ name: "insight_messages" });
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });

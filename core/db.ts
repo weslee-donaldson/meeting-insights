@@ -123,6 +123,44 @@ export function migrate(db: DatabaseSync): void {
       created_at TEXT NOT NULL,
       FOREIGN KEY (thread_id) REFERENCES threads(id)
     );
+
+    CREATE TABLE IF NOT EXISTS insights (
+      id TEXT PRIMARY KEY,
+      client_name TEXT NOT NULL,
+      period_type TEXT NOT NULL,
+      period_start TEXT NOT NULL,
+      period_end TEXT NOT NULL,
+      status TEXT DEFAULT 'draft',
+      rag_status TEXT DEFAULT 'green',
+      rag_rationale TEXT DEFAULT '',
+      executive_summary TEXT DEFAULT '',
+      topic_details TEXT DEFAULT '[]',
+      generated_at TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (client_name) REFERENCES clients(name)
+    );
+
+    CREATE TABLE IF NOT EXISTS insight_meetings (
+      insight_id TEXT NOT NULL,
+      meeting_id TEXT NOT NULL,
+      contribution_summary TEXT DEFAULT '',
+      PRIMARY KEY (insight_id, meeting_id),
+      FOREIGN KEY (insight_id) REFERENCES insights(id),
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS insight_messages (
+      id TEXT PRIMARY KEY,
+      insight_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sources TEXT,
+      context_stale INTEGER DEFAULT 0,
+      stale_details TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (insight_id) REFERENCES insights(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
