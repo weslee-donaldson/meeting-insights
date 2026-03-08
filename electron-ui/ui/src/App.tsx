@@ -52,6 +52,7 @@ export function App() {
   const [createThreadOpen, setCreateThreadOpen] = useState(false);
   const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
   const [threadInitialDescription, setThreadInitialDescription] = useState("");
+  const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -287,6 +288,66 @@ export function App() {
     return result;
   }, [isMultiMode, actionItemOrigins, checkedMeetings, checkedCompletionQueries]);
 
+  const isCandidatePreview = threadPreviewCandidateIds.size > 0;
+  const candidatePreviewMeetings = useMemo(
+    () => scopeMeetings.filter((m) => threadPreviewCandidateIds.has(m.id)),
+    [scopeMeetings, threadPreviewCandidateIds],
+  );
+  const isCandidateMulti = candidatePreviewMeetings.length >= 2;
+
+  const candidateArtifactQueries = useQueries({
+    queries: candidatePreviewMeetings.map((m) => ({
+      queryKey: ["artifact", m.id] as const,
+      queryFn: () => window.api.getArtifact(m.id),
+      enabled: isCandidatePreview,
+    })),
+  });
+
+  const { candidateMergedArtifact, candidateActionItemOrigins } = useMemo(() => {
+    if (!isCandidatePreview) return { candidateMergedArtifact: null, candidateActionItemOrigins: [] };
+    const artifacts = candidateArtifactQueries.map((q) => q.data).filter((a): a is Artifact => a != null);
+    if (artifacts.length === 0) return { candidateMergedArtifact: null, candidateActionItemOrigins: [] };
+    if (!isCandidateMulti) return { candidateMergedArtifact: artifacts[0], candidateActionItemOrigins: [] };
+    const meetingIds = candidatePreviewMeetings.filter((_, idx) => candidateArtifactQueries[idx].data != null).map((m) => m.id);
+    return {
+      candidateMergedArtifact: mergeArtifactsDeduped(artifacts),
+      candidateActionItemOrigins: computeActionItemOrigins(artifacts, meetingIds),
+    };
+  }, [isCandidatePreview, isCandidateMulti, candidateArtifactQueries, candidatePreviewMeetings]);
+
+  const candidateArtifactLoading = isCandidatePreview && candidateArtifactQueries.some((q) => q.isLoading);
+
+  const candidateCompletionQueries = useQueries({
+    queries: candidatePreviewMeetings.map((m) => ({
+      queryKey: ["completions", m.id] as const,
+      queryFn: () => window.api.getCompletions(m.id),
+      enabled: isCandidatePreview && isCandidateMulti,
+    })),
+  });
+
+  const candidateMergedCompletions = useMemo((): ActionItemCompletion[] => {
+    if (!isCandidateMulti || candidateActionItemOrigins.length === 0) return [];
+    const completionsByMeeting = new Map<string, ActionItemCompletion[]>();
+    for (let i = 0; i < candidatePreviewMeetings.length; i++) {
+      const data = candidateCompletionQueries[i]?.data;
+      if (data) completionsByMeeting.set(candidatePreviewMeetings[i].id, data);
+    }
+    const result: ActionItemCompletion[] = [];
+    for (let mergedIdx = 0; mergedIdx < candidateActionItemOrigins.length; mergedIdx++) {
+      const origin = candidateActionItemOrigins[mergedIdx];
+      const meetingCompletions = completionsByMeeting.get(origin.meetingId) ?? [];
+      const match = meetingCompletions.find((c) => c.item_index === origin.itemIndex);
+      if (match) result.push({ ...match, item_index: mergedIdx });
+    }
+    return result;
+  }, [isCandidateMulti, candidateActionItemOrigins, candidatePreviewMeetings, candidateCompletionQueries]);
+
+  const candidateSingleCompletionsQuery = useQuery<ActionItemCompletion[]>({
+    queryKey: ["completions", candidatePreviewMeetings[0]?.id],
+    queryFn: () => window.api.getCompletions(candidatePreviewMeetings[0].id),
+    enabled: isCandidatePreview && !isCandidateMulti && candidatePreviewMeetings.length === 1,
+  });
+
   const charCount = isMultiMode
     ? (mergedArtifact ? JSON.stringify(mergedArtifact).length : 0)
     : (selectedArtifactQuery.data ? JSON.stringify(selectedArtifactQuery.data).length : 0);
@@ -508,10 +569,15 @@ export function App() {
     setThreadCandidates(result);
   }, [selectedThreadId]);
 
+  const handleCandidateCheck = useCallback((checkedIds: Set<string>) => {
+    setThreadPreviewCandidateIds(new Set(checkedIds));
+  }, []);
+
   const handleEvaluateCandidates = useCallback(async (meetingIds: string[], overrideExisting: boolean) => {
     if (!selectedThreadId) return;
     await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
     setThreadCandidates([]);
+    setThreadPreviewCandidateIds(new Set());
     queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
   }, [selectedThreadId, queryClient]);
 
@@ -618,7 +684,7 @@ export function App() {
       key="threads-list"
       threads={threadsQuery.data ?? []}
       clientName={selectedClient ?? "All"}
-      onSelectThread={setSelectedThreadId}
+      onSelectThread={(id: string) => { setSelectedThreadId(id); setThreadPreviewCandidateIds(new Set()); }}
       onCreateThread={() => setCreateThreadOpen(true)}
       selectedThreadId={selectedThreadId}
     />,
@@ -635,7 +701,18 @@ export function App() {
         onRegenerateSummary={handleRegenerateThreadSummary}
         onMeetingClick={setSelectedMeetingId}
         onEvaluateCandidates={handleEvaluateCandidates}
+        onCandidateCheck={handleCandidateCheck}
         onResolve={handleResolveThread}
+      />,
+    ] : []),
+    ...(isCandidatePreview ? [
+      <MeetingDetail
+        key="candidate-preview"
+        meeting={isCandidateMulti ? null : (candidatePreviewMeetings[0] ?? null)}
+        meetings={isCandidateMulti ? candidatePreviewMeetings : undefined}
+        artifact={isCandidateMulti ? candidateMergedArtifact : (candidateArtifactQueries[0]?.data ?? null)}
+        completions={isCandidateMulti ? candidateMergedCompletions : (candidateSingleCompletionsQuery.data ?? [])}
+        artifactLoading={candidateArtifactLoading}
       />,
     ] : []),
   ];
