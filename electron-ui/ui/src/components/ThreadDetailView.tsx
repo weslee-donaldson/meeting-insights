@@ -138,6 +138,24 @@ export function ThreadDetailView({
               <span className="text-xs font-semibold text-muted-foreground flex-1">
                 {candidates.length} Candidate{candidates.length !== 1 ? "s" : ""}
               </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-auto px-2 py-0.5 text-[0.7rem]"
+                aria-label={checkedCandidates.size === candidates.length ? "Collapse all" : "Expand all"}
+                onClick={() => {
+                  if (checkedCandidates.size === candidates.length) {
+                    setCheckedCandidates(new Set());
+                    onCandidateCheck?.(new Set());
+                  } else {
+                    const all = new Set(candidates.map((c) => c.meeting_id));
+                    setCheckedCandidates(all);
+                    onCandidateCheck?.(all);
+                  }
+                }}
+              >
+                {checkedCandidates.size === candidates.length ? "Collapse all" : "Expand all"}
+              </Button>
               <label className="flex items-center gap-1 text-xs" data-override="">
                 <input
                   type="checkbox"

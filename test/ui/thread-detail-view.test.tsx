@@ -260,6 +260,35 @@ describe("ThreadDetailView", () => {
     expect(screen.getByText(longSummary)).toBeDefined();
   });
 
+  it("Collapse all deselects all candidates and Expand all reselects them", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Candidate B", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+    ];
+    const onCandidateCheck = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+        onCandidateCheck={onCandidateCheck}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /collapse all/i }));
+    expect(onCandidateCheck).toHaveBeenCalledWith(new Set());
+    const candidateCheckboxes = screen.getAllByRole("checkbox").filter((cb) => !cb.closest("[data-override]"));
+    expect(candidateCheckboxes.every((cb) => !(cb as HTMLInputElement).checked)).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: /expand all/i }));
+    expect(onCandidateCheck).toHaveBeenCalledWith(new Set(["c1", "c2"]));
+  });
+
   it("toggling candidate checkbox calls onCandidateCheck with updated set", () => {
     const candidates = [
       { meeting_id: "c1", title: "Candidate A", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
