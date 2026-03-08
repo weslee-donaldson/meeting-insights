@@ -36,7 +36,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         <p className="text-xs text-muted-foreground">{items.length} open items</p>
       </div>
 
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col">
         {criticalItems.map((item) => (
           <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
         ))}
@@ -44,7 +44,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
           <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
         ))}
         {items.length === 0 && (
-          <p className="text-muted-foreground text-sm">No open action items.</p>
+          <p className="text-muted-foreground text-sm px-4 py-2">No open action items.</p>
         )}
 
         {completedItems.length > 0 && (
@@ -54,7 +54,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
             className="mt-2"
           >
             <button
-              className="w-full flex items-center gap-2 text-xs font-semibold text-muted-foreground py-1 hover:text-foreground transition-colors"
+              className="w-full flex items-center gap-2 text-xs font-semibold text-muted-foreground px-4 py-1 hover:text-foreground transition-colors"
               onClick={() => setCompletedOpen((o) => !o)}
               aria-label={`Completed (${completedItems.length})`}
             >
@@ -63,7 +63,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
               <span className="text-muted-foreground/70">({completedItems.length})</span>
             </button>
             {completedOpen && (
-              <div data-testid="completed-items-list" className="flex flex-col gap-2 mt-1">
+              <div data-testid="completed-items-list" className="flex flex-col mt-1">
                 {completedItems.map((item) => (
                   <ActionItemCard
                     key={`done:${item.meeting_id}:${item.item_index}`}
@@ -83,7 +83,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
 
 function ActionItemCard({ item, onPreviewMeeting, onComplete, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; completed?: boolean }) {
   return (
-    <div className={`rounded-md border border-border px-3 py-2 flex items-start gap-2 text-sm${completed ? " opacity-50" : ""}`}>
+    <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm hover:bg-secondary/60${completed ? " opacity-50" : ""}`}>
       <input
         type="checkbox"
         className="mt-0.5 shrink-0 cursor-pointer"
