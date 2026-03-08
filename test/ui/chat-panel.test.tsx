@@ -467,4 +467,49 @@ describe("ChatPanel", () => {
     );
     expect(screen.queryByText("Old answer.")).toBeNull();
   });
+
+  it("renders structured sources as clickable buttons showing label", async () => {
+    const onChat = vi.fn().mockResolvedValue({
+      answer: "Answer with structured sources",
+      sources: [
+        { id: "meeting-abc", label: "Architecture Review (2026-03-02)" },
+        { id: "meeting-def", label: "Sprint Planning (2026-03-03)" },
+      ],
+      charCount: 0,
+    });
+    const onSourceClick = vi.fn();
+    render(
+      <ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} onSourceClick={onSourceClick} />,
+    );
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => screen.getByText("Architecture Review (2026-03-02)"), { timeout: 2000 });
+    const sourceBtn = screen.getByRole("button", { name: "Architecture Review (2026-03-02)" });
+    fireEvent.click(sourceBtn);
+    expect(onSourceClick).toHaveBeenCalledWith("meeting-abc");
+  });
+
+  it("renders persisted structured sources as clickable buttons", () => {
+    const onSourceClick = vi.fn();
+    const persisted: ThreadMessage[] = [
+      {
+        id: "msg1", thread_id: "t1", role: "assistant", content: "Thread answer",
+        sources: JSON.stringify([{ id: "m-123", label: "TQ Internal (2026-03-02)" }]),
+        context_stale: false, stale_details: null, created_at: "2026-03-01T10:00:00.000Z",
+      },
+    ];
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        persistedMessages={persisted}
+        onSendMessage={vi.fn()}
+        onSourceClick={onSourceClick}
+      />,
+    );
+    const sourceBtn = screen.getByRole("button", { name: "TQ Internal (2026-03-02)" });
+    fireEvent.click(sourceBtn);
+    expect(onSourceClick).toHaveBeenCalledWith("m-123");
+  });
 });

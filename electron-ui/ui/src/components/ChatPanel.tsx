@@ -36,10 +36,17 @@ function markdownToHtml(md: string): string {
     .replace(/\n/g, "<br>");
 }
 
+interface SourceRef {
+  id: string;
+  label: string;
+}
+
+type SourceItem = string | SourceRef;
+
 interface InternalMessage {
   role: "user" | "assistant";
   content: string;
-  sources?: string[];
+  sources?: SourceItem[];
 }
 
 interface AttachmentItem {
@@ -56,13 +63,14 @@ interface ChatPanelProps {
   onSendMessage?: (message: string, includeTranscripts: boolean) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
+  onSourceClick?: (meetingId: string) => void;
 }
 
 function toDisplayName(stem: string): string {
   return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread }: ChatPanelProps) {
+export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread, onSourceClick }: ChatPanelProps) {
   const isPersisted = persistedMessages !== undefined;
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<InternalMessage[]>([]);
@@ -256,9 +264,26 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                 <div className="text-[0.7rem] text-muted-foreground pl-1">
                   <span className="font-semibold uppercase tracking-[0.05em]">Sources</span>
                   <ul className="mt-0.5 m-0 p-0 list-none flex flex-col gap-0.5">
-                    {msg.sources.map((s, j) => (
-                      <li key={j} className="pl-2">— {s}</li>
-                    ))}
+                    {msg.sources.map((s, j) => {
+                      const isRef = typeof s === "object" && s !== null && "id" in s;
+                      const label = isRef ? (s as SourceRef).label : (s as string);
+                      return (
+                        <li key={j} className="pl-2">
+                          {"— "}
+                          {isRef && onSourceClick ? (
+                            <button
+                              type="button"
+                              onClick={() => onSourceClick((s as SourceRef).id)}
+                              className="text-left underline decoration-dotted underline-offset-2 hover:text-foreground bg-transparent border-none cursor-pointer p-0 m-0 text-[0.7rem] text-muted-foreground"
+                            >
+                              {label}
+                            </button>
+                          ) : (
+                            label
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

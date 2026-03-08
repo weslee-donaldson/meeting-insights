@@ -536,8 +536,7 @@ export async function handleThreadChat(
   appendThreadMessage(db, { thread_id: req.threadId, role: 'user', content: req.message });
   const history = getThreadMessages(db, req.threadId).map((m) => ({ role: m.role, content: m.content }));
   const answer = await llm.converse(systemContext, history);
-  const resolved = resolveMeetingSources(db, meetingIds);
-  const sources = resolved.map((s) => s.label);
+  const sources = resolveMeetingSources(db, meetingIds);
   appendThreadMessage(db, { thread_id: req.threadId, role: 'assistant', content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };
 }
@@ -598,8 +597,7 @@ export async function handleInsightChat(
   appendInsightMessage(db, { insight_id: req.insightId, role: "user", content: req.message });
   const history = getInsightMessages(db, req.insightId).map((m) => ({ role: m.role, content: m.content }));
   const answer = await llm.converse(systemContext, history);
-  const resolved = resolveMeetingSources(db, meetingIds);
-  const sources = resolved.map((s) => s.label);
+  const sources = resolveMeetingSources(db, meetingIds);
   appendInsightMessage(db, { insight_id: req.insightId, role: "assistant", content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };
 }

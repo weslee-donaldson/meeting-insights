@@ -196,9 +196,14 @@ export interface ThreadChatRequest {
   includeTranscripts?: boolean;
 }
 
+export interface SourceRef {
+  id: string;
+  label: string;
+}
+
 export interface ThreadChatResponse {
   answer: string;
-  sources: string[];
+  sources: SourceRef[];
 }
 
 export interface CreateInsightRequest {
@@ -224,7 +229,7 @@ export interface InsightChatRequest {
 
 export interface InsightChatResponse {
   answer: string;
-  sources: string[];
+  sources: SourceRef[];
 }
 
 export interface ElectronAPI {
