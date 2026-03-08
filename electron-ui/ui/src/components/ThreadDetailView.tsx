@@ -102,6 +102,7 @@ interface CandidateListProps {
   groupBy: CandidateGroupBy;
   checkedCandidates: Set<string>;
   onToggle: (meetingId: string) => void;
+  onCheckGroup: (ids: string[], select: boolean) => void;
 }
 
 function CandidateRow({ c, checked, onToggle, indented }: { c: ThreadCandidate; checked: boolean; onToggle: () => void; indented?: boolean }) {
@@ -115,7 +116,7 @@ function CandidateRow({ c, checked, onToggle, indented }: { c: ThreadCandidate; 
   );
 }
 
-function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: CandidateListProps) {
+function CandidateList({ candidates, groupBy, checkedCandidates, onToggle, onCheckGroup }: CandidateListProps) {
   if (groupBy === "none") {
     const sorted = [...candidates].sort((a, b) => b.similarity - a.similarity);
     return (
@@ -135,14 +136,29 @@ function CandidateList({ candidates, groupBy, checkedCandidates, onToggle }: Can
 
   return (
     <div className="flex flex-col">
-      {groups.map((g) => (
+      {groups.map((g) => {
+        const groupIds = g.candidates.map((c) => c.meeting_id);
+        const allChecked = groupIds.every((id) => checkedCandidates.has(id));
+        return (
         <div key={g.key}>
-          <div data-group-header="" className="px-4 py-1.5 text-xs font-semibold text-muted-foreground bg-secondary/60">{g.label}</div>
+          <div data-group-header="" className="px-4 py-1.5 text-xs font-semibold text-muted-foreground bg-secondary/60 flex items-center gap-1.5">
+            <span className="flex-1 truncate">{g.label}</span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-auto px-2 py-0.5 text-xs"
+              onClick={() => onCheckGroup(groupIds, !allChecked)}
+              aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
+            >
+              {allChecked ? "Deselect all" : "Select all"}
+            </Button>
+          </div>
           {g.candidates.map((c) => (
             <CandidateRow key={c.meeting_id} c={c} checked={checkedCandidates.has(c.meeting_id)} onToggle={() => onToggle(c.meeting_id)} indented />
           ))}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -332,6 +348,17 @@ export function ThreadDetailView({
                   const next = new Set(prev);
                   if (next.has(meetingId)) next.delete(meetingId);
                   else next.add(meetingId);
+                  onCandidateCheck?.(next);
+                  return next;
+                });
+              }}
+              onCheckGroup={(ids, select) => {
+                setCheckedCandidates((prev) => {
+                  const next = new Set(prev);
+                  for (const id of ids) {
+                    if (select) next.add(id);
+                    else next.delete(id);
+                  }
                   onCandidateCheck?.(next);
                   return next;
                 });

@@ -372,6 +372,36 @@ describe("ThreadDetailView", () => {
     expect(headers[1].textContent).toBe("Architecture Solutioning");
   });
 
+  it("per-group select all selects only candidates in that group", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Morning standup", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Afternoon retro", date: "2026-03-02T14:00:00.000Z", similarity: 0.72 },
+      { meeting_id: "c3", title: "Planning", date: "2026-03-03T10:00:00.000Z", similarity: 0.60 },
+    ];
+    const onCandidateCheck = vi.fn();
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeeting={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+        onCandidateCheck={onCandidateCheck}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /deselect all/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    const groupSelectBtns = screen.getAllByRole("button", { name: /select all in group/i });
+    expect(groupSelectBtns).toHaveLength(2);
+    fireEvent.click(groupSelectBtns[1]);
+    expect(onCandidateCheck).toHaveBeenLastCalledWith(new Set(["c1", "c2"]));
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
