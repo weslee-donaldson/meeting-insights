@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Trash2, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
+import { cn } from "../lib/utils.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
@@ -327,11 +328,14 @@ export function MeetingList({
                   key={m.id}
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
-                  className="flex flex-col px-4 py-2 cursor-pointer"
-                  style={{
-                    background: isHighlighted ? "var(--color-bg-elevated)" : "transparent",
-                    borderLeft: "2px solid " + (deepActive ? "var(--color-search-deep)" : isHighlighted ? "var(--color-accent)" : "transparent"),
-                  }}
+                  className={cn(
+                    "flex flex-col px-4 py-2 cursor-pointer border-l-2",
+                    deepActive
+                      ? "border-l-[var(--color-search-deep)]"
+                      : isHighlighted
+                      ? "bg-secondary border-l-[var(--color-accent)]"
+                      : "border-l-transparent",
+                  )}
                 >
                   <div className="flex items-center gap-2">
                     <input

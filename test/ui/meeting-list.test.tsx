@@ -615,11 +615,11 @@ describe("MeetingList", () => {
       />,
     );
     const checkedRow = screen.getByTestId("meeting-row-m1");
-    expect(checkedRow.style.background).toBe("var(--color-bg-elevated)");
-    expect(checkedRow.style.borderLeft).toBe("2px solid var(--color-accent)");
+    expect(checkedRow.className).toContain("bg-secondary");
+    expect(checkedRow.className).toContain("border-l-[var(--color-accent)]");
     const uncheckedRow = screen.getByTestId("meeting-row-m2");
-    expect(uncheckedRow.style.background).toBe("transparent");
-    expect(uncheckedRow.style.borderLeft).toBe("2px solid transparent");
+    expect(uncheckedRow.className).not.toContain("bg-secondary");
+    expect(uncheckedRow.className).toContain("border-l-transparent");
   });
 
   it("does not render client badge in meeting rows", () => {
@@ -690,7 +690,7 @@ describe("MeetingList", () => {
         />,
       );
       const row = screen.getByTestId("meeting-row-dsu-1");
-      expect(row.style.borderLeft).toBe("2px solid var(--color-search-deep)");
+      expect(row.className).toContain("border-l-[var(--color-search-deep)]");
       expect(screen.getByText("Discussed DLQ retry strategy.")).toBeDefined();
     });
 
@@ -709,7 +709,7 @@ describe("MeetingList", () => {
         />,
       );
       const row = screen.getByTestId("meeting-row-dsu-1");
-      expect(row.style.borderLeft).not.toContain("var(--color-search-deep)");
+      expect(row.className).not.toContain("border-l-[var(--color-search-deep)]");
     });
   });
 
