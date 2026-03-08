@@ -615,10 +615,10 @@ describe("MeetingList", () => {
       />,
     );
     const checkedRow = screen.getByTestId("meeting-row-m1");
-    expect(checkedRow.className).toContain("bg-secondary");
+    expect(checkedRow.className).toMatch(/(?:^|\s)bg-secondary(?:\s|$)/);
     expect(checkedRow.className).toContain("border-l-[var(--color-accent)]");
     const uncheckedRow = screen.getByTestId("meeting-row-m2");
-    expect(uncheckedRow.className).not.toContain("bg-secondary");
+    expect(uncheckedRow.className).not.toMatch(/(?:^|\s)bg-secondary(?:\s|$)/);
     expect(uncheckedRow.className).toContain("border-l-transparent");
   });
 

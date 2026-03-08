@@ -83,7 +83,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
 
 function ActionItemCard({ item, onPreviewMeeting, onComplete, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; completed?: boolean }) {
   return (
-    <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm hover:bg-secondary/60${completed ? " opacity-50" : ""}`}>
+    <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm transition-colors hover:bg-secondary/60 active:bg-secondary/80${completed ? " opacity-50" : ""}`}>
       <input
         type="checkbox"
         className="mt-0.5 shrink-0 cursor-pointer"

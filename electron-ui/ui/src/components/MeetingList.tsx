@@ -329,7 +329,7 @@ export function MeetingList({
                   data-testid={`meeting-row-${m.id}`}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
                   className={cn(
-                    "flex flex-col px-4 py-2 cursor-pointer border-l-2",
+                    "flex flex-col px-4 py-2 cursor-pointer border-l-2 transition-colors hover:bg-secondary/60 active:bg-secondary/80",
                     deepActive
                       ? "border-l-[var(--color-search-deep)]"
                       : isHighlighted

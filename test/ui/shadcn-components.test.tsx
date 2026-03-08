@@ -29,6 +29,12 @@ describe("Button", () => {
     const btn = screen.getByRole("button", { name: "Delete" });
     expect(btn.className).toContain("bg-destructive");
   });
+
+  it("includes active press feedback class", () => {
+    render(<Button>Press me</Button>);
+    const btn = screen.getByRole("button", { name: "Press me" });
+    expect(btn.className).toContain("active:scale-[0.97]");
+  });
 });
 
 describe("Badge", () => {

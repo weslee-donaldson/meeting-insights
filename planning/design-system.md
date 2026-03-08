@@ -99,6 +99,24 @@ text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-fo
 pl-8 pr-4 py-2 text-sm border-b border-border
 ```
 
+## Interaction Feedback
+
+All `<Button>` components include built-in interaction states via the base cva class:
+
+| State | Class | Effect |
+|---|---|---|
+| Hover | Per-variant (e.g. `hover:bg-primary/90`) | Background shift to signal interactivity |
+| Active/pressed | `active:scale-[0.97]` | Subtle scale-down on click for tactile feedback |
+| Disabled | `disabled:opacity-50 disabled:pointer-events-none` | Dimmed, non-interactive |
+| Focus-visible | `focus-visible:outline-none` | Keyboard focus ring (browser default removed) |
+| Transition | `transition-all` | Smooth animation across color and transform changes |
+
+These are baked into the Button primitive — no per-usage overrides needed. For non-Button clickable elements (bare `<button>`, `<label>`, rows), add hover and active states explicitly:
+
+```
+cursor-pointer hover:bg-secondary/60 active:bg-secondary/80 transition-colors
+```
+
 ## Do / Don't
 
 | Do | Don't |

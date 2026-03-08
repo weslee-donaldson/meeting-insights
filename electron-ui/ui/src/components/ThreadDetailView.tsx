@@ -107,7 +107,7 @@ interface CandidateListProps {
 
 function CandidateRow({ c, checked, onToggle, indented }: { c: ThreadCandidate; checked: boolean; onToggle: () => void; indented?: boolean }) {
   return (
-    <label className={`flex items-center gap-2 ${indented ? "pl-8 pr-4" : "px-4"} py-1.5 text-sm border-b border-border cursor-pointer hover:bg-secondary/60`}>
+    <label className={`flex items-center gap-2 ${indented ? "pl-8 pr-4" : "px-4"} py-1.5 text-sm border-b border-border cursor-pointer transition-colors hover:bg-secondary/60 active:bg-secondary/80`}>
       <input type="checkbox" checked={checked} onChange={onToggle} />
       <span className="text-xs font-mono text-muted-foreground w-10 shrink-0">{(c.similarity * 100).toFixed(0)}%</span>
       <span className="flex-1 truncate">{c.title}</span>
@@ -273,7 +273,7 @@ export function ThreadDetailView({
             <button
               key={m.meeting_id}
               onClick={() => onMeetingClick(m.meeting_id)}
-              className="flex flex-col gap-1 px-4 py-2 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full hover:bg-secondary/60"
+              className="flex flex-col gap-1 px-4 py-2 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full transition-colors hover:bg-secondary/60 active:bg-secondary/80"
             >
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{m.relevance_score}</span>
