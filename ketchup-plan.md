@@ -27,7 +27,7 @@
 - [x] Burst 580: App.tsx wires insightsQuery and insight creation
 - [x] Burst 581: InsightDetailView header + RAG badge + executive summary
 - [x] Burst 582: InsightDetailView topic details + source meetings
-- [ ] Burst 583: InsightDetailView regenerate + finalize/reopen buttons
+- [x] Burst 583: InsightDetailView regenerate + finalize/reopen buttons
 - [ ] Burst 584: App.tsx wires insight detail + delete + update handlers
 - [ ] Burst 585: App.tsx wires insight chat panel (persistent mode)
 

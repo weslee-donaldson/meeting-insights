@@ -22,8 +22,9 @@ import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
 import { ThreadDetailView } from "./components/ThreadDetailView.js";
 import { InsightsView } from "./components/InsightsView.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
+import { InsightDetailView } from "./components/InsightDetailView.js";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
-import type { Insight } from "../../../core/insights.js";
+import type { Insight, InsightMeeting } from "../../../core/insights.js";
 
 interface DateRange {
   after: string;
@@ -224,6 +225,12 @@ export function App() {
     enabled: currentView === "insights" && !!selectedClient,
   });
 
+  const insightMeetingsQuery = useQuery<InsightMeeting[]>({
+    queryKey: ["insightMeetings", selectedInsightId],
+    queryFn: () => window.api.getInsightMeetings(selectedInsightId!),
+    enabled: !!selectedInsightId,
+  });
+
   const threadMeetingsQuery = useQuery<ThreadMeeting[]>({
     queryKey: ["threadMeetings", selectedThreadId],
     queryFn: () => window.api.getThreadMeetings(selectedThreadId!),
@@ -239,6 +246,10 @@ export function App() {
   const selectedThread = useMemo(() => {
     return threadsQuery.data?.find((t) => t.id === selectedThreadId) ?? null;
   }, [threadsQuery.data, selectedThreadId]);
+
+  const selectedInsight = useMemo(() => {
+    return insightsQuery.data?.find((i) => i.id === selectedInsightId) ?? null;
+  }, [insightsQuery.data, selectedInsightId]);
 
   const isMultiMode = checkedMeetingIds.size >= 2;
 
@@ -740,6 +751,42 @@ export function App() {
     }
   }, [selectedClient, queryClient, addToast]);
 
+  const handleDeleteInsight = useCallback(async () => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.deleteInsight(selectedInsightId);
+      setSelectedInsightId(null);
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+    } catch (err) {
+      console.error("Delete insight failed:", err);
+      addToast(`Delete insight failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+
+  const handleFinalizeInsight = useCallback(async () => {
+    if (!selectedInsightId || !selectedInsight) return;
+    const newStatus = selectedInsight.status === "draft" ? "final" : "draft";
+    try {
+      await window.api.updateInsight(selectedInsightId, { status: newStatus });
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+    } catch (err) {
+      console.error("Update insight failed:", err);
+      addToast(`Update insight failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
+
+  const handleRegenerateInsight = useCallback(async () => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.generateInsight(selectedInsightId);
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast("Insight regenerated", "success");
+    } catch (err) {
+      console.error("Regenerate insight failed:", err);
+      addToast(`Regenerate insight failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
     setSelectedThreadId(threadId);
@@ -862,6 +909,16 @@ export function App() {
       onCreateInsight={() => setCreateInsightOpen(true)}
       selectedInsightId={selectedInsightId}
     />,
+    ...(selectedInsight ? [
+      <InsightDetailView
+        key="insight-detail"
+        insight={selectedInsight}
+        meetings={insightMeetingsQuery.data ?? []}
+        onDelete={handleDeleteInsight}
+        onRegenerate={handleRegenerateInsight}
+        onFinalize={handleFinalizeInsight}
+      />,
+    ] : []),
   ];
 
   const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : insightsViewPanels;

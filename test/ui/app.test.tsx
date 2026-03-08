@@ -441,6 +441,33 @@ describe("App", () => {
     await waitFor(() => expect(window.api.generateInsight).toHaveBeenCalledWith("i1"));
   });
 
+  it("selecting insight shows InsightDetailView with detail content", async () => {
+    (window.api.listInsights as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-05", period_end: "2026-01-11", status: "draft", rag_status: "yellow", rag_rationale: "Some open items", executive_summary: "Good week", topic_details: "[]", generated_at: "2026-01-11", created_at: "2026-01-11", updated_at: "2026-01-11", meeting_count: 2 },
+    ]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Insights"));
+    await waitFor(() => screen.getByText("Jan 5 – Jan 11"));
+    fireEvent.click(screen.getByText("Jan 5 – Jan 11"));
+    await waitFor(() => expect(screen.getByTestId("insight-detail-view")).toBeDefined());
+    expect(screen.getByText("Good week")).toBeDefined();
+  });
+
+  it("delete insight calls deleteInsight and clears selection", async () => {
+    (window.api.listInsights as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "i1", client_name: "Acme", period_type: "week", period_start: "2026-01-05", period_end: "2026-01-11", status: "draft", rag_status: "green", rag_rationale: "", executive_summary: "Summary", topic_details: "[]", generated_at: "2026-01-11", created_at: "2026-01-11", updated_at: "2026-01-11", meeting_count: 1 },
+    ]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Insights"));
+    await waitFor(() => screen.getByText("Jan 5 – Jan 11"));
+    fireEvent.click(screen.getByText("Jan 5 – Jan 11"));
+    await waitFor(() => screen.getByTestId("insight-detail-view"));
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(window.api.deleteInsight).toHaveBeenCalledWith("i1"));
+  });
+
   it("shows Meeting import failed toast when createMeeting rejects", async () => {
     (window.api.createMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });
