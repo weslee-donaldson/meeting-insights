@@ -33,6 +33,16 @@ export const CHANNELS = {
   CLEAR_THREAD_MESSAGES: "clear-thread-messages",
   ADD_THREAD_MEETING: "add-thread-meeting",
   GET_MEETING_THREADS: "get-meeting-threads",
+  LIST_INSIGHTS: "list-insights",
+  CREATE_INSIGHT: "create-insight",
+  UPDATE_INSIGHT: "update-insight",
+  DELETE_INSIGHT: "delete-insight",
+  GET_INSIGHT_MEETINGS: "get-insight-meetings",
+  DISCOVER_INSIGHT_MEETINGS: "discover-insight-meetings",
+  GENERATE_INSIGHT: "generate-insight",
+  GET_INSIGHT_MESSAGES: "get-insight-messages",
+  INSIGHT_CHAT: "insight-chat",
+  CLEAR_INSIGHT_MESSAGES: "clear-insight-messages",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -190,6 +200,32 @@ export interface ThreadChatResponse {
   sources: string[];
 }
 
+export interface CreateInsightRequest {
+  client_name: string;
+  period_type: "day" | "week" | "month";
+  period_start: string;
+  period_end: string;
+}
+
+export interface UpdateInsightRequest {
+  status?: "draft" | "final";
+  rag_status?: "red" | "yellow" | "green";
+  rag_rationale?: string;
+  executive_summary?: string;
+  topic_details?: string;
+}
+
+export interface InsightChatRequest {
+  insightId: string;
+  message: string;
+  includeTranscripts?: boolean;
+}
+
+export interface InsightChatResponse {
+  answer: string;
+  sources: string[];
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -226,4 +262,14 @@ export interface ElectronAPI {
   clearThreadMessages: (threadId: string) => Promise<void>;
   addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) => Promise<void>;
   getMeetingThreads: (meetingId: string) => Promise<Array<{ thread_id: string; title: string; shorthand: string }>>;
+  listInsights: (clientName: string) => Promise<import("../../core/insights.js").Insight[]>;
+  createInsight: (req: CreateInsightRequest) => Promise<import("../../core/insights.js").Insight>;
+  updateInsight: (insightId: string, req: UpdateInsightRequest) => Promise<import("../../core/insights.js").Insight>;
+  deleteInsight: (insightId: string) => Promise<void>;
+  getInsightMeetings: (insightId: string) => Promise<import("../../core/insights.js").InsightMeeting[]>;
+  discoverInsightMeetings: (insightId: string) => Promise<string[]>;
+  generateInsight: (insightId: string) => Promise<import("../../core/insights.js").Insight>;
+  getInsightMessages: (insightId: string) => Promise<import("../../core/insights.js").InsightMessage[]>;
+  insightChat: (req: InsightChatRequest) => Promise<InsightChatResponse>;
+  clearInsightMessages: (insightId: string) => Promise<void>;
 }

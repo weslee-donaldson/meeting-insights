@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CHANNELS } from "../electron-ui/electron/channels.js";
-import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 33 unique non-empty channel strings", () => {
+  it("should have 44 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(34);
-    expect(new Set(values).size).toBe(34);
+    expect(values).toHaveLength(44);
+    expect(new Set(values).size).toBe(44);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -203,5 +203,39 @@ describe("CHANNELS", () => {
     const req: ThreadChatRequest = { threadId: "t1", message: "What happened?", includeTranscripts: true };
     expect(req.threadId).toBe("t1");
     expect(req.includeTranscripts).toBe(true);
+  });
+
+  it("should define LIST_INSIGHTS channel", () => {
+    expect(CHANNELS.LIST_INSIGHTS).toBe("list-insights");
+  });
+
+  it("should define CREATE_INSIGHT channel", () => {
+    expect(CHANNELS.CREATE_INSIGHT).toBe("create-insight");
+  });
+
+  it("should define GENERATE_INSIGHT channel", () => {
+    expect(CHANNELS.GENERATE_INSIGHT).toBe("generate-insight");
+  });
+
+  it("should define INSIGHT_CHAT channel", () => {
+    expect(CHANNELS.INSIGHT_CHAT).toBe("insight-chat");
+  });
+
+  it("CreateInsightRequest has correct shape", () => {
+    const req: CreateInsightRequest = { client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" };
+    expect(req.client_name).toBe("Acme");
+    expect(req.period_type).toBe("week");
+  });
+
+  it("UpdateInsightRequest has correct shape", () => {
+    const req: UpdateInsightRequest = { status: "final", rag_status: "green" };
+    expect(req.status).toBe("final");
+    expect(req.rag_status).toBe("green");
+  });
+
+  it("InsightChatRequest has correct shape", () => {
+    const req: InsightChatRequest = { insightId: "i1", message: "Summarize", includeTranscripts: false };
+    expect(req.insightId).toBe("i1");
+    expect(req.message).toBe("Summarize");
   });
 });

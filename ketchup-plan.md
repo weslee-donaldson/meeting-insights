@@ -9,8 +9,8 @@
 - [x] Burst 566: getInsightChatContext builds system context from insight meetings
 
 ### Phase 3: IPC + API
-- [ ] Burst 567: Insight IPC channel constants + request/response types
-- [ ] Burst 568: ElectronAPI interface insight methods
+- [x] Burst 567: Insight IPC channel constants + request/response types
+- [x] Burst 568: ElectronAPI interface insight methods
 - [ ] Burst 569: IPC handlers for insight CRUD
 - [ ] Burst 570: IPC handlers for insight meetings + generation
 - [ ] Burst 571: IPC handlers for insight messages + chat
