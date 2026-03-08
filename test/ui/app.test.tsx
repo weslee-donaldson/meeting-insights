@@ -409,11 +409,36 @@ describe("App", () => {
     expect(screen.queryByPlaceholderText(/Ask a question/)).toBeNull();
   });
 
-  it("clicking Insights nav renders insights placeholder view", async () => {
+  it("clicking Insights nav renders InsightsView with client header", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
     fireEvent.click(screen.getByLabelText("Insights"));
-    await waitFor(() => expect(screen.queryByTestId("meeting-row-m1")).toBeNull());
+    await waitFor(() => expect(screen.getByText("Acme Insights")).toBeDefined());
+    expect(window.api.listInsights).toHaveBeenCalled();
+  });
+
+  it("clicking New Insight in insights view opens CreateInsightDialog", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Insights"));
+    await waitFor(() => screen.getByText("Acme Insights"));
+    fireEvent.click(screen.getByRole("button", { name: "New Insight" }));
+    await waitFor(() => expect(screen.getByText("Create Insight")).toBeDefined());
+  });
+
+  it("creating insight calls createInsight + discoverInsightMeetings + generateInsight", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Insights"));
+    await waitFor(() => screen.getByText("Acme Insights"));
+    fireEvent.click(screen.getByRole("button", { name: "New Insight" }));
+    await waitFor(() => screen.getByText("Create Insight"));
+    const dateInput = screen.getByLabelText("Reference Date") as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: "2026-01-07" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    await waitFor(() => expect(window.api.createInsight).toHaveBeenCalled());
+    await waitFor(() => expect(window.api.discoverInsightMeetings).toHaveBeenCalledWith("i1"));
+    await waitFor(() => expect(window.api.generateInsight).toHaveBeenCalledWith("i1"));
   });
 
   it("shows Meeting import failed toast when createMeeting rejects", async () => {

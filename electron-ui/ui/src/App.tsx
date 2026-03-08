@@ -20,7 +20,10 @@ import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
 import { ThreadsView } from "./components/ThreadsView.js";
 import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
 import { ThreadDetailView } from "./components/ThreadDetailView.js";
+import { InsightsView } from "./components/InsightsView.js";
+import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
+import type { Insight } from "../../../core/insights.js";
 
 interface DateRange {
   after: string;
@@ -53,6 +56,8 @@ export function App() {
   const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
   const [threadInitialDescription, setThreadInitialDescription] = useState("");
   const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
+  const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
+  const [createInsightOpen, setCreateInsightOpen] = useState(false);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -211,6 +216,12 @@ export function App() {
     queryKey: ["threads", selectedClient],
     queryFn: () => window.api.listThreads(selectedClient!),
     enabled: currentView === "threads" && !!selectedClient,
+  });
+
+  const insightsQuery = useQuery<Insight[]>({
+    queryKey: ["insights", selectedClient],
+    queryFn: () => window.api.listInsights(selectedClient!),
+    enabled: currentView === "insights" && !!selectedClient,
   });
 
   const threadMeetingsQuery = useQuery<ThreadMeeting[]>({
@@ -714,6 +725,21 @@ export function App() {
     }
   }, [selectedThreadId, queryClient, addToast]);
 
+  const handleCreateInsight = useCallback(async (data: { period_type: "day" | "week" | "month"; period_start: string; period_end: string }) => {
+    if (!selectedClient) return;
+    try {
+      const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
+      setCreateInsightOpen(false);
+      await window.api.discoverInsightMeetings(insight.id);
+      await window.api.generateInsight(insight.id);
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      setSelectedInsightId(insight.id);
+    } catch (err) {
+      console.error("Create insight failed:", err);
+      addToast(`Create insight failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
+
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
     setSelectedThreadId(threadId);
@@ -828,7 +854,14 @@ export function App() {
   ];
 
   const insightsViewPanels: React.ReactNode[] = [
-    <div key="insights-placeholder" data-testid="insights-view" className="flex-1 flex items-center justify-center text-muted-foreground">Insights coming soon</div>,
+    <InsightsView
+      key="insights-list"
+      insights={insightsQuery.data ?? []}
+      clientName={selectedClient ?? "All"}
+      onSelectInsight={(id: string) => setSelectedInsightId(id)}
+      onCreateInsight={() => setCreateInsightOpen(true)}
+      selectedInsightId={selectedInsightId}
+    />,
   ];
 
   const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : insightsViewPanels;
@@ -919,6 +952,11 @@ export function App() {
         thread={selectedThread}
       />
     )}
+    <CreateInsightDialog
+      open={createInsightOpen}
+      onOpenChange={setCreateInsightOpen}
+      onSubmit={handleCreateInsight}
+    />
     </>
   );
 }
