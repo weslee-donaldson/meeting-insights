@@ -561,84 +561,84 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               )}
             </div>
           </div>
-          <div className="relative flex items-center gap-0.5 shrink-0">
-            {onReassignClient && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); }}
-                  aria-label="Reassign client"
-                  title="Reassign client"
-                  className="w-8 h-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                >
-                  <UserPen className="w-[18px] h-[18px]" />
-                </Button>
-                <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
-                  <DialogContent>
-                    <DialogTitle>Reassign Client</DialogTitle>
-                    <select
-                      value={reassignSelection}
-                      onChange={(e) => setReassignSelection(e.target.value)}
-                      className="w-full px-2 py-1.5 rounded bg-input text-foreground border border-border text-sm"
+        </div>
+        <div className="flex gap-1 mt-2">
+          {onReassignClient && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); }}
+                aria-label="Reassign client"
+                title="Reassign client"
+              >
+                <UserPen className="w-4 h-4 mr-1" />
+                Reassign
+              </Button>
+              <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
+                <DialogContent>
+                  <DialogTitle>Reassign Client</DialogTitle>
+                  <select
+                    value={reassignSelection}
+                    onChange={(e) => setReassignSelection(e.target.value)}
+                    className="w-full px-2 py-1.5 rounded bg-input text-foreground border border-border text-sm"
+                  >
+                    {(clients ?? []).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <div className="flex gap-2 justify-end">
+                    <DialogClose asChild>
+                      <Button variant="ghost" size="sm">Cancel</Button>
+                    </DialogClose>
+                    <Button
+                      size="sm"
+                      onClick={() => { onReassignClient(reassignSelection); setClientPickerOpen(false); }}
                     >
-                      {(clients ?? []).map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                    <div className="flex gap-2 justify-end">
-                      <DialogClose asChild>
-                        <Button variant="ghost" size="sm">Cancel</Button>
-                      </DialogClose>
-                      <Button
-                        size="sm"
-                        onClick={() => { onReassignClient(reassignSelection); setClientPickerOpen(false); }}
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </>
-            )}
-            {onIgnore && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onIgnore}
-                aria-label="Ignore meeting"
-                title="Ignore meeting"
-                className="w-8 h-8 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
-              >
-                <EyeOff className="w-[18px] h-[18px]" />
-              </Button>
-            )}
-            {onReExtract && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onReExtract}
-                disabled={reExtractPending}
-                aria-label="Re-extract"
-                title="Re-extract"
-                className="w-8 h-8 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
-              >
-                <RefreshCw className={cn("w-[18px] h-[18px]", reExtractPending && "animate-spin")} />
-              </Button>
-            )}
-            {artifact && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={copySummary}
-                aria-label="Copy summary"
-                title="Copy summary"
-                className="w-8 h-8 text-sky-400 hover:text-sky-300 hover:bg-sky-500/10"
-              >
-                <Clipboard className="w-[18px] h-[18px]" />
-              </Button>
-            )}
-          </div>
+                      Save
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+          {onIgnore && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onIgnore}
+              aria-label="Ignore meeting"
+              title="Ignore meeting"
+            >
+              <EyeOff className="w-4 h-4 mr-1" />
+              Ignore
+            </Button>
+          )}
+          {onReExtract && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onReExtract}
+              disabled={reExtractPending}
+              aria-label="Re-extract"
+              title="Re-extract"
+            >
+              <RefreshCw className={cn("w-4 h-4 mr-1", reExtractPending && "animate-spin")} />
+              Re-extract
+            </Button>
+          )}
+          {artifact && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={copySummary}
+              aria-label="Copy summary"
+              title="Copy summary"
+            >
+              <Clipboard className="w-4 h-4 mr-1" />
+              Copy
+            </Button>
+          )}
         </div>
       </div>
 
