@@ -362,11 +362,11 @@ describe("InsightDetailView", () => {
     expect(screen.queryByTestId("rich-text-editor")).toBeNull();
   });
 
-  it("renders summary as HTML content in default view", () => {
-    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Summary with <strong>bold</strong> text</p>" };
+  it("renders markdown bold as HTML strong in default view", () => {
+    const mdInsight = { ...INSIGHT, executive_summary: "Summary with **bold** text" };
     render(
       <InsightDetailView
-        insight={htmlInsight}
+        insight={mdInsight}
         meetings={MEETINGS}
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
@@ -377,11 +377,11 @@ describe("InsightDetailView", () => {
     expect(display.innerHTML).toContain("<strong>bold</strong>");
   });
 
-  it("renders bullet lists in summary HTML", () => {
-    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Verdict.</p><ul><li>Item one</li><li>Item two</li></ul>" };
+  it("renders markdown bullet lists in summary", () => {
+    const mdInsight = { ...INSIGHT, executive_summary: "Verdict.\n\n- Item one\n- Item two" };
     render(
       <InsightDetailView
-        insight={htmlInsight}
+        insight={mdInsight}
         meetings={MEETINGS}
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
@@ -395,11 +395,11 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("Item two")).toBeDefined();
   });
 
-  it("sanitizes script tags from summary HTML", () => {
-    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Safe</p><script>alert('xss')</script>" };
+  it("does not render raw HTML tags from summary markdown", () => {
+    const mdInsight = { ...INSIGHT, executive_summary: "Safe\n\n<script>alert('xss')</script>" };
     render(
       <InsightDetailView
-        insight={htmlInsight}
+        insight={mdInsight}
         meetings={MEETINGS}
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
@@ -408,7 +408,7 @@ describe("InsightDetailView", () => {
     );
     const display = screen.getByTestId("summary-display");
     expect(display.innerHTML).not.toContain("<script>");
-    expect(display.innerHTML).toContain("Safe");
+    expect(screen.getByText("Safe")).toBeDefined();
   });
 
   it("shows no summary placeholder when executive_summary is empty", () => {

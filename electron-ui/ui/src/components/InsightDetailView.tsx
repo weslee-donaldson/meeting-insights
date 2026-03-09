@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import DOMPurify from "dompurify";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
@@ -107,11 +108,6 @@ function groupMeetingsBySeries(meetings: InsightMeeting[]): MeetingGroup[] {
     }));
 }
 
-function hasContent(html: string): boolean {
-  const stripped = html.replace(/<[^>]+>/g, "").trim();
-  return stripped.length > 0;
-}
-
 function formatPeriodLabel(insight: Insight): string {
   const fmt = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -140,9 +136,8 @@ export function InsightDetailView({
   const [editing, setEditing] = useState(false);
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
-  const summaryHtml = insight.executive_summary ?? "";
-  const sanitizedHtml = useMemo(() => DOMPurify.sanitize(summaryHtml), [summaryHtml]);
-  const hasSummary = hasContent(summaryHtml);
+  const summaryText = insight.executive_summary ?? "";
+  const hasSummary = summaryText.trim().length > 0;
 
   const handleSummaryChange = useCallback((html: string) => {
     setSummaryDraft(html);
@@ -355,7 +350,7 @@ export function InsightDetailView({
                     size="sm"
                     variant="ghost"
                     className="h-auto px-1.5 py-0.5 text-xs"
-                    onClick={() => { setSummaryDraft(summaryHtml); setEditingSummary(true); }}
+                    onClick={() => { setSummaryDraft(summaryText); setEditingSummary(true); }}
                   >
                     <Pencil className="w-3 h-3 mr-1" />
                     Edit
@@ -389,7 +384,9 @@ export function InsightDetailView({
                   </div>
                 </div>
               ) : hasSummary ? (
-                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none">
+                  <Markdown remarkPlugins={[remarkGfm]}>{summaryText}</Markdown>
+                </div>
               ) : (
                 <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>
               )}

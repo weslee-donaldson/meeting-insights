@@ -45,7 +45,7 @@ The reader is the head of an implementation company overseeing a portfolio of cl
 - **No filler speculation.** "If conversations slip, timeline compresses" adds nothing. Omit it.
 
 ## Executive Summary Structure
-The summary distills your topic_details for a 30-second scan. Use HTML (`<p>`, `<ul>`, `<li>`).
+The summary distills your topic_details for a 30-second scan. Use markdown syntax (`**bold**`, `- bullet`, etc.).
 
 1. **Verdict** — one sentence. On track, off track, or at an inflection point? Why?
 2. **What moved forward** — bulleted list of concrete items from your topics.
@@ -60,7 +60,7 @@ Return ONLY valid JSON:
     - `topic` (string): Topic name (e.g. "Feature Delivery", "Team Capacity", "Architecture Risk")
     - `summary` (string): 1-2 grounded sentences covering what happened
     - `status` ("red" | "yellow" | "green"): Per-topic health
-- `executive_summary` (string): HTML distillation of topic_details following the structure above. Keep it concise — verdict + 2-4 bulleted sections.
+- `executive_summary` (string): Markdown distillation of topic_details following the structure above. Keep it concise — verdict + 2-4 bulleted sections.
 - `rag_status` ("red" | "yellow" | "green"): Overall health assessment
 
 Do not include meeting IDs in the response.
