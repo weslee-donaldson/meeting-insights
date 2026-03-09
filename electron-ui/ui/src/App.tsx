@@ -64,6 +64,7 @@ export function App() {
   const [pendingDeleteThreadId, setPendingDeleteThreadId] = useState<string | null>(null);
   const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
   const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
+  const [regeneratingInsightId, setRegeneratingInsightId] = useState<string | null>(null);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -844,13 +845,15 @@ export function App() {
     if (!selectedInsightId) return;
     const isFirst = !selectedInsight?.executive_summary;
     try {
-      addToast(isFirst ? "Generating insight..." : "Regenerating insight...", "success");
+      setRegeneratingInsightId(selectedInsightId);
       await window.api.generateInsight(selectedInsightId);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
       addToast(isFirst ? "Insight generated" : "Insight regenerated", "success");
     } catch (err) {
       console.error("Regenerate insight failed:", err);
       addToast(`${isFirst ? "Generate" : "Regenerate"} insight failed: ${(err as Error).message}`, "error");
+    } finally {
+      setRegeneratingInsightId(null);
     }
   }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
 
@@ -1058,6 +1061,7 @@ export function App() {
         onRemoveMeetings={handleRemoveInsightMeetings}
         onUpdateSummary={handleUpdateInsightSummary}
         onShowAllMeetings={handleShowAllInsightMeetings}
+        isRegenerating={regeneratingInsightId === selectedInsight.id}
       />,
     ] : []),
     ...(selectedMeeting ? [

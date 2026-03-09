@@ -609,6 +609,51 @@ describe("InsightDetailView", () => {
     expect(screen.queryByRole("button", { name: "Show All Meetings" })).toBeNull();
   });
 
+  it("shows spinning icon and disables Regenerate button when isRegenerating is true", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        isRegenerating={true}
+      />,
+    );
+    enterEditMode();
+    const btn = screen.getByRole("button", { name: "Regenerating..." });
+    expect(btn).toBeDefined();
+    expect((btn as HTMLButtonElement).disabled).toBe(true);
+    expect(btn.querySelector(".animate-spin")).toBeDefined();
+  });
+
+  it("exits edit mode when isRegenerating transitions from true to false", () => {
+    const { rerender } = render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        isRegenerating={true}
+      />,
+    );
+    enterEditMode();
+    expect(screen.getByText("Source Meetings")).toBeDefined();
+    rerender(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        isRegenerating={false}
+      />,
+    );
+    expect(screen.queryByText("Source Meetings")).toBeNull();
+    expect(screen.getByText("Executive Summary")).toBeDefined();
+  });
+
   it("shows empty state message in edit mode when no source meetings exist", () => {
     render(
       <InsightDetailView

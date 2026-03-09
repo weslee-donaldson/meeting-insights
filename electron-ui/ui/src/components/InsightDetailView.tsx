@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
@@ -22,6 +22,7 @@ interface InsightDetailViewProps {
   onRemoveMeetings?: (meetingIds: string[]) => void;
   onUpdateSummary?: (summary: string) => void;
   onShowAllMeetings?: () => void;
+  isRegenerating?: boolean;
 }
 
 const RAG_COLORS = {
@@ -131,6 +132,7 @@ export function InsightDetailView({
   onRemoveMeetings,
   onUpdateSummary,
   onShowAllMeetings,
+  isRegenerating,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -143,6 +145,14 @@ export function InsightDetailView({
   const handleSummaryChange = useCallback((html: string) => {
     setSummaryDraft(html);
   }, []);
+
+  const prevRegenerating = useRef(isRegenerating);
+  useEffect(() => {
+    if (prevRegenerating.current && !isRegenerating) {
+      setEditing(false);
+    }
+    prevRegenerating.current = isRegenerating;
+  }, [isRegenerating]);
 
   useEffect(() => {
     setChecked(new Set());
@@ -327,9 +337,9 @@ export function InsightDetailView({
               </div>
             )}
             <div className="mt-3 pt-3 border-t border-border">
-              <Button size="sm" variant="default" className="h-auto px-3 py-1.5 text-xs" onClick={onRegenerate}>
-                <RefreshCw className="w-3 h-3 mr-1" />
-                {insight.executive_summary ? "Regenerate" : "Generate"}
+              <Button size="sm" variant="default" className="h-auto px-3 py-1.5 text-xs" onClick={onRegenerate} disabled={isRegenerating}>
+                <RefreshCw className={cn("w-3 h-3 mr-1", isRegenerating && "animate-spin")} />
+                {isRegenerating ? "Regenerating..." : insight.executive_summary ? "Regenerate" : "Generate"}
               </Button>
             </div>
           </div>
