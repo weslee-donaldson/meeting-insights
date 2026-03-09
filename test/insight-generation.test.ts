@@ -33,11 +33,11 @@ describe("generateInsight", () => {
     const updated = await generateInsight(db, llm, insight.id);
 
     expect(updated.rag_status).toBe("yellow");
-    expect(updated.rag_rationale).toBe("Some action items remain open from previous period.");
-    expect(updated.executive_summary).toBe("<p>Stub executive summary of the reporting period.</p>");
+    expect(updated.rag_rationale).toBe("");
+    expect(updated.executive_summary).toBe("Stub executive summary of the reporting period.");
     expect(JSON.parse(updated.topic_details)).toEqual([
-      { topic: "Feature Delivery", summary: "Feature X is on track.", status: "green", meeting_ids: [] },
-      { topic: "Open Issues", summary: "Two unresolved blockers.", status: "yellow", meeting_ids: [] },
+      { topic: "Feature Delivery", summary: "Feature X is on track.", status: "green" },
+      { topic: "Open Issues", summary: "Two unresolved blockers.", status: "yellow" },
     ]);
   });
 
@@ -50,7 +50,7 @@ describe("generateInsight", () => {
 
     const reloaded = getInsight(db, insight.id)!;
     expect(reloaded.rag_status).toBe("yellow");
-    expect(reloaded.executive_summary).toBe("<p>Stub executive summary of the reporting period.</p>");
+    expect(reloaded.executive_summary).toBe("Stub executive summary of the reporting period.");
     expect(reloaded.generated_at).toEqual(expect.any(String));
   });
 

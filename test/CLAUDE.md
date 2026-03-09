@@ -24,4 +24,17 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #1436 | 3:53 PM | 🟣 | Test coverage for stub LLM provider | ~283 |
+
+### Mar 9, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1817 | 12:07 PM | 🔵 | Meeting API response shape definition | ~382 |
+| #1808 | 12:04 PM | 🔵 | Found missing thread_tags field in meeting objects via failing test | ~291 |
+| #1733 | 8:54 AM | ✅ | Removed HTML paragraph tags from executive_summary test expectations | ~247 |
+| #1721 | 8:52 AM | ✅ | Updated test expectation to remove HTML paragraph tags from executive summary | ~89 |
+| #1680 | 8:26 AM | 🔵 | Test expectations for topic_details exclude meeting_ids field | ~329 |
+| #1679 | " | ✅ | Updated test expectation for rag_rationale to empty string | ~233 |
+| #1657 | 8:18 AM | ✅ | Updated insight generation test to match new schema without meeting_ids | ~257 |
+| #1656 | " | 🔵 | Reviewed insight generation test expectations using stub adapter | ~335 |
 </claude-mem-context>

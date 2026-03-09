@@ -816,6 +816,28 @@ describe("MeetingList", () => {
       expect(screen.queryByRole("button", { name: "Thread" })).toBeNull();
     });
 
+    it("renders thread tag shorthand badges next to meeting title", () => {
+      const meetings = [
+        makeMeeting({ id: "m1", title: "Alpha Weekly", thread_tags: [
+          { thread_id: "t1", title: "Deploy", shorthand: "DEP" },
+          { thread_id: "t2", title: "AI Policy", shorthand: "ai-pol" },
+        ] }),
+        makeMeeting({ id: "m2", title: "Beta Daily" }),
+      ];
+      render(
+        <MeetingList
+          meetings={meetings}
+          selectedId={null}
+          checked={new Set()}
+          {...defaultProps()}
+          onSelect={vi.fn()}
+          onCheck={vi.fn()}
+          onCheckGroup={vi.fn()}
+        />,
+      );
+      expect(screen.getByText("DEP")).toBeDefined();
+      expect(screen.getByText("ai-pol")).toBeDefined();
+    });
     it("thread sort puts threaded meetings first", () => {
       const meetings = [
         makeMeeting({ id: "m1", title: "No thread" }),

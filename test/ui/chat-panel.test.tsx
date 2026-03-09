@@ -111,8 +111,8 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    await waitFor(() => screen.getByText((_, el) => el?.textContent === "— Meeting Alpha"), { timeout: 2000 });
-    expect(screen.getByText((_, el) => el?.textContent === "— Meeting Beta")).toBeDefined();
+    await waitFor(() => screen.getByText("Meeting Alpha"), { timeout: 2000 });
+    expect(screen.getByText("Meeting Beta")).toBeDefined();
   });
 
   it("Copy as Markdown button copies the raw markdown answer", async () => {

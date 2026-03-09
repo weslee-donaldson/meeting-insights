@@ -215,7 +215,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
   const hasStaleContext = isPersisted && (persistedMessages ?? []).some((m) => m.context_stale);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden min-w-0">
       <div className="px-4 py-1.5 text-[0.7rem] border-b border-border text-muted-foreground flex gap-2 shrink-0">
         <span>
           <span className="text-secondary-foreground">{activeMeetingIds.length}</span>{" "}
@@ -238,13 +238,13 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 min-w-0">
         {displayMessages.map((msg, i) =>
           msg.role === "user" ? (
             <div
               key={i}
               data-testid="user-bubble"
-              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto break-words"
+              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto overflow-x-hidden break-words [word-break:break-word] min-w-0"
             >
               <div className="chat-markdown">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
@@ -263,13 +263,13 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
               {msg.sources && msg.sources.length > 0 && (
                 <div className="text-[0.7rem] text-muted-foreground pl-1">
                   <span className="font-semibold uppercase tracking-[0.05em]">Sources</span>
-                  <ul className="mt-0.5 m-0 p-0 list-none flex flex-col gap-0.5">
+                  <span className="inline flex-wrap ml-1">
                     {msg.sources.map((s, j) => {
                       const isRef = typeof s === "object" && s !== null && "id" in s;
                       const label = isRef ? (s as SourceRef).label : (s as string);
                       return (
-                        <li key={j} className="pl-2">
-                          {"— "}
+                        <span key={j}>
+                          {j > 0 && <span className="mx-1.5">·</span>}
                           {isRef && onSourceClick ? (
                             <button
                               type="button"
@@ -281,10 +281,10 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                           ) : (
                             label
                           )}
-                        </li>
+                        </span>
                       );
                     })}
-                  </ul>
+                  </span>
                 </div>
               )}
               <div className="flex gap-0.5 pl-1">

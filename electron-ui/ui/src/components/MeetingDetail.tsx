@@ -544,16 +544,21 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
               <span>{meeting.date.slice(0, 10)}</span>
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
-              {threadTags && threadTags.map((tag) => (
-                <Badge
-                  key={tag.thread_id}
-                  variant="outline"
-                  className="cursor-pointer"
-                  onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
-                >
-                  {tag.shorthand}
-                </Badge>
-              ))}
+              {threadTags && threadTags.length > 0 && (
+                <>
+                  <span className="text-muted-foreground">Threads:</span>
+                  {threadTags.map((tag) => (
+                    <Badge
+                      key={tag.thread_id}
+                      variant="outline"
+                      className="cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
+                    >
+                      {tag.shorthand}
+                    </Badge>
+                  ))}
+                </>
+              )}
             </div>
           </div>
           <div className="relative flex items-center gap-0.5 shrink-0">

@@ -290,7 +290,7 @@ export function MeetingList({
             <div key={group.series}>
               <div className="px-4 py-1.5 bg-secondary/60">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground">
+                  <span className="text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
                     {group.label}
                   </span>
                   <Button
@@ -349,10 +349,12 @@ export function MeetingList({
                       className="w-3.5 h-3.5 shrink-0"
                       style={{ accentColor: "var(--color-accent)" }}
                     />
-                    <div className="min-w-0 flex-1 text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
+                    <div className="min-w-0 flex-1 text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-secondary-foreground">
                       {groupBy === "series" ? formatShortDate(m.date) : m.title}
                     </div>
-                    {newMeetingIds?.has(m.id) && (
+                    {m.thread_tags?.map((tag) => (
+                      <span key={tag.thread_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
+                    ))}                    {newMeetingIds?.has(m.id) && (
                       <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
                     )}
                   </div>

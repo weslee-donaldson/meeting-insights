@@ -21,9 +21,10 @@ Assess overall client health using RAG criteria:
 The `executive_summary` is written for the head of an implementation company who oversees a portfolio of client engagements. They need to know which engagements need their attention and why — not the internal details of any single project. They read dozens of these and have zero patience for filler.
 
 ### Audience rules
-- The reader does NOT track individual contributor names, ticket numbers, or internal meeting cadences. Abstract these away.
 - Frame everything at the engagement level: Is delivery on track? Is the client relationship healthy? Are there staffing, capacity, or contractual risks?
-- Use role-level references ("a senior stakeholder," "the architecture lead") not personal names.
+- **Senior client stakeholders** (CTO, Engineering Manager, VP, Head of Client, Lead Product Owner, Principal Developer) — name them by name and role. The reader needs to know which client decision-makers are driving direction.
+- **Implementation team members and junior client contributors** — abstract to role-level references ("the architecture lead," "a developer on the team"). The reader does not track individual consultants or ICs.
+- Do not include ticket numbers, internal meeting cadences, or sprint-level detail.
 - Mention specific technologies, systems, or decisions only when they affect delivery risk or engagement health.
 
 ### Style rules

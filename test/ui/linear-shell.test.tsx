@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { describe, afterEach, it, expect } from "vitest";
+import { describe, afterEach, it, expect, vi, beforeEach } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { LinearShell } from "../../electron-ui/ui/src/components/LinearShell.js";
 
@@ -110,5 +110,81 @@ describe("LinearShell", () => {
     );
     expect(screen.getByTestId("chat-panel")).toBeDefined();
     expect(screen.getByText("chat-content")).toBeDefined();
+  });
+});
+
+describe("LinearShell localStorage persistence", () => {
+  const store: Record<string, string> = {};
+  const lsMock = {
+    getItem: vi.fn((key: string) => store[key] ?? null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+  };
+
+  beforeEach(() => {
+    for (const k of Object.keys(store)) delete store[k];
+    vi.stubGlobal("localStorage", lsMock);
+    lsMock.getItem.mockClear();
+    lsMock.setItem.mockClear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    cleanup();
+  });
+
+  it("restores panel width from localStorage for a given viewId", () => {
+    store["mtninsights:columns:test-view"] = JSON.stringify({ panel0: 700, chat: 400 });
+    render(
+      <LinearShell
+        viewId="test-view"
+        topBar={<div>top</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    expect(screen.getByTestId("panel-0").style.width).toBe("700px");
+  });
+
+  it("restores chat width from localStorage", () => {
+    store["mtninsights:columns:test-view"] = JSON.stringify({ panel0: 500, chat: 450 });
+    render(
+      <LinearShell
+        viewId="test-view"
+        topBar={<div>top</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
+        chat={<div>chat</div>}
+        chatOpen={true}
+      />,
+    );
+    expect(screen.getByTestId("chat-panel").style.width).toBe("450px");
+  });
+
+  it("saves panel width to localStorage after drag ends", async () => {
+    render(
+      <LinearShell
+        viewId="persist-view"
+        topBar={<div>top</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    const handle = screen.getByTestId("main-resize-handle");
+    fireEvent.mouseDown(handle, { clientX: 500 });
+    fireEvent.mouseMove(document, { clientX: 600 });
+    fireEvent.mouseUp(document);
+    await new Promise((r) => setTimeout(r, 400));
+    const stored = JSON.parse(store["mtninsights:columns:persist-view"]);
+    expect(stored.panel0).toBe(600);
+  });
+
+  it("uses default widths when localStorage has invalid data", () => {
+    store["mtninsights:columns:bad"] = "not-json";
+    render(
+      <LinearShell
+        viewId="bad"
+        topBar={<div>top</div>}
+        panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    expect(screen.getByTestId("panel-0").style.width).toBe("500px");
   });
 });

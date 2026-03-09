@@ -116,6 +116,16 @@ export function handleGetMeetings(
   if (opts.after) rows = rows.filter((r) => r.date >= opts.after!);
   if (opts.before)
     rows = rows.filter((r) => r.date <= opts.before! + "T23:59:59Z");
+
+  const tagRows = db.prepare(
+    "SELECT tm.meeting_id, tm.thread_id, t.title, t.shorthand FROM thread_meetings tm JOIN threads t ON tm.thread_id = t.id"
+  ).all() as { meeting_id: string; thread_id: string; title: string; shorthand: string }[];
+  const tagsByMeeting = new Map<string, MeetingRow["thread_tags"]>();
+  for (const r of tagRows) {
+    if (!tagsByMeeting.has(r.meeting_id)) tagsByMeeting.set(r.meeting_id, []);
+    tagsByMeeting.get(r.meeting_id)!.push({ thread_id: r.thread_id, title: r.title, shorthand: r.shorthand });
+  }
+
   return rows
     .map((r) => ({
       id: r.id,
@@ -124,9 +134,9 @@ export function handleGetMeetings(
       client: r.client_name,
       series: normalizeSeries(r.title),
       actionItemCount: r.action_item_count,
+      thread_tags: tagsByMeeting.get(r.id) ?? [],
     }))
-    .filter((r) => !opts.client || r.client === opts.client);
-}
+    .filter((r) => !opts.client || r.client === opts.client);}
 
 export function handleGetArtifact(
   db: Database,

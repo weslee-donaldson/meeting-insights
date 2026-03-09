@@ -173,6 +173,33 @@ describe("IPC handlers", () => {
       }
     });
 
+    it("should include thread_tags for meetings linked to threads", () => {
+      const thread = createThread(db, {
+        client_name: "Acme",
+        title: "AI Access Policy",
+        shorthand: "ai-policy",
+        description: "Track AI access concerns",
+        criteria_prompt: "",
+        keywords: "AI AWS",
+      });
+      addThreadMeeting(db, {
+        thread_id: thread.id,
+        meeting_id: meetingId1,
+        relevance_summary: "Relevant",
+        relevance_score: 80,
+      });
+      try {
+        const meetings = handleGetMeetings(db, {});
+        const m1 = meetings.find((r) => r.id === meetingId1)!;
+        expect(m1.thread_tags).toEqual([{ thread_id: thread.id, title: "AI Access Policy", shorthand: "ai-policy" }]);
+        const m2 = meetings.find((r) => r.id === meetingId2)!;
+        expect(m2.thread_tags).toEqual([]);
+      } finally {
+        db.prepare("DELETE FROM thread_meetings WHERE thread_id = ?").run(thread.id);
+        db.prepare("DELETE FROM threads WHERE id = ?").run(thread.id);
+      }
+    });
+
     it("should return actionItemCount of 0 for meeting with no artifact", () => {
       const noArtifactId = ingestMeeting(db, {
         title: "No Artifact Meeting",

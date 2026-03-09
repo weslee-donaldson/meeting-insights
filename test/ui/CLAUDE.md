@@ -29,4 +29,41 @@
 |----|------|---|-------|------|
 | #1192 | 4:52 PM | 🟣 | Created NavRail Component Tests for Burst 409 | ~458 |
 | #1167 | 3:46 PM | 🔵 | Reviewed MeetingDetail Test Fixtures for Action Items | ~458 |
+
+### Mar 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1589 | 10:36 PM | 🔴 | Fixed per-group deselect test by ensuring checkboxes are selected first | ~292 |
+| #1588 | " | ✅ | Removed redundant checkbox clicks from per-group select test | ~281 |
+| #1587 | " | 🔵 | Reviewed InsightDetailView test patterns for meeting selection and empty states | ~270 |
+| #1586 | " | 🔵 | Found group selection test requiring update for new default | ~298 |
+| #1583 | " | ✅ | Updated tests to match unchecked-by-default meeting selection behavior | ~336 |
+| #1581 | 10:35 PM | ✅ | Updated test to expect meetings unchecked by default | ~235 |
+| #1580 | " | 🔵 | Found tests expecting meetings to be checked by default | ~319 |
+
+### Mar 9, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1797 | 11:31 AM | 🔵 | App component test structure and mock IPC layer | ~472 |
+| #1788 | 10:13 AM | 🔵 | InsightDetailView test failing on missing "Show All Meetings" button | ~271 |
+| #1775 | 9:43 AM | ✅ | Updated ChatPanel tests for simplified source display format | ~300 |
+| #1774 | " | 🔵 | Reviewed ChatPanel source attribution display pattern | ~273 |
+| #1773 | 9:42 AM | 🔵 | ChatPanel test failing to find source display text | ~325 |
+| #1753 | 9:02 AM | 🔵 | Found Lexical editor integration with rootNode.splice errors in InsightDetailView tests | ~327 |
+| #1752 | " | ✅ | Added test coverage for executive summary rich text editing | ~336 |
+| #1751 | " | 🔵 | Reviewed test expectations for empty executive summary state | ~322 |
+| #1744 | 9:01 AM | 🟣 | Created test suite for RichTextEditor component | ~343 |
+| #1741 | 9:00 AM | 🔵 | Reviewed comprehensive InsightDetailView test suite showing dual-mode UI design | ~454 |
+| #1702 | 8:38 AM | 🔄 | Refactored LinearShell tests to use mocked localStorage for better isolation | ~165 |
+| #1700 | 8:37 AM | ✅ | Made LinearShell test cleanup more targeted to avoid clearing all localStorage | ~310 |
+| #1699 | " | 🟣 | Added comprehensive test coverage for LinearShell panel resize and persistence | ~429 |
+| #1690 | 8:31 AM | 🔄 | Refactored InsightDetailView to use default/edit mode pattern with updated tests | ~442 |
+| #1686 | 8:27 AM | ✅ | Removed RAG rationale rendering test from InsightDetailView test suite | ~220 |
+| #1685 | " | 🔵 | Test fixtures already omit meeting_ids from topic_details schema | ~330 |
+| #1684 | " | 🔵 | Found test coverage for RAG rationale rendering in InsightDetailView | ~247 |
+| #1683 | " | 🔵 | Found rag_rationale test references requiring updates | ~287 |
+| #1681 | 8:26 AM | 🔵 | Examined test fixtures for InsightsView component | ~280 |
+| #1658 | 8:19 AM | ✅ | Removed meeting_ids from topic_details test fixtures | ~286 |
 </claude-mem-context>

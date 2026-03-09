@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import type { ChatCompletionContentPart } from "openai/resources/chat/completions.js";
 import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger } from "./logger.js";
+import { createLogger, logLlmCall } from "./logger.js";
 import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
 
 const logLlm = createLogger("llm");
@@ -13,7 +13,8 @@ function buildImageParts(attachments: ImageAttachment[]): ChatCompletionContentP
   }));
 }
 
-function handleOpenaiError(err: unknown): never {
+function handleOpenaiError(err: unknown, capability: string, model: string, start: number, prompt: string): never {
+  logLlmCall({ capability, provider: "openai", model, latency_ms: Date.now() - start, prompt, error: String(err) }, "error");
   if (err instanceof Error && err.message.startsWith("[")) throw err;
   if (err instanceof OpenAI.APIError && err.status === 429) throw new Error(`[rate_limit] ${err.message}`);
   if (err instanceof OpenAI.APIError) throw new Error(`[api_error] ${err.message}`);
@@ -36,12 +37,17 @@ export function createOpenaiAdapter(apiKey: string, model?: string): LlmAdapter 
         messages: [{ role: "user", content: userContent }],
       });
       text = completion.choices[0]?.message?.content ?? "";
-      logLlm("provider=openai capability=%s model=%s latency_ms=%d tokens=%d", capability, resolvedModel, Date.now() - start, completion.usage?.completion_tokens ?? 0);
+      const latency = Date.now() - start;
+      const tokens = completion.usage?.completion_tokens ?? 0;
+      logLlm("provider=openai capability=%s model=%s latency_ms=%d tokens=%d", capability, resolvedModel, latency, tokens);
+      logLlmCall({ capability, provider: "openai", model: resolvedModel, latency_ms: latency, tokens, prompt: content, raw_response: text });
     } catch (err) {
-      handleOpenaiError(err);
+      handleOpenaiError(err, capability, resolvedModel, start, content);
     }
     if (capability === "synthesize_answer") return { answer: text };
-    return parseJsonOrThrow(text);
+    const parsed = parseJsonOrThrow(text);
+    logLlmCall({ capability, provider: "openai", model: resolvedModel, parsed_result: parsed });
+    return parsed;
   };
 
   return {
@@ -71,7 +77,7 @@ export function createOpenaiAdapter(apiKey: string, model?: string): LlmAdapter 
         logLlm("provider=openai converse model=%s latency_ms=%d tokens=%d", resolvedModel, Date.now() - start, completion.usage?.completion_tokens ?? 0);
         return text;
       } catch (err) {
-        handleOpenaiError(err);
+        handleOpenaiError(err, "converse", resolvedModel, start, messages[messages.length - 1]?.content ?? "");
       }
     },
   };

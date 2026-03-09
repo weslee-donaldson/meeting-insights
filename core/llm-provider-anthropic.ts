@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger } from "./logger.js";
+import { createLogger, logLlmCall } from "./logger.js";
 import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
 
 const logLlm = createLogger("llm");
@@ -26,21 +26,27 @@ export function createAnthropicAdapter(apiKey: string, model?: string): LlmAdapt
             { type: "text" as const, text: content },
           ]
         : content;
+      const maxTokens = capability === "generate_insight" || capability === "extract_artifact" ? 8192 : 2048;
       const message = await client.messages.create({
         model: resolvedModel,
-        max_tokens: 2048,
+        max_tokens: maxTokens,
         messages: [{ role: "user", content: userContent }],
       });
       text = message.content[0].type === "text" ? message.content[0].text : "";
-      logLlm("provider=anthropic capability=%s model=%s latency_ms=%d tokens=%d", capability, resolvedModel, Date.now() - start, message.usage.output_tokens);
+      const latency = Date.now() - start;
+      logLlm("provider=anthropic capability=%s model=%s latency_ms=%d tokens=%d", capability, resolvedModel, latency, message.usage.output_tokens);
+      logLlmCall({ capability, provider: "anthropic", model: resolvedModel, latency_ms: latency, tokens: message.usage.output_tokens, prompt: content, raw_response: text });
     } catch (err) {
+      logLlmCall({ capability, provider: "anthropic", model: resolvedModel, latency_ms: Date.now() - start, prompt: content, error: String(err) }, "error");
       if (err instanceof Error && err.message.startsWith("[")) throw err;
       if (err instanceof Anthropic.RateLimitError) throw new Error(`[rate_limit] ${err.message}`);
       if (err instanceof Anthropic.APIError) throw new Error(`[api_error] ${err.message}`);
       throw new Error(`[api_error] ${String(err)}`);
     }
     if (capability === "synthesize_answer") return { answer: text };
-    return parseJsonOrThrow(text);
+    const parsed = parseJsonOrThrow(text);
+    logLlmCall({ capability, provider: "anthropic", model: resolvedModel, parsed_result: parsed });
+    return parsed;
   };
 
   return {

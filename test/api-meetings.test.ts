@@ -75,6 +75,7 @@ describe("GET /api/meetings", () => {
       client: expect.any(String),
       series: expect.any(String),
       actionItemCount: expect.any(Number),
+      thread_tags: expect.any(Array),
     });
   });
 

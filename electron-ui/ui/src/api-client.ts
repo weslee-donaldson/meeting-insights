@@ -287,8 +287,14 @@ export const apiClient: ElectronAPI = {
   discoverInsightMeetings: (insightId: string) =>
     fetch(`${API_BASE}/api/insights/${insightId}/discover-meetings`, { method: 'POST' }).then((r) => r.json()).then((b: { meetingIds: string[] }) => b.meetingIds),
 
-  generateInsight: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/generate`, { method: 'POST' }).then((r) => r.json()),
+  generateInsight: async (insightId: string) => {
+    const r = await fetch(`${API_BASE}/api/insights/${insightId}/generate`, { method: 'POST' });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+      throw new Error(body.error);
+    }
+    return r.json();
+  },
 
   getInsightMessages: (insightId: string) =>
     fetch(`${API_BASE}/api/insights/${insightId}/messages`).then((r) => r.json()),

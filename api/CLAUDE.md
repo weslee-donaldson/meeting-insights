@@ -8,4 +8,30 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #1207 | 5:01 PM | 🔵 | Reviewed API Server Imports and Handler References | ~408 |
+
+### Mar 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1572 | 10:34 PM | 🔴 | Added JSON error handling to insight generation endpoint | ~311 |
+| #1571 | 10:33 PM | 🔵 | Reviewing API endpoint for additional error handling improvement | ~230 |
+| #1561 | 10:31 PM | 🔵 | API endpoint lacks error handling for insight generation | ~281 |
+
+### Mar 9, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1803 | 12:03 PM | 🔵 | Mapped thread tags infrastructure across UI and backend layers | ~423 |
+| #1799 | " | 🔵 | Found complete logging configuration with setLogDir for output directory | ~321 |
+| #1665 | 8:20 AM | 🔵 | Verified generate insight API endpoint has proper error handling | ~289 |
+| #1628 | 7:58 AM | ✅ | Configured API server to initialize log level from environment on startup | ~296 |
+| #1627 | " | 🟣 | Integrated log level configuration into server startup | ~268 |
+| #1625 | " | 🟣 | Added environment-based log level configuration on server startup | ~295 |
+| #1619 | 7:47 AM | 🟣 | Added configurable log level via MTNINSIGHTS_LOG_LEVEL environment variable | ~327 |
+| #1618 | " | 🟣 | Added API request logging middleware to Hono server | ~302 |
+| #1617 | " | 🔵 | Examining Hono app creation and middleware setup in server.ts | ~299 |
+| #1606 | 7:45 AM | 🔵 | Found LLM adapter initialization and environment variable loading in server startup | ~364 |
+| #1605 | " | 🔵 | Comprehensive research of logging and LLM infrastructure architecture | ~488 |
+| #1604 | " | 🔵 | Reviewed complete API server structure and route organization | ~375 |
+| #1598 | 7:42 AM | 🔵 | API server has minimal logging with single console.error statement | ~290 |
 </claude-mem-context>

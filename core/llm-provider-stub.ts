@@ -1,5 +1,5 @@
 import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger } from "./logger.js";
+import { createLogger, logLlmCall } from "./logger.js";
 
 const logLlm = createLogger("llm");
 
@@ -37,20 +37,22 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
   generate_insight: {
     executive_summary: "Stub executive summary of the reporting period.",
     rag_status: "yellow",
-    rag_rationale: "Some action items remain open from previous period.",
+    rag_rationale: "",
     topic_details: [
-      { topic: "Feature Delivery", summary: "Feature X is on track.", status: "green", meeting_ids: [] },
-      { topic: "Open Issues", summary: "Two unresolved blockers.", status: "yellow", meeting_ids: [] },
+      { topic: "Feature Delivery", summary: "Feature X is on track.", status: "green" },
+      { topic: "Open Issues", summary: "Two unresolved blockers.", status: "yellow" },
     ],
   },
 };
 
 export function createStubAdapter(): LlmAdapter {
   return {
-    async complete(capability: LlmCapability, _content: string, _attachments?: ImageAttachment[]) {
+    async complete(capability: LlmCapability, content: string, _attachments?: ImageAttachment[]) {
       const start = Date.now();
       const result = STUB_FIXTURES[capability];
-      logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, Date.now() - start);
+      const latency = Date.now() - start;
+      logLlm("provider=stub capability=%s model=stub latency_ms=%d tokens=0", capability, latency);
+      logLlmCall({ capability, provider: "stub", model: "stub", latency_ms: latency, tokens: 0, prompt: content, parsed_result: result });
       return result;
     },
     async converse(_system: string, _messages: Array<{ role: "user" | "assistant"; content: string }>, _attachments?: ImageAttachment[]) {

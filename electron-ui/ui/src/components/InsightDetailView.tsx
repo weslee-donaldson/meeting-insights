@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
-import { RefreshCw, Check, RotateCcw, Trash2, X } from "lucide-react";
+import { RichTextEditor } from "./ui/rich-text-editor.js";
+import { RefreshCw, Check, RotateCcw, Trash2, X, Pencil, ArrowLeft, Save, ListRestart } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
@@ -10,7 +11,6 @@ interface TopicDetail {
   topic: string;
   summary: string;
   status: "green" | "yellow" | "red";
-  meeting_ids: string[];
 }
 
 interface InsightDetailViewProps {
@@ -20,18 +20,14 @@ interface InsightDetailViewProps {
   onRegenerate: () => void;
   onFinalize: () => void;
   onRemoveMeetings?: (meetingIds: string[]) => void;
+  onUpdateSummary?: (summary: string) => void;
+  onShowAllMeetings?: () => void;
 }
 
 const RAG_COLORS = {
   green: "bg-green-500",
   yellow: "bg-yellow-500",
   red: "bg-red-500",
-} as const;
-
-const RAG_LABELS = {
-  green: "Green",
-  yellow: "Yellow",
-  red: "Red",
 } as const;
 
 interface MeetingGroup {
@@ -109,6 +105,11 @@ function groupMeetingsBySeries(meetings: InsightMeeting[]): MeetingGroup[] {
     }));
 }
 
+function hasContent(html: string): boolean {
+  const stripped = html.replace(/<[^>]+>/g, "").trim();
+  return stripped.length > 0;
+}
+
 function formatPeriodLabel(insight: Insight): string {
   const fmt = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -128,12 +129,23 @@ export function InsightDetailView({
   onRegenerate,
   onFinalize,
   onRemoveMeetings,
+  onUpdateSummary,
+  onShowAllMeetings,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
-  const [checked, setChecked] = useState<Set<string>>(() => new Set(meetings.map((m) => m.meeting_id)));
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [editing, setEditing] = useState(false);
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [summaryDraft, setSummaryDraft] = useState("");
+  const summaryHtml = insight.executive_summary ?? "";
+  const hasSummary = hasContent(summaryHtml);
+
+  const handleSummaryChange = useCallback((html: string) => {
+    setSummaryDraft(html);
+  }, []);
 
   useEffect(() => {
-    setChecked(new Set(meetings.map((m) => m.meeting_id)));
+    setChecked(new Set());
   }, [meetings]);
 
   const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
@@ -174,14 +186,18 @@ export function InsightDetailView({
             {insight.status === "final" ? "Final" : "Draft"}
           </Badge>
         </div>
-        {insight.rag_rationale && (
-          <p className="text-xs text-muted-foreground mt-1 ml-6.5">{insight.rag_rationale}</p>
-        )}
         <div className="flex gap-1 mt-2 ml-6.5">
-          <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onRegenerate}>
-            <RefreshCw className="w-3 h-3 mr-1" />
-            {insight.executive_summary ? "Regenerate" : "Generate"}
-          </Button>
+          {editing ? (
+            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={() => setEditing(false)}>
+              <ArrowLeft className="w-3 h-3 mr-1" />
+              Back
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={() => setEditing(true)}>
+              <Pencil className="w-3 h-3 mr-1" />
+              Edit
+            </Button>
+          )}
           {insight.status === "draft" ? (
             <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>
               <Check className="w-3 h-3 mr-1" />
@@ -200,130 +216,193 @@ export function InsightDetailView({
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <div className="px-4 py-3">
-          <h3 className="text-xs font-semibold text-muted-foreground mb-2">Executive Summary</h3>
-          {insight.executive_summary ? (
-            <p className="text-sm whitespace-pre-wrap">{insight.executive_summary}</p>
-          ) : (
-            <p className="text-sm text-muted-foreground">No summary yet. Generate to create one.</p>
-          )}
-        </div>
-        {topics.length > 0 && (
-          <div className="px-4 py-3 border-t border-border">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2">Topic Details</h3>
-            <div className="flex flex-col gap-3">
-              {topics.map((topic) => (
-                <div key={topic.topic} className="flex items-start gap-2">
-                  <span
-                    data-testid="topic-rag-badge"
-                    className={cn("w-2.5 h-2.5 rounded-full shrink-0 mt-1", RAG_COLORS[topic.status])}
+        {editing ? (
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold text-muted-foreground">Source Meetings</h3>
+              <div className="flex gap-1">
+                {onShowAllMeetings && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-auto px-2 py-0.5 text-xs"
+                    onClick={onShowAllMeetings}
+                  >
+                    <ListRestart className="w-3 h-3 mr-1" />
+                    Show All Meetings
+                  </Button>
+                )}
+                {uncheckedIds.length > 0 && onRemoveMeetings && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-auto px-2 py-0.5 text-xs"
+                    onClick={() => onRemoveMeetings(uncheckedIds)}
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Remove Unchecked
+                  </Button>
+                )}
+              </div>
+            </div>
+            {meetings.length > 0 && (
+              <div className="flex gap-1 mb-2">
+                {(["series", "day", "week", "month"] as const).map((mode) => (
+                  <Button
+                    key={mode}
+                    size="sm"
+                    variant={meetingGroupBy === mode ? "default" : "outline"}
+                    className="h-auto px-2 py-0.5 text-xs capitalize"
+                    onClick={() => setMeetingGroupBy(meetingGroupBy === mode ? "none" : mode)}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </Button>
+                ))}
+              </div>
+            )}
+            {meetings.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
+            ) : meetingGroupBy === "none" ? (
+              <div className="flex flex-col">
+                {meetings.map((m) => (
+                  <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked.has(m.meeting_id)}
+                      onChange={() => toggleMeeting(m.meeting_id)}
+                      className="mt-1 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{m.meeting_title}</p>
+                      <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings)
+                  : meetingGroupBy === "week" ? groupMeetingsByWeek(meetings)
+                  : meetingGroupBy === "month" ? groupMeetingsByMonth(meetings)
+                  : groupMeetingsBySeries(meetings)).map((group) => (
+                  <div key={group.key}>
+                    <div data-testid="meeting-group-header" className="flex items-center justify-between px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
+                      <span>{group.label}</span>
+                      {group.meetings.every((m) => checked.has(m.meeting_id)) ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-auto px-1 py-0 text-xs"
+                          onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), false)}
+                        >
+                          Deselect all
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-auto px-1 py-0 text-xs"
+                          onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), true)}
+                        >
+                          Select all
+                        </Button>
+                      )}
+                    </div>
+                    {group.meetings.map((m) => (
+                      <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={checked.has(m.meeting_id)}
+                          onChange={() => toggleMeeting(m.meeting_id)}
+                          className="mt-1 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium">{m.meeting_title}</p>
+                          <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="mt-3 pt-3 border-t border-border">
+              <Button size="sm" variant="default" className="h-auto px-3 py-1.5 text-xs" onClick={onRegenerate}>
+                <RefreshCw className="w-3 h-3 mr-1" />
+                {insight.executive_summary ? "Regenerate" : "Generate"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs font-semibold text-muted-foreground">Executive Summary</h3>
+                {hasSummary && !editingSummary && onUpdateSummary && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-auto px-1.5 py-0.5 text-xs"
+                    onClick={() => { setSummaryDraft(summaryHtml); setEditingSummary(true); }}
+                  >
+                    <Pencil className="w-3 h-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
+              </div>
+              {editingSummary ? (
+                <div className="flex flex-col gap-2">
+                  <RichTextEditor
+                    initialHtml={summaryDraft}
+                    onChange={handleSummaryChange}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{topic.topic}</p>
-                    <p className="text-xs text-muted-foreground">{topic.summary}</p>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="h-auto px-2 py-0.5 text-xs"
+                      onClick={() => { onUpdateSummary?.(summaryDraft); setEditingSummary(false); }}
+                    >
+                      <Save className="w-3 h-3 mr-1" />
+                      Save
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-auto px-2 py-0.5 text-xs"
+                      onClick={() => setEditingSummary(false)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
-              ))}
+              ) : hasSummary ? (
+                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: summaryHtml }} />
+              ) : (
+                <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>
+              )}
             </div>
-          </div>
-        )}
-        <div className="px-4 py-3 border-t border-border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-semibold text-muted-foreground">Source Meetings</h3>
-            {uncheckedIds.length > 0 && onRemoveMeetings && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-auto px-2 py-0.5 text-xs"
-                onClick={() => onRemoveMeetings(uncheckedIds)}
-              >
-                <X className="w-3 h-3 mr-1" />
-                Remove Unchecked
-              </Button>
-            )}
-          </div>
-          {meetings.length > 0 && (
-            <div className="flex gap-1 mb-2">
-              {(["series", "day", "week", "month"] as const).map((mode) => (
-                <Button
-                  key={mode}
-                  size="sm"
-                  variant={meetingGroupBy === mode ? "default" : "outline"}
-                  className="h-auto px-2 py-0.5 text-xs capitalize"
-                  onClick={() => setMeetingGroupBy(meetingGroupBy === mode ? "none" : mode)}
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </Button>
-              ))}
-            </div>
-          )}
-          {meetings.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
-          ) : meetingGroupBy === "none" ? (
-            <div className="flex flex-col">
-              {meetings.map((m) => (
-                <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checked.has(m.meeting_id)}
-                    onChange={() => toggleMeeting(m.meeting_id)}
-                    className="mt-1 shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium">{m.meeting_title}</p>
-                    <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
-                  </div>
-                </label>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings)
-                : meetingGroupBy === "week" ? groupMeetingsByWeek(meetings)
-                : meetingGroupBy === "month" ? groupMeetingsByMonth(meetings)
-                : groupMeetingsBySeries(meetings)).map((group) => (
-                <div key={group.key}>
-                  <div data-testid="meeting-group-header" className="flex items-center justify-between px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
-                    <span>{group.label}</span>
-                    {group.meetings.every((m) => checked.has(m.meeting_id)) ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-auto px-1 py-0 text-xs"
-                        onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), false)}
-                      >
-                        Deselect all
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-auto px-1 py-0 text-xs"
-                        onClick={() => checkGroup(group.meetings.map((m) => m.meeting_id), true)}
-                      >
-                        Select all
-                      </Button>
-                    )}
-                  </div>
-                  {group.meetings.map((m) => (
-                    <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={checked.has(m.meeting_id)}
-                        onChange={() => toggleMeeting(m.meeting_id)}
-                        className="mt-1 shrink-0"
+            {topics.length > 0 && (
+              <div className="px-4 py-3 border-t border-border">
+                <h3 className="text-xs font-semibold text-muted-foreground mb-2">Topic Details</h3>
+                <div className="flex flex-col gap-3">
+                  {topics.map((topic) => (
+                    <div key={topic.topic} className="flex items-start gap-2">
+                      <span
+                        data-testid="topic-rag-badge"
+                        className={cn("w-2.5 h-2.5 rounded-full shrink-0 mt-1", RAG_COLORS[topic.status])}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium">{m.meeting_title}</p>
-                        <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
+                        <p className="text-sm font-medium">{topic.topic}</p>
+                        <p className="text-xs text-muted-foreground">{topic.summary}</p>
                       </div>
-                    </label>
+                    </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </>
+        )}
       </ScrollArea>
     </div>
   );

@@ -32,6 +32,12 @@ interface SearchDeps {
 export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps): Hono {
   const app = new Hono();
   app.use(cors());
+  app.use(async (c, next) => {
+    const start = Date.now();
+    await next();
+    const { logApiCall } = await import("../core/logger.js");
+    logApiCall(c.req.method, c.req.path, c.res.status, Date.now() - start);
+  });
 
   app.get("/api/debug", async (c) => {
     const clientCount = (db.prepare("SELECT COUNT(*) as n FROM clients").get() as { n: number }).n;
@@ -346,8 +352,13 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.post('/api/insights/:id/generate', async (c) => {
     if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    const result = await handleGenerateInsight(db, llm, c.req.param('id'));
-    return c.json(result);
+    try {
+      const result = await handleGenerateInsight(db, llm, c.req.param('id'));
+      return c.json(result);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return c.json({ error: msg }, 500);
+    }
   });
 
   app.get('/api/insights/:id/messages', (c) => {
@@ -380,6 +391,11 @@ const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isMain) {
   process.loadEnvFile?.(".env.local");
+
+  const { setLogLevel, setLogDir } = await import("../core/logger.js");
+  const envLevel = process.env.MTNINSIGHTS_LOG_LEVEL as "error" | "warn" | "info" | "debug" | undefined;
+  if (envLevel) setLogLevel(envLevel);
+  setLogDir(resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd(), "logs/api"));
 
   const { createDb, migrate } = await import("../core/db.js");
   const { createLlmAdapter } = await import("../core/llm-adapter.js");

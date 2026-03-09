@@ -44,3 +44,4 @@ Rules that apply to every interactive view in the application. Treat these as de
 - API routes and IPC handlers receive and return entity IDs, not display names. The UI resolves IDs to names for display.
 - Query logic lives in core modules, not in route/handler files. Routes are thin wiring: parse input, call core, format output.
 - Client-filtering queries use a direct FK join (e.g., `WHERE m.client_id = ?`), never subqueries against detection/scoring tables.
+- Every API route that calls an async core function wraps the call in a try/catch and returns a JSON error response (`{ error: string }`) with an appropriate status code. Never let unhandled exceptions produce non-JSON responses (e.g., plain-text "Internal Server Error") — the UI expects JSON and will fail to parse anything else.
