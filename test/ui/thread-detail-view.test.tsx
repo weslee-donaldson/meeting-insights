@@ -149,8 +149,8 @@ describe("ThreadDetailView", () => {
         onEvaluateCandidates={vi.fn()}
       />,
     );
-    expect(screen.getByText("Candidate A")).toBeDefined();
-    expect(screen.getByText("Candidate B")).toBeDefined();
+    expect(screen.getByText("85%")).toBeDefined();
+    expect(screen.getByText("72%")).toBeDefined();
     expect(screen.getByText(/evaluate selected/i)).toBeDefined();
   });
 
@@ -443,6 +443,58 @@ describe("ThreadDetailView", () => {
       />,
     );
     expect(screen.queryByRole("button", { name: /delete \d/i })).toBeNull();
+  });
+
+  it("renders candidate series filter dropdown with unique titles", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Mandalore DSU", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Mandalore DSU", date: "2026-03-03T10:00:00.000Z", similarity: 0.72 },
+      { meeting_id: "c3", title: "Architecture Solutioning", date: "2026-03-03T14:00:00.000Z", similarity: 0.60 },
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+      />,
+    );
+    const filter = screen.getByTestId("candidate-series-filter") as HTMLSelectElement;
+    expect(filter).toBeDefined();
+    const options = Array.from(filter.querySelectorAll("option"));
+    expect(options.map((o) => o.textContent)).toEqual(["All Series", "Architecture Solutioning", "Mandalore DSU"]);
+  });
+
+  it("filters candidates by selected series", () => {
+    const candidates = [
+      { meeting_id: "c1", title: "Mandalore DSU", date: "2026-03-02T10:00:00.000Z", similarity: 0.85 },
+      { meeting_id: "c2", title: "Architecture Solutioning", date: "2026-03-03T14:00:00.000Z", similarity: 0.60 },
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[]}
+        candidates={candidates}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+        onEvaluateCandidates={vi.fn()}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("candidate-series-filter"), { target: { value: "Mandalore DSU" } });
+    const candidateCheckboxes = screen.getAllByRole("checkbox").filter((cb) => !cb.closest("[data-override]"));
+    expect(candidateCheckboxes).toHaveLength(1);
+    expect(screen.getByText("85%")).toBeDefined();
+    expect(screen.queryByText("60%")).toBeNull();
   });
 
   it("shows stale criteria badge when criteria newer than evaluations", () => {

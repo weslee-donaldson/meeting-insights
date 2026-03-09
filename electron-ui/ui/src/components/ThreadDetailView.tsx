@@ -204,6 +204,9 @@ export function ThreadDetailView({
   const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [overrideExisting, setOverrideExisting] = useState(false);
   const [candidateGroupBy, setCandidateGroupBy] = useState<CandidateGroupBy>("none");
+  const [candidateSeriesFilter, setCandidateSeriesFilter] = useState("");
+  const candidateSeriesOptions = candidates ? [...new Set(candidates.map((c) => c.title))].sort() : [];
+  const displayCandidates = candidates ? (candidateSeriesFilter ? candidates.filter((c) => c.title === candidateSeriesFilter) : candidates) : undefined;
 
   const prevCandidateIds = React.useRef<string>("");
   const candidateIds = candidates?.map((c) => c.meeting_id).join(",") ?? "";
@@ -355,6 +358,17 @@ export function ThreadDetailView({
               </Button>
             </div>
             <div className="px-4 py-1 flex items-center gap-1">
+              <select
+                data-testid="candidate-series-filter"
+                value={candidateSeriesFilter}
+                onChange={(e) => setCandidateSeriesFilter(e.target.value)}
+                className="h-7 px-2 text-xs border border-border rounded-md bg-background"
+              >
+                <option value="">All Series</option>
+                {candidateSeriesOptions.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
               <span className="text-xs text-muted-foreground mr-1">Group:</span>
               {CANDIDATE_GROUP_MODES.map(({ value, label }) => (
                 <Button
@@ -369,7 +383,7 @@ export function ThreadDetailView({
               ))}
             </div>
             <CandidateList
-              candidates={candidates}
+              candidates={displayCandidates ?? []}
               groupBy={candidateGroupBy}
               checkedCandidates={checkedCandidates}
               onToggle={(meetingId) => {
