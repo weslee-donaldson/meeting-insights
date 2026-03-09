@@ -55,6 +55,9 @@ export function ThreadsView({
                 )}
               >
                 <span className="flex-1 truncate font-medium">{thread.title}</span>
+                {thread.meeting_count ? (
+                  <span className="text-xs font-mono text-muted-foreground shrink-0">{thread.meeting_count}</span>
+                ) : null}
                 <Badge variant="outline" className="text-xs shrink-0">{thread.shorthand}</Badge>
                 {thread.status === "resolved" && (
                   <Badge variant="secondary" className="text-xs shrink-0">Resolved</Badge>

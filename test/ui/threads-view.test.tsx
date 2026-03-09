@@ -108,6 +108,41 @@ describe("ThreadsView", () => {
     expect(screen.queryByText("Resolved thread")).toBeNull();
   });
 
+  it("renders meeting count next to thread title", () => {
+    const threads = [
+      makeThread({ id: "t1", title: "Deploy issues", meeting_count: 5 }),
+      makeThread({ id: "t2", title: "Auth bugs", meeting_count: 12 }),
+    ];
+    render(
+      <ThreadsView
+        threads={threads}
+        clientName="Acme"
+        onSelectThread={vi.fn()}
+        onCreateThread={vi.fn()}
+        selectedThreadId={null}
+      />,
+    );
+    expect(screen.getByText("5")).toBeDefined();
+    expect(screen.getByText("12")).toBeDefined();
+  });
+
+  it("hides meeting count when zero or undefined", () => {
+    const threads = [
+      makeThread({ id: "t1", title: "No meetings", meeting_count: 0 }),
+      makeThread({ id: "t2", title: "Unknown count", meeting_count: undefined }),
+    ];
+    render(
+      <ThreadsView
+        threads={threads}
+        clientName="Acme"
+        onSelectThread={vi.fn()}
+        onCreateThread={vi.fn()}
+        selectedThreadId={null}
+      />,
+    );
+    expect(screen.queryByText("0")).toBeNull();
+  });
+
   it("shows empty state when no threads match", () => {
     render(
       <ThreadsView
