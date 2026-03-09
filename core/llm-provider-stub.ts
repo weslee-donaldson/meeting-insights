@@ -35,7 +35,7 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     relevance_score: 75,
   },
   generate_insight: {
-    executive_summary: "Stub executive summary of the reporting period.",
+    executive_summary: "<p>Stub executive summary of the reporting period.</p>",
     rag_status: "yellow",
     rag_rationale: "",
     topic_details: [

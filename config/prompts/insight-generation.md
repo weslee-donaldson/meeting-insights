@@ -47,12 +47,12 @@ The reader is the head of an implementation company overseeing a portfolio of cl
 - **Limit em-dashes.** Use at most one em-dash pair per paragraph. Prefer commas or separate sentences.
 
 ## Executive Summary Structure
-The summary distills your topic_details for a 30-second scan. Use markdown syntax (`**bold**`, `- bullet`, etc.).
+The summary distills your topic_details for a 30-second scan. Use HTML tags: `<p>`, `<strong>`, `<ul>`, `<li>`.
 
-1. **Verdict** — one sentence stating the concrete situation. No vague characterizations ("at an inflection point," "in a critical phase"). Name the specific blocker or progress item.
-2. **What moved forward** — bulleted list of concrete items from your topics.
-3. **Open risks** — bulleted list, only if your topics surfaced real issues. Each bullet: what the issue is + what action is underway. Skip if clean.
-4. **What to watch** — bulleted list, only if forward-looking items exist in your topics.
+1. `<p><strong>Verdict</strong></p>` — one sentence stating the concrete situation. No vague characterizations ("at an inflection point," "in a critical phase"). Name the specific blocker or progress item.
+2. `<p><strong>What moved forward</strong></p><ul><li>...</li></ul>` — bulleted list of concrete items from your topics.
+3. `<p><strong>Open risks</strong></p><ul><li>...</li></ul>` — bulleted list, only if your topics surfaced real issues. Each bullet: what the issue is + what action is underway. Skip if clean.
+4. `<p><strong>What to watch</strong></p><ul><li>...</li></ul>` — bulleted list, only if forward-looking items exist in your topics.
 
 Omit any section with no supporting content in your topics.
 
@@ -62,7 +62,7 @@ Return ONLY valid JSON:
     - `topic` (string): Topic name (e.g. "Feature Delivery", "Team Capacity", "Architecture Risk")
     - `summary` (string): 1-2 grounded sentences covering what happened
     - `status` ("red" | "yellow" | "green"): Per-topic health
-- `executive_summary` (string): Markdown distillation of topic_details following the structure above. Keep it concise — verdict + 2-4 bulleted sections.
+- `executive_summary` (string): HTML distillation of topic_details following the structure above. Keep it concise — verdict + 2-4 bulleted sections.
 - `rag_status` ("red" | "yellow" | "green"): Overall health assessment
 
 Do not include meeting IDs in the response.

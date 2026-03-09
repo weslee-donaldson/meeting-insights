@@ -17,37 +17,6 @@ export function plainTextToHtml(text: string): string {
   return text.split(/\n\n+/).map((p) => `<p>${p}</p>`).join("");
 }
 
-function boldify(text: string): string {
-  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-}
-
-export function markdownToHtml(md: string): string {
-  if (!md.trim()) return "";
-  const blocks = md.split(/\n\n+/);
-  return blocks
-    .map((block) => {
-      const trimmed = block.trim();
-      if (!trimmed) return "";
-      const lines = trimmed.split("\n");
-      const firstListIdx = lines.findIndex((l) => l.startsWith("- "));
-      if (firstListIdx === 0) {
-        const items = lines.map((l) => `<li>${boldify(l.slice(2))}</li>`).join("");
-        return `<ul>${items}</ul>`;
-      }
-      if (firstListIdx > 0) {
-        const header = `<p>${boldify(lines.slice(0, firstListIdx).join("<br/>"))}</p>`;
-        const items = lines
-          .slice(firstListIdx)
-          .map((l) => `<li>${boldify(l.slice(2))}</li>`)
-          .join("");
-        return `${header}<ul>${items}</ul>`;
-      }
-      return `<p>${boldify(trimmed.replace(/\n/g, "<br/>"))}</p>`;
-    })
-    .filter(Boolean)
-    .join("");
-}
-
 export function stripHtml(html: string): string {
   if (!html) return "";
   return html
@@ -377,7 +346,7 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
   `).run(
     String(result.rag_status ?? "yellow"),
     "",
-    markdownToHtml(String(result.executive_summary ?? "")),
+    String(result.executive_summary ?? ""),
     topicDetails,
     now,
     now,
