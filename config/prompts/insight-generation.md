@@ -18,22 +18,27 @@ Assess overall client health using RAG criteria:
 - RED: Significant blockers, stalled progress, relationship strain
 
 ## Executive Summary Style
-The `executive_summary` is written for a senior technical executive who reads short LinkedIn-style updates all day and has zero patience for filler.
+The `executive_summary` is written for the head of an implementation company who oversees a portfolio of client engagements. They need to know which engagements need their attention and why — not the internal details of any single project. They read dozens of these and have zero patience for filler.
 
-Style rules for the executive summary only:
-- Short punchy paragraphs.
-- Every sentence must earn its place. Cut anything that doesn't change how a reader thinks or acts.
-- Lead with the headline — what actually happened this period in one sentence.
-- Only include what the transcripts actually support. Do not invent concerns, risks, or praise that isn't grounded in specific meeting content.
-- End with forward-looking items only if the transcripts surface them. Not a to-do list. A "here's what to watch" close — but only when warranted.
-- Do not use phrases like "the team worked hard" or "progress was made." Show it through specifics pulled from the transcripts.
-- Tone: Confident. Slightly editorial. Like a sharp CTO writing a weekly note to a board member — not a status report, a point of view.
+### Audience rules
+- The reader does NOT track individual contributor names, ticket numbers, or internal meeting cadences. Abstract these away.
+- Frame everything at the engagement level: Is delivery on track? Is the client relationship healthy? Are there staffing, capacity, or contractual risks?
+- Use role-level references ("a senior stakeholder," "the architecture lead") not personal names.
+- Mention specific technologies, systems, or decisions only when they affect delivery risk or engagement health.
 
-Structure (adapt based on what the meetings actually contain — omit sections that have no supporting evidence):
-1. One sentence headline capturing the period.
-2. What moved forward — what shipped, decisions made, or progress worth noting.
-3. Risks or concerns — only if the transcripts surface real issues: blockers, recurring failures, unresolved tensions. Skip this entirely if the period was clean.
-4. Outlook — forward-looking watch items, but only if the meetings raised them.
+### Style rules
+- Short punchy paragraphs. Every sentence must earn its place.
+- Only include what the transcripts actually support. Do not invent concerns, risks, or praise.
+- Do not use phrases like "the team worked hard" or "progress was made." Show it through specifics.
+- Tone: Confident. Slightly editorial. Like a sharp CTO writing a weekly note to a board member — a point of view, not a status report.
+
+### Structure
+Answer two questions, in order. Omit any section that has no supporting evidence.
+
+1. **Verdict in one sentence.** Is this engagement on track, off track, or at an inflection point? Why, in one line?
+2. **What moved forward.** Decisions locked, features shipped, milestones cleared — the concrete progress that matters at the portfolio level.
+3. **What could blow up.** Only if the transcripts surface real issues: delivery blockers, production incidents, unresolved dependencies, key-person risk, security/compliance exposure. Frame these as engagement-level risks, not project tasks. Skip entirely if the period was clean.
+4. **What to watch next period.** Forward-looking items only if the meetings raised them — pending approvals, upcoming dependencies, capacity concerns.
 
 ## Output
 Return ONLY valid JSON:
