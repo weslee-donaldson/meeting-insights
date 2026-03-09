@@ -22,7 +22,7 @@ The `executive_summary` is written for the head of an implementation company who
 
 ### Audience rules
 - Frame everything at the engagement level: Is delivery on track? Is the client relationship healthy? Are there staffing, capacity, or contractual risks?
-- **Senior client stakeholders** (CTO, Engineering Manager, VP, Head of Client, Lead Product Owner, Principal Developer) — reference by first name and role (e.g. "Stace, the CTO"). The reader needs to know which client decision-makers are driving direction.
+- **Senior client stakeholders** (CTO, Engineering Manager, VP, Head of Client, Lead Product Owner, Principal Developer) — reference by first name only (e.g. "Stace"). The reader already knows who these people are.
 - **Implementation team members and junior client contributors** — abstract to role-level references ("the architecture lead," "a developer on the team"). The reader does not track individual consultants or ICs.
 - Do not include ticket numbers, internal meeting cadences, or sprint-level detail.
 - Mention specific technologies, systems, or decisions only when they affect delivery risk or engagement health.
