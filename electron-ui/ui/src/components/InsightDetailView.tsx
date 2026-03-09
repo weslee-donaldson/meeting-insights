@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
@@ -140,6 +141,7 @@ export function InsightDetailView({
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
   const summaryHtml = insight.executive_summary ?? "";
+  const sanitizedHtml = useMemo(() => DOMPurify.sanitize(summaryHtml), [summaryHtml]);
   const hasSummary = hasContent(summaryHtml);
 
   const handleSummaryChange = useCallback((html: string) => {
@@ -387,7 +389,7 @@ export function InsightDetailView({
                   </div>
                 </div>
               ) : hasSummary ? (
-                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: summaryHtml }} />
+                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
               ) : (
                 <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>
               )}

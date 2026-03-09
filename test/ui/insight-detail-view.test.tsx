@@ -377,6 +377,40 @@ describe("InsightDetailView", () => {
     expect(display.innerHTML).toContain("<strong>bold</strong>");
   });
 
+  it("renders bullet lists in summary HTML", () => {
+    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Verdict.</p><ul><li>Item one</li><li>Item two</li></ul>" };
+    render(
+      <InsightDetailView
+        insight={htmlInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const display = screen.getByTestId("summary-display");
+    expect(display.innerHTML).toContain("<ul>");
+    expect(display.innerHTML).toContain("<li>");
+    expect(screen.getByText("Item one")).toBeDefined();
+    expect(screen.getByText("Item two")).toBeDefined();
+  });
+
+  it("sanitizes script tags from summary HTML", () => {
+    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Safe</p><script>alert('xss')</script>" };
+    render(
+      <InsightDetailView
+        insight={htmlInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const display = screen.getByTestId("summary-display");
+    expect(display.innerHTML).not.toContain("<script>");
+    expect(display.innerHTML).toContain("Safe");
+  });
+
   it("shows no summary placeholder when executive_summary is empty", () => {
     const emptyInsight = { ...INSIGHT, executive_summary: "" };
     render(
