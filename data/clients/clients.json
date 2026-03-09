@@ -17,7 +17,7 @@
       "Mandalore DSU"
     ],
     "client_team": [
-      { "name": "Stace Baal",         "email": "stace.baal@llsa.com",         "role": "CTO"                  },
+      { "name": "Stace Baal",         "email": "stace.baal@llsa.com",         "role": "CTO",                   "pronouns": "he/him" },
       { "name": "Jennifer Karavakis", "email": "jennifer.karavakis@llsa.com", "role": "Engineering Manager"   },
       { "name": "Yoelvis Mulen",      "email": "yoelvis.mulen@llsa.com",      "role": "Principal Developer"   },
       { "name": "Greg Christie",      "email": "greg.christie@llsa.com",      "role": "Lead Product Owner"             },
