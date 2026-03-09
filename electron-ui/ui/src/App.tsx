@@ -45,6 +45,7 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights">("meetings");
+  const meetingIdPerView = useRef<Record<string, string | null>>({});
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
@@ -591,10 +592,14 @@ export function App() {
   }, [selectedMeetingId, queryClient, addToast]);
 
   const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights") => {
-    setCurrentView(view);
+    setCurrentView((prev) => {
+      meetingIdPerView.current[prev] = selectedMeetingId;
+      return view;
+    });
+    setSelectedMeetingId(meetingIdPerView.current[view] ?? null);
     setTypedSearchQuery("");
     setSearchQuery("");
-  }, []);
+  }, [selectedMeetingId]);
 
   const handleMentionClick = useCallback((canonicalId: string, itemText: string) => {
     setHistoryItem({ canonicalId, itemText });
@@ -718,15 +723,17 @@ export function App() {
     }
   }, [selectedThreadId, queryClient, addToast]);
 
-  const handleRemoveThreadMeeting = useCallback(async (meetingId: string) => {
+  const handleRemoveThreadMeetings = useCallback(async (meetingIds: string[]) => {
     if (!selectedThreadId) return;
     try {
-      await window.api.removeThreadMeeting(selectedThreadId, meetingId);
+      for (const meetingId of meetingIds) {
+        await window.api.removeThreadMeeting(selectedThreadId, meetingId);
+      }
       queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
-      addToast("Meeting removed from thread", "success");
+      addToast(`${meetingIds.length} meeting${meetingIds.length !== 1 ? "s" : ""} removed from thread`, "success");
     } catch (err) {
-      console.error("Remove thread meeting failed:", err);
-      addToast(`Remove meeting failed: ${(err as Error).message}`, "error");
+      console.error("Remove thread meetings failed:", err);
+      addToast(`Remove meetings failed: ${(err as Error).message}`, "error");
     }
   }, [selectedThreadId, queryClient, addToast]);
 
@@ -822,6 +829,17 @@ export function App() {
     }
   }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
 
+  const handleUpdateInsightSummary = useCallback(async (summary: string) => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.updateInsight(selectedInsightId, { executive_summary: summary });
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast("Summary updated", "success");
+    } catch (err) {
+      addToast(`Update failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+
   const handleRegenerateInsight = useCallback(async () => {
     if (!selectedInsightId) return;
     const isFirst = !selectedInsight?.executive_summary;
@@ -880,6 +898,19 @@ export function App() {
     }
   }, [selectedInsightId, selectedClient, queryClient, addToast]);
 
+  const handleShowAllInsightMeetings = useCallback(async () => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.discoverInsightMeetings(selectedInsightId);
+      queryClient.invalidateQueries({ queryKey: ["insightMeetings", selectedInsightId] });
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast("Restored all meetings for period", "success");
+    } catch (err) {
+      console.error("Show all meetings failed:", err);
+      addToast(`Show all meetings failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
     setSelectedThreadId(threadId);
@@ -929,6 +960,8 @@ export function App() {
       onMentionClick={isMultiMode ? undefined : handleMentionClick}
       artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
       searchQuery={searchQuery}
+      threadTags={isMultiMode ? undefined : selectedMeeting?.thread_tags}
+      onThreadClick={handleThreadClick}
     />,
   ];
 
@@ -972,7 +1005,7 @@ export function App() {
         onEdit={() => setEditThreadOpen(true)}
         onDelete={handleDeleteThread}
         onFindCandidates={handleFindCandidates}
-        onRemoveMeeting={handleRemoveThreadMeeting}
+        onRemoveMeetings={handleRemoveThreadMeetings}
         onRegenerateSummary={handleRegenerateThreadSummary}
         onMeetingClick={setSelectedMeetingId}
         onEvaluateCandidates={handleEvaluateCandidates}
@@ -998,6 +1031,9 @@ export function App() {
         artifact={selectedArtifactQuery.data ?? null}
         completions={completionsQuery.data ?? []}
         artifactLoading={selectedArtifactQuery.isLoading}
+        searchQuery={selectedThread?.keywords}
+        threadTags={selectedMeeting.thread_tags}
+        onThreadClick={handleThreadClick}
       />,
     ] : []),
   ];
@@ -1020,6 +1056,8 @@ export function App() {
         onRegenerate={handleRegenerateInsight}
         onFinalize={handleFinalizeInsight}
         onRemoveMeetings={handleRemoveInsightMeetings}
+        onUpdateSummary={handleUpdateInsightSummary}
+        onShowAllMeetings={handleShowAllInsightMeetings}
       />,
     ] : []),
     ...(selectedMeeting ? [
@@ -1038,6 +1076,7 @@ export function App() {
   return (
     <>
     <LinearShell
+      viewId={currentView}
       chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "insights" && (insightMeetingsQuery.data?.length ?? 0) > 0)}
       topBar={
         <TopBar

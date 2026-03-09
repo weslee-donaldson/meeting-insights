@@ -170,7 +170,7 @@ interface ThreadDetailViewProps {
   onEdit: () => void;
   onDelete: () => void;
   onFindCandidates: () => void;
-  onRemoveMeeting: (meetingId: string) => void;
+  onRemoveMeetings: (meetingIds: string[]) => void;
   onRegenerateSummary: (meetingIds?: string[]) => void;
   onMeetingClick: (meetingId: string) => void;
   onEvaluateCandidates?: (meetingIds: string[], overrideExisting: boolean) => void;
@@ -185,7 +185,7 @@ export function ThreadDetailView({
   onEdit,
   onDelete,
   onFindCandidates,
-  onRemoveMeeting,
+  onRemoveMeetings,
   onRegenerateSummary,
   onMeetingClick,
   onEvaluateCandidates,
@@ -201,6 +201,7 @@ export function ThreadDetailView({
   const [checkedCandidates, setCheckedCandidates] = useState<Set<string>>(
     () => new Set(candidates?.map((c) => c.meeting_id) ?? []),
   );
+  const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [overrideExisting, setOverrideExisting] = useState(false);
   const [candidateGroupBy, setCandidateGroupBy] = useState<CandidateGroupBy>("none");
 
@@ -266,21 +267,49 @@ export function ThreadDetailView({
               Regenerate
             </Button>
           )}
+          {checkedMeetingIds.size > 0 && (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                onRemoveMeetings([...checkedMeetingIds]);
+                setCheckedMeetingIds(new Set());
+              }}
+              aria-label={`Delete ${checkedMeetingIds.size}`}
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Delete {checkedMeetingIds.size}
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-col">
           {sorted.map((m) => (
-            <button
-              key={m.meeting_id}
-              onClick={() => onMeetingClick(m.meeting_id)}
-              className="flex flex-col gap-1 px-4 py-2 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full transition-colors hover:bg-secondary/60 active:bg-secondary/80"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{m.relevance_score}</span>
-                <span className="flex-1 truncate">{m.meeting_title}</span>
-              </div>
-              <p className="text-xs text-muted-foreground pl-10">{m.relevance_summary}</p>
-            </button>
+            <div key={m.meeting_id} data-meeting-row="" className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border transition-colors hover:bg-secondary/60">
+              <input
+                type="checkbox"
+                className="mt-1 shrink-0"
+                checked={checkedMeetingIds.has(m.meeting_id)}
+                onChange={() => {
+                  setCheckedMeetingIds((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(m.meeting_id)) next.delete(m.meeting_id);
+                    else next.add(m.meeting_id);
+                    return next;
+                  });
+                }}
+              />
+              <button
+                onClick={() => onMeetingClick(m.meeting_id)}
+                className="flex flex-col gap-1 text-left cursor-pointer bg-transparent flex-1 min-w-0"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{m.relevance_score}</span>
+                  <span className="flex-1 truncate">{m.meeting_title}</span>
+                </div>
+                <p className="text-xs text-muted-foreground pl-10">{m.relevance_summary}</p>
+              </button>
+            </div>
           ))}
         </div>
 

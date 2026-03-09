@@ -47,7 +47,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
@@ -69,7 +69,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
@@ -86,7 +86,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
@@ -103,7 +103,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={onFind}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
@@ -121,7 +121,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={onRegen}
         onMeetingClick={vi.fn()}
       />,
@@ -143,7 +143,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -168,7 +168,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={onEvaluate}
@@ -193,7 +193,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={onEvaluate}
@@ -214,7 +214,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onResolve={onResolve}
@@ -233,7 +233,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onResolve={onResolve}
@@ -253,7 +253,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
@@ -275,7 +275,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -304,7 +304,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -330,7 +330,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -359,7 +359,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -387,7 +387,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
         onEvaluateCandidates={vi.fn()}
@@ -402,6 +402,49 @@ describe("ThreadDetailView", () => {
     expect(onCandidateCheck).toHaveBeenLastCalledWith(new Set(["c1", "c2"]));
   });
 
+  it("renders checkboxes next to meetings and Delete button removes checked meetings", () => {
+    const onRemoveMeetings = vi.fn();
+    const meetings = [
+      makeMeeting({ meeting_id: "m1", meeting_title: "Sprint Planning" }),
+      makeMeeting({ meeting_id: "m2", meeting_title: "Retro" }),
+    ];
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={meetings}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeetings={onRemoveMeetings}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+      />,
+    );
+    const meetingCheckboxes = screen.getAllByRole("checkbox").filter((cb) => cb.closest("[data-meeting-row]"));
+    expect(meetingCheckboxes).toHaveLength(2);
+    fireEvent.click(meetingCheckboxes[0]);
+    const deleteBtn = screen.getByRole("button", { name: /delete 1/i });
+    expect(deleteBtn).toBeDefined();
+    fireEvent.click(deleteBtn);
+    expect(onRemoveMeetings).toHaveBeenCalledWith(["m1"]);
+  });
+
+  it("Delete button hidden when no meetings checked", () => {
+    render(
+      <ThreadDetailView
+        thread={makeThread()}
+        meetings={[makeMeeting()]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onFindCandidates={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+        onRegenerateSummary={vi.fn()}
+        onMeetingClick={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /delete \d/i })).toBeNull();
+  });
+
   it("shows stale criteria badge when criteria newer than evaluations", () => {
     const thread = makeThread({ criteria_changed_at: "2026-03-10T00:00:00.000Z" });
     const meetings = [makeMeeting({ evaluated_at: "2026-03-01T00:00:00.000Z" })];
@@ -412,7 +455,7 @@ describe("ThreadDetailView", () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         onFindCandidates={vi.fn()}
-        onRemoveMeeting={vi.fn()}
+        onRemoveMeetings={vi.fn()}
         onRegenerateSummary={vi.fn()}
         onMeetingClick={vi.fn()}
       />,
