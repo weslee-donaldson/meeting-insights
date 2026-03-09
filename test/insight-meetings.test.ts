@@ -92,6 +92,14 @@ describe("discoverMeetingsForPeriod", () => {
     expect(result).toEqual([]);
   });
 
+  it("discovers meetings with ISO timestamp dates within date-only period bounds", () => {
+    db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m-ts1', 'Morning', '2026-03-05T10:00:00.000Z', 'client-acme')").run();
+    db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m-ts2', 'Afternoon', '2026-03-05T15:30:00.000Z', 'client-acme')").run();
+    const result = discoverMeetingsForPeriod(db, "Acme", "2026-03-05", "2026-03-05");
+    expect(result).toEqual(["m-ts1", "m-ts2"]);
+    db.prepare("DELETE FROM meetings WHERE id IN ('m-ts1', 'm-ts2')").run();
+  });
+
   it("excludes meetings where client is not the top-confidence detection", () => {
     db.prepare("INSERT INTO clients (name, id) VALUES ('Beta', 'client-beta')").run();
     db.prepare("INSERT INTO meetings (id, title, date, client_id) VALUES ('m4', 'Cross-client', '2026-03-02', 'client-beta')").run();

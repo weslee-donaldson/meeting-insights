@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm-adapter.js";
@@ -7,6 +9,8 @@ import type { ArtifactRow } from "./extractor.js";
 import { embed } from "./embedder.js";
 import type { VectorDb } from "./vector-db.js";
 import { createLogger } from "./logger.js";
+
+const INSIGHT_PROMPT_PATH = resolve(import.meta.dirname ?? ".", "../config/prompts/insight-generation.md");
 
 export function plainTextToHtml(text: string): string {
   if (!text) return "";
@@ -202,12 +206,13 @@ export function removeInsightMeeting(db: Database, insightId: string, meetingId:
 }
 
 export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
+  const endBound = periodEnd.includes("T") ? periodEnd : periodEnd + "T23:59:59.999Z";
   const rows = db.prepare(`
     SELECT m.id FROM meetings m
     JOIN clients c ON m.client_id = c.id
     WHERE m.date >= ? AND m.date <= ? AND m.ignored = 0 AND c.name = ?
     ORDER BY m.date ASC
-  `).all(periodStart, periodEnd, clientName) as { id: string }[];
+  `).all(periodStart, endBound, clientName) as { id: string }[];
   return rows.map((r) => r.id);
 }
 
@@ -279,34 +284,13 @@ export function markInsightMessagesStale(db: Database, insightId: string, delete
 
 const log = createLogger("insights");
 
-const DEFAULT_INSIGHT_TEMPLATE = `You are generating an executive insight report for a client over a specific time period.
-
-## Client
-{{client_name}}
-
-## Period
-{{period_type}}: {{period_start}} to {{period_end}}
-
-## Meeting Artifacts
-{{meeting_artifacts}}
-
-## Instructions
-Analyze all meeting artifacts above and produce a structured executive report.
-
-Assess overall client health using RAG criteria:
-- GREEN: On track, no blockers, commitments being met
-- YELLOW: Minor concerns, open items needing attention, some risk
-- RED: Significant blockers, stalled progress, relationship strain
-
-Return ONLY valid JSON:
-- \`executive_summary\` (string): 3-5 sentence overview covering the most important developments, decisions, and concerns across the period. Write for a leadership audience who needs to understand client status quickly.
-- \`rag_status\` ("red" | "yellow" | "green"): Overall health assessment
-- \`rag_rationale\` (string): 1-2 sentences explaining the RAG assessment with specific evidence
-- \`topic_details\` (array of objects): Group findings by topic. Each:
-    - \`topic\` (string): Topic name (e.g. "Feature Delivery", "Team Capacity", "Client Relationship")
-    - \`summary\` (string): 2-3 sentences covering what happened in this area
-    - \`status\` ("red" | "yellow" | "green"): Per-topic health
-    - \`meeting_ids\` (string[]): IDs of meetings that informed this topic`;
+function loadInsightTemplate(): string {
+  try {
+    return readFileSync(INSIGHT_PROMPT_PATH, "utf-8");
+  } catch {
+    throw new Error(`Insight prompt template not found at ${INSIGHT_PROMPT_PATH}`);
+  }
+}
 
 function buildMeetingArtifactContext(meetingId: string, title: string, art: ArtifactRow): string {
   const parts: string[] = [`### Meeting: ${title} (${meetingId})`];
@@ -341,7 +325,7 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
     const art = getArtifact(db, m.meeting_id);
     if (art) contextParts.push(buildMeetingArtifactContext(m.meeting_id, m.meeting_title, art));
   }
-  const prompt = DEFAULT_INSIGHT_TEMPLATE
+  const prompt = loadInsightTemplate()
     .replace("{{client_name}}", insight.client_name)
     .replace("{{period_type}}", insight.period_type)
     .replace("{{period_start}}", insight.period_start)
@@ -360,9 +344,9 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
       updated_at = ?
     WHERE id = ?
   `).run(
-    result.rag_status as string,
-    result.rag_rationale as string,
-    plainTextToHtml(result.executive_summary as string),
+    String(result.rag_status ?? "yellow"),
+    "",
+    String(result.executive_summary ?? ""),
     topicDetails,
     now,
     now,
