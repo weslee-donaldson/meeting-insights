@@ -166,7 +166,9 @@ export function App() {
       : [];
 
   const selectedMeeting = selectedMeetingId
-    ? (scopeMeetings.find((m) => m.id === selectedMeetingId) ?? null)
+    ? (scopeMeetings.find((m) => m.id === selectedMeetingId)
+      ?? (meetingsQuery.data ?? []).find((m) => m.id === selectedMeetingId)
+      ?? null)
     : null;
 
   const selectedArtifactQuery = useQuery<Artifact | null>({
