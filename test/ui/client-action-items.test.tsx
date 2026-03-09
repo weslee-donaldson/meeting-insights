@@ -60,7 +60,8 @@ describe("ClientActionItemsView", () => {
 
   it("renders meeting source link with title", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} onPreviewMeeting={vi.fn()} />);
-    expect(screen.getByText("Weekly Sync")).toBeDefined();
+    const links = screen.getAllByText("Weekly Sync").filter((el) => el.tagName === "BUTTON");
+    expect(links).toHaveLength(1);
   });
 
   it("renders placeholder when no client selected", () => {
@@ -76,7 +77,8 @@ describe("ClientActionItemsView", () => {
   it("clicking meeting source link calls onPreviewMeeting with meeting id", () => {
     const spy = vi.fn();
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} onPreviewMeeting={spy} />);
-    fireEvent.click(screen.getByText("Weekly Sync"));
+    const link = screen.getAllByText("Weekly Sync").find((el) => el.tagName === "BUTTON")!;
+    fireEvent.click(link);
     expect(spy).toHaveBeenCalledWith("m1");
   });
 
@@ -114,6 +116,46 @@ describe("ClientActionItemsView", () => {
     fireEvent.click(screen.getAllByRole("checkbox")[0]);
     fireEvent.click(screen.getByRole("button", { name: /Completed/i }));
     expect(screen.getByTestId("completed-section").getAttribute("data-open")).toBe("true");
+  });
+
+  it("renders filter dropdowns for series, priority, owner, and requester", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    const seriesFilter = screen.getByTestId("action-series-filter") as HTMLSelectElement;
+    const priorityFilter = screen.getByTestId("action-priority-filter") as HTMLSelectElement;
+    const ownerFilter = screen.getByTestId("action-owner-filter") as HTMLSelectElement;
+    const requesterFilter = screen.getByTestId("action-requester-filter") as HTMLSelectElement;
+    expect(Array.from(seriesFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Series", "Planning", "Weekly Sync"]);
+    expect(Array.from(priorityFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Priorities", "Critical", "Normal"]);
+    expect(Array.from(ownerFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Owners", "Alice", "Charlie"]);
+    expect(Array.from(requesterFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Requesters", "Alice", "Bob"]);
+  });
+
+  it("filters items by series", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    fireEvent.change(screen.getByTestId("action-series-filter"), { target: { value: "Weekly Sync" } });
+    expect(screen.getByText("Fix the broken build")).toBeDefined();
+    expect(screen.queryByText("Write documentation")).toBeNull();
+  });
+
+  it("filters items by priority", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    fireEvent.change(screen.getByTestId("action-priority-filter"), { target: { value: "normal" } });
+    expect(screen.queryByText("Fix the broken build")).toBeNull();
+    expect(screen.getByText("Write documentation")).toBeDefined();
+  });
+
+  it("filters items by owner", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    fireEvent.change(screen.getByTestId("action-owner-filter"), { target: { value: "Alice" } });
+    expect(screen.getByText("Fix the broken build")).toBeDefined();
+    expect(screen.queryByText("Write documentation")).toBeNull();
+  });
+
+  it("filters items by requester", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    fireEvent.change(screen.getByTestId("action-requester-filter"), { target: { value: "Bob" } });
+    expect(screen.getByText("Fix the broken build")).toBeDefined();
+    expect(screen.queryByText("Write documentation")).toBeNull();
   });
 
   it("completed item description appears in completed section when expanded", () => {

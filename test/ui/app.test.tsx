@@ -258,7 +258,8 @@ describe("App", () => {
     render(<App />, { wrapper });
     fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
     await waitFor(() => screen.getByText("Deploy fix"));
-    fireEvent.click(screen.getByText("Alpha Weekly"));
+    const link1 = screen.getAllByText("Alpha Weekly").find((el) => el.tagName === "BUTTON")!;
+    fireEvent.click(link1);
     await waitFor(() => {
       expect(screen.getByTestId("chat-panel")).toBeDefined();
     });
@@ -268,7 +269,8 @@ describe("App", () => {
     render(<App />, { wrapper });
     fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
     await waitFor(() => screen.getByText("Deploy fix"));
-    fireEvent.click(screen.getByText("Alpha Weekly"));
+    const link2 = screen.getAllByText("Alpha Weekly").find((el) => el.tagName === "BUTTON")!;
+    fireEvent.click(link2);
     await waitFor(() => {
       expect(screen.getByLabelText("Complete item 0")).toBeDefined();
     });
