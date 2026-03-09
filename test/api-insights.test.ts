@@ -97,7 +97,7 @@ describe("Insight API routes", () => {
     expect(res.status).toBe(200);
     const body = await res.json() as Insight;
     expect(body.rag_status).toBe("yellow");
-    expect(body.executive_summary).toBe("Stub executive summary of the reporting period.");
+    expect(body.executive_summary).toBe("<p>Stub executive summary of the reporting period.</p>");
   });
 
   it("GET /api/insights/:id/messages returns empty initially", async () => {

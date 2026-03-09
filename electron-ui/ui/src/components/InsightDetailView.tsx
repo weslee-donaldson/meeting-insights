@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
@@ -8,37 +6,6 @@ import { RichTextEditor } from "./ui/rich-text-editor.js";
 import { RefreshCw, Check, RotateCcw, Trash2, X, Pencil, ArrowLeft, Save, ListRestart } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
-
-function boldify(text: string): string {
-  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-}
-
-export function markdownToHtml(md: string): string {
-  if (!md.trim()) return "";
-  const blocks = md.split(/\n\n+/);
-  return blocks
-    .map((block) => {
-      const trimmed = block.trim();
-      if (!trimmed) return "";
-      const lines = trimmed.split("\n");
-      const firstListIdx = lines.findIndex((l) => l.startsWith("- "));
-      if (firstListIdx === 0) {
-        const items = lines.map((l) => `<li>${boldify(l.slice(2))}</li>`).join("");
-        return `<ul>${items}</ul>`;
-      }
-      if (firstListIdx > 0) {
-        const header = `<p>${boldify(lines.slice(0, firstListIdx).join("<br/>"))}</p>`;
-        const items = lines
-          .slice(firstListIdx)
-          .map((l) => `<li>${boldify(l.slice(2))}</li>`)
-          .join("");
-        return `${header}<ul>${items}</ul>`;
-      }
-      return `<p>${boldify(trimmed.replace(/\n/g, "<br/>"))}</p>`;
-    })
-    .filter(Boolean)
-    .join("");
-}
 
 interface TopicDetail {
   topic: string;
@@ -381,7 +348,7 @@ export function InsightDetailView({
                     size="sm"
                     variant="ghost"
                     className="h-auto px-1.5 py-0.5 text-xs"
-                    onClick={() => { setSummaryDraft(markdownToHtml(summaryText)); setEditingSummary(true); }}
+                    onClick={() => { setSummaryDraft(summaryText); setEditingSummary(true); }}
                   >
                     <Pencil className="w-3 h-3 mr-1" />
                     Edit
@@ -415,19 +382,11 @@ export function InsightDetailView({
                   </div>
                 </div>
               ) : hasSummary ? (
-                <div data-testid="summary-display" className="text-sm max-w-none">
-                  <Markdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      ul: ({ children }) => <ul className="list-disc ml-4 my-2">{children}</ul>,
-                      ol: ({ children }) => <ol className="list-decimal ml-4 my-2">{children}</ol>,
-                      li: ({ children }) => <li className="ml-2">{children}</li>,
-                      p: ({ children }) => <p className="mb-2">{children}</p>,
-                    }}
-                  >
-                    {summaryText}
-                  </Markdown>
-                </div>
+                <div
+                  data-testid="summary-display"
+                  className="text-sm max-w-none [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:ml-4 [&_ol]:my-2 [&_li]:ml-2 [&_p]:mb-2"
+                  dangerouslySetInnerHTML={{ __html: summaryText }}
+                />
               ) : (
                 <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>
               )}

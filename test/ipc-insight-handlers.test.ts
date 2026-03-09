@@ -87,7 +87,7 @@ describe("insight IPC handlers", () => {
     handleDiscoverInsightMeetings(db, insight.id);
     const updated = await handleGenerateInsight(db, llm, insight.id);
     expect(updated.rag_status).toBe("yellow");
-    expect(updated.executive_summary).toBe("Stub executive summary of the reporting period.");
+    expect(updated.executive_summary).toBe("<p>Stub executive summary of the reporting period.</p>");
   });
 
   it("handleGetInsightMessages returns empty array for new insight", () => {

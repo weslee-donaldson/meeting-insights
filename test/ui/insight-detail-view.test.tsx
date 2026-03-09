@@ -2,7 +2,8 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { InsightDetailView, markdownToHtml } from "../../electron-ui/ui/src/components/InsightDetailView.js";
+import { InsightDetailView } from "../../electron-ui/ui/src/components/InsightDetailView.js";
+import { markdownToHtml } from "../../core/insights.js";
 import type { Insight, InsightMeeting } from "../../core/insights.js";
 
 afterEach(cleanup);
@@ -362,11 +363,11 @@ describe("InsightDetailView", () => {
     expect(screen.queryByTestId("rich-text-editor")).toBeNull();
   });
 
-  it("renders markdown bold as HTML strong in default view", () => {
-    const mdInsight = { ...INSIGHT, executive_summary: "Summary with **bold** text" };
+  it("renders HTML bold in executive summary", () => {
+    const htmlInsight = { ...INSIGHT, executive_summary: "<p>Summary with <strong>bold</strong> text</p>" };
     render(
       <InsightDetailView
-        insight={mdInsight}
+        insight={htmlInsight}
         meetings={MEETINGS}
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
@@ -377,11 +378,11 @@ describe("InsightDetailView", () => {
     expect(display.innerHTML).toContain("<strong>bold</strong>");
   });
 
-  it("renders markdown bullet lists even with single newline before list", () => {
-    const mdInsight = { ...INSIGHT, executive_summary: "**What moved forward**\n- Item one\n- Item two" };
+  it("renders HTML bullet lists in executive summary", () => {
+    const htmlInsight = { ...INSIGHT, executive_summary: "<p><strong>What moved forward</strong></p><ul><li>Item one</li><li>Item two</li></ul>" };
     render(
       <InsightDetailView
-        insight={mdInsight}
+        insight={htmlInsight}
         meetings={MEETINGS}
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
@@ -393,40 +394,6 @@ describe("InsightDetailView", () => {
     expect(display.querySelectorAll("li")).toHaveLength(2);
     expect(screen.getByText("Item one")).toBeDefined();
     expect(screen.getByText("Item two")).toBeDefined();
-  });
-
-  it("renders markdown bullet lists in summary", () => {
-    const mdInsight = { ...INSIGHT, executive_summary: "Verdict.\n\n- Item one\n- Item two" };
-    render(
-      <InsightDetailView
-        insight={mdInsight}
-        meetings={MEETINGS}
-        onDelete={vi.fn()}
-        onRegenerate={vi.fn()}
-        onFinalize={vi.fn()}
-      />,
-    );
-    const display = screen.getByTestId("summary-display");
-    expect(display.querySelectorAll("ul")).toHaveLength(1);
-    expect(display.querySelectorAll("li")).toHaveLength(2);
-    expect(screen.getByText("Item one")).toBeDefined();
-    expect(screen.getByText("Item two")).toBeDefined();
-  });
-
-  it("does not render raw HTML tags from summary markdown", () => {
-    const mdInsight = { ...INSIGHT, executive_summary: "Safe\n\n<script>alert('xss')</script>" };
-    render(
-      <InsightDetailView
-        insight={mdInsight}
-        meetings={MEETINGS}
-        onDelete={vi.fn()}
-        onRegenerate={vi.fn()}
-        onFinalize={vi.fn()}
-      />,
-    );
-    const display = screen.getByTestId("summary-display");
-    expect(display.innerHTML).not.toContain("<script>");
-    expect(screen.getByText("Safe")).toBeDefined();
   });
 
   it("shows no summary placeholder when executive_summary is empty", () => {
