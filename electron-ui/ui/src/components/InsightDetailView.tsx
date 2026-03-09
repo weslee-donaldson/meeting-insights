@@ -135,7 +135,7 @@ export function InsightDetailView({
   isRegenerating,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
-  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [checked, setChecked] = useState<Set<string>>(() => new Set(meetings.map((m) => m.meeting_id)));
   const [editing, setEditing] = useState(false);
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
@@ -155,7 +155,7 @@ export function InsightDetailView({
   }, [isRegenerating]);
 
   useEffect(() => {
-    setChecked(new Set());
+    setChecked(new Set(meetings.map((m) => m.meeting_id)));
   }, [meetings]);
 
   const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
