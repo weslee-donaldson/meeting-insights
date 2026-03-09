@@ -684,6 +684,80 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("Executive Summary")).toBeDefined();
   });
 
+  it("preserves unchecked state when meetings prop gets new reference", () => {
+    const meetings1: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-07", contribution_summary: "s2" },
+    ];
+    const meetings2: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-07", contribution_summary: "s2" },
+    ];
+    const { rerender } = render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings1}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    enterEditMode();
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+    rerender(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings2}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    const updatedCheckboxes = screen.getAllByRole("checkbox");
+    expect((updatedCheckboxes[0] as HTMLInputElement).checked).toBe(false);
+    expect((updatedCheckboxes[1] as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("auto-checks new meetings added to meetings prop", () => {
+    const meetings1: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+    ];
+    const meetings2: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta", meeting_date: "2026-01-07", contribution_summary: "s2" },
+    ];
+    const { rerender } = render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings1}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    enterEditMode();
+    rerender(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings2}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onRemoveMeetings={vi.fn()}
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes).toHaveLength(2);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+  });
+
   it("shows empty state message in edit mode when no source meetings exist", () => {
     render(
       <InsightDetailView

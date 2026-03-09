@@ -149,8 +149,20 @@ export function InsightDetailView({
     prevRegenerating.current = isRegenerating;
   }, [isRegenerating]);
 
+  const knownMeetingIds = useRef(new Set(meetings.map((m) => m.meeting_id)));
   useEffect(() => {
-    setChecked(new Set(meetings.map((m) => m.meeting_id)));
+    const incoming = new Set(meetings.map((m) => m.meeting_id));
+    setChecked((prev) => {
+      const next = new Set(prev);
+      for (const id of incoming) {
+        if (!knownMeetingIds.current.has(id)) next.add(id);
+      }
+      for (const id of prev) {
+        if (!incoming.has(id)) next.delete(id);
+      }
+      return next;
+    });
+    knownMeetingIds.current = incoming;
   }, [meetings]);
 
   const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
