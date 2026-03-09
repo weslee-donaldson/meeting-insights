@@ -9,6 +9,37 @@ import { RefreshCw, Check, RotateCcw, Trash2, X, Pencil, ArrowLeft, Save, ListRe
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
+function boldify(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+export function markdownToHtml(md: string): string {
+  if (!md.trim()) return "";
+  const blocks = md.split(/\n\n+/);
+  return blocks
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      const lines = trimmed.split("\n");
+      const firstListIdx = lines.findIndex((l) => l.startsWith("- "));
+      if (firstListIdx === 0) {
+        const items = lines.map((l) => `<li>${boldify(l.slice(2))}</li>`).join("");
+        return `<ul>${items}</ul>`;
+      }
+      if (firstListIdx > 0) {
+        const header = `<p>${boldify(lines.slice(0, firstListIdx).join("<br/>"))}</p>`;
+        const items = lines
+          .slice(firstListIdx)
+          .map((l) => `<li>${boldify(l.slice(2))}</li>`)
+          .join("");
+        return `${header}<ul>${items}</ul>`;
+      }
+      return `<p>${boldify(trimmed.replace(/\n/g, "<br/>"))}</p>`;
+    })
+    .filter(Boolean)
+    .join("");
+}
+
 interface TopicDetail {
   topic: string;
   summary: string;
@@ -350,7 +381,7 @@ export function InsightDetailView({
                     size="sm"
                     variant="ghost"
                     className="h-auto px-1.5 py-0.5 text-xs"
-                    onClick={() => { setSummaryDraft(summaryText); setEditingSummary(true); }}
+                    onClick={() => { setSummaryDraft(markdownToHtml(summaryText)); setEditingSummary(true); }}
                   >
                     <Pencil className="w-3 h-3 mr-1" />
                     Edit

@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { InsightDetailView } from "../../electron-ui/ui/src/components/InsightDetailView.js";
+import { InsightDetailView, markdownToHtml } from "../../electron-ui/ui/src/components/InsightDetailView.js";
 import type { Insight, InsightMeeting } from "../../core/insights.js";
 
 afterEach(cleanup);
@@ -730,5 +730,43 @@ describe("InsightDetailView", () => {
     enterEditMode();
     expect(screen.getByText("Source Meetings")).toBeDefined();
     expect(screen.getByText(/No source meetings found/)).toBeDefined();
+  });
+});
+
+describe("markdownToHtml", () => {
+  it("converts bold markdown to strong tags", () => {
+    expect(markdownToHtml("**Hello** world")).toBe("<p><strong>Hello</strong> world</p>");
+  });
+
+  it("converts bullet list to ul/li tags", () => {
+    expect(markdownToHtml("- Item one\n- Item two")).toBe(
+      "<ul><li>Item one</li><li>Item two</li></ul>",
+    );
+  });
+
+  it("converts paragraphs separated by blank lines", () => {
+    expect(markdownToHtml("First paragraph\n\nSecond paragraph")).toBe(
+      "<p>First paragraph</p><p>Second paragraph</p>",
+    );
+  });
+
+  it("converts header followed by list with single newline", () => {
+    expect(markdownToHtml("**What moved forward**\n- Item one\n- Item two")).toBe(
+      "<p><strong>What moved forward</strong></p><ul><li>Item one</li><li>Item two</li></ul>",
+    );
+  });
+
+  it("converts full executive summary structure", () => {
+    const md = "**Verdict sentence.**\n\n**What moved forward**\n- Alpha\n- Beta\n\n**Open risks**\n- Gamma";
+    const html = markdownToHtml(md);
+    expect(html).toBe(
+      "<p><strong>Verdict sentence.</strong></p>" +
+      "<p><strong>What moved forward</strong></p><ul><li>Alpha</li><li>Beta</li></ul>" +
+      "<p><strong>Open risks</strong></p><ul><li>Gamma</li></ul>",
+    );
+  });
+
+  it("returns empty string for empty input", () => {
+    expect(markdownToHtml("")).toBe("");
   });
 });
