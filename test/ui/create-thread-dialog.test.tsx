@@ -26,11 +26,11 @@ describe("CreateThreadDialog", () => {
     expect(createBtn.hasAttribute("disabled")).toBe(false);
   });
 
-  it("shorthand is capped at 10 characters", () => {
+  it("shorthand is capped at 20 characters", () => {
     render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={vi.fn()} />);
     const input = screen.getByLabelText("Shorthand") as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "LONGSHORTHAND" } });
-    expect(input.value.length).toBeLessThanOrEqual(10);
+    fireEvent.change(input, { target: { value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" } });
+    expect(input.value.length).toBeLessThanOrEqual(20);
   });
 
   it("submit returns form data including keywords and calls onSubmit", () => {

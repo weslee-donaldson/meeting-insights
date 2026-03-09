@@ -68,8 +68,8 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
               aria-label="Shorthand"
               className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
               value={shorthand}
-              maxLength={10}
-              onChange={(e) => setShorthand(e.target.value.slice(0, 10))}
+              maxLength={20}
+              onChange={(e) => setShorthand(e.target.value.slice(0, 20))}
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -83,6 +83,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span>Keywords</span>
+            <span className="text-xs text-muted-foreground">Space-separated words. Use quotes for phrases: "blue green" rollback</span>
             <input
               aria-label="Keywords"
               className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
