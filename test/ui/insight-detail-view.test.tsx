@@ -142,10 +142,9 @@ describe("InsightDetailView", () => {
     );
     enterEditMode();
     expect(screen.getByText("Source Meetings")).toBeDefined();
-    expect(screen.getByText("Alpha Weekly")).toBeDefined();
     expect(screen.getByText("Discussed features")).toBeDefined();
-    expect(screen.getByText("Beta Daily")).toBeDefined();
     expect(screen.getByText("Reviewed blockers")).toBeDefined();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
   });
 
   it("shows no topics section when topic_details is empty array", () => {
@@ -755,6 +754,54 @@ describe("InsightDetailView", () => {
     expect(checkboxes).toHaveLength(2);
     expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
     expect((checkboxes[1] as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("renders series filter dropdown in edit mode with unique series", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Alpha Weekly", meeting_date: "2026-01-13", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Beta Daily", meeting_date: "2026-01-07", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    enterEditMode();
+    const select = screen.getByTestId("series-filter") as HTMLSelectElement;
+    expect(select).toBeDefined();
+    expect(select.value).toBe("");
+    const options = Array.from(select.querySelectorAll("option"));
+    expect(options.map((o) => o.textContent)).toEqual(["All Series", "Alpha Weekly", "Beta Daily"]);
+  });
+
+  it("filters meetings by selected series", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Beta Daily", meeting_date: "2026-01-07", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Gamma Retro", meeting_date: "2026-01-08", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    enterEditMode();
+    const select = screen.getByTestId("series-filter") as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "Alpha Weekly" } });
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes).toHaveLength(1);
+    expect(screen.getByText("s1")).toBeDefined();
+    expect(screen.queryByText("s2")).toBeNull();
+    expect(screen.queryByText("s3")).toBeNull();
   });
 
   it("shows empty state message in edit mode when no source meetings exist", () => {

@@ -166,6 +166,10 @@ export function InsightDetailView({
   }, [meetings]);
 
   const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
+  const [seriesFilter, setSeriesFilter] = useState("");
+
+  const seriesOptions = [...new Set(meetings.map((m) => m.meeting_title))].sort();
+  const displayMeetings = seriesFilter ? meetings.filter((m) => m.meeting_title === seriesFilter) : meetings;
 
   const uncheckedIds = meetings.filter((m) => !checked.has(m.meeting_id)).map((m) => m.meeting_id);
 
@@ -205,29 +209,29 @@ export function InsightDetailView({
         </div>
         <div className="flex gap-1 mt-2 ml-6.5">
           {editing ? (
-            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={() => setEditing(false)}>
-              <ArrowLeft className="w-3 h-3 mr-1" />
+            <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
+              <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
           ) : (
-            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={() => setEditing(true)}>
-              <Pencil className="w-3 h-3 mr-1" />
+            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+              <Pencil className="w-4 h-4 mr-1" />
               Edit
             </Button>
           )}
           {insight.status === "draft" ? (
-            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>
-              <Check className="w-3 h-3 mr-1" />
+            <Button size="sm" variant="outline" onClick={onFinalize}>
+              <Check className="w-4 h-4 mr-1" />
               Finalize
             </Button>
           ) : (
-            <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onFinalize}>
-              <RotateCcw className="w-3 h-3 mr-1" />
+            <Button size="sm" variant="outline" onClick={onFinalize}>
+              <RotateCcw className="w-4 h-4 mr-1" />
               Reopen
             </Button>
           )}
-          <Button size="sm" variant="outline" className="h-auto px-2 py-0.5 text-xs" onClick={onDelete}>
-            <Trash2 className="w-3 h-3 mr-1" />
+          <Button size="sm" variant="outline" onClick={onDelete}>
+            <Trash2 className="w-4 h-4 mr-1" />
             Delete
           </Button>
         </div>
@@ -263,25 +267,38 @@ export function InsightDetailView({
               </div>
             </div>
             {meetings.length > 0 && (
-              <div className="flex gap-1 mb-2">
-                {(["series", "day", "week", "month"] as const).map((mode) => (
-                  <Button
-                    key={mode}
-                    size="sm"
-                    variant={meetingGroupBy === mode ? "default" : "outline"}
-                    className="h-auto px-2 py-0.5 text-xs capitalize"
-                    onClick={() => setMeetingGroupBy(meetingGroupBy === mode ? "none" : mode)}
-                  >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-2 mb-2">
+                <select
+                  data-testid="series-filter"
+                  value={seriesFilter}
+                  onChange={(e) => setSeriesFilter(e.target.value)}
+                  className="h-7 px-2 text-xs border border-border rounded-md bg-background"
+                >
+                  <option value="">All Series</option>
+                  {seriesOptions.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <div className="flex gap-1">
+                  {(["series", "day", "week", "month"] as const).map((mode) => (
+                    <Button
+                      key={mode}
+                      size="sm"
+                      variant={meetingGroupBy === mode ? "default" : "outline"}
+                      className="h-auto px-2 py-0.5 text-xs capitalize"
+                      onClick={() => setMeetingGroupBy(meetingGroupBy === mode ? "none" : mode)}
+                    >
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
             {meetings.length === 0 ? (
               <p className="text-sm text-muted-foreground">No source meetings found for this period. Try a wider date range or check client assignments.</p>
             ) : meetingGroupBy === "none" ? (
               <div className="flex flex-col">
-                {meetings.map((m) => (
+                {displayMeetings.map((m) => (
                   <label key={m.meeting_id} className="flex items-start gap-2 px-4 py-2 text-sm border-b border-border last:border-b-0 cursor-pointer">
                     <input
                       type="checkbox"
@@ -298,10 +315,10 @@ export function InsightDetailView({
               </div>
             ) : (
               <div className="flex flex-col">
-                {(meetingGroupBy === "day" ? groupMeetingsByDay(meetings)
-                  : meetingGroupBy === "week" ? groupMeetingsByWeek(meetings)
-                  : meetingGroupBy === "month" ? groupMeetingsByMonth(meetings)
-                  : groupMeetingsBySeries(meetings)).map((group) => (
+                {(meetingGroupBy === "day" ? groupMeetingsByDay(displayMeetings)
+                  : meetingGroupBy === "week" ? groupMeetingsByWeek(displayMeetings)
+                  : meetingGroupBy === "month" ? groupMeetingsByMonth(displayMeetings)
+                  : groupMeetingsBySeries(displayMeetings)).map((group) => (
                   <div key={group.key}>
                     <div data-testid="meeting-group-header" className="flex items-center justify-between px-4 py-1.5 bg-muted/50 text-xs font-semibold text-muted-foreground border-b border-border">
                       <span>{group.label}</span>

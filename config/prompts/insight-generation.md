@@ -49,7 +49,7 @@ The reader is the head of an implementation company overseeing a portfolio of cl
 ## Executive Summary Structure
 The summary distills your topic_details for a 30-second scan. Use HTML tags: `<p>`, `<strong>`, `<ul>`, `<li>`.
 
-1. `<p><strong>Verdict</strong></p>` — one sentence stating the concrete situation. No vague characterizations ("at an inflection point," "in a critical phase"). Name the specific blocker or progress item.
+1. One sentence stating the concrete situation. No vague characterizations ("at an inflection point," "in a critical phase"). Name the specific blocker or progress item.
 2. `<p><strong>What moved forward</strong></p><ul><li>...</li></ul>` — bulleted list of concrete items from your topics.
 3. `<p><strong>Open risks</strong></p><ul><li>...</li></ul>` — bulleted list, only if your topics surfaced real issues. Each bullet: what the issue is + what action is underway. Skip if clean.
 4. `<p><strong>What to watch</strong></p><ul><li>...</li></ul>` — bulleted list, only if forward-looking items exist in your topics.
