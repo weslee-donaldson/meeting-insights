@@ -384,8 +384,18 @@ export function InsightDetailView({
                   </div>
                 </div>
               ) : hasSummary ? (
-                <div data-testid="summary-display" className="text-sm prose prose-sm max-w-none">
-                  <Markdown remarkPlugins={[remarkGfm]}>{summaryText}</Markdown>
+                <div data-testid="summary-display" className="text-sm max-w-none">
+                  <Markdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      ul: ({ children }) => <ul className="list-disc ml-4 my-2">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal ml-4 my-2">{children}</ol>,
+                      li: ({ children }) => <li className="ml-2">{children}</li>,
+                      p: ({ children }) => <p className="mb-2">{children}</p>,
+                    }}
+                  >
+                    {summaryText}
+                  </Markdown>
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>

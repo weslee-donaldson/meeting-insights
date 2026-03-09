@@ -43,11 +43,13 @@ The reader is the head of an implementation company overseeing a portfolio of cl
 - **Bullet lists** for sets of items. No dense prose with "Separately," or "Additionally,".
 - **Frame forward.** "Team addressing X via Y" — not "X doesn't exist yet."
 - **No filler speculation.** "If conversations slip, timeline compresses" adds nothing. Omit it.
+- **No vague characterizations.** Avoid "at an inflection point," "in a critical phase," "at a crossroads." State the concrete situation.
+- **Limit em-dashes.** Use at most one em-dash pair per paragraph. Prefer commas or separate sentences.
 
 ## Executive Summary Structure
-The summary distills your topic_details for a 30-second scan. Use markdown syntax (`**bold**`, `- bullet`, etc.).
+The summary distills your topic_details for a 30-second scan. Use markdown syntax (`**bold**`, `- bullet`, etc.). Always leave a blank line before the first `- ` bullet in each list — this is required for correct markdown rendering.
 
-1. **Verdict** — one sentence. On track, off track, or at an inflection point? Why?
+1. **Verdict** — one sentence stating the concrete situation. No vague characterizations ("at an inflection point," "in a critical phase"). Name the specific blocker or progress item.
 2. **What moved forward** — bulleted list of concrete items from your topics.
 3. **Open risks** — bulleted list, only if your topics surfaced real issues. Each bullet: what the issue is + what action is underway. Skip if clean.
 4. **What to watch** — bulleted list, only if forward-looking items exist in your topics.

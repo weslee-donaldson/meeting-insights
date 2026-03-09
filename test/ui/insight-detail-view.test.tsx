@@ -377,6 +377,24 @@ describe("InsightDetailView", () => {
     expect(display.innerHTML).toContain("<strong>bold</strong>");
   });
 
+  it("renders markdown bullet lists even with single newline before list", () => {
+    const mdInsight = { ...INSIGHT, executive_summary: "**What moved forward**\n- Item one\n- Item two" };
+    render(
+      <InsightDetailView
+        insight={mdInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    const display = screen.getByTestId("summary-display");
+    expect(display.querySelectorAll("ul")).toHaveLength(1);
+    expect(display.querySelectorAll("li")).toHaveLength(2);
+    expect(screen.getByText("Item one")).toBeDefined();
+    expect(screen.getByText("Item two")).toBeDefined();
+  });
+
   it("renders markdown bullet lists in summary", () => {
     const mdInsight = { ...INSIGHT, executive_summary: "Verdict.\n\n- Item one\n- Item two" };
     render(
@@ -389,8 +407,8 @@ describe("InsightDetailView", () => {
       />,
     );
     const display = screen.getByTestId("summary-display");
-    expect(display.innerHTML).toContain("<ul>");
-    expect(display.innerHTML).toContain("<li>");
+    expect(display.querySelectorAll("ul")).toHaveLength(1);
+    expect(display.querySelectorAll("li")).toHaveLength(2);
     expect(screen.getByText("Item one")).toBeDefined();
     expect(screen.getByText("Item two")).toBeDefined();
   });
