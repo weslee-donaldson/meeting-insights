@@ -1,5 +1,15 @@
 import React, { useState } from "react";
 import type { ClientActionItem } from "../../../electron/channels.js";
+import { Button } from "./ui/button.js";
+
+type ActionSortBy = "priority" | "series" | "owner" | "requester";
+
+const SORT_MODES: { value: ActionSortBy; label: string }[] = [
+  { value: "priority", label: "Priority" },
+  { value: "series", label: "Series" },
+  { value: "owner", label: "Owner" },
+  { value: "requester", label: "Requester" },
+];
 
 interface ClientActionItemsViewProps {
   clientName: string | null;
@@ -15,7 +25,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [priorityFilter, setPriorityFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [requesterFilter, setRequesterFilter] = useState("");
-  const [sortBy, setSortBy] = useState<"priority" | "series" | "owner" | "requester">("priority");
+  const [sortBy, setSortBy] = useState<ActionSortBy>("priority");
 
   function handleComplete(meetingId: string, itemIndex: number) {
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
@@ -56,30 +66,40 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         <p className="text-xs text-muted-foreground">{items.length} open items</p>
       </div>
 
-      <div className="shrink-0 px-4 py-2 flex flex-wrap gap-1 border-b border-border">
-        <select data-testid="action-series-filter" value={seriesFilter} onChange={(e) => setSeriesFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-          <option value="">All Series</option>
-          {seriesOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select data-testid="action-priority-filter" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-          <option value="">All Priorities</option>
-          <option value="critical">Critical</option>
-          <option value="normal">Normal</option>
-        </select>
-        <select data-testid="action-owner-filter" value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-          <option value="">All Owners</option>
-          {ownerOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-        </select>
-        <select data-testid="action-requester-filter" value={requesterFilter} onChange={(e) => setRequesterFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-          <option value="">All Requesters</option>
-          {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
-        </select>
-        <select data-testid="action-sort-by" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-7 px-2 text-xs border border-border rounded-md bg-background ml-auto">
-          <option value="priority">Priority</option>
-          <option value="series">Series</option>
-          <option value="owner">Owner</option>
-          <option value="requester">Requester</option>
-        </select>
+      <div className="shrink-0 px-4 py-2 flex flex-col gap-1.5 border-b border-border">
+        <div className="flex flex-wrap gap-1">
+          <select data-testid="action-series-filter" value={seriesFilter} onChange={(e) => setSeriesFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
+            <option value="">All Series</option>
+            {seriesOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select data-testid="action-priority-filter" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
+            <option value="">All Priorities</option>
+            <option value="critical">Critical</option>
+            <option value="normal">Normal</option>
+          </select>
+          <select data-testid="action-owner-filter" value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
+            <option value="">All Owners</option>
+            {ownerOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select data-testid="action-requester-filter" value={requesterFilter} onChange={(e) => setRequesterFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
+            <option value="">All Requesters</option>
+            {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+        <div data-testid="action-sort-by" className="flex items-center gap-1.5">
+          <span className="text-xs text-foreground font-semibold">Sort:</span>
+          {SORT_MODES.map(({ value, label }) => (
+            <Button
+              key={value}
+              variant={sortBy === value ? "default" : "secondary"}
+              size="sm"
+              className="rounded-full h-auto px-3 py-0.5 text-xs"
+              onClick={() => setSortBy(value)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col">

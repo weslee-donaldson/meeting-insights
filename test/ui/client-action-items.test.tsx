@@ -165,54 +165,41 @@ describe("ClientActionItemsView", () => {
     expect(screen.getByTestId("completed-items-list").textContent).toContain("Fix the broken build");
   });
 
-  it("renders sort-by dropdown with series, priority, owner, and requester options", () => {
+  it("renders sort pill buttons with label and four options", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const sortBy = screen.getByTestId("action-sort-by") as HTMLSelectElement;
-    const options = Array.from(sortBy.querySelectorAll("option")).map((o) => o.textContent);
-    expect(options).toEqual(["Priority", "Series", "Owner", "Requester"]);
+    const sortBar = screen.getByTestId("action-sort-by");
+    expect(sortBar.textContent).toContain("Sort:");
+    const buttons = Array.from(sortBar.querySelectorAll("button")).map((b) => b.textContent);
+    expect(buttons).toEqual(["Priority", "Series", "Owner", "Requester"]);
   });
 
-  it("sorts items by series (meeting_title) alphabetically", () => {
+  it("sorts items by series when Series pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-sort-by"), { target: { value: "series" } });
-    const descriptions = screen.getAllByRole("checkbox").map((cb) => {
-      const card = cb.closest("[class*='px-4']")!;
-      return card.textContent;
-    });
-    expect(descriptions[0]).toContain("Planning");
-    expect(descriptions[1]).toContain("Weekly Sync");
+    fireEvent.click(screen.getByRole("button", { name: "Series" }));
+    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
+    expect(cards[0]).toContain("Planning");
+    expect(cards[1]).toContain("Weekly Sync");
   });
 
-  it("sorts items by owner alphabetically", () => {
+  it("sorts items by owner when Owner pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-sort-by"), { target: { value: "owner" } });
-    const descriptions = screen.getAllByRole("checkbox").map((cb) => {
-      const card = cb.closest("[class*='px-4']")!;
-      return card.textContent;
-    });
-    expect(descriptions[0]).toContain("Alice");
-    expect(descriptions[1]).toContain("Charlie");
+    fireEvent.click(screen.getByRole("button", { name: "Owner" }));
+    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
+    expect(cards[0]).toContain("Alice");
+    expect(cards[1]).toContain("Charlie");
   });
 
-  it("sorts items by requester alphabetically", () => {
+  it("sorts items by requester when Requester pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-sort-by"), { target: { value: "requester" } });
-    const descriptions = screen.getAllByRole("checkbox").map((cb) => {
-      const card = cb.closest("[class*='px-4']")!;
-      return card.textContent;
-    });
-    expect(descriptions[0]).toContain("Alice");
-    expect(descriptions[1]).toContain("Bob");
+    fireEvent.click(screen.getByRole("button", { name: "Requester" }));
+    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
+    expect(cards[0]).toContain("Alice");
+    expect(cards[1]).toContain("Bob");
   });
 
-  it("default sort is by priority with critical items first", () => {
+  it("default sort is priority with critical items first", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const sortBy = screen.getByTestId("action-sort-by") as HTMLSelectElement;
-    expect(sortBy.value).toBe("priority");
-    const descriptions = screen.getAllByRole("checkbox").map((cb) => {
-      const card = cb.closest("[class*='px-4']")!;
-      return card.textContent;
-    });
-    expect(descriptions[0]).toContain("CRITICAL");
+    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
+    expect(cards[0]).toContain("CRITICAL");
   });
 });
