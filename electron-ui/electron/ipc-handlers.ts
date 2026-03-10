@@ -348,7 +348,7 @@ export function handleGetMentionStats(db: Database, meetingId: string): MentionS
   return getMentionStats(db, meetingId);
 }
 
-export function handleGetClientActionItems(db: Database, clientName: string): ClientActionItem[] {
+export function handleGetClientActionItems(db: Database, clientName: string, filters?: { after?: string; before?: string }): ClientActionItem[] {
   const meetingIds = (db.prepare(
     "SELECT m.id AS meeting_id FROM meetings m JOIN clients c ON m.client_id = c.id WHERE c.name = ? AND m.ignored = 0",
   ).all(clientName) as { meeting_id: string }[]).map((r) => r.meeting_id);
@@ -386,8 +386,12 @@ export function handleGetClientActionItems(db: Database, clientName: string): Cl
     });
   }
 
-  result.sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1));
-  return result;
+  let filtered = result;
+  if (filters?.after) filtered = filtered.filter((i) => i.meeting_date >= filters.after!);
+  if (filters?.before) filtered = filtered.filter((i) => i.meeting_date <= filters.before! + "T23:59:59Z");
+
+  filtered.sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1));
+  return filtered;
 }
 
 export async function handleReEmbed(

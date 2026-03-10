@@ -300,6 +300,26 @@ describe("GET /api/clients/:name/action-items", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([]);
   });
+
+  it("filters action items by after query param", async () => {
+    const res = await app.request("/api/clients/Acme/action-items?after=2026-03-02");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([]);
+  });
+
+  it("filters action items by before query param", async () => {
+    const res = await app.request("/api/clients/Acme/action-items?before=2026-02-28");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([]);
+  });
+
+  it("returns items within date range query params", async () => {
+    const res = await app.request("/api/clients/Acme/action-items?after=2026-02-28&before=2026-03-02");
+    expect(res.status).toBe(200);
+    const body = await res.json() as { description: string }[];
+    expect(body).toHaveLength(1);
+    expect(body[0]).toMatchObject({ description: "Fix bug" });
+  });
 });
 
 describe("GET /api/templates", () => {

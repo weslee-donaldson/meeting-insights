@@ -133,7 +133,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_ITEM_HISTORY, (_e, canonicalId: string) => handleGetItemHistory(db, canonicalId));
   ipcMain.handle(CHANNELS.GET_MENTION_STATS, (_e, meetingId: string) => handleGetMentionStats(db, meetingId));
   ipcMain.handle(CHANNELS.GET_DEFAULT_CLIENT, () => handleGetDefaultClient(db));
-  ipcMain.handle(CHANNELS.GET_CLIENT_ACTION_ITEMS, (_e, clientName: string) => handleGetClientActionItems(db, clientName));
+  ipcMain.handle(CHANNELS.GET_CLIENT_ACTION_ITEMS, (_e, clientName: string, filters?: { after?: string; before?: string }) => handleGetClientActionItems(db, clientName, filters));
   ipcMain.handle(CHANNELS.GET_TEMPLATES, () => handleGetTemplates());
   ipcMain.handle(CHANNELS.CREATE_MEETING, (_e, req) => handleCreateMeeting(db, llm, req).then((meetingId) => ({ meetingId })));
   ipcMain.handle(CHANNELS.DEEP_SEARCH, (_e, req) => handleDeepSearch(db, llm, req));

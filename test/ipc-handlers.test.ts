@@ -541,6 +541,21 @@ describe("IPC handlers", () => {
         priority: expect.any(String),
       });
     });
+
+    it("filters action items by after date", () => {
+      const items = handleGetClientActionItems(db, "Acme", { after: "2026-03-02" });
+      expect(items.filter((i) => i.meeting_id === acmeMeetingId)).toHaveLength(0);
+    });
+
+    it("filters action items by before date", () => {
+      const items = handleGetClientActionItems(db, "Acme", { before: "2026-02-28" });
+      expect(items.filter((i) => i.meeting_id === acmeMeetingId)).toHaveLength(0);
+    });
+
+    it("returns items within date range", () => {
+      const items = handleGetClientActionItems(db, "Acme", { after: "2026-02-28", before: "2026-03-02" });
+      expect(items.filter((i) => i.meeting_id === acmeMeetingId).length).toBeGreaterThan(0);
+    });
   });
 
   describe("handleGetTemplates", () => {

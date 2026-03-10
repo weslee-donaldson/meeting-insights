@@ -184,7 +184,10 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
 
   app.get("/api/clients/:name/action-items", (c) => {
     const name = c.req.param("name");
-    return c.json(handleGetClientActionItems(db, name));
+    const after = c.req.query("after");
+    const before = c.req.query("before");
+    const filters = (after || before) ? { ...(after ? { after } : {}), ...(before ? { before } : {}) } : undefined;
+    return c.json(handleGetClientActionItems(db, name, filters));
   });
 
   app.get("/api/templates", (c) => {

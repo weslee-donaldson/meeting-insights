@@ -110,8 +110,13 @@ export const apiClient: ElectronAPI = {
   getDefaultClient: () =>
     fetch(`${API_BASE}/api/default-client`).then((r) => r.json()),
 
-  getClientActionItems: (clientName: string) =>
-    fetch(`${API_BASE}/api/clients/${encodeURIComponent(clientName)}/action-items`).then((r) => r.json()),
+  getClientActionItems: (clientName: string, filters?: { after?: string; before?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.after) params.set("after", filters.after);
+    if (filters?.before) params.set("before", filters.before);
+    const qs = params.toString();
+    return fetch(`${API_BASE}/api/clients/${encodeURIComponent(clientName)}/action-items${qs ? `?${qs}` : ""}`).then((r) => r.json());
+  },
 
   getTemplates: () =>
     fetch(`${API_BASE}/api/templates`).then((r) => r.json()),

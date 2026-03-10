@@ -216,8 +216,11 @@ export function App() {
   });
 
   const clientActionItemsQuery = useQuery<ClientActionItem[]>({
-    queryKey: ["clientActionItems", selectedClient],
-    queryFn: () => window.api.getClientActionItems(selectedClient!),
+    queryKey: ["clientActionItems", selectedClient, dateRange],
+    queryFn: () => window.api.getClientActionItems(selectedClient!, {
+      after: dateRange.after || undefined,
+      before: dateRange.before || undefined,
+    }),
     enabled: currentView === "action-items" && !!selectedClient,
   });
 

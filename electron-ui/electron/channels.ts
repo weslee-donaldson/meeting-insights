@@ -250,7 +250,7 @@ export interface ElectronAPI {
   getItemHistory: (canonicalId: string) => Promise<ItemHistoryEntry[]>;
   getMentionStats: (meetingId: string) => Promise<MentionStat[]>;
   getDefaultClient: () => Promise<string | null>;
-  getClientActionItems: (clientName: string) => Promise<ClientActionItem[]>;
+  getClientActionItems: (clientName: string, filters?: { after?: string; before?: string }) => Promise<ClientActionItem[]>;
   getTemplates: () => Promise<string[]>;
   createMeeting: (req: CreateMeetingRequest) => Promise<{ meetingId: string }>;
   deepSearch: (req: DeepSearchRequest) => Promise<DeepSearchResultRow[]>;
