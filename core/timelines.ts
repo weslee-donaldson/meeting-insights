@@ -146,6 +146,16 @@ export function unlinkActionItem(db: DatabaseSync, milestoneId: string, meetingI
   ).run(milestoneId, meetingId, itemIndex);
 }
 
+export function getMilestoneActionItems(db: DatabaseSync, milestoneId: string) {
+  return db.prepare(
+    `SELECT mai.*, mtg.title AS meeting_title, mtg.date AS meeting_date
+     FROM milestone_action_items mai
+     JOIN meetings mtg ON mtg.id = mai.meeting_id
+     WHERE mai.milestone_id = ?
+     ORDER BY mtg.date ASC, mai.item_index ASC`,
+  ).all(milestoneId) as (MilestoneActionItemRow & { meeting_title: string; meeting_date: string })[];
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

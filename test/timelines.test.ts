@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems } from "../core/timelines.js";
 
 let db: Database;
 
@@ -375,5 +375,46 @@ describe("linkActionItem + unlinkActionItem", () => {
 
     const rows = db.prepare("SELECT * FROM milestone_action_items WHERE milestone_id = ? AND meeting_id = 'unlink-m1'").all(m.id);
     expect(rows).toEqual([]);
+  });
+});
+
+describe("getMilestoneActionItems", () => {
+  it("returns linked action items with meeting title and date", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('ItemClient', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('ai-m1', 'Sprint Planning', '2026-02-01')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('ai-m2', 'Retro', '2026-02-15')").run();
+    db2.prepare("INSERT INTO artifacts (meeting_id, action_items) VALUES ('ai-m1', '[\"Deploy new API\",\"Update docs\"]')").run();
+    db2.prepare("INSERT INTO artifacts (meeting_id, action_items) VALUES ('ai-m2', '[\"Fix auth bug\"]')").run();
+
+    const m = createMilestone(db2, { clientName: "ItemClient", title: "Action items test" });
+    linkActionItem(db2, m.id, "ai-m1", 0);
+    linkActionItem(db2, m.id, "ai-m2", 0);
+
+    const result = getMilestoneActionItems(db2, m.id);
+    expect(result).toEqual([
+      {
+        milestone_id: m.id,
+        meeting_id: "ai-m1",
+        item_index: 0,
+        linked_at: expect.any(String),
+        meeting_title: "Sprint Planning",
+        meeting_date: "2026-02-01",
+      },
+      {
+        milestone_id: m.id,
+        meeting_id: "ai-m2",
+        item_index: 0,
+        linked_at: expect.any(String),
+        meeting_title: "Retro",
+        meeting_date: "2026-02-15",
+      },
+    ]);
+  });
+
+  it("returns empty array when no action items linked", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "No action items" });
+    expect(getMilestoneActionItems(db, m.id)).toEqual([]);
   });
 });
