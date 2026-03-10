@@ -476,6 +476,49 @@ describe("reconcileMilestones", () => {
     }));
   });
 
+  it("creates pending_review mention when fuzzy match exceeds threshold", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Fuzzy', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('fuzzy-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('fuzzy-m2', 'Sprint', '2026-02-10')").run();
+
+    const existing = createMilestone(db2, { clientName: "Fuzzy", title: "Commerce platform go-live", targetDate: "2026-06-01" });
+    addMilestoneMention(db2, { milestoneId: existing.id, meetingId: "fuzzy-m1", mentionType: "introduced", excerpt: "initial", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+
+    reconcileMilestones(db2, "Fuzzy", "fuzzy-m2", "2026-02-10", [
+      { title: "Commerce platform launch", target_date: "2026-07-01", status_signal: "updated", excerpt: "Similar but not exact" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "Fuzzy");
+    expect(milestones).toHaveLength(1);
+    expect(milestones[0].pending_review_count).toBe(1);
+
+    const mentions = getMilestoneMentions(db2, existing.id);
+    expect(mentions).toHaveLength(2);
+    expect(mentions[1]).toEqual(expect.objectContaining({
+      meeting_id: "fuzzy-m2",
+      pending_review: 1,
+    }));
+  });
+
+  it("creates new milestone when fuzzy similarity is below threshold", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('NoFuzzy', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('nf-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('nf-m2', 'Sprint', '2026-02-10')").run();
+
+    createMilestone(db2, { clientName: "NoFuzzy", title: "Commerce platform go-live" });
+
+    reconcileMilestones(db2, "NoFuzzy", "nf-m2", "2026-02-10", [
+      { title: "Database migration complete", target_date: null, status_signal: "introduced", excerpt: "Totally different" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "NoFuzzy");
+    expect(milestones).toHaveLength(2);
+  });
+
   it("creates a new milestone and mention when no existing title matches", () => {
     const db2 = createDb(":memory:");
     migrate(db2);

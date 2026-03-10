@@ -170,6 +170,25 @@ function normalizeTitle(s: string): string {
   return s.toLowerCase().trim().replace(/\s+/g, " ");
 }
 
+function bigrams(s: string): Set<string> {
+  const set = new Set<string>();
+  const lower = s.toLowerCase();
+  for (let i = 0; i < lower.length - 1; i++) set.add(lower.slice(i, i + 2));
+  return set;
+}
+
+export function diceSimilarity(a: string, b: string): number {
+  const sa = bigrams(a);
+  const sb = bigrams(b);
+  if (sa.size === 0 && sb.size === 0) return 1;
+  if (sa.size === 0 || sb.size === 0) return 0;
+  let intersection = 0;
+  for (const bg of sa) if (sb.has(bg)) intersection++;
+  return (2 * intersection) / (sa.size + sb.size);
+}
+
+const FUZZY_THRESHOLD = 0.7;
+
 interface ExtractedMilestone {
   title: string;
   target_date: string | null;
@@ -201,20 +220,40 @@ export function reconcileMilestones(
         mentionedAt: meetingDate,
       });
     } else {
-      const created = createMilestone(db, {
-        clientName,
-        title: em.title,
-        targetDate: em.target_date ?? undefined,
-      });
-      titleMap.set(normalized, created.id);
-      addMilestoneMention(db, {
-        milestoneId: created.id,
-        meetingId,
-        mentionType: em.status_signal,
-        excerpt: em.excerpt,
-        targetDateAtMention: em.target_date,
-        mentionedAt: meetingDate,
-      });
+      let fuzzyMatchId: string | undefined;
+      for (const [existingNorm, existingId] of titleMap) {
+        if (diceSimilarity(normalized, existingNorm) >= FUZZY_THRESHOLD) {
+          fuzzyMatchId = existingId;
+          break;
+        }
+      }
+
+      if (fuzzyMatchId) {
+        addMilestoneMention(db, {
+          milestoneId: fuzzyMatchId,
+          meetingId,
+          mentionType: em.status_signal,
+          excerpt: em.excerpt,
+          targetDateAtMention: em.target_date,
+          mentionedAt: meetingDate,
+          pendingReview: true,
+        });
+      } else {
+        const created = createMilestone(db, {
+          clientName,
+          title: em.title,
+          targetDate: em.target_date ?? undefined,
+        });
+        titleMap.set(normalized, created.id);
+        addMilestoneMention(db, {
+          milestoneId: created.id,
+          meetingId,
+          mentionType: em.status_signal,
+          excerpt: em.excerpt,
+          targetDateAtMention: em.target_date,
+          mentionedAt: meetingDate,
+        });
+      }
     }
   }
 }
