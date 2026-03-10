@@ -8,6 +8,7 @@ import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
 import { createThread } from "../core/threads.js";
+import { listMilestonesByClient } from "../core/timelines.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 
@@ -318,5 +319,16 @@ The deployment pipeline is broken again. We need to fix the CI/CD configuration.
     const resolvedThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'RESOLVED'").get() as { id: string };
     const associations = tDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(resolvedThread.id) as Array<Record<string, unknown>>;
     expect(associations.length).toBe(0);
+  });
+
+  it("reconciles milestones from extracted artifact during pipeline processing", () => {
+    const milestones = listMilestonesByClient(tDb, "DeployCorp");
+    expect(milestones).toHaveLength(1);
+    expect(milestones[0]).toEqual(expect.objectContaining({
+      title: "Platform launch v2",
+      target_date: "2026-06-01",
+      status: "identified",
+    }));
+    expect(milestones[0].mention_count).toBe(1);
   });
 });

@@ -13,6 +13,7 @@ import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
 import { updateFts } from "./fts.js";
 import { listThreadsByClient, evaluateMeetingAgainstThread, addThreadMeeting } from "./threads.js";
+import { reconcileMilestones } from "./timelines.js";
 import { embed } from "./embedder.js";
 import { cosineSimilarity } from "./math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -98,6 +99,9 @@ async function processEntry(
     ) : undefined;
     const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, clientContext);
     storeArtifact(db, meetingId, artifact);
+    if (topClient?.client_name && artifact.milestones.length > 0) {
+      reconcileMilestones(db, topClient.client_name, meetingId, parsed.timestamp, artifact.milestones);
+    }
     updateFts(db, meetingId);
     await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp);
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
