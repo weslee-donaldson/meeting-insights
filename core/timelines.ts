@@ -122,6 +122,30 @@ export function getDateSlippage(db: DatabaseSync, milestoneId: string) {
   return changes.length <= 1 ? [] : changes;
 }
 
+interface MilestoneActionItemRow {
+  milestone_id: string;
+  meeting_id: string;
+  item_index: number;
+  linked_at: string;
+}
+
+export function linkActionItem(db: DatabaseSync, milestoneId: string, meetingId: string, itemIndex: number): MilestoneActionItemRow {
+  const now = new Date().toISOString();
+  db.prepare(
+    `INSERT OR REPLACE INTO milestone_action_items (milestone_id, meeting_id, item_index, linked_at) VALUES (?, ?, ?, ?)`,
+  ).run(milestoneId, meetingId, itemIndex, now);
+
+  return db.prepare(
+    "SELECT * FROM milestone_action_items WHERE milestone_id = ? AND meeting_id = ? AND item_index = ?",
+  ).get(milestoneId, meetingId, itemIndex) as MilestoneActionItemRow;
+}
+
+export function unlinkActionItem(db: DatabaseSync, milestoneId: string, meetingId: string, itemIndex: number): void {
+  db.prepare(
+    "DELETE FROM milestone_action_items WHERE milestone_id = ? AND meeting_id = ? AND item_index = ?",
+  ).run(milestoneId, meetingId, itemIndex);
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

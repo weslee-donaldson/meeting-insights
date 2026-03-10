@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem } from "../core/timelines.js";
 
 let db: Database;
 
@@ -332,5 +332,48 @@ describe("getDateSlippage", () => {
   it("returns empty array when milestone has no mentions", () => {
     const m = createMilestone(db, { clientName: "Acme", title: "No slippage mentions" });
     expect(getDateSlippage(db, m.id)).toEqual([]);
+  });
+});
+
+describe("linkActionItem + unlinkActionItem", () => {
+  it("links an action item to a milestone and returns the row", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Link test" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('link-m1', 'DSU', '2026-03-01')").run();
+
+    const result = linkActionItem(db, m.id, "link-m1", 0);
+    expect(result).toEqual({
+      milestone_id: m.id,
+      meeting_id: "link-m1",
+      item_index: 0,
+      linked_at: expect.any(String),
+    });
+  });
+
+  it("is idempotent — linking same item twice does not throw", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Idempotent link" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('idem-m1', 'DSU', '2026-03-01')").run();
+
+    linkActionItem(db, m.id, "idem-m1", 0);
+    const result = linkActionItem(db, m.id, "idem-m1", 0);
+    expect(result).toEqual({
+      milestone_id: m.id,
+      meeting_id: "idem-m1",
+      item_index: 0,
+      linked_at: expect.any(String),
+    });
+
+    const count = db.prepare("SELECT COUNT(*) as c FROM milestone_action_items WHERE milestone_id = ? AND meeting_id = 'idem-m1'").get(m.id) as { c: number };
+    expect(count.c).toBe(1);
+  });
+
+  it("unlinks an action item from a milestone", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Unlink test" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('unlink-m1', 'DSU', '2026-03-01')").run();
+
+    linkActionItem(db, m.id, "unlink-m1", 2);
+    unlinkActionItem(db, m.id, "unlink-m1", 2);
+
+    const rows = db.prepare("SELECT * FROM milestone_action_items WHERE milestone_id = ? AND meeting_id = 'unlink-m1'").all(m.id);
+    expect(rows).toEqual([]);
   });
 });
