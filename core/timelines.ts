@@ -166,6 +166,59 @@ export function getMeetingMilestones(db: DatabaseSync, meetingId: string) {
   ).all(meetingId) as { id: string; title: string; target_date: string | null; status: string }[];
 }
 
+function normalizeTitle(s: string): string {
+  return s.toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+interface ExtractedMilestone {
+  title: string;
+  target_date: string | null;
+  status_signal: string;
+  excerpt: string;
+}
+
+export function reconcileMilestones(
+  db: DatabaseSync,
+  clientName: string,
+  meetingId: string,
+  meetingDate: string,
+  extracted: ExtractedMilestone[],
+): void {
+  const existing = db.prepare("SELECT id, title FROM milestones WHERE client_name = ?").all(clientName) as { id: string; title: string }[];
+  const titleMap = new Map(existing.map((m) => [normalizeTitle(m.title), m.id]));
+
+  for (const em of extracted) {
+    const normalized = normalizeTitle(em.title);
+    const matchId = titleMap.get(normalized);
+
+    if (matchId) {
+      addMilestoneMention(db, {
+        milestoneId: matchId,
+        meetingId,
+        mentionType: em.status_signal,
+        excerpt: em.excerpt,
+        targetDateAtMention: em.target_date,
+        mentionedAt: meetingDate,
+      });
+    } else {
+      const created = createMilestone(db, {
+        clientName,
+        title: em.title,
+        targetDate: em.target_date ?? undefined,
+      });
+      titleMap.set(normalized, created.id);
+      addMilestoneMention(db, {
+        milestoneId: created.id,
+        meetingId,
+        mentionType: em.status_signal,
+        excerpt: em.excerpt,
+        targetDateAtMention: em.target_date,
+        mentionedAt: meetingDate,
+      });
+    }
+  }
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

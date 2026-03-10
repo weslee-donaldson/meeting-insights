@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones } from "../core/timelines.js";
 
 let db: Database;
 
@@ -442,5 +442,42 @@ describe("getMeetingMilestones", () => {
   it("returns empty array when meeting has no milestone mentions", () => {
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('no-ms-m1', 'Empty', '2026-03-01')").run();
     expect(getMeetingMilestones(db, "no-ms-m1")).toEqual([]);
+  });
+});
+
+describe("reconcileMilestones", () => {
+  it("creates a new milestone and mention when no existing title matches", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Recon', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('recon-m1', 'Kickoff', '2026-03-01')").run();
+
+    reconcileMilestones(db2, "Recon", "recon-m1", "2026-03-01", [
+      { title: "Commerce platform go-live", target_date: "2026-06-01", status_signal: "introduced", excerpt: "Targeting June for go-live" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "Recon");
+    expect(milestones).toEqual([
+      expect.objectContaining({
+        client_name: "Recon",
+        title: "Commerce platform go-live",
+        target_date: "2026-06-01",
+        status: "identified",
+        mention_count: 1,
+        first_mentioned_at: "2026-03-01",
+      }),
+    ]);
+
+    const mentions = getMilestoneMentions(db2, milestones[0].id);
+    expect(mentions).toEqual([
+      expect.objectContaining({
+        meeting_id: "recon-m1",
+        mention_type: "introduced",
+        excerpt: "Targeting June for go-live",
+        target_date_at_mention: "2026-06-01",
+        mentioned_at: "2026-03-01",
+        pending_review: 0,
+      }),
+    ]);
   });
 });
