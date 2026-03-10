@@ -196,6 +196,23 @@ interface ExtractedMilestone {
   excerpt: string;
 }
 
+function applyStatusTransition(db: DatabaseSync, milestoneId: string, statusSignal: string): void {
+  const milestone = getMilestone(db, milestoneId);
+  if (!milestone) return;
+
+  if (statusSignal === "completed" || statusSignal === "deferred") {
+    updateMilestone(db, milestoneId, { status: statusSignal });
+    return;
+  }
+
+  if (milestone.status === "identified") {
+    const mentionCount = (db.prepare("SELECT COUNT(*) AS cnt FROM milestone_mentions WHERE milestone_id = ?").get(milestoneId) as { cnt: number }).cnt;
+    if (mentionCount >= 2) {
+      updateMilestone(db, milestoneId, { status: "tracked" });
+    }
+  }
+}
+
 export function reconcileMilestones(
   db: DatabaseSync,
   clientName: string,
@@ -219,6 +236,7 @@ export function reconcileMilestones(
         targetDateAtMention: em.target_date,
         mentionedAt: meetingDate,
       });
+      applyStatusTransition(db, matchId, em.status_signal);
     } else {
       let fuzzyMatchId: string | undefined;
       for (const [existingNorm, existingId] of titleMap) {

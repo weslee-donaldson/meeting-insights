@@ -519,6 +519,70 @@ describe("reconcileMilestones", () => {
     expect(milestones).toHaveLength(2);
   });
 
+  it("transitions status from identified to tracked on second mention", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Track', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('trk-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('trk-m2', 'Sprint', '2026-02-10')").run();
+
+    reconcileMilestones(db2, "Track", "trk-m1", "2026-01-15", [
+      { title: "Launch V2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "First mention" },
+    ]);
+
+    const before = listMilestonesByClient(db2, "Track");
+    expect(before[0].status).toBe("identified");
+
+    reconcileMilestones(db2, "Track", "trk-m2", "2026-02-10", [
+      { title: "Launch V2", target_date: "2026-06-01", status_signal: "referenced", excerpt: "Second mention" },
+    ]);
+
+    const after = listMilestonesByClient(db2, "Track");
+    expect(after[0].status).toBe("tracked");
+    expect(after[0].mention_count).toBe(2);
+  });
+
+  it("transitions to completed when status_signal is completed", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Comp', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('comp-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('comp-m2', 'Retro', '2026-03-10')").run();
+
+    reconcileMilestones(db2, "Comp", "comp-m1", "2026-01-15", [
+      { title: "API Migration", target_date: "2026-03-01", status_signal: "introduced", excerpt: "First" },
+    ]);
+
+    reconcileMilestones(db2, "Comp", "comp-m2", "2026-03-10", [
+      { title: "API Migration", target_date: "2026-03-01", status_signal: "completed", excerpt: "Done" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "Comp");
+    expect(milestones[0].status).toBe("completed");
+
+    const ms = getMilestone(db2, milestones[0].id);
+    expect(ms!.completed_at).toEqual(expect.any(String));
+  });
+
+  it("transitions to deferred when status_signal is deferred", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Defer', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('def-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('def-m2', 'Review', '2026-02-20')").run();
+
+    reconcileMilestones(db2, "Defer", "def-m1", "2026-01-15", [
+      { title: "Platform Upgrade", target_date: "2026-04-01", status_signal: "introduced", excerpt: "Started" },
+    ]);
+
+    reconcileMilestones(db2, "Defer", "def-m2", "2026-02-20", [
+      { title: "Platform Upgrade", target_date: null, status_signal: "deferred", excerpt: "Postponed" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "Defer");
+    expect(milestones[0].status).toBe("deferred");
+  });
+
   it("creates a new milestone and mention when no existing title matches", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
