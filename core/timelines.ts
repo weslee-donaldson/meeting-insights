@@ -59,3 +59,17 @@ export function deleteMilestone(db: DatabaseSync, id: string): void {
   db.prepare("DELETE FROM milestone_messages WHERE milestone_id = ?").run(id);
   db.prepare("DELETE FROM milestones WHERE id = ?").run(id);
 }
+
+export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
+  return db.prepare(
+    `SELECT m.*,
+       COUNT(mm.meeting_id) AS mention_count,
+       MIN(mm.mentioned_at) AS first_mentioned_at,
+       SUM(CASE WHEN mm.pending_review = 1 THEN 1 ELSE 0 END) AS pending_review_count
+     FROM milestones m
+     LEFT JOIN milestone_mentions mm ON mm.milestone_id = m.id
+     WHERE m.client_name = ?
+     GROUP BY m.id
+     ORDER BY m.target_date ASC NULLS LAST`,
+  ).all(clientName) as (MilestoneRow & { mention_count: number; first_mentioned_at: string | null; pending_review_count: number })[];
+}

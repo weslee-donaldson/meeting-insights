@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient } from "../core/timelines.js";
 
 let db: Database;
 
@@ -112,5 +112,35 @@ describe("deleteMilestone", () => {
     expect(db.prepare("SELECT * FROM milestone_mentions WHERE milestone_id = ?").all(m.id)).toEqual([]);
     expect(db.prepare("SELECT * FROM milestone_action_items WHERE milestone_id = ?").all(m.id)).toEqual([]);
     expect(db.prepare("SELECT * FROM milestone_messages WHERE milestone_id = ?").all(m.id)).toEqual([]);
+  });
+});
+
+describe("listMilestonesByClient", () => {
+  it("returns milestones with mention_count and first_mentioned_at ordered by target_date", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Beta', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('list-m1', 'DSU', '2026-02-01')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('list-m2', 'DSU 2', '2026-02-10')").run();
+
+    const m1 = createMilestone(db2, { clientName: "Beta", title: "Alpha launch", targetDate: "2026-03-01" });
+    const m2 = createMilestone(db2, { clientName: "Beta", title: "Beta launch", targetDate: "2026-04-01" });
+
+    db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m1', 'introduced', '2026-02-01')").run(m1.id);
+    db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m2', 'updated', '2026-02-10')").run(m1.id);
+    db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m1', 'introduced', '2026-02-01')").run(m2.id);
+
+    const result = listMilestonesByClient(db2, "Beta");
+    expect(result).toEqual([
+      { ...m1, mention_count: 2, first_mentioned_at: "2026-02-01", pending_review_count: 0 },
+      { ...m2, mention_count: 1, first_mentioned_at: "2026-02-01", pending_review_count: 0 },
+    ]);
+  });
+
+  it("returns empty array when client has no milestones", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Empty', '[]', '[]')").run();
+    expect(listMilestonesByClient(db2, "Empty")).toEqual([]);
   });
 });
