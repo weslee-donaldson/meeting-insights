@@ -161,11 +161,62 @@ export function migrate(db: DatabaseSync): void {
       created_at TEXT NOT NULL,
       FOREIGN KEY (insight_id) REFERENCES insights(id)
     );
+
+    CREATE TABLE IF NOT EXISTS milestones (
+      id TEXT PRIMARY KEY,
+      client_name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      target_date TEXT,
+      status TEXT DEFAULT 'identified',
+      completed_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (client_name) REFERENCES clients(name)
+    );
+
+    CREATE TABLE IF NOT EXISTS milestone_mentions (
+      milestone_id TEXT NOT NULL,
+      meeting_id TEXT NOT NULL,
+      mention_type TEXT NOT NULL,
+      excerpt TEXT DEFAULT '',
+      target_date_at_mention TEXT,
+      mentioned_at TEXT NOT NULL,
+      pending_review INTEGER DEFAULT 0,
+      PRIMARY KEY (milestone_id, meeting_id),
+      FOREIGN KEY (milestone_id) REFERENCES milestones(id),
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS milestone_action_items (
+      milestone_id TEXT NOT NULL,
+      meeting_id TEXT NOT NULL,
+      item_index INTEGER NOT NULL,
+      linked_at TEXT NOT NULL,
+      PRIMARY KEY (milestone_id, meeting_id, item_index),
+      FOREIGN KEY (milestone_id) REFERENCES milestones(id),
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS milestone_messages (
+      id TEXT PRIMARY KEY,
+      milestone_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sources TEXT,
+      context_stale INTEGER DEFAULT 0,
+      stale_details TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (milestone_id) REFERENCES milestones(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
   if (!artifactCols.some(c => c.name === "additional_notes")) {
     db.exec("ALTER TABLE artifacts ADD COLUMN additional_notes TEXT DEFAULT '[]'");
+  }
+  if (!artifactCols.some(c => c.name === "milestones")) {
+    db.exec("ALTER TABLE artifacts ADD COLUMN milestones TEXT DEFAULT '[]'");
   }
 
   const meetingCols = db.prepare("PRAGMA table_info(meetings)").all() as { name: string }[];

@@ -112,6 +112,31 @@ describe("migrate", () => {
     expect(cols.some(c => c.name === "client_id")).toBe(true);
   });
 
+  it("creates milestones table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='milestones'").get();
+    expect(row).toEqual({ name: "milestones" });
+  });
+
+  it("creates milestone_mentions table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='milestone_mentions'").get();
+    expect(row).toEqual({ name: "milestone_mentions" });
+  });
+
+  it("creates milestone_action_items table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='milestone_action_items'").get();
+    expect(row).toEqual({ name: "milestone_action_items" });
+  });
+
+  it("creates milestone_messages table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='milestone_messages'").get();
+    expect(row).toEqual({ name: "milestone_messages" });
+  });
+
+  it("adds milestones column to artifacts", () => {
+    const cols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
+    expect(cols.some(c => c.name === "milestones")).toBe(true);
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });
