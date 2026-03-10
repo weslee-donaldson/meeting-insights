@@ -134,6 +134,12 @@ describe("buildLabeledContext", () => {
     expect(result.contextText).not.toContain("[CRITICAL]");
   });
 
+  it("includes raw transcript text in labeled context", () => {
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).toContain("Alice | 00:00");
+    expect(result.contextText).toContain("Hello.");
+  });
+
   it("formats risk_items by description", () => {
     const riskId = ingestMeeting(db, {
       title: "Risk Meeting",

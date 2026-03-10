@@ -171,8 +171,9 @@ export function buildLabeledContext(
       });
     }
     const body = artifactBlock(artifact, annotations);
+    const transcript = mtg.raw_transcript ? `\nTranscript:\n${mtg.raw_transcript}` : "";
     blocks.push(
-      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}`,
+      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}${transcript}`,
     );
     meetings.push({ id: mtg.id, title: mtg.title, date: mtg.date });
   }
