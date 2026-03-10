@@ -104,6 +104,13 @@ describe("extractSummary", () => {
     expect(Array.isArray(artifact.additional_notes)).toBe(true);
     expect(typeof artifact.additional_notes.length).toBe("number");
   });
+
+  it("returns milestones array from stub fixture", async () => {
+    const artifact = await extractSummary(adapter, parsed.turns, 8000);
+    expect(artifact.milestones).toEqual([
+      { title: "Platform launch v2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "Targeting June for the v2 launch" },
+    ]);
+  });
 });
 
 const VALID_BASE = {
@@ -281,5 +288,11 @@ describe("storeArtifact / getArtifact", () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     const stored = getArtifact(db, meetingId);
     expect(JSON.parse(stored.additional_notes)).toEqual(artifact.additional_notes);
+  });
+
+  it("round-trips milestones through store/get", async () => {
+    const artifact = await extractSummary(adapter, parsed.turns, 8000);
+    const stored = getArtifact(db, meetingId);
+    expect(JSON.parse(stored.milestones)).toEqual(artifact.milestones);
   });
 });

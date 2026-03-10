@@ -12,6 +12,7 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     open_questions: ["What is the timeline?"],
     risk_items: [{ category: "engineering", description: "Scope creep risk" }],
     additional_notes: [{ category: "Context", notes: ["Stub note about constraints and tradeoffs."] }],
+    milestones: [{ title: "Platform launch v2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "Targeting June for the v2 launch" }],
   },
   cluster_tags: {
     tags: ["API integration", "client onboarding", "feature planning", "roadmap review"],
