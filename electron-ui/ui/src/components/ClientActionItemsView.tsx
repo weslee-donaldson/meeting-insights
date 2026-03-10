@@ -15,6 +15,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [priorityFilter, setPriorityFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [requesterFilter, setRequesterFilter] = useState("");
+  const [sortBy, setSortBy] = useState<"priority" | "series" | "owner" | "requester">("priority");
 
   function handleComplete(meetingId: string, itemIndex: number) {
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
@@ -41,8 +42,12 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
     && (!requesterFilter || i.requester === requesterFilter),
   );
 
-  const criticalItems = filtered.filter((i) => i.priority === "critical");
-  const normalItems = filtered.filter((i) => i.priority === "normal");
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "priority") return a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1;
+    if (sortBy === "series") return a.meeting_title.localeCompare(b.meeting_title);
+    if (sortBy === "owner") return a.owner.localeCompare(b.owner);
+    return a.requester.localeCompare(b.requester);
+  });
 
   return (
     <div data-testid="client-action-items-view" className="flex flex-col h-full overflow-auto">
@@ -69,13 +74,16 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
           <option value="">All Requesters</option>
           {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
+        <select data-testid="action-sort-by" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-7 px-2 text-xs border border-border rounded-md bg-background ml-auto">
+          <option value="priority">Priority</option>
+          <option value="series">Series</option>
+          <option value="owner">Owner</option>
+          <option value="requester">Requester</option>
+        </select>
       </div>
 
       <div className="flex flex-col">
-        {criticalItems.map((item) => (
-          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
-        ))}
-        {normalItems.map((item) => (
+        {sorted.map((item) => (
           <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
         ))}
         {filtered.length === 0 && (

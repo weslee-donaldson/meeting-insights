@@ -446,6 +446,36 @@ describe("getMeetingMilestones", () => {
 });
 
 describe("reconcileMilestones", () => {
+  it("matches existing milestone by normalized title and creates mention", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Exact', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('exact-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('exact-m2', 'Sprint Review', '2026-02-10')").run();
+
+    const existing = createMilestone(db2, { clientName: "Exact", title: "Commerce Platform Go-Live", targetDate: "2026-06-01" });
+
+    addMilestoneMention(db2, { milestoneId: existing.id, meetingId: "exact-m1", mentionType: "introduced", excerpt: "initial", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+
+    reconcileMilestones(db2, "Exact", "exact-m2", "2026-02-10", [
+      { title: "commerce platform go-live", target_date: "2026-07-01", status_signal: "updated", excerpt: "Pushed to July" },
+    ]);
+
+    const milestones = listMilestonesByClient(db2, "Exact");
+    expect(milestones).toHaveLength(1);
+    expect(milestones[0].id).toBe(existing.id);
+    expect(milestones[0].mention_count).toBe(2);
+
+    const mentions = getMilestoneMentions(db2, existing.id);
+    expect(mentions).toHaveLength(2);
+    expect(mentions[1]).toEqual(expect.objectContaining({
+      meeting_id: "exact-m2",
+      mention_type: "updated",
+      excerpt: "Pushed to July",
+      target_date_at_mention: "2026-07-01",
+    }));
+  });
+
   it("creates a new milestone and mention when no existing title matches", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
