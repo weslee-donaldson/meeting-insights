@@ -44,6 +44,13 @@ Fields:
 
 - additional_notes (array of objects): Use your judgement. No cap. Preserve nuance that would otherwise require re-reading the transcript — team availability, status updates, informational context, anything worth retaining that does not fit other structured fields. Provide logical groupings with categorization where helpful. This field is load-bearing: it will be used as context for future questions, so err on the side of completeness.
 
+- milestones (array of objects): Directional commitments from CLIENT TEAM members only (see Client Context below). These are significant project waypoints — system launches, project phases, go-live dates, migrations, contract renewals. NOT action items or tasks. Only extract when spoken by a client team member. If no client context is available, return an empty array.
+  Each:
+    - title (string): concise milestone name (e.g. "Commerce platform go-live")
+    - target_date (string | null): ISO date if mentioned, otherwise null
+    - status_signal ("introduced" | "updated" | "completed" | "deferred" | "referenced"): the nature of this mention
+    - excerpt (string): brief verbatim or near-verbatim quote supporting this milestone
+
 {{client_context}}
 
 ## Transcript

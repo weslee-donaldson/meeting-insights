@@ -237,6 +237,14 @@ describe("extraction prompt", () => {
     expect(prompt).toContain("architecture");
     expect(prompt).toContain("engineering");
   });
+
+  it("milestones field describes directional commitments with status_signal", async () => {
+    const { readFileSync } = await import("node:fs");
+    const prompt = readFileSync("config/prompts/extraction.md", "utf8");
+    expect(prompt).toContain("milestones");
+    expect(prompt).toContain("status_signal");
+    expect(prompt).toContain("Directional commitments");
+  });
 });
 
 describe("extractSummary with fallback adapter", () => {
