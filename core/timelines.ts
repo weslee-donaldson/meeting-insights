@@ -302,6 +302,13 @@ export function rejectMilestoneMention(db: DatabaseSync, milestoneId: string, me
   return newMs;
 }
 
+export function mergeMilestones(db: DatabaseSync, sourceId: string, targetId: string): void {
+  db.prepare("UPDATE milestone_mentions SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
+  db.prepare("UPDATE milestone_action_items SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
+  db.prepare("UPDATE milestone_messages SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
+  db.prepare("DELETE FROM milestones WHERE id = ?").run(sourceId);
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

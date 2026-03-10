@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention, mergeMilestones } from "../core/timelines.js";
 
 let db: Database;
 
@@ -629,6 +629,34 @@ describe("reconcileMilestones", () => {
       excerpt: "fuzzy match",
       pending_review: 0,
     }));
+  });
+
+  it("mergeMilestones moves all mentions and action item links from source to target", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Merge', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('mrg-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('mrg-m2', 'Sprint', '2026-02-10')").run();
+
+    const target = createMilestone(db2, { clientName: "Merge", title: "Target milestone" });
+    const source = createMilestone(db2, { clientName: "Merge", title: "Source milestone" });
+
+    addMilestoneMention(db2, { milestoneId: target.id, meetingId: "mrg-m1", mentionType: "introduced", excerpt: "target first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+    addMilestoneMention(db2, { milestoneId: source.id, meetingId: "mrg-m2", mentionType: "updated", excerpt: "source first", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10" });
+    linkActionItem(db2, source.id, "mrg-m2", 0);
+
+    mergeMilestones(db2, source.id, target.id);
+
+    const milestones = listMilestonesByClient(db2, "Merge");
+    expect(milestones).toHaveLength(1);
+    expect(milestones[0].id).toBe(target.id);
+    expect(milestones[0].mention_count).toBe(2);
+
+    const actionItems = getMilestoneActionItems(db2, target.id);
+    expect(actionItems).toHaveLength(1);
+    expect(actionItems[0]).toEqual(expect.objectContaining({ milestone_id: target.id, meeting_id: "mrg-m2", item_index: 0 }));
+
+    expect(getMilestone(db2, source.id)).toBeNull();
   });
 
   it("creates a new milestone and mention when no existing title matches", () => {
