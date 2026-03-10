@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone } from "../core/timelines.js";
 
 let db: Database;
 
@@ -62,6 +62,38 @@ describe("getMilestone", () => {
 
   it("returns null for non-existent id", () => {
     const result = getMilestone(db, "non-existent");
+    expect(result).toBe(null);
+  });
+});
+
+describe("updateMilestone", () => {
+  it("updates title and returns updated milestone", () => {
+    const created = createMilestone(db, { clientName: "Acme", title: "Original" });
+    const result = updateMilestone(db, created.id, { title: "Updated" });
+    expect(result).toEqual({
+      ...created,
+      title: "Updated",
+      updated_at: expect.any(String),
+    });
+  });
+
+  it("updates status to completed and sets completed_at", () => {
+    const created = createMilestone(db, { clientName: "Acme", title: "Complete me" });
+    const result = updateMilestone(db, created.id, { status: "completed" });
+    expect(result!.status).toBe("completed");
+    expect(result!.completed_at).toEqual(expect.any(String));
+  });
+
+  it("clears completed_at when status changes away from completed", () => {
+    const created = createMilestone(db, { clientName: "Acme", title: "Uncomplete me" });
+    updateMilestone(db, created.id, { status: "completed" });
+    const result = updateMilestone(db, created.id, { status: "tracked" });
+    expect(result!.status).toBe("tracked");
+    expect(result!.completed_at).toBe(null);
+  });
+
+  it("returns null for non-existent id", () => {
+    const result = updateMilestone(db, "non-existent", { title: "Nope" });
     expect(result).toBe(null);
   });
 });

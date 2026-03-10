@@ -30,3 +30,25 @@ export function createMilestone(
 export function getMilestone(db: DatabaseSync, id: string): MilestoneRow | null {
   return (db.prepare("SELECT * FROM milestones WHERE id = ?").get(id) as MilestoneRow) ?? null;
 }
+
+export function updateMilestone(
+  db: DatabaseSync,
+  id: string,
+  input: { title?: string; description?: string; targetDate?: string | null; status?: string },
+): MilestoneRow | null {
+  const existing = getMilestone(db, id);
+  if (!existing) return null;
+
+  const now = new Date().toISOString();
+  const title = input.title ?? existing.title;
+  const description = input.description ?? existing.description;
+  const targetDate = input.targetDate !== undefined ? input.targetDate : existing.target_date;
+  const status = input.status ?? existing.status;
+  const completedAt = status === "completed" ? (existing.completed_at ?? now) : null;
+
+  db.prepare(
+    `UPDATE milestones SET title = ?, description = ?, target_date = ?, status = ?, completed_at = ?, updated_at = ? WHERE id = ?`,
+  ).run(title, description, targetDate, status, completedAt, now, id);
+
+  return getMilestone(db, id);
+}
