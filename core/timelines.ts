@@ -103,6 +103,25 @@ export function getMilestoneMentions(db: DatabaseSync, milestoneId: string) {
   ).all(milestoneId) as (MilestoneMentionRow & { meeting_title: string; meeting_date: string })[];
 }
 
+export function getDateSlippage(db: DatabaseSync, milestoneId: string) {
+  const mentions = db.prepare(
+    `SELECT mm.mentioned_at, mm.target_date_at_mention, mtg.title AS meeting_title
+     FROM milestone_mentions mm
+     JOIN meetings mtg ON mtg.id = mm.meeting_id
+     WHERE mm.milestone_id = ?
+     ORDER BY mm.mentioned_at ASC`,
+  ).all(milestoneId) as { mentioned_at: string; target_date_at_mention: string | null; meeting_title: string }[];
+
+  const changes: { mentioned_at: string; target_date_at_mention: string | null; meeting_title: string }[] = [];
+  for (let i = 0; i < mentions.length; i++) {
+    if (i === 0 || mentions[i].target_date_at_mention !== mentions[i - 1].target_date_at_mention) {
+      changes.push(mentions[i]);
+    }
+  }
+
+  return changes.length <= 1 ? [] : changes;
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

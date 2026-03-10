@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage } from "../core/timelines.js";
 
 let db: Database;
 
@@ -289,5 +289,48 @@ describe("getMilestoneMentions", () => {
   it("returns empty array when milestone has no mentions", () => {
     const m = createMilestone(db, { clientName: "Acme", title: "No mentions" });
     expect(getMilestoneMentions(db, m.id)).toEqual([]);
+  });
+});
+
+describe("getDateSlippage", () => {
+  it("returns date changes across mentions in chronological order", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Slip', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m1', 'DSU 1', '2026-01-10')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m2', 'DSU 2', '2026-02-05')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m3', 'DSU 3', '2026-03-01')").run();
+
+    const m = createMilestone(db2, { clientName: "Slip", title: "Slippery milestone" });
+
+    addMilestoneMention(db2, { milestoneId: m.id, meetingId: "slip-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-03-15", mentionedAt: "2026-01-10" });
+    addMilestoneMention(db2, { milestoneId: m.id, meetingId: "slip-m2", mentionType: "updated", excerpt: "", targetDateAtMention: "2026-03-31", mentionedAt: "2026-02-05" });
+    addMilestoneMention(db2, { milestoneId: m.id, meetingId: "slip-m3", mentionType: "referenced", excerpt: "", targetDateAtMention: "2026-03-31", mentionedAt: "2026-03-01" });
+
+    const result = getDateSlippage(db2, m.id);
+    expect(result).toEqual([
+      { mentioned_at: "2026-01-10", target_date_at_mention: "2026-03-15", meeting_title: "DSU 1" },
+      { mentioned_at: "2026-02-05", target_date_at_mention: "2026-03-31", meeting_title: "DSU 2" },
+    ]);
+  });
+
+  it("returns empty array when target date never changes", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Stable', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('stable-m1', 'DSU', '2026-01-10')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('stable-m2', 'DSU 2', '2026-02-05')").run();
+
+    const m = createMilestone(db2, { clientName: "Stable", title: "Stable milestone" });
+
+    addMilestoneMention(db2, { milestoneId: m.id, meetingId: "stable-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-10" });
+    addMilestoneMention(db2, { milestoneId: m.id, meetingId: "stable-m2", mentionType: "referenced", excerpt: "", targetDateAtMention: "2026-06-01", mentionedAt: "2026-02-05" });
+
+    expect(getDateSlippage(db2, m.id)).toEqual([]);
+  });
+
+  it("returns empty array when milestone has no mentions", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "No slippage mentions" });
+    expect(getDateSlippage(db, m.id)).toEqual([]);
   });
 });
