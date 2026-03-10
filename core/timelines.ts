@@ -276,6 +276,32 @@ export function reconcileMilestones(
   }
 }
 
+export function confirmMilestoneMention(db: DatabaseSync, milestoneId: string, meetingId: string): void {
+  db.prepare("UPDATE milestone_mentions SET pending_review = 0 WHERE milestone_id = ? AND meeting_id = ?").run(milestoneId, meetingId);
+}
+
+export function rejectMilestoneMention(db: DatabaseSync, milestoneId: string, meetingId: string, clientName: string): MilestoneRow {
+  const mention = db.prepare("SELECT * FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = ?").get(milestoneId, meetingId) as MilestoneMentionRow;
+  db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = ?").run(milestoneId, meetingId);
+
+  const newMs = createMilestone(db, {
+    clientName,
+    title: mention.excerpt,
+    targetDate: mention.target_date_at_mention ?? undefined,
+  });
+
+  addMilestoneMention(db, {
+    milestoneId: newMs.id,
+    meetingId: mention.meeting_id,
+    mentionType: mention.mention_type,
+    excerpt: mention.excerpt,
+    targetDateAtMention: mention.target_date_at_mention,
+    mentionedAt: mention.mentioned_at,
+  });
+
+  return newMs;
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention } from "../core/timelines.js";
 
 let db: Database;
 
@@ -581,6 +581,54 @@ describe("reconcileMilestones", () => {
 
     const milestones = listMilestonesByClient(db2, "Defer");
     expect(milestones[0].status).toBe("deferred");
+  });
+
+  it("confirmMilestoneMention sets pending_review to 0", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Conf', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('conf-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('conf-m2', 'Sprint', '2026-02-10')").run();
+
+    const ms = createMilestone(db2, { clientName: "Conf", title: "Commerce platform go-live" });
+    addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "conf-m1", mentionType: "introduced", excerpt: "first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+    addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "conf-m2", mentionType: "updated", excerpt: "fuzzy", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10", pendingReview: true });
+
+    confirmMilestoneMention(db2, ms.id, "conf-m2");
+
+    const mentions = getMilestoneMentions(db2, ms.id);
+    expect(mentions[1].pending_review).toBe(0);
+  });
+
+  it("rejectMilestoneMention removes mention and creates new milestone from rejected data", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Rej', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('rej-m1', 'Kickoff', '2026-01-15')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('rej-m2', 'Sprint', '2026-02-10')").run();
+
+    const ms = createMilestone(db2, { clientName: "Rej", title: "Commerce platform go-live" });
+    addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "rej-m1", mentionType: "introduced", excerpt: "first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+    addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "rej-m2", mentionType: "updated", excerpt: "fuzzy match", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10", pendingReview: true });
+
+    const newMs = rejectMilestoneMention(db2, ms.id, "rej-m2", "Rej");
+
+    const origMentions = getMilestoneMentions(db2, ms.id);
+    expect(origMentions).toHaveLength(1);
+
+    expect(newMs).toEqual(expect.objectContaining({
+      client_name: "Rej",
+      status: "identified",
+    }));
+
+    const newMentions = getMilestoneMentions(db2, newMs.id);
+    expect(newMentions).toHaveLength(1);
+    expect(newMentions[0]).toEqual(expect.objectContaining({
+      meeting_id: "rej-m2",
+      mention_type: "updated",
+      excerpt: "fuzzy match",
+      pending_review: 0,
+    }));
   });
 
   it("creates a new milestone and mention when no existing title matches", () => {
