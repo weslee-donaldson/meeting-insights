@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone } from "../core/timelines.js";
+import { createMilestone, getMilestone } from "../core/timelines.js";
 
 let db: Database;
 
@@ -50,5 +50,18 @@ describe("createMilestone", () => {
       created_at: expect.any(String),
       updated_at: expect.any(String),
     });
+  });
+});
+
+describe("getMilestone", () => {
+  it("returns milestone by id", () => {
+    const created = createMilestone(db, { clientName: "Acme", title: "Get test" });
+    const result = getMilestone(db, created.id);
+    expect(result).toEqual(created);
+  });
+
+  it("returns null for non-existent id", () => {
+    const result = getMilestone(db, "non-existent");
+    expect(result).toBe(null);
   });
 });
