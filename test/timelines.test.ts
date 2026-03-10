@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone } from "../core/timelines.js";
 
 let db: Database;
 
@@ -95,5 +95,22 @@ describe("updateMilestone", () => {
   it("returns null for non-existent id", () => {
     const result = updateMilestone(db, "non-existent", { title: "Nope" });
     expect(result).toBe(null);
+  });
+});
+
+describe("deleteMilestone", () => {
+  it("deletes milestone and cascades to mentions, action items, and messages", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Delete me" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('del-m1', 'Standup', '2026-01-15')").run();
+    db.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'del-m1', 'introduced', '2026-01-15')").run(m.id);
+    db.prepare("INSERT INTO milestone_action_items (milestone_id, meeting_id, item_index, linked_at) VALUES (?, 'del-m1', 0, '2026-01-15')").run(m.id);
+    db.prepare("INSERT INTO milestone_messages (id, milestone_id, role, content, created_at) VALUES ('msg1', ?, 'user', 'hi', '2026-01-15')").run(m.id);
+
+    deleteMilestone(db, m.id);
+
+    expect(getMilestone(db, m.id)).toBe(null);
+    expect(db.prepare("SELECT * FROM milestone_mentions WHERE milestone_id = ?").all(m.id)).toEqual([]);
+    expect(db.prepare("SELECT * FROM milestone_action_items WHERE milestone_id = ?").all(m.id)).toEqual([]);
+    expect(db.prepare("SELECT * FROM milestone_messages WHERE milestone_id = ?").all(m.id)).toEqual([]);
   });
 });

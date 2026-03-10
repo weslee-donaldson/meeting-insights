@@ -52,3 +52,10 @@ export function updateMilestone(
 
   return getMilestone(db, id);
 }
+
+export function deleteMilestone(db: DatabaseSync, id: string): void {
+  db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(id);
+  db.prepare("DELETE FROM milestone_action_items WHERE milestone_id = ?").run(id);
+  db.prepare("DELETE FROM milestone_messages WHERE milestone_id = ?").run(id);
+  db.prepare("DELETE FROM milestones WHERE id = ?").run(id);
+}
