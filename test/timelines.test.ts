@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones } from "../core/timelines.js";
 
 let db: Database;
 
@@ -416,5 +416,31 @@ describe("getMilestoneActionItems", () => {
   it("returns empty array when no action items linked", () => {
     const m = createMilestone(db, { clientName: "Acme", title: "No action items" });
     expect(getMilestoneActionItems(db, m.id)).toEqual([]);
+  });
+});
+
+describe("getMeetingMilestones", () => {
+  it("returns milestone tags for a meeting via its mentions", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('TagClient', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('tag-m1', 'DSU', '2026-03-01')").run();
+
+    const m1 = createMilestone(db2, { clientName: "TagClient", title: "Go-live v1", targetDate: "2026-04-01" });
+    const m2 = createMilestone(db2, { clientName: "TagClient", title: "Migration", targetDate: "2026-05-01" });
+
+    addMilestoneMention(db2, { milestoneId: m1.id, meetingId: "tag-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-04-01", mentionedAt: "2026-03-01" });
+    addMilestoneMention(db2, { milestoneId: m2.id, meetingId: "tag-m1", mentionType: "referenced", excerpt: "", targetDateAtMention: "2026-05-01", mentionedAt: "2026-03-01" });
+
+    const result = getMeetingMilestones(db2, "tag-m1");
+    expect(result).toEqual([
+      { id: m1.id, title: "Go-live v1", target_date: "2026-04-01", status: "identified" },
+      { id: m2.id, title: "Migration", target_date: "2026-05-01", status: "identified" },
+    ]);
+  });
+
+  it("returns empty array when meeting has no milestone mentions", () => {
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('no-ms-m1', 'Empty', '2026-03-01')").run();
+    expect(getMeetingMilestones(db, "no-ms-m1")).toEqual([]);
   });
 });

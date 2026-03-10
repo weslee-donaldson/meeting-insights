@@ -156,6 +156,16 @@ export function getMilestoneActionItems(db: DatabaseSync, milestoneId: string) {
   ).all(milestoneId) as (MilestoneActionItemRow & { meeting_title: string; meeting_date: string })[];
 }
 
+export function getMeetingMilestones(db: DatabaseSync, meetingId: string) {
+  return db.prepare(
+    `SELECT m.id, m.title, m.target_date, m.status
+     FROM milestone_mentions mm
+     JOIN milestones m ON m.id = mm.milestone_id
+     WHERE mm.meeting_id = ?
+     ORDER BY m.target_date ASC NULLS LAST`,
+  ).all(meetingId) as { id: string; title: string; target_date: string | null; status: string }[];
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,
