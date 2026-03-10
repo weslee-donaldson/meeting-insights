@@ -25,6 +25,7 @@ import type { Thread } from "../../core/threads.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../core/item-dedup.js";
 import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext, removeInsightMeeting } from "../../core/insights.js";
 import type { Insight, InsightMeeting, InsightMessage } from "../../core/insights.js";
+import { reconcileMilestones } from "../../core/timelines.js";
 
 const REPO_ROOT = resolve(fileURLToPath(import.meta.url), "../../..");
 const CHAT_GUIDELINES_PATH = join(REPO_ROOT, "config/chat-guidelines.md");
@@ -268,7 +269,12 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   const clientContext = clientName ? clientContextForName(db, clientName) : undefined;
   const artifact = await extractSummary(llm, turns, 8000, extractionPrompt, clientContext);
   db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
+  db.prepare("DELETE FROM milestone_mentions WHERE meeting_id = ?").run(meetingId);
   storeArtifact(db, meetingId, artifact);
+  if (clientName && artifact.milestones.length > 0) {
+    const meetingDate = (db.prepare("SELECT date FROM meetings WHERE id = ?").get(meetingId) as { date: string }).date;
+    reconcileMilestones(db, clientName, meetingId, meetingDate, artifact.milestones);
+  }
   updateFts(db, meetingId);
 }
 

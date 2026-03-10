@@ -5,6 +5,7 @@ import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
+import { listMilestonesByClient } from "../core/timelines.js";
 import {
   handleGetClients,
   handleGetMeetings,
@@ -718,6 +719,23 @@ describe("IPC handlers", () => {
       };
       await handleReExtract(db, spyLlm, meetingId2);
       expect(capturedContent).toContain("meeting analyst");
+    });
+
+    it("re-reconciles milestones after re-extraction", async () => {
+      const spyLlm: LlmAdapter = {
+        async complete() {
+          return {
+            summary: "s", decisions: [], proposed_features: [], action_items: [],
+            open_questions: [], risk_items: [], additional_notes: [],
+            milestones: [{ title: "Platform launch v2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "Targeting June" }],
+          };
+        },
+      };
+      await handleReExtract(db, spyLlm, meetingId2);
+      const milestones = listMilestonesByClient(db, "Acme");
+      expect(milestones.length).toBeGreaterThanOrEqual(1);
+      const match = milestones.find((m: { title: string }) => m.title === "Platform launch v2");
+      expect(match).toBeDefined();
     });
   });
 
