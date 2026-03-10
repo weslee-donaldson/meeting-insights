@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention } from "../core/timelines.js";
 
 let db: Database;
 
@@ -142,5 +142,92 @@ describe("listMilestonesByClient", () => {
     migrate(db2);
     db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Empty', '[]', '[]')").run();
     expect(listMilestonesByClient(db2, "Empty")).toEqual([]);
+  });
+});
+
+describe("addMilestoneMention", () => {
+  it("inserts a mention and returns it", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Mention test" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('mention-m1', 'DSU', '2026-03-01')").run();
+
+    const result = addMilestoneMention(db, {
+      milestoneId: m.id,
+      meetingId: "mention-m1",
+      mentionType: "introduced",
+      excerpt: "We plan to launch in March",
+      targetDateAtMention: "2026-03-15",
+      mentionedAt: "2026-03-01",
+    });
+
+    expect(result).toEqual({
+      milestone_id: m.id,
+      meeting_id: "mention-m1",
+      mention_type: "introduced",
+      excerpt: "We plan to launch in March",
+      target_date_at_mention: "2026-03-15",
+      mentioned_at: "2026-03-01",
+      pending_review: 0,
+    });
+  });
+
+  it("upserts on same milestone_id + meeting_id", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Upsert test" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('upsert-m1', 'DSU', '2026-03-01')").run();
+
+    addMilestoneMention(db, {
+      milestoneId: m.id,
+      meetingId: "upsert-m1",
+      mentionType: "introduced",
+      excerpt: "first",
+      targetDateAtMention: "2026-03-15",
+      mentionedAt: "2026-03-01",
+    });
+
+    const result = addMilestoneMention(db, {
+      milestoneId: m.id,
+      meetingId: "upsert-m1",
+      mentionType: "updated",
+      excerpt: "revised",
+      targetDateAtMention: "2026-04-01",
+      mentionedAt: "2026-03-01",
+    });
+
+    expect(result).toEqual({
+      milestone_id: m.id,
+      meeting_id: "upsert-m1",
+      mention_type: "updated",
+      excerpt: "revised",
+      target_date_at_mention: "2026-04-01",
+      mentioned_at: "2026-03-01",
+      pending_review: 0,
+    });
+
+    const count = db.prepare("SELECT COUNT(*) as c FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = 'upsert-m1'").get(m.id) as { c: number };
+    expect(count.c).toBe(1);
+  });
+
+  it("supports pending_review flag for fuzzy matches", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "Fuzzy test" });
+    db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('fuzzy-m1', 'DSU', '2026-03-01')").run();
+
+    const result = addMilestoneMention(db, {
+      milestoneId: m.id,
+      meetingId: "fuzzy-m1",
+      mentionType: "referenced",
+      excerpt: "maybe related",
+      targetDateAtMention: null,
+      mentionedAt: "2026-03-01",
+      pendingReview: true,
+    });
+
+    expect(result).toEqual({
+      milestone_id: m.id,
+      meeting_id: "fuzzy-m1",
+      mention_type: "referenced",
+      excerpt: "maybe related",
+      target_date_at_mention: null,
+      mentioned_at: "2026-03-01",
+      pending_review: 1,
+    });
   });
 });

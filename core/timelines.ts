@@ -60,6 +60,39 @@ export function deleteMilestone(db: DatabaseSync, id: string): void {
   db.prepare("DELETE FROM milestones WHERE id = ?").run(id);
 }
 
+interface MilestoneMentionRow {
+  milestone_id: string;
+  meeting_id: string;
+  mention_type: string;
+  excerpt: string;
+  target_date_at_mention: string | null;
+  mentioned_at: string;
+  pending_review: number;
+}
+
+export function addMilestoneMention(
+  db: DatabaseSync,
+  input: {
+    milestoneId: string;
+    meetingId: string;
+    mentionType: string;
+    excerpt: string;
+    targetDateAtMention: string | null;
+    mentionedAt: string;
+    pendingReview?: boolean;
+  },
+): MilestoneMentionRow {
+  const pendingReview = input.pendingReview ? 1 : 0;
+  db.prepare(
+    `INSERT OR REPLACE INTO milestone_mentions (milestone_id, meeting_id, mention_type, excerpt, target_date_at_mention, mentioned_at, pending_review)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(input.milestoneId, input.meetingId, input.mentionType, input.excerpt, input.targetDateAtMention, input.mentionedAt, pendingReview);
+
+  return db.prepare(
+    "SELECT * FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = ?",
+  ).get(input.milestoneId, input.meetingId) as MilestoneMentionRow;
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,
