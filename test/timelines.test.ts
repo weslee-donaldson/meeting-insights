@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions } from "../core/timelines.js";
 
 let db: Database;
 
@@ -229,5 +229,65 @@ describe("addMilestoneMention", () => {
       mentioned_at: "2026-03-01",
       pending_review: 1,
     });
+  });
+});
+
+describe("getMilestoneMentions", () => {
+  it("returns mentions joined with meeting title and date in chronological order", () => {
+    const db2 = createDb(":memory:");
+    migrate(db2);
+    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Gamma', '[]', '[]')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('gm-m1', 'Kickoff', '2026-01-10')").run();
+    db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('gm-m2', 'Sprint Review', '2026-02-05')").run();
+
+    const m = createMilestone(db2, { clientName: "Gamma", title: "Platform launch" });
+
+    addMilestoneMention(db2, {
+      milestoneId: m.id,
+      meetingId: "gm-m2",
+      mentionType: "updated",
+      excerpt: "pushed to April",
+      targetDateAtMention: "2026-04-01",
+      mentionedAt: "2026-02-05",
+    });
+    addMilestoneMention(db2, {
+      milestoneId: m.id,
+      meetingId: "gm-m1",
+      mentionType: "introduced",
+      excerpt: "targeting March",
+      targetDateAtMention: "2026-03-15",
+      mentionedAt: "2026-01-10",
+    });
+
+    const result = getMilestoneMentions(db2, m.id);
+    expect(result).toEqual([
+      {
+        milestone_id: m.id,
+        meeting_id: "gm-m1",
+        mention_type: "introduced",
+        excerpt: "targeting March",
+        target_date_at_mention: "2026-03-15",
+        mentioned_at: "2026-01-10",
+        pending_review: 0,
+        meeting_title: "Kickoff",
+        meeting_date: "2026-01-10",
+      },
+      {
+        milestone_id: m.id,
+        meeting_id: "gm-m2",
+        mention_type: "updated",
+        excerpt: "pushed to April",
+        target_date_at_mention: "2026-04-01",
+        mentioned_at: "2026-02-05",
+        pending_review: 0,
+        meeting_title: "Sprint Review",
+        meeting_date: "2026-02-05",
+      },
+    ]);
+  });
+
+  it("returns empty array when milestone has no mentions", () => {
+    const m = createMilestone(db, { clientName: "Acme", title: "No mentions" });
+    expect(getMilestoneMentions(db, m.id)).toEqual([]);
   });
 });

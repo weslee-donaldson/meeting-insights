@@ -93,6 +93,16 @@ export function addMilestoneMention(
   ).get(input.milestoneId, input.meetingId) as MilestoneMentionRow;
 }
 
+export function getMilestoneMentions(db: DatabaseSync, milestoneId: string) {
+  return db.prepare(
+    `SELECT mm.*, mtg.title AS meeting_title, mtg.date AS meeting_date
+     FROM milestone_mentions mm
+     JOIN meetings mtg ON mtg.id = mm.meeting_id
+     WHERE mm.milestone_id = ?
+     ORDER BY mm.mentioned_at ASC`,
+  ).all(milestoneId) as (MilestoneMentionRow & { meeting_title: string; meeting_date: string })[];
+}
+
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
   return db.prepare(
     `SELECT m.*,
