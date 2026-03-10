@@ -165,41 +165,54 @@ describe("ClientActionItemsView", () => {
     expect(screen.getByTestId("completed-items-list").textContent).toContain("Fix the broken build");
   });
 
-  it("renders sort pill buttons with label and four options", () => {
+  it("renders group-by pill buttons with label and four options", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const sortBar = screen.getByTestId("action-sort-by");
-    expect(sortBar.textContent).toContain("Sort:");
-    const buttons = Array.from(sortBar.querySelectorAll("button")).map((b) => b.textContent);
+    const groupBar = screen.getByTestId("action-group-by");
+    expect(groupBar.textContent).toContain("Group:");
+    const buttons = Array.from(groupBar.querySelectorAll("button")).map((b) => b.textContent);
     expect(buttons).toEqual(["Priority", "Series", "Owner", "Requester"]);
   });
 
-  it("sorts items by series when Series pill clicked", () => {
+  it("default groups by priority with Critical and Normal section headers", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(2);
+    expect(groups[0].textContent).toContain("Critical");
+    expect(groups[0].textContent).toContain("Fix the broken build");
+    expect(groups[1].textContent).toContain("Normal");
+    expect(groups[1].textContent).toContain("Write documentation");
+  });
+
+  it("groups items by series with section headers when Series pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     fireEvent.click(screen.getByRole("button", { name: "Series" }));
-    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
-    expect(cards[0]).toContain("Planning");
-    expect(cards[1]).toContain("Weekly Sync");
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(2);
+    expect(groups[0].textContent).toContain("Planning");
+    expect(groups[0].textContent).toContain("Write documentation");
+    expect(groups[1].textContent).toContain("Weekly Sync");
+    expect(groups[1].textContent).toContain("Fix the broken build");
   });
 
-  it("sorts items by owner when Owner pill clicked", () => {
+  it("groups items by owner with section headers when Owner pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     fireEvent.click(screen.getByRole("button", { name: "Owner" }));
-    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
-    expect(cards[0]).toContain("Alice");
-    expect(cards[1]).toContain("Charlie");
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(2);
+    expect(groups[0].textContent).toContain("Alice");
+    expect(groups[0].textContent).toContain("Fix the broken build");
+    expect(groups[1].textContent).toContain("Charlie");
+    expect(groups[1].textContent).toContain("Write documentation");
   });
 
-  it("sorts items by requester when Requester pill clicked", () => {
+  it("groups items by requester with section headers when Requester pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     fireEvent.click(screen.getByRole("button", { name: "Requester" }));
-    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
-    expect(cards[0]).toContain("Alice");
-    expect(cards[1]).toContain("Bob");
-  });
-
-  it("default sort is priority with critical items first", () => {
-    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const cards = screen.getAllByRole("checkbox").map((cb) => cb.closest("[class*='px-4']")!.textContent);
-    expect(cards[0]).toContain("CRITICAL");
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(2);
+    expect(groups[0].textContent).toContain("Alice");
+    expect(groups[0].textContent).toContain("Write documentation");
+    expect(groups[1].textContent).toContain("Bob");
+    expect(groups[1].textContent).toContain("Fix the broken build");
   });
 });

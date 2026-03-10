@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { ClientActionItem } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
-type ActionSortBy = "priority" | "series" | "owner" | "requester";
+type ActionGroupBy = "priority" | "series" | "owner" | "requester";
 
-const SORT_MODES: { value: ActionSortBy; label: string }[] = [
+const GROUP_MODES: { value: ActionGroupBy; label: string }[] = [
   { value: "priority", label: "Priority" },
   { value: "series", label: "Series" },
   { value: "owner", label: "Owner" },
@@ -18,6 +18,35 @@ interface ClientActionItemsViewProps {
   onComplete?: (meetingId: string, itemIndex: number) => void;
 }
 
+function groupKey(item: ClientActionItem, mode: ActionGroupBy): string {
+  if (mode === "priority") return item.priority;
+  if (mode === "series") return item.meeting_title;
+  if (mode === "owner") return item.owner || "(unassigned)";
+  return item.requester || "(unassigned)";
+}
+
+function groupLabel(key: string, mode: ActionGroupBy): string {
+  if (mode === "priority") return key === "critical" ? "Critical" : "Normal";
+  return key;
+}
+
+function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: string; label: string; items: ClientActionItem[] }[] {
+  const map = new Map<string, ClientActionItem[]>();
+  for (const item of items) {
+    const k = groupKey(item, mode);
+    const arr = map.get(k);
+    if (arr) arr.push(item);
+    else map.set(k, [item]);
+  }
+  const entries = [...map.entries()].map(([k, v]) => ({ key: k, label: groupLabel(k, mode), items: v }));
+  if (mode === "priority") {
+    entries.sort((a, b) => (a.key === "critical" ? -1 : 1) - (b.key === "critical" ? -1 : 1));
+  } else {
+    entries.sort((a, b) => a.label.localeCompare(b.label));
+  }
+  return entries;
+}
+
 export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
@@ -25,7 +54,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [priorityFilter, setPriorityFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [requesterFilter, setRequesterFilter] = useState("");
-  const [sortBy, setSortBy] = useState<ActionSortBy>("priority");
+  const [groupBy, setGroupBy] = useState<ActionGroupBy>("priority");
 
   function handleComplete(meetingId: string, itemIndex: number) {
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
@@ -52,12 +81,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
     && (!requesterFilter || i.requester === requesterFilter),
   );
 
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === "priority") return a.priority === b.priority ? 0 : a.priority === "critical" ? -1 : 1;
-    if (sortBy === "series") return a.meeting_title.localeCompare(b.meeting_title);
-    if (sortBy === "owner") return a.owner.localeCompare(b.owner);
-    return a.requester.localeCompare(b.requester);
-  });
+  const groups = groupItems(filtered, groupBy);
 
   return (
     <div data-testid="client-action-items-view" className="flex flex-col h-full overflow-auto">
@@ -86,15 +110,15 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
             {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
-        <div data-testid="action-sort-by" className="flex items-center gap-1.5">
-          <span className="text-xs text-foreground font-semibold">Sort:</span>
-          {SORT_MODES.map(({ value, label }) => (
+        <div data-testid="action-group-by" className="flex items-center gap-1.5">
+          <span className="text-xs text-foreground font-semibold">Group:</span>
+          {GROUP_MODES.map(({ value, label }) => (
             <Button
               key={value}
-              variant={sortBy === value ? "default" : "secondary"}
+              variant={groupBy === value ? "default" : "secondary"}
               size="sm"
               className="rounded-full h-auto px-3 py-0.5 text-xs"
-              onClick={() => setSortBy(value)}
+              onClick={() => setGroupBy(value)}
             >
               {label}
             </Button>
@@ -103,8 +127,15 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
       </div>
 
       <div className="flex flex-col">
-        {sorted.map((item) => (
-          <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
+        {groups.map((group) => (
+          <div key={group.key} data-testid="action-group">
+            <div className="px-4 py-1.5 bg-secondary/60">
+              <span className="text-xs font-semibold text-foreground">{group.label}</span>
+            </div>
+            {group.items.map((item) => (
+              <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
+            ))}
+          </div>
         ))}
         {filtered.length === 0 && (
           <p className="text-muted-foreground text-sm px-4 py-2">No open action items.</p>
