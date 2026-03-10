@@ -17,6 +17,7 @@ export interface Artifact {
   open_questions: string[];
   risk_items: Array<{ category: "relationship" | "architecture" | "engineering"; description: string }>;
   additional_notes: Array<Record<string, unknown>>;
+  milestones: Array<{ title: string; target_date: string | null; status_signal: string; excerpt: string }>;
 }
 
 export interface ArtifactRow {
@@ -28,6 +29,7 @@ export interface ArtifactRow {
   open_questions: string;
   risk_items: string;
   additional_notes: string;
+  milestones: string;
 }
 
 export function validateArtifact(raw: object): Artifact {
@@ -70,6 +72,9 @@ export function validateArtifact(raw: object): Artifact {
   if (!Array.isArray(notes) || notes.some(item => typeof item !== "object" || item === null || Array.isArray(item))) {
     logValidate("additional_notes malformed — normalizing to []");
     r["additional_notes"] = [];
+  }
+  if (!Array.isArray(r["milestones"])) {
+    r["milestones"] = [];
   }
   return r as unknown as Artifact;
 }
@@ -129,6 +134,18 @@ function mergeArtifacts(artifacts: Artifact[]): Artifact {
     }
   }
 
+  const seenMilestones = new Set<string>();
+  const milestones: Artifact["milestones"] = [];
+  for (const a of artifacts) {
+    for (const m of a.milestones) {
+      const key = normalizeString(m.title);
+      if (!seenMilestones.has(key)) {
+        seenMilestones.add(key);
+        milestones.push(m);
+      }
+    }
+  }
+
   return {
     summary: artifacts.map((a) => a.summary).filter(Boolean).join("\n\n"),
     decisions,
@@ -137,6 +154,7 @@ function mergeArtifacts(artifacts: Artifact[]): Artifact {
     open_questions: dedupStrings(artifacts.flatMap((a) => a.open_questions)),
     risk_items,
     additional_notes: artifacts.flatMap((a) => a.additional_notes),
+    milestones,
   };
 }
 
@@ -161,7 +179,7 @@ export async function extractSummary(
       const raw = await adapter.complete("extract_artifact", content);
       if (raw.__fallback) {
         logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
-        return { summary: "", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [] as Artifact["risk_items"], additional_notes: [] };
+        return { summary: "", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [] as Artifact["risk_items"], additional_notes: [], milestones: [] };
       }
       return validateArtifact(raw);
     }),
@@ -176,8 +194,8 @@ export async function extractSummary(
 
 export function storeArtifact(db: Database, meetingId: string, artifact: Artifact): void {
   db.prepare(`
-    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes, milestones)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     meetingId,
     artifact.summary,
@@ -187,6 +205,7 @@ export function storeArtifact(db: Database, meetingId: string, artifact: Artifac
     JSON.stringify(artifact.open_questions),
     JSON.stringify(artifact.risk_items),
     JSON.stringify(artifact.additional_notes ?? []),
+    JSON.stringify(artifact.milestones ?? []),
   );
 }
 

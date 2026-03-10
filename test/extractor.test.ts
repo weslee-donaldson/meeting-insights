@@ -195,6 +195,17 @@ describe("validateArtifact", () => {
     const result = validateArtifact({ ...VALID_BASE, additional_notes: [{ category: "ctx", note: "x" }] });
     expect(result.additional_notes).toEqual([{ category: "ctx", note: "x" }]);
   });
+
+  it("defaults milestones to empty array when missing", () => {
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: [] });
+    expect(result.milestones).toEqual([]);
+  });
+
+  it("preserves milestones array when present", () => {
+    const milestones = [{ title: "Launch v2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "We aim to launch in June" }];
+    const result = validateArtifact({ ...VALID_BASE, additional_notes: [], milestones });
+    expect(result.milestones).toEqual(milestones);
+  });
 });
 
 describe("extraction prompt", () => {
@@ -230,6 +241,7 @@ describe("extractSummary with fallback adapter", () => {
     expect(artifact.summary).toBe("");
     expect(artifact.decisions).toEqual([]);
     expect(artifact.additional_notes).toEqual([]);
+    expect(artifact.milestones).toEqual([]);
   });
 });
 
