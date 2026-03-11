@@ -4,11 +4,8 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import { registerDebugRoutes } from "./routes/debug.js";
 import { registerMeetingRoutes } from "./routes/meetings.js";
 import { registerSearchRoutes } from "./routes/search.js";
+import { registerThreadRoutes } from "./routes/threads.js";
 import {
-  handleListThreads, handleCreateThread, handleUpdateThread, handleDeleteThread,
-  handleGetThreadMeetings, handleGetThreadCandidates, handleEvaluateThreadCandidates,
-  handleRemoveThreadMeeting, handleAddThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
-  handleThreadChat, handleClearThreadMessages, handleGetMeetingThreads,
   handleListInsights, handleCreateInsight, handleUpdateInsight, handleDeleteInsight,
   handleGetInsightMeetings, handleDiscoverInsightMeetings, handleGenerateInsight,
   handleGetInsightMessages, handleInsightChat, handleClearInsightMessages, handleRemoveInsightMeeting,
@@ -19,7 +16,7 @@ import {
   handleGetMilestoneMessages, handleMilestoneChat, handleClearMilestoneMessages,
 } from "../electron-ui/electron/ipc-handlers.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
-import type { ThreadChatRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../electron-ui/electron/channels.js";
+import type { InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -41,90 +38,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   registerDebugRoutes(app, db, dbPath, searchDeps);
   registerMeetingRoutes(app, db, llm, searchDeps);
   registerSearchRoutes(app, db, llm, searchDeps);
-
-
-  // Thread routes
-  app.get('/api/threads', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListThreads(db, client));
-  });
-
-  app.post('/api/threads', (c) => {
-    const req = c.req.json();
-    return req.then((body) => c.json(handleCreateThread(db, body as import('../electron-ui/electron/channels.js').CreateThreadRequest), 201));
-  });
-
-  app.put('/api/threads/:id', async (c) => {
-    try {
-      const body = await c.req.json() as import('../electron-ui/electron/channels.js').UpdateThreadRequest;
-      return c.json(handleUpdateThread(db, c.req.param('id'), body));
-    } catch (err) {
-      console.error("Update thread failed:", err);
-      return c.json({ error: (err as Error).message }, 500);
-    }
-  });
-
-  app.delete('/api/threads/:id', (c) => {
-    handleDeleteThread(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  app.get('/api/threads/:id/meetings', (c) => {
-    return c.json(handleGetThreadMeetings(db, c.req.param('id')));
-  });
-
-  app.get('/api/threads/:id/candidates', async (c) => {
-    if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const result = await handleGetThreadCandidates(db, searchDeps.vdb, searchDeps.session, c.req.param('id'));
-    return c.json(result);
-  });
-
-  app.post('/api/threads/:id/evaluate', async (c) => {
-    const body = await c.req.json() as { meetingIds: string[]; overrideExisting?: boolean };
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    const result = await handleEvaluateThreadCandidates(db, llm, c.req.param('id'), body.meetingIds, body.overrideExisting ?? false);
-    return c.json(result);
-  });
-
-  app.delete('/api/threads/:threadId/meetings/:meetingId', (c) => {
-    handleRemoveThreadMeeting(db, c.req.param('threadId'), c.req.param('meetingId'));
-    return c.json({ ok: true });
-  });
-
-  app.post('/api/threads/:threadId/meetings', async (c) => {
-    const body = await c.req.json() as { meetingId: string; summary: string; score: number };
-    handleAddThreadMeeting(db, c.req.param('threadId'), body.meetingId, body.summary, body.score);
-    return c.json({ ok: true });
-  });
-
-  app.post('/api/threads/:id/regenerate-summary', async (c) => {
-    const body = await c.req.json() as { meetingIds?: string[] };
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    const result = await handleRegenerateThreadSummary(db, llm, c.req.param('id'), body.meetingIds);
-    return c.json(result);
-  });
-
-  app.get('/api/threads/:id/messages', (c) => {
-    return c.json(handleGetThreadMessages(db, c.req.param('id')));
-  });
-
-  app.post('/api/threads/:id/chat', async (c) => {
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const req: ThreadChatRequest = { threadId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
-    const result = await handleThreadChat(db, llm, searchDeps.vdb, searchDeps.session, req);
-    return c.json(result);
-  });
-
-  app.delete('/api/threads/:id/messages', (c) => {
-    handleClearThreadMessages(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  app.get('/api/meetings/:id/threads', (c) => {
-    return c.json(handleGetMeetingThreads(db, c.req.param('id')));
-  });
+  registerThreadRoutes(app, db, llm, searchDeps);
 
   // Insight routes
   app.get('/api/insights', (c) => {
