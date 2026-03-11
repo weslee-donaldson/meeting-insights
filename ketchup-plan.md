@@ -13,7 +13,7 @@
 ### Refactor: Break Up Large Files
 
 - [x] Burst R1: Extract api/main.ts (bootstrap startup), slim api/server.ts to createApp only
-- [ ] Burst R2: Extract api/routes/debug.ts
+- [x] Burst R2: Extract api/routes/debug.ts
 - [ ] Burst R3: Extract api/routes/meetings.ts
 - [ ] Burst R4: Extract api/routes/search.ts
 - [ ] Burst R5: Extract api/routes/threads.ts
