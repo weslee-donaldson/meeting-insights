@@ -304,7 +304,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 30: IPC handlers for list/create/update/delete milestones
 - [x] Burst 31: IPC handlers for mentions + action item linking + getMeetingMilestones + confirm/reject/merge
 - [x] Burst 32: IPC handlers for chat (milestone_chat, get/clear messages)
-- [ ] Burst 33: HTTP routes in api/server.ts
+- [x] Burst 33: HTTP routes in api/server.ts
 - [ ] Burst 34: API client methods in api-client.ts
 
 ### Phase 8: UI — Navigation + Detail

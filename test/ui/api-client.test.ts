@@ -302,4 +302,134 @@ describe("apiClient", () => {
     expect(await apiClient.getMeetingThreads("m1")).toEqual([{ id: "t1", title: "Deployment issues" }]);
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/meetings/m1/threads");
   });
+
+  it("listMilestones fetches /api/milestones with client query param", async () => {
+    const spy = mockFetch([{ id: "ms1", title: "Launch v2" }]);
+    expect(await apiClient.listMilestones("Acme")).toEqual([{ id: "ms1", title: "Launch v2" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones?client=Acme");
+  });
+
+  it("createMilestone posts to /api/milestones", async () => {
+    const spy = mockFetch({ id: "ms1", title: "Launch v2" });
+    const result = await apiClient.createMilestone({ clientName: "Acme", title: "Launch v2" });
+    expect(result).toEqual({ id: "ms1", title: "Launch v2" });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("updateMilestone puts to /api/milestones/:id", async () => {
+    const spy = mockFetch({ id: "ms1", status: "tracked" });
+    const result = await apiClient.updateMilestone("ms1", { status: "tracked" });
+    expect(result).toEqual({ id: "ms1", status: "tracked" });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1",
+      expect.objectContaining({ method: "PUT" }),
+    );
+  });
+
+  it("deleteMilestone deletes /api/milestones/:id", async () => {
+    const spy = mockFetch({});
+    await apiClient.deleteMilestone("ms1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("getMilestoneMentions fetches /api/milestones/:id/mentions", async () => {
+    const spy = mockFetch([{ milestone_id: "ms1", meeting_id: "m1" }]);
+    expect(await apiClient.getMilestoneMentions("ms1")).toEqual([{ milestone_id: "ms1", meeting_id: "m1" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones/ms1/mentions");
+  });
+
+  it("confirmMilestoneMention posts to /api/milestones/:id/confirm-mention", async () => {
+    const spy = mockFetch({});
+    await apiClient.confirmMilestoneMention("ms1", "m1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/confirm-mention",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("rejectMilestoneMention posts to /api/milestones/:id/reject-mention", async () => {
+    const spy = mockFetch({});
+    await apiClient.rejectMilestoneMention("ms1", "m1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/reject-mention",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("mergeMilestones posts to /api/milestones/merge", async () => {
+    const spy = mockFetch({});
+    await apiClient.mergeMilestones("ms1", "ms2");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/merge",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("linkMilestoneActionItem posts to /api/milestones/:id/link-action-item", async () => {
+    const spy = mockFetch({});
+    await apiClient.linkMilestoneActionItem("ms1", "m1", 0);
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/link-action-item",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("unlinkMilestoneActionItem deletes /api/milestones/:id/link-action-item", async () => {
+    const spy = mockFetch({});
+    await apiClient.unlinkMilestoneActionItem("ms1", "m1", 0);
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/link-action-item",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("getMilestoneActionItems fetches /api/milestones/:id/action-items", async () => {
+    const spy = mockFetch([]);
+    expect(await apiClient.getMilestoneActionItems("ms1")).toEqual([]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones/ms1/action-items");
+  });
+
+  it("milestoneChat posts to /api/milestones/:id/chat", async () => {
+    const spy = mockFetch({ answer: "On track", sources: [] });
+    const result = await apiClient.milestoneChat({ milestoneId: "ms1", message: "Status?", includeTranscripts: false });
+    expect(result).toEqual({ answer: "On track", sources: [] });
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/chat",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("getMilestoneMessages fetches /api/milestones/:id/messages", async () => {
+    const spy = mockFetch([]);
+    expect(await apiClient.getMilestoneMessages("ms1")).toEqual([]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones/ms1/messages");
+  });
+
+  it("clearMilestoneMessages deletes /api/milestones/:id/messages", async () => {
+    const spy = mockFetch({});
+    await apiClient.clearMilestoneMessages("ms1");
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/milestones/ms1/messages",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("getMeetingMilestones fetches /api/meetings/:id/milestones", async () => {
+    const spy = mockFetch([{ milestone_id: "ms1", title: "Launch v2" }]);
+    expect(await apiClient.getMeetingMilestones("m1")).toEqual([{ milestone_id: "ms1", title: "Launch v2" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/meetings/m1/milestones");
+  });
+
+  it("getDateSlippage fetches /api/milestones/:id/slippage", async () => {
+    const spy = mockFetch([{ mentioned_at: "2026-01-10", target_date_at_mention: "2026-03-15" }]);
+    expect(await apiClient.getDateSlippage("ms1")).toEqual([{ mentioned_at: "2026-01-10", target_date_at_mention: "2026-03-15" }]);
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones/ms1/slippage");
+  });
+
 });
