@@ -1,5 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
+import { getArtifact } from "./extractor.js";
+import { embed } from "./embedder.js";
+import type { InferenceSession } from "onnxruntime-node";
+import type { VectorDb } from "./vector-db.js";
 
 interface MilestoneRow {
   id: string;
@@ -369,4 +373,52 @@ export function getMilestoneMessages(db: DatabaseSync, milestoneId: string): Mil
 
 export function clearMilestoneMessages(db: DatabaseSync, milestoneId: string): void {
   db.prepare("DELETE FROM milestone_messages WHERE milestone_id = ?").run(milestoneId);
+}
+
+export async function getMilestoneChatContext(
+  db: DatabaseSync,
+  vdb: VectorDb,
+  session: InferenceSession & { _tokenizer: unknown },
+  milestoneId: string,
+  userMessage: string,
+  includeTranscripts: boolean,
+  topK: number = 7,
+): Promise<{ systemContext: string; meetingIds: string[] }> {
+  const milestone = getMilestone(db, milestoneId);
+  if (!milestone) return { systemContext: "", meetingIds: [] };
+
+  const mentions = getMilestoneMentions(db, milestoneId);
+  const parts: string[] = [`Milestone: ${milestone.title}`];
+  if (milestone.description) parts.push(`Description: ${milestone.description}`);
+  parts.push(`Target Date: ${milestone.target_date ?? "unscheduled"}`);
+  parts.push(`Status: ${milestone.status}`);
+
+  if (mentions.length === 0) {
+    return { systemContext: parts.join("\n"), meetingIds: [] };
+  }
+
+  const vec = await embed(session as Parameters<typeof embed>[0], userMessage);
+  const meetingIds = mentions.map((m) => m.meeting_id);
+  const idList = meetingIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(",");
+  const table = await vdb.openTable("meeting_vectors");
+  const rows = await table
+    .search(Array.from(vec))
+    .limit(topK)
+    .where(`meeting_id IN (${idList})`)
+    .toArray() as Array<Record<string, unknown>>;
+  const selectedIds = rows.map((r) => r.meeting_id as string);
+
+  if (selectedIds.length > 0) {
+    parts.push("\nRelevant Meetings:");
+    for (const id of selectedIds) {
+      const art = getArtifact(db, id);
+      const mention = mentions.find((m) => m.meeting_id === id);
+      if (art && mention) {
+        const content = includeTranscripts ? `Summary: ${art.summary}\nAction Items: ${art.action_items}` : `Summary: ${art.summary}`;
+        parts.push(`- ${mention.meeting_title} (${mention.meeting_date}):\n  ${content.replace(/\n/g, "\n  ")}`);
+      }
+    }
+  }
+
+  return { systemContext: parts.join("\n"), meetingIds: selectedIds };
 }
