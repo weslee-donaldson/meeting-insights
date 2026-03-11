@@ -170,7 +170,7 @@ export async function extractSummary(
     : "";
   const chunks = chunkTranscript(turns, tokenLimit);
   const start = Date.now();
-  const artifacts = await Promise.all(
+  const results = await Promise.all(
     chunks.map(async (chunk) => {
       const transcript = turnsToText(chunk);
       const content = promptTemplate
@@ -179,12 +179,16 @@ export async function extractSummary(
       const raw = await adapter.complete("extract_artifact", content);
       if (raw.__fallback) {
         logValidate("fallback artifact used raw_text=%s", String(raw.raw_text ?? "").slice(0, 100));
-        return { summary: "", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [] as Artifact["risk_items"], additional_notes: [], milestones: [] };
+        return null;
       }
       return validateArtifact(raw);
     }),
   );
   log("extraction completed in %dms chunks=%d", Date.now() - start, chunks.length);
+  const artifacts = results.filter((a): a is Artifact => a !== null);
+  if (artifacts.length === 0) {
+    throw new Error("Extraction failed: LLM returned unparseable responses for all chunks");
+  }
   const merged = mergeArtifacts(artifacts);
   const notesCount = merged.additional_notes.length;
   const notesSize = JSON.stringify(merged.additional_notes).length;

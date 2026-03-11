@@ -248,15 +248,11 @@ describe("extraction prompt", () => {
 });
 
 describe("extractSummary with fallback adapter", () => {
-  it("returns minimal artifact when adapter returns __fallback sentinel", async () => {
+  it("throws when all chunks return __fallback sentinel", async () => {
     const fallbackAdapter: LlmAdapter = {
       complete: async () => ({ __fallback: true, raw_text: "not json" }),
     };
-    const artifact = await extractSummary(fallbackAdapter, parsed.turns, 8000);
-    expect(artifact.summary).toBe("");
-    expect(artifact.decisions).toEqual([]);
-    expect(artifact.additional_notes).toEqual([]);
-    expect(artifact.milestones).toEqual([]);
+    await expect(extractSummary(fallbackAdapter, parsed.turns, 8000)).rejects.toThrow("Extraction failed");
   });
 });
 
