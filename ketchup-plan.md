@@ -14,8 +14,8 @@
 
 - [x] Burst R1: Extract api/main.ts (bootstrap startup), slim api/server.ts to createApp only
 - [x] Burst R2: Extract api/routes/debug.ts
-- [ ] Burst R3: Extract api/routes/meetings.ts
-- [ ] Burst R4: Extract api/routes/search.ts
+- [x] Burst R3: Extract api/routes/meetings.ts
+- [x] Burst R4: Extract api/routes/search.ts
 - [ ] Burst R5: Extract api/routes/threads.ts
 - [ ] Burst R6: Extract api/routes/insights.ts + milestones.ts, slim server.ts to wiring
 - [ ] Burst R7: Extract electron-ui/electron/handlers/meetings.ts

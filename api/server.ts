@@ -2,12 +2,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { registerDebugRoutes } from "./routes/debug.js";
+import { registerMeetingRoutes } from "./routes/meetings.js";
+import { registerSearchRoutes } from "./routes/search.js";
 import {
-  handleGetClients, handleGetMeetings, handleGetArtifact, handleChat, handleConversationChat,
-  handleDeleteMeetings, handleReExtract, handleReassignClient,
-  handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
-  handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
-  handleGetTemplates, handleCreateMeeting, handleDeepSearch,
   handleListThreads, handleCreateThread, handleUpdateThread, handleDeleteThread,
   handleGetThreadMeetings, handleGetThreadCandidates, handleEvaluateThreadCandidates,
   handleRemoveThreadMeeting, handleAddThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
@@ -21,9 +18,8 @@ import {
   handleGetMilestoneActionItems, handleGetMeetingMilestones, handleGetDateSlippage,
   handleGetMilestoneMessages, handleMilestoneChat, handleClearMilestoneMessages,
 } from "../electron-ui/electron/ipc-handlers.js";
-import { getMeeting } from "../core/ingest.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
-import type { CreateMeetingRequest, DeepSearchRequest, ThreadChatRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../electron-ui/electron/channels.js";
+import type { ThreadChatRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -43,191 +39,8 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   registerDebugRoutes(app, db, dbPath, searchDeps);
-
-  app.get("/api/clients", (c) => {
-    return c.json(handleGetClients(db));
-  });
-
-  app.get("/api/default-client", (c) => {
-    return c.json(handleGetDefaultClient(db));
-  });
-
-  app.get("/api/meetings", (c) => {
-    const client = c.req.query("client");
-    const after = c.req.query("after");
-    const before = c.req.query("before");
-    const filters = {
-      ...(client ? { client } : {}),
-      ...(after ? { after } : {}),
-      ...(before ? { before } : {}),
-    };
-    return c.json(handleGetMeetings(db, filters));
-  });
-
-  app.get("/api/meetings/:id", (c) => {
-    const id = c.req.param("id");
-    const meeting = getMeeting(db, id);
-    if (!meeting) return c.json({ error: "Not found" }, 404);
-    return c.json(meeting);
-  });
-
-  app.get("/api/meetings/:id/artifact", (c) => {
-    const id = c.req.param("id");
-    const artifact = handleGetArtifact(db, id);
-    if (!artifact) return c.json({ error: "Not found" }, 404);
-    return c.json(artifact);
-  });
-
-  app.post("/api/chat", async (c) => {
-    if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const req = await c.req.json() as { meetingIds: string[]; question: string };
-    try {
-      const result = await handleChat(db, llm, req);
-      return c.json(result);
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 502);
-    }
-  });
-
-  app.post("/api/chat/conversation", async (c) => {
-    if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; base64: string; mimeType: string }[]; includeTranscripts?: boolean; template?: string };
-    try {
-      const result = await handleConversationChat(db, llm, req);
-      return c.json(result);
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 502);
-    }
-  });
-
-  app.post("/api/meetings", async (c) => {
-    if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const req = await c.req.json() as CreateMeetingRequest;
-    try {
-      const meetingId = await handleCreateMeeting(db, llm, req);
-      return c.json({ meetingId }, 201);
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 502);
-    }
-  });
-
-  app.delete("/api/meetings", async (c) => {
-    const { ids } = await c.req.json() as { ids: string[] };
-    await handleDeleteMeetings(db, searchDeps?.vdb ?? null, ids);
-    return c.body(null, 204);
-  });
-
-  app.post("/api/meetings/:id/re-extract", async (c) => {
-    if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const id = c.req.param("id");
-    try {
-      await handleReExtract(db, llm, id);
-      return c.json({});
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 502);
-    }
-  });
-
-  app.post("/api/meetings/:id/client", async (c) => {
-    const id = c.req.param("id");
-    const { clientName } = await c.req.json() as { clientName: string };
-    handleReassignClient(db, id, clientName);
-    return c.body(null, 204);
-  });
-
-  app.post("/api/meetings/:id/ignored", async (c) => {
-    const id = c.req.param("id");
-    const { ignored } = await c.req.json() as { ignored: boolean };
-    handleSetIgnored(db, id, ignored);
-    return c.body(null, 204);
-  });
-
-  app.post("/api/meetings/:id/action-items/:index/complete", async (c) => {
-    const id = c.req.param("id");
-    const itemIndex = Number(c.req.param("index"));
-    const { note } = await c.req.json() as { note: string };
-    handleCompleteActionItem(db, id, itemIndex, note);
-    return c.body(null, 204);
-  });
-
-  app.delete("/api/meetings/:id/action-items/:index/complete", (c) => {
-    const id = c.req.param("id");
-    const itemIndex = Number(c.req.param("index"));
-    handleUncompleteActionItem(db, id, itemIndex);
-    return c.body(null, 204);
-  });
-
-  app.get("/api/meetings/:id/completions", (c) => {
-    const id = c.req.param("id");
-    return c.json(handleGetCompletions(db, id));
-  });
-
-  app.get("/api/items/:canonicalId/history", (c) => {
-    const canonicalId = c.req.param("canonicalId");
-    return c.json(handleGetItemHistory(db, canonicalId));
-  });
-
-  app.get("/api/meetings/:id/mention-stats", (c) => {
-    const id = c.req.param("id");
-    return c.json(handleGetMentionStats(db, id));
-  });
-
-  app.get("/api/clients/:name/action-items", (c) => {
-    const name = c.req.param("name");
-    const after = c.req.query("after");
-    const before = c.req.query("before");
-    const filters = (after || before) ? { ...(after ? { after } : {}), ...(before ? { before } : {}) } : undefined;
-    return c.json(handleGetClientActionItems(db, name, filters));
-  });
-
-  app.get("/api/templates", (c) => {
-    return c.json(handleGetTemplates());
-  });
-
-  app.post("/api/re-embed", async (c) => {
-    if (!searchDeps) return c.json({ error: "Search not available" }, 503);
-    const { handleReEmbed } = await import("../electron-ui/electron/ipc-handlers.js");
-    const result = await handleReEmbed(db, searchDeps.vdb, searchDeps.session);
-    return c.json(result);
-  });
-
-  app.post("/api/meetings/:id/re-embed", async (c) => {
-    if (!searchDeps) return c.json({ error: "Search not available" }, 503);
-    const id = c.req.param("id");
-    const { handleUpdateMeetingVector } = await import("../electron-ui/electron/ipc-handlers.js");
-    try {
-      await handleUpdateMeetingVector(db, searchDeps.vdb, searchDeps.session, id);
-      return c.json({});
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 404);
-    }
-  });
-
-  app.post("/api/deep-search", async (c) => {
-    if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const req = await c.req.json() as DeepSearchRequest;
-    try {
-      const results = await handleDeepSearch(db, llm, req);
-      return c.json(results);
-    } catch (err) {
-      return c.json({ error: (err as Error).message }, 502);
-    }
-  });
-
-  app.get("/api/search", async (c) => {
-    if (!searchDeps) return c.json({ error: "Search not available" }, 503);
-    const q = c.req.query("q") ?? "";
-    if (q.length < 2) return c.json({ error: "Query too short" }, 400);
-    const client = c.req.query("client");
-    const limitParam = c.req.query("limit");
-    const { handleSearchMeetings } = await import("../electron-ui/electron/ipc-handlers.js");
-    const results = await handleSearchMeetings(db, searchDeps.vdb, searchDeps.session, {
-      query: q,
-      ...(client ? { client } : {}),
-      ...(limitParam ? { limit: Number(limitParam) } : {}),
-    });
-    return c.json(results);
-  });
+  registerMeetingRoutes(app, db, llm, searchDeps);
+  registerSearchRoutes(app, db, llm, searchDeps);
 
 
   // Thread routes
