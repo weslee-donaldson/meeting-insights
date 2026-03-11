@@ -621,7 +621,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               onClick={onReExtract}
               disabled={reExtractPending}
               aria-label="Re-extract"
-              title="Re-extract"
+              title="Re-extract summary, action items, and milestones"
             >
               <RefreshCw className={cn("w-4 h-4 mr-1", reExtractPending && "animate-spin")} />
               Re-extract

@@ -111,7 +111,7 @@ describe("MeetingDetail", () => {
     );
     expect(screen.getByRole("button", { name: "Reassign client" }).getAttribute("title")).toBe("Reassign client");
     expect(screen.getByRole("button", { name: "Ignore meeting" }).getAttribute("title")).toBe("Ignore meeting");
-    expect(screen.getByRole("button", { name: "Re-extract" }).getAttribute("title")).toBe("Re-extract");
+    expect(screen.getByRole("button", { name: "Re-extract" }).getAttribute("title")).toBe("Re-extract summary, action items, and milestones");
   });
 
   it("re-extract button calls onReExtract when clicked", () => {
