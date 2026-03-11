@@ -3,7 +3,7 @@ import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useSearch } from "./useSearch.js";
 import { useDeepSearch } from "./useDeepSearch.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-artifacts.js";
-import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest } from "../../../electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
 
 interface DateRange {
@@ -16,7 +16,6 @@ export function useMeetingState(
   currentView: string,
   addToast: (message: string, type: "success" | "error") => void,
   setCurrentView: (view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => void,
-  activeMeetingIdsForChat: string[],
 ) {
   const queryClient = useQueryClient();
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
@@ -432,13 +431,6 @@ export function useMeetingState(
     setHistoryItem(null);
   }, []);
 
-  const handleChat = useCallback(
-    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string): Promise<ConversationChatResponse> => {
-      return window.api.conversationChat({ meetingIds: activeMeetingIdsForChat, messages, attachments, includeTranscripts, template: template || undefined });
-    },
-    [activeMeetingIdsForChat],
-  );
-
   const handleSaveAsThread = useCallback((content: string) => {
     setThreadInitialDescription(content);
   }, []);
@@ -524,7 +516,6 @@ export function useMeetingState(
     handleNavigate,
     handleMentionClick,
     handleHistorySelectMeeting,
-    handleChat,
     handleSaveAsThread,
     handleResetSearch,
     handleResetChecked,

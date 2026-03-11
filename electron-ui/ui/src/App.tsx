@@ -1,79 +1,34 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { ConversationMessage, ConversationChatResponse } from "../../electron/channels.js";
 import { LinearShell } from "./components/LinearShell.js";
 import { TopBar } from "./components/TopBar.js";
-import { MeetingList, type GroupBy, type SortBy } from "./components/MeetingList.js";
-import { MeetingDetail } from "./components/MeetingDetail.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { NavRail } from "./components/NavRail.js";
-import { ClientActionItemsView } from "./components/ClientActionItemsView.js";
 import { useTheme } from "./ThemeContext.js";
-import { useSearch } from "./hooks/useSearch.js";
-import { useDeepSearch } from "./hooks/useDeepSearch.js";
 import { ToastContainer, useToast } from "./components/ui/toast.js";
-import { mergeArtifactsDeduped, computeActionItemOrigins } from "./lib/merge-artifacts.js";
-import type { MeetingRow, ConversationMessage, ConversationChatResponse, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, ClientActionItem, CreateMeetingRequest } from "../../electron/channels.js";
 import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
 import { Button } from "./components/ui/button.js";
 import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
-import { ThreadsView } from "./components/ThreadsView.js";
 import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
-import { ThreadDetailView } from "./components/ThreadDetailView.js";
-import { InsightsView } from "./components/InsightsView.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
-import { InsightDetailView } from "./components/InsightDetailView.js";
-import { TimelinesView } from "./components/TimelinesView.js";
-import { TimelineDetailView } from "./components/TimelineDetailView.js";
 import { CreateMilestoneDialog } from "./components/CreateMilestoneDialog.js";
-import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
-import type { Insight, InsightMeeting, InsightMessage } from "../../../core/insights.js";
-import type { Milestone, MilestoneMention, MilestoneActionItem, DateSlippageEntry, MilestoneMessage } from "../../../core/timelines.js";
-import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../electron/channels.js";
-
-interface DateRange {
-  after: string;
-  before: string;
-}
+import { useMeetingState } from "./hooks/useMeetingState.js";
+import { useThreadState } from "./hooks/useThreadState.js";
+import { useInsightState } from "./hooks/useInsightState.js";
+import { useMilestoneState } from "./hooks/useMilestoneState.js";
+import { MeetingsPage } from "./pages/MeetingsPage.js";
+import { ActionItemsPage } from "./pages/ActionItemsPage.js";
+import { ThreadsPage } from "./pages/ThreadsPage.js";
+import { InsightsPage } from "./pages/InsightsPage.js";
+import { TimelinesPage } from "./pages/TimelinesPage.js";
 
 export function App() {
-  const queryClient = useQueryClient();
   const { theme, setTheme, themes } = useTheme();
   const { toasts, addToast, removeToast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
-  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
-  const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
-  const [groupBy, setGroupBy] = useState<GroupBy>("series");
-  const [sortBy, setSortBy] = useState<SortBy>("date-desc");
-  const [typedSearchQuery, setTypedSearchQuery] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
-  const meetingIdPerView = useRef<Record<string, string | null>>({});
-  const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
-  const [isReExtracting, setIsReExtracting] = useState(false);
-  const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
-  const [newMeetingOpen, setNewMeetingOpen] = useState(false);
-  const [newMeetingIds, setNewMeetingIds] = useState<Set<string>>(new Set());
-  const [deepSearchEnabled, setDeepSearchEnabled] = useState(true);
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
-  const [editThreadOpen, setEditThreadOpen] = useState(false);
-  const [createThreadOpen, setCreateThreadOpen] = useState(false);
-  const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
-  const [threadInitialDescription, setThreadInitialDescription] = useState("");
-  const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
-  const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
-  const [createInsightOpen, setCreateInsightOpen] = useState(false);
-  const [pendingDeleteInsightId, setPendingDeleteInsightId] = useState<string | null>(null);
-  const [pendingDeleteThreadId, setPendingDeleteThreadId] = useState<string | null>(null);
-  const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
-  const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
-  const [regeneratingInsightId, setRegeneratingInsightId] = useState<string | null>(null);
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
-  const [createMilestoneOpen, setCreateMilestoneOpen] = useState(false);
-  const [pendingDeleteMilestoneId, setPendingDeleteMilestoneId] = useState<string | null>(null);
-  const [pendingClearMilestoneMessages, setPendingClearMilestoneMessages] = useState(false);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -98,1295 +53,314 @@ export function App() {
     }
   }, [defaultClientQuery.data]);
 
-  const meetingsQuery = useQuery<MeetingRow[]>({
-    queryKey: ["meetings", selectedClient, dateRange],
-    queryFn: () =>
-      window.api.getMeetings({
-        client: selectedClient ?? undefined,
-        after: dateRange.after || undefined,
-        before: dateRange.before || undefined,
-      }),
-  });
+  const meeting = useMeetingState(selectedClient, currentView, addToast, setCurrentView);
+  const thread = useThreadState(selectedClient, currentView, addToast);
+  const insight = useInsightState(selectedClient, currentView, addToast);
+  const milestone = useMilestoneState(selectedClient, currentView, addToast);
 
-  const { data: searchResults, isFetching: searchFetching } = useSearch(searchQuery);
-
-  const hybridMeetingIds = useMemo(
-    () => (searchResults ?? []).map((r) => r.meeting_id),
-    [searchResults],
-  );
-
-  const { data: deepSearchResults, isFetching: deepSearchFetching, isError: deepSearchError, error: deepSearchErrorObj } = useDeepSearch(
-    hybridMeetingIds,
-    searchQuery,
-    deepSearchEnabled && searchQuery.trim().length >= 2 && !searchFetching,
-  );
-
-  useEffect(() => {
-    if (deepSearchError && deepSearchErrorObj) {
-      const msg = (deepSearchErrorObj as Error).message.replace(/^\[api_error\]\s*/, "").replace(/^\[rate_limit\]\s*/, "");
-      addToast(`Deep search failed: ${msg}`, "error");
-    }
-  }, [deepSearchError, deepSearchErrorObj, addToast]);
-
-  const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
-  const deepSearchLoading = deepSearchEnabled && deepSearchFetching && searchQuery.trim().length >= 2;
-  const deepSearchEmpty = deepSearchEnabled && !deepSearchError && !!deepSearchResults && deepSearchResults.length === 0 && searchQuery.trim().length >= 2 && !deepSearchFetching;
-
-  const scopeMeetings = useMemo(() => {
-    const all = meetingsQuery.data ?? [];
-    if (searchQuery.trim().length < 2 || !searchResults) return all;
-    if (isDeepSearchActive) {
-      const deepIds = new Set(deepSearchResults!.map((r) => r.meeting_id));
-      return all.filter((m) => deepIds.has(m.id));
-    }
-    if (deepSearchEmpty) return [];
-    const matchIds = new Set(searchResults.map((r) => r.meeting_id));
-    return all.filter((m) => matchIds.has(m.id));
-  }, [meetingsQuery.data, searchQuery, searchResults, isDeepSearchActive, deepSearchResults, deepSearchEmpty]);
-
-  const searchScores = useMemo(() => {
-    if (isDeepSearchActive) {
-      return new Map(deepSearchResults!.map((r) => [r.meeting_id, r.relevanceScore]));
-    }
-    if (!searchResults || searchResults.length === 0) return undefined;
-    return new Map(searchResults.map((r) => [r.meeting_id, r.score]));
-  }, [searchResults, isDeepSearchActive, deepSearchResults]);
-
-  const deepSearchSummaries = useMemo(() => {
-    if (!isDeepSearchActive) return undefined;
-    return new Map(deepSearchResults!.map((r) => [r.meeting_id, r.relevanceSummary]));
-  }, [isDeepSearchActive, deepSearchResults]);
-
-  useEffect(() => {
-    if (searchQuery.trim().length >= 2 && searchResults && searchResults.length > 0) {
-      setSortBy("relevance");
-    } else if (searchQuery.trim().length < 2) {
-      setSortBy("date-desc");
-    }
-  }, [searchQuery, searchResults]);
-
-  const activeMeetingIds =
+  const computedActiveMeetingIds =
     currentView === "action-items"
-      ? (previewMeetingId ? [previewMeetingId] : [])
+      ? (meeting.previewMeetingId ? [meeting.previewMeetingId] : [])
       : currentView === "threads"
       ? []
-      : checkedMeetingIds.size > 0
-      ? [...checkedMeetingIds]
-      : selectedMeetingId
-      ? [selectedMeetingId]
+      : meeting.checkedMeetingIds.size > 0
+      ? [...meeting.checkedMeetingIds]
+      : meeting.selectedMeetingId
+      ? [meeting.selectedMeetingId]
       : [];
 
-  const selectedMeeting = selectedMeetingId
-    ? (scopeMeetings.find((m) => m.id === selectedMeetingId)
-      ?? (meetingsQuery.data ?? []).find((m) => m.id === selectedMeetingId)
-      ?? null)
-    : null;
-
-  const selectedArtifactQuery = useQuery<Artifact | null>({
-    queryKey: ["artifact", selectedMeetingId],
-    queryFn: () => window.api.getArtifact(selectedMeetingId!),
-    enabled: !!selectedMeetingId,
-  });
-
-  const completionsQuery = useQuery<ActionItemCompletion[]>({
-    queryKey: ["completions", selectedMeetingId],
-    queryFn: () => window.api.getCompletions(selectedMeetingId!),
-    enabled: !!selectedMeetingId,
-  });
-
-  const mentionStatsQuery = useQuery<MentionStat[]>({
-    queryKey: ["mentionStats", selectedMeetingId],
-    queryFn: () => window.api.getMentionStats(selectedMeetingId!),
-    enabled: !!selectedMeetingId,
-  });
-
-  const previewArtifactQuery = useQuery<Artifact | null>({
-    queryKey: ["artifact", previewMeetingId],
-    queryFn: () => window.api.getArtifact(previewMeetingId!),
-    enabled: !!previewMeetingId,
-  });
-
-  const previewCompletionsQuery = useQuery<ActionItemCompletion[]>({
-    queryKey: ["completions", previewMeetingId],
-    queryFn: () => window.api.getCompletions(previewMeetingId!),
-    enabled: !!previewMeetingId,
-  });
-
-  const previewMentionStatsQuery = useQuery<MentionStat[]>({
-    queryKey: ["mentionStats", previewMeetingId],
-    queryFn: () => window.api.getMentionStats(previewMeetingId!),
-    enabled: !!previewMeetingId,
-  });
-
-  const itemHistoryQuery = useQuery<ItemHistoryEntry[]>({
-    queryKey: ["itemHistory", historyItem?.canonicalId],
-    queryFn: () => window.api.getItemHistory(historyItem!.canonicalId),
-    enabled: !!historyItem,
-  });
-
-  const clientActionItemsQuery = useQuery<ClientActionItem[]>({
-    queryKey: ["clientActionItems", selectedClient, dateRange],
-    queryFn: () => window.api.getClientActionItems(selectedClient!, {
-      after: dateRange.after || undefined,
-      before: dateRange.before || undefined,
-    }),
-    enabled: currentView === "action-items" && !!selectedClient,
-  });
-
-  const threadsQuery = useQuery<Thread[]>({
-    queryKey: ["threads", selectedClient],
-    queryFn: () => window.api.listThreads(selectedClient!),
-    enabled: currentView === "threads" && !!selectedClient,
-  });
-
-  const insightsQuery = useQuery<Insight[]>({
-    queryKey: ["insights", selectedClient],
-    queryFn: () => window.api.listInsights(selectedClient!),
-    enabled: currentView === "insights" && !!selectedClient,
-  });
-
-  const insightMeetingsQuery = useQuery<InsightMeeting[]>({
-    queryKey: ["insightMeetings", selectedInsightId],
-    queryFn: () => window.api.getInsightMeetings(selectedInsightId!),
-    enabled: !!selectedInsightId,
-  });
-
-  const insightMessagesQuery = useQuery<InsightMessage[]>({
-    queryKey: ["insightMessages", selectedInsightId],
-    queryFn: () => window.api.getInsightMessages(selectedInsightId!),
-    enabled: !!selectedInsightId,
-  });
-
-  const threadMeetingsQuery = useQuery<ThreadMeeting[]>({
-    queryKey: ["threadMeetings", selectedThreadId],
-    queryFn: () => window.api.getThreadMeetings(selectedThreadId!),
-    enabled: !!selectedThreadId,
-  });
-
-  const threadMessagesQuery = useQuery<ThreadMessage[]>({
-    queryKey: ["threadMessages", selectedThreadId],
-    queryFn: () => window.api.getThreadMessages(selectedThreadId!),
-    enabled: !!selectedThreadId,
-  });
-
-  const milestonesQuery = useQuery<Milestone[]>({
-    queryKey: ["milestones", selectedClient],
-    queryFn: () => window.api.listMilestones(selectedClient!),
-    enabled: currentView === "timelines" && !!selectedClient,
-  });
-
-  const milestoneMentionsQuery = useQuery<MilestoneMention[]>({
-    queryKey: ["milestoneMentions", selectedMilestoneId],
-    queryFn: () => window.api.getMilestoneMentions(selectedMilestoneId!),
-    enabled: !!selectedMilestoneId,
-  });
-
-  const milestoneSlippageQuery = useQuery<DateSlippageEntry[]>({
-    queryKey: ["milestoneSlippage", selectedMilestoneId],
-    queryFn: () => window.api.getDateSlippage(selectedMilestoneId!),
-    enabled: !!selectedMilestoneId,
-  });
-
-  const milestoneActionItemsQuery = useQuery<MilestoneActionItem[]>({
-    queryKey: ["milestoneActionItems", selectedMilestoneId],
-    queryFn: () => window.api.getMilestoneActionItems(selectedMilestoneId!),
-    enabled: !!selectedMilestoneId,
-  });
-
-  const milestoneMessagesQuery = useQuery<MilestoneMessage[]>({
-    queryKey: ["milestoneMessages", selectedMilestoneId],
-    queryFn: () => window.api.getMilestoneMessages(selectedMilestoneId!),
-    enabled: !!selectedMilestoneId,
-  });
-
-  const selectedThread = useMemo(() => {
-    return threadsQuery.data?.find((t) => t.id === selectedThreadId) ?? null;
-  }, [threadsQuery.data, selectedThreadId]);
-
-  const selectedInsight = useMemo(() => {
-    return insightsQuery.data?.find((i) => i.id === selectedInsightId) ?? null;
-  }, [insightsQuery.data, selectedInsightId]);
-
-  const selectedMilestone = useMemo(
-    () => milestonesQuery.data?.find((m) => m.id === selectedMilestoneId) ?? null,
-    [milestonesQuery.data, selectedMilestoneId],
-  );
-
-  const pendingMilestoneMentions = useMemo(
-    () => (milestoneMentionsQuery.data ?? []).filter((m) => m.pending_review === 1),
-    [milestoneMentionsQuery.data],
-  );
-
-  const isMultiMode = checkedMeetingIds.size >= 2;
-
-  const checkedMeetings = useMemo(
-    () => scopeMeetings.filter((m) => checkedMeetingIds.has(m.id)),
-    [scopeMeetings, checkedMeetingIds],
-  );
-
-  const checkedArtifactQueries = useQueries({
-    queries: checkedMeetings.map((m) => ({
-      queryKey: ["artifact", m.id] as const,
-      queryFn: () => window.api.getArtifact(m.id),
-      enabled: isMultiMode,
-    })),
-  });
-
-  const { mergedArtifact, actionItemOrigins } = useMemo(() => {
-    if (!isMultiMode) return { mergedArtifact: null, actionItemOrigins: [] };
-    const artifacts = checkedArtifactQueries
-      .map((q) => q.data)
-      .filter((a): a is Artifact => a != null);
-    if (artifacts.length === 0) return { mergedArtifact: null, actionItemOrigins: [] };
-    const meetingIds = checkedMeetings
-      .filter((_, idx) => checkedArtifactQueries[idx].data != null)
-      .map((m) => m.id);
-    return {
-      mergedArtifact: mergeArtifactsDeduped(artifacts),
-      actionItemOrigins: computeActionItemOrigins(artifacts, meetingIds),
-    };
-  }, [isMultiMode, checkedArtifactQueries, checkedMeetings]);
-
-  const mergedArtifactLoading = isMultiMode && checkedArtifactQueries.some((q) => q.isLoading);
-
-  const checkedCompletionQueries = useQueries({
-    queries: checkedMeetings.map((m) => ({
-      queryKey: ["completions", m.id] as const,
-      queryFn: () => window.api.getCompletions(m.id),
-      enabled: isMultiMode,
-    })),
-  });
-
-  const mergedCompletions = useMemo((): ActionItemCompletion[] => {
-    if (!isMultiMode || actionItemOrigins.length === 0) return [];
-    const completionsByMeeting = new Map<string, ActionItemCompletion[]>();
-    for (let i = 0; i < checkedMeetings.length; i++) {
-      const data = checkedCompletionQueries[i]?.data;
-      if (data) completionsByMeeting.set(checkedMeetings[i].id, data);
-    }
-    const result: ActionItemCompletion[] = [];
-    for (let mergedIdx = 0; mergedIdx < actionItemOrigins.length; mergedIdx++) {
-      const origin = actionItemOrigins[mergedIdx];
-      const meetingCompletions = completionsByMeeting.get(origin.meetingId) ?? [];
-      const match = meetingCompletions.find((c) => c.item_index === origin.itemIndex);
-      if (match) {
-        result.push({ ...match, item_index: mergedIdx });
-      }
-    }
-    return result;
-  }, [isMultiMode, actionItemOrigins, checkedMeetings, checkedCompletionQueries]);
-
-  const isCandidatePreview = threadPreviewCandidateIds.size > 0;
-  const candidatePreviewMeetings = useMemo(
-    () => scopeMeetings.filter((m) => threadPreviewCandidateIds.has(m.id)),
-    [scopeMeetings, threadPreviewCandidateIds],
-  );
-  const isCandidateMulti = candidatePreviewMeetings.length >= 2;
-
-  const candidateArtifactQueries = useQueries({
-    queries: candidatePreviewMeetings.map((m) => ({
-      queryKey: ["artifact", m.id] as const,
-      queryFn: () => window.api.getArtifact(m.id),
-      enabled: isCandidatePreview,
-    })),
-  });
-
-  const { candidateMergedArtifact, candidateActionItemOrigins } = useMemo(() => {
-    if (!isCandidatePreview) return { candidateMergedArtifact: null, candidateActionItemOrigins: [] };
-    const artifacts = candidateArtifactQueries.map((q) => q.data).filter((a): a is Artifact => a != null);
-    if (artifacts.length === 0) return { candidateMergedArtifact: null, candidateActionItemOrigins: [] };
-    if (!isCandidateMulti) return { candidateMergedArtifact: artifacts[0], candidateActionItemOrigins: [] };
-    const meetingIds = candidatePreviewMeetings.filter((_, idx) => candidateArtifactQueries[idx].data != null).map((m) => m.id);
-    return {
-      candidateMergedArtifact: mergeArtifactsDeduped(artifacts),
-      candidateActionItemOrigins: computeActionItemOrigins(artifacts, meetingIds),
-    };
-  }, [isCandidatePreview, isCandidateMulti, candidateArtifactQueries, candidatePreviewMeetings]);
-
-  const candidateArtifactLoading = isCandidatePreview && candidateArtifactQueries.some((q) => q.isLoading);
-
-  const candidateCompletionQueries = useQueries({
-    queries: candidatePreviewMeetings.map((m) => ({
-      queryKey: ["completions", m.id] as const,
-      queryFn: () => window.api.getCompletions(m.id),
-      enabled: isCandidatePreview && isCandidateMulti,
-    })),
-  });
-
-  const candidateMergedCompletions = useMemo((): ActionItemCompletion[] => {
-    if (!isCandidateMulti || candidateActionItemOrigins.length === 0) return [];
-    const completionsByMeeting = new Map<string, ActionItemCompletion[]>();
-    for (let i = 0; i < candidatePreviewMeetings.length; i++) {
-      const data = candidateCompletionQueries[i]?.data;
-      if (data) completionsByMeeting.set(candidatePreviewMeetings[i].id, data);
-    }
-    const result: ActionItemCompletion[] = [];
-    for (let mergedIdx = 0; mergedIdx < candidateActionItemOrigins.length; mergedIdx++) {
-      const origin = candidateActionItemOrigins[mergedIdx];
-      const meetingCompletions = completionsByMeeting.get(origin.meetingId) ?? [];
-      const match = meetingCompletions.find((c) => c.item_index === origin.itemIndex);
-      if (match) result.push({ ...match, item_index: mergedIdx });
-    }
-    return result;
-  }, [isCandidateMulti, candidateActionItemOrigins, candidatePreviewMeetings, candidateCompletionQueries]);
-
-  const candidateSingleCompletionsQuery = useQuery<ActionItemCompletion[]>({
-    queryKey: ["completions", candidatePreviewMeetings[0]?.id],
-    queryFn: () => window.api.getCompletions(candidatePreviewMeetings[0].id),
-    enabled: isCandidatePreview && !isCandidateMulti && candidatePreviewMeetings.length === 1,
-  });
-
-  const charCount = isMultiMode
-    ? (mergedArtifact ? JSON.stringify(mergedArtifact).length : 0)
-    : (selectedArtifactQuery.data ? JSON.stringify(selectedArtifactQuery.data).length : 0);
-
-  const handleClientChange = useCallback((name: string | null) => {
-    setSelectedClient(name);
-    setCheckedMeetingIds(new Set());
-  }, []);
-
-  const handleDateChange = useCallback((field: "after" | "before", value: string) => {
-    setDateRange((prev) => ({ ...prev, [field]: value }));
-    setCheckedMeetingIds((prev) => {
-      const scopeIds = new Set(scopeMeetings.map((m) => m.id));
-      return new Set([...prev].filter((id) => scopeIds.has(id)));
-    });
-  }, [scopeMeetings]);
-
-  const handleReset = useCallback(() => {
-    setSelectedClient(null);
-    setDateRange({ after: "", before: "" });
-    setSelectedMeetingId(null);
-    setCheckedMeetingIds(new Set());
-    setTypedSearchQuery("");
-    setSearchQuery("");
-  }, []);
-
-  const handleCheck = useCallback((id: string) => {
-    setCheckedMeetingIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const handleCheckGroup = useCallback((ids: string[]) => {
-    setCheckedMeetingIds((prev) => {
-      const allChecked = ids.every((id) => prev.has(id));
-      const next = new Set(prev);
-      if (allChecked) ids.forEach((id) => next.delete(id));
-      else ids.forEach((id) => next.add(id));
-      return next;
-    });
-  }, []);
-
-  const handleDeleteMeetings = useCallback(() => {
-    setPendingDeleteIds([...checkedMeetingIds]);
-  }, [checkedMeetingIds]);
-
-  const handleConfirmDelete = useCallback(async () => {
-    const ids = pendingDeleteIds ?? [];
-    const idSet = new Set(ids);
-    setPendingDeleteIds(null);
-    queryClient.setQueriesData<MeetingRow[]>({ queryKey: ["meetings"] }, (old) => old?.filter((m) => !idSet.has(m.id)));
-    setCheckedMeetingIds(new Set());
-    if (selectedMeetingId && ids.includes(selectedMeetingId)) setSelectedMeetingId(null);
-    try {
-      await window.api.deleteMeetings(ids);
-      queryClient.invalidateQueries({ queryKey: ["meetings"] });
-      addToast(`${ids.length} meeting(s) deleted`, "success");
-    } catch (err) {
-      console.error("Delete meetings failed:", err);
-      addToast(`Delete failed: ${(err as Error).message}`, "error");
-      queryClient.invalidateQueries({ queryKey: ["meetings"] });
-    }
-  }, [pendingDeleteIds, selectedMeetingId, queryClient, addToast]);
-
-  const handleReExtract = useCallback(async () => {
-    if (!selectedMeetingId) return;
-    setIsReExtracting(true);
-    try {
-      await window.api.reExtract(selectedMeetingId);
-      queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
-      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-      addToast("Re-extraction complete", "success");
-      window.api.reEmbedMeeting(selectedMeetingId).then(() => {
-        addToast("Search index updated", "success");
-      }).catch(() => {
-        addToast("Search index update failed", "error");
-      });
-    } catch {
-      addToast("Re-extraction failed", "error");
-    } finally {
-      setIsReExtracting(false);
-    }
-  }, [selectedMeetingId, selectedClient, queryClient, addToast]);
-
-  const handleNewMeeting = useCallback(async (req: CreateMeetingRequest) => {
-    addToast("Importing meeting...", "success");
-    try {
-      const { meetingId } = await window.api.createMeeting(req);
-      setNewMeetingIds((prev) => new Set([...prev, meetingId]));
-      queryClient.invalidateQueries({ queryKey: ["meetings"] });
-      addToast("Meeting imported", "success");
-      window.api.reEmbedMeeting(meetingId).then(() => {
-        addToast("Search index updated", "success");
-      }).catch(() => {});
-    } catch {
-      addToast("Meeting import failed", "error");
-    }
-  }, [queryClient, addToast]);
-
-  const handleReassignClient = useCallback(async (clientName: string) => {
-    if (!selectedMeetingId) return;
-    try {
-      await window.api.reassignClient(selectedMeetingId, clientName);
-      queryClient.invalidateQueries({ queryKey: ["meetings"] });
-      addToast(`Client reassigned to ${clientName}`, "success");
-    } catch (err) {
-      console.error("Reassign client failed:", err);
-      addToast(`Reassign failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMeetingId, queryClient, addToast]);
-
-  const handleCompleteActionItem = useCallback(async (itemIndex: number, note: string) => {
-    if (!selectedMeetingId) return;
-    try {
-      await window.api.completeActionItem(selectedMeetingId, itemIndex, note);
-      queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
-    } catch (err) {
-      console.error("Complete action item failed:", err);
-      addToast(`Complete failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMeetingId, queryClient, addToast]);
-
-  const handleUncompleteActionItem = useCallback(async (itemIndex: number) => {
-    if (!selectedMeetingId) return;
-    try {
-      await window.api.uncompleteActionItem(selectedMeetingId, itemIndex);
-      queryClient.invalidateQueries({ queryKey: ["completions", selectedMeetingId] });
-    } catch (err) {
-      console.error("Uncomplete action item failed:", err);
-      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMeetingId, queryClient, addToast]);
-
-  const handleMultiCompleteActionItem = useCallback(async (mergedIndex: number, note: string) => {
-    const origin = actionItemOrigins[mergedIndex];
-    if (!origin) return;
-    try {
-      await window.api.completeActionItem(origin.meetingId, origin.itemIndex, note);
-      queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
-    } catch (err) {
-      console.error("Complete action item failed:", err);
-      addToast(`Complete failed: ${(err as Error).message}`, "error");
-    }
-  }, [actionItemOrigins, queryClient, addToast]);
-
-  const handleMultiUncompleteActionItem = useCallback(async (mergedIndex: number) => {
-    const origin = actionItemOrigins[mergedIndex];
-    if (!origin) return;
-    try {
-      await window.api.uncompleteActionItem(origin.meetingId, origin.itemIndex);
-      queryClient.invalidateQueries({ queryKey: ["completions", origin.meetingId] });
-    } catch (err) {
-      console.error("Uncomplete action item failed:", err);
-      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
-    }
-  }, [actionItemOrigins, queryClient, addToast]);
-
-  const handleCompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
-    try {
-      await window.api.completeActionItem(meetingId, itemIndex, "");
-      queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
-      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-    } catch (err) {
-      console.error("Complete action item failed:", err);
-      addToast(`Complete failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedClient, queryClient, addToast]);
-
-  const handleCompletePreviewActionItem = useCallback(async (itemIndex: number, note: string) => {
-    if (!previewMeetingId) return;
-    try {
-      await window.api.completeActionItem(previewMeetingId, itemIndex, note);
-      queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
-      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-    } catch (err) {
-      console.error("Complete action item failed:", err);
-      addToast(`Complete failed: ${(err as Error).message}`, "error");
-    }
-  }, [previewMeetingId, selectedClient, queryClient, addToast]);
-
-  const handleUncompletePreviewActionItem = useCallback(async (itemIndex: number) => {
-    if (!previewMeetingId) return;
-    try {
-      await window.api.uncompleteActionItem(previewMeetingId, itemIndex);
-      queryClient.invalidateQueries({ queryKey: ["completions", previewMeetingId] });
-      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
-    } catch (err) {
-      console.error("Uncomplete action item failed:", err);
-      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
-    }
-  }, [previewMeetingId, selectedClient, queryClient, addToast]);
-
-  const handleIgnore = useCallback(async () => {
-    if (!selectedMeetingId) return;
-    try {
-      await window.api.setIgnored(selectedMeetingId, true);
-      setSelectedMeetingId(null);
-      queryClient.invalidateQueries({ queryKey: ["meetings"] });
-      addToast("Meeting hidden", "success");
-    } catch (err) {
-      console.error("Ignore meeting failed:", err);
-      addToast(`Ignore failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMeetingId, queryClient, addToast]);
-
-  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => {
-    setCurrentView((prev) => {
-      meetingIdPerView.current[prev] = selectedMeetingId;
-      return view;
-    });
-    setSelectedMeetingId(meetingIdPerView.current[view] ?? null);
-    setTypedSearchQuery("");
-    setSearchQuery("");
-  }, [selectedMeetingId]);
-
-  const handleMentionClick = useCallback((canonicalId: string, itemText: string) => {
-    setHistoryItem({ canonicalId, itemText });
-  }, []);
-
-  const handleHistorySelectMeeting = useCallback((meetingId: string) => {
-    setSelectedMeetingId(meetingId);
-    setHistoryItem(null);
-  }, []);
+  const activeMeetingIdsRef = useRef(computedActiveMeetingIds);
+  activeMeetingIdsRef.current = computedActiveMeetingIds;
 
   const handleChat = useCallback(
     async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string): Promise<ConversationChatResponse> => {
-      return window.api.conversationChat({ meetingIds: activeMeetingIds, messages, attachments, includeTranscripts, template: template || undefined });
+      return window.api.conversationChat({ meetingIds: activeMeetingIdsRef.current, messages, attachments, includeTranscripts, template: template || undefined });
     },
-    [activeMeetingIds],
+    [],
   );
 
-  const handleSaveAsThread = useCallback((content: string) => {
-    setThreadInitialDescription(content);
-    setCreateThreadOpen(true);
-  }, []);
+  const handleClientChange = useCallback((name: string | null) => {
+    setSelectedClient(name);
+    meeting.setCheckedMeetingIds(new Set());
+  }, [meeting]);
 
-  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
-    if (!selectedClient) return;
-    try {
-      const thread = await window.api.createThread({ ...data, client_name: selectedClient });
-      setCreateThreadOpen(false);
-      setThreadInitialDescription("");
-      if (activeMeetingIds.length > 0) {
-        for (const meetingId of activeMeetingIds) {
-          await window.api.addThreadMeeting(thread.id, meetingId, "Linked from chat", 100);
-        }
-      }
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-      addToast("Thread created", "success");
-    } catch (err) {
-      console.error("Create thread failed:", err);
-      addToast(`Create thread failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedClient, activeMeetingIds, queryClient, addToast]);
-
-  const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
-    if (!selectedThreadId) return;
-    try {
-      await window.api.updateThread(selectedThreadId, data);
-      setEditThreadOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-      addToast("Thread updated", "success");
-    } catch (err) {
-      console.error("Update thread failed:", err);
-      addToast(`Update thread failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, selectedClient, queryClient, addToast]);
-
-  const handleDeleteThread = useCallback(() => {
-    if (!selectedThreadId) return;
-    setPendingDeleteThreadId(selectedThreadId);
-  }, [selectedThreadId]);
-
-  const handleConfirmDeleteThread = useCallback(async () => {
-    const id = pendingDeleteThreadId;
-    setPendingDeleteThreadId(null);
-    if (!id) return;
-    setSelectedThreadId(null);
-    try {
-      await window.api.deleteThread(id);
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-      addToast("Thread deleted", "success");
-    } catch (err) {
-      console.error("Delete thread failed:", err);
-      addToast(`Delete thread failed: ${(err as Error).message}`, "error");
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-    }
-  }, [pendingDeleteThreadId, selectedClient, queryClient, addToast]);
-
-  const handleResolveThread = useCallback(async (status: "open" | "resolved") => {
-    if (!selectedThreadId) return;
-    try {
-      await window.api.updateThread(selectedThreadId, { status });
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-      addToast(status === "resolved" ? "Thread resolved" : "Thread reopened", "success");
-    } catch (err) {
-      console.error("Resolve thread failed:", err);
-      addToast(`Resolve thread failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, selectedClient, queryClient, addToast]);
-
-  const handleFindCandidates = useCallback(async () => {
-    if (!selectedThreadId) return;
-    try {
-      const result = await window.api.getThreadCandidates(selectedThreadId);
-      setThreadCandidates(result);
-    } catch (err) {
-      console.error("Find candidates failed:", err);
-      addToast(`Find candidates failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, addToast]);
-
-  const handleCandidateCheck = useCallback((checkedIds: Set<string>) => {
-    setThreadPreviewCandidateIds(new Set(checkedIds));
-  }, []);
-
-  const handleEvaluateCandidates = useCallback(async (meetingIds: string[], overrideExisting: boolean) => {
-    if (!selectedThreadId) return;
-    try {
-      const result = await window.api.evaluateThreadCandidates(selectedThreadId, meetingIds, overrideExisting);
-      const total = result.added + result.updated;
-      if (total > 0) {
-        setThreadCandidates([]);
-        setThreadPreviewCandidateIds(new Set());
-        queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
-        addToast(`Evaluated: ${result.added} added, ${result.updated} updated`, "success");
-      } else if (result.errors.length > 0) {
-        addToast(`Evaluation failed: ${result.errors.map((e) => e.reason).join(", ")}`, "error");
-      } else {
-        addToast("No meetings were evaluated as related", "error");
-      }
-    } catch (err) {
-      console.error("Evaluate candidates failed:", err);
-      addToast(`Evaluate candidates failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, queryClient, addToast]);
-
-  const handleRemoveThreadMeetings = useCallback(async (meetingIds: string[]) => {
-    if (!selectedThreadId) return;
-    try {
-      for (const meetingId of meetingIds) {
-        await window.api.removeThreadMeeting(selectedThreadId, meetingId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["threadMeetings", selectedThreadId] });
-      addToast(`${meetingIds.length} meeting${meetingIds.length !== 1 ? "s" : ""} removed from thread`, "success");
-    } catch (err) {
-      console.error("Remove thread meetings failed:", err);
-      addToast(`Remove meetings failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, queryClient, addToast]);
-
-  const handleRegenerateThreadSummary = useCallback(async (meetingIds?: string[]) => {
-    if (!selectedThreadId) return;
-    try {
-      addToast("Regenerating summary...", "success");
-      await window.api.regenerateThreadSummary(selectedThreadId, meetingIds);
-      queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
-      addToast("Summary regenerated", "success");
-    } catch (err) {
-      console.error("Regenerate summary failed:", err);
-      addToast(`Regenerate summary failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, selectedClient, queryClient, addToast]);
-
-  const handleThreadSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
-    if (!selectedThreadId) return;
-    try {
-      await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts });
-      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
-    } catch (err) {
-      console.error("Thread chat failed:", err);
-      addToast(`Thread chat failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, queryClient, addToast]);
-
-  const handleClearThreadMessages = useCallback(() => {
-    if (!selectedThreadId) return;
-    setPendingClearThreadMessages(true);
-  }, [selectedThreadId]);
-
-  const handleConfirmClearThreadMessages = useCallback(async () => {
-    setPendingClearThreadMessages(false);
-    if (!selectedThreadId) return;
-    try {
-      await window.api.clearThreadMessages(selectedThreadId);
-      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      console.error("Clear messages failed:", err);
-      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, queryClient, addToast]);
-
-  const handleCreateInsight = useCallback(async (data: { period_type: "day" | "week" | "month"; period_start: string; period_end: string }) => {
-    if (!selectedClient) return;
-    try {
-      setCreateInsightOpen(false);
-      addToast("Discovering meetings...", "success");
-      const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
-      await window.api.discoverInsightMeetings(insight.id);
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      setSelectedInsightId(insight.id);
-      addToast("Insight created — review meetings and generate", "success");
-    } catch (err) {
-      console.error("Create insight failed:", err);
-      addToast(`Create insight failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedClient, queryClient, addToast]);
-
-  const handleDeleteInsight = useCallback(() => {
-    if (!selectedInsightId) return;
-    setPendingDeleteInsightId(selectedInsightId);
-  }, [selectedInsightId]);
-
-  const handleConfirmDeleteInsight = useCallback(async () => {
-    const id = pendingDeleteInsightId;
-    setPendingDeleteInsightId(null);
-    if (!id) return;
-    setSelectedInsightId(null);
-    try {
-      await window.api.deleteInsight(id);
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast("Insight deleted", "success");
-    } catch (err) {
-      console.error("Delete insight failed:", err);
-      addToast(`Delete insight failed: ${(err as Error).message}`, "error");
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-    }
-  }, [pendingDeleteInsightId, selectedClient, queryClient, addToast]);
-
-  const handleFinalizeInsight = useCallback(async () => {
-    if (!selectedInsightId || !selectedInsight) return;
-    const newStatus = selectedInsight.status === "draft" ? "final" : "draft";
-    try {
-      await window.api.updateInsight(selectedInsightId, { status: newStatus });
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast(newStatus === "final" ? "Insight finalized" : "Insight reopened", "success");
-    } catch (err) {
-      console.error("Update insight failed:", err);
-      addToast(`Update insight failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
-
-  const handleUpdateInsightSummary = useCallback(async (summary: string) => {
-    if (!selectedInsightId) return;
-    try {
-      await window.api.updateInsight(selectedInsightId, { executive_summary: summary });
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast("Summary updated", "success");
-    } catch (err) {
-      addToast(`Update failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
-
-  const handleRegenerateInsight = useCallback(async () => {
-    if (!selectedInsightId) return;
-    const isFirst = !selectedInsight?.executive_summary;
-    try {
-      setRegeneratingInsightId(selectedInsightId);
-      await window.api.generateInsight(selectedInsightId);
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast(isFirst ? "Insight generated" : "Insight regenerated", "success");
-    } catch (err) {
-      console.error("Regenerate insight failed:", err);
-      addToast(`${isFirst ? "Generate" : "Regenerate"} insight failed: ${(err as Error).message}`, "error");
-    } finally {
-      setRegeneratingInsightId(null);
-    }
-  }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
-
-  const handleInsightSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
-    if (!selectedInsightId) return;
-    try {
-      await window.api.insightChat({ insightId: selectedInsightId, message, includeTranscripts });
-      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
-    } catch (err) {
-      console.error("Insight chat failed:", err);
-      addToast(`Insight chat failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, queryClient, addToast]);
-
-  const handleClearInsightMessages = useCallback(() => {
-    if (!selectedInsightId) return;
-    setPendingClearInsightMessages(true);
-  }, [selectedInsightId]);
-
-  const handleConfirmClearInsightMessages = useCallback(async () => {
-    setPendingClearInsightMessages(false);
-    if (!selectedInsightId) return;
-    try {
-      await window.api.clearInsightMessages(selectedInsightId);
-      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      console.error("Clear insight messages failed:", err);
-      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, queryClient, addToast]);
-
-  const handleRemoveInsightMeetings = useCallback(async (meetingIds: string[]) => {
-    if (!selectedInsightId) return;
-    try {
-      for (const meetingId of meetingIds) {
-        await window.api.removeInsightMeeting(selectedInsightId, meetingId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["insightMeetings", selectedInsightId] });
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast(`Removed ${meetingIds.length} meeting(s)`, "success");
-    } catch (err) {
-      console.error("Remove insight meetings failed:", err);
-      addToast(`Remove meetings failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
-
-  const handleShowAllInsightMeetings = useCallback(async () => {
-    if (!selectedInsightId) return;
-    try {
-      await window.api.discoverInsightMeetings(selectedInsightId);
-      queryClient.invalidateQueries({ queryKey: ["insightMeetings", selectedInsightId] });
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast("Restored all meetings for period", "success");
-    } catch (err) {
-      console.error("Show all meetings failed:", err);
-      addToast(`Show all meetings failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
-
-  const handleCreateMilestone = useCallback(async (req: CreateMilestoneRequest) => {
-    try {
-      const m = await window.api.createMilestone(req);
-      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
-      setSelectedMilestoneId(m.id);
-      setCreateMilestoneOpen(false);
-      addToast("Milestone created", "success");
-    } catch (err) {
-      addToast(`Create milestone failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedClient, queryClient, addToast]);
-
-  const handleUpdateMilestone = useCallback(async (input: UpdateMilestoneRequest) => {
-    if (!selectedMilestoneId) return;
-    try {
-      await window.api.updateMilestone(selectedMilestoneId, input);
-      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
-      addToast("Milestone updated", "success");
-    } catch (err) {
-      addToast(`Update milestone failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMilestoneId, selectedClient, queryClient, addToast]);
-
-  const handleDeleteMilestone = useCallback(() => {
-    if (!selectedMilestoneId) return;
-    setPendingDeleteMilestoneId(selectedMilestoneId);
-  }, [selectedMilestoneId]);
-
-  const handleConfirmDeleteMilestone = useCallback(async () => {
-    const id = pendingDeleteMilestoneId;
-    setPendingDeleteMilestoneId(null);
-    if (!id) return;
-    setSelectedMilestoneId(null);
-    try {
-      await window.api.deleteMilestone(id);
-      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
-      addToast("Milestone deleted", "success");
-    } catch (err) {
-      addToast(`Delete milestone failed: ${(err as Error).message}`, "error");
-      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
-    }
-  }, [pendingDeleteMilestoneId, selectedClient, queryClient, addToast]);
-
-  const handleConfirmMilestoneMention = useCallback(async (milestoneId: string, meetingId: string) => {
-    try {
-      await window.api.confirmMilestoneMention(milestoneId, meetingId);
-      queryClient.invalidateQueries({ queryKey: ["milestoneMentions", milestoneId] });
-      addToast("Match confirmed", "success");
-    } catch (err) {
-      addToast(`Confirm failed: ${(err as Error).message}`, "error");
-    }
-  }, [queryClient, addToast]);
-
-  const handleRejectMilestoneMention = useCallback(async (milestoneId: string, meetingId: string) => {
-    try {
-      await window.api.rejectMilestoneMention(milestoneId, meetingId);
-      queryClient.invalidateQueries({ queryKey: ["milestoneMentions", milestoneId] });
-      addToast("Match rejected", "success");
-    } catch (err) {
-      addToast(`Reject failed: ${(err as Error).message}`, "error");
-    }
-  }, [queryClient, addToast]);
-
-  const handleMergeMilestones = useCallback(async (targetId: string) => {
-    if (!selectedMilestoneId) return;
-    try {
-      await window.api.mergeMilestones(selectedMilestoneId, targetId);
-      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
-      setSelectedMilestoneId(targetId);
-      addToast("Milestones merged", "success");
-    } catch (err) {
-      addToast(`Merge failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMilestoneId, selectedClient, queryClient, addToast]);
-
-  const handleUnlinkMilestoneActionItem = useCallback(async (milestoneId: string, meetingId: string, itemIndex: number) => {
-    try {
-      await window.api.unlinkMilestoneActionItem(milestoneId, meetingId, itemIndex);
-      queryClient.invalidateQueries({ queryKey: ["milestoneActionItems", milestoneId] });
-      addToast("Action item unlinked", "success");
-    } catch (err) {
-      addToast(`Unlink failed: ${(err as Error).message}`, "error");
-    }
-  }, [queryClient, addToast]);
-
-  const handleMilestoneSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
-    if (!selectedMilestoneId) return;
-    const req: MilestoneChatRequest = { milestoneId: selectedMilestoneId, message, includeTranscripts };
-    try {
-      await window.api.milestoneChat(req);
-      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
-    } catch (err) {
-      addToast(`Chat failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMilestoneId, queryClient, addToast]);
-
-  const handleClearMilestoneMessages = useCallback(() => {
-    setPendingClearMilestoneMessages(true);
-  }, []);
-
-  const handleConfirmClearMilestoneMessages = useCallback(async () => {
-    if (!selectedMilestoneId) return;
-    setPendingClearMilestoneMessages(false);
-    try {
-      await window.api.clearMilestoneMessages(selectedMilestoneId);
-      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      addToast(`Clear failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMilestoneId, queryClient, addToast]);
+  const handleReset = useCallback(() => {
+    setSelectedClient(null);
+    meeting.setDateRange({ after: "", before: "" });
+    meeting.setSelectedMeetingId(null);
+    meeting.setCheckedMeetingIds(new Set());
+    meeting.handleResetSearch();
+  }, [meeting]);
 
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
-    setSelectedThreadId(threadId);
-  }, []);
+    thread.setSelectedThreadId(threadId);
+  }, [thread]);
 
-  const meetingsViewPanels = [
-    <MeetingList
-      key="meeting-list"
-      meetings={scopeMeetings}
-      selectedId={selectedMeetingId}
-      checked={checkedMeetingIds}
-      groupBy={groupBy}
-      onGroupBy={setGroupBy}
-      sortBy={sortBy}
-      onSortBy={setSortBy}
-      searchScores={searchScores}
-      onSelect={setSelectedMeetingId}
-      onCheck={handleCheck}
-      onCheckGroup={handleCheckGroup}
-      searchLoading={searchFetching && searchQuery.trim().length >= 2}
-      searchQuery={searchQuery}
-      loading={meetingsQuery.isLoading}
-      hasFilters={!!(selectedClient || dateRange.after || dateRange.before)}
-      checkedCount={checkedMeetingIds.size}
-      onDelete={handleDeleteMeetings}
-      onNewMeeting={() => setNewMeetingOpen(true)}
-      newMeetingIds={newMeetingIds}
-      deepSearchSummaries={deepSearchSummaries}
-      isDeepSearchActive={isDeepSearchActive}
-      deepSearchLoading={deepSearchLoading}
-      deepSearchEmpty={deepSearchEmpty}
-    />,
-    <MeetingDetail
-      key="meeting-detail"
-      meeting={isMultiMode ? null : selectedMeeting}
-      meetings={isMultiMode ? checkedMeetings : undefined}
-      artifact={isMultiMode ? mergedArtifact : (selectedArtifactQuery.data ?? null)}
-      onReExtract={isMultiMode ? undefined : (selectedMeetingId ? handleReExtract : undefined)}
-      reExtractPending={isReExtracting}
-      clients={clientsQuery.data}
-      onReassignClient={isMultiMode ? undefined : (selectedMeetingId ? handleReassignClient : undefined)}
-      onIgnore={isMultiMode ? undefined : (selectedMeetingId ? handleIgnore : undefined)}
-      completions={isMultiMode ? mergedCompletions : (completionsQuery.data ?? [])}
-      onComplete={isMultiMode ? handleMultiCompleteActionItem : (selectedMeetingId ? handleCompleteActionItem : undefined)}
-      onUncomplete={isMultiMode ? handleMultiUncompleteActionItem : (selectedMeetingId ? handleUncompleteActionItem : undefined)}
-      mentionStats={isMultiMode ? [] : (mentionStatsQuery.data ?? [])}
-      onMentionClick={isMultiMode ? undefined : handleMentionClick}
-      artifactLoading={isMultiMode ? mergedArtifactLoading : selectedArtifactQuery.isLoading}
-      searchQuery={searchQuery}
-      threadTags={isMultiMode ? undefined : selectedMeeting?.thread_tags}
-      onThreadClick={handleThreadClick}
-    />,
-  ];
+  const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
+    return thread.handleCreateThread(data, activeMeetingIdsRef.current);
+  }, [thread]);
 
-  const actionItemsViewPanels: React.ReactNode[] = [
-    <ClientActionItemsView
-      key="client-action-items"
-      clientName={selectedClient}
-      items={clientActionItemsQuery.data ?? []}
-      onPreviewMeeting={setPreviewMeetingId}
-      onComplete={handleCompleteClientActionItem}
-    />,
-    ...(previewMeetingId ? [
-      <MeetingDetail
-        key="preview-detail"
-        meeting={scopeMeetings.find((m) => m.id === previewMeetingId) ?? null}
-        artifact={previewArtifactQuery.data ?? null}
-        completions={previewCompletionsQuery.data ?? []}
-        onComplete={handleCompletePreviewActionItem}
-        onUncomplete={handleUncompletePreviewActionItem}
-        mentionStats={previewMentionStatsQuery.data ?? []}
-        artifactLoading={previewArtifactQuery.isLoading}
-      />,
-    ] : []),
-  ];
+  const handleSaveAsThreadAndOpen = useCallback((content: string) => {
+    meeting.handleSaveAsThread(content);
+    thread.setCreateThreadOpen(true);
+  }, [meeting, thread]);
 
-  const threadsViewPanels: React.ReactNode[] = [
-    <ThreadsView
-      key="threads-list"
-      threads={threadsQuery.data ?? []}
-      clientName={selectedClient ?? "All"}
-      onSelectThread={(id: string) => { setSelectedThreadId(id); setThreadPreviewCandidateIds(new Set()); }}
-      onCreateThread={() => setCreateThreadOpen(true)}
-      selectedThreadId={selectedThreadId}
-    />,
-    ...(selectedThread ? [
-      <ThreadDetailView
-        key="thread-detail"
-        thread={selectedThread}
-        meetings={threadMeetingsQuery.data ?? []}
-        candidates={threadCandidates.length > 0 ? threadCandidates : undefined}
-        onEdit={() => setEditThreadOpen(true)}
-        onDelete={handleDeleteThread}
-        onFindCandidates={handleFindCandidates}
-        onRemoveMeetings={handleRemoveThreadMeetings}
-        onRegenerateSummary={handleRegenerateThreadSummary}
-        onMeetingClick={setSelectedMeetingId}
-        onEvaluateCandidates={handleEvaluateCandidates}
-        onCandidateCheck={handleCandidateCheck}
-        onResolve={handleResolveThread}
-      />,
-    ] : []),
-    ...(isCandidatePreview ? [
-      <MeetingDetail
-        key="candidate-preview"
-        meeting={isCandidateMulti ? null : (candidatePreviewMeetings[0] ?? null)}
-        meetings={isCandidateMulti ? candidatePreviewMeetings : undefined}
-        artifact={isCandidateMulti ? candidateMergedArtifact : (candidateArtifactQueries[0]?.data ?? null)}
-        completions={isCandidateMulti ? candidateMergedCompletions : (candidateSingleCompletionsQuery.data ?? [])}
-        artifactLoading={candidateArtifactLoading}
-        searchQuery={selectedThread?.keywords}
-      />,
-    ] : []),
-    ...(!isCandidatePreview && selectedMeeting ? [
-      <MeetingDetail
-        key="source-preview"
-        meeting={selectedMeeting}
-        artifact={selectedArtifactQuery.data ?? null}
-        completions={completionsQuery.data ?? []}
-        artifactLoading={selectedArtifactQuery.isLoading}
-        searchQuery={selectedThread?.keywords}
-        threadTags={selectedMeeting.thread_tags}
-        onThreadClick={handleThreadClick}
-      />,
-    ] : []),
-  ];
+  const chatOpenForCurrentView =
+    computedActiveMeetingIds.length > 0 ||
+    (currentView === "threads" && (thread.threadMeetingsQuery.data?.length ?? 0) > 0) ||
+    (currentView === "insights" && (insight.insightMeetingsQuery.data?.length ?? 0) > 0) ||
+    (currentView === "timelines" && !!milestone.selectedMilestoneId);
 
-  const insightsViewPanels: React.ReactNode[] = [
-    <InsightsView
-      key="insights-list"
-      insights={insightsQuery.data ?? []}
-      clientName={selectedClient ?? "All"}
-      onSelectInsight={(id: string) => setSelectedInsightId(id)}
-      onCreateInsight={() => setCreateInsightOpen(true)}
-      selectedInsightId={selectedInsightId}
-    />,
-    ...(selectedInsight ? [
-      <InsightDetailView
-        key="insight-detail"
-        insight={selectedInsight}
-        meetings={insightMeetingsQuery.data ?? []}
-        onDelete={handleDeleteInsight}
-        onRegenerate={handleRegenerateInsight}
-        onFinalize={handleFinalizeInsight}
-        onRemoveMeetings={handleRemoveInsightMeetings}
-        onUpdateSummary={handleUpdateInsightSummary}
-        onShowAllMeetings={handleShowAllInsightMeetings}
-        isRegenerating={regeneratingInsightId === selectedInsight.id}
-      />,
-    ] : []),
-    ...(selectedMeeting ? [
-      <MeetingDetail
-        key="source-preview"
-        meeting={selectedMeeting}
-        artifact={selectedArtifactQuery.data ?? null}
-        completions={completionsQuery.data ?? []}
-        artifactLoading={selectedArtifactQuery.isLoading}
-      />,
-    ] : []),
-  ];
+  const meetingsPanels = MeetingsPage({
+    scopeMeetings: meeting.scopeMeetings,
+    selectedMeetingId: meeting.selectedMeetingId,
+    checkedMeetingIds: meeting.checkedMeetingIds,
+    groupBy: meeting.groupBy,
+    onGroupBy: meeting.setGroupBy,
+    sortBy: meeting.sortBy,
+    onSortBy: meeting.setSortBy,
+    searchScores: meeting.searchScores,
+    onSelect: meeting.setSelectedMeetingId,
+    onCheck: meeting.handleCheck,
+    onCheckGroup: meeting.handleCheckGroup,
+    searchFetching: meeting.searchFetching,
+    searchQuery: meeting.searchQuery,
+    meetingsLoading: meeting.meetingsQuery.isLoading,
+    hasFilters: !!(selectedClient || meeting.dateRange.after || meeting.dateRange.before),
+    onDelete: meeting.handleDeleteMeetings,
+    onNewMeeting: () => meeting.setNewMeetingOpen(true),
+    newMeetingIds: meeting.newMeetingIds,
+    deepSearchSummaries: meeting.deepSearchSummaries,
+    isDeepSearchActive: meeting.isDeepSearchActive,
+    deepSearchLoading: meeting.deepSearchLoading,
+    deepSearchEmpty: meeting.deepSearchEmpty,
+    isMultiMode: meeting.isMultiMode,
+    checkedMeetings: meeting.checkedMeetings,
+    selectedMeeting: meeting.selectedMeeting,
+    artifact: meeting.isMultiMode ? meeting.mergedArtifact : (meeting.selectedArtifactQuery.data ?? null),
+    artifactLoading: meeting.isMultiMode ? meeting.mergedArtifactLoading : meeting.selectedArtifactQuery.isLoading,
+    clients: clientsQuery.data,
+    onReExtract: meeting.selectedMeetingId ? meeting.handleReExtract : undefined,
+    reExtractPending: meeting.isReExtracting,
+    onReassignClient: meeting.selectedMeetingId ? meeting.handleReassignClient : undefined,
+    onIgnore: meeting.selectedMeetingId ? meeting.handleIgnore : undefined,
+    completions: meeting.completionsQuery.data ?? [],
+    onComplete: meeting.handleCompleteActionItem,
+    onUncomplete: meeting.handleUncompleteActionItem,
+    mergedCompletions: meeting.mergedCompletions,
+    onMultiComplete: meeting.handleMultiCompleteActionItem,
+    onMultiUncomplete: meeting.handleMultiUncompleteActionItem,
+    mentionStats: meeting.mentionStatsQuery.data ?? [],
+    onMentionClick: meeting.handleMentionClick,
+    onThreadClick: handleThreadClick,
+  });
 
-  const timelinesViewPanels: React.ReactNode[] = [
-    <TimelinesView
-      key="timelines-list"
-      milestones={(milestonesQuery.data ?? []).map((m) => ({
-        ...m,
-        has_pending_review: (milestoneMentionsQuery.data ?? []).some((mn) => mn.milestone_id === m.id && mn.pending_review === 1),
-      }))}
-      clientName={selectedClient ?? "All"}
-      onSelectMilestone={setSelectedMilestoneId}
-      onCreateMilestone={() => setCreateMilestoneOpen(true)}
-      selectedMilestoneId={selectedMilestoneId}
-    />,
-    ...(selectedMilestone ? [
-      <TimelineDetailView
-        key="timeline-detail"
-        milestone={selectedMilestone}
-        onDelete={handleDeleteMilestone}
-        slippage={milestoneSlippageQuery.data ?? []}
-        mentions={(milestoneMentionsQuery.data ?? []).filter((m) => m.pending_review === 0)}
-        onMeetingClick={setSelectedMeetingId}
-        actionItems={milestoneActionItemsQuery.data ?? []}
-        onUnlinkActionItem={handleUnlinkMilestoneActionItem}
-        pendingMentions={pendingMilestoneMentions}
-        onConfirmMention={handleConfirmMilestoneMention}
-        onRejectMention={handleRejectMilestoneMention}
-        onUpdate={handleUpdateMilestone}
-        allMilestones={(milestonesQuery.data ?? []).filter((m) => m.id !== selectedMilestoneId).map((m) => ({ id: m.id, title: m.title }))}
-        onMerge={handleMergeMilestones}
-      />,
-    ] : []),
-  ];
+  const actionItemsPanels = ActionItemsPage({
+    selectedClient,
+    items: meeting.clientActionItemsQuery.data ?? [],
+    onPreviewMeeting: meeting.setPreviewMeetingId,
+    onComplete: meeting.handleCompleteClientActionItem,
+    previewMeetingId: meeting.previewMeetingId,
+    previewMeeting: meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId) ?? null,
+    previewArtifact: meeting.previewArtifactQuery.data ?? null,
+    previewArtifactLoading: meeting.previewArtifactQuery.isLoading,
+    previewCompletions: meeting.previewCompletionsQuery.data ?? [],
+    previewMentionStats: meeting.previewMentionStatsQuery.data ?? [],
+    onCompletePreview: meeting.handleCompletePreviewActionItem,
+    onUncompletePreview: meeting.handleUncompletePreviewActionItem,
+  });
 
-  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : currentView === "timelines" ? timelinesViewPanels : insightsViewPanels;
+  const threadsPanels = ThreadsPage({
+    threads: thread.threadsQuery.data ?? [],
+    selectedClient,
+    selectedThreadId: thread.selectedThreadId,
+    onSelectThread: (id: string) => { thread.setSelectedThreadId(id); thread.setThreadPreviewCandidateIds(new Set()); },
+    onCreateThread: () => thread.setCreateThreadOpen(true),
+    selectedThread: thread.selectedThread,
+    threadMeetings: thread.threadMeetingsQuery.data ?? [],
+    threadCandidates: thread.threadCandidates,
+    onEdit: () => thread.setEditThreadOpen(true),
+    onDeleteThread: thread.handleDeleteThread,
+    onFindCandidates: thread.handleFindCandidates,
+    onRemoveThreadMeetings: thread.handleRemoveThreadMeetings,
+    onRegenerateThreadSummary: thread.handleRegenerateThreadSummary,
+    onMeetingClick: meeting.setSelectedMeetingId,
+    onEvaluateCandidates: thread.handleEvaluateCandidates,
+    onCandidateCheck: thread.handleCandidateCheck,
+    onResolveThread: thread.handleResolveThread,
+    threadPreviewCandidateIds: thread.threadPreviewCandidateIds,
+    scopeMeetings: meeting.scopeMeetings,
+    selectedMeeting: meeting.selectedMeeting,
+    selectedArtifact: meeting.selectedArtifactQuery.data ?? null,
+    selectedArtifactLoading: meeting.selectedArtifactQuery.isLoading,
+    selectedCompletions: meeting.completionsQuery.data ?? [],
+    threadKeywords: thread.selectedThread?.keywords,
+  });
+
+  const insightsPanels = InsightsPage({
+    insights: insight.insightsQuery.data ?? [],
+    selectedClient,
+    selectedInsightId: insight.selectedInsightId,
+    onSelectInsight: insight.setSelectedInsightId,
+    onCreateInsight: () => insight.setCreateInsightOpen(true),
+    selectedInsight: insight.selectedInsight,
+    insightMeetings: insight.insightMeetingsQuery.data ?? [],
+    onDeleteInsight: insight.handleDeleteInsight,
+    onRegenerateInsight: insight.handleRegenerateInsight,
+    onFinalizeInsight: insight.handleFinalizeInsight,
+    onRemoveInsightMeetings: insight.handleRemoveInsightMeetings,
+    onUpdateInsightSummary: insight.handleUpdateInsightSummary,
+    onShowAllInsightMeetings: insight.handleShowAllInsightMeetings,
+    isRegenerating: insight.regeneratingInsightId === insight.selectedInsightId,
+    selectedMeeting: meeting.selectedMeeting,
+    selectedArtifact: meeting.selectedArtifactQuery.data ?? null,
+    selectedArtifactLoading: meeting.selectedArtifactQuery.isLoading,
+    selectedCompletions: meeting.completionsQuery.data ?? [],
+  });
+
+  const timelinesPanels = TimelinesPage({
+    milestones: milestone.milestonesQuery.data ?? [],
+    milestoneMentions: milestone.milestoneMentionsQuery.data ?? [],
+    selectedClient,
+    selectedMilestoneId: milestone.selectedMilestoneId,
+    onSelectMilestone: milestone.setSelectedMilestoneId,
+    onCreateMilestone: () => milestone.setCreateMilestoneOpen(true),
+    selectedMilestone: milestone.selectedMilestone,
+    milestoneSlippage: milestone.milestoneSlippageQuery.data ?? [],
+    milestoneActionItems: milestone.milestoneActionItemsQuery.data ?? [],
+    pendingMilestoneMentions: milestone.pendingMilestoneMentions,
+    onDeleteMilestone: milestone.handleDeleteMilestone,
+    onMeetingClick: meeting.setSelectedMeetingId,
+    onUnlinkActionItem: milestone.handleUnlinkMilestoneActionItem,
+    onConfirmMention: milestone.handleConfirmMilestoneMention,
+    onRejectMention: milestone.handleRejectMilestoneMention,
+    onUpdateMilestone: milestone.handleUpdateMilestone,
+    onMergeMilestones: milestone.handleMergeMilestones,
+  });
+
+  const panels =
+    currentView === "meetings" ? meetingsPanels :
+    currentView === "action-items" ? actionItemsPanels :
+    currentView === "threads" ? threadsPanels :
+    currentView === "timelines" ? timelinesPanels :
+    insightsPanels;
+
+  const chatPanel =
+    currentView === "insights" && insight.selectedInsightId ? (
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={handleChat}
+        persistedMessages={insight.insightMessagesQuery.data ?? []}
+        onSendMessage={insight.handleInsightSendMessage}
+        onClearMessages={insight.handleClearInsightMessages}
+        onSourceClick={meeting.setSelectedMeetingId}
+      />
+    ) : currentView === "threads" && thread.selectedThreadId ? (
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={handleChat}
+        persistedMessages={thread.threadMessagesQuery.data ?? []}
+        onSendMessage={thread.handleThreadSendMessage}
+        onClearMessages={thread.handleClearThreadMessages}
+        onSourceClick={meeting.setSelectedMeetingId}
+      />
+    ) : currentView === "timelines" && milestone.selectedMilestoneId ? (
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={handleChat}
+        persistedMessages={milestone.milestoneMessagesQuery.data ?? []}
+        onSendMessage={milestone.handleMilestoneSendMessage}
+        onClearMessages={milestone.handleClearMilestoneMessages}
+        onSourceClick={meeting.setSelectedMeetingId}
+      />
+    ) : (
+      <ChatPanel
+        activeMeetingIds={computedActiveMeetingIds}
+        charCount={meeting.charCount}
+        onChat={handleChat}
+        templates={templatesQuery.data ?? []}
+        onSaveAsThread={selectedClient ? handleSaveAsThreadAndOpen : undefined}
+      />
+    );
 
   return (
     <>
     <LinearShell
       viewId={currentView}
-      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "insights" && (insightMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "timelines" && !!selectedMilestoneId)}
+      chatOpen={chatOpenForCurrentView}
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}
           selectedClient={selectedClient}
-          dateRange={dateRange}
-          searchQuery={typedSearchQuery}
+          dateRange={meeting.dateRange}
+          searchQuery={meeting.typedSearchQuery}
           onClientChange={handleClientChange}
-          onDateChange={handleDateChange}
-          onSearchQueryChange={setTypedSearchQuery}
-          onSubmitSearch={setSearchQuery}
-          deepSearchEnabled={deepSearchEnabled}
-          onDeepSearchToggle={setDeepSearchEnabled}
+          onDateChange={meeting.handleDateChange}
+          onSearchQueryChange={meeting.setTypedSearchQuery}
+          onSubmitSearch={meeting.setSearchQuery}
+          deepSearchEnabled={meeting.deepSearchEnabled}
+          onDeepSearchToggle={meeting.setDeepSearchEnabled}
           onReset={handleReset}
           theme={theme}
           setTheme={setTheme}
           themes={themes}
         />
       }
-      navRail={<NavRail currentView={currentView} onNavigate={handleNavigate} />}
+      navRail={<NavRail currentView={currentView} onNavigate={meeting.handleNavigate} />}
       panels={panels}
-      chat={
-        currentView === "insights" && selectedInsightId ? (
-          <ChatPanel
-            activeMeetingIds={[]}
-            charCount={0}
-            onChat={handleChat}
-            persistedMessages={insightMessagesQuery.data ?? []}
-            onSendMessage={handleInsightSendMessage}
-            onClearMessages={handleClearInsightMessages}
-            onSourceClick={setSelectedMeetingId}
-          />
-        ) : currentView === "threads" && selectedThreadId ? (
-          <ChatPanel
-            activeMeetingIds={[]}
-            charCount={0}
-            onChat={handleChat}
-            persistedMessages={threadMessagesQuery.data ?? []}
-            onSendMessage={handleThreadSendMessage}
-            onClearMessages={handleClearThreadMessages}
-            onSourceClick={setSelectedMeetingId}
-          />
-        ) : currentView === "timelines" && selectedMilestoneId ? (
-          <ChatPanel
-            activeMeetingIds={[]}
-            charCount={0}
-            onChat={handleChat}
-            persistedMessages={milestoneMessagesQuery.data ?? []}
-            onSendMessage={handleMilestoneSendMessage}
-            onClearMessages={handleClearMilestoneMessages}
-            onSourceClick={setSelectedMeetingId}
-          />
-        ) : (
-          <ChatPanel
-            activeMeetingIds={activeMeetingIds}
-            charCount={charCount}
-            onChat={handleChat}
-            templates={templatesQuery.data ?? []}
-            onSaveAsThread={selectedClient ? handleSaveAsThread : undefined}
-          />
-        )
-      }
+      chat={chatPanel}
     />
     <ToastContainer toasts={toasts} onDismiss={removeToast} />
     <ItemHistoryDialog
-      open={!!historyItem}
-      onClose={() => setHistoryItem(null)}
-      itemText={historyItem?.itemText ?? ""}
-      history={itemHistoryQuery.data ?? []}
-      onSelectMeeting={handleHistorySelectMeeting}
+      open={!!meeting.historyItem}
+      onClose={() => meeting.setHistoryItem(null)}
+      itemText={meeting.historyItem?.itemText ?? ""}
+      history={meeting.itemHistoryQuery.data ?? []}
+      onSelectMeeting={meeting.handleHistorySelectMeeting}
     />
     <NewMeetingDialog
-      open={newMeetingOpen}
-      onOpenChange={setNewMeetingOpen}
+      open={meeting.newMeetingOpen}
+      onOpenChange={meeting.setNewMeetingOpen}
       clients={clientsQuery.data ?? []}
-      onSubmit={handleNewMeeting}
+      onSubmit={meeting.handleNewMeeting}
     />
-    <Dialog open={pendingDeleteIds !== null} onOpenChange={(o) => { if (!o) setPendingDeleteIds(null); }}>
+    <Dialog open={meeting.pendingDeleteIds !== null} onOpenChange={(o) => { if (!o) meeting.setPendingDeleteIds(null); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Delete meetings</DialogTitle>
         <p className="text-sm text-muted-foreground">
-          Permanently delete {pendingDeleteIds?.length ?? 0} meeting(s)?
+          Permanently delete {meeting.pendingDeleteIds?.length ?? 0} meeting(s)?
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingDeleteIds(null)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmDelete}>Delete permanently</Button>
+          <Button variant="outline" size="sm" onClick={() => meeting.setPendingDeleteIds(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={meeting.handleConfirmDelete}>Delete permanently</Button>
         </div>
       </DialogContent>
     </Dialog>
     <CreateThreadDialog
-      open={createThreadOpen}
-      onOpenChange={setCreateThreadOpen}
-      onSubmit={handleCreateThread}
-      initialDescription={threadInitialDescription}
+      open={thread.createThreadOpen}
+      onOpenChange={thread.setCreateThreadOpen}
+      onSubmit={handleCreateThreadWithMeetings}
+      initialDescription={meeting.threadInitialDescription}
     />
-    {selectedThread && (
+    {thread.selectedThread && (
       <CreateThreadDialog
-        open={editThreadOpen}
-        onOpenChange={setEditThreadOpen}
-        onSubmit={handleUpdateThread}
-        thread={selectedThread}
+        open={thread.editThreadOpen}
+        onOpenChange={thread.setEditThreadOpen}
+        onSubmit={thread.handleUpdateThread}
+        thread={thread.selectedThread}
       />
     )}
     <CreateInsightDialog
-      open={createInsightOpen}
-      onOpenChange={setCreateInsightOpen}
-      onSubmit={handleCreateInsight}
+      open={insight.createInsightOpen}
+      onOpenChange={insight.setCreateInsightOpen}
+      onSubmit={insight.handleCreateInsight}
     />
-    <Dialog open={pendingDeleteInsightId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteInsightId(null); }}>
+    <Dialog open={insight.pendingDeleteInsightId !== null} onOpenChange={(o) => { if (!o) insight.setPendingDeleteInsightId(null); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Delete insight</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1394,12 +368,12 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingDeleteInsightId(null)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteInsight}>Delete permanently</Button>
+          <Button variant="outline" size="sm" onClick={() => insight.setPendingDeleteInsightId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={insight.handleConfirmDeleteInsight}>Delete permanently</Button>
         </div>
       </DialogContent>
     </Dialog>
-    <Dialog open={pendingDeleteThreadId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteThreadId(null); }}>
+    <Dialog open={thread.pendingDeleteThreadId !== null} onOpenChange={(o) => { if (!o) thread.setPendingDeleteThreadId(null); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Delete thread</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1407,12 +381,12 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingDeleteThreadId(null)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteThread}>Delete permanently</Button>
+          <Button variant="outline" size="sm" onClick={() => thread.setPendingDeleteThreadId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={thread.handleConfirmDeleteThread}>Delete permanently</Button>
         </div>
       </DialogContent>
     </Dialog>
-    <Dialog open={pendingClearThreadMessages} onOpenChange={(o) => { if (!o) setPendingClearThreadMessages(false); }}>
+    <Dialog open={thread.pendingClearThreadMessages} onOpenChange={(o) => { if (!o) thread.setPendingClearThreadMessages(false); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Clear messages</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1420,12 +394,12 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingClearThreadMessages(false)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmClearThreadMessages}>Clear messages</Button>
+          <Button variant="outline" size="sm" onClick={() => thread.setPendingClearThreadMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={thread.handleConfirmClearThreadMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>
-    <Dialog open={pendingClearInsightMessages} onOpenChange={(o) => { if (!o) setPendingClearInsightMessages(false); }}>
+    <Dialog open={insight.pendingClearInsightMessages} onOpenChange={(o) => { if (!o) insight.setPendingClearInsightMessages(false); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Clear messages</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1433,18 +407,18 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingClearInsightMessages(false)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmClearInsightMessages}>Clear messages</Button>
+          <Button variant="outline" size="sm" onClick={() => insight.setPendingClearInsightMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={insight.handleConfirmClearInsightMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>
     <CreateMilestoneDialog
-      open={createMilestoneOpen}
-      onOpenChange={setCreateMilestoneOpen}
-      onSubmit={handleCreateMilestone}
+      open={milestone.createMilestoneOpen}
+      onOpenChange={milestone.setCreateMilestoneOpen}
+      onSubmit={milestone.handleCreateMilestone}
       clientName={selectedClient ?? ""}
     />
-    <Dialog open={pendingDeleteMilestoneId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteMilestoneId(null); }}>
+    <Dialog open={milestone.pendingDeleteMilestoneId !== null} onOpenChange={(o) => { if (!o) milestone.setPendingDeleteMilestoneId(null); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Delete milestone</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1452,12 +426,12 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingDeleteMilestoneId(null)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteMilestone}>Delete permanently</Button>
+          <Button variant="outline" size="sm" onClick={() => milestone.setPendingDeleteMilestoneId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={milestone.handleConfirmDeleteMilestone}>Delete permanently</Button>
         </div>
       </DialogContent>
     </Dialog>
-    <Dialog open={pendingClearMilestoneMessages} onOpenChange={(o) => { if (!o) setPendingClearMilestoneMessages(false); }}>
+    <Dialog open={milestone.pendingClearMilestoneMessages} onOpenChange={(o) => { if (!o) milestone.setPendingClearMilestoneMessages(false); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Clear messages</DialogTitle>
         <p className="text-sm text-muted-foreground">
@@ -1465,8 +439,8 @@ export function App() {
         </p>
         <p className="text-xs text-muted-foreground">This cannot be undone.</p>
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" size="sm" onClick={() => setPendingClearMilestoneMessages(false)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirmClearMilestoneMessages}>Clear messages</Button>
+          <Button variant="outline" size="sm" onClick={() => milestone.setPendingClearMilestoneMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={milestone.handleConfirmClearMilestoneMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>

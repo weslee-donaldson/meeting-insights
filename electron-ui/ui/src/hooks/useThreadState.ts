@@ -5,7 +5,6 @@ import type { Thread, ThreadMeeting, ThreadMessage } from "../../../../core/thre
 export function useThreadState(
   selectedClient: string | null,
   currentView: string,
-  activeMeetingIds: string[],
   addToast: (message: string, type: "success" | "error") => void,
 ) {
   const queryClient = useQueryClient();
@@ -39,13 +38,13 @@ export function useThreadState(
     return threadsQuery.data?.find((t) => t.id === selectedThreadId) ?? null;
   }, [threadsQuery.data, selectedThreadId]);
 
-  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
+  const handleCreateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }, linkedMeetingIds?: string[]) => {
     if (!selectedClient) return;
     try {
       const thread = await window.api.createThread({ ...data, client_name: selectedClient });
       setCreateThreadOpen(false);
-      if (activeMeetingIds.length > 0) {
-        for (const meetingId of activeMeetingIds) {
+      if (linkedMeetingIds && linkedMeetingIds.length > 0) {
+        for (const meetingId of linkedMeetingIds) {
           await window.api.addThreadMeeting(thread.id, meetingId, "Linked from chat", 100);
         }
       }
@@ -55,7 +54,7 @@ export function useThreadState(
       console.error("Create thread failed:", err);
       addToast(`Create thread failed: ${(err as Error).message}`, "error");
     }
-  }, [selectedClient, activeMeetingIds, queryClient, addToast]);
+  }, [selectedClient, queryClient, addToast]);
 
   const handleUpdateThread = useCallback(async (data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     if (!selectedThreadId) return;
