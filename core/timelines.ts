@@ -322,3 +322,51 @@ export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
      ORDER BY m.target_date ASC NULLS LAST`,
   ).all(clientName) as (MilestoneRow & { mention_count: number; first_mentioned_at: string | null; pending_review_count: number })[];
 }
+
+interface MilestoneMessageRow {
+  id: string;
+  milestone_id: string;
+  role: string;
+  content: string;
+  sources: string | null;
+  context_stale: number;
+  stale_details: string | null;
+  created_at: string;
+}
+
+interface MilestoneMessage {
+  id: string;
+  milestone_id: string;
+  role: string;
+  content: string;
+  sources: string | null;
+  context_stale: boolean;
+  stale_details: string | null;
+  created_at: string;
+}
+
+function rowToMilestoneMessage(row: MilestoneMessageRow): MilestoneMessage {
+  return { ...row, context_stale: row.context_stale === 1 };
+}
+
+export function appendMilestoneMessage(
+  db: DatabaseSync,
+  input: { milestoneId: string; role: string; content: string; sources?: string },
+): MilestoneMessage {
+  const id = randomUUID();
+  const now = new Date().toISOString();
+  db.prepare(
+    `INSERT INTO milestone_messages (id, milestone_id, role, content, sources, context_stale, stale_details, created_at)
+     VALUES (?, ?, ?, ?, ?, 0, NULL, ?)`,
+  ).run(id, input.milestoneId, input.role, input.content, input.sources ?? null, now);
+  return rowToMilestoneMessage(db.prepare("SELECT * FROM milestone_messages WHERE id = ?").get(id) as MilestoneMessageRow);
+}
+
+export function getMilestoneMessages(db: DatabaseSync, milestoneId: string): MilestoneMessage[] {
+  const rows = db.prepare("SELECT * FROM milestone_messages WHERE milestone_id = ? ORDER BY created_at ASC").all(milestoneId) as MilestoneMessageRow[];
+  return rows.map(rowToMilestoneMessage);
+}
+
+export function clearMilestoneMessages(db: DatabaseSync, milestoneId: string): void {
+  db.prepare("DELETE FROM milestone_messages WHERE milestone_id = ?").run(milestoneId);
+}

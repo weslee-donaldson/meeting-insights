@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention, mergeMilestones } from "../core/timelines.js";
+import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention, mergeMilestones, appendMilestoneMessage, getMilestoneMessages, clearMilestoneMessages } from "../core/timelines.js";
 
 let db: Database;
 
@@ -692,5 +692,44 @@ describe("reconcileMilestones", () => {
         pending_review: 0,
       }),
     ]);
+  });
+});
+
+describe("milestone messages", () => {
+  it("appendMilestoneMessage stores and returns a message", () => {
+    const ms = createMilestone(db, { clientName: "Acme", title: "Chat test milestone" });
+    const msg = appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "What is the status?" });
+
+    expect(msg).toEqual({
+      id: expect.any(String),
+      milestone_id: ms.id,
+      role: "user",
+      content: "What is the status?",
+      sources: null,
+      context_stale: false,
+      stale_details: null,
+      created_at: expect.any(String),
+    });
+  });
+
+  it("getMilestoneMessages returns messages in chronological order", () => {
+    const ms = createMilestone(db, { clientName: "Acme", title: "Chat order test" });
+    appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "First" });
+    appendMilestoneMessage(db, { milestoneId: ms.id, role: "assistant", content: "Second", sources: "[M1]" });
+
+    const msgs = getMilestoneMessages(db, ms.id);
+    expect(msgs).toHaveLength(2);
+    expect(msgs[0].content).toBe("First");
+    expect(msgs[1].content).toBe("Second");
+    expect(msgs[1].sources).toBe("[M1]");
+  });
+
+  it("clearMilestoneMessages removes all messages for a milestone", () => {
+    const ms = createMilestone(db, { clientName: "Acme", title: "Chat clear test" });
+    appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "msg" });
+    appendMilestoneMessage(db, { milestoneId: ms.id, role: "assistant", content: "reply" });
+
+    clearMilestoneMessages(db, ms.id);
+    expect(getMilestoneMessages(db, ms.id)).toHaveLength(0);
   });
 });
