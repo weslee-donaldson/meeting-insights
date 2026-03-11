@@ -352,7 +352,7 @@ Follows `test/e2e/insights.spec.ts` pattern: API helpers for setup/teardown, sha
 - [x] Burst 62: Mentions timeline — milestone with multiple mentions shows chronological list with meeting links
 - [x] Burst 63: Chat panel — chat visible when milestone selected, send message, clear messages confirmation + toast
 - [x] Burst 64: Milestone badges on meetings — navigate to meetings view, verify milestone badges appear on meeting cards
-- [ ] Burst 65: Gantt view — toggle to timeline view, verify bars render, today marker visible, click bar selects milestone
+- [x] Burst 65: Gantt view — toggle to timeline view, verify bars render, today marker visible, click bar selects milestone
 - [ ] Burst 66: Calendar view — toggle to calendar view, verify month grid, milestone pills on dates, click navigates
 - [ ] Burst 67: State consistency — delete selected milestone clears detail, status change updates list badge
 - [ ] Burst 68: Fuzzy match review — create two similar milestones, verify "Review" badge, confirm/reject flow
