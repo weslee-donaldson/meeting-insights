@@ -17,7 +17,7 @@
 - [x] Burst R3: Extract api/routes/meetings.ts
 - [x] Burst R4: Extract api/routes/search.ts
 - [x] Burst R5: Extract api/routes/threads.ts
-- [ ] Burst R6: Extract api/routes/insights.ts + milestones.ts, slim server.ts to wiring
+- [x] Burst R6: Extract api/routes/insights.ts + milestones.ts, slim server.ts to wiring
 - [ ] Burst R7: Extract electron-ui/electron/handlers/meetings.ts
 - [ ] Burst R8: Extract electron-ui/electron/handlers/search.ts
 - [ ] Burst R9: Extract electron-ui/electron/handlers/threads.ts

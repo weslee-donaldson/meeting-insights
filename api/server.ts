@@ -5,18 +5,9 @@ import { registerDebugRoutes } from "./routes/debug.js";
 import { registerMeetingRoutes } from "./routes/meetings.js";
 import { registerSearchRoutes } from "./routes/search.js";
 import { registerThreadRoutes } from "./routes/threads.js";
-import {
-  handleListInsights, handleCreateInsight, handleUpdateInsight, handleDeleteInsight,
-  handleGetInsightMeetings, handleDiscoverInsightMeetings, handleGenerateInsight,
-  handleGetInsightMessages, handleInsightChat, handleClearInsightMessages, handleRemoveInsightMeeting,
-  handleListMilestones, handleCreateMilestone, handleUpdateMilestone, handleDeleteMilestone,
-  handleGetMilestoneMentions, handleConfirmMilestoneMention, handleRejectMilestoneMention,
-  handleMergeMilestones, handleLinkMilestoneActionItem, handleUnlinkMilestoneActionItem,
-  handleGetMilestoneActionItems, handleGetMeetingMilestones, handleGetDateSlippage,
-  handleGetMilestoneMessages, handleMilestoneChat, handleClearMilestoneMessages,
-} from "../electron-ui/electron/ipc-handlers.js";
+import { registerInsightRoutes } from "./routes/insights.js";
+import { registerMilestoneRoutes } from "./routes/milestones.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
-import type { InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../electron-ui/electron/channels.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
@@ -39,155 +30,8 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   registerMeetingRoutes(app, db, llm, searchDeps);
   registerSearchRoutes(app, db, llm, searchDeps);
   registerThreadRoutes(app, db, llm, searchDeps);
-
-  // Insight routes
-  app.get('/api/insights', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListInsights(db, client));
-  });
-
-  app.post('/api/insights', async (c) => {
-    const body = await c.req.json() as import('../electron-ui/electron/channels.js').CreateInsightRequest;
-    return c.json(handleCreateInsight(db, body), 201);
-  });
-
-  app.put('/api/insights/:id', async (c) => {
-    const body = await c.req.json() as import('../electron-ui/electron/channels.js').UpdateInsightRequest;
-    return c.json(handleUpdateInsight(db, c.req.param('id'), body));
-  });
-
-  app.delete('/api/insights/:id', (c) => {
-    handleDeleteInsight(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  app.get('/api/insights/:id/meetings', (c) => {
-    return c.json(handleGetInsightMeetings(db, c.req.param('id')));
-  });
-
-  app.post('/api/insights/:id/discover-meetings', (c) => {
-    const meetingIds = handleDiscoverInsightMeetings(db, c.req.param('id'));
-    return c.json({ meetingIds });
-  });
-
-  app.post('/api/insights/:id/generate', async (c) => {
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    try {
-      const result = await handleGenerateInsight(db, llm, c.req.param('id'));
-      return c.json(result);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      return c.json({ error: msg }, 500);
-    }
-  });
-
-  app.get('/api/insights/:id/messages', (c) => {
-    return c.json(handleGetInsightMessages(db, c.req.param('id')));
-  });
-
-  app.post('/api/insights/:id/chat', async (c) => {
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const req: InsightChatRequest = { insightId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
-    const result = await handleInsightChat(db, llm, searchDeps.vdb, searchDeps.session, req);
-    return c.json(result);
-  });
-
-  app.delete('/api/insights/:id/meetings/:meetingId', (c) => {
-    handleRemoveInsightMeeting(db, c.req.param('id'), c.req.param('meetingId'));
-    return c.json({ ok: true });
-  });
-
-  app.delete('/api/insights/:id/messages', (c) => {
-    handleClearInsightMessages(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  // Milestone routes
-  app.get('/api/milestones', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListMilestones(db, client));
-  });
-
-  app.post('/api/milestones', async (c) => {
-    const body = await c.req.json() as CreateMilestoneRequest;
-    return c.json(handleCreateMilestone(db, body), 201);
-  });
-
-  app.post('/api/milestones/merge', async (c) => {
-    const body = await c.req.json() as { sourceId: string; targetId: string };
-    handleMergeMilestones(db, body.sourceId, body.targetId);
-    return c.json({ ok: true });
-  });
-
-  app.put('/api/milestones/:id', async (c) => {
-    const body = await c.req.json() as UpdateMilestoneRequest;
-    return c.json(handleUpdateMilestone(db, c.req.param('id'), body));
-  });
-
-  app.delete('/api/milestones/:id', (c) => {
-    handleDeleteMilestone(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  app.get('/api/milestones/:id/mentions', (c) => {
-    return c.json(handleGetMilestoneMentions(db, c.req.param('id')));
-  });
-
-  app.get('/api/milestones/:id/slippage', (c) => {
-    return c.json(handleGetDateSlippage(db, c.req.param('id')));
-  });
-
-  app.get('/api/milestones/:id/messages', (c) => {
-    return c.json(handleGetMilestoneMessages(db, c.req.param('id')));
-  });
-
-  app.post('/api/milestones/:id/chat', async (c) => {
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
-    if (!llm) return c.json({ error: 'LLM not available' }, 503);
-    if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const req: MilestoneChatRequest = { milestoneId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
-    const result = await handleMilestoneChat(db, llm, searchDeps.vdb, searchDeps.session, req);
-    return c.json(result);
-  });
-
-  app.delete('/api/milestones/:id/messages', (c) => {
-    handleClearMilestoneMessages(db, c.req.param('id'));
-    return c.json({ ok: true });
-  });
-
-  app.post('/api/milestones/:id/confirm-mention', async (c) => {
-    const body = await c.req.json() as { meetingId: string };
-    handleConfirmMilestoneMention(db, c.req.param('id'), body.meetingId);
-    return c.json({ ok: true });
-  });
-
-  app.post('/api/milestones/:id/reject-mention', async (c) => {
-    const body = await c.req.json() as { meetingId: string };
-    handleRejectMilestoneMention(db, c.req.param('id'), body.meetingId);
-    return c.json({ ok: true });
-  });
-
-  app.post('/api/milestones/:id/link-action-item', async (c) => {
-    const body = await c.req.json() as { meetingId: string; itemIndex: number };
-    handleLinkMilestoneActionItem(db, c.req.param('id'), body.meetingId, body.itemIndex);
-    return c.json({ ok: true });
-  });
-
-  app.delete('/api/milestones/:id/link-action-item', async (c) => {
-    const body = await c.req.json() as { meetingId: string; itemIndex: number };
-    handleUnlinkMilestoneActionItem(db, c.req.param('id'), body.meetingId, body.itemIndex);
-    return c.json({ ok: true });
-  });
-
-  app.get('/api/milestones/:id/action-items', (c) => {
-    return c.json(handleGetMilestoneActionItems(db, c.req.param('id')));
-  });
-
-  app.get('/api/meetings/:id/milestones', (c) => {
-    return c.json(handleGetMeetingMilestones(db, c.req.param('id')));
-  });
+  registerInsightRoutes(app, db, llm, searchDeps);
+  registerMilestoneRoutes(app, db, llm, searchDeps);
 
   return app;
 }
