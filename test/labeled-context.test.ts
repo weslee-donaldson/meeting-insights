@@ -4,6 +4,7 @@ import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { buildLabeledContext, buildDistilledContext } from "../core/labeled-context.js";
 import { recordMention } from "../core/item-dedup.js";
+import { createMilestone, addMilestoneMention } from "../core/timelines.js";
 
 function makeArtifact() {
   return {
@@ -138,6 +139,17 @@ describe("buildLabeledContext", () => {
     const result = buildLabeledContext(db, [id1]);
     expect(result.contextText).toContain("Alice | 00:00");
     expect(result.contextText).toContain("Hello.");
+  });
+
+  it("includes milestone context when meeting has milestone mentions", () => {
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("TestCo", "[]", "[]");
+    const ms = createMilestone(db, { clientName: "TestCo", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
+    addMilestoneMention(db, { milestoneId: ms.id, meetingId: id1, mentionType: "introduced", excerpt: "First mention", targetDateAtMention: "2026-06-01", mentionedAt: "2026-02-25" });
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).toContain("Milestones:");
+    expect(result.contextText).toContain("Platform Launch");
+    expect(result.contextText).toContain("2026-06-01");
+    expect(result.contextText).toContain("identified");
   });
 
   it("formats risk_items by description", () => {

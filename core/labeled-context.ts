@@ -3,6 +3,7 @@ import { getMeeting } from "./ingest.js";
 import { getArtifact } from "./extractor.js";
 import type { ArtifactRow, Artifact } from "./extractor.js";
 import { getMentionStats } from "./item-dedup.js";
+import { getMeetingMilestones } from "./timelines.js";
 
 interface ContextMeeting {
   id: string;
@@ -171,9 +172,13 @@ export function buildLabeledContext(
       });
     }
     const body = artifactBlock(artifact, annotations);
+    const milestones = getMeetingMilestones(db, mtg.id);
+    const milestoneSection = milestones.length > 0
+      ? `\nMilestones:\n${milestones.map((m) => `- ${m.title} (target: ${m.target_date ?? "unscheduled"}, status: ${m.status})`).join("\n")}`
+      : "";
     const transcript = mtg.raw_transcript ? `\nTranscript:\n${mtg.raw_transcript}` : "";
     blocks.push(
-      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}${transcript}`,
+      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}${milestoneSection}${transcript}`,
     );
     meetings.push({ id: mtg.id, title: mtg.title, date: mtg.date });
   }
