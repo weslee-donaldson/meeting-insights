@@ -82,6 +82,21 @@ beforeAll(() => {
     insightChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
     clearInsightMessages: vi.fn().mockResolvedValue(undefined),
     removeInsightMeeting: vi.fn().mockResolvedValue(undefined),
+    listMilestones: vi.fn().mockResolvedValue([]),
+    createMilestone: vi.fn().mockResolvedValue({ id: "ms1", client_name: "Acme", title: "Test MS", description: "", target_date: null, status: "identified", completed_at: null, created_at: "2026-01-01T00:00:00Z", updated_at: "2026-01-01T00:00:00Z" }),
+    updateMilestone: vi.fn().mockResolvedValue(undefined),
+    deleteMilestone: vi.fn().mockResolvedValue(undefined),
+    getMilestoneMentions: vi.fn().mockResolvedValue([]),
+    confirmMilestoneMention: vi.fn().mockResolvedValue(undefined),
+    rejectMilestoneMention: vi.fn().mockResolvedValue(undefined),
+    mergeMilestones: vi.fn().mockResolvedValue(undefined),
+    getMilestoneActionItems: vi.fn().mockResolvedValue([]),
+    unlinkMilestoneActionItem: vi.fn().mockResolvedValue(undefined),
+    milestoneChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
+    getMilestoneMessages: vi.fn().mockResolvedValue([]),
+    clearMilestoneMessages: vi.fn().mockResolvedValue(undefined),
+    getDateSlippage: vi.fn().mockResolvedValue([]),
+    getMeetingMilestones: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -501,5 +516,33 @@ describe("App", () => {
     fireEvent.change(screen.getByPlaceholderText("Paste transcript here..."), { target: { value: "text" } });
     fireEvent.click(screen.getByRole("button", { name: "Import" }));
     await waitFor(() => expect(screen.getByText("Meeting import failed")).toBeDefined());
+  });
+
+  it("clicking Timelines nav renders TimelinesView with client header and New Milestone button", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Timelines"));
+    await waitFor(() => expect(screen.getByText("Acme Timelines")).toBeDefined());
+    expect(screen.getByRole("button", { name: "New Milestone" })).toBeDefined();
+    expect(window.api.listMilestones).toHaveBeenCalled();
+  });
+
+  it("shows milestone in list when milestones data loaded", async () => {
+    (window.api.listMilestones as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "ms1", client_name: "Acme", title: "Ship Feature X", description: "", target_date: "2026-06-01", status: "tracked", completed_at: null, created_at: "2026-01-01T00:00:00Z", updated_at: "2026-01-01T00:00:00Z" },
+    ]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Timelines"));
+    await waitFor(() => expect(screen.getByText("Ship Feature X")).toBeDefined());
+  });
+
+  it("clicking New Milestone opens CreateMilestoneDialog", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Timelines"));
+    await waitFor(() => screen.getByText("Acme Timelines"));
+    fireEvent.click(screen.getByRole("button", { name: "New Milestone" }));
+    await waitFor(() => expect(screen.getByText("Create Milestone")).toBeDefined());
   });
 });

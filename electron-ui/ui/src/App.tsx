@@ -23,8 +23,13 @@ import { ThreadDetailView } from "./components/ThreadDetailView.js";
 import { InsightsView } from "./components/InsightsView.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
 import { InsightDetailView } from "./components/InsightDetailView.js";
+import { TimelinesView } from "./components/TimelinesView.js";
+import { TimelineDetailView } from "./components/TimelineDetailView.js";
+import { CreateMilestoneDialog } from "./components/CreateMilestoneDialog.js";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../core/threads.js";
 import type { Insight, InsightMeeting, InsightMessage } from "../../../core/insights.js";
+import type { Milestone, MilestoneMention, MilestoneActionItem, DateSlippageEntry, MilestoneMessage } from "../../../core/timelines.js";
+import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../electron/channels.js";
 
 interface DateRange {
   after: string;
@@ -264,6 +269,36 @@ export function App() {
     enabled: !!selectedThreadId,
   });
 
+  const milestonesQuery = useQuery<Milestone[]>({
+    queryKey: ["milestones", selectedClient],
+    queryFn: () => window.api.listMilestones(selectedClient!),
+    enabled: currentView === "timelines" && !!selectedClient,
+  });
+
+  const milestoneMentionsQuery = useQuery<MilestoneMention[]>({
+    queryKey: ["milestoneMentions", selectedMilestoneId],
+    queryFn: () => window.api.getMilestoneMentions(selectedMilestoneId!),
+    enabled: !!selectedMilestoneId,
+  });
+
+  const milestoneSlippageQuery = useQuery<DateSlippageEntry[]>({
+    queryKey: ["milestoneSlippage", selectedMilestoneId],
+    queryFn: () => window.api.getDateSlippage(selectedMilestoneId!),
+    enabled: !!selectedMilestoneId,
+  });
+
+  const milestoneActionItemsQuery = useQuery<MilestoneActionItem[]>({
+    queryKey: ["milestoneActionItems", selectedMilestoneId],
+    queryFn: () => window.api.getMilestoneActionItems(selectedMilestoneId!),
+    enabled: !!selectedMilestoneId,
+  });
+
+  const milestoneMessagesQuery = useQuery<MilestoneMessage[]>({
+    queryKey: ["milestoneMessages", selectedMilestoneId],
+    queryFn: () => window.api.getMilestoneMessages(selectedMilestoneId!),
+    enabled: !!selectedMilestoneId,
+  });
+
   const selectedThread = useMemo(() => {
     return threadsQuery.data?.find((t) => t.id === selectedThreadId) ?? null;
   }, [threadsQuery.data, selectedThreadId]);
@@ -271,6 +306,16 @@ export function App() {
   const selectedInsight = useMemo(() => {
     return insightsQuery.data?.find((i) => i.id === selectedInsightId) ?? null;
   }, [insightsQuery.data, selectedInsightId]);
+
+  const selectedMilestone = useMemo(
+    () => milestonesQuery.data?.find((m) => m.id === selectedMilestoneId) ?? null,
+    [milestonesQuery.data, selectedMilestoneId],
+  );
+
+  const pendingMilestoneMentions = useMemo(
+    () => (milestoneMentionsQuery.data ?? []).filter((m) => m.pending_review === 1),
+    [milestoneMentionsQuery.data],
+  );
 
   const isMultiMode = checkedMeetingIds.size >= 2;
 
@@ -599,7 +644,7 @@ export function App() {
     }
   }, [selectedMeetingId, queryClient, addToast]);
 
-  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights") => {
+  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => {
     setCurrentView((prev) => {
       meetingIdPerView.current[prev] = selectedMeetingId;
       return view;
@@ -921,6 +966,118 @@ export function App() {
     }
   }, [selectedInsightId, selectedClient, queryClient, addToast]);
 
+  const handleCreateMilestone = useCallback(async (req: CreateMilestoneRequest) => {
+    try {
+      const m = await window.api.createMilestone(req);
+      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+      setSelectedMilestoneId(m.id);
+      setCreateMilestoneOpen(false);
+      addToast("Milestone created", "success");
+    } catch (err) {
+      addToast(`Create milestone failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
+
+  const handleUpdateMilestone = useCallback(async (input: UpdateMilestoneRequest) => {
+    if (!selectedMilestoneId) return;
+    try {
+      await window.api.updateMilestone(selectedMilestoneId, input);
+      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+      addToast("Milestone updated", "success");
+    } catch (err) {
+      addToast(`Update milestone failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMilestoneId, selectedClient, queryClient, addToast]);
+
+  const handleDeleteMilestone = useCallback(() => {
+    if (!selectedMilestoneId) return;
+    setPendingDeleteMilestoneId(selectedMilestoneId);
+  }, [selectedMilestoneId]);
+
+  const handleConfirmDeleteMilestone = useCallback(async () => {
+    const id = pendingDeleteMilestoneId;
+    setPendingDeleteMilestoneId(null);
+    if (!id) return;
+    setSelectedMilestoneId(null);
+    try {
+      await window.api.deleteMilestone(id);
+      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+      addToast("Milestone deleted", "success");
+    } catch (err) {
+      addToast(`Delete milestone failed: ${(err as Error).message}`, "error");
+      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+    }
+  }, [pendingDeleteMilestoneId, selectedClient, queryClient, addToast]);
+
+  const handleConfirmMilestoneMention = useCallback(async (milestoneId: string, meetingId: string) => {
+    try {
+      await window.api.confirmMilestoneMention(milestoneId, meetingId);
+      queryClient.invalidateQueries({ queryKey: ["milestoneMentions", milestoneId] });
+      addToast("Match confirmed", "success");
+    } catch (err) {
+      addToast(`Confirm failed: ${(err as Error).message}`, "error");
+    }
+  }, [queryClient, addToast]);
+
+  const handleRejectMilestoneMention = useCallback(async (milestoneId: string, meetingId: string) => {
+    try {
+      await window.api.rejectMilestoneMention(milestoneId, meetingId);
+      queryClient.invalidateQueries({ queryKey: ["milestoneMentions", milestoneId] });
+      addToast("Match rejected", "success");
+    } catch (err) {
+      addToast(`Reject failed: ${(err as Error).message}`, "error");
+    }
+  }, [queryClient, addToast]);
+
+  const handleMergeMilestones = useCallback(async (targetId: string) => {
+    if (!selectedMilestoneId) return;
+    try {
+      await window.api.mergeMilestones(selectedMilestoneId, targetId);
+      queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+      setSelectedMilestoneId(targetId);
+      addToast("Milestones merged", "success");
+    } catch (err) {
+      addToast(`Merge failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMilestoneId, selectedClient, queryClient, addToast]);
+
+  const handleUnlinkMilestoneActionItem = useCallback(async (milestoneId: string, meetingId: string, itemIndex: number) => {
+    try {
+      await window.api.unlinkMilestoneActionItem(milestoneId, meetingId, itemIndex);
+      queryClient.invalidateQueries({ queryKey: ["milestoneActionItems", milestoneId] });
+      addToast("Action item unlinked", "success");
+    } catch (err) {
+      addToast(`Unlink failed: ${(err as Error).message}`, "error");
+    }
+  }, [queryClient, addToast]);
+
+  const handleMilestoneSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+    if (!selectedMilestoneId) return;
+    const req: MilestoneChatRequest = { milestoneId: selectedMilestoneId, message, includeTranscripts };
+    try {
+      await window.api.milestoneChat(req);
+      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
+    } catch (err) {
+      addToast(`Chat failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMilestoneId, queryClient, addToast]);
+
+  const handleClearMilestoneMessages = useCallback(() => {
+    setPendingClearMilestoneMessages(true);
+  }, []);
+
+  const handleConfirmClearMilestoneMessages = useCallback(async () => {
+    if (!selectedMilestoneId) return;
+    setPendingClearMilestoneMessages(false);
+    try {
+      await window.api.clearMilestoneMessages(selectedMilestoneId);
+      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
+      addToast("Messages cleared", "success");
+    } catch (err) {
+      addToast(`Clear failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMilestoneId, queryClient, addToast]);
+
   const handleThreadClick = useCallback((threadId: string) => {
     setCurrentView("threads");
     setSelectedThreadId(threadId);
@@ -1082,13 +1239,45 @@ export function App() {
     ] : []),
   ];
 
-  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : insightsViewPanels;
+  const timelinesViewPanels: React.ReactNode[] = [
+    <TimelinesView
+      key="timelines-list"
+      milestones={(milestonesQuery.data ?? []).map((m) => ({
+        ...m,
+        has_pending_review: (milestoneMentionsQuery.data ?? []).some((mn) => mn.milestone_id === m.id && mn.pending_review === 1),
+      }))}
+      clientName={selectedClient ?? "All"}
+      onSelectMilestone={setSelectedMilestoneId}
+      onCreateMilestone={() => setCreateMilestoneOpen(true)}
+      selectedMilestoneId={selectedMilestoneId}
+    />,
+    ...(selectedMilestone ? [
+      <TimelineDetailView
+        key="timeline-detail"
+        milestone={selectedMilestone}
+        onDelete={handleDeleteMilestone}
+        slippage={milestoneSlippageQuery.data ?? []}
+        mentions={(milestoneMentionsQuery.data ?? []).filter((m) => m.pending_review === 0)}
+        onMeetingClick={setSelectedMeetingId}
+        actionItems={milestoneActionItemsQuery.data ?? []}
+        onUnlinkActionItem={handleUnlinkMilestoneActionItem}
+        pendingMentions={pendingMilestoneMentions}
+        onConfirmMention={handleConfirmMilestoneMention}
+        onRejectMention={handleRejectMilestoneMention}
+        onUpdate={handleUpdateMilestone}
+        allMilestones={(milestonesQuery.data ?? []).filter((m) => m.id !== selectedMilestoneId).map((m) => ({ id: m.id, title: m.title }))}
+        onMerge={handleMergeMilestones}
+      />,
+    ] : []),
+  ];
+
+  const panels = currentView === "meetings" ? meetingsViewPanels : currentView === "action-items" ? actionItemsViewPanels : currentView === "threads" ? threadsViewPanels : currentView === "timelines" ? timelinesViewPanels : insightsViewPanels;
 
   return (
     <>
     <LinearShell
       viewId={currentView}
-      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "insights" && (insightMeetingsQuery.data?.length ?? 0) > 0)}
+      chatOpen={activeMeetingIds.length > 0 || (currentView === "threads" && (threadMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "insights" && (insightMeetingsQuery.data?.length ?? 0) > 0) || (currentView === "timelines" && !!selectedMilestoneId)}
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}
@@ -1128,6 +1317,16 @@ export function App() {
             persistedMessages={threadMessagesQuery.data ?? []}
             onSendMessage={handleThreadSendMessage}
             onClearMessages={handleClearThreadMessages}
+            onSourceClick={setSelectedMeetingId}
+          />
+        ) : currentView === "timelines" && selectedMilestoneId ? (
+          <ChatPanel
+            activeMeetingIds={[]}
+            charCount={0}
+            onChat={handleChat}
+            persistedMessages={milestoneMessagesQuery.data ?? []}
+            onSendMessage={handleMilestoneSendMessage}
+            onClearMessages={handleClearMilestoneMessages}
             onSourceClick={setSelectedMeetingId}
           />
         ) : (
@@ -1236,6 +1435,38 @@ export function App() {
         <div className="flex gap-2 justify-end">
           <Button variant="outline" size="sm" onClick={() => setPendingClearInsightMessages(false)}>Cancel</Button>
           <Button variant="destructive" size="sm" onClick={handleConfirmClearInsightMessages}>Clear messages</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <CreateMilestoneDialog
+      open={createMilestoneOpen}
+      onOpenChange={setCreateMilestoneOpen}
+      onSubmit={handleCreateMilestone}
+      clientName={selectedClient ?? ""}
+    />
+    <Dialog open={pendingDeleteMilestoneId !== null} onOpenChange={(o) => { if (!o) setPendingDeleteMilestoneId(null); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Delete milestone</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Permanently delete this milestone and its associated data?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingDeleteMilestoneId(null)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmDeleteMilestone}>Delete permanently</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={pendingClearMilestoneMessages} onOpenChange={(o) => { if (!o) setPendingClearMilestoneMessages(false); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Clear messages</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Clear all chat messages for this milestone?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => setPendingClearMilestoneMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={handleConfirmClearMilestoneMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>
