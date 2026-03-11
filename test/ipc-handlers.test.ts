@@ -33,6 +33,15 @@ import {
   handleGetThreadMessages,
   handleClearThreadMessages,
   handleGetMeetingThreads,
+  handleListMilestones,
+  handleCreateMilestone,
+  handleUpdateMilestone,
+  handleDeleteMilestone,
+  handleGetMilestoneMentions,
+  handleGetMeetingMilestones,
+  handleGetDateSlippage,
+  handleGetMilestoneMessages,
+  handleClearMilestoneMessages,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -807,6 +816,80 @@ describe("IPC handlers", () => {
 
       const associations = staleDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(thread.id) as unknown[];
       expect(associations.length).toBe(0);
+    });
+  });
+
+  describe("milestone handlers", () => {
+    let msMeetingId1: string;
+    let msMeetingId2: string;
+
+    beforeAll(() => {
+      msMeetingId1 = ingestMeeting(db, { title: "MS Meeting 1", timestamp: "2026-04-01T10:00:00.000Z", participants: [], rawTranscript: "A | 00:00\nHi.", turns: [], sourceFilename: "ms-m1" });
+      msMeetingId2 = ingestMeeting(db, { title: "MS Meeting 2", timestamp: "2026-04-08T10:00:00.000Z", participants: [], rawTranscript: "B | 00:00\nHi.", turns: [], sourceFilename: "ms-m2" });
+    });
+
+    it("creates and lists milestones by client", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Go-live" });
+      expect(ms.title).toBe("Platform Launch");
+      expect(ms.target_date).toBe("2026-06-01");
+      const list = handleListMilestones(db, "Acme");
+      expect(list.some((m) => m.id === ms.id)).toBe(true);
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+
+    it("updates milestone fields", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Old Title" });
+      const updated = handleUpdateMilestone(db, ms.id, { title: "New Title", status: "tracked" });
+      expect(updated.title).toBe("New Title");
+      expect(updated.status).toBe("tracked");
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+
+    it("deletes milestone", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Temp" });
+      handleDeleteMilestone(db, ms.id);
+      const list = handleListMilestones(db, "Acme");
+      expect(list.some((m) => m.id === ms.id)).toBe(false);
+    });
+
+    it("gets milestone mentions with meeting context", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Mentions Test" });
+      addMilestoneMention(db, { milestoneId: ms.id, meetingId: msMeetingId1, mentionType: "introduced", excerpt: "Excerpt", targetDateAtMention: "2026-06-01", mentionedAt: "2026-04-01" });
+      const mentions = handleGetMilestoneMentions(db, ms.id);
+      expect(mentions).toHaveLength(1);
+      expect(mentions[0].meeting_title).toBe("MS Meeting 1");
+      db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(ms.id);
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+
+    it("gets meeting milestones", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Meeting MS" });
+      addMilestoneMention(db, { milestoneId: ms.id, meetingId: msMeetingId1, mentionType: "introduced", excerpt: "Ex", targetDateAtMention: null, mentionedAt: "2026-04-01" });
+      const tags = handleGetMeetingMilestones(db, msMeetingId1);
+      expect(tags.some((t) => t.milestone_id === ms.id)).toBe(true);
+      db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(ms.id);
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+
+    it("gets date slippage", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Slippage Test" });
+      addMilestoneMention(db, { milestoneId: ms.id, meetingId: msMeetingId1, mentionType: "introduced", excerpt: "Ex", targetDateAtMention: "2026-06-01", mentionedAt: "2026-04-01" });
+      addMilestoneMention(db, { milestoneId: ms.id, meetingId: msMeetingId2, mentionType: "updated", excerpt: "Ex", targetDateAtMention: "2026-07-01", mentionedAt: "2026-04-08" });
+      const slippage = handleGetDateSlippage(db, ms.id);
+      expect(slippage).toHaveLength(2);
+      expect(slippage[0].target_date_at_mention).toBe("2026-06-01");
+      expect(slippage[1].target_date_at_mention).toBe("2026-07-01");
+      db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(ms.id);
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+
+    it("manages milestone messages", () => {
+      const ms = handleCreateMilestone(db, { clientName: "Acme", title: "Chat Test" });
+      handleGetMilestoneMessages(db, ms.id);
+      handleClearMilestoneMessages(db, ms.id);
+      const msgs = handleGetMilestoneMessages(db, ms.id);
+      expect(msgs).toHaveLength(0);
+      db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
     });
   });
 
