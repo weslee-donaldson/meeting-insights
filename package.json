@@ -15,7 +15,7 @@
     "assign-client": "tsx cli/assign-client.ts",
     "ui:dev": "electron-vite dev",
     "ui:build": "electron-vite build",
-    "api:dev": "tsx api/server.ts",
+    "api:dev": "tsx api/main.ts",
     "web:dev": "vite --config vite.web.config.ts",
     "llm:check": "tsx scripts/llm-check.ts"
   },
