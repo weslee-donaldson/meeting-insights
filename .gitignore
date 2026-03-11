@@ -7,3 +7,7 @@ models/
 logs/
 .DS_Store
 .env.local
+
+# Claude worktrees
+.claude/worktrees/
+.claude/scheduled_tasks.lock
