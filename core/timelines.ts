@@ -5,7 +5,7 @@ import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
 
-interface MilestoneRow {
+export interface Milestone {
   id: string;
   client_name: string;
   title: string;
@@ -16,6 +16,8 @@ interface MilestoneRow {
   created_at: string;
   updated_at: string;
 }
+
+type MilestoneRow = Milestone;
 
 export function createMilestone(
   db: DatabaseSync,
@@ -72,6 +74,14 @@ interface MilestoneMentionRow {
   target_date_at_mention: string | null;
   mentioned_at: string;
   pending_review: number;
+}
+
+export type MilestoneMention = MilestoneMentionRow & { meeting_title: string; meeting_date: string };
+
+export interface DateSlippageEntry {
+  mentioned_at: string;
+  target_date_at_mention: string | null;
+  meeting_title: string;
 }
 
 export function addMilestoneMention(
@@ -132,6 +142,8 @@ interface MilestoneActionItemRow {
   item_index: number;
   linked_at: string;
 }
+
+export type MilestoneActionItem = MilestoneActionItemRow & { meeting_title: string; meeting_date: string };
 
 export function linkActionItem(db: DatabaseSync, milestoneId: string, meetingId: string, itemIndex: number): MilestoneActionItemRow {
   const now = new Date().toISOString();
@@ -338,7 +350,7 @@ interface MilestoneMessageRow {
   created_at: string;
 }
 
-interface MilestoneMessage {
+export interface MilestoneMessage {
   id: string;
   milestone_id: string;
   role: string;

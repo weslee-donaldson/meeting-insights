@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CHANNELS } from "../electron-ui/electron/channels.js";
-import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../electron-ui/electron/channels.js";
+import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest, MilestoneChatResponse } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 45 unique non-empty channel strings", () => {
+  it("should have 61 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(45);
-    expect(new Set(values).size).toBe(45);
+    expect(values).toHaveLength(61);
+    expect(new Set(values).size).toBe(61);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -237,5 +237,65 @@ describe("CHANNELS", () => {
     const req: InsightChatRequest = { insightId: "i1", message: "Summarize", includeTranscripts: false };
     expect(req.insightId).toBe("i1");
     expect(req.message).toBe("Summarize");
+  });
+
+  it("should define LIST_MILESTONES channel", () => {
+    expect(CHANNELS.LIST_MILESTONES).toBe("list-milestones");
+  });
+
+  it("should define CREATE_MILESTONE channel", () => {
+    expect(CHANNELS.CREATE_MILESTONE).toBe("create-milestone");
+  });
+
+  it("should define UPDATE_MILESTONE channel", () => {
+    expect(CHANNELS.UPDATE_MILESTONE).toBe("update-milestone");
+  });
+
+  it("should define DELETE_MILESTONE channel", () => {
+    expect(CHANNELS.DELETE_MILESTONE).toBe("delete-milestone");
+  });
+
+  it("should define MILESTONE_CHAT channel", () => {
+    expect(CHANNELS.MILESTONE_CHAT).toBe("milestone-chat");
+  });
+
+  it("should define GET_MILESTONE_MENTIONS channel", () => {
+    expect(CHANNELS.GET_MILESTONE_MENTIONS).toBe("get-milestone-mentions");
+  });
+
+  it("should define CONFIRM_MILESTONE_MENTION channel", () => {
+    expect(CHANNELS.CONFIRM_MILESTONE_MENTION).toBe("confirm-milestone-mention");
+  });
+
+  it("should define MERGE_MILESTONES channel", () => {
+    expect(CHANNELS.MERGE_MILESTONES).toBe("merge-milestones");
+  });
+
+  it("should define GET_MEETING_MILESTONES channel", () => {
+    expect(CHANNELS.GET_MEETING_MILESTONES).toBe("get-meeting-milestones");
+  });
+
+  it("CreateMilestoneRequest has correct shape", () => {
+    const req: CreateMilestoneRequest = { clientName: "Acme", title: "Launch", targetDate: "2026-06-01", description: "Go-live" };
+    expect(req.clientName).toBe("Acme");
+    expect(req.title).toBe("Launch");
+  });
+
+  it("UpdateMilestoneRequest has correct shape", () => {
+    const req: UpdateMilestoneRequest = { title: "New title", status: "tracked" };
+    expect(req.title).toBe("New title");
+    expect(req.status).toBe("tracked");
+  });
+
+  it("MilestoneChatRequest has correct shape", () => {
+    const req: MilestoneChatRequest = { milestoneId: "ms1", message: "Status?", includeTranscripts: false };
+    expect(req.milestoneId).toBe("ms1");
+    expect(req.message).toBe("Status?");
+  });
+
+  it("MilestoneChatResponse has correct shape", () => {
+    const res: MilestoneChatResponse = { answer: "On track", sources: [{ id: "m1", label: "[M1]" }] };
+    expect(res.answer).toBe("On track");
+    expect(res.sources).toHaveLength(1);
   });
 });

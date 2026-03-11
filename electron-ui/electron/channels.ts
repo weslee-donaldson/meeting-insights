@@ -44,6 +44,22 @@ export const CHANNELS = {
   INSIGHT_CHAT: "insight-chat",
   CLEAR_INSIGHT_MESSAGES: "clear-insight-messages",
   REMOVE_INSIGHT_MEETING: "remove-insight-meeting",
+  LIST_MILESTONES: "list-milestones",
+  CREATE_MILESTONE: "create-milestone",
+  UPDATE_MILESTONE: "update-milestone",
+  DELETE_MILESTONE: "delete-milestone",
+  GET_MILESTONE_MENTIONS: "get-milestone-mentions",
+  CONFIRM_MILESTONE_MENTION: "confirm-milestone-mention",
+  REJECT_MILESTONE_MENTION: "reject-milestone-mention",
+  MERGE_MILESTONES: "merge-milestones",
+  LINK_MILESTONE_ACTION_ITEM: "link-milestone-action-item",
+  UNLINK_MILESTONE_ACTION_ITEM: "unlink-milestone-action-item",
+  GET_MILESTONE_ACTION_ITEMS: "get-milestone-action-items",
+  MILESTONE_CHAT: "milestone-chat",
+  GET_MILESTONE_MESSAGES: "get-milestone-messages",
+  CLEAR_MILESTONE_MESSAGES: "clear-milestone-messages",
+  GET_MEETING_MILESTONES: "get-meeting-milestones",
+  GET_DATE_SLIPPAGE: "get-date-slippage",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -233,6 +249,31 @@ export interface InsightChatResponse {
   sources: SourceRef[];
 }
 
+export interface CreateMilestoneRequest {
+  clientName: string;
+  title: string;
+  targetDate?: string;
+  description?: string;
+}
+
+export interface UpdateMilestoneRequest {
+  title?: string;
+  description?: string;
+  targetDate?: string | null;
+  status?: "identified" | "tracked" | "completed" | "missed" | "deferred";
+}
+
+export interface MilestoneChatRequest {
+  milestoneId: string;
+  message: string;
+  includeTranscripts?: boolean;
+}
+
+export interface MilestoneChatResponse {
+  answer: string;
+  sources: SourceRef[];
+}
+
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
@@ -280,4 +321,20 @@ export interface ElectronAPI {
   insightChat: (req: InsightChatRequest) => Promise<InsightChatResponse>;
   clearInsightMessages: (insightId: string) => Promise<void>;
   removeInsightMeeting: (insightId: string, meetingId: string) => Promise<void>;
+  listMilestones: (clientName: string) => Promise<import("../../core/timelines.js").Milestone[]>;
+  createMilestone: (req: CreateMilestoneRequest) => Promise<import("../../core/timelines.js").Milestone>;
+  updateMilestone: (milestoneId: string, req: UpdateMilestoneRequest) => Promise<import("../../core/timelines.js").Milestone>;
+  deleteMilestone: (milestoneId: string) => Promise<void>;
+  getMilestoneMentions: (milestoneId: string) => Promise<import("../../core/timelines.js").MilestoneMention[]>;
+  confirmMilestoneMention: (milestoneId: string, meetingId: string) => Promise<void>;
+  rejectMilestoneMention: (milestoneId: string, meetingId: string) => Promise<void>;
+  mergeMilestones: (sourceId: string, targetId: string) => Promise<void>;
+  linkMilestoneActionItem: (milestoneId: string, meetingId: string, itemIndex: number) => Promise<void>;
+  unlinkMilestoneActionItem: (milestoneId: string, meetingId: string, itemIndex: number) => Promise<void>;
+  getMilestoneActionItems: (milestoneId: string) => Promise<import("../../core/timelines.js").MilestoneActionItem[]>;
+  milestoneChat: (req: MilestoneChatRequest) => Promise<MilestoneChatResponse>;
+  getMilestoneMessages: (milestoneId: string) => Promise<import("../../core/timelines.js").MilestoneMessage[]>;
+  clearMilestoneMessages: (milestoneId: string) => Promise<void>;
+  getMeetingMilestones: (meetingId: string) => Promise<Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>>;
+  getDateSlippage: (milestoneId: string) => Promise<import("../../core/timelines.js").DateSlippageEntry[]>;
 }
