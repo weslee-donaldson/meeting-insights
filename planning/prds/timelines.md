@@ -347,7 +347,7 @@ Follows `test/e2e/insights.spec.ts` pattern: API helpers for setup/teardown, sha
 - [x] Burst 57: Create milestone — dialog opens, form validation, create shows toast, milestone appears in list
 - [x] Burst 58: Milestone detail — selecting milestone shows detail panel with header, status badge, target date
 - [x] Burst 59: Edit milestone — edit mode toggle, change title/date/status, save shows toast, values updated
-- [ ] Burst 60: Delete with confirmation — delete opens dialog, cancel preserves, confirm removes + toast
+- [x] Burst 60: Delete with confirmation — delete opens dialog, cancel preserves, confirm removes + toast
 - [ ] Burst 61: Date slippage — create milestone with mentions at different target dates, verify slippage section visible
 - [ ] Burst 62: Mentions timeline — milestone with multiple mentions shows chronological list with meeting links
 - [ ] Burst 63: Chat panel — chat visible when milestone selected, send message, clear messages confirmation + toast
