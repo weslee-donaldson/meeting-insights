@@ -320,7 +320,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 44: TimelineDetailView — merge milestone action (select target milestone, confirm)
 - [x] Burst 45: CreateMilestoneDialog — create/edit form (reused for both)
 - [x] Burst 46: Wire TimelinesView + TimelineDetailView + chat panel into App.tsx
-- [ ] Burst 47: Milestone badges on MeetingList + MeetingDetail (clickable, navigate to timelines)
+- [x] Burst 47: Milestone badges on MeetingList + MeetingDetail (clickable, navigate to timelines)
 - [x] Burst 48: Update Re-Extract tooltip to mention milestone re-evaluation
 
 ### Phase 9: UI — Gantt Timeline View

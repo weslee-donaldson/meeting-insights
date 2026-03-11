@@ -28,6 +28,8 @@ interface MeetingDetailProps {
   searchQuery?: string;
   threadTags?: Array<{ thread_id: string; title: string; shorthand: string }>;
   onThreadClick?: (threadId: string) => void;
+  milestoneTags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
+  onMilestoneClick?: (milestoneId: string) => void;
 }
 
 interface SectionProps {
@@ -474,7 +476,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -555,6 +557,21 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
                       onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
                     >
                       {tag.shorthand}
+                    </Badge>
+                  ))}
+                </>
+              )}
+              {milestoneTags && milestoneTags.length > 0 && (
+                <>
+                  <span className="text-muted-foreground">Milestones:</span>
+                  {milestoneTags.map((tag) => (
+                    <Badge
+                      key={tag.milestone_id}
+                      variant="outline"
+                      className="cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); onMilestoneClick?.(tag.milestone_id); }}
+                    >
+                      {tag.title}
                     </Badge>
                   ))}
                 </>
