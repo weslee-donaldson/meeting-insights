@@ -190,6 +190,59 @@ describe("TimelinesView", () => {
     expect(screen.getByText("8")).toBeDefined();
   });
 
+  it("renders status filter dropdown with all statuses", () => {
+    render(
+      <TimelinesView
+        milestones={MILESTONES}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    const select = screen.getByRole("combobox", { name: "Filter by status" });
+    expect(select).toBeDefined();
+    const options = Array.from(select.querySelectorAll("option")).map((o: HTMLOptionElement) => o.textContent);
+    expect(options).toEqual(["All", "identified", "tracked", "completed", "missed", "deferred"]);
+  });
+
+  it("filters milestones by selected status", () => {
+    render(
+      <TimelinesView
+        milestones={MILESTONES}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    const select = screen.getByRole("combobox", { name: "Filter by status" });
+    fireEvent.change(select, { target: { value: "tracked" } });
+    expect(screen.getByText("Launch v2.0")).toBeDefined();
+    expect(screen.queryByText("Security audit")).toBeNull();
+    expect(screen.queryByText("API migration")).toBeNull();
+    expect(screen.queryByText("Q1 deliverable")).toBeNull();
+    expect(screen.queryByText("Legacy cleanup")).toBeNull();
+  });
+
+  it("shows Review badge on milestones with pending mentions", () => {
+    const milestonesWithReview = [
+      { ...MILESTONES[0], has_pending_review: true },
+      ...MILESTONES.slice(1),
+    ];
+    render(
+      <TimelinesView
+        milestones={milestonesWithReview}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    const reviewBadges = screen.getAllByText("Review");
+    expect(reviewBadges).toHaveLength(1);
+  });
+
   it("renders status dots with correct colors", () => {
     render(
       <TimelinesView
