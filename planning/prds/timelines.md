@@ -309,7 +309,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 
 ### Phase 8: UI — Navigation + Detail
 - [x] Burst 35: Add "timelines" to NavRail + currentView + selectedMilestoneId + state variables
-- [ ] Burst 36: TimelinesView — milestone list with status badges + view mode toggle (list/timeline/calendar)
+- [x] Burst 36: TimelinesView — milestone list with status badges + view mode toggle (list/timeline/calendar)
 - [x] Burst 37: TimelinesView — status filter dropdown + "Review" badge on milestones with pending fuzzy matches
 - [x] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
 - [ ] Burst 39: TimelineDetailView — date slippage section (amber warning + date change timeline)
@@ -318,7 +318,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [ ] Burst 42: TimelineDetailView — linked action items section
 - [ ] Burst 43: TimelineDetailView — edit mode toggle + inline editing (title, description, target_date, status)
 - [ ] Burst 44: TimelineDetailView — merge milestone action (select target milestone, confirm)
-- [ ] Burst 45: CreateMilestoneDialog — create/edit form (reused for both)
+- [x] Burst 45: CreateMilestoneDialog — create/edit form (reused for both)
 - [ ] Burst 46: Wire TimelinesView + TimelineDetailView + chat panel into App.tsx
 - [ ] Burst 47: Milestone badges on MeetingList + MeetingDetail (clickable, navigate to timelines)
 - [x] Burst 48: Update Re-Extract tooltip to mention milestone re-evaluation
