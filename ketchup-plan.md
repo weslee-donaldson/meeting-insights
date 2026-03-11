@@ -34,7 +34,7 @@
 - [x] Burst R20: Extract hooks/useMilestoneState.ts
 - [x] Burst R21: Extract pages/MeetingsPage.tsx
 - [x] Burst R22: Extract pages/ActionItemsPage.tsx + ThreadsPage.tsx
-- [ ] Burst R23: Extract pages/InsightsPage.tsx + TimelinesPage.tsx
+- [x] Burst R23: Extract pages/InsightsPage.tsx + TimelinesPage.tsx
 - [ ] Burst R24: Slim App.tsx to layout shell
 - [x] Burst 626: resolveMeetingSources + handleThreadChat/handleInsightChat return "Title (date)" labels
 - [x] Burst 627: ChatPanel structured sources with onSourceClick prop
