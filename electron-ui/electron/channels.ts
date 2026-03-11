@@ -56,6 +56,7 @@ export interface MeetingRow {
   series: string;
   actionItemCount: number;
   thread_tags?: Array<{ thread_id: string; title: string; shorthand: string }>;
+  milestone_tags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
 }
 
 export interface ChatRequest {

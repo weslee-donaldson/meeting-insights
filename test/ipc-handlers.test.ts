@@ -5,7 +5,7 @@ import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
-import { listMilestonesByClient } from "../core/timelines.js";
+import { listMilestonesByClient, createMilestone, addMilestoneMention } from "../core/timelines.js";
 import {
   handleGetClients,
   handleGetMeetings,
@@ -198,6 +198,21 @@ describe("IPC handlers", () => {
       } finally {
         db.prepare("DELETE FROM thread_meetings WHERE thread_id = ?").run(thread.id);
         db.prepare("DELETE FROM threads WHERE id = ?").run(thread.id);
+      }
+    });
+
+    it("should include milestone_tags for meetings with milestone mentions", () => {
+      const ms = createMilestone(db, { clientName: "Acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
+      addMilestoneMention(db, { milestoneId: ms.id, meetingId: meetingId1, mentionType: "introduced", excerpt: "First discussion", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
+      try {
+        const meetings = handleGetMeetings(db, {});
+        const m1 = meetings.find((r) => r.id === meetingId1)!;
+        expect(m1.milestone_tags).toEqual([{ milestone_id: ms.id, title: "Platform Launch", target_date: "2026-06-01", status: "identified" }]);
+        const m2 = meetings.find((r) => r.id === meetingId2)!;
+        expect(m2.milestone_tags).toEqual([]);
+      } finally {
+        db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(ms.id);
+        db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
       }
     });
 

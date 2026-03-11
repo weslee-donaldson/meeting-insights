@@ -127,6 +127,15 @@ export function handleGetMeetings(
     tagsByMeeting.get(r.meeting_id)!.push({ thread_id: r.thread_id, title: r.title, shorthand: r.shorthand });
   }
 
+  const msRows = db.prepare(
+    "SELECT mm.meeting_id, mm.milestone_id, m.title, m.target_date, m.status FROM milestone_mentions mm JOIN milestones m ON mm.milestone_id = m.id"
+  ).all() as { meeting_id: string; milestone_id: string; title: string; target_date: string | null; status: string }[];
+  const msByMeeting = new Map<string, MeetingRow["milestone_tags"]>();
+  for (const r of msRows) {
+    if (!msByMeeting.has(r.meeting_id)) msByMeeting.set(r.meeting_id, []);
+    msByMeeting.get(r.meeting_id)!.push({ milestone_id: r.milestone_id, title: r.title, target_date: r.target_date, status: r.status });
+  }
+
   return rows
     .map((r) => ({
       id: r.id,
@@ -136,6 +145,7 @@ export function handleGetMeetings(
       series: normalizeSeries(r.title),
       actionItemCount: r.action_item_count,
       thread_tags: tagsByMeeting.get(r.id) ?? [],
+      milestone_tags: msByMeeting.get(r.id) ?? [],
     }))
     .filter((r) => !opts.client || r.client === opts.client);}
 
