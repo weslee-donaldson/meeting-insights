@@ -324,10 +324,10 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 48: Update Re-Extract tooltip to mention milestone re-evaluation
 
 ### Phase 9: UI — Gantt Timeline View
-- [ ] Burst 49: MilestoneGanttView — month column headers + date grid layout (CSS grid)
-- [ ] Burst 50: MilestoneGanttView — horizontal bars (first_mention → target_date) with status colors
-- [ ] Burst 51: MilestoneGanttView — today marker (blue vertical line) + auto-scroll to today
-- [ ] Burst 52: MilestoneGanttView — click bar to select milestone + status badges in left column
+- [x] Burst 49: MilestoneGanttView — month column headers + date grid layout (CSS grid)
+- [x] Burst 50: MilestoneGanttView — horizontal bars (first_mention → target_date) with status colors
+- [x] Burst 51: MilestoneGanttView — today marker (blue vertical line) + auto-scroll to today
+- [x] Burst 52: MilestoneGanttView — click bar to select milestone + status badges in left column
 
 ### Phase 10: UI — Calendar View
 - [ ] Burst 53: MilestoneCalendarView — month grid with prev/next navigation
