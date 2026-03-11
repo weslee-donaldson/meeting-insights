@@ -4,7 +4,7 @@ import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { Trash2, Pencil } from "lucide-react";
 import { cn } from "../lib/utils.js";
-import type { Milestone, DateSlippageEntry, MilestoneMention } from "../../../../core/timelines.js";
+import type { Milestone, DateSlippageEntry, MilestoneMention, MilestoneActionItem } from "../../../../core/timelines.js";
 
 interface UpdateMilestoneInput {
   title: string;
@@ -17,10 +17,16 @@ interface TimelineDetailViewProps {
   milestone: Milestone;
   onDelete: () => void;
   slippage?: DateSlippageEntry[];
+  mentions?: MilestoneMention[];
+  onMeetingClick?: (meetingId: string) => void;
+  actionItems?: MilestoneActionItem[];
+  onUnlinkActionItem?: (milestoneId: string, meetingId: string, itemIndex: number) => void;
   pendingMentions?: MilestoneMention[];
   onConfirmMention?: (milestoneId: string, meetingId: string) => void;
   onRejectMention?: (milestoneId: string, meetingId: string) => void;
   onUpdate?: (input: UpdateMilestoneInput) => void;
+  allMilestones?: Array<{ id: string; title: string }>;
+  onMerge?: (targetMilestoneId: string) => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -46,13 +52,21 @@ export function TimelineDetailView({
   milestone,
   onDelete,
   slippage,
+  mentions,
+  onMeetingClick,
+  actionItems,
+  onUnlinkActionItem,
   pendingMentions,
   onConfirmMention,
   onRejectMention,
   onUpdate,
+  allMilestones,
+  onMerge,
 }: TimelineDetailViewProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [merging, setMerging] = useState(false);
+  const [mergeTargetId, setMergeTargetId] = useState("");
   const [editTitle, setEditTitle] = useState(milestone.title);
   const [editDescription, setEditDescription] = useState(milestone.description);
   const [editTargetDate, setEditTargetDate] = useState(milestone.target_date ?? "");
@@ -209,6 +223,52 @@ export function TimelineDetailView({
           </div>
         )}
 
+        {mentions && mentions.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Mentions</h3>
+            <div className="space-y-2">
+              {mentions.map((mention, i) => (
+                <div key={i} className="space-y-1 text-sm border-b border-border pb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">{mention.mention_type}</Badge>
+                    <button className="text-sm font-medium hover:underline" onClick={() => onMeetingClick?.(mention.meeting_id)}>
+                      {mention.meeting_title}
+                    </button>
+                    {mention.pending_review === 1 && (
+                      <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800">Pending</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground text-xs">{mention.excerpt}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {actionItems && actionItems.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Linked Action Items</h3>
+            <div className="space-y-1">
+              {actionItems.map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-sm">
+                  <span>
+                    <span className="text-muted-foreground">#{item.item_index} </span>
+                    {item.meeting_title}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label="Unlink"
+                    onClick={() => onUnlinkActionItem?.(item.milestone_id, item.meeting_id, item.item_index)}
+                  >
+                    Unlink
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {pendingMentions && pendingMentions.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold">Review Pending Matches</h3>
@@ -237,6 +297,51 @@ export function TimelineDetailView({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {allMilestones && allMilestones.length > 0 && !merging && (
+          <Button
+            size="sm"
+            variant="outline"
+            aria-label="Merge into..."
+            onClick={() => { setMergeTargetId(allMilestones[0].id); setMerging(true); }}
+          >
+            Merge into...
+          </Button>
+        )}
+
+        {merging && (
+          <div className="border border-border rounded-md p-3 space-y-2">
+            <h3 className="text-sm font-semibold">Merge into another milestone</h3>
+            <select
+              aria-label="Target milestone"
+              value={mergeTargetId}
+              onChange={(e) => setMergeTargetId(e.target.value)}
+              className="w-full border border-border rounded px-2 py-1 text-sm bg-background"
+            >
+              {allMilestones!.map((m) => (
+                <option key={m.id} value={m.id}>{m.title}</option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="destructive"
+                aria-label="Confirm Merge"
+                onClick={() => { onMerge?.(mergeTargetId); setMerging(false); }}
+              >
+                Confirm Merge
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                aria-label="Cancel"
+                onClick={() => setMerging(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         )}

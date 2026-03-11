@@ -313,11 +313,11 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 37: TimelinesView — status filter dropdown + "Review" badge on milestones with pending fuzzy matches
 - [x] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
 - [ ] Burst 39: TimelineDetailView — date slippage section (amber warning + date change timeline)
-- [ ] Burst 40: TimelineDetailView — mentions timeline section (chronological with meeting links + pending review indicators)
-- [ ] Burst 41: TimelineDetailView — pending mention review UI (confirm/reject fuzzy matches)
-- [ ] Burst 42: TimelineDetailView — linked action items section
-- [ ] Burst 43: TimelineDetailView — edit mode toggle + inline editing (title, description, target_date, status)
-- [ ] Burst 44: TimelineDetailView — merge milestone action (select target milestone, confirm)
+- [x] Burst 40: TimelineDetailView — mentions timeline section (chronological with meeting links + pending review indicators)
+- [x] Burst 41: TimelineDetailView — pending mention review UI (confirm/reject fuzzy matches)
+- [x] Burst 42: TimelineDetailView — linked action items section
+- [x] Burst 43: TimelineDetailView — edit mode toggle + inline editing (title, description, target_date, status)
+- [x] Burst 44: TimelineDetailView — merge milestone action (select target milestone, confirm)
 - [x] Burst 45: CreateMilestoneDialog — create/edit form (reused for both)
 - [ ] Burst 46: Wire TimelinesView + TimelineDetailView + chat panel into App.tsx
 - [ ] Burst 47: Milestone badges on MeetingList + MeetingDetail (clickable, navigate to timelines)

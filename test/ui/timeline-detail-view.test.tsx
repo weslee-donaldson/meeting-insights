@@ -3,7 +3,7 @@ import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { TimelineDetailView } from "../../electron-ui/ui/src/components/TimelineDetailView.js";
-import type { Milestone, DateSlippageEntry, MilestoneMention } from "../../core/timelines.js";
+import type { Milestone, DateSlippageEntry, MilestoneMention, MilestoneActionItem } from "../../core/timelines.js";
 
 afterEach(cleanup);
 
@@ -225,5 +225,128 @@ describe("TimelineDetailView", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.getByRole("button", { name: "Edit" })).toBeDefined();
     expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it("renders mentions timeline when mentions provided", () => {
+    const mentions: MilestoneMention[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", mention_type: "introduced", excerpt: "First mention", target_date_at_mention: null, mentioned_at: "2026-01-10", pending_review: 0, meeting_title: "Kickoff Meeting", meeting_date: "2026-01-10" },
+      { milestone_id: "m1", meeting_id: "mtg2", mention_type: "updated", excerpt: "Second mention", target_date_at_mention: "2026-03-15", mentioned_at: "2026-02-05", pending_review: 0, meeting_title: "Progress Review", meeting_date: "2026-02-05" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} mentions={mentions} />);
+    expect(screen.getByText("Mentions")).toBeDefined();
+    expect(screen.getByText("Kickoff Meeting")).toBeDefined();
+    expect(screen.getByText("Progress Review")).toBeDefined();
+  });
+
+  it("shows mention type badges", () => {
+    const mentions: MilestoneMention[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", mention_type: "introduced", excerpt: "intro", target_date_at_mention: null, mentioned_at: "2026-01-10", pending_review: 0, meeting_title: "Meeting A", meeting_date: "2026-01-10" },
+      { milestone_id: "m1", meeting_id: "mtg2", mention_type: "updated", excerpt: "update", target_date_at_mention: null, mentioned_at: "2026-02-05", pending_review: 0, meeting_title: "Meeting B", meeting_date: "2026-02-05" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} mentions={mentions} />);
+    expect(screen.getByText("introduced")).toBeDefined();
+    expect(screen.getByText("updated")).toBeDefined();
+  });
+
+  it("shows excerpt text", () => {
+    const mentions: MilestoneMention[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", mention_type: "introduced", excerpt: "Discussed migration plan", target_date_at_mention: null, mentioned_at: "2026-01-10", pending_review: 0, meeting_title: "Planning", meeting_date: "2026-01-10" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} mentions={mentions} />);
+    expect(screen.getByText("Discussed migration plan")).toBeDefined();
+  });
+
+  it("shows Pending indicator on pending mentions", () => {
+    const mentions: MilestoneMention[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", mention_type: "introduced", excerpt: "some excerpt", target_date_at_mention: null, mentioned_at: "2026-01-10", pending_review: 1, meeting_title: "Some Meeting", meeting_date: "2026-01-10" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} mentions={mentions} />);
+    expect(screen.getByText("Pending")).toBeDefined();
+  });
+
+  it("does not render mentions section when mentions is empty", () => {
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} mentions={[]} />);
+    expect(screen.queryByText("Mentions")).toBeNull();
+  });
+
+  it("renders linked action items when actionItems provided", () => {
+    const actionItems: MilestoneActionItem[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", item_index: 0, linked_at: "2026-01-01T00:00:00Z", meeting_title: "Planning Sync", meeting_date: "2026-01-01" },
+      { milestone_id: "m1", meeting_id: "mtg2", item_index: 1, linked_at: "2026-01-02T00:00:00Z", meeting_title: "Design Review", meeting_date: "2026-01-02" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} actionItems={actionItems} />);
+    expect(screen.getByText("Linked Action Items")).toBeDefined();
+    expect(screen.getByText("Planning Sync")).toBeDefined();
+    expect(screen.getByText("Design Review")).toBeDefined();
+  });
+
+  it("shows action item index and meeting title", () => {
+    const actionItems: MilestoneActionItem[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", item_index: 2, linked_at: "2026-01-01T00:00:00Z", meeting_title: "Planning Sync", meeting_date: "2026-01-01" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} actionItems={actionItems} />);
+    expect(screen.getByText("Planning Sync")).toBeDefined();
+    expect(screen.getByText("#2")).toBeDefined();
+  });
+
+  it("shows unlink button for each action item", () => {
+    const actionItems: MilestoneActionItem[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", item_index: 0, linked_at: "2026-01-01T00:00:00Z", meeting_title: "Planning Sync", meeting_date: "2026-01-01" },
+      { milestone_id: "m1", meeting_id: "mtg2", item_index: 1, linked_at: "2026-01-02T00:00:00Z", meeting_title: "Design Review", meeting_date: "2026-01-02" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} actionItems={actionItems} />);
+    expect(screen.getAllByRole("button", { name: "Unlink" }).length).toBe(2);
+  });
+
+  it("calls onUnlinkActionItem when unlink clicked", () => {
+    const onUnlinkActionItem = vi.fn();
+    const actionItems: MilestoneActionItem[] = [
+      { milestone_id: "m1", meeting_id: "mtg1", item_index: 0, linked_at: "2026-01-01T00:00:00Z", meeting_title: "Planning Sync", meeting_date: "2026-01-01" },
+    ];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} actionItems={actionItems} onUnlinkActionItem={onUnlinkActionItem} />);
+    fireEvent.click(screen.getByRole("button", { name: "Unlink" }));
+    expect(onUnlinkActionItem).toHaveBeenCalledWith("m1", "mtg1", 0);
+  });
+
+  it("does not render action items section when actionItems is empty", () => {
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} actionItems={[]} />);
+    expect(screen.queryByText("Linked Action Items")).toBeNull();
+  });
+
+  it("renders Merge button when allMilestones provided", () => {
+    const allMilestones = [{ id: "m2", title: "Security audit" }, { id: "m3", title: "API migration" }];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} allMilestones={allMilestones} />);
+    expect(screen.getByRole("button", { name: "Merge into..." })).toBeDefined();
+  });
+
+  it("clicking Merge shows select with other milestones", () => {
+    const allMilestones = [{ id: "m2", title: "Security audit" }, { id: "m3", title: "API migration" }];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} allMilestones={allMilestones} />);
+    fireEvent.click(screen.getByRole("button", { name: "Merge into..." }));
+    expect(screen.getByText("Security audit")).toBeDefined();
+    expect(screen.getByText("API migration")).toBeDefined();
+  });
+
+  it("calls onMerge with target id when confirmed", () => {
+    const onMerge = vi.fn();
+    const allMilestones = [{ id: "m2", title: "Security audit" }, { id: "m3", title: "API migration" }];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} allMilestones={allMilestones} onMerge={onMerge} />);
+    fireEvent.click(screen.getByRole("button", { name: "Merge into..." }));
+    fireEvent.change(screen.getByLabelText("Target milestone"), { target: { value: "m2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm Merge" }));
+    expect(onMerge).toHaveBeenCalledWith("m2");
+  });
+
+  it("hides merge UI on Cancel", () => {
+    const allMilestones = [{ id: "m2", title: "Security audit" }];
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} allMilestones={allMilestones} />);
+    fireEvent.click(screen.getByRole("button", { name: "Merge into..." }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByText("Confirm Merge")).toBeNull();
+  });
+
+  it("does not render Merge button when allMilestones is empty or undefined", () => {
+    render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} />);
+    expect(screen.queryByText("Merge into...")).toBeNull();
   });
 });
