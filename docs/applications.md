@@ -36,7 +36,8 @@ The processing pipeline ingests raw Krisp transcript exports from `data/raw-tran
 │         │  3. extract     │  Claude API (or local LLM)         │
 │         │                 │  → summary, decisions, actions,    │
 │         │                 │    features, questions, risks,     │
-│         │                 │    technical_topics, notes         │
+│         │                 │    technical_topics, notes,        │
+│         │                 │    milestones                      │
 │         │                 │  stored in artifacts table         │
 │         └────────┬────────┘                                    │
 │                  │                                              │
@@ -83,7 +84,45 @@ artifacts
   open_questions   TEXT                (JSON array of strings)
   risk_items       TEXT                (JSON array of strings)
   additional_notes TEXT                (JSON array of note groups, DEFAULT '[]')
+  milestones       TEXT                (JSON array of {title, target_date, status_signal, excerpt}, DEFAULT '[]')
   needs_reextraction INTEGER DEFAULT 0
+
+milestones
+  id               TEXT  PRIMARY KEY   (UUID)
+  client_name      TEXT                → clients.name
+  title            TEXT
+  description      TEXT
+  target_date      TEXT                (ISO date, nullable)
+  status           TEXT                (identified | tracked | completed | missed | deferred)
+  completed_at     TEXT
+  created_at       TEXT
+  updated_at       TEXT
+
+milestone_mentions
+  milestone_id     TEXT                → milestones.id
+  meeting_id       TEXT                → meetings.id
+  mention_type     TEXT                (introduced | updated | completed | deferred | referenced)
+  excerpt          TEXT
+  target_date_at_mention TEXT          (captures target date at mention time for slippage tracking)
+  mentioned_at     TEXT                (meeting date, denormalized)
+  pending_review   INTEGER DEFAULT 0   (1 = awaiting fuzzy match confirmation)
+  PRIMARY KEY (milestone_id, meeting_id)
+
+milestone_action_items
+  milestone_id     TEXT                → milestones.id
+  meeting_id       TEXT                → meetings.id
+  item_index       INTEGER
+  linked_at        TEXT
+  PRIMARY KEY (milestone_id, meeting_id, item_index)
+
+milestone_messages
+  id               TEXT  PRIMARY KEY
+  milestone_id     TEXT                → milestones.id
+  role             TEXT                (user | assistant)
+  content          TEXT
+  sources          TEXT
+  context_stale    INTEGER DEFAULT 0
+  created_at       TEXT
 
 clients
   name             TEXT  PRIMARY KEY
@@ -343,34 +382,135 @@ The app window opens at 1400x900 with a dark background. The main process prints
 
 ### Layout
 
-The app is a horizontal four-column panel layout, all columns resizable by dragging the separators.
+The app uses a left **NavRail** for switching between views, a resizable panel layout per view, and a sliding chat column on the right. The top **scope bar** persists across all views.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │  Scope:  [Client ▾]  From [date]  to [date]  [Search…]   [Reset]  [theme]        │
-├─────────────┬──────────────────────┬────────────────────────┬────────────────────┤
-│   CLIENTS   │      MEETINGS        │       CONTEXT          │       CHAT         │
-│             │                      │                        │                    │
-│ • All       │  ▸ Series Group A    │  Meeting Title         │  [question input]  │
-│ • LLSA      │    □ Meeting 1       │  ────────────────────  │                    │
-│ • Revenium  │    □ Meeting 2       │  Summary               │  Answer text with  │
-│ • ...       │  ▸ Series Group B    │  ...                   │  citations [M1]    │
-│             │    □ Meeting 3       │                        │                    │
-│             │    ...               │  Decisions             │  Sources:          │
-│             │                      │  • ...                 │  Meeting A, ...    │
-│             │                      │                        │                    │
-│             │                      │  Action Items          │                    │
-│             │                      │  • [owner] ...         │                    │
-└─────────────┴──────────────────────┴────────────────────────┴────────────────────┘
+├───┬─────────────────────────┬──────────────────────────┬────────────────────────┤
+│   │      MEETINGS           │       CONTEXT            │       CHAT             │
+│ M │  ▸ Series Group A       │  Meeting Title           │  [question input]      │
+│   │    □ Meeting 1          │  ─────────────────────   │                        │
+│ A │    □ Meeting 2          │  Summary                 │  Answer with [M1]      │
+│   │  ▸ Series Group B       │  Decisions               │  citations             │
+│ T │    □ Meeting 3          │  Action Items            │                        │
+│   │    ...                  │  ...                     │  Sources: ...          │
+│ I │                         │                          │                        │
+│   │                         │                          │                        │
+│ C │                         │                          │                        │
+└───┴─────────────────────────┴──────────────────────────┴────────────────────────┘
+  NavRail: M=Meetings, A=Action Items, T=Threads, I=Insights, C=Timelines
 ```
 
-**Clients column** — lists all client names from the registry. Click a client to scope the meetings list to that client. The selection propagates to all other columns and to the chat context.
+The panel columns within each view are resizable by dragging the separators. The chat column opens alongside whichever view is active.
 
-**Meetings column** — shows meetings grouped by normalized series name (meeting title with whitespace normalized). Each meeting shows its title, date, and client tag. Check individual meetings to pin them into the context. If nothing is checked, the entire scoped list is used as context.
+**NavRail** (left icon bar) — switches between five views:
 
-**Context column** — renders the extracted artifact for every meeting in the active context: summary, decisions, proposed features, action items, technical topics, open questions, risks, and additional notes. Can be collapsed to a thin icon bar to give more room to the chat panel.
+| Icon | View | Description |
+|------|------|-------------|
+| Calendar | **Meetings** | Browse, filter, and query processed meetings |
+| CheckSquare | **Action Items** | Cross-meeting action item tracking with date filters |
+| GitMerge | **Threads** | Topic threads grouping meetings by subject |
+| Lightbulb | **Insights** | Periodic insight reports generated from meeting clusters |
+| Clock | **Timelines** | Milestone tracking for client directional commitments |
 
-**Chat column** — a conversational Q&A interface. The active context (all checked meetings, or the full scoped list) is assembled into a labeled prompt and sent to Claude with each question. Responses include [M1]-style citations. The context size (meeting count and character count) is shown above the input.
+**Scope bar** (top) — controls the global filter state for all views:
+
+- **Client dropdown** — filters meetings and milestones by client assignment.
+- **From / to date pickers** — narrow the meetings list to a date window.
+- **Search field** — hybrid search (vector + FTS5). Results appear in a dropdown; selecting a result pins matching meetings into the active context. **Deep Search** mode (checkbox, on by default) further filters results with LLM relevance evaluation.
+- **Reset button** — clears all filters and selections.
+- **Theme button** — cycles through available themes (Deep Sea, Daylight, Midnight).
+
+### Meetings view
+
+**Meetings column** — shows meetings grouped by normalized series name. Each meeting row shows its title, date, thread badges (clickable to navigate to that thread), and milestone badges (clickable to navigate to that milestone). Check individual meetings to pin them into the context; unchecked meetings are excluded from chat.
+
+**Context column** — renders the extracted artifact for every checked meeting: summary, decisions, proposed features, action items, technical topics, open questions, risks, and additional notes. Collapses to a thin icon bar to give more room to chat.
+
+**Chat column** — Q&A interface scoped to checked (or all scoped) meetings. Responses include [M1]-style citations. Shows context size above the input.
+
+### Action Items view
+
+Cross-meeting view showing all action items across a client's meetings. Grouped by owner or by meeting. Supports date range filtering that re-fetches from the current scope. Check/uncheck items to track completion with optional notes.
+
+### Threads view
+
+Threads group meetings around a recurring topic (e.g. "Commerce Migration", "Security Audit"). Each thread:
+- Has a title, shorthand badge, description, and criteria prompt (used to evaluate whether new meetings belong)
+- Shows all meetings that matched, with relevance scores
+- Has an inline chat panel scoped to the thread's meetings
+
+### Insights view
+
+Periodic insight reports synthesized from a set of meetings. Each insight:
+- Spans a date range (weekly, monthly, or custom)
+- Contains an executive summary (rich text, editable) plus extracted topic clusters
+- Has an inline chat panel
+
+### Timelines view
+
+The Timelines view tracks **milestones** — client directional commitments that span multiple meetings, like go-live dates, system launches, and migration phases. Unlike action items, milestones represent higher-level commitments rather than individual tasks.
+
+```
+┌───┬──────────────────────────────┬───────────────────────────────────────────────┐
+│   │  [List|Gantt|Calendar] ▾     │  Milestone Title                              │
+│ C │  Filter: [All ▾] [+ New]     │  ● tracked  Jun 15, 2026    [Edit] [Delete]   │
+│   │  ────────────────────────    │  ─────────────────────────────────────────── │
+│ l │  ● Launch v2.0   tracked     │  Jun 15, 2026                                 │
+│   │    5  tracked  Mar 15        │  Description text...                          │
+│ o │  ● Security audit identified │                                               │
+│   │    identified  Unscheduled   │  ⚠ Target date has changed                    │
+│ c │  ● API migration  completed  │  Date History                                 │
+│   │    8  completed  Jan 20      │   Jan 15: Mar 15 → Feb 8: Mar 31             │
+│   │  ...                         │                                               │
+│   │                              │  Mentions                                     │
+│   │                              │   introduced  Meeting A  (excerpt)            │
+│   │                              │   updated     Meeting B  (excerpt)            │
+│   │                              │                                               │
+│   │                              │  Linked Action Items                          │
+│   │                              │   #2 Meeting A  [Unlink]                      │
+│   │                              │                                               │
+│   │                              │  Review Pending Matches                       │
+│   │                              │   Meeting C  (excerpt)                        │
+│   │                              │   [Confirm Match] [Reject Match]              │
+└───┴──────────────────────────────┴───────────────────────────────────────────────┘
+```
+
+**Milestone list panel** — shows all milestones for the selected client with status dots, mention counts, status badges, and target dates. A **Review** amber badge appears on milestones with pending fuzzy match confirmations. The panel supports three view modes (toggle in the header):
+
+| Mode | Description |
+|------|-------------|
+| **List** | Flat list with status filter dropdown |
+| **Gantt** | Horizontal bars from first mention → target date across month columns, with a blue today marker and auto-scroll |
+| **Calendar** | Month grid with milestone pills on target date cells and an Unscheduled section below |
+
+**Milestone detail panel** — appears when a milestone is selected:
+
+- **Header** — title, status dot, status badge, target date, Edit and Delete buttons
+- **Date History** — appears when the milestone's target date has shifted across meetings; shows an amber warning and a chronological table of date changes with meeting attribution
+- **Mentions** — chronological list of all meetings where the milestone was discussed; each entry shows mention type badge (introduced/updated/completed/deferred/referenced), meeting title (clickable to navigate), and excerpt text; pending fuzzy matches show a "Pending" badge
+- **Linked Action Items** — action items manually linked to this milestone, with an Unlink button per item
+- **Review Pending Matches** — when the reconciliation pipeline found a similar-but-not-identical milestone title in a new meeting, the match is held for review; Confirm Match accepts it (sets the mention as confirmed), Reject Match creates a new separate milestone
+- **Merge** — "Merge into..." button lets you consolidate duplicate milestones by moving all mentions, action items, and messages from this milestone into a target milestone and deleting this one
+- **Edit mode** — pencil button toggles inline editing of title, description, target date, and status without leaving the view
+
+**Chat** — when a milestone is selected, the right chat panel scopes Q&A to that milestone's meetings, the same way thread and insight chat work.
+
+#### Milestone extraction
+
+Milestones are extracted automatically during `pnpm process` (step 3). The extraction prompt identifies directional commitments spoken by client team members — launches, migrations, phase completions, go-live dates — and returns them with a target date and status signal. The pipeline then runs `reconcileMilestones` which:
+
+1. **Exact match** — if a new extraction matches an existing milestone title (normalized), creates a new mention and updates status/date if warranted
+2. **Fuzzy match** — if similarity is above 0.7 but not exact, creates a `pending_review = 1` mention for manual confirmation in the UI
+3. **No match** — creates a new milestone with an initial mention
+
+Re-extracting a meeting (via the Re-extract button in MeetingDetail) automatically cleans up old mentions for that meeting and re-runs reconciliation.
+
+Status transitions:
+- `identified → tracked` automatically on the second meeting mention
+- `completed` and `deferred` from explicit LLM signal
+- `missed` is manual only (set via the Edit mode status dropdown)
 
 ### Scope bar
 
@@ -400,16 +540,39 @@ The embedded HTTP API server runs alongside the Electron app and is also accessi
 
 ### Routes
 
+**Meetings and search:**
+
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/health` | Returns `{ ok: true }` |
-| `GET` | `/api/debug` | Returns DB paths and record counts — useful for diagnosing data issues |
+| `GET` | `/api/debug` | Returns DB paths and record counts |
 | `GET` | `/api/clients` | List all client names |
 | `GET` | `/api/meetings` | List meetings (filters: `?client=&after=&before=`) |
 | `GET` | `/api/meetings/:id/artifact` | Structured artifact for a single meeting |
 | `POST` | `/api/chat` | Natural-language Q&A (body: `{ meetingIds, question }`) |
 | `GET` | `/api/search` | Hybrid search — vector + FTS5 keyword (params: `?q=&client=&limit=`) |
-| `POST` | `/api/deep-search` | LLM-filtered search (body: `{ meetingIds, query }`) — returns 503 if no LLM configured |
+| `POST` | `/api/deep-search` | LLM-filtered search (body: `{ meetingIds, query }`) |
+
+**Milestones:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/milestones` | List milestones for a client (`?client=`) with mention counts |
+| `POST` | `/api/milestones` | Create a milestone (body: `{ client_name, title, description?, target_date? }`) |
+| `PUT` | `/api/milestones/:id` | Update a milestone (body: `{ title?, description?, targetDate?, status? }`) |
+| `DELETE` | `/api/milestones/:id` | Delete milestone and all mentions, action item links, and messages |
+| `GET` | `/api/milestones/:id/mentions` | List meeting mentions for a milestone (chronological) |
+| `POST` | `/api/milestones/:id/mentions` | Add a meeting mention (body: `{ meeting_id, mention_type, excerpt?, target_date_at_mention? }`) |
+| `GET` | `/api/milestones/:id/slippage` | Date change history — returns mentions where target date differed from prior mention |
+| `POST` | `/api/milestones/:id/confirm-mention/:meetingId` | Confirm a fuzzy-matched pending mention (`pending_review → 0`) |
+| `POST` | `/api/milestones/:id/reject-mention/:meetingId` | Reject a fuzzy match — deletes the pending mention and creates a new milestone from it |
+| `POST` | `/api/milestones/:sourceId/merge/:targetId` | Merge source milestone into target, moving all mentions and links |
+| `GET` | `/api/milestones/:id/action-items` | List action items linked to a milestone |
+| `POST` | `/api/milestones/:id/action-items` | Link an action item (body: `{ meeting_id, item_index }`) |
+| `DELETE` | `/api/milestones/:id/action-items/:meetingId/:itemIndex` | Unlink an action item |
+| `GET` | `/api/milestones/:id/messages` | List chat messages for a milestone |
+| `POST` | `/api/milestones/:id/chat` | Send a chat message (body: `{ question, includeTranscripts? }`) |
+| `DELETE` | `/api/milestones/:id/messages` | Clear all chat messages for a milestone |
 
 ### Diagnostic endpoint
 
