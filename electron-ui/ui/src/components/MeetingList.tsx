@@ -354,7 +354,11 @@ export function MeetingList({
                     </div>
                     {m.thread_tags?.map((tag) => (
                       <span key={tag.thread_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
-                    ))}                    {newMeetingIds?.has(m.id) && (
+                    ))}
+                    {m.milestone_tags?.map((tag) => (
+                      <span key={tag.milestone_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.title}</span>
+                    ))}
+                    {newMeetingIds?.has(m.id) && (
                       <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
                     )}
                   </div>

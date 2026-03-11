@@ -679,4 +679,19 @@ describe("MeetingDetail", () => {
     fireEvent.click(screen.getByText("DEPLOY"));
     expect(onThreadClick).toHaveBeenCalledWith("t1");
   });
+
+  it("renders milestone tags as badges and click fires onMilestoneClick", () => {
+    const onMilestoneClick = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        milestoneTags={[{ milestone_id: "ms1", title: "API Launch", target_date: null, status: "tracked" }]}
+        onMilestoneClick={onMilestoneClick}
+      />,
+    );
+    expect(screen.getByText("API Launch")).toBeDefined();
+    fireEvent.click(screen.getByText("API Launch"));
+    expect(onMilestoneClick).toHaveBeenCalledWith("ms1");
+  });
 });

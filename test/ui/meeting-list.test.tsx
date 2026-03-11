@@ -859,4 +859,22 @@ describe("MeetingList", () => {
       expect(allText[1].textContent).toBe("No thread");
     });
   });
+
+  it("renders milestone tag title badge next to meeting row", () => {
+    const meetings = [
+      makeMeeting({ id: "ms-m1", title: "Launch Meeting", milestone_tags: [{ milestone_id: "ms1", title: "Launch v2.0", target_date: "2026-03-15", status: "tracked" }] }),
+    ];
+    render(
+      <MeetingList
+        meetings={meetings}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Launch v2.0")).toBeDefined();
+  });
 });
