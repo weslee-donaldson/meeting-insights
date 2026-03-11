@@ -29,9 +29,9 @@
 - [x] Burst R15: Extract api-client/insights.ts
 - [x] Burst R16: Extract api-client/milestones.ts, slim to api-client/index.ts
 - [x] Burst R17: Extract hooks/useMeetingState.ts
-- [ ] Burst R18: Extract hooks/useThreadState.ts
-- [ ] Burst R19: Extract hooks/useInsightState.ts
-- [ ] Burst R20: Extract hooks/useMilestoneState.ts
+- [x] Burst R18: Extract hooks/useThreadState.ts
+- [x] Burst R19: Extract hooks/useInsightState.ts
+- [x] Burst R20: Extract hooks/useMilestoneState.ts
 - [ ] Burst R21: Extract pages/MeetingsPage.tsx
 - [ ] Burst R22: Extract pages/ActionItemsPage.tsx + ThreadsPage.tsx
 - [ ] Burst R23: Extract pages/InsightsPage.tsx + TimelinesPage.tsx
