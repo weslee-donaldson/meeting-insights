@@ -260,50 +260,50 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 ## Ketchup Bursts
 
 ### Phase 1: Data Model + Core CRUD
-- [ ] Burst 1: Add 4 new tables (milestones, milestone_mentions, milestone_action_items, milestone_messages) + milestones column to artifacts in `migrate()`
-- [ ] Burst 2: `createMilestone` — insert + return
-- [ ] Burst 3: `getMilestone` — by id, returns null if missing
-- [ ] Burst 4: `updateMilestone` — partial update, returns updated
-- [ ] Burst 5: `deleteMilestone` — cascade delete mentions + action item links + messages
-- [ ] Burst 6: `listMilestonesByClient` — with mention_count + first_mentioned_at, ordered by target_date
+- [x] Burst 1: Add 4 new tables (milestones, milestone_mentions, milestone_action_items, milestone_messages) + milestones column to artifacts in `migrate()`
+- [x] Burst 2: `createMilestone` — insert + return
+- [x] Burst 3: `getMilestone` — by id, returns null if missing
+- [x] Burst 4: `updateMilestone` — partial update, returns updated
+- [x] Burst 5: `deleteMilestone` — cascade delete mentions + action item links + messages
+- [x] Burst 6: `listMilestonesByClient` — with mention_count + first_mentioned_at, ordered by target_date
 
 ### Phase 2: Mentions + Action Item Links
-- [ ] Burst 7: `addMilestoneMention` — UPSERT mention row
-- [ ] Burst 8: `getMilestoneMentions` — JOIN meeting title/date, chronological order
-- [ ] Burst 9: `getDateSlippage` — returns date changes across mentions
-- [ ] Burst 10: `linkActionItem` + `unlinkActionItem`
-- [ ] Burst 11: `getMilestoneActionItems` — linked items with meeting context
-- [ ] Burst 12: `getMeetingMilestones` — milestone tags for a meeting (for badges)
+- [x] Burst 7: `addMilestoneMention` — UPSERT mention row
+- [x] Burst 8: `getMilestoneMentions` — JOIN meeting title/date, chronological order
+- [x] Burst 9: `getDateSlippage` — returns date changes across mentions
+- [x] Burst 10: `linkActionItem` + `unlinkActionItem`
+- [x] Burst 11: `getMilestoneActionItems` — linked items with meeting context
+- [x] Burst 12: `getMeetingMilestones` — milestone tags for a meeting (for badges)
 
 ### Phase 3: Extraction Changes
-- [ ] Burst 13: Add `milestones` to Artifact interface, REQUIRED_KEYS, validateArtifact (backward-compat `[]`)
-- [ ] Burst 14: Add milestones to stub fixture + mergeArtifacts dedup
-- [ ] Burst 15: Update storeArtifact/getArtifact/ArtifactRow for milestones column
-- [ ] Burst 16: Update extraction prompt template
+- [x] Burst 13: Add `milestones` to Artifact interface, REQUIRED_KEYS, validateArtifact (backward-compat `[]`)
+- [x] Burst 14: Add milestones to stub fixture + mergeArtifacts dedup
+- [x] Burst 15: Update storeArtifact/getArtifact/ArtifactRow for milestones column
+- [x] Burst 16: Update extraction prompt template
 
 ### Phase 4: Pipeline Reconciliation
-- [ ] Burst 17: `reconcileMilestones` — creates new milestone when no title match
-- [ ] Burst 18: `reconcileMilestones` — exact match by normalized title, creates mention
-- [ ] Burst 19: `reconcileMilestones` — fuzzy match (string similarity > 0.7), creates mention with pending_review=1
-- [ ] Burst 20: `reconcileMilestones` — status transition logic (identified→tracked on 2nd mention)
-- [ ] Burst 21: `confirmMilestoneMention` + `rejectMilestoneMention` — resolve pending fuzzy matches
-- [ ] Burst 22: `mergeMilestones` — move all mentions + links from source to target, delete source
-- [ ] Burst 23: Wire `reconcileMilestones` into pipeline.ts after storeArtifact
-- [ ] Burst 24: Wire `reconcileMilestones` into `handleReExtract` (clean old mentions, re-reconcile)
+- [x] Burst 17: `reconcileMilestones` — creates new milestone when no title match
+- [x] Burst 18: `reconcileMilestones` — exact match by normalized title, creates mention
+- [x] Burst 19: `reconcileMilestones` — fuzzy match (string similarity > 0.7), creates mention with pending_review=1
+- [x] Burst 20: `reconcileMilestones` — status transition logic (identified→tracked on 2nd mention)
+- [x] Burst 21: `confirmMilestoneMention` + `rejectMilestoneMention` — resolve pending fuzzy matches
+- [x] Burst 22: `mergeMilestones` — move all mentions + links from source to target, delete source
+- [x] Burst 23: Wire `reconcileMilestones` into pipeline.ts after storeArtifact
+- [x] Burst 24: Wire `reconcileMilestones` into `handleReExtract` (clean old mentions, re-reconcile)
 
 ### Phase 5: Chat
-- [ ] Burst 25: `appendMilestoneMessage` + `getMilestoneMessages` + `clearMilestoneMessages`
-- [ ] Burst 26: `getMilestoneChatContext` — build RAG context from milestone's meetings (follows getThreadChatContext pattern)
+- [x] Burst 25: `appendMilestoneMessage` + `getMilestoneMessages` + `clearMilestoneMessages`
+- [x] Burst 26: `getMilestoneChatContext` — build RAG context from milestone's meetings (follows getThreadChatContext pattern)
 
 ### Phase 6: Search Integration
-- [ ] Burst 27: `getMeetingMilestones` integration into `handleGetMeetings` (milestone_tags on MeetingRow)
-- [ ] Burst 28: Add milestone context to `buildLabeledContext` when meeting has milestone mentions
+- [x] Burst 27: `getMeetingMilestones` integration into `handleGetMeetings` (milestone_tags on MeetingRow)
+- [x] Burst 28: Add milestone context to `buildLabeledContext` when meeting has milestone mentions
 
 ### Phase 7: IPC + API
-- [ ] Burst 29: Add milestone channels + interfaces to channels.ts (including confirm/reject/merge)
-- [ ] Burst 30: IPC handlers for list/create/update/delete milestones
-- [ ] Burst 31: IPC handlers for mentions + action item linking + getMeetingMilestones + confirm/reject/merge
-- [ ] Burst 32: IPC handlers for chat (milestone_chat, get/clear messages)
+- [x] Burst 29: Add milestone channels + interfaces to channels.ts (including confirm/reject/merge)
+- [x] Burst 30: IPC handlers for list/create/update/delete milestones
+- [x] Burst 31: IPC handlers for mentions + action item linking + getMeetingMilestones + confirm/reject/merge
+- [x] Burst 32: IPC handlers for chat (milestone_chat, get/clear messages)
 - [ ] Burst 33: HTTP routes in api/server.ts
 - [ ] Burst 34: API client methods in api-client.ts
 
