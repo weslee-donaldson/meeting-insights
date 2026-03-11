@@ -23,11 +23,11 @@
 - [ ] Burst R9: Extract electron-ui/electron/handlers/threads.ts
 - [ ] Burst R10: Extract electron-ui/electron/handlers/insights.ts
 - [ ] Burst R11: Extract electron-ui/electron/handlers/milestones.ts, slim ipc-handlers.ts
-- [ ] Burst R12: Extract api-client/base.ts + api-client/meetings.ts
-- [ ] Burst R13: Extract api-client/chat.ts
-- [ ] Burst R14: Extract api-client/threads.ts
-- [ ] Burst R15: Extract api-client/insights.ts
-- [ ] Burst R16: Extract api-client/milestones.ts, slim to api-client/index.ts
+- [x] Burst R12: Extract api-client/base.ts + api-client/meetings.ts
+- [x] Burst R13: Extract api-client/chat.ts
+- [x] Burst R14: Extract api-client/threads.ts
+- [x] Burst R15: Extract api-client/insights.ts
+- [x] Burst R16: Extract api-client/milestones.ts, slim to api-client/index.ts
 - [ ] Burst R17: Extract hooks/useMeetingState.ts
 - [ ] Burst R18: Extract hooks/useThreadState.ts
 - [ ] Burst R19: Extract hooks/useInsightState.ts
