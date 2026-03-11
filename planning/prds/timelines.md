@@ -312,7 +312,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 36: TimelinesView — milestone list with status badges + view mode toggle (list/timeline/calendar)
 - [x] Burst 37: TimelinesView — status filter dropdown + "Review" badge on milestones with pending fuzzy matches
 - [x] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
-- [ ] Burst 39: TimelineDetailView — date slippage section (amber warning + date change timeline)
+- [x] Burst 39: TimelineDetailView — date slippage section (amber warning + date change timeline)
 - [x] Burst 40: TimelineDetailView — mentions timeline section (chronological with meeting links + pending review indicators)
 - [x] Burst 41: TimelineDetailView — pending mention review UI (confirm/reject fuzzy matches)
 - [x] Burst 42: TimelineDetailView — linked action items section
