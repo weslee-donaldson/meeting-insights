@@ -55,7 +55,7 @@ mkdirSync("db", { recursive: true });
 
 const db = createDb(DB_PATH);
 migrate(db);
-seedClients(db, "data/clients/clients.json");
+seedClients(db, process.env.MTNINSIGHTS_CLIENTS_PATH ?? "config/clients.json");
 
 const vdb = await connectVectorDb(VECTOR_PATH);
 await createMeetingTable(vdb);
