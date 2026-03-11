@@ -305,7 +305,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 31: IPC handlers for mentions + action item linking + getMeetingMilestones + confirm/reject/merge
 - [x] Burst 32: IPC handlers for chat (milestone_chat, get/clear messages)
 - [x] Burst 33: HTTP routes in api/server.ts
-- [ ] Burst 34: API client methods in api-client.ts
+- [x] Burst 34: API client methods in api-client.ts
 
 ### Phase 8: UI — Navigation + Detail
 - [ ] Burst 35: Add "timelines" to NavRail + currentView + selectedMilestoneId + state variables

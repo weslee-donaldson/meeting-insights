@@ -44,7 +44,7 @@ export function App() {
   const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
-  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights">("meetings");
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
   const meetingIdPerView = useRef<Record<string, string | null>>({});
   const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
@@ -65,6 +65,10 @@ export function App() {
   const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
   const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
   const [regeneratingInsightId, setRegeneratingInsightId] = useState<string | null>(null);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
+  const [createMilestoneOpen, setCreateMilestoneOpen] = useState(false);
+  const [pendingDeleteMilestoneId, setPendingDeleteMilestoneId] = useState<string | null>(null);
+  const [pendingClearMilestoneMessages, setPendingClearMilestoneMessages] = useState(false);
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],

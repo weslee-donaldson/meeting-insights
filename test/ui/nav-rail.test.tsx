@@ -7,12 +7,14 @@ import { NavRail } from "../../electron-ui/ui/src/components/NavRail.js";
 afterEach(cleanup);
 
 describe("NavRail", () => {
-  it("renders Meetings, Action Items, Threads, and Insights items", () => {
+  it("renders Meetings, Action Items, Threads, Insights, and Timelines items", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     expect(screen.getByText("Meetings")).toBeDefined();
     expect(screen.getByText("Action Items")).toBeDefined();
     expect(screen.getByText("Threads")).toBeDefined();
-    expect(screen.getByText("Insights")).toBeDefined();  });
+    expect(screen.getByText("Insights")).toBeDefined();
+    expect(screen.getByText("Timelines")).toBeDefined();
+  });
 
   it("clicking Meetings fires onNavigate with meetings", () => {
     const onNavigate = vi.fn();
@@ -52,5 +54,12 @@ describe("NavRail", () => {
     render(<NavRail currentView="meetings" onNavigate={onNavigate} />);
     fireEvent.click(screen.getByText("Insights"));
     expect(onNavigate).toHaveBeenCalledWith("insights");
+  });
+
+  it("clicking Timelines fires onNavigate with timelines", () => {
+    const onNavigate = vi.fn();
+    render(<NavRail currentView="meetings" onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByText("Timelines"));
+    expect(onNavigate).toHaveBeenCalledWith("timelines");
   });
 });
