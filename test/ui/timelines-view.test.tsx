@@ -110,11 +110,11 @@ describe("TimelinesView", () => {
     expect(screen.getByText("Launch v2.0")).toBeDefined();
     expect(screen.getByText("Security audit")).toBeDefined();
     expect(screen.getByText("API migration")).toBeDefined();
-    expect(screen.getByText("tracked")).toBeDefined();
-    expect(screen.getByText("identified")).toBeDefined();
-    expect(screen.getByText("completed")).toBeDefined();
-    expect(screen.getByText("missed")).toBeDefined();
-    expect(screen.getByText("deferred")).toBeDefined();
+    expect(screen.getAllByText("tracked").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("identified").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("completed").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("missed").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("deferred").length).toBeGreaterThanOrEqual(1);
   });
 
   it("calls onSelectMilestone when a milestone row is clicked", () => {

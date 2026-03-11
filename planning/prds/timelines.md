@@ -311,7 +311,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 35: Add "timelines" to NavRail + currentView + selectedMilestoneId + state variables
 - [ ] Burst 36: TimelinesView — milestone list with status badges + view mode toggle (list/timeline/calendar)
 - [ ] Burst 37: TimelinesView — status filter dropdown + "Review" badge on milestones with pending fuzzy matches
-- [ ] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
+- [x] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
 - [ ] Burst 39: TimelineDetailView — date slippage section (amber warning + date change timeline)
 - [ ] Burst 40: TimelineDetailView — mentions timeline section (chronological with meeting links + pending review indicators)
 - [ ] Burst 41: TimelineDetailView — pending mention review UI (confirm/reject fuzzy matches)
