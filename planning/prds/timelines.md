@@ -330,9 +330,9 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 52: MilestoneGanttView — click bar to select milestone + status badges in left column
 
 ### Phase 10: UI — Calendar View
-- [ ] Burst 53: MilestoneCalendarView — month grid with prev/next navigation
-- [ ] Burst 54: MilestoneCalendarView — milestone dots/pills on target date cells with status colors
-- [ ] Burst 55: MilestoneCalendarView — click pill to select milestone + unscheduled section
+- [x] Burst 53: MilestoneCalendarView — month grid with prev/next navigation
+- [x] Burst 54: MilestoneCalendarView — milestone dots/pills on target date cells with status colors
+- [x] Burst 55: MilestoneCalendarView — click pill to select milestone + unscheduled section
 
 ### Phase 11: Playwright E2E Tests (`test/e2e/milestones.spec.ts`)
 Follows `test/e2e/insights.spec.ts` pattern: API helpers for setup/teardown, shared navigation utils.
