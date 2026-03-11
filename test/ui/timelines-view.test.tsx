@@ -261,4 +261,48 @@ describe("TimelinesView", () => {
     expect(dots[3].className).toContain("bg-red");
     expect(dots[4].className).toContain("bg-amber");
   });
+
+  it("renders view mode toggle buttons for list, gantt, and calendar", () => {
+    render(
+      <TimelinesView
+        milestones={MILESTONES}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "List view" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Gantt view" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Calendar view" })).toBeDefined();
+  });
+
+  it("switches to Gantt view when Gantt button is clicked", () => {
+    render(
+      <TimelinesView
+        milestones={MILESTONES}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Gantt view" }));
+    expect(screen.queryByRole("combobox", { name: "Filter by status" })).toBeNull();
+  });
+
+  it("switches to Calendar view when Calendar button is clicked", () => {
+    render(
+      <TimelinesView
+        milestones={MILESTONES}
+        clientName="Acme"
+        onSelectMilestone={vi.fn()}
+        onCreateMilestone={vi.fn()}
+        selectedMilestoneId={null}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Calendar view" }));
+    expect(screen.queryByRole("combobox", { name: "Filter by status" })).toBeNull();
+    expect(screen.getByText("Sun")).toBeDefined();
+  });
 });
