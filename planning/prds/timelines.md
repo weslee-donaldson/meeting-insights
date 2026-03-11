@@ -308,7 +308,7 @@ milestoneMessagesQuery, milestoneActionItemsQuery
 - [x] Burst 34: API client methods in api-client.ts
 
 ### Phase 8: UI — Navigation + Detail
-- [ ] Burst 35: Add "timelines" to NavRail + currentView + selectedMilestoneId + state variables
+- [x] Burst 35: Add "timelines" to NavRail + currentView + selectedMilestoneId + state variables
 - [ ] Burst 36: TimelinesView — milestone list with status badges + view mode toggle (list/timeline/calendar)
 - [ ] Burst 37: TimelinesView — status filter dropdown + "Review" badge on milestones with pending fuzzy matches
 - [ ] Burst 38: TimelineDetailView — view mode: header with title/date/status badge + delete confirmation
