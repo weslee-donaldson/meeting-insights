@@ -21,7 +21,7 @@
 - [x] Burst R7: Extract electron-ui/electron/handlers/meetings.ts
 - [x] Burst R8: Extract electron-ui/electron/handlers/search.ts
 - [x] Burst R9: Extract electron-ui/electron/handlers/threads.ts
-- [ ] Burst R10: Extract electron-ui/electron/handlers/insights.ts
+- [x] Burst R10: Extract electron-ui/electron/handlers/insights.ts
 - [ ] Burst R11: Extract electron-ui/electron/handlers/milestones.ts, slim ipc-handlers.ts
 - [x] Burst R12: Extract api-client/base.ts + api-client/meetings.ts
 - [x] Burst R13: Extract api-client/chat.ts
