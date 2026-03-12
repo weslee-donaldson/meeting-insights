@@ -33,6 +33,7 @@ interface MeetingListProps {
   isDeepSearchActive?: boolean;
   deepSearchLoading?: boolean;
   deepSearchEmpty?: boolean;
+  onMilestoneClick?: (milestoneId: string) => void;
 }
 
 function normalizeSeries(title: string): string {
@@ -163,6 +164,7 @@ export function MeetingList({
   isDeepSearchActive,
   deepSearchLoading,
   deepSearchEmpty,
+  onMilestoneClick,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
@@ -356,7 +358,11 @@ export function MeetingList({
                       <span key={tag.thread_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
                     ))}
                     {m.milestone_tags?.map((tag) => (
-                      <span key={tag.milestone_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.title}</span>
+                      <span
+                        key={tag.milestone_id}
+                        className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0 cursor-pointer hover:bg-secondary"
+                        onClick={(e) => { e.stopPropagation(); onMilestoneClick?.(tag.milestone_id); }}
+                      >{tag.title}</span>
                     ))}
                     {newMeetingIds?.has(m.id) && (
                       <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>

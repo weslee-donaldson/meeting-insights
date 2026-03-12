@@ -36,8 +36,8 @@ export function handleDiscoverInsightMeetings(db: Database, insightId: string): 
   return meetingIds;
 }
 
-export async function handleGenerateInsight(db: Database, llm: LlmAdapter, insightId: string): Promise<Insight> {
-  return coreGenerateInsight(db, llm, insightId);
+export async function handleGenerateInsight(db: Database, llm: LlmAdapter, insightId: string, meetingIds?: string[]): Promise<Insight> {
+  return coreGenerateInsight(db, llm, insightId, meetingIds);
 }
 
 export function handleGetInsightMessages(db: Database, insightId: string): InsightMessage[] {

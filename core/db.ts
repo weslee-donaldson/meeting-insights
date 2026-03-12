@@ -219,6 +219,11 @@ export function migrate(db: DatabaseSync): void {
     db.exec("ALTER TABLE artifacts ADD COLUMN milestones TEXT DEFAULT '[]'");
   }
 
+  const milestoneCols = db.prepare("PRAGMA table_info(milestones)").all() as { name: string }[];
+  if (!milestoneCols.some(c => c.name === "ignored")) {
+    db.exec("ALTER TABLE milestones ADD COLUMN ignored INTEGER DEFAULT 0");
+  }
+
   const meetingCols = db.prepare("PRAGMA table_info(meetings)").all() as { name: string }[];
   if (!meetingCols.some(c => c.name === "ignored")) {
     db.exec("ALTER TABLE meetings ADD COLUMN ignored INTEGER DEFAULT 0");

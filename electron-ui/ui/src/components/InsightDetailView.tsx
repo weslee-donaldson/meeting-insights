@@ -3,7 +3,7 @@ import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { RichTextEditor } from "./ui/rich-text-editor.js";
-import { RefreshCw, Check, RotateCcw, Trash2, X, Pencil, ArrowLeft, Save, ListRestart } from "lucide-react";
+import { RefreshCw, Check, RotateCcw, Trash2, Pencil, ArrowLeft, Save, ListRestart } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
@@ -17,9 +17,8 @@ interface InsightDetailViewProps {
   insight: Insight;
   meetings: InsightMeeting[];
   onDelete: () => void;
-  onRegenerate: () => void;
+  onRegenerate: (checkedMeetingIds: string[]) => void;
   onFinalize: () => void;
-  onRemoveMeetings?: (meetingIds: string[]) => void;
   onUpdateSummary?: (summary: string) => void;
   onShowAllMeetings?: () => void;
   isRegenerating?: boolean;
@@ -124,18 +123,23 @@ export function InsightDetailView({
   onDelete,
   onRegenerate,
   onFinalize,
-  onRemoveMeetings,
   onUpdateSummary,
   onShowAllMeetings,
   isRegenerating,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
   const [checked, setChecked] = useState<Set<string>>(() => new Set(meetings.map((m) => m.meeting_id)));
-  const [editing, setEditing] = useState(false);
-  const [editingSummary, setEditingSummary] = useState(false);
-  const [summaryDraft, setSummaryDraft] = useState("");
   const summaryText = insight.executive_summary ?? "";
   const hasSummary = summaryText.trim().length > 0;
+  const [editing, setEditing] = useState(!hasSummary && meetings.length > 0);
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [summaryDraft, setSummaryDraft] = useState("");
+
+  useEffect(() => {
+    if (!hasSummary && meetings.length > 0) {
+      setEditing(true);
+    }
+  }, [hasSummary, meetings.length]);
 
   const handleSummaryChange = useCallback((html: string) => {
     setSummaryDraft(html);
@@ -170,8 +174,6 @@ export function InsightDetailView({
 
   const seriesOptions = [...new Set(meetings.map((m) => m.meeting_title))].sort();
   const displayMeetings = seriesFilter ? meetings.filter((m) => m.meeting_title === seriesFilter) : meetings;
-
-  const uncheckedIds = meetings.filter((m) => !checked.has(m.meeting_id)).map((m) => m.meeting_id);
 
   function checkGroup(meetingIds: string[], value: boolean) {
     setChecked((prev) => {
@@ -251,17 +253,6 @@ export function InsightDetailView({
                   >
                     <ListRestart className="w-3 h-3 mr-1" />
                     Show All Meetings
-                  </Button>
-                )}
-                {uncheckedIds.length > 0 && onRemoveMeetings && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-auto px-2 py-0.5 text-xs"
-                    onClick={() => onRemoveMeetings(uncheckedIds)}
-                  >
-                    <X className="w-3 h-3 mr-1" />
-                    Remove Unchecked
                   </Button>
                 )}
               </div>
@@ -361,7 +352,7 @@ export function InsightDetailView({
               </div>
             )}
             <div className="mt-3 pt-3 border-t border-border">
-              <Button size="sm" variant="default" className="h-auto px-3 py-1.5 text-xs" onClick={onRegenerate} disabled={isRegenerating}>
+              <Button size="sm" variant="default" className="h-auto px-3 py-1.5 text-xs" onClick={() => onRegenerate(Array.from(checked))} disabled={isRegenerating}>
                 <RefreshCw className={cn("w-3 h-3 mr-1", isRegenerating && "animate-spin")} />
                 {isRegenerating ? "Regenerating..." : insight.executive_summary ? "Regenerate" : "Generate"}
               </Button>
@@ -417,7 +408,7 @@ export function InsightDetailView({
                   dangerouslySetInnerHTML={{ __html: summaryText }}
                 />
               ) : (
-                <p className="text-sm text-muted-foreground">No summary yet. Click Edit to select meetings and generate.</p>
+                <p className="text-sm text-muted-foreground">No summary yet. No meetings found for this period.</p>
               )}
             </div>
             {topics.length > 0 && (

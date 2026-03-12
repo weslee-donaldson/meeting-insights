@@ -42,7 +42,8 @@ export function registerInsightRoutes(app: Hono, db: Database, llm?: LlmAdapter,
   app.post('/api/insights/:id/generate', async (c) => {
     if (!llm) return c.json({ error: 'LLM not available' }, 503);
     try {
-      const result = await handleGenerateInsight(db, llm, c.req.param('id'));
+      const body = await c.req.json().catch(() => ({})) as { meetingIds?: string[] };
+      const result = await handleGenerateInsight(db, llm, c.req.param('id'), body.meetingIds);
       return c.json(result);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

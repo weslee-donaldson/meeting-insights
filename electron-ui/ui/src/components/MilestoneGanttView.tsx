@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const MONTH_WIDTH = 120;
-const LEFT_COL_WIDTH = 160;
+const LEFT_COL_WIDTH = 320;
 
 function parseYearMonth(dateStr: string): { year: number; month: number } {
   const d = new Date(dateStr);
@@ -135,7 +135,7 @@ export function MilestoneGanttView({
         </div>
 
         <div ref={scrollRef} className="flex-1 overflow-x-auto relative">
-          <div style={{ width: totalCols * MONTH_WIDTH }} className="relative">
+          <div style={{ minWidth: totalCols * MONTH_WIDTH }} className="relative w-full">
             <div className="flex h-8 border-b border-border">
               {columns.map((col) => (
                 <div

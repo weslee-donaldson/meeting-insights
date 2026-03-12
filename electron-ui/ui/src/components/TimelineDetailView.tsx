@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
-import { Trash2, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
+import { Trash2, Pencil, GitMerge } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Milestone, DateSlippageEntry, MilestoneMention, MilestoneActionItem } from "../../../../core/timelines.js";
 
@@ -90,6 +91,16 @@ export function TimelineDetailView({
             <Badge variant="outline" className="capitalize">
               {milestone.status}
             </Badge>
+            {allMilestones && allMilestones.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label="Merge into..."
+                onClick={() => { setMergeTargetId(allMilestones[0].id); setMerging(true); }}
+              >
+                <GitMerge className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
@@ -301,27 +312,16 @@ export function TimelineDetailView({
           </div>
         )}
 
-        {allMilestones && allMilestones.length > 0 && !merging && (
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label="Merge into..."
-            onClick={() => { setMergeTargetId(allMilestones[0].id); setMerging(true); }}
-          >
-            Merge into...
-          </Button>
-        )}
-
-        {merging && (
-          <div className="border border-border rounded-md p-3 space-y-2">
-            <h3 className="text-sm font-semibold">Merge into another milestone</h3>
+        <Dialog open={merging} onOpenChange={setMerging}>
+          <DialogContent aria-describedby={undefined}>
+            <DialogTitle>Merge into another milestone</DialogTitle>
             <select
               aria-label="Target milestone"
               value={mergeTargetId}
               onChange={(e) => setMergeTargetId(e.target.value)}
               className="w-full border border-border rounded px-2 py-1 text-sm bg-background"
             >
-              {allMilestones!.map((m) => (
+              {allMilestones?.map((m) => (
                 <option key={m.id} value={m.id}>{m.title}</option>
               ))}
             </select>
@@ -343,8 +343,8 @@ export function TimelineDetailView({
                 Cancel
               </Button>
             </div>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
 
         {confirmingDelete && (
           <div className="border border-destructive rounded-md p-3 space-y-2">

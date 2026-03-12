@@ -15,6 +15,7 @@ export interface Milestone {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  ignored: number;
 }
 
 type MilestoneRow = Milestone;
@@ -177,7 +178,7 @@ export function getMeetingMilestones(db: DatabaseSync, meetingId: string) {
     `SELECT m.id, m.title, m.target_date, m.status
      FROM milestone_mentions mm
      JOIN milestones m ON m.id = mm.milestone_id
-     WHERE mm.meeting_id = ?
+     WHERE mm.meeting_id = ? AND m.ignored = 0
      ORDER BY m.target_date ASC NULLS LAST`,
   ).all(meetingId) as { id: string; title: string; target_date: string | null; status: string }[];
 }
@@ -236,7 +237,7 @@ export function reconcileMilestones(
   meetingDate: string,
   extracted: ExtractedMilestone[],
 ): void {
-  const existing = db.prepare("SELECT id, title FROM milestones WHERE client_name = ?").all(clientName) as { id: string; title: string }[];
+  const existing = db.prepare("SELECT id, title FROM milestones WHERE client_name = ? AND ignored = 0").all(clientName) as { id: string; title: string }[];
   const titleMap = new Map(existing.map((m) => [normalizeTitle(m.title), m.id]));
 
   for (const em of extracted) {
@@ -322,7 +323,7 @@ export function mergeMilestones(db: DatabaseSync, sourceId: string, targetId: st
   db.prepare("UPDATE milestone_mentions SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
   db.prepare("UPDATE milestone_action_items SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
   db.prepare("UPDATE milestone_messages SET milestone_id = ? WHERE milestone_id = ?").run(targetId, sourceId);
-  db.prepare("DELETE FROM milestones WHERE id = ?").run(sourceId);
+  db.prepare("UPDATE milestones SET ignored = 1, updated_at = ? WHERE id = ?").run(new Date().toISOString(), sourceId);
 }
 
 export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
@@ -333,7 +334,7 @@ export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
        SUM(CASE WHEN mm.pending_review = 1 THEN 1 ELSE 0 END) AS pending_review_count
      FROM milestones m
      LEFT JOIN milestone_mentions mm ON mm.milestone_id = m.id
-     WHERE m.client_name = ?
+     WHERE m.client_name = ? AND m.ignored = 0
      GROUP BY m.id
      ORDER BY m.target_date ASC NULLS LAST`,
   ).all(clientName) as (MilestoneRow & { mention_count: number; first_mentioned_at: string | null; pending_review_count: number })[];

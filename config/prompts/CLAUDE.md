@@ -18,4 +18,10 @@
 | #1660 | " | ✅ | Updated insight generation prompt to remove meeting_ids and focus on top 3-5 themes | ~324 |
 | #1659 | " | 🔵 | Located insight generation prompt template in config/prompts directory | ~366 |
 | #1655 | 8:18 AM | 🔵 | Found externalized insight generation prompt template in config directory | ~302 |
+
+### Mar 11, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2127 | 10:47 AM | 🔵 | Prompt Template Documentation Details LLM Task Specifications | ~802 |
 </claude-mem-context>

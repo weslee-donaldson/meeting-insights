@@ -313,8 +313,19 @@ function buildMeetingArtifactContext(meetingId: string, title: string, art: Arti
   return parts.join("\n");
 }
 
-export async function generateInsight(db: Database, llm: LlmAdapter, insightId: string): Promise<Insight> {
+function syncInsightMeetings(db: Database, insightId: string, meetingIds: string[]): void {
+  const existing = getInsightMeetings(db, insightId).map((m) => m.meeting_id);
+  const toRemove = existing.filter((id) => !meetingIds.includes(id));
+  const toAdd = meetingIds.filter((id) => !existing.includes(id));
+  for (const id of toRemove) removeInsightMeeting(db, insightId, id);
+  for (const id of toAdd) addInsightMeeting(db, { insight_id: insightId, meeting_id: id, contribution_summary: "" });
+}
+
+export async function generateInsight(db: Database, llm: LlmAdapter, insightId: string, meetingIds?: string[]): Promise<Insight> {
   const insight = getInsight(db, insightId)!;
+  if (meetingIds) {
+    syncInsightMeetings(db, insightId, meetingIds);
+  }
   const meetings = getInsightMeetings(db, insightId);
   if (meetings.length === 0) {
     log("no meetings linked to insight %s, skipping generation", insightId);

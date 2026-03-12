@@ -104,7 +104,7 @@ export function handleGetMeetings(db: Database, opts: MeetingFilters): MeetingRo
   }
 
   const msRows = db.prepare(
-    "SELECT mm.meeting_id, mm.milestone_id, m.title, m.target_date, m.status FROM milestone_mentions mm JOIN milestones m ON mm.milestone_id = m.id"
+    "SELECT mm.meeting_id, mm.milestone_id, m.title, m.target_date, m.status FROM milestone_mentions mm JOIN milestones m ON mm.milestone_id = m.id WHERE m.ignored = 0"
   ).all() as { meeting_id: string; milestone_id: string; title: string; target_date: string | null; status: string }[];
   const msByMeeting = new Map<string, MeetingRow["milestone_tags"]>();
   for (const r of msRows) {

@@ -97,6 +97,11 @@ export function App() {
     thread.setSelectedThreadId(threadId);
   }, [thread]);
 
+  const handleMilestoneClick = useCallback((milestoneId: string) => {
+    setCurrentView("timelines");
+    milestone.setSelectedMilestoneId(milestoneId);
+  }, [milestone]);
+
   const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     return thread.handleCreateThread(data, activeMeetingIdsRef.current);
   }, [thread]);
@@ -154,6 +159,7 @@ export function App() {
     mentionStats: meeting.mentionStatsQuery.data ?? [],
     onMentionClick: meeting.handleMentionClick,
     onThreadClick: handleThreadClick,
+    onMilestoneClick: handleMilestoneClick,
   });
 
   const actionItemsPanels = ActionItemsPage({
@@ -209,7 +215,6 @@ export function App() {
     onDeleteInsight: insight.handleDeleteInsight,
     onRegenerateInsight: insight.handleRegenerateInsight,
     onFinalizeInsight: insight.handleFinalizeInsight,
-    onRemoveInsightMeetings: insight.handleRemoveInsightMeetings,
     onUpdateInsightSummary: insight.handleUpdateInsightSummary,
     onShowAllInsightMeetings: insight.handleShowAllInsightMeetings,
     isRegenerating: insight.regeneratingInsightId === insight.selectedInsightId,

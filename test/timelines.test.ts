@@ -30,6 +30,7 @@ describe("createMilestone", () => {
       completed_at: null,
       created_at: expect.any(String),
       updated_at: expect.any(String),
+      ignored: 0,
     });
   });
 
@@ -49,6 +50,7 @@ describe("createMilestone", () => {
       completed_at: null,
       created_at: expect.any(String),
       updated_at: expect.any(String),
+      ignored: 0,
     });
   });
 });
@@ -656,7 +658,9 @@ describe("reconcileMilestones", () => {
     expect(actionItems).toHaveLength(1);
     expect(actionItems[0]).toEqual(expect.objectContaining({ milestone_id: target.id, meeting_id: "mrg-m2", item_index: 0 }));
 
-    expect(getMilestone(db2, source.id)).toBeNull();
+    const ignored = getMilestone(db2, source.id);
+    expect(ignored).not.toBeNull();
+    expect(ignored!.ignored).toBe(1);
   });
 
   it("creates a new milestone and mention when no existing title matches", () => {

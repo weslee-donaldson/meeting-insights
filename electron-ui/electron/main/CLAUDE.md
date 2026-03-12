@@ -8,4 +8,11 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #784 | 12:46 AM | 🟣 | Registered IPC handler for manual client reassignment functionality | ~372 |
+
+### Mar 12, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2221 | 4:18 PM | 🔵 | Electron Application Configures LLM Provider via Environment Variables | ~529 |
+| #2220 | 4:17 PM | 🔵 | Electron Desktop UI Architecture with Multi-Provider LLM Support | ~546 |
 </claude-mem-context>

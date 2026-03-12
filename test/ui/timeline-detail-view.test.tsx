@@ -17,6 +17,7 @@ const MILESTONE: Milestone = {
   completed_at: null,
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-15T00:00:00Z",
+  ignored: 0,
 };
 
 describe("TimelineDetailView", () => {
@@ -347,6 +348,6 @@ describe("TimelineDetailView", () => {
 
   it("does not render Merge button when allMilestones is empty or undefined", () => {
     render(<TimelineDetailView milestone={MILESTONE} onDelete={vi.fn()} />);
-    expect(screen.queryByText("Merge into...")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Merge into..." })).toBeNull();
   });
 });

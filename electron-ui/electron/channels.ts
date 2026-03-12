@@ -165,6 +165,8 @@ export interface ClientActionItem {
   requester: string;
   due_date: string | null;
   priority: "critical" | "normal";
+  canonical_id?: string;
+  total_mentions?: number;
 }
 
 export type TranscriptFormat = "krisp" | "webvtt";
@@ -316,7 +318,7 @@ export interface ElectronAPI {
   deleteInsight: (insightId: string) => Promise<void>;
   getInsightMeetings: (insightId: string) => Promise<import("../../core/insights.js").InsightMeeting[]>;
   discoverInsightMeetings: (insightId: string) => Promise<string[]>;
-  generateInsight: (insightId: string) => Promise<import("../../core/insights.js").Insight>;
+  generateInsight: (insightId: string, meetingIds?: string[]) => Promise<import("../../core/insights.js").Insight>;
   getInsightMessages: (insightId: string) => Promise<import("../../core/insights.js").InsightMessage[]>;
   insightChat: (req: InsightChatRequest) => Promise<InsightChatResponse>;
   clearInsightMessages: (insightId: string) => Promise<void>;

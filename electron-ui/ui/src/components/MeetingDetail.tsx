@@ -546,37 +546,37 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
               <span>{meeting.date.slice(0, 10)}</span>
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
-              {threadTags && threadTags.length > 0 && (
-                <>
-                  <span className="text-muted-foreground">Threads:</span>
-                  {threadTags.map((tag) => (
-                    <Badge
-                      key={tag.thread_id}
-                      variant="outline"
-                      className="cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
-                    >
-                      {tag.shorthand}
-                    </Badge>
-                  ))}
-                </>
-              )}
-              {milestoneTags && milestoneTags.length > 0 && (
-                <>
-                  <span className="text-muted-foreground">Milestones:</span>
-                  {milestoneTags.map((tag) => (
-                    <Badge
-                      key={tag.milestone_id}
-                      variant="outline"
-                      className="cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); onMilestoneClick?.(tag.milestone_id); }}
-                    >
-                      {tag.title}
-                    </Badge>
-                  ))}
-                </>
-              )}
             </div>
+            {threadTags && threadTags.length > 0 && (
+              <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
+                <span className="text-muted-foreground">Threads:</span>
+                {threadTags.map((tag) => (
+                  <Badge
+                    key={tag.thread_id}
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); onThreadClick?.(tag.thread_id); }}
+                  >
+                    {tag.shorthand}
+                  </Badge>
+                ))}
+              </div>
+            )}
+            {milestoneTags && milestoneTags.length > 0 && (
+              <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
+                <span className="text-muted-foreground">Milestones:</span>
+                {milestoneTags.map((tag) => (
+                  <Badge
+                    key={tag.milestone_id}
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); onMilestoneClick?.(tag.milestone_id); }}
+                  >
+                    {tag.title}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-1 mt-2">

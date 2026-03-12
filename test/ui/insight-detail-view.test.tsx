@@ -176,7 +176,7 @@ describe("InsightDetailView", () => {
     const btn = screen.getByRole("button", { name: "Regenerate" });
     expect(btn).toBeDefined();
     fireEvent.click(btn);
-    expect(onRegenerate).toHaveBeenCalled();
+    expect(onRegenerate).toHaveBeenCalledWith(["m1", "m2"]);
   });
 
   it("renders Finalize button for draft insight that calls onFinalize", () => {
@@ -238,7 +238,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -256,7 +256,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -265,41 +265,6 @@ describe("InsightDetailView", () => {
     expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
     fireEvent.click(checkboxes[0]);
     expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
-  });
-
-  it("Remove Unchecked button calls onRemoveMeetings with unchecked meeting ids", () => {
-    const onRemoveMeetings = vi.fn();
-    render(
-      <InsightDetailView
-        insight={INSIGHT}
-        meetings={MEETINGS}
-        onDelete={vi.fn()}
-        onRegenerate={vi.fn()}
-        onFinalize={vi.fn()}
-        onRemoveMeetings={onRemoveMeetings}
-      />,
-    );
-    enterEditMode();
-    const checkboxes = screen.getAllByRole("checkbox");
-    fireEvent.click(checkboxes[0]);
-    const removeBtn = screen.getByRole("button", { name: "Remove Unchecked" });
-    fireEvent.click(removeBtn);
-    expect(onRemoveMeetings).toHaveBeenCalledWith(["m1"]);
-  });
-
-  it("Remove Unchecked button is hidden when all meetings are checked", () => {
-    render(
-      <InsightDetailView
-        insight={INSIGHT}
-        meetings={MEETINGS}
-        onDelete={vi.fn()}
-        onRegenerate={vi.fn()}
-        onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
-      />,
-    );
-    enterEditMode();
-    expect(screen.queryByRole("button", { name: "Remove Unchecked" })).toBeNull();
   });
 
   it("shows rich text editor when summary edit button is clicked", () => {
@@ -394,7 +359,7 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("Item two")).toBeDefined();
   });
 
-  it("shows no summary placeholder when executive_summary is empty", () => {
+  it("shows no summary placeholder when executive_summary is empty and no meetings exist", () => {
     const emptyInsight = { ...INSIGHT, executive_summary: "" };
     render(
       <InsightDetailView
@@ -405,10 +370,45 @@ describe("InsightDetailView", () => {
         onFinalize={vi.fn()}
       />,
     );
-    expect(screen.getByText("No summary yet. Click Edit to select meetings and generate.")).toBeDefined();
+    expect(screen.getByText("No summary yet. No meetings found for this period.")).toBeDefined();
   });
 
-  it("shows Generate button in edit mode when executive_summary is empty", () => {
+  it("auto-enters edit mode when insight has no summary and meetings exist", () => {
+    const emptyInsight = { ...INSIGHT, executive_summary: "" };
+    render(
+      <InsightDetailView
+        insight={emptyInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Source Meetings")).toBeDefined();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Generate" })).toBeDefined();
+  });
+
+  it("passes only checked meeting IDs when Generate is clicked with unchecked meetings", () => {
+    const emptyInsight = { ...INSIGHT, executive_summary: "" };
+    const onRegenerate = vi.fn();
+    render(
+      <InsightDetailView
+        insight={emptyInsight}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={onRegenerate}
+        onFinalize={vi.fn()}
+
+      />,
+    );
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Generate" }));
+    expect(onRegenerate).toHaveBeenCalledWith(["m2"]);
+  });
+
+  it("shows Generate button in auto-edit mode when executive_summary is empty", () => {
     const emptyInsight = { ...INSIGHT, executive_summary: "" };
     const onRegenerate = vi.fn();
     render(
@@ -420,12 +420,11 @@ describe("InsightDetailView", () => {
         onFinalize={vi.fn()}
       />,
     );
-    enterEditMode();
     const btn = screen.getByRole("button", { name: "Generate" });
     expect(btn).toBeDefined();
     expect(screen.queryByRole("button", { name: "Regenerate" })).toBeNull();
     fireEvent.click(btn);
-    expect(onRegenerate).toHaveBeenCalled();
+    expect(onRegenerate).toHaveBeenCalledWith(["m1", "m2"]);
   });
 
   it("Back button returns to default view from edit mode", () => {
@@ -565,7 +564,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -591,7 +590,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -698,7 +697,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -713,7 +712,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     const updatedCheckboxes = screen.getAllByRole("checkbox");
@@ -736,7 +735,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     enterEditMode();
@@ -747,7 +746,7 @@ describe("InsightDetailView", () => {
         onDelete={vi.fn()}
         onRegenerate={vi.fn()}
         onFinalize={vi.fn()}
-        onRemoveMeetings={vi.fn()}
+
       />,
     );
     const checkboxes = screen.getAllByRole("checkbox");

@@ -126,6 +126,7 @@ Litmus Test: "If I changed the internal data structure (e.g., Map to Array), wou
 - No excuses, no "you're right" — keep working
 - JS files only in `dist/`
 - When tests fail, assume you broke it. CI passed before; your change is the variable.
+- If the project contains readme.md files, use those files to understand and navigation the project. Folders may leverage a scatter and gather pattern where each director has a readme that details all files and functionality within the directory. 
 
 **Backwards compatibility:** Ask first. Default to clean breaks. No silent preservation unless explicitly requested.
 

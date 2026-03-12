@@ -45,6 +45,7 @@ interface MeetingsPageProps {
   mentionStats: MentionStat[];
   onMentionClick: ((canonicalId: string, text: string) => void) | undefined;
   onThreadClick: (threadId: string) => void;
+  onMilestoneClick: (milestoneId: string) => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -55,7 +56,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     deepSearchLoading, deepSearchEmpty, isMultiMode, checkedMeetings, selectedMeeting,
     artifact, artifactLoading, clients, onReExtract, reExtractPending, onReassignClient,
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
-    onMultiUncomplete, mentionStats, onMentionClick, onThreadClick,
+    onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
   } = props;
 
   return [
@@ -84,6 +85,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       isDeepSearchActive={isDeepSearchActive}
       deepSearchLoading={deepSearchLoading}
       deepSearchEmpty={deepSearchEmpty}
+      onMilestoneClick={onMilestoneClick}
     />,
     <MeetingDetail
       key="meeting-detail"
@@ -104,6 +106,8 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       searchQuery={searchQuery}
       threadTags={isMultiMode ? undefined : selectedMeeting?.thread_tags}
       onThreadClick={onThreadClick}
+      milestoneTags={isMultiMode ? undefined : selectedMeeting?.milestone_tags}
+      onMilestoneClick={onMilestoneClick}
     />,
   ];
 }

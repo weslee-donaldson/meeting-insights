@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
@@ -7,6 +8,8 @@ import { seedClients } from "../core/client-registry.js";
 import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
 
 process.loadEnvFile?.(".env.local");
+
+const filterFolder = process.argv[2];
 
 const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
 const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
@@ -38,6 +41,50 @@ const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "stub" })
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
+if (filterFolder) {
+  const rawDir = "data/raw-transcripts";
+  const manifestPath = join(rawDir, "manifest.json");
+  if (existsSync(manifestPath)) {
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Array<{ meeting_id: string; meeting_files: string[] }>;
+    const entry = manifest.find((e) => e.meeting_files[0].split("/")[0] === filterFolder);
+    if (!entry) {
+      console.error(`Folder "${filterFolder}" not found in manifest.json`);
+      process.exit(1);
+    }
+    const meetingId = entry.meeting_id;
+    const existing = db.prepare("SELECT id FROM meetings WHERE id = ?").get(meetingId) as { id: string } | undefined;
+    if (existing) {
+      console.log(`Purging existing meeting ${meetingId}...`);
+      db.prepare("DELETE FROM insight_meetings WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM thread_meetings WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM milestone_mentions WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM milestone_action_items WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM item_mentions WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM action_item_completions WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM meeting_clusters WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM client_detections WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM artifact_fts WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
+      db.prepare("DELETE FROM meetings WHERE id = ?").run(meetingId);
+      const filter = `meeting_id = '${meetingId.replace(/'/g, "''")}'`;
+      const names = await vdb.tableNames();
+      for (const name of ["meeting_vectors", "feature_vectors", "item_vectors"].filter((n) => names.includes(n))) {
+        const table = await vdb.openTable(name);
+        await table.delete(filter);
+      }
+      console.log(`Purged meeting ${meetingId}`);
+    }
+    const processedDir = "data/processed";
+    const processedFolder = join(processedDir, filterFolder);
+    if (existsSync(processedFolder)) {
+      const { rmSync } = await import("node:fs");
+      rmSync(processedFolder, { recursive: true });
+      console.log(`Removed old processed folder: ${filterFolder}`);
+    }
+  }
+  console.log(`Processing only: ${filterFolder}\n`);
+}
+
 const runStart = Date.now();
 const runId = new Date().toISOString().replace(/:/g, "-");
 const events: PipelineEvent[] = [];
@@ -52,6 +99,7 @@ const result = await processNewMeetings({
   vdb,
   session,
   llm,
+  filterFolder,
   onProgress: (event) => {
     events.push(event);
     if (event.type === "processing") {

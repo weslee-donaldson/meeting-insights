@@ -97,13 +97,14 @@ export function useInsightState(
     }
   }, [selectedInsightId, selectedClient, queryClient, addToast]);
 
-  const handleRegenerateInsight = useCallback(async () => {
+  const handleRegenerateInsight = useCallback(async (checkedMeetingIds?: string[]) => {
     if (!selectedInsightId) return;
     const isFirst = !selectedInsight?.executive_summary;
     try {
       setRegeneratingInsightId(selectedInsightId);
-      await window.api.generateInsight(selectedInsightId);
+      await window.api.generateInsight(selectedInsightId, checkedMeetingIds);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      queryClient.invalidateQueries({ queryKey: ["insightMeetings", selectedInsightId] });
       addToast(isFirst ? "Insight generated" : "Insight regenerated", "success");
     } catch (err) {
       console.error("Regenerate insight failed:", err);
@@ -142,21 +143,6 @@ export function useInsightState(
     }
   }, [selectedInsightId, queryClient, addToast]);
 
-  const handleRemoveInsightMeetings = useCallback(async (meetingIds: string[]) => {
-    if (!selectedInsightId) return;
-    try {
-      for (const meetingId of meetingIds) {
-        await window.api.removeInsightMeeting(selectedInsightId, meetingId);
-      }
-      queryClient.invalidateQueries({ queryKey: ["insightMeetings", selectedInsightId] });
-      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
-      addToast(`Removed ${meetingIds.length} meeting(s)`, "success");
-    } catch (err) {
-      console.error("Remove insight meetings failed:", err);
-      addToast(`Remove meetings failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, selectedClient, queryClient, addToast]);
-
   const handleShowAllInsightMeetings = useCallback(async () => {
     if (!selectedInsightId) return;
     try {
@@ -193,7 +179,6 @@ export function useInsightState(
     handleInsightSendMessage,
     handleClearInsightMessages,
     handleConfirmClearInsightMessages,
-    handleRemoveInsightMeetings,
     handleShowAllInsightMeetings,
   };
 }
