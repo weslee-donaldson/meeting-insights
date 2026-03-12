@@ -2,13 +2,14 @@ import React, { useMemo, useState } from "react";
 import type { ClientActionItem } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 
-type ActionGroupBy = "priority" | "series" | "owner" | "requester";
+type ActionGroupBy = "priority" | "series" | "owner" | "requester" | "intent";
 
 const GROUP_MODES: { value: ActionGroupBy; label: string }[] = [
   { value: "priority", label: "Priority" },
   { value: "series", label: "Series" },
   { value: "owner", label: "Owner" },
   { value: "requester", label: "Requester" },
+  { value: "intent", label: "Intent" },
 ];
 
 interface ClientActionItemsViewProps {
@@ -22,11 +23,13 @@ function groupKey(item: ClientActionItem, mode: ActionGroupBy): string {
   if (mode === "priority") return item.priority;
   if (mode === "series") return item.meeting_title;
   if (mode === "owner") return item.owner || "(unassigned)";
+  if (mode === "intent") return item.canonical_id ?? `${item.meeting_id}:${item.item_index}`;
   return item.requester || "(unassigned)";
 }
 
-function groupLabel(key: string, mode: ActionGroupBy): string {
+function groupLabel(key: string, mode: ActionGroupBy, items: ClientActionItem[]): string {
   if (mode === "priority") return key === "critical" ? "Critical" : "Normal";
+  if (mode === "intent") return items[0]?.description ?? key;
   return key;
 }
 
@@ -38,9 +41,11 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
     if (arr) arr.push(item);
     else map.set(k, [item]);
   }
-  const entries = [...map.entries()].map(([k, v]) => ({ key: k, label: groupLabel(k, mode), items: v }));
+  const entries = [...map.entries()].map(([k, v]) => ({ key: k, label: groupLabel(k, mode, v), items: v }));
   if (mode === "priority") {
     entries.sort((a, b) => (a.key === "critical" ? -1 : 1) - (b.key === "critical" ? -1 : 1));
+  } else if (mode === "intent") {
+    entries.sort((a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label));
   } else {
     entries.sort((a, b) => a.label.localeCompare(b.label));
   }
@@ -129,8 +134,11 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
       <div className="flex flex-col">
         {groups.map((group) => (
           <div key={group.key} data-testid="action-group">
-            <div className="px-4 py-1.5 bg-secondary/60">
+            <div className="px-4 py-1.5 bg-secondary/60 flex items-center gap-2">
               <span className="text-xs font-semibold text-foreground">{group.label}</span>
+              {groupBy === "intent" && (group.items[0]?.total_mentions ?? 0) > 1 && (
+                <span className="text-[0.65rem] text-muted-foreground">raised {group.items[0].total_mentions}×</span>
+              )}
             </div>
             {group.items.map((item) => (
               <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />

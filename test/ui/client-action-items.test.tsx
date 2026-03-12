@@ -165,12 +165,12 @@ describe("ClientActionItemsView", () => {
     expect(screen.getByTestId("completed-items-list").textContent).toContain("Fix the broken build");
   });
 
-  it("renders group-by pill buttons with label and four options", () => {
+  it("renders group-by pill buttons with label and five options", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     const groupBar = screen.getByTestId("action-group-by");
     expect(groupBar.textContent).toContain("Group:");
     const buttons = Array.from(groupBar.querySelectorAll("button")).map((b) => b.textContent);
-    expect(buttons).toEqual(["Priority", "Series", "Owner", "Requester"]);
+    expect(buttons).toEqual(["Priority", "Series", "Owner", "Requester", "Intent"]);
   });
 
   it("default groups by priority with Critical and Normal section headers", () => {
@@ -214,5 +214,90 @@ describe("ClientActionItemsView", () => {
     expect(groups[0].textContent).toContain("Write documentation");
     expect(groups[1].textContent).toContain("Bob");
     expect(groups[1].textContent).toContain("Fix the broken build");
+  });
+});
+
+describe("ClientActionItemsView — Intent group mode", () => {
+  const INTENT_ITEMS: import("../../electron-ui/electron/channels.js").ClientActionItem[] = [
+    {
+      meeting_id: "m1",
+      meeting_title: "Weekly Sync",
+      meeting_date: "2026-01-01",
+      item_index: 0,
+      description: "Deploy to production",
+      owner: "Alice",
+      requester: "Bob",
+      due_date: null,
+      priority: "critical",
+      canonical_id: "can-abc",
+      total_mentions: 3,
+    },
+    {
+      meeting_id: "m2",
+      meeting_title: "Planning",
+      meeting_date: "2026-01-02",
+      item_index: 0,
+      description: "Push app to production",
+      owner: "Alice",
+      requester: "Bob",
+      due_date: null,
+      priority: "normal",
+      canonical_id: "can-abc",
+      total_mentions: 3,
+    },
+    {
+      meeting_id: "m3",
+      meeting_title: "Retro",
+      meeting_date: "2026-01-03",
+      item_index: 1,
+      description: "Update documentation",
+      owner: "Charlie",
+      requester: "Alice",
+      due_date: null,
+      priority: "normal",
+      canonical_id: "can-xyz",
+      total_mentions: 1,
+    },
+  ];
+
+  afterEach(cleanup);
+
+  it("groups items with same canonical_id into one group under Intent mode", () => {
+    render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
+    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(2);
+    expect(groups[0].textContent).toContain("Deploy to production");
+    expect(groups[0].textContent).toContain("Weekly Sync");
+    expect(groups[0].textContent).toContain("Planning");
+  });
+
+  it("shows raised N× badge when total_mentions > 1 in Intent mode", () => {
+    render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
+    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    expect(screen.getByText(/raised 3/)).toBeDefined();
+  });
+
+  it("does not show raised badge for singleton groups in Intent mode", () => {
+    render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
+    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    const groups = screen.getAllByTestId("action-group");
+    const singletonGroup = groups.find((g) => g.textContent?.includes("Update documentation"))!;
+    expect(singletonGroup.textContent).not.toContain("raised");
+  });
+
+  it("items without canonical_id each get their own singleton group", () => {
+    const noCanonical = INTENT_ITEMS.map(({ canonical_id: _, total_mentions: __, ...rest }) => rest);
+    render(<ClientActionItemsView clientName="Acme" items={noCanonical} />);
+    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups).toHaveLength(3);
+  });
+
+  it("sorts Intent groups by most instances first", () => {
+    render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
+    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    const groups = screen.getAllByTestId("action-group");
+    expect(groups[0].textContent).toContain("Deploy to production");
   });
 });

@@ -320,6 +320,18 @@ export function handleGetClientActionItems(db: Database, clientName: string, fil
     ).all(...meetingIds) as { id: string }[]).map((r) => r.id),
   );
 
+  const mentionRows = (db.prepare(
+    `SELECT meeting_id, item_index, canonical_id,
+      (SELECT COUNT(*) FROM item_mentions im2 WHERE im2.canonical_id = im.canonical_id) AS total_mentions
+     FROM item_mentions im
+     WHERE meeting_id IN (${placeholders}) AND item_type = 'action_items'`,
+  ).all(...meetingIds) as { meeting_id: string; item_index: number; canonical_id: string; total_mentions: number }[]);
+
+  const mentionMap = new Map<string, { canonical_id: string; total_mentions: number }>();
+  for (const row of mentionRows) {
+    mentionMap.set(`${row.meeting_id}:${row.item_index}`, { canonical_id: row.canonical_id, total_mentions: row.total_mentions });
+  }
+
   const result: ClientActionItem[] = [];
 
   for (const meetingId of meetingIds) {
@@ -330,6 +342,7 @@ export function handleGetClientActionItems(db: Database, clientName: string, fil
 
     artifact.action_items.forEach((item, index) => {
       if (completed.has(`${meetingId}:${index}`)) return;
+      const mention = mentionMap.get(`${meetingId}:${index}`);
       result.push({
         meeting_id: meetingId,
         meeting_title: meeting.title,
@@ -340,6 +353,8 @@ export function handleGetClientActionItems(db: Database, clientName: string, fil
         requester: item.requester,
         due_date: item.due_date,
         priority: item.priority,
+        canonical_id: mention?.canonical_id,
+        total_mentions: mention?.total_mentions,
       });
     });
   }
