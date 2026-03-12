@@ -49,6 +49,7 @@ interface PipelineConfig {
   extractionPromptPath?: string;
   onProgress?: (event: PipelineEvent) => void;
   threadSimilarityThreshold?: number;
+  filterFolder?: string;
 }
 
 interface PipelineResult {
@@ -136,7 +137,7 @@ async function processEntry(
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3 } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder } = config;
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
@@ -153,11 +154,14 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
   const manifestPath = join(rawDir, "manifest.json");
   if (existsSync(manifestPath)) {
-    const entries = parseManifest(rawDir);
+    const allEntries = parseManifest(rawDir);
+    const entries = filterFolder
+      ? allEntries.filter((e) => e.meeting_files[0].split("/")[0] === filterFolder)
+      : allEntries;
     const total = entries.length;
-    const existingIds = new Set(
-      (db.prepare("SELECT id FROM meetings").all() as { id: string }[]).map((r) => r.id),
-    );
+    const existingIds = filterFolder
+      ? new Set<string>()
+      : new Set((db.prepare("SELECT id FROM meetings").all() as { id: string }[]).map((r) => r.id));
 
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
@@ -167,6 +171,14 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
       if (existingIds.has(entry.meeting_id)) {
         onProgress?.({ type: "skipped", name: folderName, title: entry.meeting_title, index, total });
         skipped++;
+        continue;
+      }
+
+      if (!existsSync(join(rawDir, folderName))) {
+        const reason = `folder not found: ${folderName}`;
+        log(reason);
+        onProgress?.({ type: "failed", name: folderName, title: entry.meeting_title, reason, elapsed_ms: 0 });
+        failed++;
         continue;
       }
 

@@ -332,3 +332,61 @@ The deployment pipeline is broken again. We need to fix the CI/CD configuration.
     expect(milestones[0].mention_count).toBe(1);
   });
 });
+
+describe("manifest with missing folder", () => {
+  let mDb: Database;
+  let mVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let mVdbPath: string;
+  let mBaseDir: string;
+  let events: PipelineEvent[];
+  let result: Awaited<ReturnType<typeof processNewMeetings>>;
+
+  beforeAll(async () => {
+    mBaseDir = join(tmpdir(), `pipeline-missing-folder-${Date.now()}`);
+    const rawDir = join(mBaseDir, "raw");
+    mkdirSync(rawDir, { recursive: true });
+
+    const manifest = [
+      {
+        meeting_id: "missing-001",
+        meeting_title: "Ghost Meeting",
+        meeting_date: "2026-01-01T00:00:00.000Z",
+        meeting_files: ["ghost_meeting-missing-001/transcript.md"],
+      },
+    ];
+    writeFileSync(join(rawDir, "manifest.json"), JSON.stringify(manifest), "utf-8");
+
+    mDb = createDb(":memory:");
+    migrate(mDb);
+    mVdbPath = join(tmpdir(), `lancedb-missing-${Date.now()}`);
+    mkdirSync(mVdbPath, { recursive: true });
+    mVdb = await connectVectorDb(mVdbPath);
+
+    events = [];
+    const llm = createLlmAdapter({ type: "stub" });
+    result = await processNewMeetings({
+      rawDir,
+      processedDir: join(mBaseDir, "processed"),
+      failedDir: join(mBaseDir, "failed"),
+      auditDir: join(mBaseDir, "audit"),
+      db: mDb, vdb: mVdb, session, llm,
+      onProgress: (e) => events.push(e),
+    });
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(mBaseDir, { recursive: true, force: true });
+    rmSync(mVdbPath, { recursive: true, force: true });
+  });
+
+  it("does not crash when manifest references a missing folder", () => {
+    expect(result).toEqual({ total: 1, succeeded: 0, failed: 1, skipped: 0 });
+  });
+
+  it("emits a failed event with folder-not-found reason", () => {
+    const failedEvents = events.filter((e) => e.type === "failed") as Extract<PipelineEvent, { type: "failed" }>[];
+    expect(failedEvents).toHaveLength(1);
+    expect(failedEvents[0].reason).toBe("folder not found: ghost_meeting-missing-001");
+    expect(failedEvents[0].title).toBe("Ghost Meeting");
+  });
+});
