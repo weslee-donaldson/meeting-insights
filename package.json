@@ -13,7 +13,7 @@
     "query": "tsx cli/query.ts",
     "eval": "tsx cli/eval.ts",
     "assign-client": "tsx cli/assign-client.ts",
-    "dedup": "tsx cli/dedup.ts",
+    "all-items-dedupe": "tsx cli/all-items-dedupe.ts",
     "ui:dev": "electron-vite dev",
     "ui:build": "electron-vite build",
     "api:dev": "tsx api/main.ts",

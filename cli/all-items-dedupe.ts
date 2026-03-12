@@ -5,16 +5,20 @@ process.loadEnvFile?.(".env.local");
 
 const command = process.argv[2];
 const dryRun = process.argv.includes("--dry-run");
+const lastDay = process.argv.includes("--last-day");
+const dateArg = process.argv.find((a) => a.startsWith("--date="))?.split("=")[1];
 
 if (command !== "run" && command !== "clear") {
-  console.error("Usage: pnpm dedup <run|clear> [--dry-run]");
+  console.error("Usage: pnpm all-items-dedupe <run|clear> [options]");
   console.error("");
   console.error("Commands:");
-  console.error("  run           Dedup action items for all un-deduped meetings");
+  console.error("  run           Dedup items for all un-deduped meetings");
   console.error("  clear         Remove all dedup associations so thresholds can be re-tuned");
   console.error("");
   console.error("Flags:");
-  console.error("  --dry-run     Show what would happen without writing anything");
+  console.error("  --dry-run           Show what would happen without writing anything");
+  console.error("  --last-day          Process only meetings from the most recent pending date");
+  console.error("  --date=YYYY-MM-DD   Process only meetings from a specific date");
   console.error("");
   console.error("Threshold env vars (set in .env.local):");
   console.error("  MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD  default: 0.80  (cosine similarity floor)");
@@ -61,10 +65,10 @@ if (command === "clear") {
   }
 
   db.prepare("DELETE FROM item_mentions").run();
-  console.log(`✓ Deleted ${mentionCount} item_mentions`);
+  console.log(`\u2713 Deleted ${mentionCount} item_mentions`);
 
   db.prepare("DELETE FROM action_item_completions WHERE note LIKE '[auto-dedup]%'").run();
-  console.log(`✓ Deleted ${autoCompCount} auto-dedup completions`);
+  console.log(`\u2713 Deleted ${autoCompCount} auto-dedup completions`);
 
   if (existsSync(VECTOR_PATH)) {
     const { connectVectorDb, createItemTable } = await import("../core/vector-db.js");
@@ -75,11 +79,11 @@ if (command === "clear") {
       const vecCount = await table.countRows();
       await vdb.dropTable("item_vectors");
       await createItemTable(vdb);
-      console.log(`✓ Cleared ${vecCount} item_vectors (table recreated)`);
+      console.log(`\u2713 Cleared ${vecCount} item_vectors (table recreated)`);
     }
   }
 
-  console.log("\nClear complete. Run: pnpm dedup run");
+  console.log("\nClear complete. Run: pnpm all-items-dedupe run");
   process.exit(0);
 }
 
@@ -91,7 +95,7 @@ interface MeetingRow {
   title: string;
 }
 
-const pending = db.prepare(`
+const pendingBase = db.prepare(`
   SELECT m.id, m.date, m.title
   FROM meetings m
   JOIN artifacts a ON a.meeting_id = m.id
@@ -100,10 +104,33 @@ const pending = db.prepare(`
   ORDER BY m.date ASC
 `).all() as MeetingRow[];
 
-console.log(`Meetings pending dedup: ${pending.length}`);
+let targetDate: string | undefined;
+
+if (dateArg) {
+  targetDate = dateArg;
+} else if (lastDay) {
+  const latest = db.prepare(`
+    SELECT MAX(DATE(m.date)) AS d
+    FROM meetings m
+    JOIN artifacts a ON a.meeting_id = m.id
+    WHERE m.ignored = 0
+      AND NOT EXISTS (SELECT 1 FROM item_mentions im WHERE im.meeting_id = m.id)
+  `).get() as { d: string | null };
+  targetDate = latest.d ?? undefined;
+}
+
+const pending = targetDate
+  ? pendingBase.filter((m) => m.date.startsWith(targetDate!))
+  : pendingBase;
+
+const filterLabel = targetDate ? ` (date: ${targetDate})` : "";
+console.log(`Meetings pending dedup: ${pending.length}${filterLabel}`);
 
 if (pending.length === 0) {
-  console.log("Nothing to do. To re-run with new thresholds: pnpm dedup clear && pnpm dedup run");
+  const hint = pendingBase.length === 0
+    ? "Nothing to do. To re-run with new thresholds: pnpm all-items-dedupe clear && pnpm all-items-dedupe run"
+    : "No meetings match the given date filter.";
+  console.log(hint);
   process.exit(0);
 }
 
@@ -144,7 +171,7 @@ function getItemText(item: unknown, fieldType: string): string {
   if (typeof item === "string") return item;
   if (typeof item === "object" && item !== null) {
     const obj = item as Record<string, unknown>;
-    if (fieldType === "action_items") return (obj.description as string) ?? "";
+    if (fieldType === "action_items" || fieldType === "risk_items") return (obj.description as string) ?? "";
     if (fieldType === "decisions") return (obj.text as string) ?? "";
   }
   return String(item);
@@ -212,8 +239,8 @@ if (dryRun) {
     const result = await deduplicateItems(db, itemTable, session, meeting.id, artifact, meeting.date);
     totalMentions += result.mentionsCreated;
     totalDupes += result.duplicatesAutoCompleted;
-    console.log(`✓  mentions=${result.mentionsCreated}  dupes=${result.duplicatesAutoCompleted}`);
+    console.log(`\u2713  mentions=${result.mentionsCreated}  dupes=${result.duplicatesAutoCompleted}`);
   }
 
-  console.log(`\n✓ meetings=${pending.length}  mentions=${totalMentions}  dupes_auto_completed=${totalDupes}`);
+  console.log(`\n\u2713 meetings=${pending.length}  mentions=${totalMentions}  dupes_auto_completed=${totalDupes}`);
 }

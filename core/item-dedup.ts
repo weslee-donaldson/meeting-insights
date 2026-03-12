@@ -181,7 +181,7 @@ function getItemText(item: unknown, fieldType: string): string {
   if (typeof item === "string") return item;
   if (typeof item === "object" && item !== null) {
     const obj = item as Record<string, unknown>;
-    if (fieldType === "action_items") return (obj.description as string) ?? "";
+    if (fieldType === "action_items" || fieldType === "risk_items") return (obj.description as string) ?? "";
     if (fieldType === "decisions") return (obj.text as string) ?? "";
   }
   return String(item);

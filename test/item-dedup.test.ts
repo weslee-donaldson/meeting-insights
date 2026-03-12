@@ -303,6 +303,21 @@ describe("deduplicateItems", () => {
     expect(mentions.length).toBe(6);
   });
 
+  it("stores description text for object-shaped risk_items, not [object Object]", async () => {
+    const t = await freshItemTable();
+    const artifact: Artifact = {
+      ...baseArtifact,
+      action_items: [],
+      decisions: [],
+      proposed_features: [],
+      open_questions: [],
+      risk_items: [{ category: "engineering", description: "Deployment pipeline may fail under load" }],
+    };
+    await deduplicateItems(dedupDb, t, session, "dd-m1", artifact, "2026-01-10");
+    const mention = dedupDb.prepare("SELECT item_text FROM item_mentions WHERE meeting_id = 'dd-m1' AND item_type = 'risk_items'").get() as { item_text: string };
+    expect(mention.item_text).toBe("Deployment pipeline may fail under load");
+  });
+
   it("links duplicate action items to same canonical_id across meetings", async () => {
     const t = await freshItemTable();
     await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
