@@ -200,6 +200,13 @@ const DEDUP_FIELDS: (keyof Artifact)[] = [
   "risk_items",
 ];
 
+function readDedupConfig(): { semanticThreshold: number; stringThreshold: number } {
+  return {
+    semanticThreshold: parseFloat(process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD ?? "0.80"),
+    stringThreshold: parseFloat(process.env.MTNINSIGHTS_DEDUP_STRING_THRESHOLD ?? "0.90"),
+  };
+}
+
 export async function deduplicateItems(
   db: Database,
   itemTable: VectorTable,
@@ -210,6 +217,7 @@ export async function deduplicateItems(
 ): Promise<DeduplicateItemsResult> {
   let mentionsCreated = 0;
   let duplicatesAutoCompleted = 0;
+  const { semanticThreshold, stringThreshold } = readDedupConfig();
 
   for (const field of DEDUP_FIELDS) {
     const items = artifact[field];
@@ -225,7 +233,7 @@ export async function deduplicateItems(
 
       if (existing.length > 0 && existing[0].meeting_id !== meetingId) {
         const match = existing[0];
-        if (isStringDuplicate(text, match.item_text) || isSemanticDuplicate(match.distance)) {
+        if (isStringDuplicate(text, match.item_text, stringThreshold) || isSemanticDuplicate(match.distance, semanticThreshold)) {
           canonicalId = match.canonical_id;
           isDuplicate = true;
         } else {

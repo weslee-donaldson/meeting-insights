@@ -349,3 +349,57 @@ describe("deduplicateItems", () => {
     expect(completions[0].note).toMatch(/Monday Standup/);
   });
 });
+
+describe("dedup threshold config", () => {
+  let thresholdDb: ReturnType<typeof createDb>;
+  const thresholdVdbPaths: string[] = [];
+
+  async function freshThresholdTable() {
+    const p = join(tmpdir(), `lancedb-threshold-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(p, { recursive: true });
+    thresholdVdbPaths.push(p);
+    const v = await connectVectorDb(p);
+    return createItemTable(v);
+  }
+
+  const baseA: Artifact = {
+    summary: "Test",
+    decisions: [],
+    proposed_features: [],
+    action_items: [{ description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null }],
+    open_questions: [],
+    risk_items: [],
+    additional_notes: [],
+  };
+
+  beforeEach(() => {
+    thresholdDb = createDb(":memory:");
+    migrate(thresholdDb);
+    thresholdDb.prepare("INSERT INTO meetings (id, title, date) VALUES ('th-m1', 'Alpha', '2026-01-10')").run();
+    thresholdDb.prepare("INSERT INTO meetings (id, title, date) VALUES ('th-m2', 'Beta', '2026-01-12')").run();
+  });
+
+  afterAll(() => {
+    for (const p of thresholdVdbPaths) rmSync(p, { recursive: true, force: true });
+  });
+
+  it("does not auto-complete when MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD is set very high", async () => {
+    const prev = process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD;
+    process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD = "0.9999";
+    try {
+      const t = await freshThresholdTable();
+      await deduplicateItems(thresholdDb, t, session, "th-m1", baseA, "2026-01-10");
+
+      const artifactB: Artifact = {
+        ...baseA,
+        action_items: [{ description: "Push application to production server", owner: "Bob", requester: "Alice", due_date: null }],
+      };
+
+      const result = await deduplicateItems(thresholdDb, t, session, "th-m2", artifactB, "2026-01-12");
+      expect(result.duplicatesAutoCompleted).toBe(0);
+    } finally {
+      if (prev === undefined) delete process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD;
+      else process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD = prev;
+    }
+  });
+});
