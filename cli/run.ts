@@ -13,7 +13,7 @@ const filterFolder = process.argv[2];
 
 const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
 const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
-const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub";
+const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub" | "claudecli";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
 const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
@@ -37,7 +37,9 @@ console.log("Model loaded.\n");
 
 const llm = PROVIDER === "local"
   ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
-  : PROVIDER === "stub"
+  : PROVIDER === "claudecli"
+    ? createLlmAdapter({ type: "claudecli" })
+    : PROVIDER === "stub"
     ? createLlmAdapter({ type: "stub" })
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 

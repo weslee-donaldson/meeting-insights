@@ -13,6 +13,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2267 | 7:12 PM | 🔵 | Electron Main Entry Point Already Configured for CLI Provider | ~430 |
 | #2221 | 4:18 PM | 🔵 | Electron Application Configures LLM Provider via Environment Variables | ~529 |
 | #2220 | 4:17 PM | 🔵 | Electron Desktop UI Architecture with Multi-Provider LLM Support | ~546 |
 </claude-mem-context>

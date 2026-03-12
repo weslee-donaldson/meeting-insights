@@ -14,4 +14,12 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #2128 | 10:47 AM | 🔵 | CLI Tools Documentation Details Operator and Developer Utilities | ~806 |
+
+### Mar 12, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2259 | 7:11 PM | 🟣 | CLI Entry Point Adds Claudecli Provider Selection Branch | ~306 |
+| #2257 | " | 🟣 | CLI Entry Point Extended to Support claudecli Provider Type | ~308 |
+| #2256 | " | 🔵 | Provider Selection Logic Location Identified in CLI Entry Point | ~373 |
 </claude-mem-context>

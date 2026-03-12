@@ -31,6 +31,7 @@ This directory contains the entire domain model. It has no imports from `electro
 | `llm-provider-anthropic.ts` | Anthropic SDK adapter. Uses `claude-sonnet-4-6` by default. Raises `max_tokens` to 8192 for `extract_artifact` and `generate_insight`. Wraps responses with `withRepair` for JSON parse retries. Logs every call via `logLlmCall`. |
 | `llm-provider-openai.ts` | OpenAI SDK adapter. Uses `gpt-4o` by default. Same `withRepair` / logging pattern as the Anthropic adapter. |
 | `llm-provider-local.ts` | Ollama adapter over its `/api/chat` HTTP endpoint. Handles rate-limit (429) and server errors (5xx) with typed error prefixes. |
+| `llm-provider-claudecli.ts` | Claude CLI adapter. Shells out to `claude --print --output-format json` via `execFile`. Maintains an in-process `sessionCache` (prefixHash → session_id) so multi-turn `converse()` calls resume via `--resume` rather than retransmitting full history. Activated via `MTNINSIGHTS_LLM_PROVIDER=claudecli`; no API key required. |
 | `llm-provider-stub.ts` | Deterministic in-memory adapter. `STUB_FIXTURES` maps each `LlmCapability` to a fixed response object used in tests. |
 | `llm-helpers.ts` | `stripCodeFences` removes markdown code fences from LLM output. `parseJsonOrThrow` parses cleaned text or throws a `[json_parse]`-prefixed error. `withRepair(call, content)` retries once with a repair prefix on JSON parse failure, then falls back to `{ __fallback: true, raw_text: ... }`. |
 

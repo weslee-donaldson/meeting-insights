@@ -124,7 +124,7 @@ export function createClaudecliAdapter(bin = "claude"): LlmAdapter {
         }
 
         const { result, sessionId, durationMs } = await runCli(bin, args);
-        sessionCache.set(prefixHash(system, messages), sessionId);
+        sessionCache.set(prefixHash(system, [...messages, { role: "assistant", content: result }]), sessionId);
         logLlm("provider=claudecli converse latency_ms=%d tokens=%d", durationMs, Math.ceil(result.length / 4));
         return result;
       } finally {

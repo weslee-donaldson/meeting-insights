@@ -47,10 +47,6 @@
 | #1607 | " | 🟣 | Added structured logging infrastructure with LLM and API call tracking | ~416 |
 | #1605 | 7:45 AM | 🔵 | Comprehensive research of logging and LLM infrastructure architecture | ~488 |
 | #1602 | " | 🔵 | Reviewed local LLM provider (Ollama) implementation and logging | ~341 |
-| #1601 | " | 🔵 | LLM helpers provide retry logic and fallback but no logging | ~342 |
-| #1600 | " | 🔵 | Reviewed Anthropic LLM provider implementation details | ~344 |
-| #1597 | 7:42 AM | 🔵 | Examined logging patterns in Anthropic LLM provider | ~268 |
-| #1596 | " | 🔵 | Reviewed logging infrastructure using debug package | ~217 |
 
 ### Mar 11, 2026
 
@@ -62,6 +58,10 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2258 | 7:11 PM | ✅ | LLM Adapter Factory Updated to Support Claude CLI Provider Configuration | ~447 |
+| #2254 | 7:10 PM | 🔴 | Session Cache Key Fixed to Include Assistant Response for Resumption Lookup | ~428 |
+| #2242 | 7:08 PM | 🔄 | Claude CLI Provider ExecFileAsync Custom Implementation Preserves Stderr | ~401 |
+| #2241 | " | 🟣 | Claude CLI Provider Adapter Implemented with Session Resumption Optimization | ~732 |
 | #2228 | 7:04 PM | 🔵 | Complete Core Architecture Documentation for Meeting Insights System | ~801 |
 | #2212 | 4:17 PM | 🔵 | LLM Adapter Interface Defines Two-Method Contract with Capability-Based Completion | ~517 |
 | #2211 | " | 🔵 | Local LLM Provider Implementation Pattern Examined | ~447 |

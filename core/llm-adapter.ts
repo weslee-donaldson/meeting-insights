@@ -2,6 +2,7 @@ import { createStubAdapter } from "./llm-provider-stub.js";
 import { createLocalAdapter } from "./llm-provider-local.js";
 import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
 import { createOpenaiAdapter } from "./llm-provider-openai.js";
+import { createClaudecliAdapter } from "./llm-provider-claudecli.js";
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight";
 
@@ -38,7 +39,12 @@ interface OpenaiConfig {
   model?: string;
 }
 
-export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig | OpenaiConfig): LlmAdapter {
+interface ClaudecliConfig {
+  type: "claudecli";
+  bin?: string;
+}
+
+export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig | OpenaiConfig | ClaudecliConfig): LlmAdapter {
   if (config.type === "stub") {
     return createStubAdapter();
   }
@@ -49,6 +55,10 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
 
   if (config.type === "openai") {
     return createOpenaiAdapter(config.apiKey, config.model);
+  }
+
+  if (config.type === "claudecli") {
+    return createClaudecliAdapter(config.bin);
   }
 
   return createAnthropicAdapter(config.apiKey, config.model);

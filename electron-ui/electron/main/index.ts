@@ -66,7 +66,8 @@ const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"
   | "local"
   | "openai"
-  | "stub";
+  | "stub"
+  | "claudecli";
 const API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 const LOCAL_BASE_URL =
@@ -112,7 +113,9 @@ app.whenReady().then(async () => {
       ? { type: "local" as const, baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL }
       : PROVIDER === "openai"
         ? { type: "openai" as const, apiKey: OPENAI_KEY, model: process.env.OPENAI_MODEL }
-        : PROVIDER === "stub"
+        : PROVIDER === "claudecli"
+          ? { type: "claudecli" as const }
+          : PROVIDER === "stub"
           ? { type: "stub" as const }
           : { type: "anthropic" as const, apiKey: API_KEY, model: process.env.ANTHROPIC_MODEL };
 
