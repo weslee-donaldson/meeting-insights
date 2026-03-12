@@ -93,10 +93,12 @@ interface MeetingRow {
   id: string;
   date: string;
   title: string;
+  client: string;
 }
 
 const pendingBase = db.prepare(`
-  SELECT m.id, m.date, m.title
+  SELECT m.id, m.date, m.title,
+         COALESCE((SELECT cd.client_name FROM client_detections cd WHERE cd.meeting_id = m.id ORDER BY cd.confidence DESC LIMIT 1), '') AS client
   FROM meetings m
   JOIN artifacts a ON a.meeting_id = m.id
   WHERE m.ignored = 0
@@ -200,7 +202,7 @@ if (dryRun) {
         if (!text) continue;
         totalMentions++;
 
-        const found = await searchSimilarItems(itemTable, session, text, { itemType: field, limit: 1 });
+        const found = await searchSimilarItems(itemTable, session, text, { itemType: field, client: meeting.client, limit: 1 });
         if (found.length > 0 && found[0].meeting_id !== meeting.id) {
           const match = found[0];
           if (isStringDuplicate(text, match.item_text, stringThreshold) || isSemanticDuplicate(match.distance, semanticThreshold)) {
@@ -236,7 +238,7 @@ if (dryRun) {
     }
 
     const artifact = parseArtifact(row);
-    const result = await deduplicateItems(db, itemTable, session, meeting.id, artifact, meeting.date);
+    const result = await deduplicateItems(db, itemTable, session, meeting.id, artifact, meeting.date, meeting.client);
     totalMentions += result.mentionsCreated;
     totalDupes += result.duplicatesAutoCompleted;
     console.log(`\u2713  mentions=${result.mentionsCreated}  dupes=${result.duplicatesAutoCompleted}`);

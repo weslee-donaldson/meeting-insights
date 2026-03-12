@@ -125,7 +125,7 @@ beforeAll(async () => {
   await storeFeatureVector(featureTable, "OAuth2 single sign-on", apiMeetingId, { client: "Acme", date: "2026-01-10T10:00:00Z" }, featureVec);
 
   const dlqVec = await embedItem(session, "Implement DLQ for failed webhook messages");
-  await storeItemVector(itemTable, "can-dlq", "Implement DLQ for failed webhook messages", "action_items", opsMeetingId, "2026-01-15T10:00:00Z", dlqVec);
+  await storeItemVector(itemTable, "can-dlq", "Implement DLQ for failed webhook messages", "action_items", opsMeetingId, "2026-01-15T10:00:00Z", "acme", dlqVec);
 
   db.prepare("INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(
     apiMeetingId,

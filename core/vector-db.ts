@@ -45,6 +45,7 @@ const itemSchema = new Schema([
   new Field("item_type", new Utf8()),
   new Field("meeting_id", new Utf8()),
   new Field("date", new Utf8()),
+  new Field("client", new Utf8()),
   new Field("vector", new FixedSizeList(VECTOR_DIM, new Field("item", new Float32()))),
 ]);
 

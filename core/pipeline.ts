@@ -104,9 +104,9 @@ async function processEntry(
       reconcileMilestones(db, topClient.client_name, meetingId, parsed.timestamp, artifact.milestones);
     }
     updateFts(db, meetingId);
-    await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp);
-    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     const client = topClient?.client_name ?? "";
+    await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp, client);
+    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
     if (client) {
       const openThreads = listThreadsByClient(db, client).filter((t) => t.status === "open");

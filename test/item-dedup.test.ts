@@ -37,14 +37,14 @@ beforeAll(async () => {
   table = await createItemTable(vdb);
 
   const items = [
-    { id: "can-1", text: "Deploy application to production", type: "action_items", meeting: "m1", date: "2026-01-10" },
-    { id: "can-1", text: "Push app to production environment", type: "action_items", meeting: "m2", date: "2026-01-12" },
-    { id: "can-2", text: "Review quarterly budget report", type: "action_items", meeting: "m1", date: "2026-01-10" },
+    { id: "can-1", text: "Deploy application to production", type: "action_items", meeting: "m1", date: "2026-01-10", client: "acme" },
+    { id: "can-1", text: "Push app to production environment", type: "action_items", meeting: "m2", date: "2026-01-12", client: "acme" },
+    { id: "can-2", text: "Review quarterly budget report", type: "action_items", meeting: "m1", date: "2026-01-10", client: "acme" },
   ];
 
   for (const item of items) {
     const vec = await embedItem(session, item.text);
-    await storeItemVector(table, item.id, item.text, item.type, item.meeting, item.date, vec);
+    await storeItemVector(table, item.id, item.text, item.type, item.meeting, item.date, item.client, vec);
   }
 }, 30000);
 
@@ -237,8 +237,8 @@ describe("cleanupItemVectors", () => {
   it("removes only the specified meeting's vectors from the item table", async () => {
     const cleanupTable = await createItemTable(vdb);
     const vec = await embedItem(session, "test cleanup item");
-    await storeItemVector(cleanupTable, "can-clean-1", "test item", "action_items", "cleanup-m1", "2026-01-01", vec);
-    await storeItemVector(cleanupTable, "can-clean-2", "other item", "action_items", "cleanup-m2", "2026-01-02", vec);
+    await storeItemVector(cleanupTable, "can-clean-1", "test item", "action_items", "cleanup-m1", "2026-01-01", "acme", vec);
+    await storeItemVector(cleanupTable, "can-clean-2", "other item", "action_items", "cleanup-m2", "2026-01-02", "acme", vec);
     await cleanupItemVectors(cleanupTable, "cleanup-m1");
     const rows = await cleanupTable.query().where("meeting_id = 'cleanup-m1'").toArray();
     expect(rows.length).toBe(0);
@@ -296,7 +296,7 @@ describe("deduplicateItems", () => {
 
   it("creates mentions and vectors for all artifact items", async () => {
     const t = await freshItemTable();
-    const result = await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+    const result = await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10", "acme");
     expect(result.mentionsCreated).toBe(6);
     expect(result.duplicatesAutoCompleted).toBe(0);
     const mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m1'").all();
@@ -313,14 +313,14 @@ describe("deduplicateItems", () => {
       open_questions: [],
       risk_items: [{ category: "engineering", description: "Deployment pipeline may fail under load" }],
     };
-    await deduplicateItems(dedupDb, t, session, "dd-m1", artifact, "2026-01-10");
+    await deduplicateItems(dedupDb, t, session, "dd-m1", artifact, "2026-01-10", "acme");
     const mention = dedupDb.prepare("SELECT item_text FROM item_mentions WHERE meeting_id = 'dd-m1' AND item_type = 'risk_items'").get() as { item_text: string };
     expect(mention.item_text).toBe("Deployment pipeline may fail under load");
   });
 
   it("links duplicate action items to same canonical_id across meetings", async () => {
     const t = await freshItemTable();
-    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10", "acme");
 
     const artifact2: Artifact = {
       ...baseArtifact,
@@ -333,7 +333,7 @@ describe("deduplicateItems", () => {
       risk_items: [],
     };
 
-    await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12");
+    await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12", "acme");
 
     const m1Mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m1' AND item_type = 'action_items' AND item_index = 0").all() as { canonical_id: string }[];
     const m2Mentions = dedupDb.prepare("SELECT * FROM item_mentions WHERE meeting_id = 'dd-m2' AND item_type = 'action_items' AND item_index = 0").all() as { canonical_id: string }[];
@@ -342,7 +342,7 @@ describe("deduplicateItems", () => {
 
   it("auto-completes duplicate action items with dedup note", async () => {
     const t = await freshItemTable();
-    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10");
+    await deduplicateItems(dedupDb, t, session, "dd-m1", baseArtifact, "2026-01-10", "acme");
 
     const artifact2: Artifact = {
       ...baseArtifact,
@@ -355,13 +355,34 @@ describe("deduplicateItems", () => {
       risk_items: [],
     };
 
-    const result = await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12");
+    const result = await deduplicateItems(dedupDb, t, session, "dd-m2", artifact2, "2026-01-12", "acme");
     expect(result.duplicatesAutoCompleted).toBe(1);
 
     const completions = dedupDb.prepare("SELECT * FROM action_item_completions WHERE meeting_id = 'dd-m2'").all() as { note: string }[];
     expect(completions.length).toBe(1);
     expect(completions[0].note).toMatch(/\[auto-dedup\]/);
     expect(completions[0].note).toMatch(/Monday Standup/);
+  });
+
+  it("does not link items from different clients even when semantically identical", async () => {
+    const t = await freshItemTable();
+    const sharedItem: Artifact = {
+      ...baseArtifact,
+      action_items: [{ description: "Deploy to production", owner: "Bob", requester: "Alice", due_date: null }],
+      decisions: [],
+      proposed_features: [],
+      open_questions: [],
+      risk_items: [],
+    };
+
+    await deduplicateItems(dedupDb, t, session, "dd-m1", sharedItem, "2026-01-10", "client-a");
+    const result = await deduplicateItems(dedupDb, t, session, "dd-m2", sharedItem, "2026-01-12", "client-b");
+
+    expect(result.duplicatesAutoCompleted).toBe(0);
+
+    const m1 = dedupDb.prepare("SELECT canonical_id FROM item_mentions WHERE meeting_id = 'dd-m1' AND item_type = 'action_items'").get() as { canonical_id: string };
+    const m2 = dedupDb.prepare("SELECT canonical_id FROM item_mentions WHERE meeting_id = 'dd-m2' AND item_type = 'action_items'").get() as { canonical_id: string };
+    expect(m1.canonical_id).not.toBe(m2.canonical_id);
   });
 });
 
@@ -403,14 +424,14 @@ describe("dedup threshold config", () => {
     process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD = "0.9999";
     try {
       const t = await freshThresholdTable();
-      await deduplicateItems(thresholdDb, t, session, "th-m1", baseA, "2026-01-10");
+      await deduplicateItems(thresholdDb, t, session, "th-m1", baseA, "2026-01-10", "acme");
 
       const artifactB: Artifact = {
         ...baseA,
         action_items: [{ description: "Push application to production server", owner: "Bob", requester: "Alice", due_date: null }],
       };
 
-      const result = await deduplicateItems(thresholdDb, t, session, "th-m2", artifactB, "2026-01-12");
+      const result = await deduplicateItems(thresholdDb, t, session, "th-m2", artifactB, "2026-01-12", "acme");
       expect(result.duplicatesAutoCompleted).toBe(0);
     } finally {
       if (prev === undefined) delete process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD;

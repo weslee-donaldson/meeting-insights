@@ -12,11 +12,13 @@ interface ItemSearchResult {
   item_type: string;
   meeting_id: string;
   date: string;
+  client: string;
   distance: number;
 }
 
 interface SearchSimilarItemsOptions {
   itemType?: string;
+  client?: string;
   limit?: number;
 }
 
@@ -34,6 +36,7 @@ export async function storeItemVector(
   itemType: string,
   meetingId: string,
   date: string,
+  client: string,
   vec: Float32Array,
 ): Promise<void> {
   await table.add([
@@ -43,6 +46,7 @@ export async function storeItemVector(
       item_type: itemType,
       meeting_id: meetingId,
       date,
+      client,
       vector: Array.from(vec),
     },
   ]);
@@ -54,10 +58,11 @@ export async function searchSimilarItemsByVector(
   vec: Float32Array,
   options: SearchSimilarItemsOptions = {},
 ): Promise<ItemSearchResult[]> {
+  const conditions: string[] = [];
+  if (options.itemType) conditions.push(`item_type = '${options.itemType}'`);
+  if (options.client) conditions.push(`client = '${options.client}'`);
   let query = table.search(Array.from(vec)).limit(options.limit ?? 10);
-  if (options.itemType) {
-    query = query.where(`item_type = '${options.itemType}'`);
-  }
+  if (conditions.length > 0) query = query.where(conditions.join(" AND "));
   const rows = await query.toArray();
   const results: ItemSearchResult[] = rows.map((r: Record<string, unknown>) => ({
     canonical_id: r.canonical_id as string,
@@ -65,6 +70,7 @@ export async function searchSimilarItemsByVector(
     item_type: r.item_type as string,
     meeting_id: r.meeting_id as string,
     date: r.date as string,
+    client: r.client as string,
     distance: r._distance as number,
   }));
   log("results=%d", results.length);
@@ -214,6 +220,7 @@ export async function deduplicateItems(
   meetingId: string,
   artifact: Artifact,
   meetingDate: string,
+  client: string,
 ): Promise<DeduplicateItemsResult> {
   let mentionsCreated = 0;
   let duplicatesAutoCompleted = 0;
@@ -227,7 +234,7 @@ export async function deduplicateItems(
       const text = getItemText(items[i], field);
       if (!text) continue;
 
-      const existing = await searchSimilarItems(itemTable, session, text, { itemType: field, limit: 1 });
+      const existing = await searchSimilarItems(itemTable, session, text, { itemType: field, client, limit: 1 });
       let canonicalId: string;
       let isDuplicate = false;
 
@@ -244,7 +251,7 @@ export async function deduplicateItems(
       }
 
       const vec = await embedItem(session, text);
-      await storeItemVector(itemTable, canonicalId, text, field, meetingId, meetingDate, vec);
+      await storeItemVector(itemTable, canonicalId, text, field, meetingId, meetingDate, client, vec);
       recordMention(db, canonicalId, meetingId, field, i, text, meetingDate);
       mentionsCreated++;
 
