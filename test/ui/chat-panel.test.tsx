@@ -58,7 +58,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false, "");
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false, "", false);
   });
 
   it("sends full message history including prior exchanges on second question", async () => {
@@ -81,7 +81,7 @@ describe("ChatPanel", () => {
       { role: "user", content: "Q1" },
       { role: "assistant", content: "First answer." },
       { role: "user", content: "Q2" },
-    ], undefined, false, "");
+    ], undefined, false, "", false);
   });
 
   it("include full transcripts checkbox renders unchecked by default", () => {
@@ -97,7 +97,7 @@ describe("ChatPanel", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Include full transcripts" }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true, "");
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true, "", false);
   });
 
   it("displays sources beneath each assistant bubble", async () => {
@@ -269,7 +269,7 @@ describe("ChatPanel", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-ticket" } });
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Make a ticket" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "Make a ticket" }], undefined, false, "jira-ticket");
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "Make a ticket" }], undefined, false, "jira-ticket", false);
   });
 
   it("template selection resets to Default when activeMeetingIds changes", async () => {
@@ -487,6 +487,33 @@ describe("ChatPanel", () => {
     const sourceBtn = screen.getByRole("button", { name: "Architecture Review (2026-03-02)" });
     fireEvent.click(sourceBtn);
     expect(onSourceClick).toHaveBeenCalledWith("meeting-abc");
+  });
+
+  it("renders Include assets checkbox when showIncludeAssets is true", () => {
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} showIncludeAssets={true} />);
+    const checkbox = screen.getByRole("checkbox", { name: "Include assets" });
+    expect((checkbox as HTMLInputElement).checked).toBe(false);
+    expect(screen.getByText("Include assets")).toBeDefined();
+  });
+
+  it("does not render Include assets checkbox when showIncludeAssets is false", () => {
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />);
+    expect(screen.queryByRole("checkbox", { name: "Include assets" })).toBeNull();
+  });
+
+  it("passes includeAssets as 5th arg to onChat when checked", () => {
+    const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} showIncludeAssets={true} />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include assets" }));
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "describe the diagram" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    expect(onChat).toHaveBeenCalledWith(
+      [{ role: "user", content: "describe the diagram" }],
+      undefined,
+      false,
+      "",
+      true,
+    );
   });
 
   it("renders persisted structured sources as clickable buttons", () => {

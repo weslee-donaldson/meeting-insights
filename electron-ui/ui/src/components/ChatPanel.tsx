@@ -57,26 +57,28 @@ interface AttachmentItem {
 interface ChatPanelProps {
   activeMeetingIds: string[];
   charCount: number;
-  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string) => Promise<ConversationChatResponse>;
+  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
   templates?: string[];
   persistedMessages?: PersistedMessage[];
   onSendMessage?: (message: string, includeTranscripts: boolean) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
   onSourceClick?: (meetingId: string) => void;
+  showIncludeAssets?: boolean;
 }
 
 function toDisplayName(stem: string): string {
   return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread, onSourceClick }: ChatPanelProps) {
+export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread, onSourceClick, showIncludeAssets }: ChatPanelProps) {
   const isPersisted = persistedMessages !== undefined;
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<InternalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [includeTranscripts, setIncludeTranscripts] = useState(false);
+  const [includeAssets, setIncludeAssets] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [expandedBubbles, setExpandedBubbles] = useState<Set<number>>(new Set());
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -120,7 +122,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
           }),
         );
       }
-      const response = await onChat(historyForApi, base64Attachments, includeTranscripts, selectedTemplate);
+      const response = await onChat(historyForApi, base64Attachments, includeTranscripts, selectedTemplate, includeAssets);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
@@ -135,7 +137,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
       setLoading(false);
       setTimeout(() => bottomRef.current?.scrollIntoView?.({ behavior: "smooth" }), 50);
     }
-  }, [input, loading, onChat, messages, attachments, includeTranscripts, selectedTemplate, isPersisted, onSendMessage]);
+  }, [input, loading, onChat, messages, attachments, includeTranscripts, selectedTemplate, includeAssets, isPersisted, onSendMessage]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -419,6 +421,18 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                 />
                 <span className="text-[0.7rem] text-muted-foreground">Include full transcripts</span>
               </label>
+              {showIncludeAssets && (
+                <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
+                  <input
+                    type="checkbox"
+                    aria-label="Include assets"
+                    checked={includeAssets}
+                    onChange={(e) => setIncludeAssets(e.target.checked)}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-[0.7rem] text-muted-foreground">Include assets</span>
+                </label>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-1 self-center">
