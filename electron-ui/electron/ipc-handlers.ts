@@ -21,6 +21,10 @@ export {
   handleCreateMeeting,
   resolveMeetingSources,
   clientNameForMeeting,
+  handleUploadAsset,
+  handleGetMeetingAssets,
+  handleDeleteAsset,
+  handleGetAssetData,
 } from "./handlers/meetings.js";
 
 export {

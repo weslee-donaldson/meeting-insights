@@ -39,6 +39,10 @@ import {
   handleThreadChat,
   handleClearThreadMessages,
   handleGetMeetingThreads,
+  handleUploadAsset,
+  handleGetMeetingAssets,
+  handleDeleteAsset,
+  handleGetAssetData,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { populateFts } from "../../../core/fts.js";
@@ -63,6 +67,7 @@ const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH
 
 const MODEL_PATH     = join(APP_ROOT, "models/all-MiniLM-L6-v2.onnx");
 const TOKENIZER_PATH = join(APP_ROOT, "models/tokenizer.json");
+const ASSETS_DIR     = join(APP_ROOT, "data/assets");
 
 const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"
@@ -129,7 +134,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
   ipcMain.handle(CHANNELS.CONVERSATION_CHAT, (_e, opts) => handleConversationChat(db, llm, opts));
   let vdbRef: import("../../../core/vector-db.js").VectorDb | null = null;
-  ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, vdbRef, ids));
+  ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, vdbRef, ids, ASSETS_DIR));
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
   ipcMain.handle(CHANNELS.SET_IGNORED, (_e, meetingId: string, ignored: boolean) => handleSetIgnored(db, meetingId, ignored));
@@ -156,6 +161,10 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_THREAD_MESSAGES, (_e, threadId: string) => handleGetThreadMessages(db, threadId));
   ipcMain.handle(CHANNELS.CLEAR_THREAD_MESSAGES, (_e, threadId: string) => handleClearThreadMessages(db, threadId));
   ipcMain.handle(CHANNELS.GET_MEETING_THREADS, (_e, meetingId: string) => handleGetMeetingThreads(db, meetingId));
+  ipcMain.handle(CHANNELS.UPLOAD_ASSET, (_e, meetingId: string, filename: string, mimeType: string, base64: string) => handleUploadAsset(db, meetingId, filename, mimeType, base64, ASSETS_DIR));
+  ipcMain.handle(CHANNELS.GET_MEETING_ASSETS, (_e, meetingId: string) => handleGetMeetingAssets(db, meetingId));
+  ipcMain.handle(CHANNELS.DELETE_ASSET, (_e, assetId: string) => handleDeleteAsset(db, assetId, ASSETS_DIR));
+  ipcMain.handle(CHANNELS.GET_ASSET_DATA, (_e, assetId: string) => handleGetAssetData(db, assetId, ASSETS_DIR));
 
   createWindow();
 

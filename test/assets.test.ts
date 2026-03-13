@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { migrate } from "../core/db.js";
 import { getAssets, storeAsset, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../core/assets.js";
 import { ingestMeeting } from "../core/ingest.js";
+import { handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData } from "../electron-ui/electron/handlers/meetings.js";
 
 describe("assets", () => {
   let db: DatabaseSync;
@@ -149,5 +150,72 @@ describe("assets", () => {
     expect(getAssets(db, meetingId)).toEqual([]);
     expect(existsSync(join(assetsDir, row1.storage_path))).toBe(false);
     expect(existsSync(join(assetsDir, row2.storage_path))).toBe(false);
+  });
+});
+
+describe("asset handlers", () => {
+  let db: DatabaseSync;
+  let assetsDir: string;
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    assetsDir = mkdtempSync(join(tmpdir(), "asset-handlers-"));
+    ingestMeeting(db, {
+      externalId: "h-mtg-1",
+      title: "Handler Meeting",
+      timestamp: "2026-03-13",
+      participants: [{ name: "Alice", role: "attendee" }],
+      turns: [],
+      rawTranscript: "handler test",
+      sourceFilename: "handler.md",
+    });
+  });
+
+  afterEach(() => {
+    rmSync(assetsDir, { recursive: true, force: true });
+  });
+
+  it("uploads asset via handler with base64 input", () => {
+    const base64 = Buffer.from("handler-data").toString("base64");
+    const row = handleUploadAsset(db, "h-mtg-1", "seq.png", "image/png", base64, assetsDir);
+
+    expect(row).toEqual({
+      id: expect.any(String),
+      meeting_id: "h-mtg-1",
+      filename: "seq.png",
+      mime_type: "image/png",
+      file_size: Buffer.from("handler-data").length,
+      storage_path: expect.stringContaining("h-mtg-1/"),
+      created_at: expect.any(String),
+    });
+  });
+
+  it("lists assets via handler", () => {
+    handleUploadAsset(db, "h-mtg-1", "a.png", "image/png", Buffer.from("aa").toString("base64"), assetsDir);
+    const assets = handleGetMeetingAssets(db, "h-mtg-1");
+    expect(assets).toHaveLength(1);
+    expect(assets[0].filename).toBe("a.png");
+  });
+
+  it("deletes asset via handler", () => {
+    const row = handleUploadAsset(db, "h-mtg-1", "del.png", "image/png", Buffer.from("dd").toString("base64"), assetsDir);
+    handleDeleteAsset(db, row.id, assetsDir);
+    expect(handleGetMeetingAssets(db, "h-mtg-1")).toEqual([]);
+  });
+
+  it("returns asset data as base64 via handler", () => {
+    const original = Buffer.from("base64-test-data");
+    const row = handleUploadAsset(db, "h-mtg-1", "data.png", "image/png", original.toString("base64"), assetsDir);
+    const result = handleGetAssetData(db, row.id, assetsDir);
+    expect(result).toEqual({
+      data: original.toString("base64"),
+      filename: "data.png",
+      mimeType: "image/png",
+    });
+  });
+
+  it("returns null for nonexistent asset via handler", () => {
+    expect(handleGetAssetData(db, "nope", assetsDir)).toBe(null);
   });
 });

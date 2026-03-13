@@ -1,5 +1,7 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact, extractSummary, storeArtifact, generateShortId } from "../../../core/extractor.js";
+import { storeAsset, getAssets, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../../../core/assets.js";
+import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
 import { getClientByName, buildClientContext } from "../../../core/client-registry.js";
@@ -259,8 +261,11 @@ export function handleReassignClient(db: Database, meetingId: string, clientName
   }
 }
 
-export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, ids: string[]): Promise<void> {
+export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, ids: string[], assetsDir?: string): Promise<void> {
   if (ids.length === 0) return;
+  if (assetsDir) {
+    for (const id of ids) deleteAssetsForMeeting(db, id, assetsDir);
+  }
   const placeholders = ids.map(() => "?").join(",");
   for (const id of ids) cleanupMentions(db, id);
   db.prepare(`DELETE FROM action_item_completions WHERE meeting_id IN (${placeholders})`).run(...ids);
@@ -434,4 +439,23 @@ export async function handleCreateMeeting(
   storeArtifact(db, meetingId, artifact);
   updateFts(db, meetingId);
   return meetingId;
+}
+
+export function handleUploadAsset(db: Database, meetingId: string, filename: string, mimeType: string, base64: string, assetsDir: string): AssetRow {
+  const data = Buffer.from(base64, "base64");
+  return storeAsset(db, meetingId, filename, mimeType, data, assetsDir);
+}
+
+export function handleGetMeetingAssets(db: Database, meetingId: string): AssetRow[] {
+  return getAssets(db, meetingId);
+}
+
+export function handleDeleteAsset(db: Database, assetId: string, assetsDir: string): void {
+  deleteAsset(db, assetId, assetsDir);
+}
+
+export function handleGetAssetData(db: Database, assetId: string, assetsDir: string): { data: string; filename: string; mimeType: string } | null {
+  const result = getAssetData(db, assetId, assetsDir);
+  if (!result) return null;
+  return { data: result.data.toString("base64"), filename: result.filename, mimeType: result.mimeType };
 }

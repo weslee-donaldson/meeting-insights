@@ -62,6 +62,10 @@ export const CHANNELS = {
   CLEAR_MILESTONE_MESSAGES: "clear-milestone-messages",
   GET_MEETING_MILESTONES: "get-meeting-milestones",
   GET_DATE_SLIPPAGE: "get-date-slippage",
+  UPLOAD_ASSET: "upload-asset",
+  GET_MEETING_ASSETS: "get-meeting-assets",
+  DELETE_ASSET: "delete-asset",
+  GET_ASSET_DATA: "get-asset-data",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -351,4 +355,8 @@ export interface ElectronAPI {
   clearMilestoneMessages: (milestoneId: string) => Promise<void>;
   getMeetingMilestones: (meetingId: string) => Promise<Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>>;
   getDateSlippage: (milestoneId: string) => Promise<import("../../core/timelines.js").DateSlippageEntry[]>;
+  uploadAsset: (meetingId: string, filename: string, mimeType: string, base64: string) => Promise<import("../../core/assets.js").AssetRow>;
+  getMeetingAssets: (meetingId: string) => Promise<import("../../core/assets.js").AssetRow[]>;
+  deleteAsset: (assetId: string) => Promise<void>;
+  getAssetData: (assetId: string) => Promise<{ data: string; filename: string; mimeType: string } | null>;
 }
