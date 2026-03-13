@@ -1,13 +1,15 @@
 import React from "react";
 import { ClientActionItemsView } from "../components/ClientActionItemsView.js";
 import { MeetingDetail } from "../components/MeetingDetail.js";
-import type { MeetingRow, ClientActionItem, Artifact, ActionItemCompletion, MentionStat } from "../../../../electron/channels.js";
+import type { MeetingRow, ClientActionItem, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
 
 interface ActionItemsPageProps {
   selectedClient: string | null;
   items: ClientActionItem[];
   onPreviewMeeting: (id: string) => void;
   onComplete: (meetingId: string, itemIndex: number) => void;
+  onUncomplete: (meetingId: string, itemIndex: number) => void;
+  onEditActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
   previewMeetingId: string | null;
   previewMeeting: MeetingRow | null;
   previewArtifact: Artifact | null;
@@ -16,13 +18,15 @@ interface ActionItemsPageProps {
   previewMentionStats: MentionStat[];
   onCompletePreview: (itemIndex: number, note: string) => void;
   onUncompletePreview: (itemIndex: number) => void;
+  onEditPreviewActionItem: (itemIndex: number, fields: EditActionItemFields) => void;
 }
 
 export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] {
   const {
-    selectedClient, items, onPreviewMeeting, onComplete,
+    selectedClient, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem,
     previewMeetingId, previewMeeting, previewArtifact, previewArtifactLoading,
     previewCompletions, previewMentionStats, onCompletePreview, onUncompletePreview,
+    onEditPreviewActionItem,
   } = props;
 
   return [
@@ -32,6 +36,8 @@ export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] 
       items={items}
       onPreviewMeeting={onPreviewMeeting}
       onComplete={onComplete}
+      onUncomplete={onUncomplete}
+      onEditActionItem={onEditActionItem}
     />,
     ...(previewMeetingId ? [
       <MeetingDetail
@@ -41,6 +47,7 @@ export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] 
         completions={previewCompletions}
         onComplete={onCompletePreview}
         onUncomplete={onUncompletePreview}
+        onEditActionItem={onEditPreviewActionItem}
         mentionStats={previewMentionStats}
         artifactLoading={previewArtifactLoading}
       />,

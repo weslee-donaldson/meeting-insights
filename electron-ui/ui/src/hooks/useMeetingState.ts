@@ -387,6 +387,17 @@ export function useMeetingState(
     }
   }, [selectedClient, queryClient, addToast]);
 
+  const handleUncompleteClientActionItem = useCallback(async (meetingId: string, itemIndex: number) => {
+    try {
+      await window.api.uncompleteActionItem(meetingId, itemIndex);
+      queryClient.invalidateQueries({ queryKey: ["completions", meetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+    } catch (err) {
+      console.error("Uncomplete action item failed:", err);
+      addToast(`Uncomplete failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
+
   const handleEditClientActionItem = useCallback(async (meetingId: string, itemIndex: number, fields: EditActionItemFields) => {
     try {
       await window.api.editActionItem(meetingId, itemIndex, fields);
@@ -547,6 +558,7 @@ export function useMeetingState(
     handleMultiUncompleteActionItem,
     handleEditClientActionItem,
     handleCompleteClientActionItem,
+    handleUncompleteClientActionItem,
     handleEditPreviewActionItem,
     handleCompletePreviewActionItem,
     handleUncompletePreviewActionItem,

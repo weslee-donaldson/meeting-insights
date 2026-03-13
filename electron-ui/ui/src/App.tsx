@@ -160,6 +160,7 @@ export function App() {
     onMentionClick: meeting.handleMentionClick,
     onThreadClick: handleThreadClick,
     onMilestoneClick: handleMilestoneClick,
+    onEditActionItem: meeting.handleEditActionItem,
   });
 
   const actionItemsPanels = ActionItemsPage({
@@ -167,6 +168,8 @@ export function App() {
     items: meeting.clientActionItemsQuery.data ?? [],
     onPreviewMeeting: meeting.setPreviewMeetingId,
     onComplete: meeting.handleCompleteClientActionItem,
+    onUncomplete: meeting.handleUncompleteClientActionItem,
+    onEditActionItem: meeting.handleEditClientActionItem,
     previewMeetingId: meeting.previewMeetingId,
     previewMeeting: meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId) ?? null,
     previewArtifact: meeting.previewArtifactQuery.data ?? null,
@@ -175,6 +178,7 @@ export function App() {
     previewMentionStats: meeting.previewMentionStatsQuery.data ?? [],
     onCompletePreview: meeting.handleCompletePreviewActionItem,
     onUncompletePreview: meeting.handleUncompletePreviewActionItem,
+    onEditPreviewActionItem: meeting.handleEditPreviewActionItem,
   });
 
   const threadsPanels = ThreadsPage({
