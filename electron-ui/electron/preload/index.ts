@@ -27,6 +27,7 @@ const api: ElectronAPI = {
   reassignClient: (meetingId: string, clientName: string) => ipcRenderer.invoke(CHANNELS.REASSIGN_CLIENT, meetingId, clientName),
   setIgnored: (meetingId: string, ignored: boolean) => ipcRenderer.invoke(CHANNELS.SET_IGNORED, meetingId, ignored),
   editActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => ipcRenderer.invoke(CHANNELS.EDIT_ACTION_ITEM, meetingId, itemIndex, fields),
+  createActionItem: (meetingId: string, fields: EditActionItemFields) => ipcRenderer.invoke(CHANNELS.CREATE_ACTION_ITEM, meetingId, fields),
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => ipcRenderer.invoke(CHANNELS.COMPLETE_ACTION_ITEM, meetingId, itemIndex, note),
   getCompletions: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_COMPLETIONS, meetingId),
   getItemHistory: (canonicalId: string) => ipcRenderer.invoke(CHANNELS.GET_ITEM_HISTORY, canonicalId),

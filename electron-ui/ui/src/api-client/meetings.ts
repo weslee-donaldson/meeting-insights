@@ -62,6 +62,18 @@ export const meetingsMethods = {
       }
     }),
 
+  createActionItem: (meetingId: string, fields: EditActionItemFields) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/action-items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json() as { error: string };
+        throw new Error(body.error);
+      }
+    }),
+
   completeActionItem: (meetingId: string, itemIndex: number, note: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/action-items/${itemIndex}/complete`, {
       method: "POST",

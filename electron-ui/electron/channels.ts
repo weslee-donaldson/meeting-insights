@@ -10,6 +10,7 @@ export const CHANNELS = {
   REASSIGN_CLIENT: "reassign-client",
   SET_IGNORED: "set-ignored",
   EDIT_ACTION_ITEM: "edit-action-item",
+  CREATE_ACTION_ITEM: "create-action-item",
   COMPLETE_ACTION_ITEM: "complete-action-item",
   CONVERSATION_CHAT: "conversation-chat",
   GET_COMPLETIONS: "get-completions",
@@ -298,6 +299,7 @@ export interface ElectronAPI {
   reassignClient: (meetingId: string, clientName: string) => Promise<void>;
   setIgnored: (meetingId: string, ignored: boolean) => Promise<void>;
   editActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => Promise<void>;
+  createActionItem: (meetingId: string, fields: EditActionItemFields) => Promise<void>;
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;
   uncompleteActionItem: (meetingId: string, itemIndex: number) => Promise<void>;
   getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;
