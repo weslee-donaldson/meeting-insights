@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
-import type { ClientActionItem } from "../../../electron/channels.js";
+import { Pencil } from "lucide-react";
+import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
+import { EditActionItemDialog } from "./EditActionItemDialog.js";
 
 type ActionGroupBy = "priority" | "series" | "owner" | "requester" | "intent";
 
@@ -17,6 +19,7 @@ interface ClientActionItemsViewProps {
   items: ClientActionItem[];
   onPreviewMeeting?: (meetingId: string) => void;
   onComplete?: (meetingId: string, itemIndex: number) => void;
+  onEditActionItem?: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
 }
 
 function groupKey(item: ClientActionItem, mode: ActionGroupBy): string {
@@ -52,7 +55,7 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
   return entries;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onEditActionItem }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState("");
@@ -60,6 +63,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [ownerFilter, setOwnerFilter] = useState("");
   const [requesterFilter, setRequesterFilter] = useState("");
   const [groupBy, setGroupBy] = useState<ActionGroupBy>("priority");
+  const [editDialog, setEditDialog] = useState<{ meetingId: string; itemIndex: number; item: ClientActionItem } | null>(null);
 
   function handleComplete(meetingId: string, itemIndex: number) {
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
@@ -141,7 +145,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
               )}
             </div>
             {group.items.map((item) => (
-              <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} />
+              <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} onEdit={onEditActionItem ? (i) => setEditDialog({ meetingId: i.meeting_id, itemIndex: i.item_index, item: i }) : undefined} />
             ))}
           </div>
         ))}
@@ -179,11 +183,18 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
           </div>
         )}
       </div>
+
+      <EditActionItemDialog
+        open={editDialog !== null}
+        onOpenChange={(open) => { if (!open) setEditDialog(null); }}
+        onSave={(fields) => { if (editDialog) { onEditActionItem?.(editDialog.meetingId, editDialog.itemIndex, fields); setEditDialog(null); } }}
+        item={editDialog ? { description: editDialog.item.description, owner: editDialog.item.owner ?? "", requester: editDialog.item.requester ?? "", due_date: editDialog.item.due_date ?? null, priority: editDialog.item.priority ?? "normal" } : null}
+      />
     </div>
   );
 }
 
-function ActionItemCard({ item, onPreviewMeeting, onComplete, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; completed?: boolean }) {
+function ActionItemCard({ item, onPreviewMeeting, onComplete, onEdit, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; onEdit?: (item: ClientActionItem) => void; completed?: boolean }) {
   return (
     <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm transition-colors hover:bg-secondary/60 active:bg-secondary/80${completed ? " opacity-50" : ""}`}>
       <input
@@ -210,6 +221,15 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, completed = false 
           </button>
           {" · "}{item.owner}{item.requester ? ` · ${item.requester}` : ""}
         </span>
+        {onEdit && !completed && (
+          <button
+            onClick={() => onEdit(item)}
+            aria-label={`Edit item ${item.meeting_id}:${item.item_index}`}
+            className="ml-1 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+          >
+            <Pencil className="w-3 h-3" />
+          </button>
+        )}
       </span>
     </div>
   );

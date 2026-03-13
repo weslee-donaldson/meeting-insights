@@ -19,7 +19,7 @@
 - [x] Burst E5: useMeetingState — add handleEditActionItem callbacks
 - [x] Burst E6: EditActionItemDialog component + test
 - [x] Burst E7: Wire edit icon into MeetingDetail action items + test
-- [ ] Burst E8: Wire edit into ClientActionItemsView + test
+- [x] Burst E8: Wire edit into ClientActionItemsView + test
 - [ ] Burst E9: Update READMEs for changed files
 
 ### Refactor: Break Up Large Files

@@ -3,7 +3,7 @@ import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { ClientActionItemsView } from "../../electron-ui/ui/src/components/ClientActionItemsView.js";
-import type { ClientActionItem } from "../../electron-ui/electron/channels.js";
+import type { ClientActionItem, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 
@@ -299,5 +299,36 @@ describe("ClientActionItemsView — Intent group mode", () => {
     fireEvent.click(screen.getByRole("button", { name: "Intent" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups[0].textContent).toContain("Deploy to production");
+  });
+});
+
+describe("ClientActionItemsView — Edit action item", () => {
+  afterEach(cleanup);
+
+  it("edit icon opens dialog and onSave calls onEditActionItem with meetingId, index, and fields", () => {
+    const onEditActionItem = vi.fn();
+    render(
+      <ClientActionItemsView
+        clientName="Acme"
+        items={ITEMS}
+        onEditActionItem={onEditActionItem}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Edit item m1:0" }));
+    expect(screen.getByText("Edit Action Item")).toBeDefined();
+    fireEvent.change(screen.getByLabelText("Priority"), { target: { value: "normal" } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(onEditActionItem).toHaveBeenCalledWith("m1", 0, {
+      description: "Fix the broken build",
+      owner: "Alice",
+      requester: "Bob",
+      due_date: null,
+      priority: "normal",
+    });
+  });
+
+  it("edit icon is hidden when onEditActionItem is not provided", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    expect(screen.queryByRole("button", { name: "Edit item m1:0" })).toBeNull();
   });
 });
