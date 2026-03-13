@@ -824,4 +824,51 @@ describe("MeetingDetail", () => {
     fireEvent.paste(section, { clipboardData });
     expect(onUploadAsset).toHaveBeenCalledWith(expect.objectContaining({ name: "screenshot.png", type: "image/png" }));
   });
+
+  it("shows rename pencil icon when onRename is provided", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
+    expect(screen.getByLabelText("Rename")).toBeDefined();
+  });
+
+  it("does not show rename pencil icon when onRename is not provided", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    expect(screen.queryByLabelText("Rename")).toBeNull();
+  });
+
+  it("shows input with current title when pencil clicked", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText("Rename"));
+    const input = screen.getByLabelText("Meeting title") as HTMLInputElement;
+    expect(input.value).toBe("Alpha Meeting");
+  });
+
+  it("calls onRename with new title when Save clicked", () => {
+    const onRename = vi.fn();
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    fireEvent.click(screen.getByLabelText("Rename"));
+    const input = screen.getByLabelText("Meeting title") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "New Title" } });
+    fireEvent.click(screen.getByLabelText("Save"));
+    expect(onRename).toHaveBeenCalledWith("New Title");
+  });
+
+  it("calls onRename when Enter pressed in rename input", () => {
+    const onRename = vi.fn();
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    fireEvent.click(screen.getByLabelText("Rename"));
+    const input = screen.getByLabelText("Meeting title");
+    fireEvent.change(input, { target: { value: "Enter Title" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onRename).toHaveBeenCalledWith("Enter Title");
+  });
+
+  it("cancels rename without calling onRename when Cancel clicked", () => {
+    const onRename = vi.fn();
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    fireEvent.click(screen.getByLabelText("Rename"));
+    fireEvent.change(screen.getByLabelText("Meeting title"), { target: { value: "Changed" } });
+    fireEvent.click(screen.getByLabelText("Cancel"));
+    expect(onRename).not.toHaveBeenCalled();
+    expect(screen.getByText("Alpha Meeting")).toBeDefined();
+  });
 });

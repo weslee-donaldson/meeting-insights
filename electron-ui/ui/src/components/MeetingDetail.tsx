@@ -38,6 +38,7 @@ interface MeetingDetailProps {
   assets?: AssetRow[];
   onDeleteAsset?: (assetId: string) => void;
   onUploadAsset?: (file: File) => void;
+  onRename?: (newTitle: string) => void;
 }
 
 interface SectionProps {
@@ -573,9 +574,11 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -637,9 +640,32 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
       <div className="p-4 border-b border-border shrink-0">
         <div className="flex items-start gap-2">
           <div className="flex-1">
-            <div className="font-bold text-base text-foreground leading-[1.3]">
-              {meeting.title}
-            </div>
+            {editingTitle ? (
+              <div className="flex items-center gap-1">
+                <input
+                  aria-label="Meeting title"
+                  className="flex-1 font-bold text-base bg-background border border-border rounded px-2 py-0.5"
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { onRename?.(titleDraft); setEditingTitle(false); }
+                    if (e.key === "Escape") setEditingTitle(false);
+                  }}
+                  autoFocus
+                />
+                <Button size="sm" aria-label="Save" onClick={() => { onRename?.(titleDraft); setEditingTitle(false); }}>Save</Button>
+                <Button size="sm" variant="outline" aria-label="Cancel" onClick={() => setEditingTitle(false)}>Cancel</Button>
+              </div>
+            ) : (
+              <div className="font-bold text-base text-foreground leading-[1.3] flex items-center gap-1">
+                {meeting.title}
+                {onRename && (
+                  <Button size="sm" variant="ghost" className="h-auto px-1 py-0.5" aria-label="Rename" onClick={() => { setTitleDraft(meeting.title); setEditingTitle(true); }}>
+                    <Pencil className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
+            )}
             <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
               <span>{meeting.date.slice(0, 10)}</span>
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
