@@ -539,7 +539,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
         Attachments
       </div>
       {assets.length > 0 && (
-        <ul className="m-0 p-0 list-none flex flex-col gap-1 mb-2">
+        <ul className="m-0 p-0 pl-5 list-none flex flex-col gap-1 mb-2">
           {assets.map((asset) => (
             <li key={asset.id} className="flex items-center gap-2 text-sm text-secondary-foreground">
               <span className="truncate">{asset.filename}</span>
@@ -562,7 +562,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
           {...getRootProps()}
           data-testid="dropzone"
           className={cn(
-            "border border-dashed border-border rounded px-3 py-2 text-center text-xs text-muted-foreground cursor-pointer transition-colors",
+            "ml-5 border border-dashed border-border rounded px-3 py-2 text-center text-xs text-muted-foreground cursor-pointer transition-colors",
             isDragActive && "border-primary bg-primary/5",
           )}
         >
