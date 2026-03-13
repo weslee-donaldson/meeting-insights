@@ -3,7 +3,7 @@ import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useSearch } from "./useSearch.js";
 import { useDeepSearch } from "./useDeepSearch.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-artifacts.js";
-import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest } from "../../../electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
 
 interface DateRange {
@@ -340,6 +340,18 @@ export function useMeetingState(
     }
   }, [selectedMeetingId, queryClient, addToast]);
 
+  const handleEditActionItem = useCallback(async (itemIndex: number, fields: EditActionItemFields) => {
+    if (!selectedMeetingId) return;
+    try {
+      await window.api.editActionItem(selectedMeetingId, itemIndex, fields);
+      queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Action item updated", "success");
+    } catch (err) {
+      addToast(`Edit failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, selectedClient, queryClient, addToast]);
+
   const handleMultiCompleteActionItem = useCallback(async (mergedIndex: number, note: string) => {
     const origin = actionItemOrigins[mergedIndex];
     if (!origin) return;
@@ -374,6 +386,29 @@ export function useMeetingState(
       addToast(`Complete failed: ${(err as Error).message}`, "error");
     }
   }, [selectedClient, queryClient, addToast]);
+
+  const handleEditClientActionItem = useCallback(async (meetingId: string, itemIndex: number, fields: EditActionItemFields) => {
+    try {
+      await window.api.editActionItem(meetingId, itemIndex, fields);
+      queryClient.invalidateQueries({ queryKey: ["artifact", meetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Action item updated", "success");
+    } catch (err) {
+      addToast(`Edit failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
+
+  const handleEditPreviewActionItem = useCallback(async (itemIndex: number, fields: EditActionItemFields) => {
+    if (!previewMeetingId) return;
+    try {
+      await window.api.editActionItem(previewMeetingId, itemIndex, fields);
+      queryClient.invalidateQueries({ queryKey: ["artifact", previewMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Action item updated", "success");
+    } catch (err) {
+      addToast(`Edit failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
 
   const handleCompletePreviewActionItem = useCallback(async (itemIndex: number, note: string) => {
     if (!previewMeetingId) return;
@@ -505,11 +540,14 @@ export function useMeetingState(
     handleReExtract,
     handleNewMeeting,
     handleReassignClient,
+    handleEditActionItem,
     handleCompleteActionItem,
     handleUncompleteActionItem,
     handleMultiCompleteActionItem,
     handleMultiUncompleteActionItem,
+    handleEditClientActionItem,
     handleCompleteClientActionItem,
+    handleEditPreviewActionItem,
     handleCompletePreviewActionItem,
     handleUncompletePreviewActionItem,
     handleIgnore,
