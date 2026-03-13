@@ -306,6 +306,20 @@ export function handleEditActionItem(db: Database, meetingId: string, itemIndex:
   db.prepare("UPDATE artifacts SET action_items = ? WHERE meeting_id = ?").run(JSON.stringify(items), meetingId);
 }
 
+export function handleCreateActionItem(db: Database, meetingId: string, fields: EditActionItemFields): void {
+  const row = getArtifact(db, meetingId);
+  if (!row) throw new Error(`Artifact not found for meeting ${meetingId}`);
+  const items = JSON.parse(row.action_items ?? "[]") as Record<string, unknown>[];
+  items.push({
+    description: fields.description ?? "",
+    owner: fields.owner ?? "",
+    requester: fields.requester ?? "",
+    due_date: fields.due_date ?? null,
+    priority: fields.priority ?? "normal",
+  });
+  db.prepare("UPDATE artifacts SET action_items = ? WHERE meeting_id = ?").run(JSON.stringify(items), meetingId);
+}
+
 export function handleCompleteActionItem(db: Database, meetingId: string, itemIndex: number, note: string): void {
   db.prepare(
     "INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET note = excluded.note, completed_at = excluded.completed_at",

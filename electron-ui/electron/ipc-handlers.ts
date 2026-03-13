@@ -11,6 +11,7 @@ export {
   handleReassignClient,
   handleDeleteMeetings,
   handleEditActionItem,
+  handleCreateActionItem,
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,

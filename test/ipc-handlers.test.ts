@@ -17,6 +17,7 @@ import {
   handleReassignClient,
   handleSetIgnored,
   handleEditActionItem,
+  handleCreateActionItem,
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,
@@ -553,6 +554,39 @@ describe("IPC handlers", () => {
 
     it("throws for missing artifact", () => {
       expect(() => handleEditActionItem(db, "nonexistent", 0, { description: "nope" })).toThrow("Artifact not found");
+    });
+  });
+
+  describe("handleCreateActionItem", () => {
+    let createMeetingId: string;
+
+    beforeAll(() => {
+      createMeetingId = ingestMeeting(db, {
+        title: "Create Test",
+        timestamp: "2026-02-28T11:00:00.000Z",
+        participants: [],
+        rawTranscript: "X | 00:00\nTest.",
+        turns: [],
+        sourceFilename: "create-test-1",
+      });
+      storeArtifact(db, createMeetingId, makeArtifact());
+    });
+
+    it("appends a new action item to existing items", () => {
+      handleCreateActionItem(db, createMeetingId, { description: "Deploy staging", owner: "Eve", requester: "Frank", priority: "critical" });
+      const artifact = handleGetArtifact(db, createMeetingId);
+      expect(artifact!.action_items).toHaveLength(2);
+      expect(artifact!.action_items[1]).toEqual({
+        description: "Deploy staging",
+        owner: "Eve",
+        requester: "Frank",
+        due_date: null,
+        priority: "critical",
+      });
+    });
+
+    it("throws for missing artifact", () => {
+      expect(() => handleCreateActionItem(db, "nonexistent", { description: "nope" })).toThrow("Artifact not found");
     });
   });
 
