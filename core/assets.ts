@@ -1,6 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import { randomUUID } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 
 export interface AssetRow {
@@ -22,6 +22,13 @@ export function storeAsset(db: Database, meetingId: string, filename: string, mi
   const createdAt = new Date().toISOString();
   db.prepare("INSERT INTO assets (id, meeting_id, filename, mime_type, file_size, storage_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").run(id, meetingId, filename, mimeType, data.length, storagePath, createdAt);
   return { id, meeting_id: meetingId, filename, mime_type: mimeType, file_size: data.length, storage_path: storagePath, created_at: createdAt };
+}
+
+export function deleteAsset(db: Database, assetId: string, assetsDir: string): void {
+  const row = db.prepare("SELECT storage_path FROM assets WHERE id = ?").get(assetId) as { storage_path: string } | undefined;
+  if (!row) return;
+  try { unlinkSync(join(assetsDir, row.storage_path)); } catch {}
+  db.prepare("DELETE FROM assets WHERE id = ?").run(assetId);
 }
 
 export function getAssets(db: Database, meetingId: string): AssetRow[] {
