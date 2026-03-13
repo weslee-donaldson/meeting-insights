@@ -69,7 +69,10 @@ export function App() {
   const handleUploadAsset = useCallback(async (file: File) => {
     if (!meeting.selectedMeetingId) return;
     const buf = await file.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+    const bytes = new Uint8Array(buf);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    const base64 = btoa(binary);
     await window.api.uploadAsset(meeting.selectedMeetingId, file.name, file.type, base64);
     queryClient.invalidateQueries({ queryKey: ["assets", meeting.selectedMeetingId] });
   }, [meeting.selectedMeetingId, queryClient]);
