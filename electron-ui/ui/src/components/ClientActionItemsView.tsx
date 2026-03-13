@@ -210,6 +210,15 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
         checked={completed}
         onChange={completed ? () => onUncomplete?.(item.meeting_id, item.item_index) : () => onComplete?.(item.meeting_id, item.item_index)}
       />
+      {onEdit && !completed && (
+        <button
+          onClick={() => onEdit(item)}
+          aria-label={`Edit item ${item.meeting_id}:${item.item_index}`}
+          className="mt-0.5 shrink-0 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+        >
+          <Pencil className="w-3 h-3" />
+        </button>
+      )}
       {item.priority === "critical" && !completed && (
         <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">
           CRITICAL
@@ -227,15 +236,6 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
           </button>
           {" · "}{item.owner}{item.requester ? ` · ${item.requester}` : ""}
         </span>
-        {onEdit && !completed && (
-          <button
-            onClick={() => onEdit(item)}
-            aria-label={`Edit item ${item.meeting_id}:${item.item_index}`}
-            className="ml-1 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
-          >
-            <Pencil className="w-3 h-3" />
-          </button>
-        )}
       </span>
     </div>
   );
