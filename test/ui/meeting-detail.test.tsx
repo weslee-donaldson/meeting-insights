@@ -3,7 +3,7 @@ import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
-import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../electron-ui/electron/channels.js";
+import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
 
@@ -693,5 +693,43 @@ describe("MeetingDetail", () => {
     expect(screen.getByText("API Launch")).toBeDefined();
     fireEvent.click(screen.getByText("API Launch"));
     expect(onMilestoneClick).toHaveBeenCalledWith("ms1");
+  });
+
+  it("edit icon opens EditActionItemDialog and onSave calls onEditActionItem with index and fields", () => {
+    const onEditActionItem = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "Write tests", owner: "Alice", requester: "Bob", due_date: "2026-04-01", priority: "normal" },
+          ],
+        })}
+        onEditActionItem={onEditActionItem}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Edit item 0" }));
+    expect(screen.getByText("Edit Action Item")).toBeDefined();
+    fireEvent.change(screen.getByLabelText("Priority"), { target: { value: "critical" } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(onEditActionItem).toHaveBeenCalledWith(0, {
+      description: "Write tests",
+      owner: "Alice",
+      requester: "Bob",
+      due_date: "2026-04-01",
+      priority: "critical",
+    });
+  });
+
+  it("edit icon is hidden when onEditActionItem is not provided", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }],
+        })}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Edit item 0" })).toBeNull();
   });
 });

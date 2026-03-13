@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff, Pencil } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
@@ -9,6 +9,8 @@ import { ScrollArea } from "./ui/scroll-area.js";
 import { cn } from "../lib/utils.js";
 import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
 import { HighlightText } from "./HighlightText.js";
+import { EditActionItemDialog } from "./EditActionItemDialog.js";
+import type { EditActionItemFields } from "../../../electron/channels.js";
 
 interface MeetingDetailProps {
   meeting: MeetingRow | null;
@@ -30,6 +32,7 @@ interface MeetingDetailProps {
   onThreadClick?: (threadId: string) => void;
   milestoneTags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
   onMilestoneClick?: (milestoneId: string) => void;
+  onEditActionItem?: (index: number, fields: EditActionItemFields) => void;
 }
 
 interface SectionProps {
@@ -108,8 +111,9 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery, onEditActionItem }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string; onEditActionItem?: (index: number, fields: EditActionItemFields) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
+  const [editDialog, setEditDialog] = useState<{ index: number; item: Artifact["action_items"][number] } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
   const [decisionFilter, setDecisionFilter] = useState("");
@@ -386,6 +390,15 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                       )}
                     </span>
                   )}
+                  {onEditActionItem && !isCompleted && (
+                    <button
+                      onClick={() => setEditDialog({ index: i, item: a })}
+                      aria-label={`Edit item ${i}`}
+                      className="ml-1 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                  )}
                 </span>
               </li>
             );
@@ -417,6 +430,13 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           />
         </DialogContent>
       </Dialog>
+
+      <EditActionItemDialog
+        open={editDialog !== null}
+        onOpenChange={(open) => { if (!open) setEditDialog(null); }}
+        onSave={(fields) => { if (editDialog) { onEditActionItem?.(editDialog.index, fields); setEditDialog(null); } }}
+        item={editDialog ? { description: editDialog.item.description, owner: editDialog.item.owner ?? "", requester: editDialog.item.requester ?? "", due_date: editDialog.item.due_date ?? null, priority: editDialog.item.priority ?? "normal" } : null}
+      />
 
       <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={effectiveOpen("Open Questions")} onOpenChange={(o) => setSectionOpen("Open Questions", o)}
         headerExtra={matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
@@ -476,7 +496,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -516,7 +536,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
         </div>
         <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (
-            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} searchQuery={searchQuery} />
+            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />
           ) : artifactLoading ? (
             <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
               {[1, 2, 3].map((i) => (
@@ -661,7 +681,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
 
       <div className="flex-1 overflow-y-auto px-4">
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (
