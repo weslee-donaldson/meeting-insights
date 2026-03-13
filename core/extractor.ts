@@ -18,7 +18,7 @@ export interface Artifact {
   summary: string;
   decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
-  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null; priority: "critical" | "normal" | "low" }>;
+  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null; priority: "critical" | "normal" | "low"; short_id?: string }>;
   open_questions: string[];
   risk_items: Array<{ category: "relationship" | "architecture" | "engineering"; description: string }>;
   additional_notes: Array<Record<string, unknown>>;

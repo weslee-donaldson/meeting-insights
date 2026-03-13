@@ -235,6 +235,15 @@ describe("validateArtifact", () => {
     expect(result.milestones).toEqual([]);
   });
 
+  it("preserves short_id on action_items when present", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      action_items: [{ description: "Do X", owner: "Bob", requester: "", due_date: null, priority: "normal", short_id: "abc123" }],
+    });
+    expect(result.action_items[0]).toEqual({ description: "Do X", owner: "Bob", requester: "", due_date: null, priority: "normal", short_id: "abc123" });
+  });
+
   it("preserves milestones array when present", () => {
     const milestones = [{ title: "Launch v2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "We aim to launch in June" }];
     const result = validateArtifact({ ...VALID_BASE, additional_notes: [], milestones });
