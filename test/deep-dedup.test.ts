@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { buildBatchDedupPrompt } from "../core/deep-dedup.js";
+import { buildBatchDedupPrompt, filterAndCapItems } from "../core/deep-dedup.js";
+import type { BatchDedupItem } from "../core/deep-dedup.js";
 
 describe("buildBatchDedupPrompt", () => {
   const template = "Analyze these items:\n\n{{items}}";
@@ -21,5 +22,51 @@ describe("buildBatchDedupPrompt", () => {
   it("returns template with empty items list when no items provided", () => {
     const result = buildBatchDedupPrompt(template, []);
     expect(result).toBe("Analyze these items:\n\nItems:");
+  });
+});
+
+describe("filterAndCapItems", () => {
+  const makeItem = (priority: "critical" | "normal" | "low", date: string, desc = "task"): BatchDedupItem => ({
+    description: desc,
+    priority,
+    meetingTitle: "Meeting",
+    date,
+  });
+
+  it("excludes low-priority items", () => {
+    const items = [makeItem("critical", "2026-01-10"), makeItem("low", "2026-01-11"), makeItem("normal", "2026-01-12")];
+    const result = filterAndCapItems(items, 50);
+    expect(result).toEqual([
+      { ...items[0], originalIndex: 0 },
+      { ...items[2], originalIndex: 2 },
+    ]);
+  });
+
+  it("caps each priority group to batchSize most recent items", () => {
+    const items = [
+      makeItem("critical", "2026-01-01", "old critical"),
+      makeItem("critical", "2026-01-03", "new critical"),
+      makeItem("critical", "2026-01-02", "mid critical"),
+      makeItem("normal", "2026-01-05", "new normal"),
+      makeItem("normal", "2026-01-04", "old normal"),
+    ];
+    const result = filterAndCapItems(items, 2);
+    expect(result).toEqual([
+      { ...items[1], originalIndex: 1 },
+      { ...items[2], originalIndex: 2 },
+      { ...items[3], originalIndex: 3 },
+      { ...items[4], originalIndex: 4 },
+    ]);
+  });
+
+  it("preserves original indices for mapping back", () => {
+    const items = [makeItem("low", "2026-01-01"), makeItem("normal", "2026-01-02"), makeItem("critical", "2026-01-03")];
+    const result = filterAndCapItems(items, 50);
+    expect(result.map((r) => r.originalIndex)).toEqual([2, 1]);
+  });
+
+  it("returns empty array when all items are low priority", () => {
+    const items = [makeItem("low", "2026-01-01"), makeItem("low", "2026-01-02")];
+    expect(filterAndCapItems(items, 50)).toEqual([]);
   });
 });
