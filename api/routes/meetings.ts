@@ -3,13 +3,13 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import {
   handleGetClients, handleGetMeetings, handleGetArtifact,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
-  handleSetIgnored, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
+  handleSetIgnored, handleEditActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
-import type { CreateMeetingRequest } from "../../electron-ui/electron/channels.js";
+import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
 
 export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
@@ -87,6 +87,18 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const { ignored } = await c.req.json() as { ignored: boolean };
     handleSetIgnored(db, id, ignored);
     return c.body(null, 204);
+  });
+
+  app.put("/api/meetings/:id/action-items/:index", async (c) => {
+    const id = c.req.param("id");
+    const itemIndex = Number(c.req.param("index"));
+    const fields = await c.req.json() as EditActionItemFields;
+    try {
+      handleEditActionItem(db, id, itemIndex, fields);
+      return c.body(null, 204);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 400);
+    }
   });
 
   app.post("/api/meetings/:id/action-items/:index/complete", async (c) => {

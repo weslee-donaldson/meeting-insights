@@ -14,6 +14,7 @@ import {
   handleReExtract,
   handleReassignClient,
   handleSetIgnored,
+  handleEditActionItem,
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,
@@ -131,6 +132,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));
   ipcMain.handle(CHANNELS.SET_IGNORED, (_e, meetingId: string, ignored: boolean) => handleSetIgnored(db, meetingId, ignored));
+  ipcMain.handle(CHANNELS.EDIT_ACTION_ITEM, (_e, meetingId: string, itemIndex: number, fields) => handleEditActionItem(db, meetingId, itemIndex, fields));
   ipcMain.handle(CHANNELS.COMPLETE_ACTION_ITEM, (_e, meetingId: string, itemIndex: number, note: string) => handleCompleteActionItem(db, meetingId, itemIndex, note));
   ipcMain.handle(CHANNELS.GET_COMPLETIONS, (_e, meetingId: string) => handleGetCompletions(db, meetingId));
   ipcMain.handle(CHANNELS.GET_ITEM_HISTORY, (_e, canonicalId: string) => handleGetItemHistory(db, canonicalId));

@@ -9,6 +9,7 @@ export const CHANNELS = {
   RE_EMBED_MEETING: "re-embed-meeting",
   REASSIGN_CLIENT: "reassign-client",
   SET_IGNORED: "set-ignored",
+  EDIT_ACTION_ITEM: "edit-action-item",
   COMPLETE_ACTION_ITEM: "complete-action-item",
   CONVERSATION_CHAT: "conversation-chat",
   GET_COMPLETIONS: "get-completions",
@@ -169,6 +170,14 @@ export interface ClientActionItem {
   total_mentions?: number;
 }
 
+export interface EditActionItemFields {
+  description?: string;
+  owner?: string;
+  requester?: string;
+  due_date?: string | null;
+  priority?: "critical" | "normal" | "low";
+}
+
 export type TranscriptFormat = "krisp" | "webvtt";
 
 export interface CreateMeetingRequest {
@@ -288,6 +297,7 @@ export interface ElectronAPI {
   reEmbedMeeting: (meetingId: string) => Promise<void>;
   reassignClient: (meetingId: string, clientName: string) => Promise<void>;
   setIgnored: (meetingId: string, ignored: boolean) => Promise<void>;
+  editActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => Promise<void>;
   completeActionItem: (meetingId: string, itemIndex: number, note: string) => Promise<void>;
   uncompleteActionItem: (meetingId: string, itemIndex: number) => Promise<void>;
   getCompletions: (meetingId: string) => Promise<ActionItemCompletion[]>;

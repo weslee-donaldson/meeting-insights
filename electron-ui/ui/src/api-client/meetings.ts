@@ -1,4 +1,4 @@
-import type { MeetingFilters, CreateMeetingRequest } from "../../../electron/channels.js";
+import type { MeetingFilters, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import { API_BASE } from "./base.js";
 
 export const meetingsMethods = {
@@ -49,6 +49,18 @@ export const meetingsMethods = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ignored }),
     }).then(() => undefined),
+
+  editActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/action-items/${itemIndex}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json() as { error: string };
+        throw new Error(body.error);
+      }
+    }),
 
   completeActionItem: (meetingId: string, itemIndex: number, note: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/action-items/${itemIndex}/complete`, {
