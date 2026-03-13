@@ -21,6 +21,7 @@ interface ClientActionItemsViewProps {
   onComplete?: (meetingId: string, itemIndex: number) => void;
   onUncomplete?: (meetingId: string, itemIndex: number) => void;
   onEditActionItem?: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
+  onAddActionItem?: (meetingId: string, fields: EditActionItemFields) => void;
 }
 
 function groupKey(item: ClientActionItem, mode: ActionGroupBy): string {
@@ -56,7 +57,7 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
   return entries;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState("");
@@ -65,6 +66,15 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [requesterFilter, setRequesterFilter] = useState("");
   const [groupBy, setGroupBy] = useState<ActionGroupBy>("priority");
   const [editDialog, setEditDialog] = useState<{ meetingId: string; itemIndex: number; item: ClientActionItem } | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  const uniqueMeetings = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const i of items) {
+      if (!seen.has(i.meeting_id)) seen.set(i.meeting_id, i.meeting_title);
+    }
+    return [...seen.entries()].map(([id, title]) => ({ id, title }));
+  }, [items]);
 
   function handleComplete(meetingId: string, itemIndex: number) {
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
@@ -100,9 +110,20 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
 
   return (
     <div data-testid="client-action-items-view" className="flex flex-col h-full overflow-auto">
-      <div className="shrink-0 px-4 py-3 border-b border-border">
-        <h2 className="text-sm font-semibold">{clientName}</h2>
-        <p className="text-xs text-muted-foreground">{items.length} open items</p>
+      <div className="shrink-0 px-4 py-3 border-b border-border flex items-start justify-between">
+        <div>
+          <h2 className="text-sm font-semibold">{clientName}</h2>
+          <p className="text-xs text-muted-foreground">{items.length} open items</p>
+        </div>
+        {onAddActionItem && (
+          <button
+            aria-label="Add action item"
+            className="shrink-0 mt-0.5 px-2 py-1 text-xs border border-border rounded bg-background hover:bg-secondary cursor-pointer"
+            onClick={() => setAddDialogOpen(true)}
+          >
+            + Add
+          </button>
+        )}
       </div>
 
       <div className="shrink-0 px-4 py-2 flex flex-col gap-1.5 border-b border-border">
@@ -196,6 +217,14 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         onOpenChange={(open) => { if (!open) setEditDialog(null); }}
         onSave={(fields) => { if (editDialog) { onEditActionItem?.(editDialog.meetingId, editDialog.itemIndex, fields); setEditDialog(null); } }}
         item={editDialog ? { description: editDialog.item.description, owner: editDialog.item.owner ?? "", requester: editDialog.item.requester ?? "", due_date: editDialog.item.due_date ?? null, priority: editDialog.item.priority ?? "normal" } : null}
+      />
+      <EditActionItemDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onSave={(fields, meetingId) => { if (meetingId) onAddActionItem?.(meetingId, fields); setAddDialogOpen(false); }}
+        item={null}
+        mode="add"
+        meetings={uniqueMeetings}
       />
     </div>
   );

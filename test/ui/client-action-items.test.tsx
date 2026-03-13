@@ -357,3 +357,36 @@ describe("ClientActionItemsView — Uncomplete action item", () => {
     expect(screen.queryByTestId("completed-section")).toBeNull();
   });
 });
+
+describe("ClientActionItemsView — Add action item", () => {
+  afterEach(cleanup);
+
+  it("shows add button when onAddActionItem is provided", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onAddActionItem={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Add action item" })).toBeDefined();
+  });
+
+  it("hides add button when onAddActionItem is not provided", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    expect(screen.queryByRole("button", { name: "Add action item" })).toBeNull();
+  });
+
+  it("clicking add button opens dialog in add mode with meeting dropdown", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onAddActionItem={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Add action item" }));
+    expect(screen.getByText("Add Action Item")).toBeDefined();
+    expect(screen.getByLabelText("Meeting")).toBeDefined();
+  });
+
+  it("saving from add dialog calls onAddActionItem with meetingId and fields", () => {
+    const onAdd = vi.fn();
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} onAddActionItem={onAdd} />);
+    fireEvent.click(screen.getByRole("button", { name: "Add action item" }));
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "New task" } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(onAdd).toHaveBeenCalledWith(
+      "m1",
+      expect.objectContaining({ description: "New task" }),
+    );
+  });
+});
