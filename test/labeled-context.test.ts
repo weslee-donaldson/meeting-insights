@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { buildLabeledContext, buildDistilledContext } from "../core/labeled-context.js";
 import { recordMention } from "../core/item-dedup.js";
 import { createMilestone, addMilestoneMention } from "../core/timelines.js";
@@ -80,7 +80,7 @@ describe("buildLabeledContext", () => {
   it("formats decisions with decided_by and action items with requester", () => {
     const result = buildLabeledContext(db, [id1]);
     expect(result.contextText).toContain("- Use TypeScript (decided by CEO)");
-    expect(result.contextText).toContain("- Write tests (Alice, requested by Bob)");
+    expect(result.contextText).toContain(`[${generateShortId(id1, 0)}] Write tests (Alice, requested by Bob)`);
   });
 
   it("should return empty context for unknown meeting IDs", () => {
@@ -150,6 +150,12 @@ describe("buildLabeledContext", () => {
     expect(result.contextText).toContain("Platform Launch");
     expect(result.contextText).toContain("2026-06-01");
     expect(result.contextText).toContain("identified");
+  });
+
+  it("prefixes action items with [short_id] when short_id is present", () => {
+    const shortId = generateShortId(id1, 0);
+    const result = buildLabeledContext(db, [id1]);
+    expect(result.contextText).toContain(`[${shortId}] Write tests`);
   });
 
   it("formats risk_items by description", () => {

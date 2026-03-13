@@ -77,7 +77,8 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
     lines.push(
       `Action Items:\n${artifact.action_items
         .map((a, i) => {
-          const prefix = a.priority === "critical" ? "[CRITICAL] " : "";
+          const idTag = a.short_id ? `[${a.short_id}] ` : "";
+          const prefix = `${idTag}${a.priority === "critical" ? "[CRITICAL] " : ""}`;
           const meta = [a.owner, a.requester ? `requested by ${a.requester}` : "", a.due_date ? `due ${a.due_date}` : ""].filter(Boolean).join(", ");
           const suffix = annotationSuffix(annotations.get(annotationKey("action_items", i)));
           return meta ? `- ${prefix}${a.description} (${meta})${suffix}` : `- ${prefix}${a.description}${suffix}`;
