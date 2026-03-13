@@ -10,6 +10,7 @@ export {
   handleSetIgnored,
   handleReassignClient,
   handleDeleteMeetings,
+  handleEditActionItem,
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,

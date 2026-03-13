@@ -16,6 +16,7 @@ import {
   handleReExtract,
   handleReassignClient,
   handleSetIgnored,
+  handleEditActionItem,
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,
@@ -502,7 +503,60 @@ describe("IPC handlers", () => {
     });
   });
 
-  describe("handleGetClientActionItems", () => {
+  describe("handleEditActionItem", () => {
+    let editMeetingId: string;
+
+    beforeAll(() => {
+      editMeetingId = ingestMeeting(db, {
+        title: "Edit Test",
+        timestamp: "2026-02-28T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "X | 00:00\nTest.",
+        turns: [],
+        sourceFilename: "edit-test-1",
+      });
+      storeArtifact(db, editMeetingId, makeArtifact());
+    });
+    it("updates description and priority of an action item", () => {
+      handleEditActionItem(db, editMeetingId, 0, { description: "Write updated spec", priority: "critical" });
+      const artifact = handleGetArtifact(db, editMeetingId);
+      expect(artifact!.action_items[0]).toEqual({
+        description: "Write updated spec",
+        owner: "Bob",
+        requester: "Alice",
+        due_date: "2026-03-01",
+        priority: "critical",
+      });
+    });
+
+    it("updates owner and due_date without affecting other fields", () => {
+      handleEditActionItem(db, editMeetingId, 0, { owner: "Charlie", due_date: "2026-04-01" });
+      const artifact = handleGetArtifact(db, editMeetingId);
+      expect(artifact!.action_items[0]).toEqual({
+        description: "Write updated spec",
+        owner: "Charlie",
+        requester: "Alice",
+        due_date: "2026-04-01",
+        priority: "critical",
+      });
+    });
+
+    it("clears due_date when set to null", () => {
+      handleEditActionItem(db, editMeetingId, 0, { due_date: null });
+      const artifact = handleGetArtifact(db, editMeetingId);
+      expect(artifact!.action_items[0].due_date).toBeNull();
+    });
+
+    it("throws for out-of-range index", () => {
+      expect(() => handleEditActionItem(db, editMeetingId, 99, { description: "nope" })).toThrow("out of range");
+    });
+
+    it("throws for missing artifact", () => {
+      expect(() => handleEditActionItem(db, "nonexistent", 0, { description: "nope" })).toThrow("Artifact not found");
+    });
+  });
+
+    describe("handleGetClientActionItems", () => {
     let acmeMeetingId: string;
 
     beforeAll(() => {

@@ -284,6 +284,28 @@ export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, i
   }
 }
 
+export interface EditActionItemFields {
+  description?: string;
+  owner?: string;
+  requester?: string;
+  due_date?: string | null;
+  priority?: "critical" | "normal" | "low";
+}
+
+export function handleEditActionItem(db: Database, meetingId: string, itemIndex: number, fields: EditActionItemFields): void {
+  const row = getArtifact(db, meetingId);
+  if (!row) throw new Error(`Artifact not found for meeting ${meetingId}`);
+  const items = JSON.parse(row.action_items ?? "[]") as Record<string, unknown>[];
+  if (itemIndex < 0 || itemIndex >= items.length) throw new Error(`Item index ${itemIndex} out of range`);
+  const item = items[itemIndex];
+  if (fields.description !== undefined) item.description = fields.description;
+  if (fields.owner !== undefined) item.owner = fields.owner;
+  if (fields.requester !== undefined) item.requester = fields.requester;
+  if (fields.due_date !== undefined) item.due_date = fields.due_date;
+  if (fields.priority !== undefined) item.priority = fields.priority;
+  db.prepare("UPDATE artifacts SET action_items = ? WHERE meeting_id = ?").run(JSON.stringify(items), meetingId);
+}
+
 export function handleCompleteActionItem(db: Database, meetingId: string, itemIndex: number, note: string): void {
   db.prepare(
     "INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET note = excluded.note, completed_at = excluded.completed_at",

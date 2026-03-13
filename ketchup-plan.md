@@ -10,6 +10,18 @@
 - [ ] Burst 624: API routes use client ID params instead of names
 - [ ] Burst 625: UI App.tsx uses client IDs, resolves to names for display
 
+### Feature: Action Item Editing
+
+- [ ] Burst E1: Core handler — handleEditActionItem in handlers/meetings.ts + test
+- [ ] Burst E2: Channel + ElectronAPI type — add EDIT_ACTION_ITEM channel and editActionItem method
+- [ ] Burst E3: API route — PUT /api/meetings/:id/action-items/:index + test
+- [ ] Burst E4: Preload + api-client — wire editActionItem through both transports
+- [ ] Burst E5: useMeetingState — add handleEditActionItem callbacks
+- [ ] Burst E6: EditActionItemDialog component + test
+- [ ] Burst E7: Wire edit icon into MeetingDetail action items + test
+- [ ] Burst E8: Wire edit into ClientActionItemsView + test
+- [ ] Burst E9: Update READMEs for changed files
+
 ### Refactor: Break Up Large Files
 
 - [x] Burst R1: Extract api/main.ts (bootstrap startup), slim api/server.ts to createApp only
