@@ -6,7 +6,7 @@ Detailed operational guide for each utility in krisp-meeting-insights. See the m
 
 ## Processing Pipeline (`pnpm process`)
 
-The processing pipeline ingests raw Krisp transcript exports from `data/raw-transcripts/`, runs each meeting through a five-step sequence (parse, ingest, extract, embed, detect), and writes all results to SQLite and LanceDB. Already-processed meetings are skipped automatically. Each run produces a timestamped JSON log under `logs/`. The pipeline requires an Anthropic API key (or a configured local LLM) because it calls Claude to extract structured summaries from the transcript text.
+The processing pipeline ingests raw Krisp transcript exports from `data/raw-transcripts/`, runs each meeting through a six-step sequence (parse, ingest, extract, embed, detect, dedup), and writes all results to SQLite and LanceDB. Already-processed meetings are skipped automatically. Each run produces a timestamped JSON log under `logs/`. The pipeline requires an Anthropic API key (or a configured local LLM) because it calls Claude to extract structured summaries from the transcript text. An optional deep scan step (`MTNINSIGHTS_DEDUP_DEEP=1`) adds LLM-based intent clustering for action item deduplication after the standard embedding-based dedup.
 
 ### Ingestion pipeline steps
 
@@ -52,6 +52,16 @@ The processing pipeline ingests raw Krisp transcript exports from `data/raw-tran
 │         │                 │  participant domains, aliases,     │
 │         │                 │  meeting name tokens, speaker names│
 │         │                 │  stored in client_detections table │
+│         └────────┬────────┘                                    │
+│                  │                                              │
+│         ┌────────▼────────┐                                    │
+│         │  6. dedup       │  embed items (action_items,        │
+│         │                 │  decisions, risks, etc.) into      │
+│         │                 │  item_vectors (LanceDB)            │
+│         │                 │  match via cosine + Jaro-Winkler   │
+│         │                 │  auto-complete duplicate actions   │
+│         │                 │  optional: LLM intent clustering   │
+│         │                 │  (MTNINSIGHTS_DEDUP_DEEP=1)        │
 │         └─────────────────┘                                    │
 │                                                                 │
 │  On success → data/processed/                                   │
@@ -77,12 +87,13 @@ meetings
 artifacts
   meeting_id       TEXT  PRIMARY KEY   → meetings.id
   summary          TEXT
-  decisions        TEXT                (JSON array of strings)
+  decisions        TEXT                (JSON array of {text, decided_by})
   proposed_features TEXT               (JSON array of strings)
-  action_items     TEXT                (JSON array of {description, owner, due_date})
+  action_items     TEXT                (JSON array of {description, owner, requester, due_date, priority})
+                                       priority: "critical" | "normal" | "low"
   technical_topics TEXT                (JSON array of strings)
   open_questions   TEXT                (JSON array of strings)
-  risk_items       TEXT                (JSON array of strings)
+  risk_items       TEXT                (JSON array of {category, description})
   additional_notes TEXT                (JSON array of note groups, DEFAULT '[]')
   milestones       TEXT                (JSON array of {title, target_date, status_signal, excerpt}, DEFAULT '[]')
   needs_reextraction INTEGER DEFAULT 0
@@ -146,6 +157,21 @@ clusters
 meeting_clusters
   meeting_id       TEXT  → meetings.id
   cluster_id       TEXT  → clusters.cluster_id
+
+item_mentions
+  canonical_id     TEXT                (shared UUID for semantically equivalent items)
+  meeting_id       TEXT  → meetings.id
+  item_type        TEXT                (action_items, decisions, proposed_features, etc.)
+  item_index       INTEGER
+  item_text        TEXT
+  first_mentioned_at TEXT             (ISO date of earliest mention)
+
+action_item_completions
+  id               TEXT  PRIMARY KEY   (meeting_id:item_index)
+  meeting_id       TEXT  → meetings.id
+  item_index       INTEGER
+  completed_at     TEXT
+  note             TEXT                ("[auto-dedup]" or "[auto-dedup-deep]" prefix for automatic)
 ```
 
 **LanceDB** (`db/lancedb/`):
@@ -157,6 +183,22 @@ meeting_vectors
   client           STRING
   meeting_type     STRING              (meeting title)
   date             STRING              (ISO 8601)
+
+feature_vectors
+  id               STRING              (feature UUID)
+  vector           FIXED_SIZE_LIST     (384 float32 values)
+  feature_text     STRING
+  meeting_id       STRING
+  date             STRING
+
+item_vectors
+  canonical_id     STRING              (shared UUID for deduplicated items)
+  vector           FIXED_SIZE_LIST     (384 float32 values)
+  item_text        STRING
+  item_type        STRING              (action_items, decisions, etc.)
+  meeting_id       STRING
+  date             STRING
+  client           STRING              (scopes dedup to client boundary)
 ```
 
 ### Transcript format
@@ -588,6 +630,64 @@ If `clientCount` is 0, the app is opening a fresh database at the wrong path. Fi
 ```
 MTNINSIGHTS_DB_PATH=/absolute/path/to/krisp-meeting-insights/db/mtninsights.db
 ```
+
+---
+
+## Item Deduplication (`pnpm all-items-dedupe`)
+
+The deduplication CLI retroactively identifies duplicate action items, decisions, proposed features, open questions, and risk items across meetings. It operates in two modes: embedding-based (default) and LLM intent clustering (`--deepscan`).
+
+### Embedding-based dedup (default)
+
+Embeds each item using the local ONNX model, searches the `item_vectors` LanceDB table for similar items scoped to the same client, and marks duplicates using cosine similarity and Jaro-Winkler string distance thresholds. Duplicate action items are auto-completed with a `[auto-dedup]` provenance note.
+
+```bash
+pnpm all-items-dedupe run
+pnpm all-items-dedupe run --dry-run         # preview without writing
+pnpm all-items-dedupe run --date=2026-03-01 # filter by date
+pnpm all-items-dedupe run --last-day        # most recent day only
+```
+
+### Deep scan (`--deepscan`)
+
+Adds LLM-based intent clustering on top of embedding dedup. Groups all action items per client into a single LLM call that returns intent groupings — items expressing the same task with different wording are clustered together regardless of surface-level similarity.
+
+```bash
+pnpm all-items-dedupe run --deepscan
+pnpm all-items-dedupe run --deepscan --dry-run   # shows LLM groupings with reasoning
+pnpm all-items-dedupe run --deepscan --last-day
+```
+
+Only `"critical"` and `"normal"` priority action items are sent to the LLM. `"low"` priority items are embedded for standard dedup but excluded from intent clustering to reduce noise. Within each priority group, only the most recent N items (by meeting date) are sent, capped by `MTNINSIGHTS_DEDUP_BATCH_SIZE` (default: 50).
+
+Duplicate action items identified by deep scan are auto-completed with an `[auto-dedup-deep]` provenance note, distinct from the embedding-based `[auto-dedup]` notes.
+
+### Clear dedup state
+
+```bash
+pnpm all-items-dedupe clear                 # remove all dedup completions and item vectors
+```
+
+Deletes all auto-dedup completions (both `[auto-dedup]` and `[auto-dedup-deep]`), item mentions, and item vectors. Does not affect the underlying artifacts or meeting data.
+
+### Action item priority tiers
+
+Action items are classified into three priority levels during extraction:
+
+| Priority | Description |
+|----------|-------------|
+| `critical` | Trigger B (broken/blocked/degraded) or authority-directed tasks |
+| `normal` | Standard committed tasks (Trigger A without authority) |
+| `low` | Informational, aspirational, or nice-to-have tasks mentioned in passing without firm commitment |
+
+### Environment variables
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD` | `0.80` | Cosine similarity floor for embedding dedup |
+| `MTNINSIGHTS_DEDUP_STRING_THRESHOLD` | `0.90` | Jaro-Winkler similarity floor for string dedup |
+| `MTNINSIGHTS_DEDUP_BATCH_SIZE` | `50` | Max items per priority group sent to LLM in deep scan |
+| `MTNINSIGHTS_DEDUP_DEEP` | `0` | Set to `1` to enable deep scan during `pnpm process` pipeline |
 
 ---
 
