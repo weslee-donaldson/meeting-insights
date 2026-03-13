@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff, Pencil } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
+import type { AssetRow } from "../../../../core/assets.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
@@ -33,6 +34,9 @@ interface MeetingDetailProps {
   milestoneTags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
   onMilestoneClick?: (milestoneId: string) => void;
   onEditActionItem?: (index: number, fields: EditActionItemFields) => void;
+  assets?: AssetRow[];
+  onDeleteAsset?: (assetId: string) => void;
+  onUploadAsset?: (file: File) => void;
 }
 
 interface SectionProps {
@@ -508,7 +512,13 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem }: MeetingDetailProps) {
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const isMultiMode = !!(meetings && meetings.length > 1);
@@ -692,6 +702,31 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
       </div>
 
       <div className="flex-1 overflow-y-auto px-4">
+        {assets && assets.length > 0 && (
+          <div className="py-2" data-testid="attachments-section">
+            <div className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-foreground pb-1.5">
+              <Paperclip className="w-3.5 h-3.5" />
+              Attachments
+            </div>
+            <ul className="m-0 p-0 list-none flex flex-col gap-1">
+              {assets.map((asset) => (
+                <li key={asset.id} className="flex items-center gap-2 text-sm text-secondary-foreground">
+                  <span className="truncate">{asset.filename}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{formatFileSize(asset.file_size)}</span>
+                  {onDeleteAsset && (
+                    <button
+                      onClick={() => onDeleteAsset(asset.id)}
+                      aria-label={`Delete ${asset.filename}`}
+                      className="shrink-0 bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {artifact ? (
           <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />
         ) : artifactLoading ? (

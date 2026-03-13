@@ -745,4 +745,38 @@ describe("MeetingDetail", () => {
     expect(screen.getByText("abc123")).toBeDefined();
     expect(screen.getByRole("button", { name: "Copy abc123" })).toBeDefined();
   });
+
+  it("renders attachments section with filenames and trash buttons", () => {
+    const onDeleteAsset = vi.fn();
+    const assets = [
+      { id: "a1", meeting_id: "m1", filename: "diagram.png", mime_type: "image/png", file_size: 1024, storage_path: "m1/a1-diagram.png", created_at: "2026-03-13" },
+      { id: "a2", meeting_id: "m1", filename: "notes.pdf", mime_type: "application/pdf", file_size: 2048000, storage_path: "m1/a2-notes.pdf", created_at: "2026-03-13" },
+    ];
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        assets={assets}
+        onDeleteAsset={onDeleteAsset}
+      />,
+    );
+    expect(screen.getByTestId("attachments-section")).toBeDefined();
+    expect(screen.getByText("diagram.png")).toBeDefined();
+    expect(screen.getByText("notes.pdf")).toBeDefined();
+    expect(screen.getByText("1.0 KB")).toBeDefined();
+    expect(screen.getByText("2.0 MB")).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Delete diagram.png" }));
+    expect(onDeleteAsset).toHaveBeenCalledWith("a1");
+  });
+
+  it("does not render attachments section when assets is empty", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        assets={[]}
+      />,
+    );
+    expect(screen.queryByTestId("attachments-section")).toBeNull();
+  });
 });

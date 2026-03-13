@@ -75,6 +75,7 @@
     "openai": "^6.26.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-dropzone": "^15.0.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.6.5",
     "remark-gfm": "^4.0.1",
