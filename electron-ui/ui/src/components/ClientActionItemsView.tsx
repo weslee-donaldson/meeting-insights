@@ -247,9 +247,9 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
         <button
           onClick={() => onEdit(item)}
           aria-label={`Edit item ${item.meeting_id}:${item.item_index}`}
-          className="mt-0.5 shrink-0 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+          className="mt-0.5 shrink-0 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-foreground hover:text-foreground"
         >
-          <Pencil className="w-3 h-3" />
+          <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
       )}
       {item.priority === "critical" && !completed && (
