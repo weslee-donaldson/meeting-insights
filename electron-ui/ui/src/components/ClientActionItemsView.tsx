@@ -19,6 +19,7 @@ interface ClientActionItemsViewProps {
   items: ClientActionItem[];
   onPreviewMeeting?: (meetingId: string) => void;
   onComplete?: (meetingId: string, itemIndex: number) => void;
+  onUncomplete?: (meetingId: string, itemIndex: number) => void;
   onEditActionItem?: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
 }
 
@@ -55,7 +56,7 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
   return entries;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onEditActionItem }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState("");
@@ -69,6 +70,11 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
     const item = items.find((i) => i.meeting_id === meetingId && i.item_index === itemIndex);
     if (item) setCompletedItems((prev) => [...prev, item]);
     onComplete?.(meetingId, itemIndex);
+  }
+
+  function handleUncomplete(meetingId: string, itemIndex: number) {
+    setCompletedItems((prev) => prev.filter((i) => !(i.meeting_id === meetingId && i.item_index === itemIndex)));
+    onUncomplete?.(meetingId, itemIndex);
   }
 
   if (!clientName) {
@@ -175,6 +181,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
                     key={`done:${item.meeting_id}:${item.item_index}`}
                     item={item}
                     onPreviewMeeting={onPreviewMeeting}
+                    onUncomplete={handleUncomplete}
                     completed
                   />
                 ))}
@@ -194,15 +201,14 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   );
 }
 
-function ActionItemCard({ item, onPreviewMeeting, onComplete, onEdit, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; onEdit?: (item: ClientActionItem) => void; completed?: boolean }) {
+function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEdit, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; onUncomplete?: (meetingId: string, itemIndex: number) => void; onEdit?: (item: ClientActionItem) => void; completed?: boolean }) {
   return (
     <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm transition-colors hover:bg-secondary/60 active:bg-secondary/80${completed ? " opacity-50" : ""}`}>
       <input
         type="checkbox"
         className="mt-0.5 shrink-0 cursor-pointer"
         checked={completed}
-        readOnly={completed}
-        onChange={completed ? undefined : () => onComplete?.(item.meeting_id, item.item_index)}
+        onChange={completed ? () => onUncomplete?.(item.meeting_id, item.item_index) : () => onComplete?.(item.meeting_id, item.item_index)}
       />
       {item.priority === "critical" && !completed && (
         <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">

@@ -332,3 +332,28 @@ describe("ClientActionItemsView — Edit action item", () => {
     expect(screen.queryByRole("button", { name: "Edit item m1:0" })).toBeNull();
   });
 });
+
+describe("ClientActionItemsView — Uncomplete action item", () => {
+  afterEach(cleanup);
+
+  it("unchecking a completed item calls onUncomplete and moves it back to active list", () => {
+    const onComplete = vi.fn();
+    const onUncomplete = vi.fn();
+    render(
+      <ClientActionItemsView
+        clientName="Acme"
+        items={ITEMS}
+        onComplete={onComplete}
+        onUncomplete={onUncomplete}
+      />,
+    );
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    expect(onComplete).toHaveBeenCalledWith("m1", 0);
+    fireEvent.click(screen.getByRole("button", { name: /Completed/i }));
+    const completedList = screen.getByTestId("completed-items-list");
+    const completedCheckbox = completedList.querySelector("input[type='checkbox']") as HTMLInputElement;
+    fireEvent.click(completedCheckbox);
+    expect(onUncomplete).toHaveBeenCalledWith("m1", 0);
+    expect(screen.queryByTestId("completed-section")).toBeNull();
+  });
+});
