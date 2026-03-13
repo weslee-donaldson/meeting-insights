@@ -135,6 +135,13 @@ export const meetingsMethods = {
       body: JSON.stringify({ filename, mimeType, base64 }),
     }).then((r) => r.json()),
 
+  renameMeeting: (meetingId: string, newTitle: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/title`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: newTitle }),
+    }).then(() => undefined),
+
   getMeetingAssets: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/assets`).then((r) => r.json()),
 

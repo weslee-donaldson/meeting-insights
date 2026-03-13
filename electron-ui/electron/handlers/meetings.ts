@@ -7,7 +7,7 @@ import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
 import { getClientByName, buildClientContext } from "../../../core/client-registry.js";
 import type { Participant } from "../../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
-import { ingestMeeting, getMeeting } from "../../../core/ingest.js";
+import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
 import { storeDetection } from "../../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
 import type { LlmAdapter } from "../../../core/llm-adapter.js";
@@ -458,4 +458,7 @@ export function handleGetAssetData(db: Database, assetId: string, assetsDir: str
   const result = getAssetData(db, assetId, assetsDir);
   if (!result) return null;
   return { data: result.data.toString("base64"), filename: result.filename, mimeType: result.mimeType };
+}
+export function handleRenameMeeting(db: Database, meetingId: string, newTitle: string): void {
+  renameMeeting(db, meetingId, newTitle);
 }

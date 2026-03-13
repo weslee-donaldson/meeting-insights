@@ -66,6 +66,7 @@ export const CHANNELS = {
   GET_MEETING_ASSETS: "get-meeting-assets",
   DELETE_ASSET: "delete-asset",
   GET_ASSET_DATA: "get-asset-data",
+  RENAME_MEETING: "rename-meeting",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -359,4 +360,5 @@ export interface ElectronAPI {
   getMeetingAssets: (meetingId: string) => Promise<import("../../core/assets.js").AssetRow[]>;
   deleteAsset: (assetId: string) => Promise<void>;
   getAssetData: (assetId: string) => Promise<{ data: string; filename: string; mimeType: string } | null>;
+  renameMeeting: (meetingId: string, newTitle: string) => Promise<void>;
 }

@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest, MilestoneChatResponse } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 63 unique non-empty channel strings", () => {
+  it("should have 68 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(63);
-    expect(new Set(values).size).toBe(63);
+    expect(values).toHaveLength(68);
+    expect(new Set(values).size).toBe(68);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -291,6 +291,10 @@ describe("CHANNELS", () => {
     const req: MilestoneChatRequest = { milestoneId: "ms1", message: "Status?", includeTranscripts: false };
     expect(req.milestoneId).toBe("ms1");
     expect(req.message).toBe("Status?");
+  });
+
+  it("should define RENAME_MEETING channel", () => {
+    expect(CHANNELS.RENAME_MEETING).toBe("rename-meeting");
   });
 
   it("MilestoneChatResponse has correct shape", () => {

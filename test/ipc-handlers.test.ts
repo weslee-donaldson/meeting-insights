@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting, getMeeting } from "../core/ingest.js";
 import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
@@ -44,6 +44,7 @@ import {
   handleGetDateSlippage,
   handleGetMilestoneMessages,
   handleClearMilestoneMessages,
+  handleRenameMeeting,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -987,6 +988,22 @@ describe("IPC handlers", () => {
       const msgs = handleGetMilestoneMessages(db, ms.id);
       expect(msgs).toHaveLength(0);
       db.prepare("DELETE FROM milestones WHERE id = ?").run(ms.id);
+    });
+  });
+
+  describe("rename meeting", () => {
+    it("updates the meeting title via handler", () => {
+      const id = ingestMeeting(db, {
+        title: "Original Title",
+        timestamp: "2026-02-28T10:00:00.000Z",
+        participants: [],
+        rawTranscript: "Hello.",
+        turns: [],
+        sourceFilename: "rename-test-handler",
+      });
+      handleRenameMeeting(db, id, "Renamed Meeting");
+      const row = getMeeting(db, id);
+      expect(row.title).toBe("Renamed Meeting");
     });
   });
 

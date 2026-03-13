@@ -43,6 +43,7 @@ import {
   handleGetMeetingAssets,
   handleDeleteAsset,
   handleGetAssetData,
+  handleRenameMeeting,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { populateFts } from "../../../core/fts.js";
@@ -165,6 +166,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_MEETING_ASSETS, (_e, meetingId: string) => handleGetMeetingAssets(db, meetingId));
   ipcMain.handle(CHANNELS.DELETE_ASSET, (_e, assetId: string) => handleDeleteAsset(db, assetId, ASSETS_DIR));
   ipcMain.handle(CHANNELS.GET_ASSET_DATA, (_e, assetId: string) => handleGetAssetData(db, assetId, ASSETS_DIR));
+  ipcMain.handle(CHANNELS.RENAME_MEETING, (_e, meetingId: string, newTitle: string) => handleRenameMeeting(db, meetingId, newTitle));
 
   createWindow();
 

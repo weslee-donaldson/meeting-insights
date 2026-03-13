@@ -7,6 +7,7 @@ import {
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
   handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
+  handleRenameMeeting,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
@@ -153,6 +154,13 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
 
   app.get("/api/templates", (c) => {
     return c.json(handleGetTemplates());
+  });
+
+  app.patch("/api/meetings/:id/title", async (c) => {
+    const id = c.req.param("id");
+    const { title } = await c.req.json() as { title: string };
+    handleRenameMeeting(db, id, title);
+    return c.body(null, 204);
   });
 
   if (assetsDir) {
