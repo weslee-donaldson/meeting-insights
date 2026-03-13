@@ -59,7 +59,8 @@ if (isMain) {
     console.warn("[api] Search unavailable:", (err as Error).message);
   }
 
-  const app = createApp(db, DB_PATH, llm, searchDeps);
+  const ASSETS_DIR = join(APP_ROOT, "data/assets");
+  const app = createApp(db, DB_PATH, llm, searchDeps, ASSETS_DIR);
   serve({ fetch: app.fetch, port: PORT });
   console.log(`[api] Listening on http://localhost:${PORT}`);
 }

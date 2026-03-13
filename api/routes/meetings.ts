@@ -6,13 +6,14 @@ import {
   handleSetIgnored, handleEditActionItem, handleCreateActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
+  handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
 
-export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
+export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): void {
   app.get("/api/clients", (c) => {
     return c.json(handleGetClients(db));
   });
@@ -153,4 +154,31 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
   app.get("/api/templates", (c) => {
     return c.json(handleGetTemplates());
   });
+
+  if (assetsDir) {
+    app.get("/api/meetings/:id/assets", (c) => {
+      const id = c.req.param("id");
+      return c.json(handleGetMeetingAssets(db, id));
+    });
+
+    app.post("/api/meetings/:id/assets", async (c) => {
+      const id = c.req.param("id");
+      const { filename, mimeType, base64 } = await c.req.json() as { filename: string; mimeType: string; base64: string };
+      const row = handleUploadAsset(db, id, filename, mimeType, base64, assetsDir!);
+      return c.json(row, 201);
+    });
+
+    app.delete("/api/assets/:id", (c) => {
+      const assetId = c.req.param("id");
+      handleDeleteAsset(db, assetId, assetsDir!);
+      return c.body(null, 204);
+    });
+
+    app.get("/api/assets/:id/data", (c) => {
+      const assetId = c.req.param("id");
+      const result = handleGetAssetData(db, assetId, assetsDir!);
+      if (!result) return c.json({ error: "Not found" }, 404);
+      return c.json(result);
+    });
+  }
 }

@@ -16,7 +16,7 @@ export interface SearchDeps {
   session: InferenceSession & { _tokenizer: unknown };
 }
 
-export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps): Hono {
+export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): Hono {
   const app = new Hono();
   app.use(cors());
   app.use(async (c, next) => {
@@ -27,7 +27,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   });
 
   registerDebugRoutes(app, db, dbPath, searchDeps);
-  registerMeetingRoutes(app, db, llm, searchDeps);
+  registerMeetingRoutes(app, db, llm, searchDeps, assetsDir);
   registerSearchRoutes(app, db, llm, searchDeps);
   registerThreadRoutes(app, db, llm, searchDeps);
   registerInsightRoutes(app, db, llm, searchDeps);

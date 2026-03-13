@@ -127,4 +127,22 @@ export const meetingsMethods = {
 
   getMeetingMilestones: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/milestones`).then((r) => r.json()),
+
+  uploadAsset: (meetingId: string, filename: string, mimeType: string, base64: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/assets`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename, mimeType, base64 }),
+    }).then((r) => r.json()),
+
+  getMeetingAssets: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/assets`).then((r) => r.json()),
+
+  deleteAsset: (assetId: string) =>
+    fetch(`${API_BASE}/api/assets/${assetId}`, { method: "DELETE" }).then(() => undefined),
+
+  getAssetData: (assetId: string) =>
+    fetch(`${API_BASE}/api/assets/${assetId}/data`).then((r) =>
+      r.status === 404 ? null : r.json(),
+    ),
 };
