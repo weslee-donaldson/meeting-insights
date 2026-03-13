@@ -87,8 +87,8 @@ describe("EditActionItemDialog", () => {
 });
 
 const MEETINGS = [
-  { id: "m1", title: "Weekly Sync" },
-  { id: "m2", title: "Planning" },
+  { id: "m1", title: "Weekly Sync", date: "2026-03-10" },
+  { id: "m2", title: "Planning", date: "2026-03-11" },
 ];
 
 describe("EditActionItemDialog — Add mode", () => {
@@ -106,7 +106,13 @@ describe("EditActionItemDialog — Add mode", () => {
     expect(screen.getByText("Add Action Item")).toBeDefined();
   });
 
-  it("shows meeting dropdown in add mode with provided meetings", () => {
+  it("shows meeting dropdown grouped by series with dates, sorted alpha then date desc", () => {
+    const meetings = [
+      { id: "m1", title: "AppDev DSU", date: "2026-03-05" },
+      { id: "m2", title: "AppDev DSU", date: "2026-03-10" },
+      { id: "m3", title: "AppDev DSU", date: "2026-03-08" },
+      { id: "m4", title: "Planning", date: "2026-03-11" },
+    ];
     render(
       <EditActionItemDialog
         open={true}
@@ -114,12 +120,16 @@ describe("EditActionItemDialog — Add mode", () => {
         onSave={() => {}}
         item={null}
         mode="add"
-        meetings={MEETINGS}
+        meetings={meetings}
       />,
     );
     const select = screen.getByLabelText("Meeting") as HTMLSelectElement;
-    const options = Array.from(select.querySelectorAll("option")).map((o) => o.textContent);
-    expect(options).toEqual(["Weekly Sync", "Planning"]);
+    const groups = Array.from(select.querySelectorAll("optgroup"));
+    expect(groups.map((g) => g.label)).toEqual(["AppDev DSU", "Planning"]);
+    const appdevOptions = Array.from(groups[0].querySelectorAll("option")).map((o) => o.textContent);
+    expect(appdevOptions).toEqual(["Tue, Mar 10, 2026", "Sun, Mar 8, 2026", "Thu, Mar 5, 2026"]);
+    const planningOptions = Array.from(groups[1].querySelectorAll("option")).map((o) => o.textContent);
+    expect(planningOptions).toEqual(["Wed, Mar 11, 2026"]);
   });
 
   it("calls onSave with selected meetingId in add mode", () => {

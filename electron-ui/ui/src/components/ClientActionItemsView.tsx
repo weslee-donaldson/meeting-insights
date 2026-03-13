@@ -69,11 +69,11 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const uniqueMeetings = useMemo(() => {
-    const seen = new Map<string, string>();
+    const seen = new Map<string, { title: string; date: string }>();
     for (const i of items) {
-      if (!seen.has(i.meeting_id)) seen.set(i.meeting_id, i.meeting_title);
+      if (!seen.has(i.meeting_id)) seen.set(i.meeting_id, { title: i.meeting_title, date: i.meeting_date });
     }
-    return [...seen.entries()].map(([id, title]) => ({ id, title }));
+    return [...seen.entries()].map(([id, { title, date }]) => ({ id, title, date }));
   }, [items]);
 
   function handleComplete(meetingId: string, itemIndex: number) {

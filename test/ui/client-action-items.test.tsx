@@ -385,7 +385,7 @@ describe("ClientActionItemsView — Add action item", () => {
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "New task" } });
     fireEvent.click(screen.getByText("Save"));
     expect(onAdd).toHaveBeenCalledWith(
-      "m1",
+      "m2",
       expect.objectContaining({ description: "New task" }),
     );
   });

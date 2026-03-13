@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 import type { EditActionItemFields } from "../../../electron/channels.js";
@@ -17,7 +17,7 @@ interface EditActionItemDialogProps {
   onSave: (fields: EditActionItemFields, meetingId?: string) => void;
   item: ActionItemData | null;
   mode?: "edit" | "add";
-  meetings?: Array<{ id: string; title: string }>;
+  meetings?: Array<{ id: string; title: string; date: string }>;
   owners?: string[];
   requesters?: string[];
 }
@@ -44,9 +44,25 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = 
       setRequester("");
       setDueDate("");
       setPriority("normal");
-      setSelectedMeetingId(meetings?.[0]?.id ?? "");
+      setSelectedMeetingId(meetingGroups[0]?.items[0]?.id ?? "");
     }
   }, [open, item, mode, meetings]);
+
+  const meetingGroups = useMemo(() => {
+    if (!meetings) return [];
+    const map = new Map<string, Array<{ id: string; date: string }>>();
+    for (const m of meetings) {
+      const arr = map.get(m.title);
+      if (arr) arr.push({ id: m.id, date: m.date });
+      else map.set(m.title, [{ id: m.id, date: m.date }]);
+    }
+    return [...map.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([title, items]) => ({
+        title,
+        items: items.sort((a, b) => b.date.localeCompare(a.date)),
+      }));
+  }, [meetings]);
 
   const canSave = description.trim().length > 0;
 
@@ -80,7 +96,15 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = 
                 value={selectedMeetingId}
                 onChange={(e) => setSelectedMeetingId(e.target.value)}
               >
-                {meetings.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
+                {meetingGroups.map((g) => (
+                  <optgroup key={g.title} label={g.title}>
+                    {g.items.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {new Date(m.date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" })}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
             </label>
           )}
