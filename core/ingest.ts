@@ -38,3 +38,7 @@ export function ingestMeeting(db: Database, meeting: ParsedMeeting): string {
 export function getMeeting(db: Database, meetingId: string): MeetingRow {
   return db.prepare("SELECT * FROM meetings WHERE id = ?").get(meetingId) as MeetingRow;
 }
+
+export function renameMeeting(db: Database, meetingId: string, newTitle: string): void {
+  db.prepare("UPDATE meetings SET title = ? WHERE id = ?").run(newTitle, meetingId);
+}

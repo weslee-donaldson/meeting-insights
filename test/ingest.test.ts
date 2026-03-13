@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting, getMeeting } from "../core/ingest.js";
+import { ingestMeeting, getMeeting, renameMeeting } from "../core/ingest.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
@@ -54,5 +54,15 @@ describe("getMeeting", () => {
     expect(row.id).toBe(id);
     expect(row.title).toBe("Revenium, INT, DSU");
     expect(row.source_filename).toBe("unique-4");
+  });
+});
+
+describe("renameMeeting", () => {
+  it("updates the title of an existing meeting", () => {
+    const id = ingestMeeting(db, { ...parsed, sourceFilename: "unique-rename" });
+    renameMeeting(db, id, "New Title");
+    const row = getMeeting(db, id);
+    expect(row.id).toBe(id);
+    expect(row.title).toBe("New Title");
   });
 });
