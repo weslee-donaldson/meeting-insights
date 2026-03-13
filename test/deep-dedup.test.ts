@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildBatchDedupPrompt, filterAndCapItems } from "../core/deep-dedup.js";
+import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse } from "../core/deep-dedup.js";
 import type { BatchDedupItem } from "../core/deep-dedup.js";
 
 describe("buildBatchDedupPrompt", () => {
@@ -68,5 +68,35 @@ describe("filterAndCapItems", () => {
   it("returns empty array when all items are low priority", () => {
     const items = [makeItem("low", "2026-01-01"), makeItem("low", "2026-01-02")];
     expect(filterAndCapItems(items, 50)).toEqual([]);
+  });
+});
+
+describe("parseBatchDedupResponse", () => {
+  it("extracts valid groups from LLM response", () => {
+    const response = { groups: [[0, 1], [2, 3]], reasoning: {} };
+    expect(parseBatchDedupResponse(response, 5)).toEqual([[0, 1], [2, 3]]);
+  });
+
+  it("returns empty array when groups is missing", () => {
+    expect(parseBatchDedupResponse({ reasoning: {} }, 5)).toEqual([]);
+  });
+
+  it("filters out-of-bounds indices", () => {
+    const response = { groups: [[0, 5, 1]], reasoning: {} };
+    expect(parseBatchDedupResponse(response, 3)).toEqual([[0, 1]]);
+  });
+
+  it("drops groups with fewer than 2 valid indices", () => {
+    const response = { groups: [[0], [1, 2]], reasoning: {} };
+    expect(parseBatchDedupResponse(response, 3)).toEqual([[1, 2]]);
+  });
+
+  it("removes duplicate indices across groups", () => {
+    const response = { groups: [[0, 1], [1, 2]], reasoning: {} };
+    expect(parseBatchDedupResponse(response, 3)).toEqual([[0, 1]]);
+  });
+
+  it("handles empty groups array", () => {
+    expect(parseBatchDedupResponse({ groups: [] }, 5)).toEqual([]);
   });
 });

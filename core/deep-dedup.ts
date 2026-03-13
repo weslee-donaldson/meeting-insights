@@ -26,3 +26,22 @@ export function buildBatchDedupPrompt(template: string, items: BatchDedupItem[])
   const itemsBlock = lines.length > 0 ? `Items:\n${lines.join("\n")}` : "Items:";
   return template.replace("{{items}}", itemsBlock);
 }
+
+export function parseBatchDedupResponse(response: Record<string, unknown>, itemCount: number): number[][] {
+  const rawGroups = response.groups;
+  if (!Array.isArray(rawGroups)) return [];
+  const seen = new Set<number>();
+  const groups: number[][] = [];
+  for (const group of rawGroups) {
+    if (!Array.isArray(group)) continue;
+    const validIndices: number[] = [];
+    for (const idx of group) {
+      if (typeof idx !== "number" || idx < 0 || idx >= itemCount || !Number.isInteger(idx)) continue;
+      if (seen.has(idx)) continue;
+      seen.add(idx);
+      validIndices.push(idx);
+    }
+    if (validIndices.length >= 2) groups.push(validIndices);
+  }
+  return groups;
+}
