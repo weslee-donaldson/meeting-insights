@@ -22,7 +22,7 @@ Fields:
     - owner (string): who is responsible (use name from transcript, or "" if unclear)
     - requester (string): who requested or assigned this action (use name from transcript, or "" if unclear)
     - due_date (string | null): deadline if mentioned, otherwise null
-    - priority ("critical" | "normal"): "critical" if directed by someone with domain authority over the task (Trigger A with authority) OR if describing a broken/blocked/degraded situation (Trigger B); "normal" otherwise
+    - priority ("critical" | "normal" | "low"): "critical" if directed by someone with domain authority over the task (Trigger A with authority) OR if describing a broken/blocked/degraded situation (Trigger B); "normal" for standard committed tasks (Trigger A without authority); "low" for informational, aspirational, or nice-to-have tasks mentioned in passing without firm commitment, no explicit owner assignment, or no deadline pressure
 
 - open_questions (string[]): Questions raised but not resolved during the meeting
 - risk_items (array of objects): Systemic, unresolved conditions that threaten delivery, team alignment, or the client relationship. Apply strict criteria — a risk requires ALL of:

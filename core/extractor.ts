@@ -13,7 +13,7 @@ export interface Artifact {
   summary: string;
   decisions: Array<{ text: string; decided_by: string }>;
   proposed_features: string[];
-  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null; priority: "critical" | "normal" }>;
+  action_items: Array<{ description: string; owner: string; requester: string; due_date: string | null; priority: "critical" | "normal" | "low" }>;
   open_questions: string[];
   risk_items: Array<{ category: "relationship" | "architecture" | "engineering"; description: string }>;
   additional_notes: Array<Record<string, unknown>>;
@@ -57,7 +57,7 @@ export function validateArtifact(raw: object): Artifact {
       const obj = item as Record<string, unknown>;
       const withRequester = !("requester" in obj) ? { ...obj, requester: "" } : obj;
       const p = (withRequester as Record<string, unknown>).priority;
-      const priority = p === "critical" || p === "normal" ? p : "normal";
+      const priority = p === "critical" || p === "normal" || p === "low" ? p : "normal";
       return { ...withRequester, priority };
     });
   }

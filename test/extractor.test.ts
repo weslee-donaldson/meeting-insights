@@ -180,6 +180,15 @@ describe("validateArtifact", () => {
     expect(result.action_items[0]).toEqual({ description: "Fix bug", owner: "Carol", requester: "Dave", due_date: null, priority: "critical" });
   });
 
+  it("preserves low priority on action_items", () => {
+    const result = validateArtifact({
+      ...VALID_BASE,
+      additional_notes: [],
+      action_items: [{ description: "Nice to have", owner: "", requester: "", due_date: null, priority: "low" }],
+    });
+    expect(result.action_items[0]).toEqual({ description: "Nice to have", owner: "", requester: "", due_date: null, priority: "low" });
+  });
+
   it("normalizes legacy string risk_items to { category: 'engineering', description }", () => {
     const result = validateArtifact({
       ...VALID_BASE,
