@@ -45,3 +45,35 @@ export function parseBatchDedupResponse(response: Record<string, unknown>, itemC
   }
   return groups;
 }
+
+import { randomUUID } from "node:crypto";
+
+export interface CanonicalAssignment {
+  canonicalId: string;
+  firstMentionedAt: string;
+}
+
+export function assignCanonicalGroups(
+  groups: number[][],
+  items: BatchDedupItem[],
+): Map<number, CanonicalAssignment> {
+  const assignments = new Map<number, CanonicalAssignment>();
+  const grouped = new Set<number>();
+  for (const group of groups) {
+    const canonicalId = randomUUID();
+    const earliestDate = group.reduce((min, idx) => {
+      const d = items[idx].date;
+      return d < min ? d : min;
+    }, items[group[0]].date);
+    for (const idx of group) {
+      grouped.add(idx);
+      assignments.set(idx, { canonicalId, firstMentionedAt: earliestDate });
+    }
+  }
+  for (let i = 0; i < items.length; i++) {
+    if (!grouped.has(i)) {
+      assignments.set(i, { canonicalId: randomUUID(), firstMentionedAt: items[i].date });
+    }
+  }
+  return assignments;
+}

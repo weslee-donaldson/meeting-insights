@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse } from "../core/deep-dedup.js";
+import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse, assignCanonicalGroups } from "../core/deep-dedup.js";
 import type { BatchDedupItem } from "../core/deep-dedup.js";
 
 describe("buildBatchDedupPrompt", () => {
@@ -98,5 +98,40 @@ describe("parseBatchDedupResponse", () => {
 
   it("handles empty groups array", () => {
     expect(parseBatchDedupResponse({ groups: [] }, 5)).toEqual([]);
+  });
+});
+
+describe("assignCanonicalGroups", () => {
+  const makeItem = (date: string, desc = "task"): BatchDedupItem => ({
+    description: desc,
+    priority: "normal",
+    meetingTitle: "Meeting",
+    date,
+  });
+
+  it("assigns same canonical_id to grouped items with earliest date", () => {
+    const items = [makeItem("2026-01-10", "A"), makeItem("2026-01-05", "B"), makeItem("2026-01-15", "C")];
+    const result = assignCanonicalGroups([[0, 1]], items);
+    const a0 = result.get(0)!;
+    const a1 = result.get(1)!;
+    const a2 = result.get(2)!;
+    expect(a0.canonicalId).toBe(a1.canonicalId);
+    expect(a0.firstMentionedAt).toBe("2026-01-05");
+    expect(a1.firstMentionedAt).toBe("2026-01-05");
+    expect(a2.canonicalId).not.toBe(a0.canonicalId);
+    expect(a2.firstMentionedAt).toBe("2026-01-15");
+  });
+
+  it("assigns unique canonical_ids to singletons", () => {
+    const items = [makeItem("2026-01-10"), makeItem("2026-01-11"), makeItem("2026-01-12")];
+    const result = assignCanonicalGroups([], items);
+    const ids = [result.get(0)!.canonicalId, result.get(1)!.canonicalId, result.get(2)!.canonicalId];
+    expect(new Set(ids).size).toBe(3);
+  });
+
+  it("covers all items in assignments", () => {
+    const items = [makeItem("2026-01-10"), makeItem("2026-01-11")];
+    const result = assignCanonicalGroups([[0, 1]], items);
+    expect(result.size).toBe(2);
   });
 });
