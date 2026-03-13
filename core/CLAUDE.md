@@ -40,13 +40,6 @@
 | #1615 | " | 🔵 | Reviewed local LLM provider logging for Ollama integration | ~311 |
 | #1614 | " | 🟣 | Added comprehensive structured logging to local LLM provider | ~357 |
 | #1613 | " | 🔵 | Reviewed minimal logger implementation using debug package | ~296 |
-| #1612 | " | 🟣 | Enhanced OpenAI provider with detailed LLM call logging | ~368 |
-| #1610 | " | 🟣 | Added structured LLM call logging to Anthropic provider | ~321 |
-| #1609 | " | 🔵 | Reviewed stub LLM provider logging implementation | ~291 |
-| #1608 | " | 🔵 | Anthropic provider logs successful calls but not errors | ~334 |
-| #1607 | " | 🟣 | Added structured logging infrastructure with LLM and API call tracking | ~416 |
-| #1605 | 7:45 AM | 🔵 | Comprehensive research of logging and LLM infrastructure architecture | ~488 |
-| #1602 | " | 🔵 | Reviewed local LLM provider (Ollama) implementation and logging | ~341 |
 
 ### Mar 11, 2026
 
@@ -58,6 +51,13 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2319 | 8:41 PM | 🔴 | Claudecli Provider Removes CLAUDECODE Environment Variable from Subprocess | ~378 |
+| #2316 | 8:39 PM | ✅ | Added Debug Logging to Claude CLI Subprocess Execution | ~284 |
+| #2315 | " | 🔴 | Claude CLI Subprocess Blocks on CLAUDECODE Environment Variable | ~331 |
+| #2304 | 8:28 PM | 🔵 | LLM Call Logging Infrastructure with Debug Mode | ~459 |
+| #2298 | 8:26 PM | 🔵 | LLM Adapter Interface and Multi-Provider Factory | ~396 |
+| #2297 | 8:25 PM | 🔵 | Claude CLI LLM Provider Implementation | ~412 |
+| #2271 | 7:13 PM | 🟣 | Claude CLI Provider Fully Integrated Across All Application Entry Points | ~571 |
 | #2258 | 7:11 PM | ✅ | LLM Adapter Factory Updated to Support Claude CLI Provider Configuration | ~447 |
 | #2254 | 7:10 PM | 🔴 | Session Cache Key Fixed to Include Assistant Response for Resumption Lookup | ~428 |
 | #2242 | 7:08 PM | 🔄 | Claude CLI Provider ExecFileAsync Custom Implementation Preserves Stderr | ~401 |

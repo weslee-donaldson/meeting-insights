@@ -85,3 +85,73 @@ describe("EditActionItemDialog", () => {
     );
   });
 });
+
+const MEETINGS = [
+  { id: "m1", title: "Weekly Sync" },
+  { id: "m2", title: "Planning" },
+];
+
+describe("EditActionItemDialog — Add mode", () => {
+  it("shows 'Add Action Item' title when mode is add", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={null}
+        mode="add"
+        meetings={MEETINGS}
+      />,
+    );
+    expect(screen.getByText("Add Action Item")).toBeDefined();
+  });
+
+  it("shows meeting dropdown in add mode with provided meetings", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={null}
+        mode="add"
+        meetings={MEETINGS}
+      />,
+    );
+    const select = screen.getByLabelText("Meeting") as HTMLSelectElement;
+    const options = Array.from(select.querySelectorAll("option")).map((o) => o.textContent);
+    expect(options).toEqual(["Weekly Sync", "Planning"]);
+  });
+
+  it("calls onSave with selected meetingId in add mode", () => {
+    const onSave = vi.fn();
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={onSave}
+        item={null}
+        mode="add"
+        meetings={MEETINGS}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "New task" } });
+    fireEvent.change(screen.getByLabelText("Meeting"), { target: { value: "m2" } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(onSave).toHaveBeenCalledWith(
+      { description: "New task", owner: "", requester: "", due_date: null, priority: "normal" },
+      "m2",
+    );
+  });
+
+  it("hides meeting dropdown in edit mode", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={makeItem()}
+      />,
+    );
+    expect(screen.queryByLabelText("Meeting")).toBeNull();
+  });
+});

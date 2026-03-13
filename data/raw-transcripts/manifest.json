@@ -1,56 +1,11 @@
 [
   {
-    "meeting_id": "019ce290a2e475cfb7fec29a1842572b",
-    "meeting_title": "Mandalore DSU",
-    "meeting_date": "2026-03-12T15:00:25.125Z",
+    "meeting_id": "019ce4b2a1c3782c9d5e0f3b7a8c9d2f",
+    "meeting_title": "TQ, Qbridg Core Demo",
+    "meeting_date": "2026-03-12T20:15:00.000Z",
     "meeting_files": [
-      "mandalore_dsu-019ce290a2e475cfb7fec29a1842572b/transcript.md",
-      "mandalore_dsu-019ce290a2e475cfb7fec29a1842572b/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019ce2a07614722ba840a3eb6d68d2d1",
-    "meeting_title": "Qbridg - MCP Core ",
-    "meeting_date": "2026-03-12T15:17:41.828Z",
-    "meeting_files": [
-      "qbridg_-_mcp_core_-019ce2a07614722ba840a3eb6d68d2d1/transcript.md",
-      "qbridg_-_mcp_core_-019ce2a07614722ba840a3eb6d68d2d1/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019ce2e3eee274cdb13c8e62f95bcae0",
-    "meeting_title": "AppDev Leads DSU",
-    "meeting_date": "2026-03-12T16:31:22.639Z",
-    "meeting_files": [
-      "appdev_leads_dsu-019ce2e3eee274cdb13c8e62f95bcae0/transcript.md",
-      "appdev_leads_dsu-019ce2e3eee274cdb13c8e62f95bcae0/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019ce31adef8717f8fb0d91bd0d625fc",
-    "meeting_title": "TerraQuantum: Architecture Review & Planning",
-    "meeting_date": "2026-03-12T17:31:24.196Z",
-    "meeting_files": [
-      "terraquantum__architecture_review_&_planning-019ce31adef8717f8fb0d91bd0d625fc/transcript.md",
-      "terraquantum__architecture_review_&_planning-019ce31adef8717f8fb0d91bd0d625fc/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019ce35071e0772ead1324dfd2b847d2",
-    "meeting_title": "Wes x Sam, Tue-Friday",
-    "meeting_date": "2026-03-12T18:29:55.802Z",
-    "meeting_files": [
-      "wes_x_sam,_tue-friday-019ce35071e0772ead1324dfd2b847d2/transcript.md",
-      "wes_x_sam,_tue-friday-019ce35071e0772ead1324dfd2b847d2/recording_download_link.md"
-    ]
-  },
-  {
-    "meeting_id": "019ce38724b376bfa8c7297e4c839246",
-    "meeting_title": "LLSA, Eng Recurly process",
-    "meeting_date": "2026-03-12T19:29:38.870Z",
-    "meeting_files": [
-      "llsa,_eng_recurly_process-019ce38724b376bfa8c7297e4c839246/transcript.md",
-      "llsa,_eng_recurly_process-019ce38724b376bfa8c7297e4c839246/recording_download_link.md"
+      "tq,_qbridg_core_demo-019ce4b2a1c3782c9d5e0f3b7a8c9d2f/transcript.md",
+      "tq,_qbridg_core_demo-019ce4b2a1c3782c9d5e0f3b7a8c9d2f/recording_download_link.md"
     ]
   }
 ]

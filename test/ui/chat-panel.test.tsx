@@ -38,7 +38,7 @@ describe("ChatPanel", () => {
     await waitFor(() => screen.getByTestId("user-bubble"), { timeout: 2000 });
     const userBubble = screen.getByTestId("user-bubble");
     expect(userBubble.textContent).toBe("Tell me");
-    expect(userBubble.className).toContain("self-end");
+    expect(userBubble.parentElement!.className).toContain("self-end");
     await waitFor(() => screen.getByTestId("assistant-bubble"), { timeout: 2000 });
     const assistantBubble = screen.getByTestId("assistant-bubble");
     expect(assistantBubble.className).toContain("self-start");

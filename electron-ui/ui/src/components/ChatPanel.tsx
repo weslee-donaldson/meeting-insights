@@ -78,6 +78,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [includeTranscripts, setIncludeTranscripts] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [expandedBubbles, setExpandedBubbles] = useState<Set<number>>(new Set());
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -241,14 +242,28 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 min-w-0">
         {displayMessages.map((msg, i) =>
           msg.role === "user" ? (
-            <div
-              key={i}
-              data-testid="user-bubble"
-              className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed max-h-[200px] overflow-y-auto overflow-x-hidden break-words [word-break:break-word] min-w-0"
-            >
-              <div className="chat-markdown">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+            <div key={i} className="self-end max-w-[85%] flex flex-col items-end gap-0.5 min-w-0">
+              <div
+                data-testid="user-bubble"
+                className={`px-3.5 py-2 rounded-2xl rounded-br-sm bg-primary text-primary-foreground text-sm leading-relaxed overflow-hidden break-words [word-break:break-word] min-w-0 ${expandedBubbles.has(i) ? "" : "max-h-[3.5rem]"}`}
+              >
+                <div className="chat-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                </div>
               </div>
+              {msg.content.length > 120 && (
+                <button
+                  data-testid="user-bubble-toggle"
+                  className="text-xs text-muted-foreground hover:text-foreground px-1"
+                  onClick={() => setExpandedBubbles((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(i)) next.delete(i); else next.add(i);
+                    return next;
+                  })}
+                >
+                  {expandedBubbles.has(i) ? "Show less" : "Show more"}
+                </button>
+              )}
             </div>
           ) : (
             <div key={i} className="flex flex-col gap-1.5 max-w-[90%]">

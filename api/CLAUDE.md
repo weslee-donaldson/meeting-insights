@@ -45,5 +45,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2306 | 8:29 PM | 🔵 | Hono Server Assembly with API Call Logging Middleware | ~398 |
+| #2299 | 8:26 PM | 🔵 | API Server Bootstrap and LLM Provider Configuration | ~409 |
+| #2271 | 7:13 PM | 🟣 | Claude CLI Provider Fully Integrated Across All Application Entry Points | ~571 |
 | #2262 | 7:11 PM | ✅ | CLI Provider Branch Added to API Entry Point | ~334 |
 </claude-mem-context>

@@ -14,16 +14,19 @@ interface ActionItemData {
 interface EditActionItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (fields: EditActionItemFields) => void;
+  onSave: (fields: EditActionItemFields, meetingId?: string) => void;
   item: ActionItemData | null;
+  mode?: "edit" | "add";
+  meetings?: Array<{ id: string; title: string }>;
 }
 
-export function EditActionItemDialog({ open, onOpenChange, onSave, item }: EditActionItemDialogProps) {
+export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = "edit", meetings }: EditActionItemDialogProps) {
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState("");
   const [requester, setRequester] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<"critical" | "normal" | "low">("normal");
+  const [selectedMeetingId, setSelectedMeetingId] = useState("");
 
   useEffect(() => {
     if (open && item) {
@@ -33,7 +36,15 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item }: EditA
       setDueDate(item.due_date ?? "");
       setPriority(item.priority);
     }
-  }, [open, item]);
+    if (open && mode === "add") {
+      setDescription("");
+      setOwner("");
+      setRequester("");
+      setDueDate("");
+      setPriority("normal");
+      setSelectedMeetingId(meetings?.[0]?.id ?? "");
+    }
+  }, [open, item, mode, meetings]);
 
   const canSave = description.trim().length > 0;
 
@@ -45,15 +56,32 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item }: EditA
       due_date: dueDate || null,
       priority,
     };
-    onSave(fields);
+    if (mode === "add") {
+      onSave(fields, selectedMeetingId);
+    } else {
+      onSave(fields);
+    }
     onOpenChange(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
-        <DialogTitle>Edit Action Item</DialogTitle>
+        <DialogTitle>{mode === "add" ? "Add Action Item" : "Edit Action Item"}</DialogTitle>
         <div className="flex flex-col gap-3 mt-2">
+          {mode === "add" && meetings && (
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Meeting</span>
+              <select
+                aria-label="Meeting"
+                className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+                value={selectedMeetingId}
+                onChange={(e) => setSelectedMeetingId(e.target.value)}
+              >
+                {meetings.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
+              </select>
+            </label>
+          )}
           <label className="flex flex-col gap-1 text-sm">
             <span>Description</span>
             <textarea

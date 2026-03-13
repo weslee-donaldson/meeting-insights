@@ -9,4 +9,5 @@ if [ -n "$pids" ]; then
 fi
 
 echo "Starting API server..."
+export DEBUG="mtninsights:*"
 exec pnpm api:dev

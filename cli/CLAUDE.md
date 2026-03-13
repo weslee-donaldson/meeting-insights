@@ -19,6 +19,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2271 | 7:13 PM | 🟣 | Claude CLI Provider Fully Integrated Across All Application Entry Points | ~571 |
 | #2259 | 7:11 PM | 🟣 | CLI Entry Point Adds Claudecli Provider Selection Branch | ~306 |
 | #2257 | " | 🟣 | CLI Entry Point Extended to Support claudecli Provider Type | ~308 |
 | #2256 | " | 🔵 | Provider Selection Logic Location Identified in CLI Entry Point | ~373 |
