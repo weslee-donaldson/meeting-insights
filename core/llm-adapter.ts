@@ -4,7 +4,7 @@ import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
 import { createOpenaiAdapter } from "./llm-provider-openai.js";
 import { createClaudecliAdapter } from "./llm-provider-claudecli.js";
 
-export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight";
+export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight" | "dedup_intent";
 
 export interface ImageAttachment {
   name: string;

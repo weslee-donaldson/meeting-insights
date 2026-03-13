@@ -35,6 +35,10 @@ export const STUB_FIXTURES: Record<LlmCapability, Record<string, unknown>> = {
     relevance_summary: "Stub relevance.",
     relevance_score: 75,
   },
+  dedup_intent: {
+    groups: [[0, 1]],
+    reasoning: { "0,1": "Stub: items 0 and 1 match by intent." },
+  },
   generate_insight: {
     executive_summary: "<p>Stub executive summary of the reporting period.</p>",
     rag_status: "yellow",
