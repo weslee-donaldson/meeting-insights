@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
@@ -249,7 +249,7 @@ describe("IPC handlers", () => {
         summary: "Key decisions were made.",
         decisions: [{ text: "Go with approach A", decided_by: "CEO" }],
         proposed_features: ["Dark mode"],
-        action_items: [{ description: "Write spec", owner: "Bob", requester: "Alice", due_date: "2026-03-01", priority: "normal" }],
+        action_items: [{ description: "Write spec", owner: "Bob", requester: "Alice", due_date: "2026-03-01", priority: "normal", short_id: generateShortId(meetingId1, 0) }],
         open_questions: ["When to ship?"],
         risk_items: [{ category: "engineering", description: "Timeline risk" }],
         additional_notes: [],
@@ -527,6 +527,7 @@ describe("IPC handlers", () => {
         requester: "Alice",
         due_date: "2026-03-01",
         priority: "critical",
+        short_id: generateShortId(editMeetingId, 0),
       });
     });
 
@@ -539,6 +540,7 @@ describe("IPC handlers", () => {
         requester: "Alice",
         due_date: "2026-04-01",
         priority: "critical",
+        short_id: generateShortId(editMeetingId, 0),
       });
     });
 
@@ -582,6 +584,7 @@ describe("IPC handlers", () => {
         requester: "Frank",
         due_date: null,
         priority: "critical",
+        short_id: generateShortId(createMeetingId, 1),
       });
     });
 
@@ -653,6 +656,12 @@ describe("IPC handlers", () => {
         due_date: null,
         priority: expect.any(String),
       });
+    });
+
+    it("includes short_id from stored artifact data", () => {
+      const items = handleGetClientActionItems(db, "Acme");
+      const item = items.find((i) => i.meeting_id === acmeMeetingId);
+      expect(item?.short_id).toBe(generateShortId(acmeMeetingId, 0));
     });
 
     it("filters action items by after date", () => {

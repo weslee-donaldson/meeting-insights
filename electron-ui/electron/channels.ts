@@ -169,7 +169,7 @@ export interface ClientActionItem {
   priority: "critical" | "normal";
   canonical_id?: string;
   total_mentions?: number;
-}
+  short_id?: string;}
 
 export interface EditActionItemFields {
   description?: string;

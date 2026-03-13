@@ -1,5 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getArtifact, extractSummary, storeArtifact } from "../../../core/extractor.js";
+import { getArtifact, extractSummary, storeArtifact, generateShortId } from "../../../core/extractor.js";
 import type { Artifact } from "../../../core/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
 import { getClientByName, buildClientContext } from "../../../core/client-registry.js";
@@ -310,12 +310,14 @@ export function handleCreateActionItem(db: Database, meetingId: string, fields: 
   const row = getArtifact(db, meetingId);
   if (!row) throw new Error(`Artifact not found for meeting ${meetingId}`);
   const items = JSON.parse(row.action_items ?? "[]") as Record<string, unknown>[];
+  const newIndex = items.length;
   items.push({
     description: fields.description ?? "",
     owner: fields.owner ?? "",
     requester: fields.requester ?? "",
     due_date: fields.due_date ?? null,
     priority: fields.priority ?? "normal",
+    short_id: generateShortId(meetingId, newIndex),
   });
   db.prepare("UPDATE artifacts SET action_items = ? WHERE meeting_id = ?").run(JSON.stringify(items), meetingId);
 }
@@ -391,6 +393,7 @@ export function handleGetClientActionItems(db: Database, clientName: string, fil
         priority: item.priority,
         canonical_id: mention?.canonical_id,
         total_mentions: mention?.total_mentions,
+        short_id: item.short_id,
       });
     });
   }
