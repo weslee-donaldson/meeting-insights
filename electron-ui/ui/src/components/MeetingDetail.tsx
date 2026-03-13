@@ -3,6 +3,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
+import { useDropzone } from "react-dropzone";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
@@ -518,6 +519,60 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: AssetRow[]; onDeleteAsset?: (assetId: string) => void; onUploadAsset?: (file: File) => void }) {
+  const onDrop = useCallback((accepted: File[]) => {
+    for (const file of accepted) onUploadAsset?.(file);
+  }, [onUploadAsset]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, noClick: false });
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const files = Array.from(e.clipboardData.files);
+    for (const file of files) onUploadAsset?.(file);
+  }, [onUploadAsset]);
+
+  return (
+    <div className="py-2" data-testid="attachments-section" onPaste={handlePaste}>
+      <div className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-foreground pb-1.5">
+        <Paperclip className="w-3.5 h-3.5" />
+        Attachments
+      </div>
+      {assets.length > 0 && (
+        <ul className="m-0 p-0 list-none flex flex-col gap-1 mb-2">
+          {assets.map((asset) => (
+            <li key={asset.id} className="flex items-center gap-2 text-sm text-secondary-foreground">
+              <span className="truncate">{asset.filename}</span>
+              <span className="text-xs text-muted-foreground shrink-0">{formatFileSize(asset.file_size)}</span>
+              {onDeleteAsset && (
+                <button
+                  onClick={() => onDeleteAsset(asset.id)}
+                  aria-label={`Delete ${asset.filename}`}
+                  className="shrink-0 bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {onUploadAsset && (
+        <div
+          {...getRootProps()}
+          data-testid="dropzone"
+          className={cn(
+            "border border-dashed border-border rounded px-3 py-2 text-center text-xs text-muted-foreground cursor-pointer transition-colors",
+            isDragActive && "border-primary bg-primary/5",
+          )}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? "Drop files here" : "Drag & drop, click to browse, or paste"}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
@@ -702,30 +757,8 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
       </div>
 
       <div className="flex-1 overflow-y-auto px-4">
-        {assets && assets.length > 0 && (
-          <div className="py-2" data-testid="attachments-section">
-            <div className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-foreground pb-1.5">
-              <Paperclip className="w-3.5 h-3.5" />
-              Attachments
-            </div>
-            <ul className="m-0 p-0 list-none flex flex-col gap-1">
-              {assets.map((asset) => (
-                <li key={asset.id} className="flex items-center gap-2 text-sm text-secondary-foreground">
-                  <span className="truncate">{asset.filename}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">{formatFileSize(asset.file_size)}</span>
-                  {onDeleteAsset && (
-                    <button
-                      onClick={() => onDeleteAsset(asset.id)}
-                      aria-label={`Delete ${asset.filename}`}
-                      className="shrink-0 bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {((assets && assets.length > 0) || onUploadAsset) && (
+          <AttachmentsSection assets={assets ?? []} onDeleteAsset={onDeleteAsset} onUploadAsset={onUploadAsset} />
         )}
         {artifact ? (
           <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />

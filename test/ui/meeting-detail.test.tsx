@@ -769,7 +769,7 @@ describe("MeetingDetail", () => {
     expect(onDeleteAsset).toHaveBeenCalledWith("a1");
   });
 
-  it("does not render attachments section when assets is empty", () => {
+  it("does not render attachments section when assets is empty and no onUploadAsset", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -778,5 +778,50 @@ describe("MeetingDetail", () => {
       />,
     );
     expect(screen.queryByTestId("attachments-section")).toBeNull();
+  });
+
+  it("shows dropzone when onUploadAsset is provided even with empty assets", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        assets={[]}
+        onUploadAsset={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("attachments-section")).toBeDefined();
+    expect(screen.getByTestId("dropzone")).toBeDefined();
+    expect(screen.getByText("Drag & drop, click to browse, or paste")).toBeDefined();
+  });
+
+  it("renders hidden file input inside dropzone for file browsing", () => {
+    const { container } = render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        assets={[]}
+        onUploadAsset={vi.fn()}
+      />,
+    );
+    const dropzone = screen.getByTestId("dropzone");
+    const input = dropzone.querySelector("input[type='file']");
+    expect(input).not.toBeNull();
+  });
+
+  it("calls onUploadAsset when file is pasted", () => {
+    const onUploadAsset = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        assets={[]}
+        onUploadAsset={onUploadAsset}
+      />,
+    );
+    const section = screen.getByTestId("attachments-section");
+    const file = new File(["img"], "screenshot.png", { type: "image/png" });
+    const clipboardData = { files: [file] };
+    fireEvent.paste(section, { clipboardData });
+    expect(onUploadAsset).toHaveBeenCalledWith(expect.objectContaining({ name: "screenshot.png", type: "image/png" }));
   });
 });
