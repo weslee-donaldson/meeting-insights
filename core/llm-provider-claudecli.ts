@@ -10,8 +10,10 @@ import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
 const logLlm = createLogger("llm");
 
 function execFileAsync(bin: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
+  const env = { ...process.env };
+  delete env["CLAUDECODE"];
   return new Promise((resolve, reject) => {
-    execFile(bin, args, (err, stdout, stderr) => {
+    execFile(bin, args, { env }, (err, stdout, stderr) => {
       if (err) reject(Object.assign(err, { stderr }));
       else resolve({ stdout, stderr });
     });
@@ -54,6 +56,7 @@ async function cleanupFiles(paths: string[]): Promise<void> {
 
 async function runCli(bin: string, args: string[]): Promise<{ result: string; sessionId: string; durationMs: number }> {
   const start = Date.now();
+  logLlm("runCli bin=%s args=%o", bin, args);
   const { stdout } = await execFileAsync(bin, args).catch((err: Error & { stderr?: string }) => {
     const msg = ((err.stderr ?? "") + err.message).toLowerCase();
     if (msg.includes("rate limit")) throw new Error(`[rate_limit] ${err.message}`);
