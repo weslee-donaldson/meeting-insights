@@ -358,6 +358,15 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                 ) : (
                   <span className="shrink-0 mt-0.5 text-primary">□</span>
                 )}
+                {onEditActionItem && !isCompleted && (
+                  <button
+                    onClick={() => setEditDialog({ index: i, item: a })}
+                    aria-label={`Edit item ${i}`}
+                    className="shrink-0 mt-0.5 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-foreground hover:text-foreground"
+                  >
+                    <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  </button>
+                )}
                 <span className="text-sm leading-[1.5]">
                   {isCompleted ? (
                     <button
@@ -389,15 +398,6 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                         </span>
                       )}
                     </span>
-                  )}
-                  {onEditActionItem && !isCompleted && (
-                    <button
-                      onClick={() => setEditDialog({ index: i, item: a })}
-                      aria-label={`Edit item ${i}`}
-                      className="ml-1 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
-                    >
-                      <Pencil className="w-3 h-3" />
-                    </button>
                   )}
                 </span>
               </li>
