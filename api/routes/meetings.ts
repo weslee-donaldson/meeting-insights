@@ -3,7 +3,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import {
   handleGetClients, handleGetMeetings, handleGetArtifact,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
-  handleSetIgnored, handleEditActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
+  handleSetIgnored, handleEditActionItem, handleCreateActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
 } from "../../electron-ui/electron/ipc-handlers.js";
@@ -95,6 +95,17 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const fields = await c.req.json() as EditActionItemFields;
     try {
       handleEditActionItem(db, id, itemIndex, fields);
+      return c.body(null, 204);
+    } catch (err) {
+      return c.json({ error: (err as Error).message }, 400);
+    }
+  });
+
+  app.post("/api/meetings/:id/action-items", async (c) => {
+    const id = c.req.param("id");
+    const fields = await c.req.json() as EditActionItemFields;
+    try {
+      handleCreateActionItem(db, id, fields);
       return c.body(null, 204);
     } catch (err) {
       return c.json({ error: (err as Error).message }, 400);
