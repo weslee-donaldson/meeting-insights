@@ -4,7 +4,7 @@ import { mkdtempSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { migrate } from "../core/db.js";
-import { getAssets, storeAsset, deleteAsset, getAssetData } from "../core/assets.js";
+import { getAssets, storeAsset, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../core/assets.js";
 import { ingestMeeting } from "../core/ingest.js";
 
 describe("assets", () => {
@@ -127,5 +127,27 @@ describe("assets", () => {
   it("returns null for nonexistent asset id", () => {
     const result = getAssetData(db, "no-such-id", assetsDir);
     expect(result).toBe(null);
+  });
+
+  it("deletes all assets for a meeting", () => {
+    const meetingId = "mtg-005";
+    ingestMeeting(db, {
+      externalId: meetingId,
+      title: "Test Meeting 5",
+      timestamp: "2026-03-13",
+      participants: [{ name: "Eve", role: "attendee" }],
+      turns: [],
+      rawTranscript: "cascade",
+      sourceFilename: "test5.md",
+    });
+
+    const row1 = storeAsset(db, meetingId, "a.png", "image/png", Buffer.from("aaa"), assetsDir);
+    const row2 = storeAsset(db, meetingId, "b.jpg", "image/jpeg", Buffer.from("bbb"), assetsDir);
+
+    deleteAssetsForMeeting(db, meetingId, assetsDir);
+
+    expect(getAssets(db, meetingId)).toEqual([]);
+    expect(existsSync(join(assetsDir, row1.storage_path))).toBe(false);
+    expect(existsSync(join(assetsDir, row2.storage_path))).toBe(false);
   });
 });

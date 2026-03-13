@@ -38,6 +38,14 @@ export function getAssetData(db: Database, assetId: string, assetsDir: string): 
   return { data, filename: row.filename, mimeType: row.mime_type };
 }
 
+export function deleteAssetsForMeeting(db: Database, meetingId: string, assetsDir: string): void {
+  const rows = db.prepare("SELECT storage_path FROM assets WHERE meeting_id = ?").all(meetingId) as { storage_path: string }[];
+  for (const row of rows) {
+    try { unlinkSync(join(assetsDir, row.storage_path)); } catch {}
+  }
+  db.prepare("DELETE FROM assets WHERE meeting_id = ?").run(meetingId);
+}
+
 export function getAssets(db: Database, meetingId: string): AssetRow[] {
   return db.prepare("SELECT id, meeting_id, filename, mime_type, file_size, storage_path, created_at FROM assets WHERE meeting_id = ? ORDER BY created_at").all(meetingId) as AssetRow[];
 }
