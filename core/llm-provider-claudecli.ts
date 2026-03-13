@@ -12,6 +12,8 @@ const logLlm = createLogger("llm");
 function execFileAsync(bin: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
   const env = { ...process.env };
   delete env["CLAUDECODE"];
+  delete env["CLAUDE_CODE_ENTRYPOINT"];
+  delete env["CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING"];
   return new Promise((resolve, reject) => {
     execFile(bin, args, { env }, (err, stdout, stderr) => {
       if (err) reject(Object.assign(err, { stderr }));
