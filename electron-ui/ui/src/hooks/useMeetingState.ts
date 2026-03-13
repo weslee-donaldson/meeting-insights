@@ -409,6 +409,17 @@ export function useMeetingState(
     }
   }, [selectedClient, queryClient, addToast]);
 
+  const handleAddClientActionItem = useCallback(async (meetingId: string, fields: EditActionItemFields) => {
+    try {
+      await window.api.createActionItem(meetingId, fields);
+      queryClient.invalidateQueries({ queryKey: ["artifact", meetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Action item added", "success");
+    } catch (err) {
+      addToast(`Add failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedClient, queryClient, addToast]);
+
   const handleEditPreviewActionItem = useCallback(async (itemIndex: number, fields: EditActionItemFields) => {
     if (!previewMeetingId) return;
     try {
@@ -557,6 +568,7 @@ export function useMeetingState(
     handleMultiCompleteActionItem,
     handleMultiUncompleteActionItem,
     handleEditClientActionItem,
+    handleAddClientActionItem,
     handleCompleteClientActionItem,
     handleUncompleteClientActionItem,
     handleEditPreviewActionItem,

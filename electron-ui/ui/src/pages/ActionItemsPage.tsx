@@ -10,6 +10,7 @@ interface ActionItemsPageProps {
   onComplete: (meetingId: string, itemIndex: number) => void;
   onUncomplete: (meetingId: string, itemIndex: number) => void;
   onEditActionItem: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
+  onAddActionItem: (meetingId: string, fields: EditActionItemFields) => void;
   previewMeetingId: string | null;
   previewMeeting: MeetingRow | null;
   previewArtifact: Artifact | null;
@@ -23,7 +24,7 @@ interface ActionItemsPageProps {
 
 export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] {
   const {
-    selectedClient, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem,
+    selectedClient, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem,
     previewMeetingId, previewMeeting, previewArtifact, previewArtifactLoading,
     previewCompletions, previewMentionStats, onCompletePreview, onUncompletePreview,
     onEditPreviewActionItem,
@@ -38,6 +39,7 @@ export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] 
       onComplete={onComplete}
       onUncomplete={onUncomplete}
       onEditActionItem={onEditActionItem}
+      onAddActionItem={onAddActionItem}
     />,
     ...(previewMeetingId ? [
       <MeetingDetail

@@ -170,6 +170,7 @@ export function App() {
     onComplete: meeting.handleCompleteClientActionItem,
     onUncomplete: meeting.handleUncompleteClientActionItem,
     onEditActionItem: meeting.handleEditClientActionItem,
+    onAddActionItem: meeting.handleAddClientActionItem,
     previewMeetingId: meeting.previewMeetingId,
     previewMeeting: meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId) ?? null,
     previewArtifact: meeting.previewArtifactQuery.data ?? null,
