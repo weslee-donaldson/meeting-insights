@@ -4,7 +4,7 @@ import { mkdtempSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { migrate } from "../core/db.js";
-import { getAssets, storeAsset, deleteAsset } from "../core/assets.js";
+import { getAssets, storeAsset, deleteAsset, getAssetData } from "../core/assets.js";
 import { ingestMeeting } from "../core/ingest.js";
 
 describe("assets", () => {
@@ -99,5 +99,33 @@ describe("assets", () => {
 
     deleteAsset(db, row.id, assetsDir);
     expect(getAssets(db, meetingId)).toEqual([]);
+  });
+
+  it("reads asset data as buffer with metadata", () => {
+    const meetingId = "mtg-004";
+    ingestMeeting(db, {
+      externalId: meetingId,
+      title: "Test Meeting 4",
+      timestamp: "2026-03-13",
+      participants: [{ name: "Dave", role: "attendee" }],
+      turns: [],
+      rawTranscript: "data test",
+      sourceFilename: "test4.md",
+    });
+
+    const content = Buffer.from("png-bytes-here");
+    const row = storeAsset(db, meetingId, "arch.png", "image/png", content, assetsDir);
+
+    const result = getAssetData(db, row.id, assetsDir);
+    expect(result).toEqual({
+      data: content,
+      filename: "arch.png",
+      mimeType: "image/png",
+    });
+  });
+
+  it("returns null for nonexistent asset id", () => {
+    const result = getAssetData(db, "no-such-id", assetsDir);
+    expect(result).toBe(null);
   });
 });
