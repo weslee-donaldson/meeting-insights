@@ -129,7 +129,8 @@ export function buildDistilledContext(
     if (artifact.action_items.length > 0) {
       lines.push("Action Items:");
       for (const a of artifact.action_items) {
-        const prefix = a.priority === "critical" ? "[CRITICAL] " : "";
+        const idTag = a.short_id ? `[${a.short_id}] ` : "";
+        const prefix = `${idTag}${a.priority === "critical" ? "[CRITICAL] " : ""}`;
         const meta = [a.owner ? `owner: ${a.owner}` : "", a.requester ? `requested by: ${a.requester}` : "", a.due_date ? `due: ${a.due_date}` : ""].filter(Boolean).join(", ");
         lines.push(meta ? `- ${prefix}${a.description} (${meta})` : `- ${prefix}${a.description}`);
       }

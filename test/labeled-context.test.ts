@@ -248,6 +248,12 @@ describe("buildDistilledContext", () => {
     expect(result).toContain("[CRITICAL] Fix pipeline");
   });
 
+  it("prefixes action items with [short_id] in distilled context", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    const shortId = generateShortId(dId1, 0);
+    expect(result).toContain(`[${shortId}] Write spec`);
+  });
+
   it("includes additional_notes", () => {
     const result = buildDistilledContext(dDb, [dId1]);
     expect(result).toContain("Alice is out Monday");
