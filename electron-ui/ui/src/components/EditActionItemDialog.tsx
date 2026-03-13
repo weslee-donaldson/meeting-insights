@@ -18,9 +18,11 @@ interface EditActionItemDialogProps {
   item: ActionItemData | null;
   mode?: "edit" | "add";
   meetings?: Array<{ id: string; title: string }>;
+  owners?: string[];
+  requesters?: string[];
 }
 
-export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = "edit", meetings }: EditActionItemDialogProps) {
+export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = "edit", meetings, owners, requesters: requesterOptions }: EditActionItemDialogProps) {
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState("");
   const [requester, setRequester] = useState("");
@@ -66,7 +68,7 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined}>
+      <DialogContent className="w-[600px]" aria-describedby={undefined}>
         <DialogTitle>{mode === "add" ? "Add Action Item" : "Edit Action Item"}</DialogTitle>
         <div className="flex flex-col gap-3 mt-2">
           {mode === "add" && meetings && (
@@ -94,21 +96,45 @@ export function EditActionItemDialog({ open, onOpenChange, onSave, item, mode = 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-sm">
               <span>Owner</span>
-              <input
-                aria-label="Owner"
-                className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-              />
+              {owners ? (
+                <select
+                  aria-label="Owner"
+                  className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+                  value={owner}
+                  onChange={(e) => setOwner(e.target.value)}
+                >
+                  <option value=""></option>
+                  {owners.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input
+                  aria-label="Owner"
+                  className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+                  value={owner}
+                  onChange={(e) => setOwner(e.target.value)}
+                />
+              )}
             </label>
             <label className="flex flex-col gap-1 text-sm">
               <span>Requester</span>
-              <input
-                aria-label="Requester"
-                className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
-                value={requester}
-                onChange={(e) => setRequester(e.target.value)}
-              />
+              {requesterOptions ? (
+                <select
+                  aria-label="Requester"
+                  className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+                  value={requester}
+                  onChange={(e) => setRequester(e.target.value)}
+                >
+                  <option value=""></option>
+                  {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
+              ) : (
+                <input
+                  aria-label="Requester"
+                  className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+                  value={requester}
+                  onChange={(e) => setRequester(e.target.value)}
+                />
+              )}
             </label>
           </div>
           <div className="grid grid-cols-2 gap-3">

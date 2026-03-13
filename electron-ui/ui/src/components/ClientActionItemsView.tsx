@@ -217,6 +217,8 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         onOpenChange={(open) => { if (!open) setEditDialog(null); }}
         onSave={(fields) => { if (editDialog) { onEditActionItem?.(editDialog.meetingId, editDialog.itemIndex, fields); setEditDialog(null); } }}
         item={editDialog ? { description: editDialog.item.description, owner: editDialog.item.owner ?? "", requester: editDialog.item.requester ?? "", due_date: editDialog.item.due_date ?? null, priority: editDialog.item.priority ?? "normal" } : null}
+        owners={ownerOptions}
+        requesters={requesterOptions}
       />
       <EditActionItemDialog
         open={addDialogOpen}
@@ -225,6 +227,8 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         item={null}
         mode="add"
         meetings={uniqueMeetings}
+        owners={ownerOptions}
+        requesters={requesterOptions}
       />
     </div>
   );

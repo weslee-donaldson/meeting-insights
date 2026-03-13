@@ -436,6 +436,8 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
         onOpenChange={(open) => { if (!open) setEditDialog(null); }}
         onSave={(fields) => { if (editDialog) { onEditActionItem?.(editDialog.index, fields); setEditDialog(null); } }}
         item={editDialog ? { description: editDialog.item.description, owner: editDialog.item.owner ?? "", requester: editDialog.item.requester ?? "", due_date: editDialog.item.due_date ?? null, priority: editDialog.item.priority ?? "normal" } : null}
+        owners={[...new Set(artifact.action_items.map((a) => a.owner).filter(Boolean))].sort() as string[]}
+        requesters={[...new Set(artifact.action_items.map((a) => a.requester).filter(Boolean))].sort() as string[]}
       />
 
       <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={effectiveOpen("Open Questions")} onOpenChange={(o) => setSectionOpen("Open Questions", o)}

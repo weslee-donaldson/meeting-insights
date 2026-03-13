@@ -155,3 +155,79 @@ describe("EditActionItemDialog — Add mode", () => {
     expect(screen.queryByLabelText("Meeting")).toBeNull();
   });
 });
+
+const OWNERS = ["Bob", "Carol"];
+const REQUESTERS = ["Alice", "Dave"];
+
+describe("EditActionItemDialog — Owner/Requester dropdowns", () => {
+  it("renders owner as select dropdown when owners prop is provided", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={makeItem()}
+        owners={OWNERS}
+      />,
+    );
+    const select = screen.getByLabelText("Owner") as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    const options = Array.from(select.querySelectorAll("option")).map((o) => o.textContent);
+    expect(options).toEqual(["", "Bob", "Carol"]);
+    expect(select.value).toBe("Bob");
+  });
+
+  it("renders requester as select dropdown when requesters prop is provided", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={makeItem()}
+        requesters={REQUESTERS}
+      />,
+    );
+    const select = screen.getByLabelText("Requester") as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    const options = Array.from(select.querySelectorAll("option")).map((o) => o.textContent);
+    expect(options).toEqual(["", "Alice", "Dave"]);
+    expect(select.value).toBe("Alice");
+  });
+
+  it("saves selected owner and requester from dropdowns", () => {
+    const onSave = vi.fn();
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={onSave}
+        item={makeItem()}
+        owners={OWNERS}
+        requesters={REQUESTERS}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("Owner"), { target: { value: "Carol" } });
+    fireEvent.change(screen.getByLabelText("Requester"), { target: { value: "Dave" } });
+    fireEvent.click(screen.getByText("Save"));
+    expect(onSave).toHaveBeenCalledWith({
+      description: "Write docs",
+      owner: "Carol",
+      requester: "Dave",
+      due_date: "2026-04-01",
+      priority: "normal",
+    });
+  });
+
+  it("renders owner as text input when owners prop is not provided", () => {
+    render(
+      <EditActionItemDialog
+        open={true}
+        onOpenChange={() => {}}
+        onSave={() => {}}
+        item={makeItem()}
+      />,
+    );
+    const input = screen.getByLabelText("Owner") as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+  });
+});
