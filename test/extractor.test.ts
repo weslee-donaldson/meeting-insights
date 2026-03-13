@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
-import { extractSummary, validateArtifact, storeArtifact, getArtifact, generateShortId } from "../core/extractor.js";
+import { extractSummary, validateArtifact, storeArtifact, getArtifact, generateShortId, type Artifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -334,5 +334,49 @@ describe("storeArtifact / getArtifact", () => {
     const artifact = await extractSummary(adapter, parsed.turns, 8000);
     const stored = getArtifact(db, meetingId);
     expect(JSON.parse(stored.milestones)).toEqual(artifact.milestones);
+  });
+
+  it("assigns short_id to action_items that lack one", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const mid = ingestMeeting(freshDb, parsed);
+    const artifact: Artifact = {
+      summary: "test",
+      decisions: [],
+      proposed_features: [],
+      action_items: [
+        { description: "Task A", owner: "Bob", requester: "", due_date: null, priority: "normal" },
+        { description: "Task B", owner: "Carol", requester: "", due_date: null, priority: "critical" },
+      ],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+      milestones: [],
+    };
+    storeArtifact(freshDb, mid, artifact);
+    const stored = JSON.parse(getArtifact(freshDb, mid).action_items);
+    expect(stored[0].short_id).toBe(generateShortId(mid, 0));
+    expect(stored[1].short_id).toBe(generateShortId(mid, 1));
+  });
+
+  it("preserves existing short_id on action_items", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const mid = ingestMeeting(freshDb, parsed);
+    const artifact: Artifact = {
+      summary: "test",
+      decisions: [],
+      proposed_features: [],
+      action_items: [
+        { description: "Task A", owner: "Bob", requester: "", due_date: null, priority: "normal", short_id: "custom" },
+      ],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+      milestones: [],
+    };
+    storeArtifact(freshDb, mid, artifact);
+    const stored = JSON.parse(getArtifact(freshDb, mid).action_items);
+    expect(stored[0].short_id).toBe("custom");
   });
 });

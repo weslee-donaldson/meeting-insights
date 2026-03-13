@@ -202,6 +202,11 @@ export async function extractSummary(
 }
 
 export function storeArtifact(db: Database, meetingId: string, artifact: Artifact): void {
+  for (let i = 0; i < artifact.action_items.length; i++) {
+    if (!artifact.action_items[i].short_id) {
+      artifact.action_items[i].short_id = generateShortId(meetingId, i);
+    }
+  }
   db.prepare(`
     INSERT INTO artifacts (meeting_id, summary, decisions, proposed_features, action_items, open_questions, risk_items, additional_notes, milestones)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
