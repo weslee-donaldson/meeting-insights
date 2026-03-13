@@ -7,7 +7,7 @@ This directory provides the web-browser implementation of the `ElectronAPI` inte
 | File | Purpose |
 |------|---------|
 | `base.ts` | Exports `API_BASE` — defaults to `http://localhost:3000`, overridable via `VITE_API_BASE` env var |
-| `meetings.ts` | Fetch implementations for meeting queries, artifact retrieval, re-extraction, client reassignment, action item completion, and meeting creation |
+| `meetings.ts` | Fetch implementations for meeting queries, artifact retrieval, re-extraction, client reassignment, action item completion, action item editing, and meeting creation |
 | `chat.ts` | Fetch implementations for single-turn chat, conversation chat, hybrid search, and deep search |
 | `threads.ts` | Fetch implementations for thread CRUD, candidate discovery, evaluation, meeting linking, summary regeneration, and thread chat |
 | `insights.ts` | Fetch implementations for insight CRUD, period-based meeting discovery, insight generation, and insight chat |

@@ -26,7 +26,7 @@ All React components that render domain data. Organized into layout, feature-vie
 | `ThreadsView.tsx` | Thread list for the selected client; supports create, select, and candidate count display |
 | `InsightsView.tsx` | Insight list grouped by period; supports create and select |
 | `TimelinesView.tsx` | Milestone list with status badges; supports create, calendar view, and Gantt view |
-| `ClientActionItemsView.tsx` | Flat list of all incomplete action items for the selected client across all meetings, sortable by priority |
+| `ClientActionItemsView.tsx` | Flat list of all incomplete action items for the selected client across all meetings, sortable by priority, with inline edit support |
 
 ### Detail views (right panel)
 
@@ -46,6 +46,7 @@ All React components that render domain data. Organized into layout, feature-vie
 | `CreateMilestoneDialog.tsx` | Modal form for creating a new milestone (title, target date, description) |
 | `NewMeetingDialog.tsx` | Modal form for manually importing a meeting (client, date, title, transcript format, raw transcript) |
 | `ItemHistoryDialog.tsx` | Modal showing the mention history of a canonical action item or decision across all meetings |
+| `EditActionItemDialog.tsx` | Modal form for editing an action item's description, owner, requester, due date, and priority |
 
 ### Utilities
 

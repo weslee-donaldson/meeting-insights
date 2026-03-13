@@ -19,7 +19,7 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 
 | File | Purpose |
 |------|---------|
-| `useMeetingState.ts` | The largest hook — manages all meetings-view state: selection, multi-check, search/deep-search orchestration, artifact queries, completions, action item handlers, delete confirmation, re-extraction, client reassignment, new meeting creation, and cross-view navigation |
+| `useMeetingState.ts` | The largest hook — manages all meetings-view state: selection, multi-check, search/deep-search orchestration, artifact queries, completions, action item handlers, delete confirmation, re-extraction, client reassignment, action item editing, new meeting creation, and cross-view navigation |
 | `useThreadState.ts` | Manages thread list, selected thread, candidate discovery and evaluation, thread meeting management, thread summary regeneration, and thread chat message history |
 | `useInsightState.ts` | Manages insight list, selected insight, insight generation, RAG/status updates, insight meeting management, and insight chat |
 | `useMilestoneState.ts` | Manages milestone list, selected milestone, mention confirm/reject, milestone merging, action item linking, date slippage queries, and milestone chat |

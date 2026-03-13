@@ -7,7 +7,7 @@ Each file in this directory implements named handler functions for one domain ar
 | File | Purpose |
 |------|---------|
 | `config.ts` | Loads 5 config files at startup: `chat-guidelines.md`, `extraction.md` prompt, `deep-search.md` prompt, `system.json` (search limits), and all `chat-templates/*.md` files into a Map |
-| `meetings.ts` | Handles meeting CRUD, artifact retrieval/normalization, re-extraction, client reassignment, action item completion, multi-meeting deletion (including LanceDB vector cleanup), and chat (single-turn and conversation) |
+| `meetings.ts` | Handles meeting CRUD, artifact retrieval/normalization, re-extraction, client reassignment, action item completion, action item editing, multi-meeting deletion (including LanceDB vector cleanup), and chat (single-turn and conversation) |
 | `search.ts` | Handles hybrid semantic search, per-meeting vector re-embedding, bulk re-embed, and deep-search (LLM-scored relevance ranking) |
 | `threads.ts` | Handles thread lifecycle (create, update, delete, resolve), meeting linking, candidate discovery and LLM evaluation, thread summary regeneration, and thread chat with persisted message history |
 | `insights.ts` | Handles insight lifecycle, period-based meeting discovery, LLM insight generation, insight status/RAG updates, and insight chat |
