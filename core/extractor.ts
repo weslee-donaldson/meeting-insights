@@ -1,4 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
+import { createHash } from "node:crypto";
 import { createLogger } from "./logger.js";
 import { chunkTranscript } from "./chunker.js";
 import type { LlmAdapter } from "./llm-adapter.js";
@@ -6,6 +7,10 @@ import type { SpeakerTurn } from "./parser.js";
 
 const log = createLogger("extract");
 const logValidate = createLogger("extract:validate");
+
+export function generateShortId(meetingId: string, itemIndex: number): string {
+  return createHash("sha256").update(`${meetingId}:${itemIndex}`).digest("hex").slice(0, 6);
+}
 
 const REQUIRED_KEYS = ["summary", "decisions", "proposed_features", "action_items", "open_questions", "risk_items", "additional_notes"] as const;
 

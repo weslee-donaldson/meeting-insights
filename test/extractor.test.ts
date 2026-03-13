@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
-import { extractSummary, validateArtifact, storeArtifact, getArtifact } from "../core/extractor.js";
+import { extractSummary, validateArtifact, storeArtifact, getArtifact, generateShortId } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -28,6 +28,24 @@ beforeAll(() => {
   migrate(db);
   adapter = createLlmAdapter({ type: "stub" });
   meetingId = ingestMeeting(db, parsed);
+});
+
+describe("generateShortId", () => {
+  it("returns 6-char hex hash of meetingId:itemIndex", () => {
+    expect(generateShortId("meeting-abc", 0)).toBe("cbfb3f");
+  });
+
+  it("is deterministic", () => {
+    expect(generateShortId("meeting-abc", 0)).toBe(generateShortId("meeting-abc", 0));
+  });
+
+  it("produces different hashes for different indices", () => {
+    expect(generateShortId("meeting-abc", 0)).not.toBe(generateShortId("meeting-abc", 1));
+  });
+
+  it("produces different hashes for different meeting IDs", () => {
+    expect(generateShortId("meeting-abc", 0)).not.toBe(generateShortId("meeting-xyz", 0));
+  });
 });
 
 describe("extractSummary", () => {
