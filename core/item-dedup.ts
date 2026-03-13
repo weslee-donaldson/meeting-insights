@@ -183,7 +183,7 @@ interface DeduplicateItemsResult {
   duplicatesAutoCompleted: number;
 }
 
-function getItemText(item: unknown, fieldType: string): string {
+export function getItemText(item: unknown, fieldType: string): string {
   if (typeof item === "string") return item;
   if (typeof item === "object" && item !== null) {
     const obj = item as Record<string, unknown>;
@@ -193,12 +193,12 @@ function getItemText(item: unknown, fieldType: string): string {
   return String(item);
 }
 
-function getMeetingTitle(db: Database, meetingId: string): string {
+export function getMeetingTitle(db: Database, meetingId: string): string {
   const row = db.prepare("SELECT title FROM meetings WHERE id = ?").get(meetingId) as { title: string } | undefined;
   return row?.title ?? "Unknown Meeting";
 }
 
-const DEDUP_FIELDS: (keyof Artifact)[] = [
+export const DEDUP_FIELDS: (keyof Artifact)[] = [
   "action_items",
   "decisions",
   "proposed_features",

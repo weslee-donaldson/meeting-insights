@@ -1,6 +1,17 @@
-import { describe, it, expect } from "vitest";
-import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse, assignCanonicalGroups } from "../core/deep-dedup.js";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { mkdirSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse, assignCanonicalGroups, deepScanClient } from "../core/deep-dedup.js";
 import type { BatchDedupItem } from "../core/deep-dedup.js";
+import { connectVectorDb, createItemTable } from "../core/vector-db.js";
+import { loadModel } from "../core/embedder.js";
+import { createDb, migrate } from "../core/db.js";
+import type { Database } from "../core/db.js";
+import { createLlmAdapter } from "../core/llm-adapter.js";
+import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/extractor.js";
+import type { Artifact } from "../core/extractor.js";
 
 describe("buildBatchDedupPrompt", () => {
   const template = "Analyze these items:\n\n{{items}}";
@@ -134,4 +145,111 @@ describe("assignCanonicalGroups", () => {
     const result = assignCanonicalGroups([[0, 1]], items);
     expect(result.size).toBe(2);
   });
+});
+
+describe("deepScanClient", () => {
+  let db: Database;
+  let vdbPath: string;
+  let table: Awaited<ReturnType<typeof createItemTable>>;
+  let session: Awaited<ReturnType<typeof loadModel>>;
+  const llm = createLlmAdapter({ type: "stub" });
+  const template = "{{items}}";
+
+  const baseArtifact: Artifact = {
+    summary: "Test",
+    decisions: [],
+    proposed_features: [],
+    action_items: [],
+    open_questions: ["What next?"],
+    risk_items: [],
+    additional_notes: [],
+    milestones: [],
+  };
+
+  beforeAll(async () => {
+    session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
+  }, 30000);
+
+  const setupDb = async () => {
+    db = createDb(":memory:");
+    migrate(db);
+    vdbPath = join(tmpdir(), `lancedb-deep-dedup-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(vdbPath, { recursive: true });
+    const vdb = await connectVectorDb(vdbPath);
+    table = await createItemTable(vdb);
+  };
+
+  afterAll(() => {
+    if (vdbPath) rmSync(vdbPath, { recursive: true, force: true });
+  });
+
+  it("groups paraphrased action items and auto-completes duplicates", async () => {
+    await setupDb();
+    const m1Id = ingestMeeting(db, { timestamp: "2026-01-10T10:00:00Z", title: "Standup", participants: [], turns: [], rawTranscript: "", sourceFilename: "standup" });
+    const m2Id = ingestMeeting(db, { timestamp: "2026-01-12T10:00:00Z", title: "Review", participants: [], turns: [], rawTranscript: "", sourceFilename: "review" });
+
+    storeArtifact(db, m1Id, {
+      ...baseArtifact,
+      action_items: [
+        { description: "Deploy to production", owner: "Alice", requester: "Bob", due_date: null, priority: "normal" },
+      ],
+    });
+    storeArtifact(db, m2Id, {
+      ...baseArtifact,
+      action_items: [
+        { description: "Push app to prod", owner: "Carol", requester: "Dave", due_date: null, priority: "normal" },
+      ],
+    });
+
+    const meetings = [
+      { id: m1Id, date: "2026-01-10", title: "Standup" },
+      { id: m2Id, date: "2026-01-12", title: "Review" },
+    ];
+
+    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    expect(result.mentionsCreated).toBeGreaterThanOrEqual(2);
+    expect(result.duplicatesAutoCompleted).toBe(1);
+
+    const completions = db.prepare("SELECT * FROM action_item_completions WHERE note LIKE '[auto-dedup-deep]%'").all() as Array<{ note: string }>;
+    expect(completions.length).toBe(1);
+    expect(completions[0].note).toContain("[auto-dedup-deep]");
+  }, 30000);
+
+  it("assigns unique canonical_ids to low-priority items without auto-completion", async () => {
+    await setupDb();
+    const m1Id = ingestMeeting(db, { timestamp: "2026-01-10T10:00:00Z", title: "Standup", participants: [], turns: [], rawTranscript: "", sourceFilename: "standup-low" });
+
+    storeArtifact(db, m1Id, {
+      ...baseArtifact,
+      action_items: [
+        { description: "Nice to have feature", owner: "", requester: "", due_date: null, priority: "low" },
+        { description: "Another aspirational item", owner: "", requester: "", due_date: null, priority: "low" },
+      ],
+    });
+
+    const meetings = [{ id: m1Id, date: "2026-01-10", title: "Standup" }];
+    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    expect(result.duplicatesAutoCompleted).toBe(0);
+
+    const mentions = db.prepare("SELECT * FROM item_mentions WHERE meeting_id = ? AND item_type = 'action_items'").all(m1Id) as Array<{ canonical_id: string }>;
+    expect(mentions.length).toBe(2);
+    expect(mentions[0].canonical_id).not.toBe(mentions[1].canonical_id);
+  }, 30000);
+
+  it("embeds and stores non-action-item fields with unique canonical_ids", async () => {
+    await setupDb();
+    const m1Id = ingestMeeting(db, { timestamp: "2026-01-10T10:00:00Z", title: "Standup", participants: [], turns: [], rawTranscript: "", sourceFilename: "standup-fields" });
+
+    storeArtifact(db, m1Id, {
+      ...baseArtifact,
+      open_questions: ["What is the timeline?", "Who owns the deployment?"],
+      action_items: [{ description: "Deploy", owner: "Alice", requester: "Bob", due_date: null, priority: "normal" }],
+    });
+
+    const meetings = [{ id: m1Id, date: "2026-01-10", title: "Standup" }];
+    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    const oqMentions = db.prepare("SELECT * FROM item_mentions WHERE meeting_id = ? AND item_type = 'open_questions'").all(m1Id);
+    expect(oqMentions.length).toBe(2);
+    expect(result.mentionsCreated).toBe(3);
+  }, 30000);
 });

@@ -47,6 +47,15 @@ export function parseBatchDedupResponse(response: Record<string, unknown>, itemC
 }
 
 import { randomUUID } from "node:crypto";
+import type { DatabaseSync as Database } from "node:sqlite";
+import type { InferenceSession } from "onnxruntime-node";
+import type { VectorTable } from "./vector-db.js";
+import type { LlmAdapter } from "./llm-adapter.js";
+import type { Artifact } from "./extractor.js";
+import { getItemText, getMeetingTitle, DEDUP_FIELDS, embedItem, storeItemVector, recordMention } from "./item-dedup.js";
+import { createLogger } from "./logger.js";
+
+const log = createLogger("dedup:deep");
 
 export interface CanonicalAssignment {
   canonicalId: string;
@@ -76,4 +85,144 @@ export function assignCanonicalGroups(
     }
   }
   return assignments;
+}
+
+interface DeepScanResult {
+  mentionsCreated: number;
+  duplicatesAutoCompleted: number;
+}
+
+interface ArtifactRow {
+  summary: string;
+  decisions: string;
+  proposed_features: string;
+  action_items: string;
+  open_questions: string;
+  risk_items: string;
+  additional_notes: string;
+  milestones: string;
+}
+
+function parseArtifact(row: ArtifactRow): Artifact {
+  return {
+    summary: row.summary ?? "",
+    decisions: JSON.parse(row.decisions ?? "[]"),
+    proposed_features: JSON.parse(row.proposed_features ?? "[]"),
+    action_items: JSON.parse(row.action_items ?? "[]"),
+    open_questions: JSON.parse(row.open_questions ?? "[]"),
+    risk_items: JSON.parse(row.risk_items ?? "[]"),
+    additional_notes: JSON.parse(row.additional_notes ?? "[]"),
+    milestones: JSON.parse(row.milestones ?? "[]"),
+  };
+}
+
+interface FlatActionItem extends BatchDedupItem {
+  meetingId: string;
+  itemIndex: number;
+}
+
+export async function deepScanClient(
+  db: Database,
+  itemTable: VectorTable,
+  session: InferenceSession & { _tokenizer: unknown },
+  llm: LlmAdapter,
+  clientName: string,
+  meetings: Array<{ id: string; date: string; title: string }>,
+  promptTemplate: string,
+): Promise<DeepScanResult> {
+  let mentionsCreated = 0;
+  let duplicatesAutoCompleted = 0;
+  const batchSize = parseInt(process.env.MTNINSIGHTS_DEDUP_BATCH_SIZE ?? "50", 10);
+
+  const allActionItems: FlatActionItem[] = [];
+  const meetingArtifacts = new Map<string, Artifact>();
+
+  for (const meeting of meetings) {
+    const row = db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meeting.id) as ArtifactRow | undefined;
+    if (!row) continue;
+    const artifact = parseArtifact(row);
+    meetingArtifacts.set(meeting.id, artifact);
+
+    for (let i = 0; i < artifact.action_items.length; i++) {
+      const item = artifact.action_items[i];
+      allActionItems.push({
+        description: item.description,
+        priority: item.priority ?? "normal",
+        meetingTitle: meeting.title,
+        date: meeting.date,
+        meetingId: meeting.id,
+        itemIndex: i,
+      });
+    }
+  }
+
+  const filtered = filterAndCapItems(allActionItems, batchSize);
+  let groups: number[][] = [];
+
+  if (filtered.length >= 2) {
+    const prompt = buildBatchDedupPrompt(promptTemplate, filtered);
+    const response = await llm.complete("dedup_intent", prompt);
+    groups = parseBatchDedupResponse(response, filtered.length);
+    log("client=%s items=%d groups=%d", clientName, filtered.length, groups.length);
+  }
+
+  const assignments = assignCanonicalGroups(groups, filtered);
+
+  const groupedOriginals = new Map<number, { canonicalId: string; firstMentionedAt: string }>();
+  for (const [filteredIdx, assignment] of assignments) {
+    const item = filtered[filteredIdx];
+    groupedOriginals.set(item.originalIndex, assignment);
+  }
+
+  for (let i = 0; i < allActionItems.length; i++) {
+    const item = allActionItems[i];
+    const assignment = groupedOriginals.get(i) ?? { canonicalId: randomUUID(), firstMentionedAt: item.date };
+    const vec = await embedItem(session, item.description);
+    await storeItemVector(itemTable, assignment.canonicalId, item.description, "action_items", item.meetingId, item.date, clientName, vec);
+    recordMention(db, assignment.canonicalId, item.meetingId, "action_items", item.itemIndex, item.description, assignment.firstMentionedAt);
+    mentionsCreated++;
+
+    const isGrouped = groupedOriginals.has(i);
+    if (isGrouped) {
+      const group = groups.find((g) => {
+        const origIndices = g.map((fi) => filtered[fi].originalIndex);
+        return origIndices.includes(i);
+      });
+      if (group && group.length >= 2) {
+        const earliestFilteredIdx = group.reduce((min, idx) => filtered[idx].date < filtered[min].date ? idx : min, group[0]);
+        const earliestOriginal = filtered[earliestFilteredIdx].originalIndex;
+        if (i !== earliestOriginal) {
+          const earliestItem = allActionItems[earliestOriginal];
+          const matchTitle = getMeetingTitle(db, earliestItem.meetingId);
+          const note = `[auto-dedup-deep] First raised ${earliestItem.date} in '${matchTitle}'`;
+          db.prepare(
+            "INSERT INTO action_item_completions (id, meeting_id, item_index, completed_at, note) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET note = excluded.note, completed_at = excluded.completed_at",
+          ).run(`${item.meetingId}:${item.itemIndex}`, item.meetingId, item.itemIndex, new Date().toISOString(), note);
+          duplicatesAutoCompleted++;
+        }
+      }
+    }
+  }
+
+  for (const meeting of meetings) {
+    const artifact = meetingArtifacts.get(meeting.id);
+    if (!artifact) continue;
+    for (const field of DEDUP_FIELDS) {
+      if (field === "action_items") continue;
+      const items = artifact[field];
+      if (!Array.isArray(items)) continue;
+      for (let i = 0; i < items.length; i++) {
+        const text = getItemText(items[i], field);
+        if (!text) continue;
+        const canonicalId = randomUUID();
+        const vec = await embedItem(session, text);
+        await storeItemVector(itemTable, canonicalId, text, field, meeting.id, meeting.date, clientName, vec);
+        recordMention(db, canonicalId, meeting.id, field, i, text, meeting.date);
+        mentionsCreated++;
+      }
+    }
+  }
+
+  log("client=%s mentions=%d dupes_completed=%d", clientName, mentionsCreated, duplicatesAutoCompleted);
+  return { mentionsCreated, duplicatesAutoCompleted };
 }
