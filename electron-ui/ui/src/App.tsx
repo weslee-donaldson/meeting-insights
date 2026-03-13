@@ -94,8 +94,22 @@ export function App() {
   activeMeetingIdsRef.current = computedActiveMeetingIds;
 
   const handleChat = useCallback(
-    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string): Promise<ConversationChatResponse> => {
-      return window.api.conversationChat({ meetingIds: activeMeetingIdsRef.current, messages, attachments, includeTranscripts, template: template || undefined });
+    async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean): Promise<ConversationChatResponse> => {
+      let mergedAttachments = attachments;
+      if (includeAssets) {
+        const assetAttachments: { name: string; base64: string; mimeType: string }[] = [];
+        for (const meetingId of activeMeetingIdsRef.current) {
+          const assets = await window.api.getMeetingAssets(meetingId);
+          for (const asset of assets) {
+            const data = await window.api.getAssetData(asset.id);
+            if (data) {
+              assetAttachments.push({ name: data.filename, base64: data.data, mimeType: data.mimeType });
+            }
+          }
+        }
+        mergedAttachments = [...(attachments ?? []), ...assetAttachments];
+      }
+      return window.api.conversationChat({ meetingIds: activeMeetingIdsRef.current, messages, attachments: mergedAttachments, includeTranscripts, template: template || undefined });
     },
     [],
   );
@@ -318,6 +332,7 @@ export function App() {
         onChat={handleChat}
         templates={templatesQuery.data ?? []}
         onSaveAsThread={selectedClient ? handleSaveAsThreadAndOpen : undefined}
+        showIncludeAssets={computedActiveMeetingIds.length > 0}
       />
     );
 
