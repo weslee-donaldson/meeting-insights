@@ -732,4 +732,17 @@ describe("MeetingDetail", () => {
     );
     expect(screen.queryByRole("button", { name: "Edit item 0" })).toBeNull();
   });
+
+  it("displays short_id with copy button when present on action item", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null, short_id: "abc123" }],
+        })}
+      />,
+    );
+    expect(screen.getByText("abc123")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Copy abc123" })).toBeDefined();
+  });
 });

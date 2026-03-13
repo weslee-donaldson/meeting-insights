@@ -367,6 +367,16 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                     <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} />
                   </button>
                 )}
+                {a.short_id && (
+                  <button
+                    onClick={() => navigator.clipboard.writeText(a.short_id!)}
+                    aria-label={`Copy ${a.short_id}`}
+                    className="shrink-0 mt-0.5 inline-flex items-center gap-0.5 bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+                  >
+                    <span className="font-mono text-[0.65rem]">{a.short_id}</span>
+                    <Clipboard className="w-3 h-3" />
+                  </button>
+                )}
                 <span className="text-sm leading-[1.5]">
                   {isCompleted ? (
                     <button
