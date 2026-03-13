@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Clipboard } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
@@ -250,6 +250,16 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
           className="mt-0.5 shrink-0 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-foreground hover:text-foreground"
         >
           <Pencil className="w-3.5 h-3.5" strokeWidth={2.5} />
+        </button>
+      )}
+      {item.short_id && (
+        <button
+          onClick={() => navigator.clipboard.writeText(item.short_id!)}
+          aria-label={`Copy ${item.short_id}`}
+          className="shrink-0 mt-0.5 inline-flex items-center gap-0.5 bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+        >
+          <span className="font-mono text-[0.65rem]">{item.short_id}</span>
+          <Clipboard className="w-3 h-3" />
         </button>
       )}
       {item.priority === "critical" && !completed && (

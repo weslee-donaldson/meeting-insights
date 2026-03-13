@@ -390,3 +390,16 @@ describe("ClientActionItemsView — Add action item", () => {
     );
   });
 });
+
+describe("ClientActionItemsView — Short ID display", () => {
+  it("displays short_id with copy button when present on action item", () => {
+    const itemsWithId: ClientActionItem[] = [
+      { ...ITEMS[0], short_id: "f1a2b3" },
+    ];
+    render(
+      <ClientActionItemsView clientName="Acme" items={itemsWithId} />,
+    );
+    expect(screen.getByText("f1a2b3")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Copy f1a2b3" })).toBeDefined();
+  });
+});
