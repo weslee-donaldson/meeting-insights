@@ -198,6 +198,17 @@ export function migrate(db: DatabaseSync): void {
       FOREIGN KEY (meeting_id) REFERENCES meetings(id)
     );
 
+    CREATE TABLE IF NOT EXISTS assets (
+      id TEXT PRIMARY KEY,
+      meeting_id TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      file_size INTEGER NOT NULL,
+      storage_path TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
+
     CREATE TABLE IF NOT EXISTS milestone_messages (
       id TEXT PRIMARY KEY,
       milestone_id TEXT NOT NULL,
