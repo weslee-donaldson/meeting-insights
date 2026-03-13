@@ -12,12 +12,12 @@
 
 ### Feature: Action Item Editing
 
-- [ ] Burst E1: Core handler — handleEditActionItem in handlers/meetings.ts + test
-- [ ] Burst E2: Channel + ElectronAPI type — add EDIT_ACTION_ITEM channel and editActionItem method
-- [ ] Burst E3: API route — PUT /api/meetings/:id/action-items/:index + test
-- [ ] Burst E4: Preload + api-client — wire editActionItem through both transports
-- [ ] Burst E5: useMeetingState — add handleEditActionItem callbacks
-- [ ] Burst E6: EditActionItemDialog component + test
+- [x] Burst E1: Core handler — handleEditActionItem in handlers/meetings.ts + test
+- [x] Burst E2: Channel + ElectronAPI type — add EDIT_ACTION_ITEM channel and editActionItem method
+- [x] Burst E3: API route — PUT /api/meetings/:id/action-items/:index + test
+- [x] Burst E4: Preload + api-client — wire editActionItem through both transports
+- [x] Burst E5: useMeetingState — add handleEditActionItem callbacks
+- [x] Burst E6: EditActionItemDialog component + test
 - [ ] Burst E7: Wire edit icon into MeetingDetail action items + test
 - [ ] Burst E8: Wire edit into ClientActionItemsView + test
 - [ ] Burst E9: Update READMEs for changed files
