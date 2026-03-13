@@ -2,6 +2,7 @@ import React from "react";
 import { MeetingList, type GroupBy, type SortBy } from "../components/MeetingList.js";
 import { MeetingDetail } from "../components/MeetingDetail.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
+import type { AssetRow } from "../../../../core/assets.js";
 
 interface MeetingsPageProps {
   scopeMeetings: MeetingRow[];
@@ -47,6 +48,9 @@ interface MeetingsPageProps {
   onThreadClick: (threadId: string) => void;
   onMilestoneClick: (milestoneId: string) => void;
   onEditActionItem?: (index: number, fields: EditActionItemFields) => void;
+  assets?: AssetRow[];
+  onUploadAsset?: (file: File) => void;
+  onDeleteAsset?: (assetId: string) => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -58,7 +62,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     artifact, artifactLoading, clients, onReExtract, reExtractPending, onReassignClient,
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
-    onEditActionItem,
+    onEditActionItem, assets, onUploadAsset, onDeleteAsset,
   } = props;
 
   return [
@@ -111,6 +115,9 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       milestoneTags={isMultiMode ? undefined : selectedMeeting?.milestone_tags}
       onMilestoneClick={onMilestoneClick}
       onEditActionItem={isMultiMode ? undefined : onEditActionItem}
+      assets={isMultiMode ? undefined : assets}
+      onUploadAsset={isMultiMode ? undefined : onUploadAsset}
+      onDeleteAsset={isMultiMode ? undefined : onDeleteAsset}
     />,
   ];
 }

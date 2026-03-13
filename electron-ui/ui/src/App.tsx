@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ConversationMessage, ConversationChatResponse } from "../../electron/channels.js";
 import { LinearShell } from "./components/LinearShell.js";
 import { TopBar } from "./components/TopBar.js";
@@ -57,6 +57,27 @@ export function App() {
   const thread = useThreadState(selectedClient, currentView, addToast);
   const insight = useInsightState(selectedClient, currentView, addToast);
   const milestone = useMilestoneState(selectedClient, currentView, addToast);
+
+  const queryClient = useQueryClient();
+
+  const assetsQuery = useQuery({
+    queryKey: ["assets", meeting.selectedMeetingId],
+    queryFn: () => window.api.getMeetingAssets(meeting.selectedMeetingId!),
+    enabled: !!meeting.selectedMeetingId,
+  });
+
+  const handleUploadAsset = useCallback(async (file: File) => {
+    if (!meeting.selectedMeetingId) return;
+    const buf = await file.arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+    await window.api.uploadAsset(meeting.selectedMeetingId, file.name, file.type, base64);
+    queryClient.invalidateQueries({ queryKey: ["assets", meeting.selectedMeetingId] });
+  }, [meeting.selectedMeetingId, queryClient]);
+
+  const handleDeleteAsset = useCallback(async (assetId: string) => {
+    await window.api.deleteAsset(assetId);
+    queryClient.invalidateQueries({ queryKey: ["assets", meeting.selectedMeetingId] });
+  }, [meeting.selectedMeetingId, queryClient]);
 
   const computedActiveMeetingIds =
     currentView === "action-items"
@@ -161,6 +182,9 @@ export function App() {
     onThreadClick: handleThreadClick,
     onMilestoneClick: handleMilestoneClick,
     onEditActionItem: meeting.handleEditActionItem,
+    assets: assetsQuery.data,
+    onUploadAsset: meeting.selectedMeetingId ? handleUploadAsset : undefined,
+    onDeleteAsset: meeting.selectedMeetingId ? handleDeleteAsset : undefined,
   });
 
   const actionItemsPanels = ActionItemsPage({
