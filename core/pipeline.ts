@@ -11,6 +11,7 @@ import type { Participant } from "./client-registry.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
+import { deepScanClient } from "./deep-dedup.js";
 import { updateFts } from "./fts.js";
 import { listThreadsByClient, evaluateMeetingAgainstThread, addThreadMeeting } from "./threads.js";
 import { reconcileMilestones } from "./timelines.js";
@@ -106,6 +107,11 @@ async function processEntry(
     updateFts(db, meetingId);
     const client = topClient?.client_name ?? "";
     await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp, client);
+    if (client && process.env.MTNINSIGHTS_DEDUP_DEEP === "1") {
+      const dedupPromptPath = "config/prompts/dedup-intent.md";
+      const dedupTemplate = existsSync(dedupPromptPath) ? readFileSync(dedupPromptPath, "utf-8") : "{{items}}";
+      await deepScanClient(db, itemTable, session, llm, client, [{ id: meetingId, date: parsed.timestamp, title: parsed.title }], dedupTemplate);
+    }
     const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
     await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
     if (client) {
