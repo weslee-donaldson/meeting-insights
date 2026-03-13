@@ -79,6 +79,12 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["assets", meeting.selectedMeetingId] });
   }, [meeting.selectedMeetingId, queryClient]);
 
+  const handleRename = useCallback(async (newTitle: string) => {
+    if (!meeting.selectedMeetingId) return;
+    await window.api.renameMeeting(meeting.selectedMeetingId, newTitle);
+    queryClient.invalidateQueries({ queryKey: ["meetings"] });
+  }, [meeting.selectedMeetingId, queryClient]);
+
   const computedActiveMeetingIds =
     currentView === "action-items"
       ? (meeting.previewMeetingId ? [meeting.previewMeetingId] : [])
@@ -199,6 +205,7 @@ export function App() {
     assets: assetsQuery.data,
     onUploadAsset: meeting.selectedMeetingId ? handleUploadAsset : undefined,
     onDeleteAsset: meeting.selectedMeetingId ? handleDeleteAsset : undefined,
+    onRename: meeting.selectedMeetingId ? handleRename : undefined,
   });
 
   const actionItemsPanels = ActionItemsPage({

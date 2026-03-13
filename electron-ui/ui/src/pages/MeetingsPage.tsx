@@ -51,6 +51,7 @@ interface MeetingsPageProps {
   assets?: AssetRow[];
   onUploadAsset?: (file: File) => void;
   onDeleteAsset?: (assetId: string) => void;
+  onRename?: (newTitle: string) => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -62,7 +63,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     artifact, artifactLoading, clients, onReExtract, reExtractPending, onReassignClient,
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
-    onEditActionItem, assets, onUploadAsset, onDeleteAsset,
+    onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename,
   } = props;
 
   return [
@@ -118,6 +119,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       assets={isMultiMode ? undefined : assets}
       onUploadAsset={isMultiMode ? undefined : onUploadAsset}
       onDeleteAsset={isMultiMode ? undefined : onDeleteAsset}
+      onRename={isMultiMode ? undefined : onRename}
     />,
   ];
 }
