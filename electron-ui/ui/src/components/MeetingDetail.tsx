@@ -6,7 +6,6 @@ import { useDropzone } from "react-dropzone";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
-import { ScrollArea } from "./ui/scroll-area.js";
 import { cn } from "../lib/utils.js";
 import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
 import { HighlightText } from "./HighlightText.js";
