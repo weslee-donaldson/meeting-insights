@@ -368,6 +368,11 @@ export function App() {
           theme={theme}
           setTheme={setTheme}
           themes={themes}
+          stats={selectedClient ? {
+            meetings: meeting.scopeMeetings.length,
+            actionItems: (meeting.clientActionItemsQuery.data ?? []).length,
+            threads: (thread.threadsQuery.data ?? []).length,
+          } : undefined}
         />
       }
       navRail={<NavRail currentView={currentView} onNavigate={meeting.handleNavigate} />}

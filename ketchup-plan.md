@@ -331,7 +331,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 85: WorkspaceBanner date range — "From" label + date input + "to" label + date input, right side of row 2. Deep search toggle integrated.
 - [x] Burst 86: TopBar refactored to render WorkspaceBanner replacing all separate controls. Removed Radix Select, old SearchBar, inline buttons. Theme toggle remains as icon beside banner.
 - [x] Burst 87: WorkspaceBanner empty state — when no client selected, shows "Select a workspace" with client dropdown.
-- [ ] Burst 88: **DESIGN GATE 11** — Playwright screenshot of WorkspaceBanner in stone-light at 2560×1440. Paper MCP screenshot Option 3. Compare: avatar, client name, stats, scoped search, date inputs. Fix deltas.
+- [x] Burst 88: **DESIGN GATE 11** — Playwright screenshot of WorkspaceBanner in stone-light at 2560×1440. Paper MCP screenshot Option 3. Avatar PASS. Client dropdown PASS. Summary stats wired (meetings · action items · threads) PASS. Scoped search PASS. From/To dates PASS. Deep toggle PASS. Reset PASS. Tint bg row 1 PASS. VERIFIED.
 
 ## DONE
 
