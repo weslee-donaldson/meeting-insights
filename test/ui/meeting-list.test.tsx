@@ -39,6 +39,37 @@ const dsuMeetings: MeetingRow[] = [
 ];
 
 describe("MeetingList", () => {
+  it("renders filter controls using FilterBar toolbar", () => {
+    render(
+      <MeetingList
+        meetings={[]}
+        selectedId={null}
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("toolbar", { name: "Filters" })).toBeDefined();
+  });
+
+  it("renders meeting rows using ListItemRow with aria role option", () => {
+    render(
+      <MeetingList
+        meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" })]}
+        selectedId="m1"
+        checked={new Set()}
+        {...defaultProps()}
+        onSelect={vi.fn()}
+        onCheck={vi.fn()}
+        onCheckGroup={vi.fn()}
+      />,
+    );
+    const row = screen.getByRole("option", { selected: true });
+    expect(row).toBeDefined();
+  });
+
   it("groups meetings with same normalized title under one group", () => {
     render(
       <MeetingList
@@ -162,7 +193,7 @@ describe("MeetingList", () => {
     expect(dates[0].textContent).toContain("Feb 23");
   });
 
-  it("renders Sort: label and Newest/Oldest/Client buttons always", () => {
+  it("renders Sort FilterChip showing current sort value", () => {
     render(
       <MeetingList
         meetings={[]}
@@ -175,13 +206,10 @@ describe("MeetingList", () => {
       />,
     );
     expect(screen.getByText("Sort:")).toBeDefined();
-    expect(screen.getByRole("button", { name: "Newest" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Oldest" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Client" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Relevance" })).toBeNull();
+    expect(screen.getByText("Newest")).toBeDefined();
   });
 
-  it("shows Relevance button when searchScores are provided", () => {
+  it("shows Relevance in sort dropdown when searchScores are provided", () => {
     render(
       <MeetingList
         meetings={dsuMeetings}
@@ -194,10 +222,12 @@ describe("MeetingList", () => {
         searchScores={new Map([["dsu-1", 0.3], ["dsu-2", 0.8]])}
       />,
     );
-    expect(screen.getByRole("button", { name: "Relevance" })).toBeTruthy();
+    const sortChip = screen.getByText("Sort:").closest("button")!;
+    fireEvent.click(sortChip);
+    expect(screen.getByRole("option", { name: "Relevance" })).toBeDefined();
   });
 
-  it("clicking a sort button calls onSortBy with that mode", () => {
+  it("selecting a sort option from dropdown calls onSortBy", () => {
     const onSortBy = vi.fn();
     render(
       <MeetingList
@@ -210,7 +240,9 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Oldest" }));
+    const sortChip = screen.getByText("Sort:").closest("button")!;
+    fireEvent.click(sortChip);
+    fireEvent.click(screen.getByRole("option", { name: "Oldest" }));
     expect(onSortBy).toHaveBeenCalledWith("date-asc");
   });
 
@@ -258,7 +290,7 @@ describe("MeetingList", () => {
     expect(rows[0].textContent).toBe("Meeting A");
   });
 
-  it("renders Group by label before group-by buttons", () => {
+  it("renders Group FilterChip showing current group value", () => {
     render(
       <MeetingList
         meetings={[]}
@@ -270,10 +302,11 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getByText("Group by:")).toBeDefined();
+    expect(screen.getByText("Group:")).toBeDefined();
+    expect(screen.getByText("Series")).toBeDefined();
   });
 
-  it("renders four group-by selector buttons", () => {
+  it("group dropdown shows all four group options", () => {
     render(
       <MeetingList
         meetings={[]}
@@ -285,13 +318,15 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getByRole("button", { name: "Series" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Day" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Week" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Month" })).toBeTruthy();
+    const groupChip = screen.getByText("Group:").closest("button")!;
+    fireEvent.click(groupChip);
+    expect(screen.getByRole("option", { name: "Series" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "Day" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "Week" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "Month" })).toBeDefined();
   });
 
-  it("clicking a group-by button calls onGroupBy with that mode", () => {
+  it("selecting a group option from dropdown calls onGroupBy", () => {
     const onGroupBy = vi.fn();
     render(
       <MeetingList
@@ -304,11 +339,13 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Day" }));
+    const groupChip = screen.getByText("Group:").closest("button")!;
+    fireEvent.click(groupChip);
+    fireEvent.click(screen.getByRole("option", { name: "Day" }));
     expect(onGroupBy).toHaveBeenCalledWith("day");
   });
 
-  it("active group-by button matches groupBy prop", () => {
+  it("active group value is shown in the FilterChip", () => {
     render(
       <MeetingList
         meetings={[]}
@@ -320,8 +357,7 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    const weekBtn = screen.getByRole("button", { name: "Week" }) as HTMLButtonElement;
-    expect(weekBtn.className).toContain("bg-primary");
+    expect(screen.getByText("Week")).toBeDefined();
   });
 
   it("groups two meetings on the same day under one day group", () => {
@@ -602,7 +638,7 @@ describe("MeetingList", () => {
     expect(onCheckGroup).toHaveBeenCalledWith([]);
   });
 
-  it("highlights checked meeting rows with elevated background", () => {
+  it("highlights checked meeting rows with ListItemRow selected state", () => {
     render(
       <MeetingList
         meetings={[makeMeeting({ id: "m1", title: "Alpha Meeting" }), makeMeeting({ id: "m2", title: "Beta Meeting", series: "beta meeting" })]}
@@ -614,12 +650,11 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    const checkedRow = screen.getByTestId("meeting-row-m1");
-    expect(checkedRow.className).toMatch(/(?:^|\s)bg-secondary(?:\s|$)/);
-    expect(checkedRow.className).toContain("border-l-[var(--color-accent)]");
-    const uncheckedRow = screen.getByTestId("meeting-row-m2");
-    expect(uncheckedRow.className).not.toMatch(/(?:^|\s)bg-secondary(?:\s|$)/);
-    expect(uncheckedRow.className).toContain("border-l-transparent");
+    const checkedRowParent = screen.getByTestId("meeting-row-m1").closest("[role='option']")!;
+    expect(checkedRowParent.className).toContain("bg-[var(--color-tint)]");
+    expect(checkedRowParent.className).toContain("border-l-[var(--color-accent)]");
+    const uncheckedRowParent = screen.getByTestId("meeting-row-m2").closest("[role='option']")!;
+    expect(uncheckedRowParent.className).toContain("border-l-transparent");
   });
 
   it("does not render client badge in meeting rows", () => {
@@ -689,8 +724,8 @@ describe("MeetingList", () => {
           deepSearchSummaries={summaries}
         />,
       );
-      const row = screen.getByTestId("meeting-row-dsu-1");
-      expect(row.className).toContain("border-l-[var(--color-search-deep)]");
+      const rowParent = screen.getByTestId("meeting-row-dsu-1").closest("[role='option']")!;
+      expect(rowParent.className).toContain("border-l-[var(--color-search-deep)]");
       expect(screen.getByText("Discussed DLQ retry strategy.")).toBeDefined();
     });
 
@@ -708,8 +743,8 @@ describe("MeetingList", () => {
           deepSearchSummaries={new Map([["dsu-1", "Some summary"]])}
         />,
       );
-      const row = screen.getByTestId("meeting-row-dsu-1");
-      expect(row.className).not.toContain("border-l-[var(--color-search-deep)]");
+      const rowParent = screen.getByTestId("meeting-row-dsu-1").closest("[role='option']")!;
+      expect(rowParent.className).not.toContain("border-l-[var(--color-search-deep)]");
     });
   });
 
@@ -782,7 +817,7 @@ describe("MeetingList", () => {
   });
 
   describe("thread sort", () => {
-    it("Thread sort button appears when meetings have thread_tags", () => {
+    it("Thread sort option appears in dropdown when meetings have thread_tags", () => {
       const meetings = [
         makeMeeting({ id: "m1", thread_tags: [{ thread_id: "t1", title: "Deploy", shorthand: "DEP" }] }),
       ];
@@ -797,10 +832,12 @@ describe("MeetingList", () => {
           onCheckGroup={vi.fn()}
         />,
       );
-      expect(screen.getByRole("button", { name: "Thread" })).toBeDefined();
+      const sortChip = screen.getByText("Sort:").closest("button")!;
+      fireEvent.click(sortChip);
+      expect(screen.getByRole("option", { name: "Thread" })).toBeDefined();
     });
 
-    it("Thread sort button hidden when no meetings have thread_tags", () => {
+    it("Thread sort option hidden when no meetings have thread_tags", () => {
       const meetings = [makeMeeting({ id: "m1" })];
       render(
         <MeetingList
@@ -813,7 +850,9 @@ describe("MeetingList", () => {
           onCheckGroup={vi.fn()}
         />,
       );
-      expect(screen.queryByRole("button", { name: "Thread" })).toBeNull();
+      const sortChip = screen.getByText("Sort:").closest("button")!;
+      fireEvent.click(sortChip);
+      expect(screen.queryByRole("option", { name: "Thread" })).toBeNull();
     });
 
     it("renders thread tag shorthand badges next to meeting title", () => {

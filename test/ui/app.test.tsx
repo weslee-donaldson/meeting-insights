@@ -117,13 +117,14 @@ describe("App", () => {
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
 
-  it("renders group-by selector and switches groupBy state on click", async () => {
+  it("renders group-by FilterChip and switches groupBy state via dropdown", async () => {
     render(<App />, { wrapper });
-    const dayBtn = screen.getByRole("button", { name: "Day" });
-    expect(dayBtn).toBeDefined();
-    fireEvent.click(dayBtn);
+    const groupChip = screen.getByText("Group:").closest("button")!;
+    expect(groupChip).toBeDefined();
+    fireEvent.click(groupChip);
+    fireEvent.click(screen.getByRole("option", { name: "Day" }));
     await waitFor(() => {
-      expect((screen.getByRole("button", { name: "Day" }) as HTMLButtonElement).className).toContain("bg-primary");
+      expect(screen.getByText("Day")).toBeDefined();
     });
   });
 
@@ -313,7 +314,7 @@ describe("App", () => {
     });
   });
 
-  it("Relevance sort button appears and sort switches to relevance when search returns results", async () => {
+  it("Relevance sort option appears in dropdown when search returns results", async () => {
     (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
       { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
     ]);
@@ -322,7 +323,7 @@ describe("App", () => {
     fireEvent.change(input, { target: { value: "deployment issue" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Relevance" })).toBeTruthy();
+      expect(screen.getByText("Relevance")).toBeTruthy();
     });
   });
 
@@ -334,10 +335,10 @@ describe("App", () => {
     const input = screen.getByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "deployment issue" } });
     fireEvent.keyDown(input, { key: "Enter" });
-    await waitFor(() => screen.getByRole("button", { name: "Relevance" }));
+    await waitFor(() => expect(screen.getByText("Relevance")).toBeTruthy());
     fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: "Relevance" })).toBeNull();
+      expect(screen.queryByText("Relevance")).toBeNull();
     });
   });
 

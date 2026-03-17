@@ -266,7 +266,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 
 - [x] Burst 55: LinearShell renders 3-zone layout: nav rail (56px fixed) + content area (flex: 1) — content area contains sidebar + detail + assistant
 - [x] Burst 56: MeetingsPage uses 3-zone: sidebar (300px, white bg, border-right 1px) | detail (flex, base bg) | ChatPanel (380px, white bg, border-left 1px) — refactored from current layout
-- [ ] Burst 57: MeetingsPage sidebar uses new ListItemRow, GroupHeader, FilterBar components replacing inline implementations
+- [x] Burst 57: MeetingsPage sidebar uses new ListItemRow, GroupHeader, FilterBar components replacing inline implementations
 - [ ] Burst 58: MeetingsPage detail header uses CommandBar component with Meeting context actions
 - [ ] Burst 59: MeetingsPage detail sections use SectionHeader component (Summary, Decisions, Action Items, Open Questions, Risks)
 - [ ] Burst 60: **DESIGN GATE 7a** — Playwright screenshot of MeetingsPage with a meeting selected at 2560×1440. Paper MCP screenshot "Concept A — Meeting Detail". Compare: sidebar width, command bar, section headers, assistant panel. Fix deltas before continuing.

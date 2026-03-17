@@ -3,6 +3,9 @@ import { Trash2, EyeOff } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 import { cn } from "../lib/utils.js";
+import { FilterBar } from "./shared/filter-bar.js";
+import { GroupHeader } from "./shared/group-header.js";
+import { ListItemRow } from "./shared/list-item-row.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
@@ -124,20 +127,20 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-const GROUP_MODES: { value: GroupBy; label: string }[] = [
-  { value: "series", label: "Series" },
-  { value: "day", label: "Day" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-];
+const GROUP_LABELS: Record<GroupBy, string> = {
+  series: "Series",
+  day: "Day",
+  week: "Week",
+  month: "Month",
+};
 
-const SORT_MODES: { value: SortBy; label: string }[] = [
-  { value: "date-desc", label: "Newest" },
-  { value: "date-asc", label: "Oldest" },
-  { value: "client", label: "Client" },
-  { value: "relevance", label: "Relevance" },
-  { value: "thread", label: "Thread" },
-];
+const SORT_LABELS: Record<SortBy, string> = {
+  "date-desc": "Newest",
+  "date-asc": "Oldest",
+  client: "Client",
+  relevance: "Relevance",
+  thread: "Thread",
+};
 
 export function MeetingList({
   meetings,
@@ -199,9 +202,31 @@ export function MeetingList({
   const hasRelevance = !!searchScores && searchScores.size > 0;
   const hasThreads = meetings.some((m) => (m.thread_tags?.length ?? 0) > 0);
 
+  const sortOptions = useMemo(() => {
+    const opts: string[] = ["Newest", "Oldest", "Client"];
+    if (hasRelevance) opts.push("Relevance");
+    if (hasThreads) opts.push("Thread");
+    return opts;
+  }, [hasRelevance, hasThreads]);
+
+  const sortLabelToValue: Record<string, SortBy> = {
+    Newest: "date-desc",
+    Oldest: "date-asc",
+    Client: "client",
+    Relevance: "relevance",
+    Thread: "thread",
+  };
+
+  const groupLabelToValue: Record<string, GroupBy> = {
+    Series: "series",
+    Day: "day",
+    Week: "week",
+    Month: "month",
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex flex-col shrink-0 border-b border-border">
+      <div className="flex flex-col shrink-0 border-b border-[var(--color-line)]">
         <div className="flex items-center gap-1 px-3 pt-2 pb-1.5">
           {onNewMeeting && (
             <Button size="sm" className="h-auto px-2 py-0.5 text-xs" onClick={onNewMeeting}>+ Add Meeting</Button>
@@ -219,38 +244,22 @@ export function MeetingList({
             </Button>
           )}
         </div>
-        <div className="border-b border-border mx-3" />
-        <div className="flex flex-col gap-1.5 px-3 pt-1.5 pb-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-foreground font-semibold">Group by:</span>
-            {GROUP_MODES.map(({ value, label }) => (
-              <Button
-                key={value}
-                variant={groupBy === value ? "default" : "secondary"}
-                size="sm"
-                className="rounded-full h-auto px-3 py-0.5 text-xs"
-                onClick={() => onGroupBy(value)}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-foreground font-semibold">Sort:</span>
-            {SORT_MODES.map(({ value, label }) =>
-              (value === "relevance" && !hasRelevance) || (value === "thread" && !hasThreads) ? null : (
-                <Button
-                  key={value}
-                  variant={sortBy === value ? "default" : "secondary"}
-                  size="sm"
-                  className="rounded-full h-auto px-3 py-0.5 text-xs"
-                  onClick={() => onSortBy(value)}
-                >
-                  {label}
-                </Button>
-              ),
-            )}
-          </div>
+        <div className="border-b border-[var(--color-line)] mx-3" />
+        <div className="px-3 pt-1.5 pb-2">
+          <FilterBar
+            groupBy={{
+              label: "Group",
+              value: GROUP_LABELS[groupBy],
+              options: Object.values(GROUP_LABELS),
+              onChange: (v) => onGroupBy(groupLabelToValue[v] ?? "series"),
+            }}
+            sortBy={{
+              label: "Sort",
+              value: SORT_LABELS[sortBy],
+              options: sortOptions,
+              onChange: (v) => onSortBy(sortLabelToValue[v] ?? "date-desc"),
+            }}
+          />
         </div>
       </div>
 
@@ -290,34 +299,30 @@ export function MeetingList({
           const showStats = groupBy !== "series";
           return (
             <div key={group.series}>
-              <div className="px-4 py-1.5 bg-secondary/60">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold overflow-hidden text-ellipsis whitespace-nowrap text-foreground">
-                    {group.label}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-auto px-2 py-0.5 text-xs"
-                    onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
-                    aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
+              <div className="flex items-center gap-1.5 px-4">
+                <GroupHeader
+                  label={group.label}
+                  variant={groupBy === "day" || groupBy === "week" || groupBy === "month" ? "date" : "default"}
+                  meta={showStats ? statLine(group.meetings) : undefined}
+                  className="flex-1 px-0"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-auto px-2 py-0.5 text-xs shrink-0"
+                  onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
+                  aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
+                >
+                  {allChecked ? "Deselect all" : "Select all"}
+                </Button>
+                {onIgnoreGroup && (
+                  <button
+                    onClick={() => onIgnoreGroup(groupIds)}
+                    aria-label="Ignore all"
+                    className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0"
                   >
-                    {allChecked ? "Deselect all" : "Select all"}
-                  </Button>
-                  {onIgnoreGroup && (
-                    <button
-                      onClick={() => onIgnoreGroup(groupIds)}
-                      aria-label="Ignore all"
-                      className="text-muted-foreground bg-transparent border-none cursor-pointer p-0 shrink-0"
-                    >
-                      <EyeOff className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-                {showStats && (
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {statLine(group.meetings)}
-                  </div>
+                    <EyeOff className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
 
@@ -326,20 +331,19 @@ export function MeetingList({
                 const deepActive = isDeepSearchActive && !deepSearchLoading;
                 const deepSummary = deepActive ? deepSearchSummaries?.get(m.id) : undefined;
                 return (
-                <div
+                <ListItemRow
                   key={m.id}
-                  data-testid={`meeting-row-${m.id}`}
+                  selected={isHighlighted}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
                   className={cn(
-                    "flex flex-col px-4 py-2 cursor-pointer border-l-2 transition-colors hover:bg-secondary/60 active:bg-secondary/80",
-                    deepActive
-                      ? "border-l-[var(--color-search-deep)]"
-                      : isHighlighted
-                      ? "bg-secondary border-l-[var(--color-accent)]"
-                      : "border-l-transparent",
+                    "flex-col !items-start px-4 py-2",
+                    deepActive && "!border-l-[var(--color-search-deep)]",
                   )}
                 >
-                  <div className="flex items-center gap-2">
+                  <div
+                    data-testid={`meeting-row-${m.id}`}
+                    className="flex items-center gap-2 w-full"
+                  >
                     <input
                       type="checkbox"
                       checked={checked.has(m.id)}
@@ -371,7 +375,7 @@ export function MeetingList({
                   {deepSummary && (
                     <div className="text-xs text-muted-foreground mt-0.5 pl-5.5">{deepSummary}</div>
                   )}
-                </div>
+                </ListItemRow>
               );
               })}
             </div>
