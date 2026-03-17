@@ -1,3 +1,25 @@
+# UI Components
+
+## Design System Rules
+
+All components in this directory MUST follow the design system defined in Paper artboards (`Meeting Insights.paper`).
+
+**Before writing any component:**
+1. Read `../design-tokens.ts` — it contains all spacing, typography, radii, and component specs
+2. Use Paper MCP `get_screenshot` on the relevant artboard to see the exact visual target
+3. Use CSS variables from `index.css` themes — NEVER hardcode hex colors
+
+**After writing any component:**
+1. Use Playwright MCP to screenshot the running app at 2560×1440
+2. Compare against the Paper artboard
+3. Fix visual discrepancies before committing
+
+**Accessibility:** No text below 4.5:1 contrast ratio. See `design-tokens.ts` → `textTiers` for the tier system.
+
+**Shared components live in `ui/` and `shared/`.** Pages compose from these — never reinvent atoms or molecules inline.
+
+See root `CLAUDE.md` → "Design System Compliance (Paper MCP)" for the full enforcement protocol.
+
 <claude-mem-context>
 # Recent Activity
 
