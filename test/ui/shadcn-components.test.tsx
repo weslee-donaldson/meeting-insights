@@ -38,21 +38,72 @@ describe("Button", () => {
 });
 
 describe("Badge", () => {
-  it("renders with default variant class", () => {
-    render(<Badge>Acme</Badge>);
-    const badge = screen.getByText("Acme");
-    expect(badge.className).toContain("bg-primary");
+  it("renders critical priority variant with danger background and white text", () => {
+    render(<Badge variant="critical">CRITICAL</Badge>);
+    const badge = screen.getByText("CRITICAL");
+    expect(badge.className).toContain("bg-[var(--color-danger)]");
+    expect(badge.className).toContain("text-white");
   });
 
-  it("renders with secondary variant class", () => {
-    render(<Badge variant="secondary">Tag</Badge>);
-    const badge = screen.getByText("Tag");
-    expect(badge.className).toContain("bg-secondary");
+  it("renders high priority variant with orange background", () => {
+    render(<Badge variant="high">HIGH</Badge>);
+    const badge = screen.getByText("HIGH");
+    expect(badge.className).toContain("bg-[#EA580C]");
+    expect(badge.className).toContain("text-white");
   });
 
-  it("renders with outline variant class", () => {
+  it("renders medium priority variant with accent background", () => {
+    render(<Badge variant="medium">MEDIUM</Badge>);
+    const badge = screen.getByText("MEDIUM");
+    expect(badge.className).toContain("bg-[var(--color-accent)]");
+    expect(badge.className).toContain("text-white");
+  });
+
+  it("renders low priority variant with elevated background and secondary text", () => {
+    render(<Badge variant="low">LOW</Badge>);
+    const badge = screen.getByText("LOW");
+    expect(badge.className).toContain("bg-[var(--color-bg-elevated)]");
+    expect(badge.className).toContain("text-[var(--color-text-secondary)]");
+  });
+
+  it("renders open status variant with green background", () => {
+    render(<Badge variant="open">open</Badge>);
+    const badge = screen.getByText("open");
+    expect(badge.className).toContain("bg-[#DCFCE7]");
+    expect(badge.className).toContain("text-[#15803D]");
+  });
+
+  it("renders draft status variant with tint background and accent text", () => {
+    render(<Badge variant="draft">draft</Badge>);
+    const badge = screen.getByText("draft");
+    expect(badge.className).toContain("bg-[var(--color-tint)]");
+    expect(badge.className).toContain("text-[var(--color-accent)]");
+  });
+
+  it("renders client variant with tint background and accent text", () => {
+    render(<Badge variant="client">LLSA</Badge>);
+    const badge = screen.getByText("LLSA");
+    expect(badge.className).toContain("bg-[var(--color-tint)]");
+    expect(badge.className).toContain("text-[var(--color-accent)]");
+  });
+
+  it("renders outline variant with border", () => {
     render(<Badge variant="outline">Outlined</Badge>);
     const badge = screen.getByText("Outlined");
     expect(badge.className).toContain("border");
+  });
+
+  it("renders with default size using 10px text and rounded corners", () => {
+    render(<Badge>Default</Badge>);
+    const badge = screen.getByText("Default");
+    expect(badge.className).toContain("text-[10px]");
+    expect(badge.className).toContain("rounded");
+  });
+
+  it("applies font-bold and tracking-wide to all variants", () => {
+    render(<Badge variant="critical">URGENT</Badge>);
+    const badge = screen.getByText("URGENT");
+    expect(badge.className).toContain("font-bold");
+    expect(badge.className).toContain("tracking-wide");
   });
 });
