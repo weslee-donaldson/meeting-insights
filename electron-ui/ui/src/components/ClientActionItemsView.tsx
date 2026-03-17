@@ -3,6 +3,8 @@ import { Pencil, Clipboard } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
+import { FilterBar } from "./shared/filter-bar.js";
+import { GroupHeader } from "./shared/group-header.js";
 
 type ActionGroupBy = "priority" | "series" | "owner" | "requester" | "intent";
 
@@ -126,51 +128,34 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
         )}
       </div>
 
-      <div className="shrink-0 px-4 py-2 flex flex-col gap-1.5 border-b border-border">
-        <div className="flex flex-wrap gap-1">
-          <select data-testid="action-series-filter" value={seriesFilter} onChange={(e) => setSeriesFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-            <option value="">All Series</option>
-            {seriesOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select data-testid="action-priority-filter" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-            <option value="">All Priorities</option>
-            <option value="critical">Critical</option>
-            <option value="normal">Normal</option>
-          </select>
-          <select data-testid="action-owner-filter" value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-            <option value="">All Owners</option>
-            {ownerOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-          </select>
-          <select data-testid="action-requester-filter" value={requesterFilter} onChange={(e) => setRequesterFilter(e.target.value)} className="h-7 px-2 text-xs border border-border rounded-md bg-background">
-            <option value="">All Requesters</option>
-            {requesterOptions.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
-        </div>
-        <div data-testid="action-group-by" className="flex items-center gap-1.5">
-          <span className="text-xs text-foreground font-semibold">Group:</span>
-          {GROUP_MODES.map(({ value, label }) => (
-            <Button
-              key={value}
-              variant={groupBy === value ? "default" : "secondary"}
-              size="sm"
-              className="rounded-full h-auto px-3 py-0.5 text-xs"
-              onClick={() => setGroupBy(value)}
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
+      <div className="shrink-0 px-4 py-2 border-b border-[var(--color-line)]">
+        <FilterBar
+          groupBy={{
+            label: "Group",
+            value: GROUP_MODES.find((m) => m.value === groupBy)?.label ?? "Priority",
+            options: GROUP_MODES.map((m) => m.label),
+            onChange: (v) => {
+              const mode = GROUP_MODES.find((m) => m.label === v);
+              if (mode) setGroupBy(mode.value);
+            },
+          }}
+          filters={[
+            { key: "series", label: "Series", value: seriesFilter || "All", options: ["All", ...seriesOptions], onChange: (v) => setSeriesFilter(v === "All" ? "" : v) },
+            { key: "priority", label: "Priority", value: priorityFilter || "All", options: ["All", "critical", "normal"], onChange: (v) => setPriorityFilter(v === "All" ? "" : v) },
+            { key: "owner", label: "Owner", value: ownerFilter || "All", options: ["All", ...ownerOptions], onChange: (v) => setOwnerFilter(v === "All" ? "" : v) },
+            { key: "requester", label: "Requester", value: requesterFilter || "All", options: ["All", ...requesterOptions], onChange: (v) => setRequesterFilter(v === "All" ? "" : v) },
+          ]}
+        />
       </div>
 
       <div className="flex flex-col">
         {groups.map((group) => (
           <div key={group.key} data-testid="action-group">
-            <div className="px-4 py-1.5 bg-secondary/60 flex items-center gap-2">
-              <span className="text-xs font-semibold text-foreground">{group.label}</span>
-              {groupBy === "intent" && (group.items[0]?.total_mentions ?? 0) > 1 && (
-                <span className="text-[0.65rem] text-muted-foreground">raised {group.items[0].total_mentions}×</span>
-              )}
-            </div>
+            <GroupHeader
+              label={group.label}
+              variant={groupBy === "priority" && group.key === "critical" ? "priority" : "default"}
+              meta={groupBy === "intent" && (group.items[0]?.total_mentions ?? 0) > 1 ? `raised ${group.items[0].total_mentions}×` : undefined}
+            />
             {group.items.map((item) => (
               <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} onEdit={onEditActionItem ? (i) => setEditDialog({ meetingId: i.meeting_id, itemIndex: i.item_index, item: i }) : undefined} />
             ))}

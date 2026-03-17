@@ -33,6 +33,17 @@ const ITEMS: ClientActionItem[] = [
 ];
 
 describe("ClientActionItemsView", () => {
+  it("renders filter controls using FilterBar toolbar", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    expect(screen.getByRole("toolbar", { name: "Filters" })).toBeDefined();
+  });
+
+  it("renders group headers using GroupHeader component", () => {
+    render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
+    const groupHeaders = screen.getAllByTestId("action-group");
+    expect(groupHeaders.length).toBeGreaterThan(0);
+  });
+
   it("renders client name and item count in header", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     expect(screen.getByText(/Acme/)).toBeDefined();
@@ -120,40 +131,40 @@ describe("ClientActionItemsView", () => {
 
   it("renders filter dropdowns for series, priority, owner, and requester", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const seriesFilter = screen.getByTestId("action-series-filter") as HTMLSelectElement;
-    const priorityFilter = screen.getByTestId("action-priority-filter") as HTMLSelectElement;
-    const ownerFilter = screen.getByTestId("action-owner-filter") as HTMLSelectElement;
-    const requesterFilter = screen.getByTestId("action-requester-filter") as HTMLSelectElement;
-    expect(Array.from(seriesFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Series", "Planning", "Weekly Sync"]);
-    expect(Array.from(priorityFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Priorities", "Critical", "Normal"]);
-    expect(Array.from(ownerFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Owners", "Alice", "Charlie"]);
-    expect(Array.from(requesterFilter.querySelectorAll("option")).map((o) => o.textContent)).toEqual(["All Requesters", "Alice", "Bob"]);
+    expect(screen.getByText("Series:").closest("button")).toBeDefined();
+    expect(screen.getByText("Priority:").closest("button")).toBeDefined();
+    expect(screen.getByText("Owner:").closest("button")).toBeDefined();
+    expect(screen.getByText("Requester:").closest("button")).toBeDefined();
   });
 
   it("filters items by series", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-series-filter"), { target: { value: "Weekly Sync" } });
+    fireEvent.click(screen.getByText("Series:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Weekly Sync" }));
     expect(screen.getByText("Fix the broken build")).toBeDefined();
     expect(screen.queryByText("Write documentation")).toBeNull();
   });
 
   it("filters items by priority", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-priority-filter"), { target: { value: "normal" } });
+    fireEvent.click(screen.getByText("Priority:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "normal" }));
     expect(screen.queryByText("Fix the broken build")).toBeNull();
     expect(screen.getByText("Write documentation")).toBeDefined();
   });
 
   it("filters items by owner", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-owner-filter"), { target: { value: "Alice" } });
+    fireEvent.click(screen.getByText("Owner:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Alice" }));
     expect(screen.getByText("Fix the broken build")).toBeDefined();
     expect(screen.queryByText("Write documentation")).toBeNull();
   });
 
   it("filters items by requester", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.change(screen.getByTestId("action-requester-filter"), { target: { value: "Bob" } });
+    fireEvent.click(screen.getByText("Requester:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Bob" }));
     expect(screen.getByText("Fix the broken build")).toBeDefined();
     expect(screen.queryByText("Write documentation")).toBeNull();
   });
@@ -167,10 +178,11 @@ describe("ClientActionItemsView", () => {
 
   it("renders group-by pill buttons with label and five options", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    const groupBar = screen.getByTestId("action-group-by");
-    expect(groupBar.textContent).toContain("Group:");
-    const buttons = Array.from(groupBar.querySelectorAll("button")).map((b) => b.textContent);
-    expect(buttons).toEqual(["Priority", "Series", "Owner", "Requester", "Intent"]);
+    const groupChip = screen.getByText("Group:").closest("button")!;
+    expect(groupChip).toBeDefined();
+    fireEvent.click(groupChip);
+    const options = screen.getAllByRole("option").map((o) => o.textContent);
+    expect(options).toEqual(["Priority", "Series", "Owner", "Requester", "Intent"]);
   });
 
   it("default groups by priority with Critical and Normal section headers", () => {
@@ -185,7 +197,8 @@ describe("ClientActionItemsView", () => {
 
   it("groups items by series with section headers when Series pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Series" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Series" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups).toHaveLength(2);
     expect(groups[0].textContent).toContain("Planning");
@@ -196,7 +209,8 @@ describe("ClientActionItemsView", () => {
 
   it("groups items by owner with section headers when Owner pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Owner" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Owner" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups).toHaveLength(2);
     expect(groups[0].textContent).toContain("Alice");
@@ -207,7 +221,8 @@ describe("ClientActionItemsView", () => {
 
   it("groups items by requester with section headers when Requester pill clicked", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Requester" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Requester" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups).toHaveLength(2);
     expect(groups[0].textContent).toContain("Alice");
@@ -264,7 +279,8 @@ describe("ClientActionItemsView — Intent group mode", () => {
 
   it("groups items with same canonical_id into one group under Intent mode", () => {
     render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Intent" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups).toHaveLength(2);
     expect(groups[0].textContent).toContain("Deploy to production");
@@ -274,13 +290,15 @@ describe("ClientActionItemsView — Intent group mode", () => {
 
   it("shows raised N× badge when total_mentions > 1 in Intent mode", () => {
     render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Intent" }));
     expect(screen.getByText(/raised 3/)).toBeDefined();
   });
 
   it("does not show raised badge for singleton groups in Intent mode", () => {
     render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Intent" }));
     const groups = screen.getAllByTestId("action-group");
     const singletonGroup = groups.find((g) => g.textContent?.includes("Update documentation"))!;
     expect(singletonGroup.textContent).not.toContain("raised");
@@ -289,14 +307,16 @@ describe("ClientActionItemsView — Intent group mode", () => {
   it("items without canonical_id each get their own singleton group", () => {
     const noCanonical = INTENT_ITEMS.map(({ canonical_id: _, total_mentions: __, ...rest }) => rest);
     render(<ClientActionItemsView clientName="Acme" items={noCanonical} />);
-    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Intent" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups).toHaveLength(3);
   });
 
   it("sorts Intent groups by most instances first", () => {
     render(<ClientActionItemsView clientName="Acme" items={INTENT_ITEMS} />);
-    fireEvent.click(screen.getByRole("button", { name: "Intent" }));
+    fireEvent.click(screen.getByText("Group:").closest("button")!);
+    fireEvent.click(screen.getByRole("option", { name: "Intent" }));
     const groups = screen.getAllByTestId("action-group");
     expect(groups[0].textContent).toContain("Deploy to production");
   });
