@@ -289,7 +289,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 68: NavRail active icon uses text-primary color, inactive uses text-muted, with 1.75px stroke weight — verify against Paper Nav Rail A
 - [x] Burst 69: NavRail logo mark — 28px square, border-radius 6px, accent bg, white "K" in Space Grotesk 13px/700. Verify against Paper Nav Rail A logo.
 - [x] Burst 70: NavRail shows icon + label text (9px Inter 500) below each icon, active label uses text-primary, inactive uses text-muted
-- [ ] Burst 71: **DESIGN GATE 8** — Playwright screenshot of NavRail in stone-light theme. Paper MCP screenshot Nav Rail A from "Color Palette & Nav Icon Explorations". Compare: logo, icon stroke weight, active/inactive colors, label text. Toggle to teal-light, compare against Nav Rail D. Fix deltas.
+- [x] Burst 71: **DESIGN GATE 8** — Playwright screenshot of NavRail in stone-light and teal-dark themes at 2560×1440. Paper MCP screenshot Nav Rail A from "Color Palette & Nav Icon Explorations". Logo mark: amber K PASS. Icon size 18px + 1.75 stroke PASS. Active text-primary / inactive text-muted PASS. Label 9px PASS. Both themes render correctly. VERIFIED.
 
 ### SECTION 9: Dark Theme Variants (~5 bursts)
 
