@@ -1,4 +1,4 @@
-export type ThemeName = "deep-sea" | "daylight" | "midnight";
+export type ThemeName = "stone-light" | "stone-dark" | "teal-light" | "teal-dark";
 
 export interface Theme {
   name: ThemeName;
@@ -6,9 +6,10 @@ export interface Theme {
 }
 
 export const themes: Theme[] = [
-  { name: "deep-sea", label: "Deep Sea" },
-  { name: "daylight", label: "Daylight" },
-  { name: "midnight", label: "Midnight" },
+  { name: "stone-light", label: "Stone Light" },
+  { name: "stone-dark", label: "Stone Dark" },
+  { name: "teal-light", label: "Teal Light" },
+  { name: "teal-dark", label: "Teal Dark" },
 ];
 
-export const DEFAULT_THEME: ThemeName = "deep-sea";
+export const DEFAULT_THEME: ThemeName = "stone-light";

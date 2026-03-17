@@ -1,6 +1,6 @@
 import React from "react";
 import * as Select from "@radix-ui/react-select";
-import { ChevronDown, RotateCcw, Sun, Moon, Droplets } from "lucide-react";
+import { ChevronDown, RotateCcw, Sun, Moon, Palette, Leaf } from "lucide-react";
 import type { ThemeName, Theme } from "../theme.js";
 import { SearchBar } from "./SearchBar.js";
 import { Button } from "./ui/button.js";
@@ -23,9 +23,10 @@ interface TopBarProps {
 }
 
 const THEME_ICONS: Record<ThemeName, React.ReactNode> = {
-  "deep-sea": <Droplets className="w-3.5 h-3.5" />,
-  "daylight": <Sun className="w-3.5 h-3.5" />,
-  "midnight": <Moon className="w-3.5 h-3.5" />,
+  "stone-light": <Sun className="w-3.5 h-3.5" />,
+  "stone-dark": <Moon className="w-3.5 h-3.5" />,
+  "teal-light": <Leaf className="w-3.5 h-3.5" />,
+  "teal-dark": <Palette className="w-3.5 h-3.5" />,
 };
 
 export function TopBar({
