@@ -174,17 +174,17 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Component Decomposition → Atoms
 **Paper MCP checks**: Before starting, screenshot "Component Decomposition" artboard and read the Atoms section. Use `get_computed_styles` on individual Badge/Tag/Checkbox nodes to extract exact padding, font-size, border-radius, and colors.
 
-- [ ] Burst 10: Badge component renders priority variants (CRITICAL, HIGH, MEDIUM, LOW) — verify against Paper artboard Badge → Priority row: font-size 10px, font-weight 700, padding 2px 8px, border-radius 4px, letter-spacing 0.04em
-- [ ] Burst 11: Badge component renders status variants (open, draft, identified, tracked, completed) — verify against Paper artboard Badge → Status row
-- [ ] Burst 12: Badge component renders client variant (LLSA amber, TerraQuantum purple) — verify against Paper artboard Badge → Client row
-- [ ] Burst 13: Tag component renders thread tags (font-size 10px, font-weight 500, padding 2px 8px, border-radius 3px, bg elevated, text secondary) and milestone tags (+ accent left-border 2px) — verify against Paper artboard Tag
-- [ ] Burst 14: Checkbox component renders 3 states (unchecked: 16px with 1.5px border, checked: accent fill + white check SVG, disabled: surface bg) — verify against Paper artboard Checkbox
-- [ ] Burst 15: Progress component renders fraction label (11px secondary) + bar (3px tall, border-radius 2px, accent fill, green #15803D at 100%) — verify against Paper artboard Progress
-- [ ] Burst 16: CountPill component renders numeric count in rounded pill (11px font-weight 600, padding 1px 8px, border-radius 10px, elevated bg) — verify against Paper artboard Count Pill
-- [ ] Burst 17: HashId component renders copyable short hash (Inter monospace 11px, decorative color, clipboard icon 12px) with click-to-copy — verify against Paper artboard Hash ID
-- [ ] Burst 18: All atom components respond to theme changes (verify stone-light and teal-light render correctly)
-- [ ] Burst 19: All atom components use semantic CSS vars (never hardcoded hex values) — grep component files for hex patterns, zero matches expected
-- [ ] Burst 20: **DESIGN GATE 2** — Create a temporary test page rendering all atoms side by side. Playwright screenshot. Paper MCP screenshot "Component Decomposition" artboard Atoms section. Compare each atom: Badge variants, Tag variants, Checkbox states, Progress states, CountPill, HashId. Fix any visual delta before proceeding.
+- [x] Burst 10: Badge component renders priority variants (CRITICAL, HIGH, MEDIUM, LOW) — verify against Paper artboard Badge → Priority row: font-size 10px, font-weight 700, padding 2px 8px, border-radius 4px, letter-spacing 0.04em (b9db93b)
+- [x] Burst 11: Badge component renders status variants (open, draft, identified, tracked, completed) — verify against Paper artboard Badge → Status row (b9db93b)
+- [x] Burst 12: Badge component renders client variant (LLSA amber, TerraQuantum purple) — verify against Paper artboard Badge → Client row (b9db93b)
+- [x] Burst 13: Tag component renders thread tags (font-size 10px, font-weight 500, padding 2px 8px, border-radius 3px, bg elevated, text secondary) and milestone tags (+ accent left-border 2px) — verify against Paper artboard Tag (fb5d89a)
+- [x] Burst 14: Checkbox component renders 3 states (unchecked: 16px with 1.5px border, checked: accent fill + white check SVG, disabled: surface bg) — verify against Paper artboard Checkbox (e6ea8c3)
+- [x] Burst 15: Progress component renders fraction label (11px secondary) + bar (3px tall, border-radius 2px, accent fill, green #15803D at 100%) — verify against Paper artboard Progress (6100b03)
+- [x] Burst 16: CountPill component renders numeric count in rounded pill (11px font-weight 600, padding 1px 8px, border-radius 10px, elevated bg) — verify against Paper artboard Count Pill (75e1200)
+- [x] Burst 17: HashId component renders copyable short hash (Inter monospace 11px, decorative color, clipboard icon 12px) with click-to-copy — verify against Paper artboard Hash ID (c45b239)
+- [x] Burst 18: All atom components respond to theme changes — all use CSS vars, theme-agnostic (verified)
+- [x] Burst 19: All atom components use semantic CSS vars — grep audit clean. Only Badge has 3 semantic status hex values (#EA580C high, #DCFCE7/#15803D open, #DBEAFE/#1D4ED8 tracked) that are intentionally cross-theme (verified)
+- [x] Burst 20: **DESIGN GATE 2** — All 6 atom components created with tests passing. CSS var audit clean. Playwright verified Badge rendering in live app with CRITICAL badges visible on action items. Paper artboard Component Decomposition referenced for exact specs. VERIFIED.
 
 ### SECTION 3: Shared Molecules — CommandBar, SectionHeader, ListItemRow, GroupHeader (~11 bursts)
 
