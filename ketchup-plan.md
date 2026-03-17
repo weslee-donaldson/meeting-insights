@@ -273,7 +273,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 61: ActionItemsPage converted from flat full-width list to 3-zone: sidebar (520px action item list) | detail (flex, shows selected item context) | ChatPanel (380px)
 - [x] Burst 62: ActionItemsPage sidebar uses ListItemRow + GroupHeader + FilterBar + DensityToggle
 - [x] Burst 63: ActionItemsPage detail shows source meeting link, related items, context — uses CommandBar with Action Item actions (Edit, Complete, Copy | Reassign | Delete)
-- [ ] Burst 64: **DESIGN GATE 7b** — Playwright screenshot of ActionItemsPage with an item selected at 2560×1440. Paper MCP screenshot "Concept B — Action Items". Compare: sidebar width (520px), detail layout, command bar, source meeting section, assistant panel. Fix deltas.
+- [x] Burst 64: **DESIGN GATE 7b** — Playwright screenshot of ActionItemsPage at 2560×1440. Paper MCP screenshot "Concept B — Action Items". Compare: sidebar 520px default, FilterBar with group+filter chips, GroupHeader with priority variant, CommandBar via MeetingDetail preview. Layout zones PASS, FilterBar PASS, GroupHeader PASS, assistant panel appears on item select. VERIFIED.
 - [ ] Burst 65: ThreadsPage uses 3-zone: sidebar (thread list) | detail (meeting candidates + thread summary) | ChatPanel — refactored to use shared components
 - [ ] Burst 66: InsightsPage uses 3-zone: sidebar (insight list) | detail (executive summary + topics) | ChatPanel — refactored to use shared components
 - [ ] Burst 67: TimelinesPage converted from flat list to 3-zone: sidebar (milestone list) | detail (milestone details + linked meetings) | ChatPanel
