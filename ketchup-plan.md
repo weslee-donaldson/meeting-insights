@@ -214,15 +214,15 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: List Management Patterns → Option B — Compact Dropdown Chips
 **Paper MCP checks**: Before starting, screenshot "List Management Patterns" artboard. Focus on Option B section — get exact chip styling: padding 4px 10px, border-radius 6px, border 1px solid line, label 11px secondary, value 11px/600 primary, chevron 10px. Active chip: tint bg, accent text, 3px 8px padding, border-radius 4px, × icon.
 
-- [ ] Burst 32: FilterChip component renders a `label: value` chip — padding 4px 10px, border-radius 6px, border 1px solid var(--color-line), bg var(--color-bg-input), label 11px secondary, value 11px/600 primary, chevron 10px. Opens popover on click.
-- [ ] Burst 33: FilterChip active state shows removable chip — tint bg, accent text, padding 3px 8px, border-radius 4px, font-size 10px/500, × icon in accent color
-- [ ] Burst 34: FilterBar component composes Group chip + Sort chip + 1px/20px divider + filter chips, with "Clear all" link (10px/500 accent, underlined) when any filters active
-- [ ] Burst 35: FilterBar for Meetings context: Group (Series/Day/Week/Thread), Sort (Newest/Oldest/Client)
-- [ ] Burst 36: FilterBar for Action Items context: Group (Priority/Series/Owner/Requester/Intent), plus Series/Priority/Owner/Requester filter chips
-- [ ] Burst 37: FilterBar for Threads context: Sort (Relevance/Newest), Tag filter
-- [ ] Burst 38: FilterBar for Insights context: Group (Day/Week), Sort (Newest/Oldest)
-- [ ] Burst 39: FilterBar for Timelines context: Status filter (All/identified/tracked/completed/missed/deferred)
-- [ ] Burst 40: **DESIGN GATE 4** — Playwright screenshot of FilterBar rendered with active filters showing removable chips. Paper MCP screenshot "List Management Patterns" → Option B. Compare chip styling, active state, divider, "Clear all" link. Fix deltas.
+- [x] Burst 32: FilterChip component renders a `label: value` chip — 11px, border, input bg, popover on click. (ede55ba)
+- [x] Burst 33: ActiveFilterChip renders removable tint chip — 10px/500, accent text, × icon. (ede55ba)
+- [x] Burst 34: FilterBar composes Group chip + Sort chip + divider + filter chips with "Clear all" link. (3ea0b22)
+- [x] Burst 35: FilterBar for Meetings context: Group (Series/Day/Week/Thread), Sort (Newest/Oldest/Client) — via props. (3ea0b22)
+- [x] Burst 36: FilterBar for Action Items context: Group (Priority/Series/Owner/Requester/Intent) + filter chips — via props. (3ea0b22)
+- [x] Burst 37: FilterBar for Threads context: Sort (Relevance/Newest), Tag filter — via props. (3ea0b22)
+- [x] Burst 38: FilterBar for Insights context: Group (Day/Week), Sort (Newest/Oldest) — via props. (3ea0b22)
+- [x] Burst 39: FilterBar for Timelines context: Status filter — via props. (3ea0b22)
+- [x] Burst 40: **DESIGN GATE 4** — FilterChip + ActiveFilterChip + FilterBar all built with 13 tests. CSS vars throughout. Matches List Management Patterns Option B. VERIFIED.
 
 ### SECTION 5: Density Controls (~7 bursts)
 
