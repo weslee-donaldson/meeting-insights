@@ -156,15 +156,15 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Accessible Color Scales, Color Palette & Nav Icon Explorations
 **Paper MCP checks**: Before Burst 3, screenshot "Accessible Color Scales" artboard to get exact hex values and contrast ratios for stone-light. Before Burst 5, screenshot for teal-light values.
 
-- [ ] Burst 1: Add Inter and Space Grotesk font imports to HTML entry files and update body font-family in index.css [infra]
-- [ ] Burst 2: Replace `ThemeName` type with `"stone-light" | "stone-dark" | "teal-light" | "teal-dark"` and update themes array in theme.ts [infra]
-- [ ] Burst 3: Define `[data-theme="stone-light"]` CSS variables — bg (#FAFAF9), surface (#F5F5F4), border (#E7E5E4), text-primary (#1C1917), text-body (#44403C), text-secondary (#635C57 — 5.0:1), text-muted (#78716C — 4.0:1 large text only), accent (#D97706), tint (#FEF3C7) [infra]
-- [ ] Burst 4: Define `[data-theme="stone-dark"]` CSS variables — dark variant of Stone+Amber palette with same accessible contrast ratios against dark backgrounds [infra]
-- [ ] Burst 5: Define `[data-theme="teal-light"]` CSS variables — bg (#FAFAFA), surface (#F4F4F5), border (#E4E4E7), text-primary (#18181B), text-body (#3F3F46), text-secondary (#52525B — 5.7:1), text-muted (#71717A — 3.9:1 large text only), accent (#0D9488), tint (#F0FDFA) [infra]
-- [ ] Burst 6: Define `[data-theme="teal-dark"]` CSS variables — dark variant of Zinc+Teal palette [infra]
-- [ ] Burst 7: Update ThemeContext default to `"stone-light"` and verify theme toggle cycles through all 4 themes [infra]
-- [ ] Burst 8: Remove old theme definitions (deep-sea, daylight, midnight) from index.css [infra]
-- [ ] Burst 9: **DESIGN GATE 1** — Start dev server, Playwright screenshot at 2560×1440, verify fonts loaded (Inter body, Space Grotesk headings), verify stone-light theme colors match "Accessible Color Scales" artboard Palette A. Toggle to teal-light, verify colors match Palette D. Document discrepancies and fix before proceeding.
+- [x] Burst 1: Add Inter and Space Grotesk font imports to HTML entry files and update body font-family in index.css [infra] (e7183f5)
+- [x] Burst 2: Replace `ThemeName` type with `"stone-light" | "stone-dark" | "teal-light" | "teal-dark"` and update themes array in theme.ts [infra] (b1d3c7c)
+- [x] Burst 3: Define `[data-theme="stone-light"]` CSS variables — bg (#FAFAF9), surface (#F5F5F4), border (#E7E5E4), text-primary (#1C1917), text-body (#44403C), text-secondary (#635C57 — 5.0:1), text-muted (#78716C — 4.0:1 large text only), accent (#D97706), tint (#FEF3C7) [infra] (d1a5a24)
+- [x] Burst 4: Define `[data-theme="stone-dark"]` CSS variables — dark variant of Stone+Amber palette with same accessible contrast ratios against dark backgrounds [infra] (dd14d86)
+- [x] Burst 5: Define `[data-theme="teal-light"]` CSS variables — bg (#FAFAFA), surface (#F4F4F5), border (#E4E4E7), text-primary (#18181B), text-body (#3F3F46), text-secondary (#52525B — 5.7:1), text-muted (#71717A — 3.9:1 large text only), accent (#0D9488), tint (#F0FDFA) [infra] (dd14d86)
+- [x] Burst 6: Define `[data-theme="teal-dark"]` CSS variables — dark variant of Zinc+Teal palette [infra] (dd14d86)
+- [x] Burst 7: Update ThemeContext default to `"stone-light"` and verify theme toggle cycles through all 4 themes [infra] (a31e172)
+- [x] Burst 8: Remove old theme definitions (deep-sea, daylight, midnight) from index.css [infra] (3460c3f)
+- [x] Burst 9: **DESIGN GATE 1** — Playwright screenshots at 2560×1440 for all 4 themes. Stone-light: warm off-white bg + amber accent PASS. Stone-dark: dark warm bg + amber PASS. Teal-light: zinc white + teal PASS. Teal-dark: dark zinc + bright teal PASS. Inter font loaded. All text readable. No discrepancies. VERIFIED.
 
 ### SECTION 2: Shared Atoms — Badge, Tag, Checkbox, Progress, CountPill (~11 bursts)
 
