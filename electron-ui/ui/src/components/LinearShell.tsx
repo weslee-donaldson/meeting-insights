@@ -31,17 +31,22 @@ interface LinearShellProps {
   chat?: React.ReactNode;
   chatOpen?: boolean;
   viewId?: string;
+  defaultSidebarWidth?: number;
 }
 
-export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false, viewId = "default" }: LinearShellProps) {
-  const [panel0Width, setPanel0Width] = useState(() => loadWidths(viewId).panel0);
+export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false, viewId = "default", defaultSidebarWidth }: LinearShellProps) {
+  const effectiveDefault = defaultSidebarWidth ?? DEFAULT_PANEL0;
+  const [panel0Width, setPanel0Width] = useState(() => {
+    const stored = loadWidths(viewId);
+    return stored.panel0 !== DEFAULT_PANEL0 ? stored.panel0 : effectiveDefault;
+  });
   const [chatWidth, setChatWidth] = useState(() => loadWidths(viewId).chat);
 
   useEffect(() => {
     const stored = loadWidths(viewId);
-    setPanel0Width(stored.panel0);
+    setPanel0Width(stored.panel0 !== DEFAULT_PANEL0 ? stored.panel0 : effectiveDefault);
     setChatWidth(stored.chat);
-  }, [viewId]);
+  }, [viewId, effectiveDefault]);
 
   const mainDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const chatDragRef = useRef<{ startX: number; startWidth: number } | null>(null);

@@ -173,6 +173,17 @@ describe("LinearShell 3-zone layout", () => {
     expect(chatPanel.className).toContain("bg-[var(--color-bg-surface)]");
     expect(chatPanel.className).toContain("border-l");
   });
+
+  it("uses defaultSidebarWidth when provided instead of 300px default", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+        defaultSidebarWidth={520}
+      />,
+    );
+    expect(screen.getByTestId("panel-0").style.width).toBe("520px");
+  });
 });
 
 describe("LinearShell localStorage persistence", () => {

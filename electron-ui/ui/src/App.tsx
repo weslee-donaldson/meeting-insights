@@ -350,6 +350,7 @@ export function App() {
     <>
     <LinearShell
       viewId={currentView}
+      defaultSidebarWidth={currentView === "action-items" ? 520 : undefined}
       chatOpen={chatOpenForCurrentView}
       topBar={
         <TopBar

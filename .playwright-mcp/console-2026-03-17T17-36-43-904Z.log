@@ -52,3 +52,7 @@ This will cause a hydration error.%s <button> button
  @ http://localhost:5188/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7d9bc68a:2155
 [   25870ms] [ERROR] <%s> cannot contain a nested %s.
 See this log for the ancestor stack trace. button <button> @ http://localhost:5188/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7d9bc68a:2162
+[  212041ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [meetings] [meetings, 300] @ http://localhost:5188/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7d9bc68a:5627
