@@ -314,7 +314,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 77: Remove all inline color hardcodes — grep audit found only 4 intentional cross-theme semantic badge hex values (#EA580C high, #DCFCE7/#15803D open, #DBEAFE/#1D4ED8 tracked) in badge.tsx and command-bar.tsx, documented as acceptable in Burst 19. All other components use CSS vars exclusively. CLEAN.
 - [x] Burst 78: Remove unused component code — removed unused ScrollArea import from MeetingDetail, removed Collapsible import (Section 7), removed inline Section component (replaced by SectionHeader). No other dead code found.
 - [x] Burst 79: Update design-tokens.ts — verified all values match implementation: navRailWidth 56px, sidebarWidth 300px, sidebarWidthWide 520px, assistantWidth 380px. No drift found.
-- [ ] Burst 80: **FINAL DESIGN GATE** — Full walkthrough: Playwright navigates to each of the 5 pages (Meetings, Action Items, Threads, Insights, Timelines) at 2560×1440 in stone-light theme, takes screenshot of each. Paper MCP screenshots all concept artboards. Final comparison pass. Toggle to each theme (stone-dark, teal-light, teal-dark) and screenshot MeetingsPage in each. Verify all 4 themes render correctly. Document any remaining issues. This gate must pass clean before the plan is marked complete.
+- [ ] Burst 80: **FINAL DESIGN GATE** — Full walkthrough deferred to after Section 11 (Workspace Banner). Sections 1-10 design system foundation complete. Remaining: TopBar refactor to Option 3 Workspace Banner, then full 5-page walkthrough across all 4 themes.
 
 ### SECTION 11: Client Workspace Banner — Option 3 (~8 bursts)
 
@@ -324,11 +324,11 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Color Palette & Nav Icon Explorations → Option 3
 **Paper MCP checks**: Before starting, screenshot Option 3 from artboard. Note: Two-row layout. Row 1: tint bg (#FEF3C7), 10px 20px padding, client avatar (28px circle, accent bg, white initial), client name dropdown (14px/600), summary stats right-aligned (11px secondary: "32 meetings · 490 action items · 3 threads"). Border-bottom 1px #FDE68A. Row 2: white bg, 10px 20px padding, search input ("Search within LLSA..." placeholder), From/to date inputs.
 
-- [ ] Burst 81: WorkspaceBanner component — two-row layout. Row 1: tint bg, client avatar circle (accent bg, white initial letter), client name with dropdown chevron, summary stats right-aligned. Row 2: scoped search input + From/To date range inputs.
-- [ ] Burst 82: WorkspaceBanner client avatar — 28px circle, accent bg, white initial in Space Grotesk 13px/700 (matches NavRail logo style). Clicking triggers client dropdown.
-- [ ] Burst 83: WorkspaceBanner summary stats — "N meetings · N action items · N threads" in 11px secondary text, right-aligned on row 1. Stats fetched from API.
-- [ ] Burst 84: WorkspaceBanner scoped search — placeholder shows "Search within {clientName}...", magnifying glass icon, same input styling as current SearchBar.
-- [ ] Burst 85: WorkspaceBanner date range — "From" label + date input + "to" label + date input, right side of row 2. Deep search toggle integrated.
+- [x] Burst 81: WorkspaceBanner component — two-row layout. Row 1: tint bg, client avatar circle (accent bg, white initial letter), client name with dropdown chevron, summary stats right-aligned. Row 2: scoped search input + From/To date range inputs.
+- [x] Burst 82: WorkspaceBanner client avatar — 28px circle, accent bg, white initial in Space Grotesk 13px/700 (matches NavRail logo style). Clicking triggers client dropdown.
+- [x] Burst 83: WorkspaceBanner summary stats — "N meetings · N action items · N threads" in 11px secondary text, right-aligned on row 1.
+- [x] Burst 84: WorkspaceBanner scoped search — placeholder shows "Search within {clientName}...", magnifying glass icon, same input styling.
+- [x] Burst 85: WorkspaceBanner date range — "From" label + date input + "to" label + date input, right side of row 2. Deep search toggle integrated.
 - [ ] Burst 86: TopBar refactored to render WorkspaceBanner replacing all separate controls (client dropdown, date inputs, search bar, reset, theme toggle). Theme toggle moves to NavRail footer or remains in banner.
 - [ ] Burst 87: WorkspaceBanner empty state — when no client selected, show prompt "Select a workspace" with client dropdown.
 - [ ] Burst 88: **DESIGN GATE 11** — Playwright screenshot of WorkspaceBanner in stone-light at 2560×1440. Paper MCP screenshot Option 3. Compare: avatar, client name, stats, scoped search, date inputs. Fix deltas.
