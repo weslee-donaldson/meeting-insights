@@ -3,12 +3,13 @@ import { createLocalAdapter } from "./llm-provider-local.js";
 import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
 import { createOpenaiAdapter } from "./llm-provider-openai.js";
 import { createClaudecliAdapter } from "./llm-provider-claudecli.js";
+import { createClaudeapiAdapter } from "./llm-provider-claudeapi.js";
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight" | "dedup_intent";
 
 export interface ImageAttachment {
   name: string;
-  base64: string;
+  filePath: string;
   mimeType: string;
 }
 
@@ -44,7 +45,12 @@ interface ClaudecliConfig {
   bin?: string;
 }
 
-export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig | OpenaiConfig | ClaudecliConfig): LlmAdapter {
+interface LocalClaudeapiConfig {
+  type: "local-claudeapi";
+  baseUrl: string;
+}
+
+export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalConfig | OpenaiConfig | ClaudecliConfig | LocalClaudeapiConfig): LlmAdapter {
   if (config.type === "stub") {
     return createStubAdapter();
   }
@@ -59,6 +65,10 @@ export function createLlmAdapter(config: StubConfig | AnthropicConfig | LocalCon
 
   if (config.type === "claudecli") {
     return createClaudecliAdapter(config.bin);
+  }
+
+  if (config.type === "local-claudeapi") {
+    return createClaudeapiAdapter(config.baseUrl);
   }
 
   return createAnthropicAdapter(config.apiKey, config.model);

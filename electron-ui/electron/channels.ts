@@ -85,7 +85,7 @@ export interface MeetingRow {
 export interface ChatRequest {
   meetingIds: string[];
   question: string;
-  attachments?: { name: string; base64: string; mimeType: string }[];
+  attachments?: { name: string; filePath: string; mimeType: string }[];
 }
 
 export interface ChatResponse {
@@ -102,7 +102,7 @@ export interface ConversationMessage {
 export interface ConversationChatRequest {
   meetingIds: string[];
   messages: ConversationMessage[];
-  attachments?: { name: string; base64: string; mimeType: string }[];
+  attachments?: { name: string; filePath: string; mimeType: string }[];
   includeTranscripts?: boolean;
   template?: string;
 }

@@ -194,6 +194,41 @@ If the commit validator rejects your commit but you believe it's valid, add `ple
 - Untested code paths
 - Any other CLAUDE.md rule bypass
 
+## Design System Compliance (Paper MCP)
+
+The Paper MCP server provides access to the design artboards in `Meeting Insights.paper`. This is the visual source of truth.
+
+**Mandatory artboard check:** Before implementing any UI burst that references a Paper artboard in the ketchup-plan, you MUST:
+
+1. Use `get_basic_info` to find the artboard list
+2. Use `get_screenshot` on the referenced artboard to see the exact design
+3. Use `get_computed_styles` on specific nodes if you need exact CSS values
+4. Implement the component matching the artboard exactly
+5. After implementation, use Playwright MCP to navigate to the running app (`http://localhost:5188`) and `browser_take_screenshot` to compare your result against the artboard
+
+**Design tokens file:** `electron-ui/ui/src/design-tokens.ts` contains all spacing, typography, radius, and component specs extracted from Paper. Components MUST import values from this file — never hardcode hex colors, pixel sizes, or font values inline.
+
+**Accessibility:** All text must meet WCAG AA. Use the 3-tier text system from `design-tokens.ts`:
+- Primary/Body text: 7:1+ contrast (use `--color-text-primary` or `--color-text-body`)
+- Secondary text: 4.5:1+ contrast (use `--color-text-secondary`)
+- Muted text: 3:1+ contrast, ONLY for labels at 11px+ bold (use `--color-text-muted`)
+- NEVER use `--color-line` or any decorative color for readable text
+
+**Visual verification loop (per section):** After completing all bursts in a ketchup-plan section:
+1. Start the dev server (`pnpm web:dev`)
+2. Use Playwright MCP to resize browser to 2560×1440
+3. Navigate to the affected page
+4. Take a screenshot
+5. Compare against the Paper artboard using `get_screenshot`
+6. Fix any visual discrepancies before moving to the next section
+
+| Violation | Response |
+| --- | --- |
+| Hardcoded hex color in a component | Replace with CSS var or design-tokens import |
+| Text using decorative-tier color | Upgrade to secondary-tier minimum |
+| Component doesn't match artboard | Fix before moving to next burst |
+| Skipping artboard check | Not acceptable — check first, code second |
+
 ## Misc
 
 - No "Generated with Claude Code" in commits

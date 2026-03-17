@@ -75,12 +75,14 @@ const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "local"
   | "openai"
   | "stub"
-  | "claudecli";
+  | "claudecli"
+  | "local-claudeapi";
 const API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const OPENAI_KEY = process.env.OPENAI_API_KEY ?? "";
 const LOCAL_BASE_URL =
   process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
 const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
+const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
 
 const isDev =
   process.env.NODE_ENV === "development" || !!process.env["ELECTRON_RENDERER_URL"];
@@ -123,6 +125,8 @@ app.whenReady().then(async () => {
         ? { type: "openai" as const, apiKey: OPENAI_KEY, model: process.env.OPENAI_MODEL }
         : PROVIDER === "claudecli"
           ? { type: "claudecli" as const }
+          : PROVIDER === "local-claudeapi"
+          ? { type: "local-claudeapi" as const, baseUrl: CLAUDEAPI_URL }
           : PROVIDER === "stub"
           ? { type: "stub" as const }
           : { type: "anthropic" as const, apiKey: API_KEY, model: process.env.ANTHROPIC_MODEL };

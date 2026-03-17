@@ -264,7 +264,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Concept A — Meeting Detail, Concept B — Action Items
 **Paper MCP checks**: Before starting, screenshot both "Concept A — Meeting Detail" and "Concept B — Action Items" artboards. Note: nav rail 56px, sidebar 300px (meetings) or 520px (action items), detail panel flex:1, assistant panel 380px with 1px border-left. Sidebar has white bg, detail has base bg, assistant has white bg.
 
-- [ ] Burst 55: LinearShell renders 3-zone layout: nav rail (56px fixed) + content area (flex: 1) — content area contains sidebar + detail + assistant
+- [x] Burst 55: LinearShell renders 3-zone layout: nav rail (56px fixed) + content area (flex: 1) — content area contains sidebar + detail + assistant
 - [ ] Burst 56: MeetingsPage uses 3-zone: sidebar (300px, white bg, border-right 1px) | detail (flex, base bg) | ChatPanel (380px, white bg, border-left 1px) — refactored from current layout
 - [ ] Burst 57: MeetingsPage sidebar uses new ListItemRow, GroupHeader, FilterBar components replacing inline implementations
 - [ ] Burst 58: MeetingsPage detail header uses CommandBar component with Meeting context actions

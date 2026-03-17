@@ -13,10 +13,11 @@ const filterFolder = process.argv[2];
 
 const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
 const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
-const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub" | "claudecli";
+const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub" | "claudecli" | "local-claudeapi";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
 const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
+const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
 
 if (PROVIDER === "anthropic" && (!API_KEY || API_KEY.startsWith("sk-ant-..."))) {
   console.error("Error: ANTHROPIC_API_KEY not set. Add it to .env.local");
@@ -39,6 +40,8 @@ const llm = PROVIDER === "local"
   ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
   : PROVIDER === "claudecli"
     ? createLlmAdapter({ type: "claudecli" })
+    : PROVIDER === "local-claudeapi"
+    ? createLlmAdapter({ type: "local-claudeapi", baseUrl: CLAUDEAPI_URL })
     : PROVIDER === "stub"
     ? createLlmAdapter({ type: "stub" })
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });

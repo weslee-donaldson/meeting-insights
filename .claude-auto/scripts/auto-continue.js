@@ -4995,6 +4995,9 @@ function handleStop(autoDir, input2) {
   if (input2.permission_mode && modesToSkip.includes(input2.permission_mode)) {
     return { decision: "allow", reason: `skipping mode: ${input2.permission_mode}` };
   }
+  if (mode === "smart" || mode === "always") {
+    return { decision: "block", reason: "auto-continue: keep working" };
+  }
   return { decision: "allow", reason: "no work remaining" };
 }
 

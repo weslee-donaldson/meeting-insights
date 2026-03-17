@@ -19,7 +19,7 @@ const ITEMS: { view: View; label: string; Icon: React.ElementType }[] = [
 
 export function NavRail({ currentView, onNavigate }: NavRailProps) {
   return (
-    <div className="flex flex-col items-center w-20 shrink-0 bg-card border-r border-border py-3 gap-1">
+    <div className="flex flex-col items-center w-full h-full bg-[var(--color-bg-surface)] border-r border-[var(--color-line)] py-3 gap-1">
       {ITEMS.map(({ view, label, Icon }) => (
         <button
           key={view}

@@ -34,38 +34,38 @@ function ThemeConsumer() {
     <div>
       <span data-testid="theme">{theme}</span>
       <span data-testid="themes-count">{themes.length}</span>
-      <button onClick={() => setTheme("daylight")}>Set Daylight</button>
-      <button onClick={() => setTheme("midnight")}>Set Midnight</button>
+      <button onClick={() => setTheme("stone-dark")}>Set Stone Dark</button>
+      <button onClick={() => setTheme("teal-light")}>Set Teal Light</button>
     </div>
   );
 }
 
 describe("ThemeProvider", () => {
-  it("sets data-theme on document.documentElement to deep-sea by default", () => {
+  it("sets data-theme on document.documentElement to stone-light by default", () => {
     render(<ThemeProvider><ThemeConsumer /></ThemeProvider>);
-    expect(document.documentElement.getAttribute("data-theme")).toBe("deep-sea");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("stone-light");
   });
 
   it("persists chosen theme to localStorage", async () => {
     render(<ThemeProvider><ThemeConsumer /></ThemeProvider>);
-    await act(async () => { screen.getByRole("button", { name: "Set Daylight" }).click(); });
-    expect(lsMock.getItem("mtninsights-theme")).toBe("daylight");
+    await act(async () => { screen.getByRole("button", { name: "Set Stone Dark" }).click(); });
+    expect(lsMock.getItem("mtninsights-theme")).toBe("stone-dark");
   });
 
   it("updates data-theme attribute when theme changes", async () => {
     render(<ThemeProvider><ThemeConsumer /></ThemeProvider>);
-    await act(async () => { screen.getByRole("button", { name: "Set Midnight" }).click(); });
-    expect(document.documentElement.getAttribute("data-theme")).toBe("midnight");
+    await act(async () => { screen.getByRole("button", { name: "Set Teal Light" }).click(); });
+    expect(document.documentElement.getAttribute("data-theme")).toBe("teal-light");
   });
 
   it("reads persisted theme from localStorage on mount", () => {
-    lsMock.setItem("mtninsights-theme", "midnight");
+    lsMock.setItem("mtninsights-theme", "teal-light");
     render(<ThemeProvider><ThemeConsumer /></ThemeProvider>);
-    expect(screen.getByTestId("theme").textContent).toBe("midnight");
+    expect(screen.getByTestId("theme").textContent).toBe("teal-light");
   });
 
-  it("useTheme returns all 3 themes", () => {
+  it("useTheme returns all 4 themes", () => {
     render(<ThemeProvider><ThemeConsumer /></ThemeProvider>);
-    expect(screen.getByTestId("themes-count").textContent).toBe("3");
+    expect(screen.getByTestId("themes-count").textContent).toBe("4");
   });
 });

@@ -199,17 +199,20 @@ if (deepScan) {
   const PROVIDER = process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic";
   const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
   const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "deepseek-r1:8b";
+  const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
 
   const { createLlmAdapter } = await import("../core/llm-adapter.js");
   const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
     : PROVIDER === "claudecli"
       ? createLlmAdapter({ type: "claudecli" })
-      : PROVIDER === "stub"
-        ? createLlmAdapter({ type: "stub" })
-        : PROVIDER === "openai"
-          ? createLlmAdapter({ type: "openai", apiKey: process.env.OPENAI_API_KEY! })
-          : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
+      : PROVIDER === "local-claudeapi"
+        ? createLlmAdapter({ type: "local-claudeapi", baseUrl: CLAUDEAPI_URL })
+        : PROVIDER === "stub"
+          ? createLlmAdapter({ type: "stub" })
+          : PROVIDER === "openai"
+            ? createLlmAdapter({ type: "openai", apiKey: process.env.OPENAI_API_KEY! })
+            : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
   const promptPath = "config/prompts/dedup-intent.md";
   const promptTemplate = existsSync(promptPath) ? readFileSync(promptPath, "utf8") : "{{items}}";

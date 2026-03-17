@@ -62,7 +62,7 @@ describe("LinearShell", () => {
     expect(panel.style.width).toBe("");
   });
 
-  it("first panel defaults to 500px width", () => {
+  it("first panel defaults to 300px width", () => {
     render(
       <LinearShell
         topBar={<div>top</div>}
@@ -70,7 +70,7 @@ describe("LinearShell", () => {
       />,
     );
     const mainPanel = screen.getByTestId("panel-0");
-    expect(mainPanel.style.width).toBe("500px");
+    expect(mainPanel.style.width).toBe("300px");
   });
 
   it("dragging main handle rightward increases first panel width", () => {
@@ -110,6 +110,68 @@ describe("LinearShell", () => {
     );
     expect(screen.getByTestId("chat-panel")).toBeDefined();
     expect(screen.getByText("chat-content")).toBeDefined();
+  });
+});
+
+describe("LinearShell 3-zone layout", () => {
+  it("wraps navRail in a 56px-wide fixed container", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+        navRail={<div>nav</div>}
+      />,
+    );
+    const navContainer = screen.getByText("nav").parentElement!;
+    expect(navContainer.style.width).toBe("56px");
+  });
+
+  it("defaults first panel (sidebar) to 300px when two panels are present", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    expect(screen.getByTestId("panel-0").style.width).toBe("300px");
+  });
+
+  it("sidebar panel has surface bg and border-right styling", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+      />,
+    );
+    const sidebar = screen.getByTestId("panel-0");
+    expect(sidebar.className).toContain("bg-[var(--color-bg-surface)]");
+    expect(sidebar.className).toContain("border-r");
+  });
+
+  it("chat panel defaults to 380px width", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+        chat={<div>chat</div>}
+        chatOpen={true}
+      />,
+    );
+    expect(screen.getByTestId("chat-panel").style.width).toBe("380px");
+  });
+
+  it("chat panel has surface bg and border-left styling", () => {
+    render(
+      <LinearShell
+        topBar={<div>top</div>}
+        panels={[<div key="p1">sidebar</div>, <div key="p2">detail</div>]}
+        chat={<div>chat</div>}
+        chatOpen={true}
+      />,
+    );
+    const chatPanel = screen.getByTestId("chat-panel");
+    expect(chatPanel.className).toContain("bg-[var(--color-bg-surface)]");
+    expect(chatPanel.className).toContain("border-l");
   });
 });
 
@@ -168,12 +230,12 @@ describe("LinearShell localStorage persistence", () => {
       />,
     );
     const handle = screen.getByTestId("main-resize-handle");
-    fireEvent.mouseDown(handle, { clientX: 500 });
-    fireEvent.mouseMove(document, { clientX: 600 });
+    fireEvent.mouseDown(handle, { clientX: 300 });
+    fireEvent.mouseMove(document, { clientX: 400 });
     fireEvent.mouseUp(document);
     await new Promise((r) => setTimeout(r, 400));
     const stored = JSON.parse(store["mtninsights:columns:persist-view"]);
-    expect(stored.panel0).toBe(600);
+    expect(stored.panel0).toBe(400);
   });
 
   it("uses default widths when localStorage has invalid data", () => {
@@ -185,6 +247,6 @@ describe("LinearShell localStorage persistence", () => {
         panels={[<div key="p1">main</div>, <div key="p2">detail</div>]}
       />,
     );
-    expect(screen.getByTestId("panel-0").style.width).toBe("500px");
+    expect(screen.getByTestId("panel-0").style.width).toBe("300px");
   });
 });

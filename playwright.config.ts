@@ -8,7 +8,7 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:5188",
     headless: true,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
@@ -22,7 +22,7 @@ export default defineConfig({
     },
     {
       command: "pnpm web:dev",
-      port: 5173,
+      port: 5188,
       reuseExistingServer: true,
       timeout: 30_000,
     },

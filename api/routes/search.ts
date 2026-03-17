@@ -22,7 +22,7 @@ export function registerSearchRoutes(app: Hono, db: Database, llm?: LlmAdapter, 
   app.post("/api/chat/conversation", async (c) => {
     console.log("[api] POST /api/chat/conversation hit, llm=%s", llm ? "present" : "MISSING");
     if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; base64: string; mimeType: string }[]; includeTranscripts?: boolean; template?: string };
+    const req = await c.req.json() as { meetingIds: string[]; messages: Array<{ role: "user" | "assistant"; content: string }>; attachments?: { name: string; filePath: string; mimeType: string }[]; includeTranscripts?: boolean; template?: string };
     try {
       console.log("[api] calling handleConversationChat meetingIds=%d messages=%d", req.meetingIds.length, req.messages.length);
       const result = await handleConversationChat(db, llm, req);

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 
 const STORAGE_PREFIX = "mtninsights:columns:";
-const DEFAULT_PANEL0 = 500;
+const DEFAULT_PANEL0 = 300;
 const DEFAULT_CHAT = 380;
 
 function loadWidths(viewId: string): { panel0: number; chat: number } {
@@ -115,7 +115,11 @@ export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false, v
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {navRail}
+        {navRail && (
+          <div className="shrink-0" style={{ width: "56px" }}>
+            {navRail}
+          </div>
+        )}
 
         {panels.map((panel, i) => {
           const isOnlyPanel = panels.length === 1;
@@ -132,9 +136,9 @@ export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false, v
               data-testid={`panel-${i}`}
               className={
                 i === 0 && !isOnlyPanel
-                  ? "shrink-0 overflow-auto pl-[15px]"
+                  ? "shrink-0 overflow-auto bg-[var(--color-bg-surface)] border-r border-[var(--color-line)]"
                   : i === 0
-                  ? `flex-1 overflow-auto pl-[15px]${chatOpen ? "" : " pr-[15px]"}`
+                  ? `flex-1 overflow-auto${chatOpen ? "" : " pr-[15px]"}`
                   : `flex-1 min-w-[200px] overflow-auto${chatOpen ? "" : " pr-[15px]"}`
               }
               style={i === 0 && !isOnlyPanel ? { width: panel0Width + "px" } : undefined}
@@ -154,7 +158,7 @@ export function LinearShell({ topBar, panels, navRail, chat, chatOpen = false, v
             />
             <div
               data-testid="chat-panel"
-              className="shrink-0 overflow-hidden border-l border-border pr-[15px]"
+              className="shrink-0 overflow-hidden border-l border-[var(--color-line)] bg-[var(--color-bg-surface)]"
               style={{ width: chatWidth + "px" }}
             >
               {chat}

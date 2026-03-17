@@ -25,7 +25,7 @@ const defaultProps = {
   onSearchQueryChange: vi.fn(),
   onReset: vi.fn(),
   onSubmitSearch: vi.fn(),
-  theme: "deep-sea" as const,
+  theme: "stone-light" as const,
   setTheme: vi.fn(),
   themes,
 };
@@ -69,14 +69,14 @@ describe("TopBar", () => {
 
   it("renders theme cycle button with current theme aria-label", () => {
     render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
-    expect(screen.getByRole("button", { name: /theme: deep-sea/i })).toBeDefined();
+    expect(screen.getByRole("button", { name: /theme: stone-light/i })).toBeDefined();
   });
 
   it("calls setTheme with next theme when cycle button is clicked", () => {
     const setTheme = vi.fn();
     render(<TopBar {...defaultProps} setTheme={setTheme} />, { wrapper: makeWrapper() });
     fireEvent.click(screen.getByRole("button", { name: /theme:/i }));
-    expect(setTheme).toHaveBeenCalledWith("daylight");
+    expect(setTheme).toHaveBeenCalledWith("stone-dark");
   });
 
   it("renders Client label next to dropdown", () => {

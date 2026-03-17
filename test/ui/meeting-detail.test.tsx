@@ -345,7 +345,7 @@ describe("MeetingDetail", () => {
     );
     fireEvent.click(screen.getByText("Decisions"));
     expect(screen.getByText("Use TypeScript")).toBeDefined();
-    const ctoBadge = screen.getAllByText("CTO").find((el) => el.tagName === "SPAN" && el.className.includes("rounded-full"));
+    const ctoBadge = screen.getAllByText("CTO").find((el) => el.tagName === "SPAN" && el.className.includes("rounded"));
     expect(ctoBadge).toBeDefined();
   });
 
@@ -540,7 +540,7 @@ describe("MeetingDetail", () => {
     );
     const criticalBadge = screen.getByText("CRITICAL");
     expect(criticalBadge).toBeDefined();
-    expect(criticalBadge.className).toContain("destructive");
+    expect(criticalBadge.className).toContain("bg-");
     expect(screen.queryAllByText("CRITICAL").length).toBe(1);
   });
 

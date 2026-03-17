@@ -43,7 +43,9 @@ describe("GET /api/meetings/:id/artifact", () => {
     const res = await app.request(`/api/meetings/${meetingId}/artifact`);
     expect(res.status).toBe(200);
     const body = await res.json() as { summary: string; decisions: string[] };
-    expect(body).toEqual(makeArtifact());
+    const expected = makeArtifact();
+    expected.action_items[0] = { ...expected.action_items[0], short_id: expect.any(String) as unknown as string };
+    expect(body).toEqual(expected);
   });
 
   it("should return 404 when no artifact exists for the meeting id", async () => {

@@ -1,0 +1,10 @@
+# Mandalore, State of Integration Review - Mar, 13
+
+Please click the link to download the recording. If it does not work, please copy the link and open it in your browser.
+
+# Recording Download Link
+
+**File:** recording.mp3
+**Valid for:** 7 days
+
+[Download Recording](<https://kr-files-cdn.s3.amazonaws.com/recording/prod-team/1092776/13603869/019ce879896270188c593f82d8eefbcd.mp3?AWSAccessKeyId=ASIA2I62CR7VMULJ5KAF&Expires=1774037112&Signature=qSdGdEpZeqPEY5pKOFWwjRSOcHY%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEMv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIHwBUYjLy6RoERj9j4s0oUhbGetsyvzL11usbdxXxrKQAiEAhcDgeXdgu4ERNSKl8cOvPqdgD4O03KDIo6JD%2B%2B8R34AqhAQIlP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw3MDY0NDI1OTYzMzAiDKLbtRWcMwU6N2gRZyrYA1ojWf8cSUZ0OLTBx%2Bti3hr9F%2FxCUOFMu0T3nxr7WgZABkgbjuMGzLjVrVgwIvkdAK1M%2B2abjb%2FWgdN%2Ft5Anqdi6fem2tTRAJT6Lt0g8VG%2FjuUv5VAZGFytQLsrHrYbULtCpkxwexfBUJt312ife%2BMCU%2BINLkz8QPRMOEnSeL30kxHrvK%2FeebbW8xny7JKJJq7spZVs6dZ1czNuovGpWHkjc6%2BlG9S8BLZq4InJtHinFklW0RFkrq3DIYVycSTtKFldSmk9wDO50VEPQxjo4bMkU7w1QOy9Bz%2FGTYi52u2jQz48T0PlhlbOMV0xFgD2%2BcPs0dKsBftaeQhBd7mMMClMhNqDosTApZx5%2BsDz9i6%2Fz3LXklsl%2F5qOPvFPhesVkO13YJRvTiSt5q1YSba5XF3Z%2FOrlwM7CefpKqNJ40ay8Ev1xIEola4Fh%2Fw%2FrBzX6J57ZXWyKjMN9Ce09Q3712mSlUAxAEP%2BAv%2FcDw20WSzWgsK79MaCiFYLbdNCdPrhIek0%2FrT%2BVu1n3NdjyBTfoWrZPvv3WAfzyOv1sCL6%2BMcQfpTdVGzsvPW0kLYUpCSuCFq5apnL2gBtiG9fsF%2F4gwwIkGuQ1rr7%2F2SHCleZp%2BApb6Q6nCja9VJGow%2BrXRzQY6pQFBj7R9xRNUafo4QPvyH9uEznai7QZvQs9ULcjYsKO4JP6hmkpafLLLjLTIqt8X3wdx1cE0D009h2D8s%2BDAF5QExpVzUSPZOCzMzLSAj8F%2BZ5oUE9RDwkQGuBMPMq%2FEcQscLWiINCPYwBVkolnmiMelGYBy622mRLNFfzV33GQagxXSenkR9b2UEagKl3vjbKC7N8fzBVnlRDKFgFafZuIBtYIHwWQ%3D>)
