@@ -130,8 +130,8 @@ describe("InsightsView", () => {
         selectedInsightId="i1"
       />,
     );
-    const row = screen.getByText("Jan 5 – Jan 11").closest("button")!;
-    expect(row.className).toContain("bg-secondary");
+    const row = screen.getByText("Jan 5 – Jan 11").closest("[role='option']")!;
+    expect(row.className).toContain("bg-[var(--color-tint)]");
   });
 
   it("calls onCreateInsight when New Insight button is clicked", () => {

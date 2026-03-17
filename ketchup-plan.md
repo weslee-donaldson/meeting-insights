@@ -274,9 +274,9 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 62: ActionItemsPage sidebar uses ListItemRow + GroupHeader + FilterBar + DensityToggle
 - [x] Burst 63: ActionItemsPage detail shows source meeting link, related items, context — uses CommandBar with Action Item actions (Edit, Complete, Copy | Reassign | Delete)
 - [x] Burst 64: **DESIGN GATE 7b** — Playwright screenshot of ActionItemsPage at 2560×1440. Paper MCP screenshot "Concept B — Action Items". Compare: sidebar 520px default, FilterBar with group+filter chips, GroupHeader with priority variant, CommandBar via MeetingDetail preview. Layout zones PASS, FilterBar PASS, GroupHeader PASS, assistant panel appears on item select. VERIFIED.
-- [ ] Burst 65: ThreadsPage uses 3-zone: sidebar (thread list) | detail (meeting candidates + thread summary) | ChatPanel — refactored to use shared components
-- [ ] Burst 66: InsightsPage uses 3-zone: sidebar (insight list) | detail (executive summary + topics) | ChatPanel — refactored to use shared components
-- [ ] Burst 67: TimelinesPage converted from flat list to 3-zone: sidebar (milestone list) | detail (milestone details + linked meetings) | ChatPanel
+- [x] Burst 65: ThreadsPage uses 3-zone: sidebar (thread list) | detail (meeting candidates + thread summary) | ChatPanel — refactored to use shared components
+- [x] Burst 66: InsightsPage uses 3-zone: sidebar (insight list) | detail (executive summary + topics) | ChatPanel — refactored to use shared components
+- [x] Burst 67: TimelinesPage converted from flat list to 3-zone: sidebar (milestone list) | detail (milestone details + linked meetings) | ChatPanel
 
 ### SECTION 8: Nav Rail Icon Refresh (~4 bursts)
 

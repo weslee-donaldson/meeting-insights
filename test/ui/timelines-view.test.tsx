@@ -142,8 +142,8 @@ describe("TimelinesView", () => {
         selectedMilestoneId="m1"
       />,
     );
-    const row = screen.getByText("Launch v2.0").closest("button")!;
-    expect(row.className).toContain("bg-secondary");
+    const row = screen.getByText("Launch v2.0").closest("[role='option']")!;
+    expect(row.className).toContain("bg-[var(--color-tint)]");
   });
 
   it("calls onCreateMilestone when New Milestone button is clicked", () => {

@@ -7,6 +7,7 @@ import { cn } from "../lib/utils.js";
 import type { Milestone } from "../../../../core/timelines.js";
 import { MilestoneGanttView } from "./MilestoneGanttView.js";
 import { MilestoneCalendarView } from "./MilestoneCalendarView.js";
+import { ListItemRow } from "./shared/list-item-row.js";
 
 type MilestoneWithMentions = Milestone & { mention_count?: number; first_mentioned_at?: string | null; has_pending_review?: boolean };
 
@@ -95,15 +96,11 @@ export function TimelinesView({
           ) : (
             <div className="flex flex-col">
               {filtered.map((milestone) => (
-                <button
+                <ListItemRow
                   key={milestone.id}
+                  selected={selectedMilestoneId === milestone.id}
                   onClick={() => onSelectMilestone(milestone.id)}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-3 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full",
-                    selectedMilestoneId === milestone.id
-                      ? "bg-secondary"
-                      : "hover:bg-secondary/60",
-                  )}
+                  className="px-4 py-3 text-sm border-b border-[var(--color-line)]"
                 >
                   <span
                     data-testid="status-dot"
@@ -118,7 +115,7 @@ export function TimelinesView({
                     <Badge variant="secondary" className="text-xs shrink-0 bg-amber-100 text-amber-800">Review</Badge>
                   )}
                   <span className="text-xs text-muted-foreground shrink-0">{formatTargetDate(milestone.target_date)}</span>
-                </button>
+                </ListItemRow>
               ))}
             </div>
           )}

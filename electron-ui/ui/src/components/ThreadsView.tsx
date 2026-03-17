@@ -3,8 +3,8 @@ import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { Plus } from "lucide-react";
-import { cn } from "../lib/utils.js";
 import type { Thread } from "../../../../core/threads.js";
+import { ListItemRow } from "./shared/list-item-row.js";
 
 interface ThreadsViewProps {
   threads: Thread[];
@@ -44,15 +44,11 @@ export function ThreadsView({
         ) : (
           <div className="flex flex-col">
             {filtered.map((thread) => (
-              <button
+              <ListItemRow
                 key={thread.id}
+                selected={selectedThreadId === thread.id}
                 onClick={() => onSelectThread(thread.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full",
-                  selectedThreadId === thread.id
-                    ? "bg-secondary"
-                    : "hover:bg-secondary/60",
-                )}
+                className="px-4 py-3 text-sm border-b border-[var(--color-line)]"
               >
                 <span className="flex-1 truncate font-medium">{thread.title}</span>
                 {thread.meeting_count ? (
@@ -62,7 +58,7 @@ export function ThreadsView({
                 {thread.status === "resolved" && (
                   <Badge variant="secondary" className="text-xs shrink-0">Resolved</Badge>
                 )}
-              </button>
+              </ListItemRow>
             ))}
           </div>
         )}

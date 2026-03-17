@@ -5,6 +5,7 @@ import { ScrollArea } from "./ui/scroll-area.js";
 import { Plus } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import type { Insight } from "../../../../core/insights.js";
+import { ListItemRow } from "./shared/list-item-row.js";
 
 interface InsightsViewProps {
   insights: Insight[];
@@ -56,15 +57,11 @@ export function InsightsView({
         ) : (
           <div className="flex flex-col">
             {insights.map((insight) => (
-              <button
+              <ListItemRow
                 key={insight.id}
+                selected={selectedInsightId === insight.id}
                 onClick={() => onSelectInsight(insight.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-left text-sm border-b border-border cursor-pointer bg-transparent w-full",
-                  selectedInsightId === insight.id
-                    ? "bg-secondary"
-                    : "hover:bg-secondary/60",
-                )}
+                className="px-4 py-3 text-sm border-b border-[var(--color-line)]"
               >
                 <span
                   data-testid="rag-badge"
@@ -75,7 +72,7 @@ export function InsightsView({
                 {insight.status === "final" && (
                   <Badge variant="secondary" className="text-xs shrink-0">Final</Badge>
                 )}
-              </button>
+              </ListItemRow>
             ))}
           </div>
         )}
