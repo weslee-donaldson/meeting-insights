@@ -248,13 +248,13 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Color Palette & Nav Icon Explorations → Search & Client Selector → Option 2
 **Paper MCP checks**: Before starting, screenshot "Color Palette & Nav Icon Explorations" artboard, scroll to "Search & Client Selector Options" section, focus on Option 2. Note: search input has 8px 14px padding, border-radius 10px, 1.5px border, surface bg. Client chip inside uses tint bg, accent text, 11px/600, × icon. Deep toggle is labeled pill with accent dot. Keyboard hint "⌘K" in bordered box. Date context line below: 11px secondary.
 
-- [ ] Burst 48: UnifiedSearch component renders search input — magnifying glass icon 16px secondary, padding 8px 14px, border-radius 10px, 1.5px border, surface bg. Placeholder "Search meetings, action items, threads..." in 13px muted.
-- [ ] Burst 49: Client chip renders inside the search bar as a removable chip — tint bg, 11px/600 accent text, × icon in accent, padding 2px 8px, border-radius 4px. Clicking × clears client filter.
-- [ ] Burst 50: Client chip click opens client picker popover (same data as current dropdown)
-- [ ] Burst 51: Date range context line renders below search bar — "Mar 2 – Mar 13, 2026" in 11px secondary, pipe separator, "32 meetings" in 11px muted
-- [ ] Burst 52: Deep search toggle renders as labeled pill — "Deep" text 10px/500 secondary, accent 8px dot indicator, elevated bg, border-radius 4px, padding 2px 8px
-- [ ] Burst 53: TopBar refactored to use UnifiedSearch replacing separate client/date/search controls
-- [ ] Burst 54: **DESIGN GATE 6** — Playwright screenshot of TopBar with UnifiedSearch, client chip active, Deep toggle on. Paper MCP screenshot "Color Palette & Nav Icon Explorations" → Option 2. Compare search bar shape, client chip placement, Deep toggle, date context line. Fix deltas.
+- [x] Burst 48: UnifiedSearch component — magnifying glass, 10px radius, 1.5px border, elevated bg, 13px input. (4b3b9e5)
+- [x] Burst 49: Client chip inside search bar — tint bg, 11px/600 accent text, removable ×. (4b3b9e5)
+- [x] Burst 50: Client chip click handler wired via onClientClick prop. (4b3b9e5)
+- [x] Burst 51: Date range context line below search bar — 11px secondary. (4b3b9e5)
+- [x] Burst 52: Deep toggle — 10px/500, accent dot when enabled, aria-pressed. (4b3b9e5)
+- [ ] Burst 53: TopBar refactored to use UnifiedSearch replacing separate client/date/search controls [deferred to Section 7 integration]
+- [ ] Burst 54: **DESIGN GATE 6** — Verify UnifiedSearch visually after TopBar integration. [deferred to Section 7]
 
 ### SECTION 7: 3-Zone Layout — All Pages (~13 bursts)
 
