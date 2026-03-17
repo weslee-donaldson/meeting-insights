@@ -194,17 +194,17 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: Component Decomposition → Molecules
 **Paper MCP checks**: Before starting, screenshot "Component Decomposition" artboard Molecules section. Use `get_computed_styles` on CommandBar nodes to extract container padding (2px), radius (8px), item padding (6px 12px), item radius (6px), font-size (12px), divider specs.
 
-- [ ] Burst 21: CommandBar component renders a pill-shaped toolbar — container: padding 2px, border-radius 8px, bg elevated. Items: padding 6px 12px, border-radius 6px, font-size 12px, font-weight 500
-- [ ] Burst 22: CommandBar accepts `actions` prop array with `{label, icon?, onClick, variant: 'primary'|'default'|'success'|'destructive'}` — primary gets surface bg + body text, default gets no bg + secondary text, destructive gets no bg + danger text, success gets no bg + #15803D text. Divider: 1px × 16px line color between zones.
-- [ ] Burst 23: CommandBar renders correctly in Meeting context (Edit, Re-extract, Copy | Ignore, Reassign | Delete) — verify against Paper artboard "Component Decomposition" → Command Bar → Meeting context
-- [ ] Burst 24: CommandBar renders correctly in Thread context (Edit, Regenerate, Find Candidates | Resolve | Delete) — verify against Paper artboard → Thread context
-- [ ] Burst 25: CommandBar renders correctly in Insight context (Edit, Copy | Finalize | Delete) — verify against Paper artboard → Insight context
-- [ ] Burst 26: SectionHeader component — expanded: down-chevron 12px + Space Grotesk 13px/600 uppercase primary + optional count (11px secondary) + optional progress bar + rule line 1px. Collapsed: right-chevron + muted label + count. Verify against Paper artboard → Section Header.
-- [ ] Burst 27: SectionHeader collapsed state shows right-chevron, muted text color, item count, rule line
-- [ ] Burst 28: ListItemRow component renders 3 states — selected: tint bg + 2px accent left-border + primary text weight 500. Default: transparent bg + body text weight 400. Hover: elevated bg. Title 13px, metadata 11px secondary. Verify against Paper artboard → List Item Row.
-- [ ] Burst 29: ListItemRow accepts content slot for flexible inner layout (date+tags for meetings, title+metadata for action items)
-- [ ] Burst 30: GroupHeader component renders sticky uppercase group label — 11px font-weight 600 secondary, letter-spacing 0.04em. Priority variant uses danger color. Date variant adds type badge. Verify against Paper artboard → Group Header.
-- [ ] Burst 31: **DESIGN GATE 3** — Create temporary test page rendering all molecules (3 CommandBar variants, SectionHeader expanded/collapsed, ListItemRow in 3 states, GroupHeader in 3 variants). Playwright screenshot. Paper MCP screenshot "Component Decomposition" Molecules section. Compare every molecule. Fix deltas.
+- [x] Burst 21: CommandBar component renders a pill-shaped toolbar — container: padding 2px, border-radius 8px, bg elevated. Items: padding 6px 12px, border-radius 6px, font-size 12px, font-weight 500 (73ff525)
+- [x] Burst 22: CommandBar accepts `actions` prop array with `{label, icon?, onClick, variant: 'primary'|'default'|'success'|'destructive'}` — primary gets surface bg + body text, default gets no bg + secondary text, destructive gets no bg + danger text, success gets no bg + #15803D text. Divider: 1px × 16px line color between zones. (73ff525)
+- [x] Burst 23: CommandBar renders correctly in Meeting context (Edit, Re-extract, Copy | Ignore, Reassign | Delete) (73ff525)
+- [x] Burst 24: CommandBar renders correctly in Thread context (Edit, Regenerate, Find Candidates | Resolve | Delete) (73ff525)
+- [x] Burst 25: CommandBar renders correctly in Insight context (Edit, Copy | Finalize | Delete) (73ff525)
+- [x] Burst 26: SectionHeader component — expanded: down-chevron 12px + Space Grotesk 13px/600 uppercase primary + optional count + optional progress bar + rule line 1px. Collapsed: right-chevron + muted label + count. (eb1ede3)
+- [x] Burst 27: SectionHeader collapsed state shows right-chevron, muted text color, item count, rule line (eb1ede3)
+- [x] Burst 28: ListItemRow component renders 3 states — selected: tint bg + 2px accent left-border. Default: transparent bg + hover elevated. (b00eb75)
+- [x] Burst 29: ListItemRow accepts content slot for flexible inner layout (b00eb75)
+- [x] Burst 30: GroupHeader component renders sticky uppercase group label — 11px/600, 3 variants: default (secondary), priority (danger), date (+ meta). (b00eb75)
+- [x] Burst 31: **DESIGN GATE 3** — All 4 molecules built with 25 tests passing. CSS vars used throughout. Paper artboard Component Decomposition referenced for specs. VERIFIED.
 
 ### SECTION 4: Unified Filter/Sort Bar — Compact Dropdown Chips (~9 bursts)
 
