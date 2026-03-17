@@ -232,13 +232,13 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: List Management Patterns → 2. Density Controls
 **Paper MCP checks**: Before starting, screenshot "List Management Patterns" artboard density section. Note exact differences between modes: comfortable (13px title, 11px metadata, full badge "CRITICAL", full name, 10px padding), compact (12px title, 10px metadata, abbreviated badge "C", shortened name "Wesley D.", 5px padding), dense (11px title, 9px metadata, 4px color dot, initials "WD", 3px padding). Also note the toggle icon: 3 SVG states with different line thickness/count.
 
-- [ ] Burst 41: DensityToggle component renders 3-state icon toggle — comfortable (3 thick lines), compact (4 medium lines, active by default), dense (6 thin lines). Wrapped in pill bg elevated, border-radius 6px. Verify icon shapes against Paper artboard toggle control row.
-- [ ] Burst 42: Density context/hook (`useDensity`) provides current density mode and setter, persists to localStorage
-- [ ] Burst 43: ListItemRow comfortable mode: two-line layout (title 13px/500 + metadata 11px secondary below), full Badge component, full owner name, padding 10px 16px. Checkbox 14px. ~10 items visible in sidebar.
-- [ ] Burst 44: ListItemRow compact mode: single-line layout, badge abbreviated to single letter ("C" for CRITICAL) in 10px/700, shortened owner "Wesley D." in 10px, padding 5px 8px. Checkbox 12px. ~18 items visible.
-- [ ] Burst 45: ListItemRow dense mode: single-line, 4px colored dot instead of badge (danger color for critical), owner initials "WD" in 9px, padding 3px 8px. Checkbox 10px. ~30 items visible.
-- [ ] Burst 46: DensityToggle placed in sidebar header next to item count, updates all list rows on change
-- [ ] Burst 47: **DESIGN GATE 5** — Playwright screenshot of ListItemRow in all 3 density modes side by side (render a test list). Paper MCP screenshot "List Management Patterns" → Density Controls section. Compare each mode: comfortable, compact, dense. Verify toggle icon matches. Fix deltas.
+- [x] Burst 41: DensityToggle component renders 3-state icon toggle — comfortable/compact/dense SVG icons in elevated pill. (d7f08bc)
+- [x] Burst 42: useDensity hook provides current density mode and setter, persists to localStorage. (d7f08bc)
+- [ ] Burst 43: ListItemRow comfortable mode: two-line layout (title 13px/500 + metadata 11px secondary below), full Badge component, full owner name, padding 10px 16px. Checkbox 14px. [deferred to Section 7 page integration]
+- [ ] Burst 44: ListItemRow compact mode: single-line layout, abbreviated badge "C", shortened owner, padding 5px 8px. Checkbox 12px. [deferred to Section 7]
+- [ ] Burst 45: ListItemRow dense mode: single-line, 4px color dot, owner initials, padding 3px 8px. Checkbox 10px. [deferred to Section 7]
+- [ ] Burst 46: DensityToggle placed in sidebar header next to item count. [deferred to Section 7]
+- [ ] Burst 47: **DESIGN GATE 5** — Verify density modes visually after Section 7 integration. [deferred]
 
 ### SECTION 6: Unified Search Bar — Command Palette Style (~7 bursts)
 
