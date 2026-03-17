@@ -4,21 +4,31 @@ import { cn } from "../../lib/utils.js";
 interface SectionHeaderProps {
   label: string;
   defaultExpanded?: boolean;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   count?: string;
   progress?: { current: number; total: number };
   filterSlot?: React.ReactNode;
   children?: React.ReactNode;
+  isEmpty?: boolean;
 }
 
 export function SectionHeader({
   label,
   defaultExpanded = false,
+  expanded: controlledExpanded,
+  onExpandedChange,
   count,
   progress,
   filterSlot,
   children,
+  isEmpty,
 }: SectionHeaderProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+  const expanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+  const setExpanded = onExpandedChange ?? setInternalExpanded;
+
+  if (isEmpty) return null;
 
   return (
     <div className="flex flex-col gap-2">
@@ -79,7 +89,13 @@ export function SectionHeader({
           <div className="flex-shrink-0">{filterSlot}</div>
         )}
       </button>
-      {expanded && children && <div>{children}</div>}
+      {expanded && children && (
+        <div className="pb-3 text-sm leading-[1.65]">
+          <div className="pl-5 pr-1">
+            {children}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

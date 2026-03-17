@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronRight, ChevronDown, Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip } from "lucide-react";
+import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
 import { useDropzone } from "react-dropzone";
@@ -13,6 +12,7 @@ import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
 import { HighlightText } from "./HighlightText.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
 import { CommandBar } from "./shared/command-bar.js";
+import { SectionHeader } from "./shared/section-header.js";
 import type { EditActionItemFields } from "../../../electron/channels.js";
 
 interface MeetingDetailProps {
@@ -42,49 +42,6 @@ interface MeetingDetailProps {
   onRename?: (newTitle: string) => void;
 }
 
-interface SectionProps {
-  title: string;
-  children: React.ReactNode;
-  isEmpty: boolean;
-  defaultOpen?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  headerExtra?: React.ReactNode;
-}
-
-function Section({ title, children, isEmpty, defaultOpen = false, open: controlledOpen, onOpenChange, headerExtra }: SectionProps) {
-  const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const setOpen = onOpenChange ?? setInternalOpen;
-  if (isEmpty) return null;
-  return (
-    <Collapsible.Root open={open} onOpenChange={setOpen}>
-      <div className="flex items-center border-t border-border">
-        <Collapsible.Trigger
-          className={cn(
-            "flex items-center gap-1.5 flex-1 text-left pt-2.5 pb-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] bg-transparent border-0 cursor-pointer",
-            open ? "text-foreground" : "text-secondary-foreground",
-          )}
-        >
-          {open ? (
-            <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-          ) : (
-            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-          )}
-          {title}
-        </Collapsible.Trigger>
-        {headerExtra}
-      </div>
-      <Collapsible.Content className="pb-3 text-sm text-secondary-foreground leading-[1.65]">
-        <ScrollArea maxHeight={400}>
-          <div className="pl-5 pr-1">
-            {children}
-          </div>
-        </ScrollArea>
-      </Collapsible.Content>
-    </Collapsible.Root>
-  );
-}
 
 function ItemList({ items, icon, iconColor, highlightTerms = [] }: { items: string[]; icon: string; iconColor?: string; highlightTerms?: string[] }) {
   return (
@@ -244,18 +201,19 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           {allExpanded ? "Collapse all" : "Expand all"}
         </Button>
       </div>
-      <Section title="Summary" isEmpty={!artifact.summary} open={effectiveOpen("Summary")} onOpenChange={(o) => setSectionOpen("Summary", o)}
-        headerExtra={matchesBySection["Summary"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Summary"]} match{matchesBySection["Summary"] > 1 ? "es" : ""}</span> : undefined}
+      <SectionHeader label="Summary" isEmpty={!artifact.summary} expanded={effectiveOpen("Summary")} onExpandedChange={(o) => setSectionOpen("Summary", o)}
+        filterSlot={matchesBySection["Summary"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Summary"]} match{matchesBySection["Summary"] > 1 ? "es" : ""}</span> : undefined}
       >
         <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
-      </Section>
+      </SectionHeader>
 
-      <Section
-        title="Decisions"
+      <SectionHeader
+        label="Decisions"
         isEmpty={artifact.decisions.length === 0}
-        open={effectiveOpen("Decisions")}
-        onOpenChange={(o) => setSectionOpen("Decisions", o)}
-        headerExtra={
+        expanded={effectiveOpen("Decisions")}
+        onExpandedChange={(o) => setSectionOpen("Decisions", o)}
+        count={String(artifact.decisions.length)}
+        filterSlot={
           <div className="flex items-center gap-2">
             {matchesBySection["Decisions"] && <span className="text-[0.65rem] text-yellow-500">{matchesBySection["Decisions"]} match{matchesBySection["Decisions"] > 1 ? "es" : ""}</span>}
             {decisionPeople.length > 0 && (
@@ -283,14 +241,15 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             </li>
           ))}
         </ul>
-      </Section>
+      </SectionHeader>
 
-      <Section
-        title="Action Items"
+      <SectionHeader
+        label="Action Items"
         isEmpty={artifact.action_items.length === 0}
-        open={effectiveOpen("Action Items")}
-        onOpenChange={(o) => setSectionOpen("Action Items", o)}
-        headerExtra={
+        expanded={effectiveOpen("Action Items")}
+        onExpandedChange={(o) => setSectionOpen("Action Items", o)}
+        count={String(artifact.action_items.length)}
+        filterSlot={
           <div className="flex items-center gap-2">
             {matchesBySection["Action Items"] && <span className="text-[0.65rem] text-yellow-500">{matchesBySection["Action Items"]} match{matchesBySection["Action Items"] > 1 ? "es" : ""}</span>}
             {actionPeople.length > 0 && (
@@ -421,7 +380,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             );
           })}
         </ul>
-      </Section>
+      </SectionHeader>
 
       <Dialog open={noteDialog !== null} onOpenChange={(open) => { if (!open) setNoteDialog(null); }}>
         <DialogContent aria-describedby={undefined}>
@@ -457,14 +416,14 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
         requesters={[...new Set(artifact.action_items.map((a) => a.requester).filter(Boolean))].sort() as string[]}
       />
 
-      <Section title="Open Questions" isEmpty={artifact.open_questions.length === 0} open={effectiveOpen("Open Questions")} onOpenChange={(o) => setSectionOpen("Open Questions", o)}
-        headerExtra={matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
+      <SectionHeader label="Open Questions" isEmpty={artifact.open_questions.length === 0} expanded={effectiveOpen("Open Questions")} onExpandedChange={(o) => setSectionOpen("Open Questions", o)}
+        filterSlot={matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
       >
         <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} />
-      </Section>
+      </SectionHeader>
 
-      <Section title="Risks" isEmpty={artifact.risk_items.length === 0} open={effectiveOpen("Risks")} onOpenChange={(o) => setSectionOpen("Risks", o)}
-        headerExtra={matchesBySection["Risks"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Risks"]} match{matchesBySection["Risks"] > 1 ? "es" : ""}</span> : undefined}
+      <SectionHeader label="Risks" isEmpty={artifact.risk_items.length === 0} expanded={effectiveOpen("Risks")} onExpandedChange={(o) => setSectionOpen("Risks", o)}
+        filterSlot={matchesBySection["Risks"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Risks"]} match{matchesBySection["Risks"] > 1 ? "es" : ""}</span> : undefined}
       >
         <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
           {artifact.risk_items.map((r, i) => (
@@ -475,16 +434,16 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             </li>
           ))}
         </ul>
-      </Section>
+      </SectionHeader>
 
-      <Section title="Proposed Features" isEmpty={artifact.proposed_features.length === 0} open={effectiveOpen("Proposed Features")} onOpenChange={(o) => setSectionOpen("Proposed Features", o)}
-        headerExtra={matchesBySection["Proposed Features"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Proposed Features"]} match{matchesBySection["Proposed Features"] > 1 ? "es" : ""}</span> : undefined}
+      <SectionHeader label="Proposed Features" isEmpty={artifact.proposed_features.length === 0} expanded={effectiveOpen("Proposed Features")} onExpandedChange={(o) => setSectionOpen("Proposed Features", o)}
+        filterSlot={matchesBySection["Proposed Features"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Proposed Features"]} match{matchesBySection["Proposed Features"] > 1 ? "es" : ""}</span> : undefined}
       >
         <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} />
-      </Section>
+      </SectionHeader>
 
-      <Section title="Additional Notes" isEmpty={artifact.additional_notes.length === 0} open={effectiveOpen("Additional Notes")} onOpenChange={(o) => setSectionOpen("Additional Notes", o)}
-        headerExtra={matchesBySection["Additional Notes"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Additional Notes"]} match{matchesBySection["Additional Notes"] > 1 ? "es" : ""}</span> : undefined}
+      <SectionHeader label="Additional Notes" isEmpty={artifact.additional_notes.length === 0} expanded={effectiveOpen("Additional Notes")} onExpandedChange={(o) => setSectionOpen("Additional Notes", o)}
+        filterSlot={matchesBySection["Additional Notes"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Additional Notes"]} match{matchesBySection["Additional Notes"] > 1 ? "es" : ""}</span> : undefined}
       >
         {artifact.additional_notes.map((note, i) => {
           const entries = Object.entries(note);
@@ -510,7 +469,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             </div>
           );
         })}
-      </Section>
+      </SectionHeader>
     </div>
   );
 }

@@ -51,6 +51,24 @@ describe("MeetingDetail", () => {
     expect(toolbar.textContent).toContain("Ignore");
   });
 
+  it("section headers show item counts via SectionHeader count prop", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({
+          action_items: [
+            { description: "A", owner: "", requester: "", due_date: null },
+            { description: "B", owner: "", requester: "", due_date: null },
+            { description: "C", owner: "", requester: "", due_date: null },
+          ],
+        })}
+      />,
+    );
+    const actionItemsHeaders = screen.getAllByRole("button", { name: /action items/i });
+    const sectionBtn = actionItemsHeaders.find((el) => el.getAttribute("aria-expanded") !== null)!;
+    expect(sectionBtn.textContent).toContain("3");
+  });
+
   it("renders placeholder when meeting is null", () => {
     render(<MeetingDetail meeting={null} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();

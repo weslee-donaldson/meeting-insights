@@ -268,7 +268,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 56: MeetingsPage uses 3-zone: sidebar (300px, white bg, border-right 1px) | detail (flex, base bg) | ChatPanel (380px, white bg, border-left 1px) — refactored from current layout
 - [x] Burst 57: MeetingsPage sidebar uses new ListItemRow, GroupHeader, FilterBar components replacing inline implementations
 - [x] Burst 58: MeetingsPage detail header uses CommandBar component with Meeting context actions
-- [ ] Burst 59: MeetingsPage detail sections use SectionHeader component (Summary, Decisions, Action Items, Open Questions, Risks)
+- [x] Burst 59: MeetingsPage detail sections use SectionHeader component (Summary, Decisions, Action Items, Open Questions, Risks)
 - [ ] Burst 60: **DESIGN GATE 7a** — Playwright screenshot of MeetingsPage with a meeting selected at 2560×1440. Paper MCP screenshot "Concept A — Meeting Detail". Compare: sidebar width, command bar, section headers, assistant panel. Fix deltas before continuing.
 - [ ] Burst 61: ActionItemsPage converted from flat full-width list to 3-zone: sidebar (520px action item list) | detail (flex, shows selected item context) | ChatPanel (380px)
 - [ ] Burst 62: ActionItemsPage sidebar uses ListItemRow + GroupHeader + FilterBar + DensityToggle
