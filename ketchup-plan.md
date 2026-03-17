@@ -54,7 +54,7 @@ Decisions made from Paper explorations:
 | Filter/sort/group | Option B — Compact Dropdown Chips with removable filter chips | List Management Patterns |
 | Density | 3 modes: comfortable (~10 items), compact (~18), dense (~30) | List Management Patterns |
 | Accessibility | WCAG AA — 3-tier text system, no text below 4.5:1 contrast | Accessible Color Scales |
-| Search/client | Option 2 — Unified Search Bar (command palette style) | Color Palette & Nav Icon Explorations |
+| Search/client | Option 3 — Client as Workspace Switcher (banner + scoped search) | Color Palette & Nav Icon Explorations |
 
 ---
 
@@ -240,21 +240,21 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [ ] Burst 46: DensityToggle placed in sidebar header next to item count. [deferred to Section 7]
 - [ ] Burst 47: **DESIGN GATE 5** — Verify density modes visually after Section 7 integration. [deferred]
 
-### SECTION 6: Unified Search Bar — Command Palette Style (~7 bursts)
+### SECTION 6: Client Workspace Switcher — Option 3 (~7 bursts)
 
-**Problem**: Client selector, date range, and search are scattered across the top bar as separate controls. Need a unified search bar where client is shown as a removable chip inside the search, date range is contextual below, and Deep search toggle is visible.
-**Requirements**: Search & Client Selector artboard — Option 2
-**Files affected**: `TopBar.tsx`, `SearchBar.tsx`, new `components/shared/UnifiedSearch.tsx`
-**Paper artboards**: Color Palette & Nav Icon Explorations → Search & Client Selector → Option 2
-**Paper MCP checks**: Before starting, screenshot "Color Palette & Nav Icon Explorations" artboard, scroll to "Search & Client Selector Options" section, focus on Option 2. Note: search input has 8px 14px padding, border-radius 10px, 1.5px border, surface bg. Client chip inside uses tint bg, accent text, 11px/600, × icon. Deep toggle is labeled pill with accent dot. Keyboard hint "⌘K" in bordered box. Date context line below: 11px secondary.
+**Problem**: Client selector, date range, and search are scattered across the top bar as separate controls. Need a workspace-level client banner with summary stats, scoped search below, and date range inputs.
+**Requirements**: Search & Client Selector artboard — Option 3
+**Files affected**: `TopBar.tsx`, `SearchBar.tsx`, new `components/shared/WorkspaceBanner.tsx`
+**Paper artboards**: Color Palette & Nav Icon Explorations → Search & Client Selector → Option 3
+**Paper MCP checks**: Before starting, screenshot "Color Palette & Nav Icon Explorations" artboard, scroll to "Search & Client Selector Options" section, focus on Option 3. Note: client banner is a tint-bg row with client avatar circle (accent bg, white initial), client name dropdown, summary stats (meetings · action items · threads). Search input below is scoped ("Search within LLSA..."). Date range uses From/To inputs.
 
-- [x] Burst 48: UnifiedSearch component — magnifying glass, 10px radius, 1.5px border, elevated bg, 13px input. (4b3b9e5)
-- [x] Burst 49: Client chip inside search bar — tint bg, 11px/600 accent text, removable ×. (4b3b9e5)
+- [x] Burst 48: UnifiedSearch component — magnifying glass, 10px radius, 1.5px border, elevated bg, 13px input. (4b3b9e5) [to be refactored for Option 3 in integration]
+- [x] Burst 49: Client chip inside search bar — tint bg, 11px/600 accent text, removable ×. (4b3b9e5) [to be replaced by workspace banner]
 - [x] Burst 50: Client chip click handler wired via onClientClick prop. (4b3b9e5)
-- [x] Burst 51: Date range context line below search bar — 11px secondary. (4b3b9e5)
+- [x] Burst 51: Date range context line below search bar — 11px secondary. (4b3b9e5) [to become From/To inputs]
 - [x] Burst 52: Deep toggle — 10px/500, accent dot when enabled, aria-pressed. (4b3b9e5)
-- [ ] Burst 53: TopBar refactored to use UnifiedSearch replacing separate client/date/search controls [deferred to Section 7 integration]
-- [ ] Burst 54: **DESIGN GATE 6** — Verify UnifiedSearch visually after TopBar integration. [deferred to Section 7]
+- [ ] Burst 53: TopBar refactored to use WorkspaceBanner (Option 3) — client as workspace-level banner with stats, scoped search, From/To date inputs [deferred to Section 7 integration]
+- [ ] Burst 54: **DESIGN GATE 6** — Verify WorkspaceBanner visually after TopBar integration. [deferred to Section 7]
 
 ### SECTION 7: 3-Zone Layout — All Pages (~13 bursts)
 
@@ -267,7 +267,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 55: LinearShell renders 3-zone layout: nav rail (56px fixed) + content area (flex: 1) — content area contains sidebar + detail + assistant
 - [x] Burst 56: MeetingsPage uses 3-zone: sidebar (300px, white bg, border-right 1px) | detail (flex, base bg) | ChatPanel (380px, white bg, border-left 1px) — refactored from current layout
 - [x] Burst 57: MeetingsPage sidebar uses new ListItemRow, GroupHeader, FilterBar components replacing inline implementations
-- [ ] Burst 58: MeetingsPage detail header uses CommandBar component with Meeting context actions
+- [x] Burst 58: MeetingsPage detail header uses CommandBar component with Meeting context actions
 - [ ] Burst 59: MeetingsPage detail sections use SectionHeader component (Summary, Decisions, Action Items, Open Questions, Risks)
 - [ ] Burst 60: **DESIGN GATE 7a** — Playwright screenshot of MeetingsPage with a meeting selected at 2560×1440. Paper MCP screenshot "Concept A — Meeting Detail". Compare: sidebar width, command bar, section headers, assistant panel. Fix deltas before continuing.
 - [ ] Burst 61: ActionItemsPage converted from flat full-width list to 3-zone: sidebar (520px action item list) | detail (flex, shows selected item context) | ChatPanel (380px)

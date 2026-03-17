@@ -12,6 +12,7 @@ import { cn } from "../lib/utils.js";
 import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
 import { HighlightText } from "./HighlightText.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
+import { CommandBar } from "./shared/command-bar.js";
 import type { EditActionItemFields } from "../../../electron/channels.js";
 
 interface MeetingDetailProps {
@@ -702,84 +703,62 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             )}
           </div>
         </div>
-        <div className="flex gap-1 mt-2">
-          {onReassignClient && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); }}
-                aria-label="Reassign client"
-                title="Reassign client"
+        <CommandBar
+          className="mt-2"
+          actions={[
+            ...(onReExtract ? [{
+              label: "Re-extract",
+              icon: <RefreshCw className={cn("w-3.5 h-3.5", reExtractPending && "animate-spin")} />,
+              onClick: onReExtract,
+              variant: "primary" as const,
+            }] : []),
+            ...(artifact ? [{
+              label: "Copy",
+              icon: <Clipboard className="w-3.5 h-3.5" />,
+              onClick: copySummary,
+              variant: "default" as const,
+            }] : []),
+            ...(onReassignClient ? [{
+              label: "Reassign",
+              icon: <UserPen className="w-3.5 h-3.5" />,
+              onClick: () => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); },
+              variant: "default" as const,
+            }] : []),
+            ...(onIgnore ? [{
+              label: "Ignore",
+              icon: <EyeOff className="w-3.5 h-3.5" />,
+              onClick: onIgnore,
+              variant: "destructive" as const,
+            }] : []),
+          ]}
+        />
+        {onReassignClient && (
+          <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
+            <DialogContent>
+              <DialogTitle>Reassign Client</DialogTitle>
+              <select
+                value={reassignSelection}
+                onChange={(e) => setReassignSelection(e.target.value)}
+                className="w-full px-2 py-1.5 rounded bg-input text-foreground border border-border text-sm"
               >
-                <UserPen className="w-4 h-4 mr-1" />
-                Reassign
-              </Button>
-              <Dialog open={clientPickerOpen} onOpenChange={setClientPickerOpen}>
-                <DialogContent>
-                  <DialogTitle>Reassign Client</DialogTitle>
-                  <select
-                    value={reassignSelection}
-                    onChange={(e) => setReassignSelection(e.target.value)}
-                    className="w-full px-2 py-1.5 rounded bg-input text-foreground border border-border text-sm"
-                  >
-                    {(clients ?? []).map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <div className="flex gap-2 justify-end">
-                    <DialogClose asChild>
-                      <Button variant="ghost" size="sm">Cancel</Button>
-                    </DialogClose>
-                    <Button
-                      size="sm"
-                      onClick={() => { onReassignClient(reassignSelection); setClientPickerOpen(false); }}
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
-          {onIgnore && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onIgnore}
-              aria-label="Ignore meeting"
-              title="Ignore meeting"
-            >
-              <EyeOff className="w-4 h-4 mr-1" />
-              Ignore
-            </Button>
-          )}
-          {onReExtract && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onReExtract}
-              disabled={reExtractPending}
-              aria-label="Re-extract"
-              title="Re-extract summary, action items, and milestones"
-            >
-              <RefreshCw className={cn("w-4 h-4 mr-1", reExtractPending && "animate-spin")} />
-              Re-extract
-            </Button>
-          )}
-          {artifact && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={copySummary}
-              aria-label="Copy summary"
-              title="Copy summary"
-            >
-              <Clipboard className="w-4 h-4 mr-1" />
-              Copy
-            </Button>
-          )}
-        </div>
+                {(clients ?? []).map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <div className="flex gap-2 justify-end">
+                <DialogClose asChild>
+                  <Button variant="ghost" size="sm">Cancel</Button>
+                </DialogClose>
+                <Button
+                  size="sm"
+                  onClick={() => { onReassignClient(reassignSelection); setClientPickerOpen(false); }}
+                >
+                  Save
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4">

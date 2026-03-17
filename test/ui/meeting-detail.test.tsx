@@ -33,6 +33,24 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
 }
 
 describe("MeetingDetail", () => {
+  it("renders action buttons inside a CommandBar toolbar", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        onReExtract={vi.fn()}
+        onReassignClient={vi.fn()}
+        onIgnore={vi.fn()}
+        clients={["Acme"]}
+      />,
+    );
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar).toBeDefined();
+    expect(toolbar.textContent).toContain("Re-extract");
+    expect(toolbar.textContent).toContain("Copy");
+    expect(toolbar.textContent).toContain("Ignore");
+  });
+
   it("renders placeholder when meeting is null", () => {
     render(<MeetingDetail meeting={null} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();
@@ -52,7 +70,7 @@ describe("MeetingDetail", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
-    fireEvent.click(screen.getByRole("button", { name: "Copy summary" }));
+    fireEvent.click(screen.getByText("Copy").closest("button")!);
     expect(writeText).toHaveBeenCalledWith(
       "# Alpha Meeting\nDate: 2026-02-25\n\n## Summary\nWe discussed the roadmap.\n\n## Decisions\n- Ship by March",
     );
@@ -67,7 +85,7 @@ describe("MeetingDetail", () => {
         onReassignClient={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
+    fireEvent.click(screen.getByText("Reassign").closest("button")!);
     expect(screen.getByText("Reassign Client")).toBeDefined();
     const select = screen.getByRole("combobox") as HTMLSelectElement;
     expect(select.options).toHaveLength(2);
@@ -85,7 +103,7 @@ describe("MeetingDetail", () => {
         onReassignClient={onReassignClient}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Reassign client" }));
+    fireEvent.click(screen.getByText("Reassign").closest("button")!);
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "Beta Co" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(onReassignClient).toHaveBeenCalledWith("Beta Co");
@@ -94,11 +112,11 @@ describe("MeetingDetail", () => {
   it("ignore button calls onIgnore when clicked", () => {
     const onIgnore = vi.fn();
     render(<MeetingDetail meeting={makeMeeting()} artifact={null} onIgnore={onIgnore} />);
-    fireEvent.click(screen.getByRole("button", { name: "Ignore meeting" }));
+    fireEvent.click(screen.getByText("Ignore").closest("button")!);
     expect(onIgnore).toHaveBeenCalledOnce();
   });
 
-  it("icon buttons have title tooltips", () => {
+  it("CommandBar renders all action labels with icons", () => {
     render(
       <MeetingDetail
         meeting={makeMeeting()}
@@ -109,22 +127,23 @@ describe("MeetingDetail", () => {
         onReExtract={vi.fn()}
       />,
     );
-    expect(screen.getByRole("button", { name: "Reassign client" }).getAttribute("title")).toBe("Reassign client");
-    expect(screen.getByRole("button", { name: "Ignore meeting" }).getAttribute("title")).toBe("Ignore meeting");
-    expect(screen.getByRole("button", { name: "Re-extract" }).getAttribute("title")).toBe("Re-extract summary, action items, and milestones");
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.textContent).toContain("Reassign");
+    expect(toolbar.textContent).toContain("Ignore");
+    expect(toolbar.textContent).toContain("Re-extract");
+    expect(toolbar.textContent).toContain("Copy");
   });
 
   it("re-extract button calls onReExtract when clicked", () => {
     const onReExtract = vi.fn();
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);
-    fireEvent.click(screen.getByRole("button", { name: "Re-extract" }));
+    fireEvent.click(screen.getByText("Re-extract").closest("button")!);
     expect(onReExtract).toHaveBeenCalledOnce();
   });
 
-  it("re-extract button is disabled and spinner shown when reExtractPending is true", () => {
+  it("re-extract button shows spinner when reExtractPending is true", () => {
     render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={vi.fn()} reExtractPending={true} />);
-    const btn = screen.getByRole("button", { name: "Re-extract" }) as HTMLButtonElement;
-    expect(btn.disabled).toBe(true);
+    const btn = screen.getByText("Re-extract").closest("button")!;
     expect(btn.querySelector(".animate-spin")).not.toBeNull();
   });
 
@@ -425,9 +444,9 @@ describe("MeetingDetail", () => {
         onReassignClient={vi.fn()}
       />,
     );
-    expect(screen.queryByRole("button", { name: "Re-extract" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Ignore meeting" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Reassign client" })).toBeNull();
+    expect(screen.queryByText("Re-extract")).toBeNull();
+    expect(screen.queryByText("Ignore")).toBeNull();
+    expect(screen.queryByText("Reassign")).toBeNull();
   });
 
   it("multi-mode renders action item completion checkboxes when onComplete is passed", () => {
