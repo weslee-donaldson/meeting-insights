@@ -19,7 +19,11 @@ const ThemeContext = createContext<ThemeContextValue>({
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<ThemeName>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return (saved as ThemeName) ?? DEFAULT_THEME;
+    const validNames = themes.map((t) => t.name);
+    if (saved && validNames.includes(saved as ThemeName)) {
+      return saved as ThemeName;
+    }
+    return DEFAULT_THEME;
   });
 
   useEffect(() => {
