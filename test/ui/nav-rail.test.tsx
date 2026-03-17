@@ -30,16 +30,36 @@ describe("NavRail", () => {
     expect(onNavigate).toHaveBeenCalledWith("action-items");
   });
 
-  it("active item has selected styling", () => {
+  it("active item uses text-primary color", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     const meetingsBtn = screen.getByRole("button", { name: "Meetings" });
-    expect(meetingsBtn.className).toContain("text-foreground");
+    expect(meetingsBtn.className).toContain("text-[var(--color-text-primary)]");
   });
 
-  it("inactive item has muted styling", () => {
+  it("inactive item uses text-muted color", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     const actionBtn = screen.getByRole("button", { name: "Action Items" });
-    expect(actionBtn.className).toContain("text-muted-foreground");
+    expect(actionBtn.className).toContain("text-[var(--color-text-muted)]");
+  });
+
+  it("renders logo mark with accent background and K letter", () => {
+    render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
+    const logo = screen.getByText("K");
+    expect(logo).toBeDefined();
+    const logoContainer = logo.closest("div")!;
+    expect(logoContainer.className).toContain("bg-[var(--color-accent)]");
+  });
+
+  it("icons use 18px size and 1.75 stroke width", () => {
+    render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
+    const svg = screen.getByRole("button", { name: "Meetings" }).querySelector("svg")!;
+    expect(svg.classList.contains("w-[18px]")).toBe(true);
+  });
+
+  it("label text uses 9px font size", () => {
+    render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
+    const label = screen.getByText("Meetings");
+    expect(label.className).toContain("text-[9px]");
   });
 
   it("clicking Threads fires onNavigate with threads", () => {
