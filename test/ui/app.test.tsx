@@ -97,6 +97,11 @@ beforeAll(() => {
     clearMilestoneMessages: vi.fn().mockResolvedValue(undefined),
     getDateSlippage: vi.fn().mockResolvedValue([]),
     getMeetingMilestones: vi.fn().mockResolvedValue([]),
+    getMeetingAssets: vi.fn().mockResolvedValue([]),
+    uploadAsset: vi.fn().mockResolvedValue(undefined),
+    deleteAsset: vi.fn().mockResolvedValue(undefined),
+    getAssetData: vi.fn().mockResolvedValue(null),
+    renameMeeting: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -130,15 +135,23 @@ describe("App", () => {
 
   it("reset clears search input value", async () => {
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "foo" } });
     expect((input as HTMLInputElement).value).toBe("foo");
-    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
-    expect((input as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByLabelText("Reset"));
+    await waitFor(() => {
+      expect(screen.getByText("Select a workspace")).toBeDefined();
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: "Client" }), { target: { value: "Acme" } });
+    await waitFor(() => {
+      const freshInput = screen.getByRole("textbox", { name: /search meetings/i });
+      expect((freshInput as HTMLInputElement).value).toBe("");
+    });
   });
 
   it("shows meeting title in detail panel after meeting row click", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => {
@@ -163,7 +176,7 @@ describe("App", () => {
       { meeting_id: "m1", relevanceSummary: "Relevant", relevanceScore: 85 },
     ]);
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "al" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
@@ -174,6 +187,7 @@ describe("App", () => {
 
   it("shows confirmation dialog when Delete button clicked", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     await screen.findByTestId("meeting-row-m1");
     const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
@@ -186,6 +200,7 @@ describe("App", () => {
     const deleteFn = vi.fn().mockResolvedValue(undefined);
     (window as unknown as Record<string, unknown>).api = { ...(window as unknown as Record<string, { deleteMeetings: unknown }>).api, deleteMeetings: deleteFn };
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     await screen.findByTestId("meeting-row-m1");
     const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
@@ -198,6 +213,7 @@ describe("App", () => {
 
   it("shows success toast after confirming delete", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
@@ -211,6 +227,7 @@ describe("App", () => {
 
   it("shows success toast after re-extract completes", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
@@ -221,6 +238,7 @@ describe("App", () => {
   it("shows error toast when re-extract fails", async () => {
     (window.api.reExtract as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("LLM failed"));
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
@@ -230,6 +248,7 @@ describe("App", () => {
 
   it("calls reEmbedMeeting and shows indexing toast after successful re-extract", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
@@ -241,6 +260,7 @@ describe("App", () => {
   it("shows search index failed toast when reEmbedMeeting fails", async () => {
     (window.api.reEmbedMeeting as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("no search"));
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     const row = await screen.findByTestId("meeting-row-m1");
     fireEvent.click(row);
     await waitFor(() => screen.getByRole("button", { name: "Re-extract" }));
@@ -305,6 +325,7 @@ describe("App", () => {
 
   it("checking 2 meetings shows merged multi-meeting detail header", async () => {
     render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
     await screen.findByTestId("meeting-row-m1");
     const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
     fireEvent.click(checkboxes[0]);
@@ -319,7 +340,7 @@ describe("App", () => {
       { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
     ]);
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "deployment issue" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
@@ -332,11 +353,11 @@ describe("App", () => {
       { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
     ]);
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "deployment issue" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => expect(screen.getByText("Relevance")).toBeTruthy());
-    fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
+    fireEvent.click(screen.getByLabelText("Clear search"));
     await waitFor(() => {
       expect(screen.queryByText("Relevance")).toBeNull();
     });
@@ -362,7 +383,7 @@ describe("App", () => {
 
   it("clicking Meetings nav clears search query", async () => {
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "DLQ" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect((input as HTMLInputElement).value).toBe("DLQ");
@@ -379,7 +400,7 @@ describe("App", () => {
       new Error("[api_error] credit balance too low"),
     );
     render(<App />, { wrapper });
-    const input = screen.getByRole("textbox", { name: /search meetings/i });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "test query" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {

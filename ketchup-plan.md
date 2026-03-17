@@ -329,8 +329,8 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 83: WorkspaceBanner summary stats — "N meetings · N action items · N threads" in 11px secondary text, right-aligned on row 1.
 - [x] Burst 84: WorkspaceBanner scoped search — placeholder shows "Search within {clientName}...", magnifying glass icon, same input styling.
 - [x] Burst 85: WorkspaceBanner date range — "From" label + date input + "to" label + date input, right side of row 2. Deep search toggle integrated.
-- [ ] Burst 86: TopBar refactored to render WorkspaceBanner replacing all separate controls (client dropdown, date inputs, search bar, reset, theme toggle). Theme toggle moves to NavRail footer or remains in banner.
-- [ ] Burst 87: WorkspaceBanner empty state — when no client selected, show prompt "Select a workspace" with client dropdown.
+- [x] Burst 86: TopBar refactored to render WorkspaceBanner replacing all separate controls. Removed Radix Select, old SearchBar, inline buttons. Theme toggle remains as icon beside banner.
+- [x] Burst 87: WorkspaceBanner empty state — when no client selected, shows "Select a workspace" with client dropdown.
 - [ ] Burst 88: **DESIGN GATE 11** — Playwright screenshot of WorkspaceBanner in stone-light at 2560×1440. Paper MCP screenshot Option 3. Compare: avatar, client name, stats, scoped search, date inputs. Fix deltas.
 
 ## DONE

@@ -2,22 +2,14 @@
 import React from "react";
 import { describe, afterEach, it, expect, vi } from "vitest";
 import { render, cleanup, screen, fireEvent } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TopBar } from "../../electron-ui/ui/src/components/TopBar.js";
 import { themes } from "../../electron-ui/ui/src/theme.js";
 
 afterEach(cleanup);
 
-function makeWrapper() {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  );
-}
-
 const defaultProps = {
   clients: ["Acme", "Beta Co"],
-  selectedClient: null,
+  selectedClient: "Acme" as string | null,
   dateRange: { after: "", before: "" },
   searchQuery: "",
   onClientChange: vi.fn(),
@@ -31,27 +23,27 @@ const defaultProps = {
 };
 
 describe("TopBar", () => {
-  it("renders Reset button", () => {
-    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
-    expect(screen.getByRole("button", { name: /reset/i })).toBeDefined();
+  it("renders Reset button in workspace banner", () => {
+    render(<TopBar {...defaultProps} />);
+    expect(screen.getByLabelText("Reset")).toBeDefined();
   });
 
   it("calls onReset when Reset is clicked", () => {
     const onReset = vi.fn();
-    render(<TopBar {...defaultProps} onReset={onReset} />, { wrapper: makeWrapper() });
-    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    render(<TopBar {...defaultProps} onReset={onReset} />);
+    fireEvent.click(screen.getByLabelText("Reset"));
     expect(onReset).toHaveBeenCalledOnce();
   });
 
   it("renders after and before date inputs", () => {
-    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
+    render(<TopBar {...defaultProps} />);
     expect(screen.getByLabelText("After date")).toBeDefined();
     expect(screen.getByLabelText("Before date")).toBeDefined();
   });
 
   it("calls onDateChange with field=after and new value when after date changes", () => {
     const onDateChange = vi.fn();
-    render(<TopBar {...defaultProps} onDateChange={onDateChange} />, { wrapper: makeWrapper() });
+    render(<TopBar {...defaultProps} onDateChange={onDateChange} />);
     fireEvent.change(screen.getByLabelText("After date"), {
       target: { value: "2026-02-01" },
     });
@@ -60,7 +52,7 @@ describe("TopBar", () => {
 
   it("calls onDateChange with field=before and new value when before date changes", () => {
     const onDateChange = vi.fn();
-    render(<TopBar {...defaultProps} onDateChange={onDateChange} />, { wrapper: makeWrapper() });
+    render(<TopBar {...defaultProps} onDateChange={onDateChange} />);
     fireEvent.change(screen.getByLabelText("Before date"), {
       target: { value: "2026-03-01" },
     });
@@ -68,25 +60,30 @@ describe("TopBar", () => {
   });
 
   it("renders theme cycle button with current theme aria-label", () => {
-    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
+    render(<TopBar {...defaultProps} />);
     expect(screen.getByRole("button", { name: /theme: stone-light/i })).toBeDefined();
   });
 
   it("calls setTheme with next theme when cycle button is clicked", () => {
     const setTheme = vi.fn();
-    render(<TopBar {...defaultProps} setTheme={setTheme} />, { wrapper: makeWrapper() });
+    render(<TopBar {...defaultProps} setTheme={setTheme} />);
     fireEvent.click(screen.getByRole("button", { name: /theme:/i }));
     expect(setTheme).toHaveBeenCalledWith("stone-dark");
   });
 
-  it("renders Client label next to dropdown", () => {
-    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
-    expect(screen.getByText("Client")).toBeDefined();
+  it("renders client dropdown with selected client", () => {
+    render(<TopBar {...defaultProps} />);
+    const select = screen.getByRole("combobox", { name: "Client" }) as HTMLSelectElement;
+    expect(select.value).toBe("Acme");
   });
 
-  it("renders instruction text above filters", () => {
-    render(<TopBar {...defaultProps} />, { wrapper: makeWrapper() });
-    expect(screen.getByText("Start by selecting a client")).toBeDefined();
+  it("renders scoped search placeholder with client name", () => {
+    render(<TopBar {...defaultProps} />);
+    expect(screen.getByPlaceholderText("Search within Acme…")).toBeDefined();
   });
 
+  it("shows empty state when no client selected", () => {
+    render(<TopBar {...defaultProps} selectedClient={null} />);
+    expect(screen.getByText("Select a workspace")).toBeDefined();
+  });
 });
