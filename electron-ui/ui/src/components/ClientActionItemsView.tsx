@@ -68,6 +68,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   const [ownerFilter, setOwnerFilter] = useState("");
   const [requesterFilter, setRequesterFilter] = useState("");
   const [groupBy, setGroupBy] = useState<ActionGroupBy>("priority");
+  const [sortBy, setSortBy] = useState<"priority" | "alphabetical" | "owner" | "meeting">("priority");
   const [editDialog, setEditDialog] = useState<{ meetingId: string; itemIndex: number; item: ClientActionItem } | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
@@ -109,7 +110,17 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
     && (!requesterFilter || i.requester === requesterFilter),
   );
 
-  const groups = groupItems(filtered, groupBy);
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    if (sortBy === "priority") {
+      const p = (i: ClientActionItem) => i.priority === "critical" ? 0 : 1;
+      return p(a) - p(b) || a.description.localeCompare(b.description);
+    }
+    if (sortBy === "alphabetical") return a.description.localeCompare(b.description);
+    if (sortBy === "owner") return (a.owner ?? "").localeCompare(b.owner ?? "") || a.description.localeCompare(b.description);
+    return a.meeting_title.localeCompare(b.meeting_title) || a.description.localeCompare(b.description);
+  });
+
+  const groups = groupItems(sortedFiltered, groupBy);
 
   return (
     <div data-testid="client-action-items-view" className="flex flex-col h-full overflow-auto">
@@ -138,6 +149,15 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
             onChange: (v) => {
               const mode = GROUP_MODES.find((m) => m.label === v);
               if (mode) setGroupBy(mode.value);
+            },
+          }}
+          sortBy={{
+            label: "Sort",
+            value: sortBy === "priority" ? "Priority" : sortBy === "alphabetical" ? "A–Z" : sortBy === "owner" ? "Owner" : "Meeting",
+            options: ["Priority", "A–Z", "Owner", "Meeting"],
+            onChange: (v) => {
+              const map: Record<string, typeof sortBy> = { "Priority": "priority", "A–Z": "alphabetical", "Owner": "owner", "Meeting": "meeting" };
+              setSortBy(map[v] ?? "priority");
             },
           }}
           filters={[
