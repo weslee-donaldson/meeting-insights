@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Pencil, Clipboard, ReceiptText } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
-import type { DensityMode } from "./shared/density-toggle.js";
+import { DensityToggle, type DensityMode } from "./shared/density-toggle.js";
+import { formatOwner } from "../../../../core/format-owner.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
@@ -91,7 +92,7 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
   return entries;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem, densityMode: _densityMode, onDensityChange: _onDensityChange }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem, densityMode, onDensityChange }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState("");
@@ -160,15 +161,20 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
           <h2 className="text-sm font-semibold">{clientName}</h2>
           <p className="text-xs text-muted-foreground">{items.length} open items</p>
         </div>
-        {onAddActionItem && (
-          <button
-            aria-label="Add action item"
-            className="shrink-0 mt-0.5 px-2 py-1 text-xs border border-border rounded bg-background hover:bg-secondary cursor-pointer"
-            onClick={() => setAddDialogOpen(true)}
-          >
-            + Add
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {densityMode && onDensityChange && (
+            <DensityToggle value={densityMode} onChange={onDensityChange} />
+          )}
+          {onAddActionItem && (
+            <button
+              aria-label="Add action item"
+              className="shrink-0 mt-0.5 px-2 py-1 text-xs border border-border rounded bg-background hover:bg-secondary cursor-pointer"
+              onClick={() => setAddDialogOpen(true)}
+            >
+              + Add
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="shrink-0 px-4 py-2 border-b border-[var(--color-line)]">
@@ -209,7 +215,7 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
               meta={groupBy === "intent" && (group.items[0]?.total_mentions ?? 0) > 1 ? `raised ${group.items[0].total_mentions}×` : undefined}
             />
             {group.items.map((item) => (
-              <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} onEdit={onEditActionItem ? (i) => setEditDialog({ meetingId: i.meeting_id, itemIndex: i.item_index, item: i }) : undefined} />
+              <ActionItemCard key={`${item.meeting_id}:${item.item_index}`} item={item} onPreviewMeeting={onPreviewMeeting} onComplete={handleComplete} onEdit={onEditActionItem ? (i) => setEditDialog({ meetingId: i.meeting_id, itemIndex: i.item_index, item: i }) : undefined} density={densityMode} />
             ))}
           </div>
         ))}
@@ -271,9 +277,19 @@ export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onC
   );
 }
 
-function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEdit, completed = false }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; onUncomplete?: (meetingId: string, itemIndex: number) => void; onEdit?: (item: ClientActionItem) => void; completed?: boolean }) {
+const DENSITY_ROW: Record<DensityMode, string> = {
+  comfortable: "px-4 py-2 gap-2 text-sm",
+  compact: "px-2 py-1 gap-1.5 text-xs",
+  dense: "px-2 py-0.5 gap-1.5 text-[11px]",
+};
+
+function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEdit, completed = false, density }: { item: ClientActionItem; onPreviewMeeting?: (id: string) => void; onComplete?: (meetingId: string, itemIndex: number) => void; onUncomplete?: (meetingId: string, itemIndex: number) => void; onEdit?: (item: ClientActionItem) => void; completed?: boolean; density?: DensityMode }) {
+  const mode = density ?? "comfortable";
+  const badgeSize = mode === "dense" ? "dot" as const : mode === "compact" ? "abbreviated" as const : "default" as const;
+  const badgeLabel = mode === "compact" ? "C" : "CRITICAL";
+
   return (
-    <div className={`px-4 py-2 border-b border-border flex items-start gap-2 text-sm transition-colors hover:bg-secondary/60 active:bg-secondary/80${completed ? " opacity-50" : ""}`}>
+    <div className={`border-b border-border flex items-start transition-colors hover:bg-secondary/60 active:bg-secondary/80 ${DENSITY_ROW[mode]}${completed ? " opacity-50" : ""}`}>
       <input
         type="checkbox"
         className="mt-0.5 shrink-0 cursor-pointer"
@@ -309,7 +325,7 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
         </button>
       )}
       {item.priority === "critical" && !completed && (
-        <Badge variant="destructive" className="shrink-0">CRITICAL</Badge>
+        <Badge variant="destructive" size={badgeSize} className="shrink-0">{badgeLabel}</Badge>
       )}
       <span className="flex-1 leading-snug">
         <span className={completed ? "line-through" : ""}>{item.description}</span>
@@ -321,7 +337,7 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
           >
             {item.meeting_title}
           </button>
-          {" · "}{item.owner}{item.requester ? ` · ${item.requester}` : ""}
+          {" · "}{formatOwner(item.owner, mode)}{item.requester ? ` · ${formatOwner(item.requester, mode)}` : ""}
         </span>
       </span>
     </div>
