@@ -312,13 +312,12 @@ describe("ChatPanel", () => {
     expect(screen.getByTestId("user-bubble").className).toContain("break-words");
   });
 
-  it("send and attach buttons are vertically centered to input", () => {
+  it("send and attach buttons are top-aligned to input", () => {
     const onChat = vi.fn().mockResolvedValue({ answer: "ok", sources: [], charCount: 0 });
     render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={onChat} />);
     const sendButton = screen.getByLabelText("Send");
     const buttonColumn = sendButton.closest("div.flex.flex-col")!;
-    expect(buttonColumn.className).toContain("self-center");
-    expect(buttonColumn.className).not.toContain("self-end");
+    expect(buttonColumn.className).toContain("self-start");
   });
 
   it("shows error message as assistant bubble when onChat rejects", async () => {

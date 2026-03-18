@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { Pencil, Clipboard } from "lucide-react";
+import { Pencil, Clipboard, ReceiptText } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
+import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
 import { FilterBar } from "./shared/filter-bar.js";
@@ -228,6 +229,15 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
         checked={completed}
         onChange={completed ? () => onUncomplete?.(item.meeting_id, item.item_index) : () => onComplete?.(item.meeting_id, item.item_index)}
       />
+      {onPreviewMeeting && (
+        <button
+          onClick={() => onPreviewMeeting(item.meeting_id)}
+          aria-label={`View details for ${item.meeting_title}`}
+          className="mt-0.5 shrink-0 inline-flex items-center bg-transparent border-0 cursor-pointer p-0 text-muted-foreground hover:text-foreground"
+        >
+          <ReceiptText className="w-3.5 h-3.5" strokeWidth={2} />
+        </button>
+      )}
       {onEdit && !completed && (
         <button
           onClick={() => onEdit(item)}
@@ -248,9 +258,7 @@ function ActionItemCard({ item, onPreviewMeeting, onComplete, onUncomplete, onEd
         </button>
       )}
       {item.priority === "critical" && !completed && (
-        <span className="shrink-0 text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground">
-          CRITICAL
-        </span>
+        <Badge variant="destructive" className="shrink-0">CRITICAL</Badge>
       )}
       <span className="flex-1 leading-snug">
         <span className={completed ? "line-through" : ""}>{item.description}</span>

@@ -435,7 +435,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-1 self-center">
+          <div className="flex flex-col gap-1 self-start mt-1">
             <label className="cursor-pointer flex items-center justify-center w-8 h-8 rounded-md hover:bg-secondary text-muted-foreground">
               <input
                 ref={fileInputRef}

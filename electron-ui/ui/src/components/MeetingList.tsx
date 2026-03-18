@@ -299,12 +299,12 @@ export function MeetingList({
           const showStats = groupBy !== "series";
           return (
             <div key={group.series}>
-              <div className="flex items-center gap-1.5 px-4">
+              <div className="flex items-center gap-1.5 mx-3 px-3 sticky top-0 bg-[var(--color-bg-elevated)] border-t border-[var(--color-line)] border-l-[3px] border-l-[var(--color-accent)]">
                 <GroupHeader
                   label={group.label}
                   variant={groupBy === "day" || groupBy === "week" || groupBy === "month" ? "date" : "default"}
                   meta={showStats ? statLine(group.meetings) : undefined}
-                  className="flex-1 px-0"
+                  className="flex-1 px-0 border-t-0 bg-transparent static"
                 />
                 <Button
                   size="sm"

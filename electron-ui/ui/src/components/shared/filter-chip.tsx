@@ -54,7 +54,7 @@ export function FilterChip({ label, value, options, onChange, className }: Filte
           role="listbox"
           className={cn(
             "absolute top-full left-0 mt-1 z-50",
-            "min-w-[120px] py-1 rounded-md",
+            "min-w-[240px] py-1 rounded-md",
             "border border-[var(--color-line)]",
             "bg-[var(--color-bg-surface)]",
             "shadow-md",

@@ -333,6 +333,26 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 - [x] Burst 87: WorkspaceBanner empty state — when no client selected, shows "Select a workspace" with client dropdown.
 - [x] Burst 88: **DESIGN GATE 11** — Playwright screenshot of WorkspaceBanner in stone-light at 2560×1440. Paper MCP screenshot Option 3. Avatar PASS. Client dropdown PASS. Summary stats wired (meetings · action items · threads) PASS. Scoped search PASS. From/To dates PASS. Deep toggle PASS. Reset PASS. Tint bg row 1 PASS. VERIFIED.
 
+### SECTION 12: Density Controls (~10 bursts)
+
+**Problem**: 490+ action items at comfortable density means long scrolling. Power users need to compress lists while keeping them scannable. The density toggle and hook already exist but aren't wired into any list view.
+**Requirements**: List Management Patterns artboard → Section 2 "Density Controls". Three modes: Comfortable (~10 items), Compact (~18 items), Dense (~30 items).
+**Existing infrastructure**: `useDensity` hook (localStorage persistence), `DensityToggle` component (3-state radio), `DsCheckbox` (size variants), `density` tokens in `design-tokens.ts`.
+**Files affected**: `ListItemRow`, `MeetingList.tsx`, `ClientActionItemsView.tsx`, `badge.tsx`, new `core/format-owner.ts`, `App.tsx`
+**Paper artboards**: List Management Patterns → Density Controls
+**Paper MCP checks**: Before starting, screenshot density section from "List Management Patterns" (JZ-0). Note: Comfortable = full badges + full owner names + 10px 16px padding. Compact = abbreviated badge ("C") + shortened owner ("Wesley D.") + 5px 8px padding. Dense = colored dot (4px) + initials ("WD") + 3px 8px padding.
+
+- [ ] Burst 89: Owner name formatter — `formatOwner(name, mode)` returns full name (comfortable), "First L." (compact), or "FL" initials (dense). Unit tested with edge cases (single name, empty, hyphenated).
+- [ ] Burst 90: Badge abbreviated and dot variants — extend Badge component with `size="abbreviated"` (single letter, e.g., "C" for CRITICAL) and `size="dot"` (4px colored circle, no text). Existing `variant` controls color, new `size` controls display format.
+- [ ] Burst 91: ListItemRow accepts `density` prop — adjusts gap and padding based on mode. Comfortable: `gap-2.5 py-2.5 px-4`. Compact: `gap-2 py-1 px-2`. Dense: `gap-1.5 py-0.5 px-2`.
+- [ ] Burst 92: Wire `useDensity` into App.tsx — call hook at top level, pass `densityMode` and `setDensityMode` down to MeetingList and ClientActionItemsView.
+- [ ] Burst 93: MeetingList density integration — title font size (13/12/11px), metadata font size (11/10/9px), checkbox size, badge format (full/abbreviated/dot), owner format (full/shortened/initials) all respond to density mode.
+- [ ] Burst 94: DensityToggle placed in MeetingList — render next to item count in the sidebar header area, beside the FilterBar or group controls.
+- [ ] Burst 95: ClientActionItemsView density integration — ActionItemCard row padding, title size, badge format, owner/requester format all respond to density mode.
+- [ ] Burst 96: DensityToggle placed in ClientActionItemsView — render in sidebar header next to item count.
+- [ ] Burst 97: Density preference persists across page navigation — switching from Meetings to Action Items preserves the same density mode (already handled by localStorage in useDensity).
+- [ ] Burst 98: **DESIGN GATE 12** — Playwright screenshots of MeetingList and ClientActionItemsView at all 3 density modes (2560×1440). Paper MCP screenshot density section from "List Management Patterns". Compare row heights, badge styles, owner display, checkbox sizes. All 3 modes match artboard. VERIFIED.
+
 ## DONE
 
 (none yet)

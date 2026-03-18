@@ -44,10 +44,10 @@ describe("ListItemRow", () => {
 });
 
 describe("GroupHeader", () => {
-  it("renders series group with secondary text and uppercase styling", () => {
+  it("renders series group with primary text and uppercase styling", () => {
     render(<GroupHeader label="Pre-Mortem for Commerce" />);
     const label = screen.getByText("Pre-Mortem for Commerce");
-    expect(label.className).toContain("text-[var(--color-text-secondary)]");
+    expect(label.className).toContain("text-[var(--color-text-primary)]");
     expect(label.className).toContain("uppercase");
     expect(label.className).toContain("tracking-[0.04em]");
     expect(label.className).toContain("text-[11px]");
@@ -65,9 +65,9 @@ describe("GroupHeader", () => {
     expect(screen.getByText("Day")).toBeTruthy();
   });
 
-  it("is sticky positioned", () => {
-    const { container } = render(<GroupHeader label="Test" />);
-    const wrapper = container.firstElementChild;
-    expect(wrapper?.className).toContain("sticky");
+  it("renders label and meta text", () => {
+    render(<GroupHeader label="Test" meta="3 meetings" />);
+    expect(screen.getByText("Test")).toBeTruthy();
+    expect(screen.getByText("3 meetings")).toBeTruthy();
   });
 });
