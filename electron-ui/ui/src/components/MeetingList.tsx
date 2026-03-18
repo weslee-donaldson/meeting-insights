@@ -6,7 +6,7 @@ import { cn } from "../lib/utils.js";
 import { FilterBar } from "./shared/filter-bar.js";
 import { GroupHeader } from "./shared/group-header.js";
 import { ListItemRow } from "./shared/list-item-row.js";
-import type { DensityMode } from "./shared/density-toggle.js";
+import { DensityToggle, type DensityMode } from "./shared/density-toggle.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
@@ -171,8 +171,8 @@ export function MeetingList({
   deepSearchLoading,
   deepSearchEmpty,
   onMilestoneClick,
-  densityMode: _densityMode,
-  onDensityChange: _onDensityChange,
+  densityMode,
+  onDensityChange,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {
@@ -250,8 +250,9 @@ export function MeetingList({
           )}
         </div>
         <div className="border-b border-[var(--color-line)] mx-3" />
-        <div className="px-3 pt-1.5 pb-2">
+        <div className="px-3 pt-1.5 pb-2 flex items-start gap-2">
           <FilterBar
+            className="flex-1"
             groupBy={{
               label: "Group",
               value: GROUP_LABELS[groupBy],
@@ -265,6 +266,9 @@ export function MeetingList({
               onChange: (v) => onSortBy(sortLabelToValue[v] ?? "date-desc"),
             }}
           />
+          {densityMode && onDensityChange && (
+            <DensityToggle value={densityMode} onChange={onDensityChange} />
+          )}
         </div>
       </div>
 
@@ -340,8 +344,10 @@ export function MeetingList({
                   key={m.id}
                   selected={isHighlighted}
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
+                  density={densityMode}
                   className={cn(
-                    "flex-col !items-start px-4 py-2",
+                    "flex-col !items-start",
+                    !densityMode && "px-4 py-2",
                     deepActive && "!border-l-[var(--color-search-deep)]",
                   )}
                 >
