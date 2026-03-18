@@ -356,6 +356,9 @@ export function App() {
         charCount={meeting.charCount}
         onChat={handleChat}
         templates={templatesQuery.data ?? []}
+        persistedMessages={!meeting.isMultiMode && meeting.selectedMeetingId ? meeting.meetingMessagesQuery.data ?? [] : undefined}
+        onSendMessage={!meeting.isMultiMode && meeting.selectedMeetingId ? meeting.handleMeetingSendMessage : undefined}
+        onClearMessages={!meeting.isMultiMode && meeting.selectedMeetingId ? meeting.handleClearMeetingMessages : undefined}
         onSaveAsThread={selectedClient ? handleSaveAsThreadAndOpen : undefined}
         showIncludeAssets={computedActiveMeetingIds.length > 0}
       />

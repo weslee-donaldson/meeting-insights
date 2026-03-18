@@ -13,6 +13,8 @@ export const CHANNELS = {
   CREATE_ACTION_ITEM: "create-action-item",
   COMPLETE_ACTION_ITEM: "complete-action-item",
   CONVERSATION_CHAT: "conversation-chat",
+  GET_MEETING_MESSAGES: "get-meeting-messages",
+  CLEAR_MEETING_MESSAGES: "clear-meeting-messages",
   GET_COMPLETIONS: "get-completions",
   GET_ITEM_HISTORY: "get-item-history",
   GET_MENTION_STATS: "get-mention-stats",
@@ -297,6 +299,9 @@ export interface ElectronAPI {
   getArtifact: (meetingId: string) => Promise<import("../../core/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
+  getMeetingMessages: (meetingId: string) => Promise<import("../../core/meeting-messages.js").MeetingMessage[]>;
+  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean) => Promise<ConversationChatResponse>;
+  clearMeetingMessages: (meetingId: string) => Promise<void>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;
   reExtract: (meetingId: string) => Promise<void>;

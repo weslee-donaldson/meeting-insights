@@ -501,6 +501,41 @@ export function useMeetingState(
     setCheckedMeetingIds(new Set());
   }, []);
 
+  const meetingMessagesQuery = useQuery({
+    queryKey: ["meetingMessages", selectedMeetingId],
+    queryFn: () => window.api.getMeetingMessages(selectedMeetingId!),
+    enabled: !!selectedMeetingId,
+  });
+
+  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+    if (!selectedMeetingId) return;
+    try {
+      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts);
+      queryClient.invalidateQueries({ queryKey: ["meetingMessages", selectedMeetingId] });
+    } catch (err) {
+      addToast(`Chat failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
+
+  const [pendingClearMeetingMessages, setPendingClearMeetingMessages] = useState(false);
+
+  const handleClearMeetingMessages = useCallback(() => {
+    if (!selectedMeetingId) return;
+    setPendingClearMeetingMessages(true);
+  }, [selectedMeetingId]);
+
+  const handleConfirmClearMeetingMessages = useCallback(async () => {
+    setPendingClearMeetingMessages(false);
+    if (!selectedMeetingId) return;
+    try {
+      await window.api.clearMeetingMessages(selectedMeetingId);
+      queryClient.invalidateQueries({ queryKey: ["meetingMessages", selectedMeetingId] });
+      addToast("Messages cleared", "success");
+    } catch (err) {
+      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
+
   return {
     dateRange,
     setDateRange,
@@ -530,6 +565,11 @@ export function useMeetingState(
     setDeepSearchEnabled,
     threadInitialDescription,
     setThreadInitialDescription,
+    meetingMessagesQuery,
+    handleMeetingSendMessage,
+    handleClearMeetingMessages,
+    handleConfirmClearMeetingMessages,
+    pendingClearMeetingMessages,
     meetingsQuery,
     searchFetching,
     isDeepSearchActive,
@@ -581,5 +621,10 @@ export function useMeetingState(
     handleSaveAsThread,
     handleResetSearch,
     handleResetChecked,
+    meetingMessagesQuery,
+    handleMeetingSendMessage,
+    handleClearMeetingMessages,
+    handleConfirmClearMeetingMessages,
+    pendingClearMeetingMessages,
   };
 }

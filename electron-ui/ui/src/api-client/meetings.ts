@@ -152,4 +152,23 @@ export const meetingsMethods = {
     fetch(`${API_BASE}/api/assets/${assetId}/data`).then((r) =>
       r.status === 404 ? null : r.json(),
     ),
+
+  getMeetingMessages: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/messages`).then((r) => r.json()),
+
+  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, includeTranscripts }),
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+        throw new Error(body.error);
+      }
+      return r.json();
+    }),
+
+  clearMeetingMessages: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/messages`, { method: "DELETE" }).then(() => undefined),
 };

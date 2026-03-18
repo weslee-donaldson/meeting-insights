@@ -15,6 +15,8 @@ import { updateFts } from "../../../core/fts.js";
 import type { VectorDb } from "../../../core/vector-db.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../../core/item-dedup.js";
 import { markThreadMessagesStale } from "../../../core/threads.js";
+import { getMeetingMessages, appendMeetingMessage, clearMeetingMessages } from "../../../core/meeting-messages.js";
+import type { MeetingMessage } from "../../../core/meeting-messages.js";
 import { reconcileMilestones } from "../../../core/timelines.js";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest } from "../channels.js";
 import { chatGuidelines, chatTemplates, extractionPrompt } from "./config.js";
@@ -461,4 +463,26 @@ export function handleGetAssetData(db: Database, assetId: string, assetsDir: str
 }
 export function handleRenameMeeting(db: Database, meetingId: string, newTitle: string): void {
   renameMeeting(db, meetingId, newTitle);
+}
+
+export function handleGetMeetingMessages(db: Database, meetingId: string): MeetingMessage[] {
+  return getMeetingMessages(db, meetingId);
+}
+
+export async function handleMeetingChat(
+  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean,
+): Promise<ConversationChatResponse> {
+  appendMeetingMessage(db, { meeting_id: meetingId, role: "user", content: message });
+  const history = getMeetingMessages(db, meetingId).map((m) => ({ role: m.role, content: m.content }));
+  const result = await handleConversationChat(db, llm, {
+    meetingIds: [meetingId],
+    messages: history,
+    includeTranscripts,
+  });
+  appendMeetingMessage(db, { meeting_id: meetingId, role: "assistant", content: result.answer, sources: result.sources.length > 0 ? JSON.stringify(result.sources) : undefined });
+  return result;
+}
+
+export function handleClearMeetingMessages(db: Database, meetingId: string): void {
+  clearMeetingMessages(db, meetingId);
 }

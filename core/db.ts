@@ -220,6 +220,15 @@ export function migrate(db: DatabaseSync): void {
       created_at TEXT NOT NULL,
       FOREIGN KEY (milestone_id) REFERENCES milestones(id)
     );
+    CREATE TABLE IF NOT EXISTS meeting_messages (
+      id TEXT PRIMARY KEY,
+      meeting_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      sources TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (meeting_id) REFERENCES meetings(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];

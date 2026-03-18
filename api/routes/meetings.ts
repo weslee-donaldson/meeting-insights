@@ -8,6 +8,7 @@ import {
   handleGetTemplates, handleCreateMeeting,
   handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
   handleRenameMeeting,
+  handleGetMeetingMessages, handleMeetingChat, handleClearMeetingMessages,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
@@ -189,4 +190,20 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
       return c.json(result);
     });
   }
+
+  app.get("/api/meetings/:id/messages", (c) => {
+    return c.json(handleGetMeetingMessages(db, c.req.param("id")));
+  });
+
+  app.post("/api/meetings/:id/chat", async (c) => {
+    if (!llm) return c.json({ error: "LLM not available" }, 503);
+    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
+    const result = await handleMeetingChat(db, llm, c.req.param("id"), body.message, body.includeTranscripts ?? false);
+    return c.json(result);
+  });
+
+  app.delete("/api/meetings/:id/messages", (c) => {
+    handleClearMeetingMessages(db, c.req.param("id"));
+    return c.json({ ok: true });
+  });
 }

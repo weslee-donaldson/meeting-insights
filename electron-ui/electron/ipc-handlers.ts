@@ -26,6 +26,9 @@ export {
   handleDeleteAsset,
   handleGetAssetData,
   handleRenameMeeting,
+  handleGetMeetingMessages,
+  handleMeetingChat,
+  handleClearMeetingMessages,
 } from "./handlers/meetings.js";
 
 export {
