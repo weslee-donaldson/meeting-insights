@@ -342,7 +342,7 @@ Every section ends with a **design verification gate** — a burst that uses Pla
 **Paper artboards**: List Management Patterns → Density Controls
 **Paper MCP checks**: Before starting, screenshot density section from "List Management Patterns" (JZ-0). Note: Comfortable = full badges + full owner names + 10px 16px padding. Compact = abbreviated badge ("C") + shortened owner ("Wesley D.") + 5px 8px padding. Dense = colored dot (4px) + initials ("WD") + 3px 8px padding.
 
-- [ ] Burst 89: Owner name formatter — `formatOwner(name, mode)` returns full name (comfortable), "First L." (compact), or "FL" initials (dense). Unit tested with edge cases (single name, empty, hyphenated).
+- [x] Burst 89: Owner name formatter — `formatOwner(name, mode)` returns full name (comfortable), "First L." (compact), or "FL" initials (dense). Unit tested with edge cases (single name, empty, hyphenated).
 - [ ] Burst 90: Badge abbreviated and dot variants — extend Badge component with `size="abbreviated"` (single letter, e.g., "C" for CRITICAL) and `size="dot"` (4px colored circle, no text). Existing `variant` controls color, new `size` controls display format.
 - [ ] Burst 91: ListItemRow accepts `density` prop — adjusts gap and padding based on mode. Comfortable: `gap-2.5 py-2.5 px-4`. Compact: `gap-2 py-1 px-2`. Dense: `gap-1.5 py-0.5 px-2`.
 - [ ] Burst 92: Wire `useDensity` into App.tsx — call hook at top level, pass `densityMode` and `setDensityMode` down to MeetingList and ClientActionItemsView.

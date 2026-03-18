@@ -25,9 +25,11 @@ const badgeVariants = cva(
         primary:     "bg-[var(--color-accent)] text-white",
       },
       size: {
-        default: "px-2 py-0.5 text-[10px] rounded",
-        sm:      "px-1.5 py-0 text-[9px] rounded-sm",
-        lg:      "px-2.5 py-1 text-xs rounded-md",
+        default:      "px-2 py-0.5 text-[10px] rounded",
+        sm:           "px-1.5 py-0 text-[9px] rounded-sm",
+        lg:           "px-2.5 py-1 text-xs rounded-md",
+        abbreviated:  "w-4 h-4 text-[8px] rounded-sm justify-center p-0",
+        dot:          "w-2 h-2 rounded-full p-0 overflow-hidden text-[0px]",
       },
     },
     defaultVariants: {

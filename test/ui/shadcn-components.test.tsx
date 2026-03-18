@@ -106,4 +106,23 @@ describe("Badge", () => {
     expect(badge.className).toContain("font-bold");
     expect(badge.className).toContain("tracking-wide");
   });
+
+  it("renders abbreviated size with single letter and compact padding", () => {
+    render(<Badge variant="critical" size="abbreviated">C</Badge>);
+    const badge = screen.getByText("C");
+    expect(badge.className).toContain("w-4");
+    expect(badge.className).toContain("h-4");
+    expect(badge.className).toContain("justify-center");
+    expect(badge.className).toContain("bg-[var(--color-danger)]");
+  });
+
+  it("renders dot size as small circle with no visible text", () => {
+    const { container } = render(<Badge variant="critical" size="dot">CRITICAL</Badge>);
+    const badge = container.firstElementChild!;
+    expect(badge.className).toContain("w-2");
+    expect(badge.className).toContain("h-2");
+    expect(badge.className).toContain("rounded-full");
+    expect(badge.className).toContain("overflow-hidden");
+    expect(badge.className).toContain("text-[0px]");
+  });
 });
