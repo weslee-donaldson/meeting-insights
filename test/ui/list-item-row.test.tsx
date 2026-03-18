@@ -41,6 +41,30 @@ describe("ListItemRow", () => {
     expect(screen.getByText("Fri, Mar 13")).toBeTruthy();
     expect(screen.getByText("observability")).toBeTruthy();
   });
+
+  it("applies comfortable density with default gap and padding", () => {
+    render(<ListItemRow density="comfortable">Row</ListItemRow>);
+    const row = screen.getByRole("option");
+    expect(row.className).toContain("gap-2.5");
+    expect(row.className).toContain("py-2.5");
+    expect(row.className).toContain("px-4");
+  });
+
+  it("applies compact density with tighter gap and padding", () => {
+    render(<ListItemRow density="compact">Row</ListItemRow>);
+    const row = screen.getByRole("option");
+    expect(row.className).toContain("gap-2");
+    expect(row.className).toContain("py-1");
+    expect(row.className).toContain("px-2");
+  });
+
+  it("applies dense density with minimal gap and padding", () => {
+    render(<ListItemRow density="dense">Row</ListItemRow>);
+    const row = screen.getByRole("option");
+    expect(row.className).toContain("gap-1.5");
+    expect(row.className).toContain("py-0.5");
+    expect(row.className).toContain("px-2");
+  });
 });
 
 describe("GroupHeader", () => {

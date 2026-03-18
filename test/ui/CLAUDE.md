@@ -71,6 +71,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2717 | 8:48 PM | 🟣 | ListItemRow Density Mode Tests Added | ~431 |
 | #2709 | 8:36 PM | 🟣 | Badge Component Density Size Tests Added | ~347 |
 | #2702 | 3:54 PM | 🔴 | GroupHeader Test Suite Fully Passing | ~396 |
 </claude-mem-context>
