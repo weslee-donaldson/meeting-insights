@@ -346,7 +346,7 @@ export function MeetingList({
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
                   density={densityMode}
                   className={cn(
-                    "flex-col !items-start ml-[25px]",
+                    "flex-col !items-start ml-[15px]",
                     !densityMode && "px-4 py-2",
                     deepActive && "!border-l-[var(--color-search-deep)]",
                   )}
