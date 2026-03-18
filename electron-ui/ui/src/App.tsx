@@ -14,6 +14,7 @@ import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
 import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
 import { CreateMilestoneDialog } from "./components/CreateMilestoneDialog.js";
+import { useDensity } from "./hooks/useDensity.js";
 import { useMeetingState } from "./hooks/useMeetingState.js";
 import { useThreadState } from "./hooks/useThreadState.js";
 import { useInsightState } from "./hooks/useInsightState.js";
@@ -26,6 +27,7 @@ import { TimelinesPage } from "./pages/TimelinesPage.js";
 
 export function App() {
   const { theme, setTheme, themes } = useTheme();
+  const [densityMode, setDensityMode] = useDensity();
   const { toasts, addToast, removeToast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
@@ -209,6 +211,8 @@ export function App() {
     onUploadAsset: meeting.selectedMeetingId ? handleUploadAsset : undefined,
     onDeleteAsset: meeting.selectedMeetingId ? handleDeleteAsset : undefined,
     onRename: meeting.selectedMeetingId ? handleRename : undefined,
+    densityMode,
+    onDensityChange: setDensityMode,
   });
 
   const actionItemsPanels = ActionItemsPage({
@@ -228,6 +232,8 @@ export function App() {
     onCompletePreview: meeting.handleCompletePreviewActionItem,
     onUncompletePreview: meeting.handleUncompletePreviewActionItem,
     onEditPreviewActionItem: meeting.handleEditPreviewActionItem,
+    densityMode,
+    onDensityChange: setDensityMode,
   });
 
   const threadsPanels = ThreadsPage({

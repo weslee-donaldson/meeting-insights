@@ -2,6 +2,7 @@ import React from "react";
 import { ClientActionItemsView } from "../components/ClientActionItemsView.js";
 import { MeetingDetail } from "../components/MeetingDetail.js";
 import type { MeetingRow, ClientActionItem, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
+import type { DensityMode } from "../components/shared/density-toggle.js";
 
 interface ActionItemsPageProps {
   selectedClient: string | null;
@@ -20,6 +21,8 @@ interface ActionItemsPageProps {
   onCompletePreview: (itemIndex: number, note: string) => void;
   onUncompletePreview: (itemIndex: number) => void;
   onEditPreviewActionItem: (itemIndex: number, fields: EditActionItemFields) => void;
+  densityMode?: DensityMode;
+  onDensityChange?: (mode: DensityMode) => void;
 }
 
 export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] {
@@ -28,6 +31,7 @@ export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] 
     previewMeetingId, previewMeeting, previewArtifact, previewArtifactLoading,
     previewCompletions, previewMentionStats, onCompletePreview, onUncompletePreview,
     onEditPreviewActionItem,
+    densityMode, onDensityChange,
   } = props;
 
   return [
@@ -40,6 +44,8 @@ export function ActionItemsPage(props: ActionItemsPageProps): React.ReactNode[] 
       onUncomplete={onUncomplete}
       onEditActionItem={onEditActionItem}
       onAddActionItem={onAddActionItem}
+      densityMode={densityMode}
+      onDensityChange={onDensityChange}
     />,
     ...(previewMeetingId ? [
       <MeetingDetail

@@ -6,6 +6,7 @@ import { cn } from "../lib/utils.js";
 import { FilterBar } from "./shared/filter-bar.js";
 import { GroupHeader } from "./shared/group-header.js";
 import { ListItemRow } from "./shared/list-item-row.js";
+import type { DensityMode } from "./shared/density-toggle.js";
 
 
 export type GroupBy = "series" | "day" | "week" | "month";
@@ -37,6 +38,8 @@ interface MeetingListProps {
   deepSearchLoading?: boolean;
   deepSearchEmpty?: boolean;
   onMilestoneClick?: (milestoneId: string) => void;
+  densityMode?: DensityMode;
+  onDensityChange?: (mode: DensityMode) => void;
 }
 
 function normalizeSeries(title: string): string {
@@ -168,6 +171,8 @@ export function MeetingList({
   deepSearchLoading,
   deepSearchEmpty,
   onMilestoneClick,
+  densityMode: _densityMode,
+  onDensityChange: _onDensityChange,
 }: MeetingListProps) {
   const sorted = useMemo(() => {
     if (sortBy === "relevance" && searchScores && searchScores.size > 0) {

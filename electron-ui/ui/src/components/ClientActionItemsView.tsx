@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Pencil, Clipboard, ReceiptText } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
+import type { DensityMode } from "./shared/density-toggle.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
@@ -27,6 +28,8 @@ interface ClientActionItemsViewProps {
   onUncomplete?: (meetingId: string, itemIndex: number) => void;
   onEditActionItem?: (meetingId: string, itemIndex: number, fields: EditActionItemFields) => void;
   onAddActionItem?: (meetingId: string, fields: EditActionItemFields) => void;
+  densityMode?: DensityMode;
+  onDensityChange?: (mode: DensityMode) => void;
 }
 
 function weekStart(dateStr: string): string {
@@ -88,7 +91,7 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
   return entries;
 }
 
-export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem }: ClientActionItemsViewProps) {
+export function ClientActionItemsView({ clientName, items, onPreviewMeeting, onComplete, onUncomplete, onEditActionItem, onAddActionItem, densityMode: _densityMode, onDensityChange: _onDensityChange }: ClientActionItemsViewProps) {
   const [completedItems, setCompletedItems] = useState<ClientActionItem[]>([]);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState("");

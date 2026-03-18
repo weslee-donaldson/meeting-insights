@@ -3,6 +3,7 @@ import { MeetingList, type GroupBy, type SortBy } from "../components/MeetingLis
 import { MeetingDetail } from "../components/MeetingDetail.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
+import type { DensityMode } from "../components/shared/density-toggle.js";
 
 interface MeetingsPageProps {
   scopeMeetings: MeetingRow[];
@@ -52,6 +53,8 @@ interface MeetingsPageProps {
   onUploadAsset?: (file: File) => void;
   onDeleteAsset?: (assetId: string) => void;
   onRename?: (newTitle: string) => void;
+  densityMode?: DensityMode;
+  onDensityChange?: (mode: DensityMode) => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -64,6 +67,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
     onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename,
+    densityMode, onDensityChange,
   } = props;
 
   return [
@@ -93,6 +97,8 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       deepSearchLoading={deepSearchLoading}
       deepSearchEmpty={deepSearchEmpty}
       onMilestoneClick={onMilestoneClick}
+      densityMode={densityMode}
+      onDensityChange={onDensityChange}
     />,
     <MeetingDetail
       key="meeting-detail"

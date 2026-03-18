@@ -6,16 +6,18 @@ const VALID_MODES: DensityMode[] = ["comfortable", "compact", "dense"];
 
 export function useDensity(): [DensityMode, (mode: DensityMode) => void] {
   const [mode, setModeState] = useState<DensityMode>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && VALID_MODES.includes(saved as DensityMode)) {
-      return saved as DensityMode;
-    }
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && VALID_MODES.includes(saved as DensityMode)) {
+        return saved as DensityMode;
+      }
+    } catch { /* localStorage unavailable */ }
     return "comfortable";
   });
 
   function setMode(next: DensityMode) {
     setModeState(next);
-    localStorage.setItem(STORAGE_KEY, next);
+    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* */ }
   }
 
   return [mode, setMode];
