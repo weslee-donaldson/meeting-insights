@@ -176,13 +176,13 @@ describe("ClientActionItemsView", () => {
     expect(screen.getByTestId("completed-items-list").textContent).toContain("Fix the broken build");
   });
 
-  it("renders group-by pill buttons with label and five options", () => {
+  it("renders group-by pill buttons with label and seven options", () => {
     render(<ClientActionItemsView clientName="Acme" items={ITEMS} />);
     const groupChip = screen.getByText("Group:").closest("button")!;
     expect(groupChip).toBeDefined();
     fireEvent.click(groupChip);
     const options = screen.getAllByRole("option").map((o) => o.textContent);
-    expect(options).toEqual(["Priority", "Series", "Owner", "Requester", "Intent"]);
+    expect(options).toEqual(["Priority", "Series", "Day", "Week", "Owner", "Requester", "Intent"]);
   });
 
   it("default groups by priority with Critical and Normal section headers", () => {

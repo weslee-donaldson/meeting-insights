@@ -7,11 +7,13 @@ import { EditActionItemDialog } from "./EditActionItemDialog.js";
 import { FilterBar } from "./shared/filter-bar.js";
 import { GroupHeader } from "./shared/group-header.js";
 
-type ActionGroupBy = "priority" | "series" | "owner" | "requester" | "intent";
+type ActionGroupBy = "priority" | "series" | "owner" | "requester" | "intent" | "day" | "week";
 
 const GROUP_MODES: { value: ActionGroupBy; label: string }[] = [
   { value: "priority", label: "Priority" },
   { value: "series", label: "Series" },
+  { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
   { value: "owner", label: "Owner" },
   { value: "requester", label: "Requester" },
   { value: "intent", label: "Intent" },
@@ -27,17 +29,41 @@ interface ClientActionItemsViewProps {
   onAddActionItem?: (meetingId: string, fields: EditActionItemFields) => void;
 }
 
+function weekStart(dateStr: string): string {
+  const d = new Date(dateStr);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDateLabel(dateStr: string): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatWeekLabel(startStr: string): string {
+  const start = new Date(startStr + "T12:00:00");
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `${fmt(start)} – ${fmt(end)}, ${start.getFullYear()}`;
+}
+
 function groupKey(item: ClientActionItem, mode: ActionGroupBy): string {
   if (mode === "priority") return item.priority;
   if (mode === "series") return item.meeting_title;
   if (mode === "owner") return item.owner || "(unassigned)";
   if (mode === "intent") return item.canonical_id ?? `${item.meeting_id}:${item.item_index}`;
+  if (mode === "day") return item.meeting_date.slice(0, 10);
+  if (mode === "week") return weekStart(item.meeting_date);
   return item.requester || "(unassigned)";
 }
 
 function groupLabel(key: string, mode: ActionGroupBy, items: ClientActionItem[]): string {
   if (mode === "priority") return key === "critical" ? "Critical" : "Normal";
   if (mode === "intent") return items[0]?.description ?? key;
+  if (mode === "day") return formatDateLabel(key);
+  if (mode === "week") return formatWeekLabel(key);
   return key;
 }
 
@@ -54,6 +80,8 @@ function groupItems(items: ClientActionItem[], mode: ActionGroupBy): { key: stri
     entries.sort((a, b) => (a.key === "critical" ? -1 : 1) - (b.key === "critical" ? -1 : 1));
   } else if (mode === "intent") {
     entries.sort((a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label));
+  } else if (mode === "day" || mode === "week") {
+    entries.sort((a, b) => b.key.localeCompare(a.key));
   } else {
     entries.sort((a, b) => a.label.localeCompare(b.label));
   }
