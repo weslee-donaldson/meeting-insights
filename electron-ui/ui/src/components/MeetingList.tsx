@@ -346,7 +346,7 @@ export function MeetingList({
                   onClick={() => { onSelect(m.id); onCheck(m.id); }}
                   density={densityMode}
                   className={cn(
-                    "flex-col !items-start",
+                    "flex-col !items-start ml-[25px]",
                     !densityMode && "px-4 py-2",
                     deepActive && "!border-l-[var(--color-search-deep)]",
                   )}
@@ -366,11 +366,11 @@ export function MeetingList({
                       className="w-3.5 h-3.5 shrink-0"
                       style={{ accentColor: "var(--color-accent)" }}
                     />
-                    <div className="min-w-0 flex-1 text-xs font-medium overflow-hidden text-ellipsis whitespace-nowrap text-secondary-foreground">
+                    <div className="min-w-0 flex-1 text-[11px] font-medium overflow-hidden text-ellipsis whitespace-nowrap text-secondary-foreground">
                       {groupBy === "series" ? formatShortDate(m.date) : m.title}
                     </div>
                     {m.thread_tags?.map((tag) => (
-                      <span key={tag.thread_id} className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
+                      <span key={tag.thread_id} className="text-[9px] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
                     ))}
                     {m.milestone_tags?.map((tag) => (
                       <span
