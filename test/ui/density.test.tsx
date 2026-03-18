@@ -54,3 +54,27 @@ describe("DensityToggle", () => {
     expect(svgs).toHaveLength(3);
   });
 });
+
+describe("useDensity persistence", () => {
+  let lsMock: Record<string, string>;
+  beforeEach(() => {
+    lsMock = {};
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => lsMock[k] ?? null,
+      setItem: (k: string, v: string) => { lsMock[k] = v; },
+    });
+  });
+
+  it("persists density mode to localStorage on change", async () => {
+    const { useDensity } = await import("../../electron-ui/ui/src/hooks/useDensity.js");
+    function TestHarness() {
+      const [mode, setMode] = useDensity();
+      return <button onClick={() => setMode("dense")}>{mode}</button>;
+    }
+    render(<TestHarness />);
+    expect(screen.getByRole("button").textContent).toBe("comfortable");
+    fireEvent.click(screen.getByRole("button"));
+    expect(screen.getByRole("button").textContent).toBe("dense");
+    expect(lsMock["mtninsights-density"]).toBe("dense");
+  });
+});
