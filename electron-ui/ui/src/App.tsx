@@ -29,7 +29,16 @@ export function App() {
   const { theme, setTheme, themes } = useTheme();
   const [densityMode, setDensityMode] = useDensity();
   const { toasts, addToast, removeToast } = useToast();
-  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [selectedClient, setSelectedClientRaw] = useState<string | null>(() => {
+    try { return localStorage.getItem("mtninsights-client"); } catch { return null; }
+  });
+  const setSelectedClient = useCallback((client: string | null) => {
+    setSelectedClientRaw(client);
+    try {
+      if (client) localStorage.setItem("mtninsights-client", client);
+      else localStorage.removeItem("mtninsights-client");
+    } catch { /* */ }
+  }, []);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
 
   const clientsQuery = useQuery<string[]>({
@@ -49,11 +58,11 @@ export function App() {
 
   const defaultApplied = useRef(false);
   useEffect(() => {
-    if (!defaultApplied.current && defaultClientQuery.data) {
+    if (!defaultApplied.current && defaultClientQuery.data && !selectedClient) {
       defaultApplied.current = true;
       setSelectedClient(defaultClientQuery.data);
     }
-  }, [defaultClientQuery.data]);
+  }, [defaultClientQuery.data, selectedClient, setSelectedClient]);
 
   const meeting = useMeetingState(selectedClient, currentView, addToast, setCurrentView);
   const thread = useThreadState(selectedClient, currentView, addToast);
