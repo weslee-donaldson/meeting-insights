@@ -8,6 +8,7 @@ import { getClientByName, buildClientContext } from "../../../core/client-regist
 import type { Participant } from "../../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
+import { deleteNotesByObject } from "../../../core/notes.js";
 import { storeDetection } from "../../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
 import type { LlmAdapter } from "../../../core/llm-adapter.js";
@@ -282,6 +283,7 @@ export async function handleDeleteMeetings(db: Database, vdb: VectorDb | null, i
     }
   }
   db.prepare(`DELETE FROM thread_meetings WHERE meeting_id IN (${placeholders})`).run(...ids);
+  for (const id of ids) deleteNotesByObject(db, "meeting", id);
   db.prepare(`DELETE FROM meetings WHERE id IN (${placeholders})`).run(...ids);
   if (vdb) {
     const filter = ids.map((id) => `meeting_id = '${id.replace(/'/g, "''")}'`).join(" OR ");
@@ -485,4 +487,9 @@ export async function handleMeetingChat(
 
 export function handleClearMeetingMessages(db: Database, meetingId: string): void {
   clearMeetingMessages(db, meetingId);
+}
+
+export function handleGetTranscript(db: Database, meetingId: string): string | null {
+  const meeting = getMeeting(db, meetingId);
+  return meeting?.raw_transcript ?? null;
 }

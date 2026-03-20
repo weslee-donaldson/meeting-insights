@@ -244,7 +244,7 @@ Every section ends with a **design verification gate**.
 
 - [x] Burst 28: Add Notes action to MeetingDetail CommandBar — amber tint button with FileText icon + "Notes" label + badge count from noteCountQuery
 - [x] Burst 29: Wire NotesDialog into MeetingDetail — opens on Notes click, scoped to `objectType: 'meeting'`, shows meeting title as object label
-- [ ] Burst 30: Cascade delete — call `deleteNotesByObject(db, 'meeting', meetingId)` in meeting delete handler
+- [x] Burst 30: Cascade delete — call `deleteNotesByObject(db, 'meeting', meetingId)` in meeting delete handler
 - [ ] Burst 31: E2E — `test/e2e/meeting-notes.spec.ts`: select client, select meeting, Notes button visible in CommandBar with badge count; click Notes opens dialog with empty state; create note via dialog (type title + body with bold formatting), save, note appears in list; edit note via three-dot menu, change title, save, updated title visible; delete note via three-dot menu with confirmation, note removed from list, badge count updates to 0
 
 ### SECTION 7: View Integration — Threads (~4 bursts)
