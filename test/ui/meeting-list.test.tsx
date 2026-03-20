@@ -635,7 +635,9 @@ describe("MeetingList", () => {
       />,
     );
     fireEvent.click(screen.getAllByRole("button", { name: /deselect all in group/i })[0]);
-    expect(onCheckGroup).toHaveBeenCalledWith([]);
+    const args = onCheckGroup.mock.calls[0][0] as string[];
+    expect(args).toHaveLength(3);
+    expect(new Set(args)).toEqual(new Set(["dsu-1", "dsu-2", "dsu-3"]));
   });
 
   it("highlights checked meeting rows with ListItemRow selected state", () => {

@@ -6,6 +6,8 @@ test.use({ viewport: { width: 1400, height: 900 } });
 
 async function selectClient(page: Page, clientName: string) {
   const trigger = page.locator('[aria-label="Client"]');
+  const currentText = await trigger.textContent();
+  if (currentText?.includes(clientName)) return;
   await trigger.click();
   await page.locator('[role="option"]').filter({ hasText: clientName }).click();
   await expect(trigger).toContainText(clientName);
@@ -80,7 +82,7 @@ test.describe("Thread Notes E2E", () => {
     await notesBtn.click();
 
     await expect(page.getByTestId("notes-dialog")).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText("Thread", { exact: false })).toBeVisible();
+    await expect(page.getByTestId("notes-dialog").getByText("Thread")).toBeVisible();
   });
 
   test("create note on thread, verify via API", async ({ page }) => {

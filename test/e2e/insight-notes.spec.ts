@@ -6,6 +6,8 @@ test.use({ viewport: { width: 1400, height: 900 } });
 
 async function selectClient(page: Page, clientName: string) {
   const trigger = page.locator('[aria-label="Client"]');
+  const currentText = await trigger.textContent();
+  if (currentText?.includes(clientName)) return;
   await trigger.click();
   await page.locator('[role="option"]').filter({ hasText: clientName }).click();
   await expect(trigger).toContainText(clientName);
@@ -70,9 +72,10 @@ test.describe("Insight Notes E2E", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await selectClient(page, CLIENT);
-    await page.locator('[aria-label="Insights"]').click();
+    await page.getByLabel("Insights").click();
+    await expect(page.getByTestId("insights-view")).toBeVisible();
 
-    const insightRow = page.locator('button:not([aria-label="New Insight"])').first();
+    const insightRow = page.getByTestId("insights-view").locator('[role="option"]').first();
     await insightRow.waitFor({ state: "visible", timeout: 10_000 });
     await insightRow.click();
 
@@ -83,7 +86,7 @@ test.describe("Insight Notes E2E", () => {
     await notesBtn.click();
 
     await expect(page.getByTestId("notes-dialog")).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText("Insight", { exact: false })).toBeVisible();
+    await expect(page.getByTestId("notes-dialog").getByText("Insight")).toBeVisible();
   });
 
   test("create note with rich text on insight, verify body persists on re-open", async ({ page }) => {
@@ -92,9 +95,10 @@ test.describe("Insight Notes E2E", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await selectClient(page, CLIENT);
-    await page.locator('[aria-label="Insights"]').click();
+    await page.getByLabel("Insights").click();
+    await expect(page.getByTestId("insights-view")).toBeVisible();
 
-    const insightRow = page.locator('button:not([aria-label="New Insight"])').first();
+    const insightRow = page.getByTestId("insights-view").locator('[role="option"]').first();
     await insightRow.waitFor({ state: "visible", timeout: 10_000 });
     await insightRow.click();
     await expect(page.getByTestId("insight-detail-view")).toBeVisible({ timeout: 10_000 });

@@ -908,4 +908,50 @@ describe("MeetingDetail", () => {
     expect(onRename).not.toHaveBeenCalled();
     expect(screen.getByText("Alpha Meeting")).toBeDefined();
   });
+
+  it("shows Transcript command button when rawTranscript is provided", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        rawTranscript="Speaker 1: Hello\nSpeaker 2: Hi"
+      />,
+    );
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.textContent).toContain("Transcript");
+  });
+
+  it("does not show Transcript button when rawTranscript is not provided", () => {
+    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.textContent).not.toContain("Transcript");
+  });
+
+  it("clicking Transcript opens dialog with transcript text", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        rawTranscript="Speaker 1: Hello"
+      />,
+    );
+    fireEvent.click(screen.getByText("Transcript").closest("button")!);
+    expect(screen.getByText("Meeting Transcript")).toBeDefined();
+    expect(screen.getByText("Speaker 1: Hello")).toBeDefined();
+  });
+
+  it("transcript dialog has a copy button that writes text to clipboard", () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        rawTranscript="Speaker 1: Hello"
+      />,
+    );
+    fireEvent.click(screen.getByText("Transcript").closest("button")!);
+    fireEvent.click(screen.getByRole("button", { name: "Copy transcript" }));
+    expect(writeText).toHaveBeenCalledWith("Speaker 1: Hello");
+  });
 });

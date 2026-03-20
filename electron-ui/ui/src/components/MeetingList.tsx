@@ -319,7 +319,7 @@ export function MeetingList({
                   size="sm"
                   variant="outline"
                   className="h-auto px-2 py-0.5 text-xs shrink-0"
-                  onClick={() => onCheckGroup(allChecked ? [] : groupIds)}
+                  onClick={() => onCheckGroup(groupIds)}
                   aria-label={allChecked ? "Deselect all in group" : "Select all in group"}
                 >
                   {allChecked ? "Deselect all" : "Select all"}

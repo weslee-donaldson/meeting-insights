@@ -9,6 +9,7 @@ import {
   handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
   handleRenameMeeting,
   handleGetMeetingMessages, handleMeetingChat, handleClearMeetingMessages,
+  handleGetTranscript,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
@@ -190,6 +191,12 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
       return c.json(result);
     });
   }
+
+  app.get("/api/meetings/:id/transcript", (c) => {
+    const transcript = handleGetTranscript(db, c.req.param("id"));
+    if (transcript === null) return c.json({ error: "Not found" }, 404);
+    return c.json({ transcript });
+  });
 
   app.get("/api/meetings/:id/messages", (c) => {
     return c.json(handleGetMeetingMessages(db, c.req.param("id")));

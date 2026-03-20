@@ -29,6 +29,7 @@ export {
   handleGetMeetingMessages,
   handleMeetingChat,
   handleClearMeetingMessages,
+  handleGetTranscript,
 } from "./handlers/meetings.js";
 
 export {

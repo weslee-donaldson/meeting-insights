@@ -501,6 +501,12 @@ export function useMeetingState(
     setCheckedMeetingIds(new Set());
   }, []);
 
+  const transcriptQuery = useQuery<string | null>({
+    queryKey: ["transcript", selectedMeetingId],
+    queryFn: () => window.api.getTranscript(selectedMeetingId!),
+    enabled: !!selectedMeetingId,
+  });
+
   const meetingMessagesQuery = useQuery({
     queryKey: ["meetingMessages", selectedMeetingId],
     queryFn: () => window.api.getMeetingMessages(selectedMeetingId!),
@@ -616,6 +622,7 @@ export function useMeetingState(
     handleSaveAsThread,
     handleResetSearch,
     handleResetChecked,
+    transcriptQuery,
     meetingMessagesQuery,
     handleMeetingSendMessage,
     handleClearMeetingMessages,

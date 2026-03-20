@@ -171,4 +171,9 @@ export const meetingsMethods = {
 
   clearMeetingMessages: (meetingId: string) =>
     fetch(`${API_BASE}/api/meetings/${meetingId}/messages`, { method: "DELETE" }).then(() => undefined),
+
+  getTranscript: (meetingId: string) =>
+    fetch(`${API_BASE}/api/meetings/${meetingId}/transcript`).then(async (r) =>
+      r.status === 404 ? null : ((await r.json()) as { transcript: string }).transcript,
+    ),
 };

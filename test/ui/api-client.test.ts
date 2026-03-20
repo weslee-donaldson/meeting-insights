@@ -432,4 +432,15 @@ describe("apiClient", () => {
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/milestones/ms1/slippage");
   });
 
+  it("getTranscript fetches /api/meetings/:id/transcript and returns transcript string", async () => {
+    const spy = mockFetch({ transcript: "Speaker 1: Hello" });
+    expect(await apiClient.getTranscript("m1")).toBe("Speaker 1: Hello");
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/meetings/m1/transcript");
+  });
+
+  it("getTranscript returns null on 404", async () => {
+    mockFetch({ error: "Not found" }, 404);
+    expect(await apiClient.getTranscript("m1")).toBeNull();
+  });
+
 });

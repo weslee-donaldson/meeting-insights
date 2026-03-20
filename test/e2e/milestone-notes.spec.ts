@@ -6,6 +6,8 @@ test.use({ viewport: { width: 1400, height: 900 } });
 
 async function selectClient(page: Page, clientName: string) {
   const trigger = page.locator('[aria-label="Client"]');
+  const currentText = await trigger.textContent();
+  if (currentText?.includes(clientName)) return;
   await trigger.click();
   await page.locator('[role="option"]').filter({ hasText: clientName }).click();
   await expect(trigger).toContainText(clientName);
@@ -15,7 +17,7 @@ async function createMilestoneViaAPI(clientName: string, title: string, targetDa
   const res = await fetch(`${API}/api/milestones`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ client_name: clientName, title, description: "", target_date: targetDate ?? null }),
+    body: JSON.stringify({ clientName, title, description: "", targetDate: targetDate ?? null }),
   });
   return res.json() as Promise<{ id: string }>;
 }
@@ -89,7 +91,7 @@ test.describe("Milestone Notes E2E", () => {
     await notesBtn.click();
 
     await expect(page.getByTestId("notes-dialog")).toBeVisible({ timeout: 5_000 });
-    await expect(page.getByText("Milestone", { exact: false })).toBeVisible();
+    await expect(page.getByTestId("notes-dialog").getByText("Milestone")).toBeVisible();
   });
 
   test("create note on milestone, edit it, verify changes persist", async ({ page }) => {

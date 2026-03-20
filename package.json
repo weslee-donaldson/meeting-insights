@@ -18,7 +18,8 @@
     "ui:build": "electron-vite build",
     "api:dev": "tsx api/main.ts",
     "web:dev": "vite --config vite.web.config.ts",
-    "llm:check": "tsx scripts/llm-check.ts"
+    "llm:check": "tsx scripts/llm-check.ts",
+    "import-external": "tsx cli/import-external.ts"
   },
   "keywords": [],
   "author": "",

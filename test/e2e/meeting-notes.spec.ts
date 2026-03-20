@@ -6,6 +6,8 @@ test.use({ viewport: { width: 1400, height: 900 } });
 
 async function selectClient(page: Page, clientName: string) {
   const trigger = page.locator('[aria-label="Client"]');
+  const currentText = await trigger.textContent();
+  if (currentText?.includes(clientName)) return;
   await trigger.click();
   await page.locator('[role="option"]').filter({ hasText: clientName }).click();
   await expect(trigger).toContainText(clientName);
@@ -71,7 +73,7 @@ test.describe("Meeting Notes E2E", () => {
     const firstRow = page.locator('[data-testid^="meeting-row-"]').first();
     await firstRow.waitFor({ state: "visible", timeout: 10_000 });
     await firstRow.click();
-    await expect(page.getByText("Notes", { exact: false })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("button", { name: "Notes", exact: true })).toBeVisible({ timeout: 10_000 });
   });
 
   test("clicking Notes opens dialog with empty state", async ({ page }) => {
