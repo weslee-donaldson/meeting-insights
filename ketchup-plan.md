@@ -204,12 +204,12 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 2 (List State) and Section 5 (Empty State & Note Actions)
 
-- [ ] Burst 17: NotesDialog shell — Radix Dialog, 520px, header with "Notes" title + object subtitle + close button
-- [ ] Burst 18: NotesDialog "New Note" button in header — amber bg, plus icon, "New Note" label
-- [ ] Burst 19: NotesDialog note item row — title (bold) or first-line fallback, relative timestamp, body preview (HTML stripped, 2-3 lines truncated)
-- [ ] Burst 20: NotesDialog three-dot menu — popover with Edit and Delete actions per note item
-- [ ] Burst 21: NotesDialog empty state — centered document icon + "No notes yet" + subtitle + "Add First Note" amber CTA
-- [ ] Burst 22: NotesDialog delete confirmation — inline two-phase: "Delete this note?" with Cancel/Delete buttons, wired to `pendingDeleteNoteId`
+- [x] Burst 17: NotesDialog shell — Radix Dialog, 520px, header with "Notes" title + object subtitle + close button
+- [x] Burst 18: NotesDialog "New Note" button in header — amber bg, plus icon, "New Note" label
+- [x] Burst 19: NotesDialog note item row — title (bold) or first-line fallback, relative timestamp, body preview (HTML stripped, 2-3 lines truncated)
+- [x] Burst 20: NotesDialog three-dot menu — popover with Edit and Delete actions per note item
+- [x] Burst 21: NotesDialog empty state — centered document icon + "No notes yet" + subtitle + "Add First Note" amber CTA
+- [x] Burst 22: NotesDialog delete confirmation — inline two-phase: "Delete this note?" with Cancel/Delete buttons, wired to `pendingDeleteNoteId`
 
 ### SECTION 5: Notes Dialog — Compose & Edit Modes (~5 bursts, includes Design Gate)
 
