@@ -57,6 +57,7 @@ export interface CreateThreadInput {
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact } from "./extractor.js";
+import { deleteNotesByObject } from "./notes.js";
 import type { LlmAdapter } from "./llm-adapter.js";
 import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -157,6 +158,7 @@ export function updateThread(db: Database, id: string, input: UpdateThreadInput)
 export function deleteThread(db: Database, id: string): void {
   db.prepare("DELETE FROM thread_messages WHERE thread_id = ?").run(id);
   db.prepare("DELETE FROM thread_meetings WHERE thread_id = ?").run(id);
+  deleteNotesByObject(db, "thread", id);
   db.prepare("DELETE FROM threads WHERE id = ?").run(id);
 }
 

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
 import { getArtifact } from "./extractor.js";
+import { deleteNotesByObject } from "./notes.js";
 import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
@@ -64,6 +65,7 @@ export function deleteMilestone(db: DatabaseSync, id: string): void {
   db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ?").run(id);
   db.prepare("DELETE FROM milestone_action_items WHERE milestone_id = ?").run(id);
   db.prepare("DELETE FROM milestone_messages WHERE milestone_id = ?").run(id);
+  deleteNotesByObject(db, "milestone", id);
   db.prepare("DELETE FROM milestones WHERE id = ?").run(id);
 }
 

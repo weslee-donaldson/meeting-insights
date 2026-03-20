@@ -5,6 +5,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm-adapter.js";
 import { getArtifact } from "./extractor.js";
+import { deleteNotesByObject } from "./notes.js";
 import type { ArtifactRow } from "./extractor.js";
 import { embed } from "./embedder.js";
 import type { VectorDb } from "./vector-db.js";
@@ -149,6 +150,7 @@ export function updateInsight(db: Database, id: string, input: UpdateInsightInpu
 export function deleteInsight(db: Database, id: string): void {
   db.prepare("DELETE FROM insight_messages WHERE insight_id = ?").run(id);
   db.prepare("DELETE FROM insight_meetings WHERE insight_id = ?").run(id);
+  deleteNotesByObject(db, "insight", id);
   db.prepare("DELETE FROM insights WHERE id = ?").run(id);
 }
 
