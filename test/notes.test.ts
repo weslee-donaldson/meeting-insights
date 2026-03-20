@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
-import { createNote } from "../core/notes.js";
+import { createNote, listNotes } from "../core/notes.js";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -45,5 +45,31 @@ describe("createNote", () => {
 
     expect(result.title).toBeNull();
     expect(result.objectType).toBe("insight");
+  });
+});
+
+describe("listNotes", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("returns notes in reverse-chronological order for a given object", () => {
+    createNote(db, { objectType: "meeting", objectId: "m1", title: "First", body: "<p>a</p>" });
+    createNote(db, { objectType: "meeting", objectId: "m1", title: "Second", body: "<p>b</p>" });
+    createNote(db, { objectType: "meeting", objectId: "m2", title: "Other", body: "<p>c</p>" });
+
+    const result = listNotes(db, "meeting", "m1");
+
+    expect(result).toHaveLength(2);
+    expect(result[0].title).toBe("Second");
+    expect(result[1].title).toBe("First");
+  });
+
+  it("returns empty array when no notes exist for an object", () => {
+    const result = listNotes(db, "meeting", "nonexistent");
+
+    expect(result).toEqual([]);
   });
 });

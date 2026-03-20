@@ -47,6 +47,13 @@ function rowToNote(row: NoteRow): Note {
   };
 }
 
+export function listNotes(db: Database, objectType: ObjectType, objectId: string): Note[] {
+  const rows = db.prepare(
+    "SELECT * FROM notes WHERE object_type = ? AND object_id = ? ORDER BY created_at DESC, rowid DESC"
+  ).all(objectType, objectId) as NoteRow[];
+  return rows.map(rowToNote);
+}
+
 export function createNote(db: Database, input: CreateNoteInput): Note {
   const id = randomUUID();
   const now = new Date().toISOString();
