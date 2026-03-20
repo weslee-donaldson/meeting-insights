@@ -23,6 +23,8 @@ interface InsightsPageProps {
   selectedArtifact: Artifact | null;
   selectedArtifactLoading: boolean;
   selectedCompletions: ActionItemCompletion[];
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 export function InsightsPage(props: InsightsPageProps): React.ReactNode[] {
@@ -31,6 +33,7 @@ export function InsightsPage(props: InsightsPageProps): React.ReactNode[] {
     selectedInsight, insightMeetings, onDeleteInsight, onRegenerateInsight, onFinalizeInsight,
     onUpdateInsightSummary, onShowAllInsightMeetings, isRegenerating,
     selectedMeeting, selectedArtifact, selectedArtifactLoading, selectedCompletions,
+    notesCount, onNotesClick,
   } = props;
 
   return [
@@ -53,6 +56,8 @@ export function InsightsPage(props: InsightsPageProps): React.ReactNode[] {
         onUpdateSummary={onUpdateInsightSummary}
         onShowAllMeetings={onShowAllInsightMeetings}
         isRegenerating={isRegenerating}
+        notesCount={notesCount}
+        onNotesClick={onNotesClick}
       />,
     ] : []),
     ...(selectedMeeting ? [

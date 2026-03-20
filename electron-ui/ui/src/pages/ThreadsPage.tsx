@@ -32,6 +32,8 @@ interface ThreadsPageProps {
   selectedArtifactLoading: boolean;
   selectedCompletions: ActionItemCompletion[];
   threadKeywords: string | undefined;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 export function ThreadsPage(props: ThreadsPageProps): React.ReactNode[] {
@@ -42,6 +44,7 @@ export function ThreadsPage(props: ThreadsPageProps): React.ReactNode[] {
     onEvaluateCandidates, onCandidateCheck, onResolveThread,
     threadPreviewCandidateIds, scopeMeetings, selectedMeeting,
     selectedArtifact, selectedArtifactLoading, selectedCompletions, threadKeywords,
+    notesCount, onNotesClick,
   } = props;
 
   const isCandidatePreview = threadPreviewCandidateIds.size > 0;
@@ -128,6 +131,8 @@ export function ThreadsPage(props: ThreadsPageProps): React.ReactNode[] {
         onEvaluateCandidates={onEvaluateCandidates}
         onCandidateCheck={onCandidateCheck}
         onResolve={onResolveThread}
+        notesCount={notesCount}
+        onNotesClick={onNotesClick}
       />,
     ] : []),
     ...(isCandidatePreview ? [

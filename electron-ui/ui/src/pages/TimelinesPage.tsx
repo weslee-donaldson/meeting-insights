@@ -22,6 +22,8 @@ interface TimelinesPageProps {
   onRejectMention: (milestoneId: string, meetingId: string) => void;
   onUpdateMilestone: (input: UpdateMilestoneRequest) => void;
   onMergeMilestones: (targetId: string) => void;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 export function TimelinesPage(props: TimelinesPageProps): React.ReactNode[] {
@@ -30,6 +32,7 @@ export function TimelinesPage(props: TimelinesPageProps): React.ReactNode[] {
     onCreateMilestone, selectedMilestone, milestoneSlippage, milestoneActionItems,
     pendingMilestoneMentions, onDeleteMilestone, onMeetingClick, onUnlinkActionItem,
     onConfirmMention, onRejectMention, onUpdateMilestone, onMergeMilestones,
+    notesCount, onNotesClick,
   } = props;
 
   return [
@@ -60,6 +63,8 @@ export function TimelinesPage(props: TimelinesPageProps): React.ReactNode[] {
         onUpdate={onUpdateMilestone}
         allMilestones={milestones.filter((m) => m.id !== selectedMilestoneId).map((m) => ({ id: m.id, title: m.title }))}
         onMerge={onMergeMilestones}
+        notesCount={notesCount}
+        onNotesClick={onNotesClick}
       />,
     ] : []),
   ];

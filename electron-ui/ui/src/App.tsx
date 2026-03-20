@@ -71,6 +71,9 @@ export function App() {
   const insight = useInsightState(selectedClient, currentView, addToast);
   const milestone = useMilestoneState(selectedClient, currentView, addToast);
   const meetingNotes = useNotesState({ objectType: "meeting", objectId: meeting.selectedMeetingId, addToast });
+  const threadNotes = useNotesState({ objectType: "thread", objectId: thread.selectedThreadId, addToast });
+  const insightNotes = useNotesState({ objectType: "insight", objectId: insight.selectedInsightId, addToast });
+  const milestoneNotes = useNotesState({ objectType: "milestone", objectId: milestone.selectedMilestoneId, addToast });
 
   const queryClient = useQueryClient();
 
@@ -276,6 +279,8 @@ export function App() {
     selectedArtifactLoading: meeting.selectedArtifactQuery.isLoading,
     selectedCompletions: meeting.completionsQuery.data ?? [],
     threadKeywords: thread.selectedThread?.keywords,
+    notesCount: threadNotes.noteCountQuery.data ?? 0,
+    onNotesClick: thread.selectedThreadId ? () => threadNotes.setNotesDialogOpen(true) : undefined,
   });
 
   const insightsPanels = InsightsPage({
@@ -296,6 +301,8 @@ export function App() {
     selectedArtifact: meeting.selectedArtifactQuery.data ?? null,
     selectedArtifactLoading: meeting.selectedArtifactQuery.isLoading,
     selectedCompletions: meeting.completionsQuery.data ?? [],
+    notesCount: insightNotes.noteCountQuery.data ?? 0,
+    onNotesClick: insight.selectedInsightId ? () => insightNotes.setNotesDialogOpen(true) : undefined,
   });
 
   const timelinesPanels = TimelinesPage({
@@ -316,6 +323,8 @@ export function App() {
     onRejectMention: milestone.handleRejectMilestoneMention,
     onUpdateMilestone: milestone.handleUpdateMilestone,
     onMergeMilestones: milestone.handleMergeMilestones,
+    notesCount: milestoneNotes.noteCountQuery.data ?? 0,
+    onNotesClick: milestone.selectedMilestoneId ? () => milestoneNotes.setNotesDialogOpen(true) : undefined,
   });
 
   const panels =
@@ -550,6 +559,60 @@ export function App() {
       onDeleteNote={meetingNotes.handleDeleteNote}
       onConfirmDelete={meetingNotes.handleConfirmDeleteNote}
       onCancelDelete={meetingNotes.handleCancelDeleteNote}
+    />
+    <NotesDialog
+      open={threadNotes.notesDialogOpen}
+      onOpenChange={threadNotes.setNotesDialogOpen}
+      mode={threadNotes.notesDialogMode}
+      objectLabel={thread.selectedThread?.title ?? ""}
+      objectTypeLabel="Thread"
+      notes={threadNotes.notesQuery.data ?? []}
+      editingNote={threadNotes.editingNote}
+      pendingDeleteNoteId={threadNotes.pendingDeleteNoteId}
+      onStartCompose={threadNotes.handleStartCompose}
+      onStartEdit={threadNotes.handleStartEdit}
+      onBackToList={threadNotes.handleBackToList}
+      onCreateNote={threadNotes.handleCreateNote}
+      onUpdateNote={threadNotes.handleUpdateNote}
+      onDeleteNote={threadNotes.handleDeleteNote}
+      onConfirmDelete={threadNotes.handleConfirmDeleteNote}
+      onCancelDelete={threadNotes.handleCancelDeleteNote}
+    />
+    <NotesDialog
+      open={insightNotes.notesDialogOpen}
+      onOpenChange={insightNotes.setNotesDialogOpen}
+      mode={insightNotes.notesDialogMode}
+      objectLabel={insight.selectedInsight ? `${insight.selectedInsight.period_start} – ${insight.selectedInsight.period_end}` : ""}
+      objectTypeLabel="Insight"
+      notes={insightNotes.notesQuery.data ?? []}
+      editingNote={insightNotes.editingNote}
+      pendingDeleteNoteId={insightNotes.pendingDeleteNoteId}
+      onStartCompose={insightNotes.handleStartCompose}
+      onStartEdit={insightNotes.handleStartEdit}
+      onBackToList={insightNotes.handleBackToList}
+      onCreateNote={insightNotes.handleCreateNote}
+      onUpdateNote={insightNotes.handleUpdateNote}
+      onDeleteNote={insightNotes.handleDeleteNote}
+      onConfirmDelete={insightNotes.handleConfirmDeleteNote}
+      onCancelDelete={insightNotes.handleCancelDeleteNote}
+    />
+    <NotesDialog
+      open={milestoneNotes.notesDialogOpen}
+      onOpenChange={milestoneNotes.setNotesDialogOpen}
+      mode={milestoneNotes.notesDialogMode}
+      objectLabel={milestone.selectedMilestone?.title ?? ""}
+      objectTypeLabel="Milestone"
+      notes={milestoneNotes.notesQuery.data ?? []}
+      editingNote={milestoneNotes.editingNote}
+      pendingDeleteNoteId={milestoneNotes.pendingDeleteNoteId}
+      onStartCompose={milestoneNotes.handleStartCompose}
+      onStartEdit={milestoneNotes.handleStartEdit}
+      onBackToList={milestoneNotes.handleBackToList}
+      onCreateNote={milestoneNotes.handleCreateNote}
+      onUpdateNote={milestoneNotes.handleUpdateNote}
+      onDeleteNote={milestoneNotes.handleDeleteNote}
+      onConfirmDelete={milestoneNotes.handleConfirmDeleteNote}
+      onCancelDelete={milestoneNotes.handleCancelDeleteNote}
     />
     </>
   );
