@@ -69,6 +69,12 @@ export const CHANNELS = {
   DELETE_ASSET: "delete-asset",
   GET_ASSET_DATA: "get-asset-data",
   RENAME_MEETING: "rename-meeting",
+  GET_TRANSCRIPT: "get-transcript",
+  NOTES_LIST: "notes:list",
+  NOTES_CREATE: "notes:create",
+  NOTES_UPDATE: "notes:update",
+  NOTES_DELETE: "notes:delete",
+  NOTES_COUNT: "notes:count",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -366,4 +372,10 @@ export interface ElectronAPI {
   deleteAsset: (assetId: string) => Promise<void>;
   getAssetData: (assetId: string) => Promise<{ data: string; filename: string; mimeType: string } | null>;
   renameMeeting: (meetingId: string, newTitle: string) => Promise<void>;
+  getTranscript: (meetingId: string) => Promise<string | null>;
+  notesList: (objectType: string, objectId: string) => Promise<import("../../core/notes.js").Note[]>;
+  notesCreate: (objectType: string, objectId: string, title: string | null, body: string) => Promise<import("../../core/notes.js").Note>;
+  notesUpdate: (id: string, title?: string | null, body?: string) => Promise<import("../../core/notes.js").Note>;
+  notesDelete: (id: string) => Promise<void>;
+  notesCount: (objectType: string, objectId: string) => Promise<number>;
 }
