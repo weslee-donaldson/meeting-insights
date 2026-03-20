@@ -173,6 +173,21 @@ export const commandBar = {
   iconStrokeWidth: "2",
 } as const;
 
+export const notesButton = {
+  bg: "rgba(201, 122, 46, 0.08)",
+  text: "#C97A2E",
+  badgeBg: "rgba(201, 122, 46, 0.12)",
+  badgeText: "#C97A2E",
+  badgeFontSize: "9px",
+  badgePadding: "1px 4px",
+  badgeRadius: "3px",
+  iconSize: "13px",
+  fontSize: "11px",
+  fontWeight: 600,
+  padding: "4px 10px",
+  radius: "6px",
+} as const;
+
 export const sectionHeader = {
   labelFont: typography.fontFamily.display,
   labelSize: "13px",

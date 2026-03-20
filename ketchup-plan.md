@@ -189,7 +189,7 @@ Every section ends with a **design verification gate**.
 - [x] Burst 13: `useNotesState` React Query integration — `notesQuery` and `noteCountQuery` fetch from API
 - [x] Burst 14: `useNotesState` mutation handlers — `handleCreateNote` creates note, invalidates queries, switches to list mode, toasts success
 - [x] Burst 15: `useNotesState` delete flow — `handleDeleteNote` sets pending ID, `handleConfirmDeleteNote` deletes + invalidates + toasts + clears pending
-- [ ] Burst 16: Add `notesButton` design tokens — amber tint bg `rgba(201,122,46,0.08)`, accent text `#C97A2E`, badge bg/text/size/padding/radius [infra]
+- [x] Burst 16: Add `notesButton` design tokens — amber tint bg `rgba(201,122,46,0.08)`, accent text `#C97A2E`, badge bg/text/size/padding/radius [infra]
 
 ### SECTION 4: Notes Dialog — List Mode (~6 bursts)
 
