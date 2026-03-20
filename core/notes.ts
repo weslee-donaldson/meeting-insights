@@ -69,6 +69,13 @@ export function updateNote(db: Database, id: string, input: UpdateNoteInput): No
   return rowToNote(db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow);
 }
 
+export function countNotes(db: Database, objectType: ObjectType, objectId: string): number {
+  const row = db.prepare(
+    "SELECT COUNT(*) as count FROM notes WHERE object_type = ? AND object_id = ?"
+  ).get(objectType, objectId) as { count: number };
+  return row.count;
+}
+
 export function deleteNote(db: Database, id: string): void {
   db.prepare("DELETE FROM notes WHERE id = ?").run(id);
 }

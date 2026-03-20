@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
-import { createNote, listNotes, updateNote, deleteNote, deleteNotesByObject } from "../core/notes.js";
+import { createNote, listNotes, updateNote, deleteNote, deleteNotesByObject, countNotes } from "../core/notes.js";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -152,5 +152,23 @@ describe("deleteNotesByObject", () => {
 
     expect(listNotes(db, "meeting", "m1")).toEqual([]);
     expect(listNotes(db, "meeting", "m2")).toHaveLength(1);
+  });
+});
+
+describe("countNotes", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("returns the number of notes for a given object", () => {
+    createNote(db, { objectType: "milestone", objectId: "ms1", body: "<p>a</p>" });
+    createNote(db, { objectType: "milestone", objectId: "ms1", body: "<p>b</p>" });
+    createNote(db, { objectType: "milestone", objectId: "ms2", body: "<p>c</p>" });
+
+    expect(countNotes(db, "milestone", "ms1")).toBe(2);
+    expect(countNotes(db, "milestone", "ms2")).toBe(1);
+    expect(countNotes(db, "milestone", "ms3")).toBe(0);
   });
 });
