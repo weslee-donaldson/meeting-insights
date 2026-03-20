@@ -225,10 +225,10 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 3 (Compose State — shows Lexical toolbar with B/I/U | List/OrderedList, rich text body with bold, bullets, cursor)
 
-- [ ] Burst 23: Compose mode header — back arrow + "New Note" + object label, switches from list mode
-- [ ] Burst 24: Compose mode title input + RichTextEditor body — optional title field, Lexical editor with min-height 180px
-- [ ] Burst 25: Compose mode footer — Cancel returns to list, Save Note calls handleCreateNote with title + HTML body, disabled when body empty
-- [ ] Burst 26: Edit mode — pre-populates title and body from existing note, header shows "Edit Note", footer shows "Save Changes"
+- [x] Burst 23: Compose mode header — back arrow + "New Note" + object label, switches from list mode
+- [x] Burst 24: Compose mode title input + RichTextEditor body — optional title field, Lexical editor with min-height 180px
+- [x] Burst 25: Compose mode footer — Cancel returns to list, Save Note calls handleCreateNote with title + HTML body, disabled when body empty
+- [x] Burst 26: Edit mode — pre-populates title and body from existing note, header shows "Edit Note", footer shows "Save Changes"
 - [ ] Burst 27: **DESIGN GATE — Dialog** — Playwright screenshot of NotesDialog in list mode (with notes), compose mode (with toolbar visible), and empty state. Paper MCP screenshot Sections 2, 3, 5 from "Notes Feature — Dialog Exploration". Compare dialog width, header layout, note item styling, toolbar icons, empty state CTA. VERIFIED.
 
 ### SECTION 6: View Integration — Meetings (~5 bursts)
@@ -242,8 +242,8 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `electron-ui/ui/src/components/MeetingDetail.tsx`, meeting delete handler, `test/e2e/meeting-notes.spec.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Meetings area — CommandBar with Re-extract, Copy, Reassign, **Notes 3**, | Ignore)
 
-- [ ] Burst 28: Add Notes action to MeetingDetail CommandBar — amber tint button with FileText icon + "Notes" label + badge count from noteCountQuery
-- [ ] Burst 29: Wire NotesDialog into MeetingDetail — opens on Notes click, scoped to `objectType: 'meeting'`, shows meeting title as object label
+- [x] Burst 28: Add Notes action to MeetingDetail CommandBar — amber tint button with FileText icon + "Notes" label + badge count from noteCountQuery
+- [x] Burst 29: Wire NotesDialog into MeetingDetail — opens on Notes click, scoped to `objectType: 'meeting'`, shows meeting title as object label
 - [ ] Burst 30: Cascade delete — call `deleteNotesByObject(db, 'meeting', meetingId)` in meeting delete handler
 - [ ] Burst 31: E2E — `test/e2e/meeting-notes.spec.ts`: select client, select meeting, Notes button visible in CommandBar with badge count; click Notes opens dialog with empty state; create note via dialog (type title + body with bold formatting), save, note appears in list; edit note via three-dot menu, change title, save, updated title visible; delete note via three-dot menu with confirmation, note removed from list, badge count updates to 0
 

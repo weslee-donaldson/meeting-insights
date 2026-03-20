@@ -19,6 +19,8 @@ import { useMeetingState } from "./hooks/useMeetingState.js";
 import { useThreadState } from "./hooks/useThreadState.js";
 import { useInsightState } from "./hooks/useInsightState.js";
 import { useMilestoneState } from "./hooks/useMilestoneState.js";
+import { useNotesState } from "./hooks/useNotesState.js";
+import { NotesDialog } from "./components/NotesDialog.js";
 import { MeetingsPage } from "./pages/MeetingsPage.js";
 import { ActionItemsPage } from "./pages/ActionItemsPage.js";
 import { ThreadsPage } from "./pages/ThreadsPage.js";
@@ -68,6 +70,7 @@ export function App() {
   const thread = useThreadState(selectedClient, currentView, addToast);
   const insight = useInsightState(selectedClient, currentView, addToast);
   const milestone = useMilestoneState(selectedClient, currentView, addToast);
+  const meetingNotes = useNotesState({ objectType: "meeting", objectId: meeting.selectedMeetingId, addToast });
 
   const queryClient = useQueryClient();
 
@@ -220,8 +223,11 @@ export function App() {
     onUploadAsset: meeting.selectedMeetingId ? handleUploadAsset : undefined,
     onDeleteAsset: meeting.selectedMeetingId ? handleDeleteAsset : undefined,
     onRename: meeting.selectedMeetingId ? handleRename : undefined,
+    rawTranscript: meeting.transcriptQuery.data ?? undefined,
     densityMode,
     onDensityChange: setDensityMode,
+    notesCount: meetingNotes.noteCountQuery.data ?? 0,
+    onNotesClick: meeting.selectedMeetingId ? () => meetingNotes.setNotesDialogOpen(true) : undefined,
   });
 
   const actionItemsPanels = ActionItemsPage({
@@ -527,6 +533,24 @@ export function App() {
         </div>
       </DialogContent>
     </Dialog>
+    <NotesDialog
+      open={meetingNotes.notesDialogOpen}
+      onOpenChange={meetingNotes.setNotesDialogOpen}
+      mode={meetingNotes.notesDialogMode}
+      objectLabel={meeting.selectedMeeting?.title ?? ""}
+      objectTypeLabel="Meeting"
+      notes={meetingNotes.notesQuery.data ?? []}
+      editingNote={meetingNotes.editingNote}
+      pendingDeleteNoteId={meetingNotes.pendingDeleteNoteId}
+      onStartCompose={meetingNotes.handleStartCompose}
+      onStartEdit={meetingNotes.handleStartEdit}
+      onBackToList={meetingNotes.handleBackToList}
+      onCreateNote={meetingNotes.handleCreateNote}
+      onUpdateNote={meetingNotes.handleUpdateNote}
+      onDeleteNote={meetingNotes.handleDeleteNote}
+      onConfirmDelete={meetingNotes.handleConfirmDeleteNote}
+      onCancelDelete={meetingNotes.handleCancelDeleteNote}
+    />
     </>
   );
 }

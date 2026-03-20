@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip } from "lucide-react";
+import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
 import { useDropzone } from "react-dropzone";
@@ -39,6 +39,9 @@ interface MeetingDetailProps {
   onDeleteAsset?: (assetId: string) => void;
   onUploadAsset?: (file: File) => void;
   onRename?: (newTitle: string) => void;
+  rawTranscript?: string;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 
@@ -533,11 +536,12 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -676,10 +680,22 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               onClick: copySummary,
               variant: "default" as const,
             }] : []),
+            ...(rawTranscript ? [{
+              label: "Transcript",
+              icon: <FileText className="w-3.5 h-3.5" />,
+              onClick: () => setTranscriptOpen(true),
+              variant: "default" as const,
+            }] : []),
             ...(onReassignClient ? [{
               label: "Reassign",
               icon: <UserPen className="w-3.5 h-3.5" />,
               onClick: () => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); },
+              variant: "default" as const,
+            }] : []),
+            ...(onNotesClick ? [{
+              label: `Notes${notesCount ? ` (${notesCount})` : ""}`,
+              icon: <FileText className="w-3.5 h-3.5" />,
+              onClick: onNotesClick,
               variant: "default" as const,
             }] : []),
             ...(onIgnore ? [{
@@ -717,6 +733,28 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             </DialogContent>
           </Dialog>
         )}
+        <Dialog open={transcriptOpen} onOpenChange={setTranscriptOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col" aria-describedby={undefined}>
+            <DialogTitle>Meeting Transcript</DialogTitle>
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <pre className="text-sm leading-[1.6] whitespace-pre-wrap break-words m-0">{rawTranscript}</pre>
+            </div>
+            <div className="flex gap-2 justify-end pt-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label="Copy transcript"
+                onClick={() => navigator.clipboard.writeText(rawTranscript ?? "").catch(() => {})}
+              >
+                <Clipboard className="w-3 h-3 mr-1" />
+                Copy
+              </Button>
+              <DialogClose asChild>
+                <Button variant="ghost" size="sm">Close</Button>
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4">

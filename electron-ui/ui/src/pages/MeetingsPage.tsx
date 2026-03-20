@@ -53,8 +53,11 @@ interface MeetingsPageProps {
   onUploadAsset?: (file: File) => void;
   onDeleteAsset?: (assetId: string) => void;
   onRename?: (newTitle: string) => void;
+  rawTranscript?: string;
   densityMode?: DensityMode;
   onDensityChange?: (mode: DensityMode) => void;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -66,8 +69,8 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     artifact, artifactLoading, clients, onReExtract, reExtractPending, onReassignClient,
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
-    onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename,
-    densityMode, onDensityChange,
+    onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename, rawTranscript,
+    densityMode, onDensityChange, notesCount, onNotesClick,
   } = props;
 
   return [
@@ -126,6 +129,9 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       onUploadAsset={isMultiMode ? undefined : onUploadAsset}
       onDeleteAsset={isMultiMode ? undefined : onDeleteAsset}
       onRename={isMultiMode ? undefined : onRename}
+      rawTranscript={isMultiMode ? undefined : rawTranscript}
+      notesCount={isMultiMode ? undefined : notesCount}
+      onNotesClick={isMultiMode ? undefined : onNotesClick}
     />,
   ];
 }
