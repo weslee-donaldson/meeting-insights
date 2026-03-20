@@ -170,7 +170,7 @@ Every section ends with a **design verification gate**.
 - [x] Burst 8: Notes HTTP routes — `PATCH /notes/:id` updates, `DELETE /notes/:id` deletes
 - [x] Burst 9: Notes HTTP route — `GET /notes/:objectType/:objectId/count` returns count
 - [x] Burst 10: Notes IPC channels — `notes:list`, `notes:create`, `notes:update`, `notes:delete`, `notes:count` registered in channels.ts
-- [ ] Burst 11: API client methods — add `notes.list()`, `notes.create()`, `notes.update()`, `notes.delete()`, `notes.count()` to `api-client.ts` for web mode
+- [x] Burst 11: API client methods — add `notes.list()`, `notes.create()`, `notes.update()`, `notes.delete()`, `notes.count()` to `api-client.ts` for web mode
 
 ### SECTION 3: UI Foundation — State Hook & Design Tokens (~5 bursts)
 

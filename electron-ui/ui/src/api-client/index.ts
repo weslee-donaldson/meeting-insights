@@ -4,6 +4,7 @@ import { chatMethods } from "./chat.js";
 import { threadsMethods } from "./threads.js";
 import { insightsMethods } from "./insights.js";
 import { milestonesMethods } from "./milestones.js";
+import { notesMethods } from "./notes.js";
 
 export const apiClient: ElectronAPI = {
   ...meetingsMethods,
@@ -11,4 +12,5 @@ export const apiClient: ElectronAPI = {
   ...threadsMethods,
   ...insightsMethods,
   ...milestonesMethods,
+  ...notesMethods,
 };
