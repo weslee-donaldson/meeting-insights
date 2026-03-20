@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
-import { createNote, listNotes } from "../core/notes.js";
+import { createNote, listNotes, updateNote } from "../core/notes.js";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -71,5 +71,51 @@ describe("listNotes", () => {
     const result = listNotes(db, "meeting", "nonexistent");
 
     expect(result).toEqual([]);
+  });
+});
+
+describe("updateNote", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("updates title and body, sets new updated_at", () => {
+    const note = createNote(db, { objectType: "meeting", objectId: "m1", title: "Old", body: "<p>old</p>" });
+
+    const result = updateNote(db, note.id, { title: "New title", body: "<p>new body</p>" });
+
+    expect(result).toEqual({
+      id: note.id,
+      objectType: "meeting",
+      objectId: "m1",
+      title: "New title",
+      body: "<p>new body</p>",
+      createdAt: note.createdAt,
+      updatedAt: expect.any(String),
+    });
+    expect(result.updatedAt >= note.updatedAt).toBe(true);
+  });
+
+  it("updates only body when title is not provided", () => {
+    const note = createNote(db, { objectType: "meeting", objectId: "m1", title: "Keep", body: "<p>old</p>" });
+
+    const result = updateNote(db, note.id, { body: "<p>changed</p>" });
+
+    expect(result.title).toBe("Keep");
+    expect(result.body).toBe("<p>changed</p>");
+  });
+
+  it("sets title to null when explicitly passed null", () => {
+    const note = createNote(db, { objectType: "meeting", objectId: "m1", title: "Remove me", body: "<p>x</p>" });
+
+    const result = updateNote(db, note.id, { title: null });
+
+    expect(result.title).toBeNull();
+  });
+
+  it("throws when note does not exist", () => {
+    expect(() => updateNote(db, "nonexistent", { body: "x" })).toThrow("Note not found");
   });
 });

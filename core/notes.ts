@@ -54,6 +54,21 @@ export function listNotes(db: Database, objectType: ObjectType, objectId: string
   return rows.map(rowToNote);
 }
 
+export function getNote(db: Database, id: string): Note | undefined {
+  const row = db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow | undefined;
+  return row ? rowToNote(row) : undefined;
+}
+
+export function updateNote(db: Database, id: string, input: UpdateNoteInput): Note {
+  const now = new Date().toISOString();
+  const existing = db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow | undefined;
+  if (!existing) throw new Error(`Note not found: ${id}`);
+  const title = input.title !== undefined ? input.title : existing.title;
+  const body = input.body !== undefined ? input.body : existing.body;
+  db.prepare("UPDATE notes SET title = ?, body = ?, updated_at = ? WHERE id = ?").run(title, body, now, id);
+  return rowToNote(db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow);
+}
+
 export function createNote(db: Database, input: CreateNoteInput): Note {
   const id = randomUUID();
   const now = new Date().toISOString();
