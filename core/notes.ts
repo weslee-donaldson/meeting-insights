@@ -69,6 +69,14 @@ export function updateNote(db: Database, id: string, input: UpdateNoteInput): No
   return rowToNote(db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow);
 }
 
+export function deleteNote(db: Database, id: string): void {
+  db.prepare("DELETE FROM notes WHERE id = ?").run(id);
+}
+
+export function deleteNotesByObject(db: Database, objectType: ObjectType, objectId: string): void {
+  db.prepare("DELETE FROM notes WHERE object_type = ? AND object_id = ?").run(objectType, objectId);
+}
+
 export function createNote(db: Database, input: CreateNoteInput): Note {
   const id = randomUUID();
   const now = new Date().toISOString();

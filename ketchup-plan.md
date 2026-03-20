@@ -151,7 +151,7 @@ Every section ends with a **design verification gate**.
 - [x] Burst 2: `createNote` — generates UUID, stores note with timestamps, returns full Note object
 - [x] Burst 3: `listNotes` — returns all notes for a given (objectType, objectId) ordered by created_at DESC
 - [x] Burst 4: `updateNote` — partial update of title and/or body, sets updated_at, returns updated Note
-- [ ] Burst 5: `deleteNote` and `deleteNotesByObject` — single delete by ID + cascade delete by (objectType, objectId)
+- [x] Burst 5: `deleteNote` and `deleteNotesByObject` — single delete by ID + cascade delete by (objectType, objectId)
 - [ ] Burst 6: `countNotes` — returns integer count for badge display
 
 ### SECTION 2: API & IPC Layer (~5 bursts)

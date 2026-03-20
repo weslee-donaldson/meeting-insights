@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
-import { createNote, listNotes, updateNote } from "../core/notes.js";
+import { createNote, listNotes, updateNote, deleteNote, deleteNotesByObject } from "../core/notes.js";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -117,5 +117,40 @@ describe("updateNote", () => {
 
   it("throws when note does not exist", () => {
     expect(() => updateNote(db, "nonexistent", { body: "x" })).toThrow("Note not found");
+  });
+});
+
+describe("deleteNote", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("removes a single note by id", () => {
+    const note = createNote(db, { objectType: "meeting", objectId: "m1", body: "<p>x</p>" });
+
+    deleteNote(db, note.id);
+
+    expect(listNotes(db, "meeting", "m1")).toEqual([]);
+  });
+});
+
+describe("deleteNotesByObject", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("removes all notes for a given object without affecting other objects", () => {
+    createNote(db, { objectType: "meeting", objectId: "m1", body: "<p>a</p>" });
+    createNote(db, { objectType: "meeting", objectId: "m1", body: "<p>b</p>" });
+    createNote(db, { objectType: "meeting", objectId: "m2", body: "<p>c</p>" });
+
+    deleteNotesByObject(db, "meeting", "m1");
+
+    expect(listNotes(db, "meeting", "m1")).toEqual([]);
+    expect(listNotes(db, "meeting", "m2")).toHaveLength(1);
   });
 });
