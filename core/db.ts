@@ -229,6 +229,17 @@ export function migrate(db: DatabaseSync): void {
       created_at TEXT NOT NULL,
       FOREIGN KEY (meeting_id) REFERENCES meetings(id)
     );
+
+    CREATE TABLE IF NOT EXISTS notes (
+      id TEXT PRIMARY KEY,
+      object_type TEXT NOT NULL,
+      object_id TEXT NOT NULL,
+      title TEXT,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_notes_object ON notes(object_type, object_id);
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];
