@@ -258,7 +258,7 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `ThreadDetailView.tsx`, thread delete handler, `test/e2e/thread-notes.spec.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Threads area) and Section 4 (Cross-Object Variants — dialog subtitle "· Thread")
 
-- [ ] Burst 32: ThreadDetailView — add Notes button to header row between Edit and Resolve, wire useNotesState + NotesDialog scoped to thread
+- [x] Burst 32: ThreadDetailView — add Notes button to header row between Edit and Resolve, wire useNotesState + NotesDialog scoped to thread
 - [ ] Burst 33: ThreadDetailView cascade — call `deleteNotesByObject(db, 'thread', threadId)` in thread delete handler
 - [ ] Burst 34: E2E — `test/e2e/thread-notes.spec.ts`: select client, navigate to Threads, select thread, Notes button visible in header row; click Notes opens dialog with subtitle showing thread title + "· Thread"; create note, verify it appears in list; delete thread via API, verify notes are cascade-deleted via API count endpoint returning 0
 
@@ -273,7 +273,7 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `InsightDetailView.tsx`, insight delete handler, `test/e2e/insight-notes.spec.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Insights area) and Section 4 (Cross-Object Variants — dialog subtitle "· Insight")
 
-- [ ] Burst 35: InsightDetailView — add Notes button to header row between Edit and Finalize/Reopen, wire useNotesState + NotesDialog scoped to insight
+- [x] Burst 35: InsightDetailView — add Notes button to header row between Edit and Finalize/Reopen, wire useNotesState + NotesDialog scoped to insight
 - [ ] Burst 36: InsightDetailView cascade — call `deleteNotesByObject(db, 'insight', insightId)` in insight delete handler
 - [ ] Burst 37: E2E — `test/e2e/insight-notes.spec.ts`: select client, navigate to Insights, create insight via API, select it, Notes button visible; click Notes opens dialog with subtitle showing insight label + "· Insight"; create note with rich text (bold + bullet list), verify HTML persists on re-open; delete insight, verify cascade cleanup
 
@@ -288,7 +288,7 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `TimelineDetailView.tsx`, milestone delete handler, `test/e2e/milestone-notes.spec.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Timelines area) and Section 4 (Cross-Object Variants — dialog subtitle "· Milestone")
 
-- [ ] Burst 38: TimelineDetailView — add Notes button to header row between Edit and Delete, wire useNotesState + NotesDialog scoped to milestone
+- [x] Burst 38: TimelineDetailView — add Notes button to header row between Edit and Delete, wire useNotesState + NotesDialog scoped to milestone
 - [ ] Burst 39: TimelineDetailView cascade — call `deleteNotesByObject(db, 'milestone', milestoneId)` in milestone delete handler
 - [ ] Burst 40: E2E — `test/e2e/milestone-notes.spec.ts`: select client, navigate to Timelines, create milestone via API, select it, Notes button visible; click Notes opens dialog with subtitle showing milestone title + "· Milestone"; create note, edit it, verify changes persist; delete milestone, verify cascade cleanup
 

@@ -3,7 +3,8 @@ import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { RichTextEditor } from "./ui/rich-text-editor.js";
-import { RefreshCw, Check, RotateCcw, Trash2, Pencil, ArrowLeft, Save, ListRestart } from "lucide-react";
+import { RefreshCw, Check, RotateCcw, Trash2, Pencil, ArrowLeft, Save, ListRestart, FileText } from "lucide-react";
+import { notesButton } from "../design-tokens.js";
 import { cn } from "../lib/utils.js";
 import type { Insight, InsightMeeting } from "../../../../core/insights.js";
 
@@ -22,6 +23,8 @@ interface InsightDetailViewProps {
   onUpdateSummary?: (summary: string) => void;
   onShowAllMeetings?: () => void;
   isRegenerating?: boolean;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 const RAG_COLORS = {
@@ -126,6 +129,8 @@ export function InsightDetailView({
   onUpdateSummary,
   onShowAllMeetings,
   isRegenerating,
+  notesCount,
+  onNotesClick,
 }: InsightDetailViewProps) {
   const topics: TopicDetail[] = insight.topic_details ? JSON.parse(insight.topic_details) : [];
   const [checked, setChecked] = useState<Set<string>>(() => new Set(meetings.map((m) => m.meeting_id)));
@@ -219,6 +224,12 @@ export function InsightDetailView({
             <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
               <Pencil className="w-4 h-4 mr-1" />
               Edit
+            </Button>
+          )}
+          {onNotesClick && (
+            <Button size="sm" variant="outline" onClick={onNotesClick} style={{ background: notesButton.bg, color: notesButton.text, borderColor: "transparent" }}>
+              <FileText className="w-3.5 h-3.5 mr-1" />
+              Notes{notesCount ? ` (${notesCount})` : ""}
             </Button>
           )}
           {insight.status === "draft" ? (

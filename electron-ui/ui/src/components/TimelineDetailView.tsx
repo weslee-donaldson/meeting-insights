@@ -3,7 +3,8 @@ import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
-import { Trash2, Pencil, GitMerge } from "lucide-react";
+import { Trash2, Pencil, GitMerge, FileText } from "lucide-react";
+import { notesButton } from "../design-tokens.js";
 import { cn } from "../lib/utils.js";
 import type { Milestone, DateSlippageEntry, MilestoneMention, MilestoneActionItem } from "../../../../core/timelines.js";
 
@@ -28,6 +29,8 @@ interface TimelineDetailViewProps {
   onUpdate?: (input: UpdateMilestoneInput) => void;
   allMilestones?: Array<{ id: string; title: string }>;
   onMerge?: (targetMilestoneId: string) => void;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -63,6 +66,8 @@ export function TimelineDetailView({
   onUpdate,
   allMilestones,
   onMerge,
+  notesCount,
+  onNotesClick,
 }: TimelineDetailViewProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -115,6 +120,12 @@ export function TimelineDetailView({
             >
               <Pencil className="w-4 h-4" />
             </Button>
+            {onNotesClick && (
+              <Button size="sm" variant="ghost" onClick={onNotesClick} aria-label="Notes" style={{ background: notesButton.bg, color: notesButton.text }}>
+                <FileText className="w-3.5 h-3.5 mr-1" />
+                <span className="text-[11px] font-semibold">Notes{notesCount ? ` (${notesCount})` : ""}</span>
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"

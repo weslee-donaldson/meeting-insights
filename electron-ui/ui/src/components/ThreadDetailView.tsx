@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button } from "./ui/button.js";
 import { Badge } from "./ui/badge.js";
 import { ScrollArea } from "./ui/scroll-area.js";
-import { Search, RefreshCw, Pencil, Trash2, Check, RotateCcw } from "lucide-react";
+import { Search, RefreshCw, Pencil, Trash2, Check, RotateCcw, FileText } from "lucide-react";
+import { notesButton } from "../design-tokens.js";
 import type { Thread, ThreadMeeting } from "../../../../core/threads.js";
 
 interface ThreadCandidate {
@@ -176,6 +177,8 @@ interface ThreadDetailViewProps {
   onEvaluateCandidates?: (meetingIds: string[], overrideExisting: boolean) => void;
   onCandidateCheck?: (checkedIds: Set<string>) => void;
   onResolve?: (status: "open" | "resolved") => void;
+  notesCount?: number;
+  onNotesClick?: () => void;
 }
 
 export function ThreadDetailView({
@@ -191,6 +194,8 @@ export function ThreadDetailView({
   onEvaluateCandidates,
   onCandidateCheck,
   onResolve,
+  notesCount,
+  onNotesClick,
 }: ThreadDetailViewProps) {
   const sorted = [...meetings].sort((a, b) => b.relevance_score - a.relevance_score);
   const maxEvaluatedAt = meetings.length > 0
@@ -224,6 +229,12 @@ export function ThreadDetailView({
         <Button size="sm" variant="ghost" onClick={onEdit} aria-label="Edit">
           <Pencil className="w-4 h-4" />
         </Button>
+        {onNotesClick && (
+          <Button size="sm" variant="ghost" onClick={onNotesClick} aria-label="Notes" style={{ background: notesButton.bg, color: notesButton.text }}>
+            <FileText className="w-3.5 h-3.5 mr-1" />
+            <span className="text-[11px] font-semibold">Notes{notesCount ? ` (${notesCount})` : ""}</span>
+          </Button>
+        )}
         <Button size="sm" variant="ghost" onClick={onDelete} aria-label="Delete">
           <Trash2 className="w-4 h-4" />
         </Button>
