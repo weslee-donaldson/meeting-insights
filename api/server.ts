@@ -7,6 +7,7 @@ import { registerSearchRoutes } from "./routes/search.js";
 import { registerThreadRoutes } from "./routes/threads.js";
 import { registerInsightRoutes } from "./routes/insights.js";
 import { registerMilestoneRoutes } from "./routes/milestones.js";
+import { registerNoteRoutes } from "./routes/notes.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -32,6 +33,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   registerThreadRoutes(app, db, llm, searchDeps);
   registerInsightRoutes(app, db, llm, searchDeps);
   registerMilestoneRoutes(app, db, llm, searchDeps);
+  registerNoteRoutes(app, db);
 
   return app;
 }

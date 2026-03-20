@@ -166,9 +166,9 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `api/routes/notes.ts`, `api/server.ts`, `electron-ui/electron/channels.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 6 (Implementation Notes → Architecture)
 
-- [ ] Burst 7: Notes HTTP routes — `GET /notes/:objectType/:objectId` returns list, `POST` creates note
-- [ ] Burst 8: Notes HTTP routes — `PATCH /notes/:id` updates, `DELETE /notes/:id` deletes
-- [ ] Burst 9: Notes HTTP route — `GET /notes/:objectType/:objectId/count` returns count
+- [x] Burst 7: Notes HTTP routes — `GET /notes/:objectType/:objectId` returns list, `POST` creates note
+- [x] Burst 8: Notes HTTP routes — `PATCH /notes/:id` updates, `DELETE /notes/:id` deletes
+- [x] Burst 9: Notes HTTP route — `GET /notes/:objectType/:objectId/count` returns count
 - [ ] Burst 10: Notes IPC channels — `notes:list`, `notes:create`, `notes:update`, `notes:delete`, `notes:count` registered in channels.ts
 - [ ] Burst 11: API client methods — add `notes.list()`, `notes.create()`, `notes.update()`, `notes.delete()`, `notes.count()` to `api-client.ts` for web mode
 
