@@ -185,10 +185,10 @@ Every section ends with a **design verification gate**.
 > **Files affected:** `electron-ui/ui/src/hooks/useNotesState.ts`, `electron-ui/ui/src/design-tokens.ts`
 > **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Command Integration — button styling) and Section 5 (Empty State — interaction flow)
 
-- [ ] Burst 12: `useNotesState` hook — manages `notesDialogOpen`, `notesDialogMode`, `editingNoteId`, `pendingDeleteNoteId` state
-- [ ] Burst 13: `useNotesState` React Query integration — `notesQuery` and `noteCountQuery` fetch from API
-- [ ] Burst 14: `useNotesState` mutation handlers — `handleCreateNote` creates note, invalidates queries, switches to list mode, toasts success
-- [ ] Burst 15: `useNotesState` delete flow — `handleDeleteNote` sets pending ID, `handleConfirmDeleteNote` deletes + invalidates + toasts + clears pending
+- [x] Burst 12: `useNotesState` hook — manages `notesDialogOpen`, `notesDialogMode`, `editingNoteId`, `pendingDeleteNoteId` state
+- [x] Burst 13: `useNotesState` React Query integration — `notesQuery` and `noteCountQuery` fetch from API
+- [x] Burst 14: `useNotesState` mutation handlers — `handleCreateNote` creates note, invalidates queries, switches to list mode, toasts success
+- [x] Burst 15: `useNotesState` delete flow — `handleDeleteNote` sets pending ID, `handleConfirmDeleteNote` deletes + invalidates + toasts + clears pending
 - [ ] Burst 16: Add `notesButton` design tokens — amber tint bg `rgba(201,122,46,0.08)`, accent text `#C97A2E`, badge bg/text/size/padding/radius [infra]
 
 ### SECTION 4: Notes Dialog — List Mode (~6 bursts)
