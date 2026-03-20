@@ -105,6 +105,36 @@ export function App() {
     queryClient.invalidateQueries({ queryKey: ["meetings"] });
   }, [meeting.selectedMeetingId, queryClient]);
 
+  const previewAssetsQuery = useQuery({
+    queryKey: ["assets", meeting.previewMeetingId],
+    queryFn: () => window.api.getMeetingAssets(meeting.previewMeetingId!),
+    enabled: !!meeting.previewMeetingId,
+  });
+
+  const previewTranscriptQuery = useQuery({
+    queryKey: ["transcript", meeting.previewMeetingId],
+    queryFn: () => window.api.getTranscript(meeting.previewMeetingId!),
+    enabled: !!meeting.previewMeetingId,
+  });
+
+  const previewNotes = useNotesState({ objectType: "meeting", objectId: meeting.previewMeetingId, addToast });
+
+  const handlePreviewUploadAsset = useCallback(async (file: File) => {
+    if (!meeting.previewMeetingId) return;
+    const buf = await file.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    const base64 = btoa(binary);
+    await window.api.uploadAsset(meeting.previewMeetingId, file.name, file.type, base64);
+    queryClient.invalidateQueries({ queryKey: ["assets", meeting.previewMeetingId] });
+  }, [meeting.previewMeetingId, queryClient]);
+
+  const handlePreviewDeleteAsset = useCallback(async (assetId: string) => {
+    await window.api.deleteAsset(assetId);
+    queryClient.invalidateQueries({ queryKey: ["assets", meeting.previewMeetingId] });
+  }, [meeting.previewMeetingId, queryClient]);
+
   const computedActiveMeetingIds =
     currentView === "action-items"
       ? (meeting.previewMeetingId ? [meeting.previewMeetingId] : [])
@@ -252,6 +282,23 @@ export function App() {
     onEditPreviewActionItem: meeting.handleEditPreviewActionItem,
     densityMode,
     onDensityChange: setDensityMode,
+    clients: clientsQuery.data,
+    onReExtract: meeting.previewMeetingId ? meeting.handlePreviewReExtract : undefined,
+    reExtractPending: meeting.isReExtracting,
+    onReassignClient: meeting.previewMeetingId ? meeting.handlePreviewReassignClient : undefined,
+    onIgnore: meeting.previewMeetingId ? meeting.handlePreviewIgnore : undefined,
+    previewAssets: previewAssetsQuery.data,
+    onUploadAsset: meeting.previewMeetingId ? handlePreviewUploadAsset : undefined,
+    onDeleteAsset: meeting.previewMeetingId ? handlePreviewDeleteAsset : undefined,
+    onRename: meeting.previewMeetingId ? meeting.handlePreviewRename : undefined,
+    previewRawTranscript: previewTranscriptQuery.data ?? undefined,
+    previewThreadTags: meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId)?.thread_tags,
+    previewMilestoneTags: meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId)?.milestone_tags,
+    onThreadClick: handleThreadClick,
+    onMilestoneClick: handleMilestoneClick,
+    onMentionClick: meeting.handleMentionClick,
+    notesCount: previewNotes.noteCountQuery.data ?? 0,
+    onNotesClick: meeting.previewMeetingId ? () => previewNotes.setNotesDialogOpen(true) : undefined,
   });
 
   const threadsPanels = ThreadsPage({
@@ -542,6 +589,24 @@ export function App() {
         </div>
       </DialogContent>
     </Dialog>
+    <NotesDialog
+      open={previewNotes.notesDialogOpen}
+      onOpenChange={previewNotes.setNotesDialogOpen}
+      mode={previewNotes.notesDialogMode}
+      objectLabel={meeting.scopeMeetings.find((m) => m.id === meeting.previewMeetingId)?.title ?? ""}
+      objectTypeLabel="Meeting"
+      notes={previewNotes.notesQuery.data ?? []}
+      editingNote={previewNotes.editingNote}
+      pendingDeleteNoteId={previewNotes.pendingDeleteNoteId}
+      onStartCompose={previewNotes.handleStartCompose}
+      onStartEdit={previewNotes.handleStartEdit}
+      onBackToList={previewNotes.handleBackToList}
+      onCreateNote={previewNotes.handleCreateNote}
+      onUpdateNote={previewNotes.handleUpdateNote}
+      onDeleteNote={previewNotes.handleDeleteNote}
+      onConfirmDelete={previewNotes.handleConfirmDeleteNote}
+      onCancelDelete={previewNotes.handleCancelDeleteNote}
+    />
     <NotesDialog
       open={meetingNotes.notesDialogOpen}
       onOpenChange={meetingNotes.setNotesDialogOpen}

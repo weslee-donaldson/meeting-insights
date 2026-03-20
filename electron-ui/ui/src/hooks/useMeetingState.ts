@@ -456,6 +456,59 @@ export function useMeetingState(
     }
   }, [previewMeetingId, selectedClient, queryClient, addToast]);
 
+  const handlePreviewReExtract = useCallback(async () => {
+    if (!previewMeetingId) return;
+    setIsReExtracting(true);
+    try {
+      await window.api.reExtract(previewMeetingId);
+      queryClient.invalidateQueries({ queryKey: ["artifact", previewMeetingId] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Re-extraction complete", "success");
+      window.api.reEmbedMeeting(previewMeetingId).catch(() => {});
+    } catch {
+      addToast("Re-extraction failed", "error");
+    } finally {
+      setIsReExtracting(false);
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
+
+  const handlePreviewReassignClient = useCallback(async (clientName: string) => {
+    if (!previewMeetingId) return;
+    try {
+      await window.api.reassignClient(previewMeetingId, clientName);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Client reassigned", "success");
+    } catch (err) {
+      addToast(`Reassign failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
+
+  const handlePreviewIgnore = useCallback(async () => {
+    if (!previewMeetingId) return;
+    try {
+      await window.api.setIgnored(previewMeetingId, true);
+      setPreviewMeetingId(null);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Meeting hidden", "success");
+    } catch (err) {
+      addToast(`Ignore failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
+
+  const handlePreviewRename = useCallback(async (newTitle: string) => {
+    if (!previewMeetingId) return;
+    try {
+      await window.api.renameMeeting(previewMeetingId, newTitle);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["clientActionItems", selectedClient] });
+      addToast("Meeting renamed", "success");
+    } catch (err) {
+      addToast(`Rename failed: ${(err as Error).message}`, "error");
+    }
+  }, [previewMeetingId, selectedClient, queryClient, addToast]);
+
   const handleIgnore = useCallback(async () => {
     if (!selectedMeetingId) return;
     try {
@@ -628,5 +681,9 @@ export function useMeetingState(
     handleClearMeetingMessages,
     handleConfirmClearMeetingMessages,
     pendingClearMeetingMessages,
+    handlePreviewReExtract,
+    handlePreviewReassignClient,
+    handlePreviewIgnore,
+    handlePreviewRename,
   };
 }
