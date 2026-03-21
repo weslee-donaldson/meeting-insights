@@ -71,7 +71,6 @@ export function buildSearchContext(db: Database, results: SearchResult[]): strin
     const questions  = JSON.parse(art.open_questions ?? "[]") as string[];
     const risks      = JSON.parse(art.risk_items ?? "[]") as string[];
     const features   = JSON.parse(art.proposed_features ?? "[]") as string[];
-    const topics     = JSON.parse(art.architecture ?? "[]") as string[];
     const notes = JSON.parse(art.additional_notes ?? "[]") as Array<Record<string, unknown>>;
     const notesText = renderNotesGroups(notes);
     const notesSection = notesText.length > 0
@@ -85,7 +84,6 @@ export function buildSearchContext(db: Database, results: SearchResult[]): strin
       questions.length  ? `Open questions: ${questions.join(" | ")}` : "",
       risks.length      ? `Risks: ${risks.join(" | ")}` : "",
       features.length   ? `Proposed features: ${features.join(" | ")}` : "",
-      topics.length     ? `Architecture: ${topics.join(", ")}` : "",
       notesSection,
     ].filter(Boolean).join("\n");
   }).filter(Boolean).join("\n\n---\n\n");

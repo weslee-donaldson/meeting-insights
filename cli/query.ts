@@ -100,7 +100,6 @@ function printSummary(db: Database, ids: string[]): void {
     const questions = JSON.parse(art.open_questions ?? "[]") as string[];
     const risks     = JSON.parse(art.risk_items ?? "[]") as string[];
     const features  = JSON.parse(art.proposed_features ?? "[]") as string[];
-    const topics    = JSON.parse(art.architecture ?? "[]") as string[];
 
     console.log("\nSUMMARY");
     console.log(`  ${art.summary}`);
@@ -108,7 +107,6 @@ function printSummary(db: Database, ids: string[]): void {
     if (decisions.length)  { console.log("\nDECISIONS");        decisions.forEach(d => console.log(`  • ${d.text}${d.decided_by ? ` (${d.decided_by})` : ""}`)); }
     if (features.length)   { console.log("\nPROPOSED FEATURES"); features.forEach(f => console.log(`  • ${f}`)); }
     if (actions.length)    { console.log("\nACTION ITEMS");      actions.forEach(a => console.log(`  • [${a.owner || "?"}] ${a.description}${a.due_date ? `  (due: ${a.due_date})` : ""}`)); }
-    if (topics.length)     { console.log("\nARCHITECTURE"); console.log(`  ${topics.join(", ")}`); }
     if (questions.length)  { console.log("\nOPEN QUESTIONS");    questions.forEach(q => console.log(`  • ${q}`)); }
     if (risks.length)      { console.log("\nRISKS");             risks.forEach(r => console.log(`  • ${r}`)); }
     console.log();
