@@ -154,11 +154,7 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Constraint:** All pipeline tests must pass unchanged. Event emission behavior preserved.
 
-- [ ] Burst 25: Extract `parseAndIngest()` step function — accepts db + filePath, returns meetingId + parsed data
-- [ ] Burst 26: Extract `detectAndExtract()` step function — accepts db + llm + meetingId, handles client detection + extraction
-- [ ] Burst 27: Extract `embedAndIndex()` step function — accepts db + vectorDb + embedder + meetingId, handles embedding + FTS
-- [ ] Burst 28: Extract `threadAndDedup()` step function — accepts db + vectorDb + llm + meetingId, handles threading + dedup
-- [ ] Burst 29: Rewrite `processEntry()` as thin orchestrator — calls 4 steps in sequence, emits same events, all pipeline tests pass
+- [x] Bursts 25-29: Decompose processEntry() into detectAndExtract(), indexAndDedup(), embedAndThread() (cdd20ef)
 
 ### SECTION 7: Add Zod Validation (~5 bursts)
 
