@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../../core/threads.js";
+import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
 
 export function useThreadState(
   selectedClient: string | null,
@@ -13,7 +14,6 @@ export function useThreadState(
   const [createThreadOpen, setCreateThreadOpen] = useState(false);
   const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
   const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
-  const [pendingDeleteThreadId, setPendingDeleteThreadId] = useState<string | null>(null);
   const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
 
   const threadsQuery = useQuery<Thread[]>({
@@ -69,15 +69,7 @@ export function useThreadState(
     }
   }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
-  const handleDeleteThread = useCallback(() => {
-    if (!selectedThreadId) return;
-    setPendingDeleteThreadId(selectedThreadId);
-  }, [selectedThreadId]);
-
-  const handleConfirmDeleteThread = useCallback(async () => {
-    const id = pendingDeleteThreadId;
-    setPendingDeleteThreadId(null);
-    if (!id) return;
+  const threadDelete = useDeleteConfirmation(useCallback(async (id: string) => {
     setSelectedThreadId(null);
     try {
       await window.api.deleteThread(id);
@@ -87,8 +79,14 @@ export function useThreadState(
       console.error("Delete thread failed:", err);
       addToast(`Delete thread failed: ${(err as Error).message}`, "error");
       queryClient.invalidateQueries({ queryKey: ["threads", selectedClient] });
+      throw err;
     }
-  }, [pendingDeleteThreadId, selectedClient, queryClient, addToast]);
+  }, [selectedClient, queryClient, addToast]));
+
+  const handleDeleteThread = useCallback(() => {
+    if (!selectedThreadId) return;
+    threadDelete.requestDelete(selectedThreadId);
+  }, [selectedThreadId, threadDelete]);
 
   const handleResolveThread = useCallback(async (status: "open" | "resolved") => {
     if (!selectedThreadId) return;
@@ -204,8 +202,8 @@ export function useThreadState(
     threadCandidates,
     threadPreviewCandidateIds,
     setThreadPreviewCandidateIds,
-    pendingDeleteThreadId,
-    setPendingDeleteThreadId,
+    pendingDeleteThreadId: threadDelete.pendingDeleteId,
+    setPendingDeleteThreadId: (id: string | null) => { if (id) threadDelete.requestDelete(id); else threadDelete.cancelDelete(); },
     pendingClearThreadMessages,
     setPendingClearThreadMessages,
     threadsQuery,
@@ -215,7 +213,7 @@ export function useThreadState(
     handleCreateThread,
     handleUpdateThread,
     handleDeleteThread,
-    handleConfirmDeleteThread,
+    handleConfirmDeleteThread: threadDelete.confirmDelete,
     handleResolveThread,
     handleFindCandidates,
     handleCandidateCheck,
