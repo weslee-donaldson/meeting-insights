@@ -1,7 +1,7 @@
 import { embed } from "./embedder.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { VectorTable } from "./vector-db.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "./vector-db.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("dedup:item");
@@ -58,12 +58,10 @@ export async function searchSimilarItemsByVector(
   vec: Float32Array,
   options: SearchSimilarItemsOptions = {},
 ): Promise<ItemSearchResult[]> {
-  const conditions: string[] = [];
-  if (options.itemType) conditions.push(`item_type = '${options.itemType}'`);
-  if (options.client) conditions.push(`client = '${options.client}'`);
-  let query = table.search(Array.from(vec)).limit(options.limit ?? 10);
-  if (conditions.length > 0) query = query.where(conditions.join(" AND "));
-  const rows = await query.toArray();
+  const filters: VectorSearchFilter[] = [];
+  if (options.itemType) filters.push({ field: "item_type", op: "=", value: options.itemType });
+  if (options.client) filters.push({ field: "client", op: "=", value: options.client });
+  const rows = await searchWithFilters(table, vec, filters, options.limit ?? 10);
   const results: ItemSearchResult[] = rows.map((r: Record<string, unknown>) => ({
     canonical_id: r.canonical_id as string,
     item_text: r.item_text as string,

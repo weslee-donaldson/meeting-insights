@@ -2,6 +2,7 @@ import { embed } from "./embedder.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
+import { searchWithFilters, type VectorSearchFilter } from "./vector-db.js";
 
 const log = createLogger("vector:search");
 
@@ -29,18 +30,13 @@ export async function searchMeetingsByVector(
 ): Promise<SearchResult[]> {
   const table = await db.openTable("meeting_vectors");
 
-  const filters: string[] = [];
-  if (options.client) filters.push(`client = '${options.client}'`);
-  if (options.meeting_type) filters.push(`meeting_type = '${options.meeting_type}'`);
-  if (options.date_after) filters.push(`date >= '${options.date_after}'`);
-  if (options.date_before) filters.push(`date <= '${options.date_before}'`);
+  const filters: VectorSearchFilter[] = [];
+  if (options.client) filters.push({ field: "client", op: "=", value: options.client });
+  if (options.meeting_type) filters.push({ field: "meeting_type", op: "=", value: options.meeting_type });
+  if (options.date_after) filters.push({ field: "date", op: ">=", value: options.date_after });
+  if (options.date_before) filters.push({ field: "date", op: "<=", value: options.date_before });
 
-  let search = table.search(Array.from(vec)).limit(options.limit);
-  if (filters.length > 0) {
-    search = search.where(filters.join(" AND "));
-  }
-
-  const rows = await search.toArray();
+  const rows = await searchWithFilters(table, vec, filters, options.limit);
   const results: SearchResult[] = rows.map((r: Record<string, unknown>) => ({
     meeting_id: r.meeting_id as string,
     score: r._distance as number,

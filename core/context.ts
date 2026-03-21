@@ -2,7 +2,7 @@ import { embed } from "./embedder.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { VectorDb } from "./vector-db.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorDb } from "./vector-db.js";
 import type { ArtifactRow } from "./extractor.js";
 
 const log = createLogger("context");
@@ -34,15 +34,13 @@ export async function buildContext(
   const vec = await embed(session as Parameters<typeof embed>[0], query);
   const table = await vdb.openTable("meeting_vectors");
 
-  const filters: string[] = [];
-  if (options.client_filter) filters.push(`client = '${options.client_filter}'`);
-  if (options.meeting_type_filter) filters.push(`meeting_type = '${options.meeting_type_filter}'`);
-  if (options.date_after) filters.push(`date >= '${options.date_after}'`);
-  if (options.date_before) filters.push(`date <= '${options.date_before}'`);
+  const filters: VectorSearchFilter[] = [];
+  if (options.client_filter) filters.push({ field: "client", op: "=", value: options.client_filter });
+  if (options.meeting_type_filter) filters.push({ field: "meeting_type", op: "=", value: options.meeting_type_filter });
+  if (options.date_after) filters.push({ field: "date", op: ">=", value: options.date_after });
+  if (options.date_before) filters.push({ field: "date", op: "<=", value: options.date_before });
 
-  let search = table.search(Array.from(vec)).limit(options.limit);
-  if (filters.length > 0) search = search.where(filters.join(" AND "));
-  const rows = await search.toArray();
+  const rows = await searchWithFilters(table, vec, filters, options.limit);
 
   const charBudget = options.token_budget * APPROX_CHARS_PER_TOKEN;
   const seenClusters = new Set<string>();
