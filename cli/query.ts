@@ -9,7 +9,7 @@ import { createLlmAdapter } from "../core/llm-adapter.js";
 import { deepSearch } from "../core/deep-search.js";
 import { readFileSync, existsSync } from "node:fs";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { loadCliConfig } from "./shared.js";
+import { loadCliConfig, parseDecisions, buildSearchContext, type SearchResult, type ActionItem, type MeetingRow } from "./shared.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, apiKey: API_KEY, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();
 
@@ -30,18 +30,6 @@ const listType = args.find(a => a.startsWith("--list="))?.slice(7)
   ?? (listIdx !== -1 && args[listIdx + 1] && !args[listIdx + 1].startsWith("-") ? args[listIdx + 1] : undefined);
 
 const question = args.filter(a => !a.startsWith("-")).join(" ").trim();
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface MeetingRow { id: string; title: string; date: string; }
-interface ActionItem  { description: string; owner: string; requester: string; due_date: string | null; }
-interface Decision { text: string; decided_by: string }
-
-function parseDecisions(json: string): Decision[] {
-  const raw = JSON.parse(json) as unknown[];
-  return raw.map((d) => (typeof d === "string" ? { text: d, decided_by: "" } : d as Decision));
-}
-interface SearchResult { meeting_id: string; score: number; client: string; meeting_type: string; date: string; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -73,37 +61,6 @@ function meetingHeader(title: string, date: string, client: string): string {
   const clientTag = client ? `  [${client}]` : "";
   const bar = "━".repeat(60);
   return `\n${bar}\n${title}   ${date.slice(0, 10)}${clientTag}\n${bar}`;
-}
-
-function buildLabeledContext(db: Database, results: SearchResult[]): string {
-  return results.map((r, i) => {
-    const label = `[M${i + 1}]`;
-    const mtg = getMeeting(db, r.meeting_id);
-    const art = getArtifact(db, r.meeting_id);
-    if (!art) return "";
-    const decisions  = parseDecisions(art.decisions ?? "[]");
-    const actions    = JSON.parse(art.action_items ?? "[]") as ActionItem[];
-    const questions  = JSON.parse(art.open_questions ?? "[]") as string[];
-    const risks      = JSON.parse(art.risk_items ?? "[]") as string[];
-    const features   = JSON.parse(art.proposed_features ?? "[]") as string[];
-    const topics     = JSON.parse(art.architecture ?? "[]") as string[];
-    const notes = JSON.parse(art.additional_notes ?? "[]") as Array<Record<string, unknown>>;
-    const notesText = renderNotesGroups(notes);
-    const notesSection = notesText.length > 0
-      ? `Notes:\n${notesText.length > 1000 ? notesText.slice(0, 1000) + "…" : notesText}`
-      : "";
-    return [
-      `## ${label} ${mtg.title}  (${mtg.date.slice(0, 10)})`,
-      `Summary: ${art.summary}`,
-      decisions.length  ? `Decisions: ${decisions.map(d => d.text).join(" | ")}` : "",
-      actions.length    ? `Action items: ${actions.map(a => `${a.owner}: ${a.description}`).join(" | ")}` : "",
-      questions.length  ? `Open questions: ${questions.join(" | ")}` : "",
-      risks.length      ? `Risks: ${risks.join(" | ")}` : "",
-      features.length   ? `Proposed features: ${features.join(" | ")}` : "",
-      topics.length     ? `Architecture: ${topics.join(", ")}` : "",
-      notesSection,
-    ].filter(Boolean).join("\n");
-  }).filter(Boolean).join("\n\n---\n\n");
 }
 
 // ── --list helpers ────────────────────────────────────────────────────────────
@@ -302,7 +259,7 @@ const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "stub" })
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
-const labeledContext = buildLabeledContext(db, results);
+const labeledContext = buildSearchContext(db, results);
 const systemPrompt = "You are a meeting assistant. Answer based only on the provided meeting notes. Be concise and specific. Cite the source meeting using its label (e.g. [M1], [M2]) when you draw on it. If the notes do not contain enough information to answer the question, say so clearly.";
 const prompt = `${systemPrompt}\n\n${labeledContext}\n\nQuestion: ${question}`;
 
