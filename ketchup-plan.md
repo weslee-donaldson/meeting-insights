@@ -115,10 +115,8 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `core/vector-db.ts`, `core/vector-search.ts`, `core/feature-embedding.ts`, `core/item-dedup.ts`, `core/context.ts`
 
-- [ ] Burst 15: Add `searchWithFilters()` to `core/vector-db.ts` — accepts table, query vector, filters array, limit; returns typed results
-- [ ] Burst 16: Replace filter logic in `vector-search.ts` with `searchWithFilters()` — verify all vector search tests pass unchanged
-- [ ] Burst 17: Replace filter logic in `feature-embedding.ts` and `item-dedup.ts` with `searchWithFilters()` — verify tests pass
-- [ ] Burst 18: Replace filter logic in `context.ts` with `searchWithFilters()` — verify labeled context tests pass
+- [x] Burst 15: Add searchWithFilters() to core/vector-db.ts (97399f5)
+- [x] Burst 16-18: Replace filter logic in vector-search.ts, item-dedup.ts, context.ts (ebc38f8). feature-embedding.ts skipped (no filters to extract).
 
 ### SECTION 5: Split `useMeetingState` (~6 bursts)
 
