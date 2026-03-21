@@ -5,6 +5,7 @@ import { chunkTranscript } from "./chunker.js";
 import type { LlmAdapter } from "./llm-adapter.js";
 import type { SpeakerTurn } from "./parser.js";
 import { ArtifactSchema } from "./schemas.js";
+import { ExtractionError } from "./errors.js";
 
 const log = createLogger("extract");
 const logValidate = createLogger("extract:validate");
@@ -43,7 +44,7 @@ export function validateArtifact(raw: object): Artifact {
   if (!result.success) {
     const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
     logValidate("validation failed: %s", issues);
-    throw new Error(`Artifact validation failed: ${issues}`);
+    throw new ExtractionError("validation_failed", `Artifact validation failed: ${issues}`);
   }
   return result.data as unknown as Artifact;
 }
@@ -156,7 +157,7 @@ export async function extractSummary(
   log("extraction completed in %dms chunks=%d", Date.now() - start, chunks.length);
   const artifacts = results.filter((a): a is Artifact => a !== null);
   if (artifacts.length === 0) {
-    throw new Error("Extraction failed: LLM returned unparseable responses for all chunks");
+    throw new ExtractionError("all_chunks_failed", "Extraction failed: LLM returned unparseable responses for all chunks");
   }
   const merged = mergeArtifacts(artifacts);
   const notesCount = merged.additional_notes.length;
