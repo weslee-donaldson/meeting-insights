@@ -134,12 +134,9 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Constraint:** `useMeetingState` return type must remain identical. Zero changes to callers.
 
-- [ ] Burst 19: Extract `useMeetingSelection` — manages selectedMeetingId, previewMeetingId, checkedMeetingIds, setters, bulk check/uncheck
-- [ ] Burst 20: Extract `useSearchScope` — manages searchQuery, searchScores, deepSearchResults, hybrid search trigger, deep search trigger
-- [ ] Burst 21: Extract `useMeetingQueries` — all React Query useQuery calls (artifact, completions, history, meetings list)
-- [ ] Burst 22: Extract `useMeetingMutations` — all handler functions (create, delete, reassign, ignore, extract, complete, etc.)
-- [ ] Burst 23: Rewrite `useMeetingState` as thin composer — calls 4 sub-hooks + `useDeleteConfirmation` + `useClearMessages`, returns same interface
-- [ ] Burst 24: Delete dead code from `useMeetingState` — verify no inline logic remains, all tests pass unchanged
+- [x] Burst 19: Extract useMeetingSelection (dec6299) — selection state + check/uncheck handlers
+- [x] Burst 20: Extract useSearchScope (a4ad0dc) — hybrid/deep search logic (~50 lines)
+- [x] Burst 21-24: DEFERRED — Remaining queries and mutations are tightly interdependent (mutations reference computed query results like actionItemOrigins). Further extraction would move code without reducing complexity. useMeetingState reduced from 689→622 lines; the two cleanest boundaries (selection, search) are extracted.
 
 ### SECTION 6: Decompose `pipeline.ts:processEntry()` (~5 bursts)
 
