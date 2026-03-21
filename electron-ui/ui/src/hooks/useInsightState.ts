@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Insight, InsightMeeting, InsightMessage } from "../../../../core/insights.js";
+import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
 
 export function useInsightState(
   selectedClient: string | null,
@@ -10,7 +11,6 @@ export function useInsightState(
   const queryClient = useQueryClient();
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [createInsightOpen, setCreateInsightOpen] = useState(false);
-  const [pendingDeleteInsightId, setPendingDeleteInsightId] = useState<string | null>(null);
   const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
   const [regeneratingInsightId, setRegeneratingInsightId] = useState<string | null>(null);
 
@@ -52,15 +52,7 @@ export function useInsightState(
     }
   }, [selectedClient, queryClient, addToast]);
 
-  const handleDeleteInsight = useCallback(() => {
-    if (!selectedInsightId) return;
-    setPendingDeleteInsightId(selectedInsightId);
-  }, [selectedInsightId]);
-
-  const handleConfirmDeleteInsight = useCallback(async () => {
-    const id = pendingDeleteInsightId;
-    setPendingDeleteInsightId(null);
-    if (!id) return;
+  const insightDelete = useDeleteConfirmation(useCallback(async (id: string) => {
     setSelectedInsightId(null);
     try {
       await window.api.deleteInsight(id);
@@ -70,8 +62,14 @@ export function useInsightState(
       console.error("Delete insight failed:", err);
       addToast(`Delete insight failed: ${(err as Error).message}`, "error");
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      throw err;
     }
-  }, [pendingDeleteInsightId, selectedClient, queryClient, addToast]);
+  }, [selectedClient, queryClient, addToast]));
+
+  const handleDeleteInsight = useCallback(() => {
+    if (!selectedInsightId) return;
+    insightDelete.requestDelete(selectedInsightId);
+  }, [selectedInsightId, insightDelete]);
 
   const handleFinalizeInsight = useCallback(async () => {
     if (!selectedInsightId || !selectedInsight) return;
@@ -161,8 +159,8 @@ export function useInsightState(
     setSelectedInsightId,
     createInsightOpen,
     setCreateInsightOpen,
-    pendingDeleteInsightId,
-    setPendingDeleteInsightId,
+    pendingDeleteInsightId: insightDelete.pendingDeleteId,
+    setPendingDeleteInsightId: (id: string | null) => { if (id) insightDelete.requestDelete(id); else insightDelete.cancelDelete(); },
     pendingClearInsightMessages,
     setPendingClearInsightMessages,
     regeneratingInsightId,
@@ -172,7 +170,7 @@ export function useInsightState(
     selectedInsight,
     handleCreateInsight,
     handleDeleteInsight,
-    handleConfirmDeleteInsight,
+    handleConfirmDeleteInsight: insightDelete.confirmDelete,
     handleFinalizeInsight,
     handleUpdateInsightSummary,
     handleRegenerateInsight,
