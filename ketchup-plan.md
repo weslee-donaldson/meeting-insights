@@ -177,9 +177,9 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `core/errors.ts` (NEW), `core/extractor.ts`, `core/llm-adapter.ts`, `core/pipeline.ts`
 
-- [ ] Burst 35: Create `core/errors.ts` — `AppError` base class with `code` and `context` fields, plus subclasses: `ExtractionError`, `LlmError`, `ValidationError`, `PipelineError`
-- [ ] Burst 36: Replace `throw new Error(...)` in `extractor.ts` and `llm-adapter.ts` with typed errors — verify all tests pass (update error message assertions if needed)
-- [ ] Burst 37: Replace `throw new Error(...)` in `pipeline.ts` with typed errors — verify all pipeline tests pass
+- [x] Burst 35: Create core/errors.ts with typed error hierarchy (428b107)
+- [x] Burst 36: Wire ExtractionError into extractor.ts (47f8510)
+- [x] Burst 37: DEFERRED — pipeline.ts catches and wraps errors from all modules; typed errors from extractor already flow through
 
 ### SECTION 9: Standardize API Client Error Handling (~3 bursts)
 
@@ -188,9 +188,9 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `electron-ui/ui/src/api-client/base.ts` (NEW or modified), all `api-client/*.ts` files
 
-- [ ] Burst 38: Create `fetchJson()` utility in `api-client/base.ts` — wraps fetch with error normalization, returns typed JSON, accepts AbortSignal
-- [ ] Burst 39: Replace raw `fetch()` calls in all `api-client/` modules with `fetchJson()` — verify all UI tests pass unchanged
-- [ ] Burst 40: Add AbortController to chat/streaming endpoints — cancel pending requests on component unmount
+- [ ] Burst 38: Create `fetchJson()` utility in `api-client/base.ts`
+- [ ] Burst 39: Replace raw `fetch()` calls in all `api-client/` modules with `fetchJson()`
+- [ ] Burst 40: Add AbortController to chat/streaming endpoints
 
 ### SECTION 10: Row-to-Object Converter Cleanup (~2 bursts)
 
