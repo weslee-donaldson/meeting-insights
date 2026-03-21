@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Milestone, MilestoneMention, MilestoneActionItem, DateSlippageEntry, MilestoneMessage } from "../../../../core/timelines.js";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../../electron/channels.js";
+import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
 
 export function useMilestoneState(
   selectedClient: string | null,
@@ -11,7 +12,6 @@ export function useMilestoneState(
   const queryClient = useQueryClient();
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [createMilestoneOpen, setCreateMilestoneOpen] = useState(false);
-  const [pendingDeleteMilestoneId, setPendingDeleteMilestoneId] = useState<string | null>(null);
   const [pendingClearMilestoneMessages, setPendingClearMilestoneMessages] = useState(false);
 
   const milestonesQuery = useQuery<Milestone[]>({
@@ -77,15 +77,7 @@ export function useMilestoneState(
     }
   }, [selectedMilestoneId, selectedClient, queryClient, addToast]);
 
-  const handleDeleteMilestone = useCallback(() => {
-    if (!selectedMilestoneId) return;
-    setPendingDeleteMilestoneId(selectedMilestoneId);
-  }, [selectedMilestoneId]);
-
-  const handleConfirmDeleteMilestone = useCallback(async () => {
-    const id = pendingDeleteMilestoneId;
-    setPendingDeleteMilestoneId(null);
-    if (!id) return;
+  const milestoneDelete = useDeleteConfirmation(useCallback(async (id: string) => {
     setSelectedMilestoneId(null);
     try {
       await window.api.deleteMilestone(id);
@@ -94,8 +86,14 @@ export function useMilestoneState(
     } catch (err) {
       addToast(`Delete milestone failed: ${(err as Error).message}`, "error");
       queryClient.invalidateQueries({ queryKey: ["milestones", selectedClient] });
+      throw err;
     }
-  }, [pendingDeleteMilestoneId, selectedClient, queryClient, addToast]);
+  }, [selectedClient, queryClient, addToast]));
+
+  const handleDeleteMilestone = useCallback(() => {
+    if (!selectedMilestoneId) return;
+    milestoneDelete.requestDelete(selectedMilestoneId);
+  }, [selectedMilestoneId, milestoneDelete]);
 
   const handleConfirmMilestoneMention = useCallback(async (milestoneId: string, meetingId: string) => {
     try {
@@ -171,8 +169,8 @@ export function useMilestoneState(
     setSelectedMilestoneId,
     createMilestoneOpen,
     setCreateMilestoneOpen,
-    pendingDeleteMilestoneId,
-    setPendingDeleteMilestoneId,
+    pendingDeleteMilestoneId: milestoneDelete.pendingDeleteId,
+    setPendingDeleteMilestoneId: (id: string | null) => { if (id) milestoneDelete.requestDelete(id); else milestoneDelete.cancelDelete(); },
     pendingClearMilestoneMessages,
     setPendingClearMilestoneMessages,
     milestonesQuery,
@@ -185,7 +183,7 @@ export function useMilestoneState(
     handleCreateMilestone,
     handleUpdateMilestone,
     handleDeleteMilestone,
-    handleConfirmDeleteMilestone,
+    handleConfirmDeleteMilestone: milestoneDelete.confirmDelete,
     handleConfirmMilestoneMention,
     handleRejectMilestoneMention,
     handleMergeMilestones,
