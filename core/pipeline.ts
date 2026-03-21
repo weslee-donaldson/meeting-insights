@@ -64,6 +64,87 @@ type EntryResult =
   | { status: "ok"; client: string; elapsed_ms: number }
   | { status: "failed"; reason: string; elapsed_ms: number };
 
+interface MeetingParsed {
+  meetingId: string;
+  turns: ReturnType<typeof parseKrispFile> extends infer T ? T extends null ? never : T : never;
+  timestamp: string;
+  title: string;
+}
+
+function detectAndExtract(
+  db: Database,
+  llm: LlmAdapter,
+  parsed: MeetingParsed,
+  tokenLimit: number,
+  promptTemplate: string | undefined,
+) {
+  const detections = detectClient(db, parsed.meetingId);
+  storeDetection(db, parsed.meetingId, detections);
+  const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
+  const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
+  const clientContext = clientRow ? buildClientContext(
+    clientRow.name,
+    JSON.parse(clientRow.client_team ?? "[]") as Participant[],
+    JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
+    clientRow.additional_extraction_llm_prompt ?? undefined,
+  ) : undefined;
+  return { topClient, clientContext, extractFn: () => extractSummary(llm, parsed.turns.turns, tokenLimit, promptTemplate, clientContext) };
+}
+
+async function indexAndDedup(
+  db: Database,
+  itemTable: Awaited<ReturnType<typeof createItemTable>>,
+  session: InferenceSession & { _tokenizer: unknown },
+  llm: LlmAdapter,
+  meetingId: string,
+  artifact: Awaited<ReturnType<typeof extractSummary>>,
+  timestamp: string,
+  title: string,
+  client: string,
+) {
+  updateFts(db, meetingId);
+  await deduplicateItems(db, itemTable, session, meetingId, artifact, timestamp, client);
+  if (client && process.env.MTNINSIGHTS_DEDUP_DEEP === "1") {
+    const dedupPromptPath = "config/prompts/dedup-intent.md";
+    const dedupTemplate = existsSync(dedupPromptPath) ? readFileSync(dedupPromptPath, "utf-8") : "{{items}}";
+    await deepScanClient(db, itemTable, session, llm, client, [{ id: meetingId, date: timestamp, title }], dedupTemplate);
+  }
+}
+
+async function embedAndThread(
+  db: Database,
+  table: Awaited<ReturnType<typeof createMeetingTable>>,
+  session: InferenceSession & { _tokenizer: unknown },
+  llm: LlmAdapter,
+  meetingId: string,
+  artifact: Awaited<ReturnType<typeof extractSummary>>,
+  client: string,
+  title: string,
+  timestamp: string,
+  threadSimilarityThreshold: number,
+) {
+  const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
+  await storeMeetingVector(table, meetingId, vec, { client, meeting_type: title, date: timestamp });
+  if (client) {
+    const openThreads = listThreadsByClient(db, client).filter((t) => t.status === "open");
+    for (const thread of openThreads) {
+      const threadVec = await embed(session as Parameters<typeof embed>[0], `${thread.title} ${thread.description} ${thread.criteria_prompt}`);
+      const similarity = cosineSimilarity(Array.from(threadVec), Array.from(vec));
+      if (similarity > threadSimilarityThreshold) {
+        const evalResult = await evaluateMeetingAgainstThread(db, llm, meetingId, thread);
+        if (evalResult.related) {
+          addThreadMeeting(db, {
+            thread_id: thread.id,
+            meeting_id: meetingId,
+            relevance_summary: evalResult.relevance_summary,
+            relevance_score: evalResult.relevance_score,
+          });
+        }
+      }
+    }
+  }
+}
+
 async function processEntry(
   parsed: ReturnType<typeof parseKrispFile>,
   name: string,
@@ -89,49 +170,16 @@ async function processEntry(
   }
   try {
     const meetingId = ingestMeeting(db, parsed);
-    const detections = detectClient(db, meetingId);
-    storeDetection(db, meetingId, detections);
-    const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
-    const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
-    const clientContext = clientRow ? buildClientContext(
-      clientRow.name,
-      JSON.parse(clientRow.client_team ?? "[]") as Participant[],
-      JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
-      clientRow.additional_extraction_llm_prompt ?? undefined,
-    ) : undefined;
-    const artifact = await extractSummary(llm, parsed.turns, tokenLimit, promptTemplate, clientContext);
+    const meeting: MeetingParsed = { meetingId, turns: parsed, timestamp: parsed.timestamp, title: parsed.title };
+    const { topClient, extractFn } = detectAndExtract(db, llm, meeting, tokenLimit, promptTemplate);
+    const artifact = await extractFn();
     storeArtifact(db, meetingId, artifact);
     if (topClient?.client_name && artifact.milestones.length > 0) {
       reconcileMilestones(db, topClient.client_name, meetingId, parsed.timestamp, artifact.milestones);
     }
-    updateFts(db, meetingId);
     const client = topClient?.client_name ?? "";
-    await deduplicateItems(db, itemTable, session, meetingId, artifact, parsed.timestamp, client);
-    if (client && process.env.MTNINSIGHTS_DEDUP_DEEP === "1") {
-      const dedupPromptPath = "config/prompts/dedup-intent.md";
-      const dedupTemplate = existsSync(dedupPromptPath) ? readFileSync(dedupPromptPath, "utf-8") : "{{items}}";
-      await deepScanClient(db, itemTable, session, llm, client, [{ id: meetingId, date: parsed.timestamp, title: parsed.title }], dedupTemplate);
-    }
-    const vec = await embedMeeting(session, buildEmbeddingInput(artifact));
-    await storeMeetingVector(table, meetingId, vec, { client, meeting_type: parsed.title, date: parsed.timestamp });
-    if (client) {
-      const openThreads = listThreadsByClient(db, client).filter((t) => t.status === "open");
-      for (const thread of openThreads) {
-        const threadVec = await embed(session as Parameters<typeof embed>[0], `${thread.title} ${thread.description} ${thread.criteria_prompt}`);
-        const similarity = cosineSimilarity(Array.from(threadVec), Array.from(vec));
-        if (similarity > threadSimilarityThreshold) {
-          const evalResult = await evaluateMeetingAgainstThread(db, llm, meetingId, thread);
-          if (evalResult.related) {
-            addThreadMeeting(db, {
-              thread_id: thread.id,
-              meeting_id: meetingId,
-              relevance_summary: evalResult.relevance_summary,
-              relevance_score: evalResult.relevance_score,
-            });
-          }
-        }
-      }
-    }
+    await indexAndDedup(db, itemTable, session, llm, meetingId, artifact, parsed.timestamp, parsed.title, client);
+    await embedAndThread(db, table, session, llm, meetingId, artifact, client, parsed.title, parsed.timestamp, threadSimilarityThreshold);
     moveToProcessed(rawDir, processedDir, name);
     return { status: "ok", client, elapsed_ms: Date.now() - start };
   } catch (err) {
