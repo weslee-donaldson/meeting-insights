@@ -1,121 +1,43 @@
 import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest } from "../../../electron/channels.js";
-import { API_BASE } from "./base.js";
+import { API_BASE, fetchJson, jsonPost, jsonPut, jsonDelete } from "./base.js";
 
 export const threadsMethods = {
   listThreads: (clientName: string) =>
-    fetch(`${API_BASE}/api/threads?client=${encodeURIComponent(clientName)}`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/threads?client=${encodeURIComponent(clientName)}`),
 
   createThread: (req: CreateThreadRequest) =>
-    fetch(`${API_BASE}/api/threads`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/threads`, req),
 
   updateThread: (threadId: string, req: UpdateThreadRequest) =>
-    fetch(`${API_BASE}/api/threads/${threadId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPut(`${API_BASE}/api/threads/${threadId}`, req),
 
   deleteThread: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}`, { method: 'DELETE' }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonDelete(`${API_BASE}/api/threads/${threadId}`),
 
   getThreadMeetings: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/meetings`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/threads/${threadId}/meetings`),
 
   getThreadCandidates: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/candidates`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/threads/${threadId}/candidates`),
 
   evaluateThreadCandidates: (threadId: string, meetingIds: string[], overrideExisting: boolean) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/evaluate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ meetingIds, overrideExisting }),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/threads/${threadId}/evaluate`, { meetingIds, overrideExisting }),
 
   removeThreadMeeting: (threadId: string, meetingId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`, { method: 'DELETE' }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonDelete(`${API_BASE}/api/threads/${threadId}/meetings/${meetingId}`),
 
   addThreadMeeting: (threadId: string, meetingId: string, summary: string, score: number) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/meetings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ meetingId, summary, score }),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/threads/${threadId}/meetings`, { meetingId, summary, score }),
 
   regenerateThreadSummary: (threadId: string, meetingIds?: string[]) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/regenerate-summary`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ meetingIds }),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/threads/${threadId}/regenerate-summary`, { meetingIds }),
 
   getThreadMessages: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/messages`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/threads/${threadId}/messages`),
 
   threadChat: (req: ThreadChatRequest) =>
-    fetch(`${API_BASE}/api/threads/${req.threadId}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: req.message, includeTranscripts: req.includeTranscripts }),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/threads/${req.threadId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts }),
 
   clearThreadMessages: (threadId: string) =>
-    fetch(`${API_BASE}/api/threads/${threadId}/messages`, { method: 'DELETE' }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonDelete(`${API_BASE}/api/threads/${threadId}/messages`),
 };

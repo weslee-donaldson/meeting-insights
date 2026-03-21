@@ -1,65 +1,37 @@
 import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../../../electron/channels.js";
-import { API_BASE } from "./base.js";
+import { API_BASE, fetchJson, jsonPost, jsonPut, jsonDelete } from "./base.js";
 
 export const insightsMethods = {
   listInsights: (clientName: string) =>
-    fetch(`${API_BASE}/api/insights?client=${encodeURIComponent(clientName)}`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/insights?client=${encodeURIComponent(clientName)}`),
 
   createInsight: (req: CreateInsightRequest) =>
-    fetch(`${API_BASE}/api/insights`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
-    }).then((r) => r.json()),
+    jsonPost(`${API_BASE}/api/insights`, req),
 
   updateInsight: (insightId: string, req: UpdateInsightRequest) =>
-    fetch(`${API_BASE}/api/insights/${insightId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
-    }).then((r) => r.json()),
+    jsonPut(`${API_BASE}/api/insights/${insightId}`, req),
 
   deleteInsight: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}`, { method: 'DELETE' }).then(() => undefined),
+    jsonDelete(`${API_BASE}/api/insights/${insightId}`).then(() => undefined),
 
   getInsightMeetings: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/meetings`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/insights/${insightId}/meetings`),
 
   discoverInsightMeetings: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/discover-meetings`, { method: 'POST' }).then((r) => r.json()).then((b: { meetingIds: string[] }) => b.meetingIds),
+    jsonPost(`${API_BASE}/api/insights/${insightId}/discover-meetings`, {}).then((b) => (b as { meetingIds: string[] }).meetingIds),
 
-  generateInsight: async (insightId: string, meetingIds?: string[]) => {
-    const r = await fetch(`${API_BASE}/api/insights/${insightId}/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ meetingIds }),
-    });
-    if (!r.ok) {
-      const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-      throw new Error(body.error);
-    }
-    return r.json();
-  },
+  generateInsight: (insightId: string, meetingIds?: string[]) =>
+    jsonPost(`${API_BASE}/api/insights/${insightId}/generate`, { meetingIds }),
 
   getInsightMessages: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/messages`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/insights/${insightId}/messages`),
 
   insightChat: (req: InsightChatRequest) =>
-    fetch(`${API_BASE}/api/insights/${req.insightId}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: req.message, includeTranscripts: req.includeTranscripts }),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/insights/${req.insightId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts }),
 
   clearInsightMessages: (insightId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/messages`, { method: 'DELETE' }).then(() => undefined),
+    jsonDelete(`${API_BASE}/api/insights/${insightId}/messages`).then(() => undefined),
 
   removeInsightMeeting: (insightId: string, meetingId: string) =>
-    fetch(`${API_BASE}/api/insights/${insightId}/meetings/${meetingId}`, { method: 'DELETE' }).then(r => { if (!r.ok) throw new Error(`remove insight meeting: ${r.status}`); }),
+    jsonDelete(`${API_BASE}/api/insights/${insightId}/meetings/${meetingId}`).then(() => undefined),
 };

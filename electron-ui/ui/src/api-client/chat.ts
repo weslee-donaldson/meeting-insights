@@ -1,32 +1,12 @@
 import type { ChatRequest, ConversationChatRequest, SearchRequest, DeepSearchRequest } from "../../../electron/channels.js";
-import { API_BASE } from "./base.js";
+import { API_BASE, fetchJson, jsonPost } from "./base.js";
 
 export const chatMethods = {
   chat: (req: ChatRequest) =>
-    fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json() as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/chat`, req),
 
   conversationChat: (req: ConversationChatRequest) =>
-    fetch(`${API_BASE}/api/chat/conversation`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json() as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/chat/conversation`, req),
 
   search: (req: SearchRequest) => {
     const params = new URLSearchParams({ q: req.query });
@@ -38,15 +18,5 @@ export const chatMethods = {
   },
 
   deepSearch: (req: DeepSearchRequest) =>
-    fetch(`${API_BASE}/api/deep-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
-    }).then(async (r) => {
-      if (!r.ok) {
-        const body = await r.json() as { error: string };
-        throw new Error(body.error);
-      }
-      return r.json();
-    }),
+    jsonPost(`${API_BASE}/api/deep-search`, req),
 };

@@ -1,28 +1,19 @@
-import { API_BASE } from "./base.js";
+import { API_BASE, fetchJson, jsonPost, jsonPatch, jsonDelete } from "./base.js";
 
 export const notesMethods = {
   notesList: (objectType: string, objectId: string) =>
-    fetch(`${API_BASE}/api/notes/${objectType}/${objectId}`).then((r) => r.json()),
+    fetchJson(`${API_BASE}/api/notes/${objectType}/${objectId}`),
 
   notesCreate: (objectType: string, objectId: string, title: string | null, body: string) =>
-    fetch(`${API_BASE}/api/notes/${objectType}/${objectId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, body }),
-    }).then((r) => r.json()),
+    jsonPost(`${API_BASE}/api/notes/${objectType}/${objectId}`, { title, body }),
 
   notesUpdate: (id: string, title?: string | null, body?: string) =>
-    fetch(`${API_BASE}/api/notes/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, body }),
-    }).then((r) => r.json()),
+    jsonPatch(`${API_BASE}/api/notes/${id}`, { title, body }),
 
   notesDelete: (id: string) =>
-    fetch(`${API_BASE}/api/notes/${id}`, { method: "DELETE" }).then(() => undefined),
+    jsonDelete(`${API_BASE}/api/notes/${id}`).then(() => undefined),
 
   notesCount: (objectType: string, objectId: string) =>
-    fetch(`${API_BASE}/api/notes/${objectType}/${objectId}/count`)
-      .then((r) => r.json())
-      .then((r: { count: number }) => r.count),
+    fetchJson<{ count: number }>(`${API_BASE}/api/notes/${objectType}/${objectId}/count`)
+      .then((r) => r.count),
 };
