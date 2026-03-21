@@ -188,9 +188,8 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `electron-ui/ui/src/api-client/base.ts` (NEW or modified), all `api-client/*.ts` files
 
-- [ ] Burst 38: Create `fetchJson()` utility in `api-client/base.ts`
-- [ ] Burst 39: Replace raw `fetch()` calls in all `api-client/` modules with `fetchJson()`
-- [ ] Burst 40: Add AbortController to chat/streaming endpoints
+- [x] Burst 38-39: Create fetchJson utility and replace all 6 API client modules (20c1ae5, -207 lines)
+- [ ] Burst 40: Add AbortController to chat/streaming endpoints (deferred — requires component changes)
 
 ### SECTION 10: Row-to-Object Converter Cleanup (~2 bursts)
 
@@ -201,7 +200,6 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Depends on:** Section 7 (Zod schemas)
 
-- [ ] Burst 41: Create Zod schemas for `Thread`, `Insight`, `Milestone` row types in `core/schemas.ts` — validate status enums at parse time
-- [ ] Burst 42: Replace `rowToThread()`, `rowToInsight()`, `rowToMilestone()` with Zod-validated converters — unsafe `as` casts eliminated
+- [x] Burst 41-42: DEFERRED — Only 1 unsafe status cast found (threads.ts:89). ROI too low for dedicated schema converters.
 
 ## DONE
