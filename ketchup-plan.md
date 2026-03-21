@@ -1,133 +1,55 @@
-# Notes Feature
+# Architecture Refactoring
 ## Ketchup Plan
 
 ---
 
 # 0. SYSTEM GOAL
 
-Add user-defined rich-text notes to Meetings, Insights, Milestones, and Threads. Notes are durable, user-authored annotations that persist alongside the object — unlike chat (ephemeral Q&A) or extracted artifacts (LLM-generated). The feature uses a dialog-based CRUD pattern triggered from the CommandBar (Meetings) or header button rows (Threads, Insights, Timelines). Action Items do not have their own notes — they inherit from their parent Meeting when drilling into Meeting Detail.
+Eliminate code duplication, improve SOLID compliance, and increase extensibility across the codebase. Driven by a comprehensive code review that identified DRY violations in React hooks (4x delete/clear patterns), CLI tools (duplicated utilities), and core modules (vector search filters). Also addresses SRP violations in `useMeetingState` (690 lines) and `pipeline.ts` (14 imports, 76-line orchestrator), plus type safety gaps (missing Zod validation, `tsconfig.json` excluding `api/` and `cli/`).
 
 This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one behavior, one commit.
 
 ---
 
-# DESIGN SOURCE OF TRUTH
+# CODE REVIEW REFERENCE
 
-**Paper MCP** is the visual source of truth. The Paper file `Meeting Insights.paper` contains the approved artboard.
+Full review: `.claude/plans/crystalline-finding-platypus.md`
 
-### Artboard Reference
+### Key Findings Addressed
 
-| Artboard Name | Contains | Used By Sections |
-|---------------|----------|-----------------|
-| Notes Feature — Dialog Exploration | All Notes UI: CommandBar integration per area, list dialog, compose dialog (Lexical RTE), cross-object variants, empty state, action menu, data model, architecture notes | 1, 2, 3, 4, 5, 6 |
-| Concept A — Meeting Detail | Meeting Detail layout with CommandBar — reference for Notes button placement | 4 |
-| Component Decomposition | CommandBar molecule specs | 4 |
+| Finding | Severity | Section |
+|---------|----------|---------|
+| React hook duplication (delete, clear, invalidation) | HIGH | 1 |
+| CLI tool duplication (buildLabeledContext, config) | HIGH | 2 |
+| `tsconfig.json` excludes `api/`, `cli/` | HIGH | 3 |
+| Vector search filter duplication (4 modules) | MEDIUM | 4 |
+| `useMeetingState` SRP violation (690 lines) | MEDIUM | 5 |
+| `pipeline.ts:processEntry()` SRP violation | MEDIUM | 6 |
+| No Zod validation (extractor, API) | MEDIUM | 7 |
+| No typed error hierarchy | MEDIUM | 8 |
+| API client error normalization | MEDIUM | 9 |
+| Row-to-object converter duplication | LOW | 10 |
 
-### Mandatory Paper MCP Protocol
+### Findings Deferred (long-term, lower ROI)
 
-Before implementing any burst that touches UI:
-
-1. `get_basic_info` → find artboard IDs
-2. `get_screenshot` on the artboard referenced in the section's `Design reference` field
-3. `get_computed_styles` on specific nodes if exact CSS values are needed
-4. Implement the component to match the artboard
-5. After implementation, verify with Playwright MCP (see Design Verification Gates below)
-
-### PRD
-
-Full specification: `planning/prds/notes.md`
-
----
-
-# DESIGN DECISIONS
-
-Decisions made from Paper explorations:
-
-| Decision | Choice | Source |
-|----------|--------|--------|
-| Storage format | HTML (from Lexical RichTextEditor) | PRD — compose state uses existing Lexical component |
-| Data model | Polymorphic `notes` table (`object_type` + `object_id`) | Artboard Section 6 — Implementation Notes |
-| Object types | Meeting, Insight, Milestone, Thread (NOT Action Items) | Artboard Section 1 — Action Items inherits from Meeting |
-| Dialog pattern | Single NotesDialog with list/compose/edit modes | Artboard Sections 2, 3 |
-| Trigger pattern | CommandBar button (Meetings) / header button (Threads, Insights, Timelines) | Artboard Section 1 |
-| Delete pattern | Two-phase confirmation (existing `pendingDelete` pattern) | Artboard Section 5 |
-| Rich text editor | Existing Lexical `RichTextEditor` component (Bold, Italic, Underline, Bullet List, Ordered List) | Artboard Section 3 — Compose State |
-| Badge count | Amber tint button with numeric badge, always visible (even at 0, badge hides but button stays) | Artboard Section 1 |
-
----
-
-# EXISTING INFRASTRUCTURE
-
-| Layer | Current State |
-|-------|--------------|
-| Rich text editor | `components/ui/rich-text-editor.tsx` — Lexical with toolbar, HTML I/O, fully tested |
-| Dialog component | `components/ui/dialog.tsx` — Radix Dialog with overlay, title, close |
-| CommandBar | `components/shared/command-bar.tsx` — pill toolbar with variant actions |
-| State hooks | `useInsightState`, `useThreadState`, `useMilestoneState`, `useMeetingState` — React Query + useState pattern |
-| Two-phase delete | `pendingDeleteInsightId` pattern in `useInsightState.ts` |
-| Toast system | `useToast()` for success/error feedback |
-| IPC/API patterns | `meeting-messages.ts` for IPC, `api/routes/meetings.ts` for HTTP |
-
-### Files affected (notes feature scope)
-
-```
-core/
-├── notes.ts                  # NEW — CRUD functions
-├── db.ts                     # MODIFIED — add notes table migration
-
-api/
-├── routes/notes.ts           # NEW — HTTP endpoints
-
-electron-ui/
-├── electron/
-│   └── channels.ts           # MODIFIED — add notes IPC channels
-├── ui/src/
-│   ├── hooks/
-│   │   └── useNotesState.ts  # NEW — state hook
-│   ├── components/
-│   │   └── NotesDialog.tsx   # NEW — list/compose/edit dialog
-│   │   └── MeetingDetail.tsx # MODIFIED — add Notes to CommandBar
-│   │   └── ThreadDetailView.tsx    # MODIFIED — add Notes button
-│   │   └── InsightDetailView.tsx   # MODIFIED — add Notes button
-│   │   └── TimelineDetailView.tsx  # MODIFIED — add Notes button
-│   └── design-tokens.ts     # MODIFIED — add notesButton tokens
-
-test/
-├── notes.test.ts             # NEW — core CRUD tests
-├── notes-api.test.ts         # NEW — API route tests
-├── ui/
-│   └── notes-dialog.test.ts  # NEW — dialog component tests
-```
+| Finding | Reason |
+|---------|--------|
+| View registry pattern | Major refactor, current approach works for 5 views |
+| Migration file pattern | `migrate()` is stable, low churn |
+| Clustering strategy interface | Only one algorithm in use |
+| Pipeline step registry | Depends on pipeline decomposition (Section 6) |
+| LLM adapter registry pattern | Current factory works for 6 providers |
 
 ---
 
 # PLANNING RULES
 
-1. Bursts are ordered. Each depends on the previous unless noted.
-2. Each burst = one failing test → minimal code → TCR.
+1. Bursts are ordered within sections. Sections are independent unless noted.
+2. Each burst = one failing test -> minimal code -> TCR.
 3. Plan updates go in the same commit as code.
-4. Infrastructure commits (CSS, config, migrations) need no tests.
-5. E2E exception: tightly-coupled UI bursts may combine 2 steps.
-6. **Design verification gates are mandatory.** Each section ends with a verification burst that screenshots the running app via Playwright MCP and compares against the Paper artboard.
-
----
-
-# DESIGN VERIFICATION GATES
-
-Every section ends with a **design verification gate**.
-
-### Gate Protocol
-
-```
-1. pnpm web:dev                           # Start dev server
-2. Playwright MCP: browser_resize(2560, 1440)
-3. Playwright MCP: browser_navigate("http://localhost:5188")
-4. Playwright MCP: browser_take_screenshot  # Capture current state
-5. Paper MCP: get_screenshot(artboardId)    # Capture design target
-6. Compare: layout, spacing, colors, typography, component structure
-7. If delta found → fix before proceeding to next section
-8. If clean → document "VERIFIED" in the gate burst and commit
-```
+4. Infrastructure commits (config, tsconfig) need no tests.
+5. **Refactoring bursts must not change behavior.** All existing tests must continue passing after each burst.
+6. **Backward compatibility within burst:** Callers updated in same burst as extraction. No dangling imports.
 
 ---
 
@@ -135,171 +57,163 @@ Every section ends with a **design verification gate**.
 
 ## TODO
 
-### SECTION 1: Data Layer — Schema & Core Module (~6 bursts)
+### SECTION 1: Extract Shared React Hooks (~8 bursts)
 
 > **Spec:**
-> Polymorphic `notes` table and CRUD module following the `meeting-messages.ts` pattern.
+> Extract duplicated patterns from `useMeetingState`, `useThreadState`, `useInsightState`, and `useMilestoneState` into reusable hooks.
 >
-> **Schema:** `notes(id TEXT PK, object_type TEXT, object_id TEXT, title TEXT nullable, body TEXT, created_at TEXT, updated_at TEXT)` with index on `(object_type, object_id)`.
-> **CRUD:** `createNote`, `getNote`, `listNotes` (reverse-chrono), `updateNote` (partial), `deleteNote`, `countNotes`, `deleteNotesByObject` (cascade helper).
-> **Types:** `Note`, `CreateNoteInput`, `UpdateNoteInput` defined inline in `core/notes.ts`.
+> **Patterns to extract:**
+> - `useDeleteConfirmation(onDelete, entityName)` — manages `pendingDeleteId`, confirmation dialog state, async delete + invalidation + toast
+> - `useClearMessages(onClear)` — manages clear confirmation + async clear + invalidation + toast
+> - `useQueryInvalidation(queryClient, selectedClient)` — helper for scoped invalidation
 >
-> **Files affected:** `core/db.ts`, `core/notes.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 6 (Implementation Notes → Data Model)
+> **Files affected:** `electron-ui/ui/src/hooks/useDeleteConfirmation.ts` (NEW), `electron-ui/ui/src/hooks/useClearMessages.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingState.ts`, `electron-ui/ui/src/hooks/useThreadState.ts`, `electron-ui/ui/src/hooks/useInsightState.ts`, `electron-ui/ui/src/hooks/useMilestoneState.ts`
+>
+> **Constraint:** All existing tests must pass after each burst without modification (proves behavior preservation).
 
-- [x] Burst 1: Add `notes` table to `core/db.ts` migrate() with index on (object_type, object_id) [infra]
-- [x] Burst 2: `createNote` — generates UUID, stores note with timestamps, returns full Note object
-- [x] Burst 3: `listNotes` — returns all notes for a given (objectType, objectId) ordered by created_at DESC
-- [x] Burst 4: `updateNote` — partial update of title and/or body, sets updated_at, returns updated Note
-- [x] Burst 5: `deleteNote` and `deleteNotesByObject` — single delete by ID + cascade delete by (objectType, objectId)
-- [x] Burst 6: `countNotes` — returns integer count for badge display
+- [ ] Burst 1: Create `useDeleteConfirmation` hook — accepts `onDelete: (id: string) => Promise<void>` callback, returns `{ pendingDeleteId, handleDelete, handleConfirmDelete, handleCancelDelete }`
+- [ ] Burst 2: Wire `useDeleteConfirmation` into `useInsightState` — replace inline delete pattern, verify all insight tests pass unchanged
+- [ ] Burst 3: Wire `useDeleteConfirmation` into `useThreadState` — replace inline delete pattern, verify all thread tests pass unchanged
+- [ ] Burst 4: Wire `useDeleteConfirmation` into `useMilestoneState` — replace inline delete pattern, verify all milestone tests pass unchanged
+- [ ] Burst 5: Wire `useDeleteConfirmation` into `useMeetingState` — replace inline delete pattern, verify all meeting tests pass unchanged
+- [ ] Burst 6: Create `useClearMessages` hook — accepts `onClear: () => Promise<void>` callback, returns `{ handleClearMessages, handleConfirmClear, handleCancelClear, pendingClear }`
+- [ ] Burst 7: Wire `useClearMessages` into all 4 state hooks — replace inline clear patterns, verify all tests pass unchanged
+- [ ] Burst 8: Remove dead code — delete any leftover inline delete/clear logic from all 4 hooks, verify all tests pass
 
-### SECTION 2: API & IPC Layer (~5 bursts)
+### SECTION 2: Extract CLI Shared Utilities (~5 bursts)
 
 > **Spec:**
-> RESTful HTTP endpoints and Electron IPC channels for notes CRUD.
+> Eliminate duplication across `cli/query.ts`, `cli/eval.ts`, and other CLI tools by extracting shared config and utilities.
 >
-> **HTTP:** `GET/POST /notes/:objectType/:objectId`, `PATCH/DELETE /notes/:id`, `GET /notes/:objectType/:objectId/count`.
-> **IPC:** `notes:list`, `notes:create`, `notes:update`, `notes:delete`, `notes:count`.
-> Follows the `meeting-messages` IPC pattern and `api/routes/meetings.ts` HTTP pattern.
+> **Duplicated code:**
+> - `buildLabeledContext()` in both `query.ts` and `eval.ts` — already exists in `core/labeled-context.ts`
+> - `parseDecisions()` duplicated in both files
+> - `MeetingRow`, `ActionItem` types defined locally in both files
+> - `DB_PATH`, `VECTOR_PATH`, `PROVIDER` constants repeated in every CLI tool
 >
-> **Files affected:** `api/routes/notes.ts`, `api/server.ts`, `electron-ui/electron/channels.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 6 (Implementation Notes → Architecture)
+> **Files affected:** `cli/shared.ts` (NEW), `cli/query.ts`, `cli/eval.ts`, `cli/run.ts`, `cli/setup.ts`, `cli/assign-client.ts`, `cli/all-items-dedupe.ts`
 
-- [x] Burst 7: Notes HTTP routes — `GET /notes/:objectType/:objectId` returns list, `POST` creates note
-- [x] Burst 8: Notes HTTP routes — `PATCH /notes/:id` updates, `DELETE /notes/:id` deletes
-- [x] Burst 9: Notes HTTP route — `GET /notes/:objectType/:objectId/count` returns count
-- [x] Burst 10: Notes IPC channels — `notes:list`, `notes:create`, `notes:update`, `notes:delete`, `notes:count` registered in channels.ts
-- [x] Burst 11: API client methods — add `notes.list()`, `notes.create()`, `notes.update()`, `notes.delete()`, `notes.count()` to `api-client.ts` for web mode
+- [ ] Burst 9: Create `cli/shared.ts` — export `loadCliConfig()` returning `{ dbPath, vectorPath, provider }` from env vars with validation [infra]
+- [ ] Burst 10: Replace local config constants in all CLI tools with `loadCliConfig()` — verify each tool still runs
+- [ ] Burst 11: Replace `buildLabeledContext()` in `cli/query.ts` with import from `core/labeled-context.ts` — verify query output unchanged
+- [ ] Burst 12: Replace `buildLabeledContext()` in `cli/eval.ts` with import from `core/labeled-context.ts` — verify eval output unchanged
+- [ ] Burst 13: Replace local `parseDecisions()` and `MeetingRow`/`ActionItem` types in `query.ts` and `eval.ts` with imports from `core/` — remove local definitions
 
-### SECTION 3: UI Foundation — State Hook & Design Tokens (~5 bursts)
+### SECTION 3: Fix TypeScript Build Config (~1 burst)
 
 > **Spec:**
-> `useNotesState` hook managing dialog state, React Query, and mutation handlers. Design tokens for the Notes button.
+> Add `api/` and `cli/` to `tsconfig.json` include so type errors are caught at build time, not runtime.
 >
-> **State:** `notesDialogOpen`, `notesDialogMode` (list/compose/edit), `editingNoteId`, `pendingDeleteNoteId`.
-> **Queries:** `notesQuery` (list), `noteCountQuery` (badge count).
-> **Mutations:** `handleCreateNote`, `handleUpdateNote`, `handleDeleteNote`, `handleConfirmDeleteNote` — all invalidate queries + toast.
-> **Tokens:** `notesButton` in design-tokens.ts — amber tint bg, accent text, badge styling.
->
-> **Files affected:** `electron-ui/ui/src/hooks/useNotesState.ts`, `electron-ui/ui/src/design-tokens.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Command Integration — button styling) and Section 5 (Empty State — interaction flow)
+> **Files affected:** `tsconfig.json`
 
-- [x] Burst 12: `useNotesState` hook — manages `notesDialogOpen`, `notesDialogMode`, `editingNoteId`, `pendingDeleteNoteId` state
-- [x] Burst 13: `useNotesState` React Query integration — `notesQuery` and `noteCountQuery` fetch from API
-- [x] Burst 14: `useNotesState` mutation handlers — `handleCreateNote` creates note, invalidates queries, switches to list mode, toasts success
-- [x] Burst 15: `useNotesState` delete flow — `handleDeleteNote` sets pending ID, `handleConfirmDeleteNote` deletes + invalidates + toasts + clears pending
-- [x] Burst 16: Add `notesButton` design tokens — amber tint bg `rgba(201,122,46,0.08)`, accent text `#C97A2E`, badge bg/text/size/padding/radius [infra]
+- [ ] Burst 14: Add `"api/**/*"`, `"cli/**/*"` to tsconfig.json include array — fix any type errors that surface [infra]
 
-### SECTION 4: Notes Dialog — List Mode (~6 bursts)
+### SECTION 4: Centralize Vector Search (~4 bursts)
 
 > **Spec:**
-> `NotesDialog` component rendering the list of existing notes with header, note items, empty state, and three-dot action menu.
+> Extract duplicated vector search filter-building logic from 4 modules into a shared helper in `vector-db.ts`.
 >
-> **Dialog:** 520px wide, 12px radius, black/60 overlay. Header shows "Notes" title + object subtitle + "New Note" amber CTA + close button.
-> **Note items:** Title (13px/600) or first-line preview, relative timestamp, body preview (2-3 lines, HTML stripped), three-dot menu with Edit/Delete.
-> **Empty state:** Centered document icon + "No notes yet" + "Add context, reminders, or follow-ups" + "Add First Note" amber button.
-> **Delete:** Two-phase inline confirmation within dialog.
+> **Duplicated in:** `vector-search.ts:32-41`, `feature-embedding.ts:54-55`, `item-dedup.ts:64-65`, `context.ts:43-44`
 >
-> **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 2 (List State) and Section 5 (Empty State & Note Actions)
+> **Files affected:** `core/vector-db.ts`, `core/vector-search.ts`, `core/feature-embedding.ts`, `core/item-dedup.ts`, `core/context.ts`
 
-- [x] Burst 17: NotesDialog shell — Radix Dialog, 520px, header with "Notes" title + object subtitle + close button
-- [x] Burst 18: NotesDialog "New Note" button in header — amber bg, plus icon, "New Note" label
-- [x] Burst 19: NotesDialog note item row — title (bold) or first-line fallback, relative timestamp, body preview (HTML stripped, 2-3 lines truncated)
-- [x] Burst 20: NotesDialog three-dot menu — popover with Edit and Delete actions per note item
-- [x] Burst 21: NotesDialog empty state — centered document icon + "No notes yet" + subtitle + "Add First Note" amber CTA
-- [x] Burst 22: NotesDialog delete confirmation — inline two-phase: "Delete this note?" with Cancel/Delete buttons, wired to `pendingDeleteNoteId`
+- [ ] Burst 15: Add `searchWithFilters()` to `core/vector-db.ts` — accepts table, query vector, filters array, limit; returns typed results
+- [ ] Burst 16: Replace filter logic in `vector-search.ts` with `searchWithFilters()` — verify all vector search tests pass unchanged
+- [ ] Burst 17: Replace filter logic in `feature-embedding.ts` and `item-dedup.ts` with `searchWithFilters()` — verify tests pass
+- [ ] Burst 18: Replace filter logic in `context.ts` with `searchWithFilters()` — verify labeled context tests pass
 
-### SECTION 5: Notes Dialog — Compose & Edit Modes (~5 bursts, includes Design Gate)
+### SECTION 5: Split `useMeetingState` (~6 bursts)
 
 > **Spec:**
-> Compose mode for new notes and edit mode for existing notes, both using the Lexical `RichTextEditor`.
+> Decompose the 690-line `useMeetingState` hook into focused sub-hooks following SRP.
 >
-> **Header:** Back arrow (←) + "New Note" / "Edit Note" + object label right-aligned.
-> **Title input:** Plain text, full-width, "Title (optional)" placeholder.
-> **Body:** Existing `RichTextEditor` component (Bold, Italic, Underline | Bullet List, Ordered List). Min-height 180px. Outputs HTML.
-> **Footer:** "Cancel" outline button + "Save Note" / "Save Changes" amber button. Save disabled if body is empty.
-> **Edit mode:** Pre-populates title + body from existing note HTML.
+> **Target decomposition:**
+> - `useMeetingSelection` — selectedMeetingId, previewMeetingId, checkedMeetingIds state
+> - `useMeetingQueries` — all React Query hooks (artifact, completions, history, search)
+> - `useMeetingMutations` — all API call handlers (create, delete, reassign, ignore, extract, etc.)
+> - `useSearchScope` — hybrid search + deep search logic
+> - `useMeetingState` becomes a thin composer that calls the 4 sub-hooks and returns the combined interface
 >
-> **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 3 (Compose State — shows Lexical toolbar with B/I/U | List/OrderedList, rich text body with bold, bullets, cursor)
+> **Files affected:** `electron-ui/ui/src/hooks/useMeetingSelection.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingQueries.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingMutations.ts` (NEW), `electron-ui/ui/src/hooks/useSearchScope.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingState.ts`
+>
+> **Constraint:** `useMeetingState` return type must remain identical. Zero changes to callers.
 
-- [x] Burst 23: Compose mode header — back arrow + "New Note" + object label, switches from list mode
-- [x] Burst 24: Compose mode title input + RichTextEditor body — optional title field, Lexical editor with min-height 180px
-- [x] Burst 25: Compose mode footer — Cancel returns to list, Save Note calls handleCreateNote with title + HTML body, disabled when body empty
-- [x] Burst 26: Edit mode — pre-populates title and body from existing note, header shows "Edit Note", footer shows "Save Changes"
-- [x] Burst 27: **DESIGN GATE — Dialog** — Deferred to Final Design Gate (Burst 41). Dialog component verified via 15 unit tests covering all modes.
+- [ ] Burst 19: Extract `useMeetingSelection` — manages selectedMeetingId, previewMeetingId, checkedMeetingIds, setters, bulk check/uncheck
+- [ ] Burst 20: Extract `useSearchScope` — manages searchQuery, searchScores, deepSearchResults, hybrid search trigger, deep search trigger
+- [ ] Burst 21: Extract `useMeetingQueries` — all React Query useQuery calls (artifact, completions, history, meetings list)
+- [ ] Burst 22: Extract `useMeetingMutations` — all handler functions (create, delete, reassign, ignore, extract, complete, etc.)
+- [ ] Burst 23: Rewrite `useMeetingState` as thin composer — calls 4 sub-hooks + `useDeleteConfirmation` + `useClearMessages`, returns same interface
+- [ ] Burst 24: Delete dead code from `useMeetingState` — verify no inline logic remains, all tests pass unchanged
 
-### SECTION 6: View Integration — Meetings (~5 bursts)
+### SECTION 6: Decompose `pipeline.ts:processEntry()` (~5 bursts)
 
 > **Spec:**
-> Wire Notes into Meeting Detail via CommandBar. Notes button with badge count opens the NotesDialog scoped to the selected meeting.
+> Break the 76-line `processEntry()` into focused step functions. Each step receives its dependencies as parameters (DIP).
 >
-> **CommandBar placement:** Notes button sits between Reassign and the destructive divider (before Ignore). Uses amber tint bg + accent text + badge count.
-> **Cascade:** When a meeting is deleted, its notes are cleaned up via `deleteNotesByObject`.
+> **Target decomposition:**
+> - `parseAndIngest(db, filePath)` — parse transcript, ingest meeting, return meetingId
+> - `detectAndExtract(db, llm, meetingId)` — client detection + artifact extraction with refinement
+> - `embedAndIndex(db, vectorDb, embedder, meetingId)` — embed meeting + build FTS index
+> - `threadAndDedup(db, vectorDb, llm, meetingId)` — thread assignment + milestone reconciliation + item dedup
+> - `processEntry()` becomes a thin orchestrator calling the 4 steps in sequence
 >
-> **Files affected:** `electron-ui/ui/src/components/MeetingDetail.tsx`, meeting delete handler, `test/e2e/meeting-notes.spec.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Meetings area — CommandBar with Re-extract, Copy, Reassign, **Notes 3**, | Ignore)
+> **Files affected:** `core/pipeline.ts`
+>
+> **Constraint:** All pipeline tests must pass unchanged. Event emission behavior preserved.
 
-- [x] Burst 28: Add Notes action to MeetingDetail CommandBar — amber tint button with FileText icon + "Notes" label + badge count from noteCountQuery
-- [x] Burst 29: Wire NotesDialog into MeetingDetail — opens on Notes click, scoped to `objectType: 'meeting'`, shows meeting title as object label
-- [x] Burst 30: Cascade delete — call `deleteNotesByObject(db, 'meeting', meetingId)` in meeting delete handler
-- [x] Burst 31: E2E — `test/e2e/meeting-notes.spec.ts`: 5 tests — Notes button visible, empty state, create note, edit note via menu, delete with confirmation. All passing.
+- [ ] Burst 25: Extract `parseAndIngest()` step function — accepts db + filePath, returns meetingId + parsed data
+- [ ] Burst 26: Extract `detectAndExtract()` step function — accepts db + llm + meetingId, handles client detection + extraction
+- [ ] Burst 27: Extract `embedAndIndex()` step function — accepts db + vectorDb + embedder + meetingId, handles embedding + FTS
+- [ ] Burst 28: Extract `threadAndDedup()` step function — accepts db + vectorDb + llm + meetingId, handles threading + dedup
+- [ ] Burst 29: Rewrite `processEntry()` as thin orchestrator — calls 4 steps in sequence, emits same events, all pipeline tests pass
 
-### SECTION 7: View Integration — Threads (~4 bursts)
+### SECTION 7: Add Zod Validation (~5 bursts)
 
 > **Spec:**
-> Add Notes button to ThreadDetailView header button row. Uses `useNotesState` scoped to thread.
+> Replace manual JSON validation in `extractor.ts` and add request validation to API routes using Zod schemas.
 >
-> **Button placement:** Notes button (amber tint + badge) inserted between Edit and Resolve in the header row.
-> **Cascade:** Thread delete handler calls `deleteNotesByObject` for cleanup.
+> **Files affected:** `core/extractor.ts`, `api/routes/meetings.ts`, `api/routes/threads.ts`, `api/routes/notes.ts`, `api/routes/insights.ts`, `api/routes/milestones.ts`
 >
-> **Files affected:** `ThreadDetailView.tsx`, thread delete handler, `test/e2e/thread-notes.spec.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Threads area) and Section 4 (Cross-Object Variants — dialog subtitle "· Thread")
+> **Note:** Zod must be added as a dependency.
 
-- [x] Burst 32: ThreadDetailView — add Notes button to header row between Edit and Resolve, wire useNotesState + NotesDialog scoped to thread
-- [x] Burst 33: ThreadDetailView cascade — call `deleteNotesByObject(db, 'thread', threadId)` in thread delete handler
-- [x] Burst 34: E2E — `test/e2e/thread-notes.spec.ts`: 3 tests — Notes button with Thread subtitle, create note verified via API, cascade delete. All passing.
+- [ ] Burst 30: Add `zod` dependency — `pnpm add zod` [infra]
+- [ ] Burst 31: Create `core/schemas.ts` — Zod schemas for `Artifact`, `ActionItem`, `Decision`, `Question`, `Risk` replacing manual validation in `extractor.ts`
+- [ ] Burst 32: Replace `validateArtifact()` in `extractor.ts` with Zod `.safeParse()` — verify all extractor tests pass unchanged
+- [ ] Burst 33: Add request schemas to API routes — `CreateMeetingSchema`, `EditActionItemSchema`, `CreateThreadSchema`, etc.
+- [ ] Burst 34: Wire request validation into API route handlers — parse with `.safeParse()`, return 400 on failure with structured error
 
-### SECTION 8: View Integration — Insights (~4 bursts)
+### SECTION 8: Typed Error Hierarchy (~3 bursts)
 
 > **Spec:**
-> Add Notes button to InsightDetailView header button row. Uses `useNotesState` scoped to insight.
+> Create a typed error hierarchy to replace plain `Error` throws with codes and context.
 >
-> **Button placement:** Notes button (amber tint + badge) inserted between Edit and Finalize/Reopen in the header row.
-> **Cascade:** Insight delete handler calls `deleteNotesByObject` for cleanup.
->
-> **Files affected:** `InsightDetailView.tsx`, insight delete handler, `test/e2e/insight-notes.spec.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Insights area) and Section 4 (Cross-Object Variants — dialog subtitle "· Insight")
+> **Files affected:** `core/errors.ts` (NEW), `core/extractor.ts`, `core/llm-adapter.ts`, `core/pipeline.ts`
 
-- [x] Burst 35: InsightDetailView — add Notes button to header row between Edit and Finalize/Reopen, wire useNotesState + NotesDialog scoped to insight
-- [x] Burst 36: InsightDetailView cascade — call `deleteNotesByObject(db, 'insight', insightId)` in insight delete handler
-- [x] Burst 37: E2E — `test/e2e/insight-notes.spec.ts`: 3 tests — Notes button with Insight subtitle, create note with body, cascade delete. All passing.
+- [ ] Burst 35: Create `core/errors.ts` — `AppError` base class with `code` and `context` fields, plus subclasses: `ExtractionError`, `LlmError`, `ValidationError`, `PipelineError`
+- [ ] Burst 36: Replace `throw new Error(...)` in `extractor.ts` and `llm-adapter.ts` with typed errors — verify all tests pass (update error message assertions if needed)
+- [ ] Burst 37: Replace `throw new Error(...)` in `pipeline.ts` with typed errors — verify all pipeline tests pass
 
-### SECTION 9: View Integration — Timelines (~4 bursts)
+### SECTION 9: Standardize API Client Error Handling (~3 bursts)
 
 > **Spec:**
-> Add Notes button to TimelineDetailView header button row. Uses `useNotesState` scoped to milestone.
+> Create a `fetchJson()` wrapper for API client to normalize error handling across all endpoints. Add AbortController support.
 >
-> **Button placement:** Notes button (amber tint + badge) inserted between Edit and Delete in the header row.
-> **Cascade:** Milestone delete handler calls `deleteNotesByObject` for cleanup.
->
-> **Files affected:** `TimelineDetailView.tsx`, milestone delete handler, `test/e2e/milestone-notes.spec.ts`
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (Timelines area) and Section 4 (Cross-Object Variants — dialog subtitle "· Milestone")
+> **Files affected:** `electron-ui/ui/src/api-client/base.ts` (NEW or modified), all `api-client/*.ts` files
 
-- [x] Burst 38: TimelineDetailView — add Notes button to header row between Edit and Delete, wire useNotesState + NotesDialog scoped to milestone
-- [x] Burst 39: TimelineDetailView cascade — call `deleteNotesByObject(db, 'milestone', milestoneId)` in milestone delete handler
-- [x] Burst 40: E2E — `test/e2e/milestone-notes.spec.ts`: 3 tests — Notes button with Milestone subtitle, create+edit note, cascade delete. All passing.
+- [ ] Burst 38: Create `fetchJson()` utility in `api-client/base.ts` — wraps fetch with error normalization, returns typed JSON, accepts AbortSignal
+- [ ] Burst 39: Replace raw `fetch()` calls in all `api-client/` modules with `fetchJson()` — verify all UI tests pass unchanged
+- [ ] Burst 40: Add AbortController to chat/streaming endpoints — cancel pending requests on component unmount
 
-### SECTION 10: Final Verification (~1 burst)
+### SECTION 10: Row-to-Object Converter Cleanup (~2 bursts)
 
 > **Spec:**
-> Final design gate verifying Notes integration across all 4 detail views.
+> Replace duplicated `rowToThread()`, `rowToInsight()` patterns with validated converters using Zod schemas from Section 7.
 >
-> **Files affected:** None (verification only)
-> **Design reference:** Artboard "Notes Feature — Dialog Exploration" → Section 1 (all areas)
+> **Files affected:** `core/threads.ts`, `core/insights.ts`, `core/timelines.ts`
+>
+> **Depends on:** Section 7 (Zod schemas)
 
-- [x] Burst 41: **FINAL DESIGN GATE** — All 14 e2e tests pass across 4 views (Meeting 5, Thread 3, Insight 3, Milestone 3). Notes button visible in all detail views. Dialog opens with correct object type subtitle. Create/edit/delete lifecycle verified. Cascade delete verified via API. VERIFIED.
+- [ ] Burst 41: Create Zod schemas for `Thread`, `Insight`, `Milestone` row types in `core/schemas.ts` — validate status enums at parse time
+- [ ] Burst 42: Replace `rowToThread()`, `rowToInsight()`, `rowToMilestone()` with Zod-validated converters — unsafe `as` casts eliminated
 
 ## DONE
