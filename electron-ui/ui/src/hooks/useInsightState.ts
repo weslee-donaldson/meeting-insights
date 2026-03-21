@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Insight, InsightMeeting, InsightMessage } from "../../../../core/insights.js";
 import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
+import { useClearMessages } from "./useClearMessages.js";
 
 export function useInsightState(
   selectedClient: string | null,
@@ -11,7 +12,18 @@ export function useInsightState(
   const queryClient = useQueryClient();
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [createInsightOpen, setCreateInsightOpen] = useState(false);
-  const [pendingClearInsightMessages, setPendingClearInsightMessages] = useState(false);
+  const insightClear = useClearMessages(useCallback(async () => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.clearInsightMessages(selectedInsightId);
+      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
+      addToast("Messages cleared", "success");
+    } catch (err) {
+      console.error("Clear insight messages failed:", err);
+      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+      throw err;
+    }
+  }, [selectedInsightId, queryClient, addToast]));
   const [regeneratingInsightId, setRegeneratingInsightId] = useState<string | null>(null);
 
   const insightsQuery = useQuery<Insight[]>({
@@ -125,21 +137,8 @@ export function useInsightState(
 
   const handleClearInsightMessages = useCallback(() => {
     if (!selectedInsightId) return;
-    setPendingClearInsightMessages(true);
-  }, [selectedInsightId]);
-
-  const handleConfirmClearInsightMessages = useCallback(async () => {
-    setPendingClearInsightMessages(false);
-    if (!selectedInsightId) return;
-    try {
-      await window.api.clearInsightMessages(selectedInsightId);
-      queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      console.error("Clear insight messages failed:", err);
-      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedInsightId, queryClient, addToast]);
+    insightClear.requestClear();
+  }, [selectedInsightId, insightClear]);
 
   const handleShowAllInsightMeetings = useCallback(async () => {
     if (!selectedInsightId) return;
@@ -161,8 +160,8 @@ export function useInsightState(
     setCreateInsightOpen,
     pendingDeleteInsightId: insightDelete.pendingDeleteId,
     setPendingDeleteInsightId: (id: string | null) => { if (id) insightDelete.requestDelete(id); else insightDelete.cancelDelete(); },
-    pendingClearInsightMessages,
-    setPendingClearInsightMessages,
+    pendingClearInsightMessages: insightClear.pendingClear,
+    setPendingClearInsightMessages: (v: boolean) => { if (v) insightClear.requestClear(); else insightClear.cancelClear(); },
     regeneratingInsightId,
     insightsQuery,
     insightMeetingsQuery,
@@ -176,7 +175,7 @@ export function useInsightState(
     handleRegenerateInsight,
     handleInsightSendMessage,
     handleClearInsightMessages,
-    handleConfirmClearInsightMessages,
+    handleConfirmClearInsightMessages: insightClear.confirmClear,
     handleShowAllInsightMeetings,
   };
 }

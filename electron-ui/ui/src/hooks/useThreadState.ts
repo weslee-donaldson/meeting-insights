@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Thread, ThreadMeeting, ThreadMessage } from "../../../../core/threads.js";
 import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
+import { useClearMessages } from "./useClearMessages.js";
 
 export function useThreadState(
   selectedClient: string | null,
@@ -14,7 +15,18 @@ export function useThreadState(
   const [createThreadOpen, setCreateThreadOpen] = useState(false);
   const [threadCandidates, setThreadCandidates] = useState<Array<{ meeting_id: string; title: string; date: string; similarity: number }>>([]);
   const [threadPreviewCandidateIds, setThreadPreviewCandidateIds] = useState<Set<string>>(new Set());
-  const [pendingClearThreadMessages, setPendingClearThreadMessages] = useState(false);
+  const threadClear = useClearMessages(useCallback(async () => {
+    if (!selectedThreadId) return;
+    try {
+      await window.api.clearThreadMessages(selectedThreadId);
+      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
+      addToast("Messages cleared", "success");
+    } catch (err) {
+      console.error("Clear messages failed:", err);
+      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+      throw err;
+    }
+  }, [selectedThreadId, queryClient, addToast]));
 
   const threadsQuery = useQuery<Thread[]>({
     queryKey: ["threads", selectedClient],
@@ -176,21 +188,8 @@ export function useThreadState(
 
   const handleClearThreadMessages = useCallback(() => {
     if (!selectedThreadId) return;
-    setPendingClearThreadMessages(true);
-  }, [selectedThreadId]);
-
-  const handleConfirmClearThreadMessages = useCallback(async () => {
-    setPendingClearThreadMessages(false);
-    if (!selectedThreadId) return;
-    try {
-      await window.api.clearThreadMessages(selectedThreadId);
-      queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      console.error("Clear messages failed:", err);
-      addToast(`Clear messages failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedThreadId, queryClient, addToast]);
+    threadClear.requestClear();
+  }, [selectedThreadId, threadClear]);
 
   return {
     selectedThreadId,
@@ -204,8 +203,8 @@ export function useThreadState(
     setThreadPreviewCandidateIds,
     pendingDeleteThreadId: threadDelete.pendingDeleteId,
     setPendingDeleteThreadId: (id: string | null) => { if (id) threadDelete.requestDelete(id); else threadDelete.cancelDelete(); },
-    pendingClearThreadMessages,
-    setPendingClearThreadMessages,
+    pendingClearThreadMessages: threadClear.pendingClear,
+    setPendingClearThreadMessages: (v: boolean) => { if (v) threadClear.requestClear(); else threadClear.cancelClear(); },
     threadsQuery,
     threadMeetingsQuery,
     threadMessagesQuery,
@@ -222,6 +221,6 @@ export function useThreadState(
     handleRegenerateThreadSummary,
     handleThreadSendMessage,
     handleClearThreadMessages,
-    handleConfirmClearThreadMessages,
+    handleConfirmClearThreadMessages: threadClear.confirmClear,
   };
 }

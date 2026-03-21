@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Milestone, MilestoneMention, MilestoneActionItem, DateSlippageEntry, MilestoneMessage } from "../../../../core/timelines.js";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../../electron/channels.js";
 import { useDeleteConfirmation } from "./useDeleteConfirmation.js";
+import { useClearMessages } from "./useClearMessages.js";
 
 export function useMilestoneState(
   selectedClient: string | null,
@@ -12,7 +13,17 @@ export function useMilestoneState(
   const queryClient = useQueryClient();
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [createMilestoneOpen, setCreateMilestoneOpen] = useState(false);
-  const [pendingClearMilestoneMessages, setPendingClearMilestoneMessages] = useState(false);
+  const milestoneClear = useClearMessages(useCallback(async () => {
+    if (!selectedMilestoneId) return;
+    try {
+      await window.api.clearMilestoneMessages(selectedMilestoneId);
+      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
+      addToast("Messages cleared", "success");
+    } catch (err) {
+      addToast(`Clear failed: ${(err as Error).message}`, "error");
+      throw err;
+    }
+  }, [selectedMilestoneId, queryClient, addToast]));
 
   const milestonesQuery = useQuery<Milestone[]>({
     queryKey: ["milestones", selectedClient],
@@ -149,20 +160,8 @@ export function useMilestoneState(
   }, [selectedMilestoneId, queryClient, addToast]);
 
   const handleClearMilestoneMessages = useCallback(() => {
-    setPendingClearMilestoneMessages(true);
-  }, []);
-
-  const handleConfirmClearMilestoneMessages = useCallback(async () => {
-    if (!selectedMilestoneId) return;
-    setPendingClearMilestoneMessages(false);
-    try {
-      await window.api.clearMilestoneMessages(selectedMilestoneId);
-      queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
-      addToast("Messages cleared", "success");
-    } catch (err) {
-      addToast(`Clear failed: ${(err as Error).message}`, "error");
-    }
-  }, [selectedMilestoneId, queryClient, addToast]);
+    milestoneClear.requestClear();
+  }, [milestoneClear]);
 
   return {
     selectedMilestoneId,
@@ -171,8 +170,8 @@ export function useMilestoneState(
     setCreateMilestoneOpen,
     pendingDeleteMilestoneId: milestoneDelete.pendingDeleteId,
     setPendingDeleteMilestoneId: (id: string | null) => { if (id) milestoneDelete.requestDelete(id); else milestoneDelete.cancelDelete(); },
-    pendingClearMilestoneMessages,
-    setPendingClearMilestoneMessages,
+    pendingClearMilestoneMessages: milestoneClear.pendingClear,
+    setPendingClearMilestoneMessages: (v: boolean) => { if (v) milestoneClear.requestClear(); else milestoneClear.cancelClear(); },
     milestonesQuery,
     milestoneMentionsQuery,
     milestoneSlippageQuery,
@@ -190,6 +189,6 @@ export function useMilestoneState(
     handleUnlinkMilestoneActionItem,
     handleMilestoneSendMessage,
     handleClearMilestoneMessages,
-    handleConfirmClearMilestoneMessages,
+    handleConfirmClearMilestoneMessages: milestoneClear.confirmClear,
   };
 }

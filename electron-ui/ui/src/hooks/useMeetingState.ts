@@ -5,6 +5,7 @@ import { useDeepSearch } from "./useDeepSearch.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-artifacts.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
+import { useClearMessages } from "./useClearMessages.js";
 
 interface DateRange {
   after: string;
@@ -576,15 +577,7 @@ export function useMeetingState(
     }
   }, [selectedMeetingId, queryClient, addToast]);
 
-  const [pendingClearMeetingMessages, setPendingClearMeetingMessages] = useState(false);
-
-  const handleClearMeetingMessages = useCallback(() => {
-    if (!selectedMeetingId) return;
-    setPendingClearMeetingMessages(true);
-  }, [selectedMeetingId]);
-
-  const handleConfirmClearMeetingMessages = useCallback(async () => {
-    setPendingClearMeetingMessages(false);
+  const meetingClear = useClearMessages(useCallback(async () => {
     if (!selectedMeetingId) return;
     try {
       await window.api.clearMeetingMessages(selectedMeetingId);
@@ -592,8 +585,14 @@ export function useMeetingState(
       addToast("Messages cleared", "success");
     } catch (err) {
       addToast(`Clear messages failed: ${(err as Error).message}`, "error");
+      throw err;
     }
-  }, [selectedMeetingId, queryClient, addToast]);
+  }, [selectedMeetingId, queryClient, addToast]));
+
+  const handleClearMeetingMessages = useCallback(() => {
+    if (!selectedMeetingId) return;
+    meetingClear.requestClear();
+  }, [selectedMeetingId, meetingClear]);
 
   return {
     dateRange,
@@ -679,8 +678,8 @@ export function useMeetingState(
     meetingMessagesQuery,
     handleMeetingSendMessage,
     handleClearMeetingMessages,
-    handleConfirmClearMeetingMessages,
-    pendingClearMeetingMessages,
+    handleConfirmClearMeetingMessages: meetingClear.confirmClear,
+    pendingClearMeetingMessages: meetingClear.pendingClear,
     handlePreviewReExtract,
     handlePreviewReassignClient,
     handlePreviewIgnore,
