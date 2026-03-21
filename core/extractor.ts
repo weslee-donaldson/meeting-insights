@@ -4,6 +4,7 @@ import { createLogger } from "./logger.js";
 import { chunkTranscript } from "./chunker.js";
 import type { LlmAdapter } from "./llm-adapter.js";
 import type { SpeakerTurn } from "./parser.js";
+import { ArtifactSchema } from "./schemas.js";
 
 const log = createLogger("extract");
 const logValidate = createLogger("extract:validate");
@@ -38,50 +39,13 @@ export interface ArtifactRow {
 }
 
 export function validateArtifact(raw: object): Artifact {
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    logValidate("validation failed: not an object");
-    throw new Error("Artifact must be a plain object");
+  const result = ArtifactSchema.safeParse(raw);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+    logValidate("validation failed: %s", issues);
+    throw new Error(`Artifact validation failed: ${issues}`);
   }
-  const r = raw as Record<string, unknown>;
-  for (const key of REQUIRED_KEYS) {
-    if (!(key in r)) {
-      logValidate("validation failed: missing key %s", key);
-      throw new Error(`Artifact missing required key: ${key}`);
-    }
-  }
-  const decisions = r["decisions"];
-  if (Array.isArray(decisions)) {
-    r["decisions"] = decisions.map((d) =>
-      typeof d === "string" ? { text: d, decided_by: "" } : d,
-    );
-  }
-  const items = r["action_items"];
-  if (Array.isArray(items)) {
-    r["action_items"] = items.map((item) => {
-      if (typeof item !== "object" || item === null) return item;
-      const obj = item as Record<string, unknown>;
-      const withRequester = !("requester" in obj) ? { ...obj, requester: "" } : obj;
-      const p = (withRequester as Record<string, unknown>).priority;
-      const priority = p === "critical" || p === "normal" || p === "low" ? p : "normal";
-      return { ...withRequester, priority };
-    });
-  }
-  const risks = r["risk_items"];
-  if (Array.isArray(risks)) {
-    r["risk_items"] = risks.map((risk) => {
-      if (typeof risk === "string") return { category: "engineering" as const, description: risk };
-      return risk;
-    });
-  }
-  const notes = r["additional_notes"];
-  if (!Array.isArray(notes) || notes.some(item => typeof item !== "object" || item === null || Array.isArray(item))) {
-    logValidate("additional_notes malformed — normalizing to []");
-    r["additional_notes"] = [];
-  }
-  if (!Array.isArray(r["milestones"])) {
-    r["milestones"] = [];
-  }
-  return r as unknown as Artifact;
+  return result.data as unknown as Artifact;
 }
 
 function turnsToText(turns: SpeakerTurn[]): string {

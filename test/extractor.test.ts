@@ -149,18 +149,18 @@ describe("validateArtifact", () => {
     expect(() => validateArtifact("Here is a summary of the meeting" as unknown as object)).toThrow();
   });
 
-  it("throws when additional_notes is missing", () => {
-    expect(() => validateArtifact(VALID_BASE)).toThrow(/missing required key: additional_notes/);
-  });
-
-  it("normalizes additional_notes to [] when it is a string", () => {
-    const result = validateArtifact({ ...VALID_BASE, additional_notes: "bad" });
+  it("defaults additional_notes to [] when missing", () => {
+    const result = validateArtifact(VALID_BASE);
     expect(result.additional_notes).toEqual([]);
   });
 
-  it("normalizes additional_notes to [] when elements are null or numbers", () => {
-    expect(validateArtifact({ ...VALID_BASE, additional_notes: [null] }).additional_notes).toEqual([]);
-    expect(validateArtifact({ ...VALID_BASE, additional_notes: [42] }).additional_notes).toEqual([]);
+  it("rejects additional_notes when it is a string", () => {
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: "bad" })).toThrow(/validation failed/);
+  });
+
+  it("rejects additional_notes when elements are null or numbers", () => {
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [null] })).toThrow(/validation failed/);
+    expect(() => validateArtifact({ ...VALID_BASE, additional_notes: [42] })).toThrow(/validation failed/);
   });
 
   it("normalizes legacy string decisions to objects with empty decided_by", () => {
