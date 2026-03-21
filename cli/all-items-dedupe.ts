@@ -1,7 +1,6 @@
 import { resolve } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-
-process.loadEnvFile?.(".env.local");
+import { loadCliConfig } from "./shared.js";
 
 const command = process.argv[2];
 const dryRun = process.argv.includes("--dry-run");
@@ -29,8 +28,7 @@ if (command !== "run" && command !== "clear") {
   process.exit(1);
 }
 
-const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
-const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
+const { dbPath: DB_PATH, vectorPath: VECTOR_PATH } = loadCliConfig();
 const semanticThreshold = parseFloat(process.env.MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD ?? "0.80");
 const stringThreshold = parseFloat(process.env.MTNINSIGHTS_DEDUP_STRING_THRESHOLD ?? "0.90");
 const batchSize = parseInt(process.env.MTNINSIGHTS_DEDUP_BATCH_SIZE ?? "50", 10);

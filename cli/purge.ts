@@ -1,10 +1,8 @@
 import { rmSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { loadCliConfig } from "./shared.js";
 
-process.loadEnvFile?.(".env.local");
-
-const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
-const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
+const { dbPath: DB_PATH, vectorPath: VECTOR_PATH } = loadCliConfig();
 
 const meetingId = process.argv[2];
 

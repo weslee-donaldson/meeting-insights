@@ -8,15 +8,9 @@ import { getArtifact } from "../core/extractor.js";
 import { renderNotesGroups, parseCitations } from "../core/display-helpers.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import type { DatabaseSync as Database } from "node:sqlite";
+import { loadCliConfig } from "./shared.js";
 
-process.loadEnvFile?.(".env.local");
-
-const DB_PATH      = process.env.MTNINSIGHTS_DB_PATH      ?? "db/mtninsights.db";
-const VECTOR_PATH  = process.env.MTNINSIGHTS_VECTOR_PATH  ?? "db/lancedb";
-const PROVIDER     = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub";
-const API_KEY      = process.env.ANTHROPIC_API_KEY;
-const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
-const LOCAL_MODEL  = process.env.MTNINSIGHTS_LOCAL_MODEL  ?? "llama3.1:8b";
+const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, apiKey: API_KEY, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();
 const QUESTIONS_PATH = process.env.MTNINSIGHTS_EVAL_QUESTIONS ?? "data/eval/questions.json";
 const LIMIT        = parseInt(process.env.MTNINSIGHTS_EVAL_LIMIT ?? "6");
 

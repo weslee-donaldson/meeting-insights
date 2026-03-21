@@ -2,14 +2,9 @@ import { mkdirSync } from "node:fs";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable } from "../core/vector-db.js";
 import { seedClients, getAllClients } from "../core/client-registry.js";
+import { loadCliConfig } from "./shared.js";
 
-process.loadEnvFile?.(".env.local");
-
-const DB_PATH      = process.env.MTNINSIGHTS_DB_PATH      ?? "db/mtninsights.db";
-const VECTOR_PATH  = process.env.MTNINSIGHTS_VECTOR_PATH  ?? "db/lancedb";
-const PROVIDER     = process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic";
-const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
-const LOCAL_MODEL  = process.env.MTNINSIGHTS_LOCAL_MODEL  ?? "llama3.1:8b";
+const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();
 
 // ── Ollama validation (only when provider=local) ──────────────────────────────
 

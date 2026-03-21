@@ -6,18 +6,11 @@ import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { seedClients } from "../core/client-registry.js";
 import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
-
-process.loadEnvFile?.(".env.local");
+import { loadCliConfig } from "./shared.js";
 
 const filterFolder = process.argv[2];
 
-const DB_PATH = process.env.MTNINSIGHTS_DB_PATH ?? "db/mtninsights.db";
-const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH ?? "db/lancedb";
-const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "stub" | "claudecli" | "local-claudeapi";
-const API_KEY = process.env.ANTHROPIC_API_KEY;
-const LOCAL_BASE_URL = process.env.MTNINSIGHTS_LOCAL_BASE_URL ?? "http://localhost:11434";
-const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "llama3.1:8b";
-const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
+const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, apiKey: API_KEY, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL, claudeApiUrl: CLAUDEAPI_URL } = loadCliConfig();
 
 if (PROVIDER === "anthropic" && (!API_KEY || API_KEY.startsWith("sk-ant-..."))) {
   console.error("Error: ANTHROPIC_API_KEY not set. Add it to .env.local");
