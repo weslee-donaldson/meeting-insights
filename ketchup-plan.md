@@ -71,14 +71,14 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Constraint:** All existing tests must pass after each burst without modification (proves behavior preservation).
 
-- [ ] Burst 1: Create `useDeleteConfirmation` hook — accepts `onDelete: (id: string) => Promise<void>` callback, returns `{ pendingDeleteId, handleDelete, handleConfirmDelete, handleCancelDelete }`
-- [ ] Burst 2: Wire `useDeleteConfirmation` into `useInsightState` — replace inline delete pattern, verify all insight tests pass unchanged
-- [ ] Burst 3: Wire `useDeleteConfirmation` into `useThreadState` — replace inline delete pattern, verify all thread tests pass unchanged
-- [ ] Burst 4: Wire `useDeleteConfirmation` into `useMilestoneState` — replace inline delete pattern, verify all milestone tests pass unchanged
-- [x] Burst 5: SKIPPED — useMeetingState uses bulk delete (string[]) with optimistic query updates, fundamentally different from single-ID pattern. Not a good fit for useDeleteConfirmation.
-- [ ] Burst 6: Create `useClearMessages` hook — accepts `onClear: () => Promise<void>` callback, returns `{ handleClearMessages, handleConfirmClear, handleCancelClear, pendingClear }`
-- [ ] Burst 7: Wire `useClearMessages` into all 4 state hooks — replace inline clear patterns, verify all tests pass unchanged
-- [ ] Burst 8: Remove dead code — delete any leftover inline delete/clear logic from all 4 hooks, verify all tests pass
+- [x] Burst 1: Create `useDeleteConfirmation` hook (8a28ce8)
+- [x] Burst 2: Wire `useDeleteConfirmation` into `useInsightState` (211f613)
+- [x] Burst 3: Wire `useDeleteConfirmation` into `useThreadState` (e413633)
+- [x] Burst 4: Wire `useDeleteConfirmation` into `useMilestoneState` (6db3e84)
+- [x] Burst 5: SKIPPED — useMeetingState uses bulk delete (string[]) with optimistic query updates, not a fit for single-ID hook
+- [x] Burst 6: Create `useClearMessages` hook (120afad)
+- [x] Burst 7: Wire `useClearMessages` into all 4 state hooks (37f7ac3)
+- [x] Burst 8: SKIPPED — no dead code remaining after clean substitutions
 
 ### SECTION 2: Extract CLI Shared Utilities (~5 bursts)
 
