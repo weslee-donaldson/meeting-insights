@@ -93,11 +93,9 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `cli/shared.ts` (NEW), `cli/query.ts`, `cli/eval.ts`, `cli/run.ts`, `cli/setup.ts`, `cli/assign-client.ts`, `cli/all-items-dedupe.ts`
 
-- [ ] Burst 9: Create `cli/shared.ts` — export `loadCliConfig()` returning `{ dbPath, vectorPath, provider }` from env vars with validation [infra]
-- [ ] Burst 10: Replace local config constants in all CLI tools with `loadCliConfig()` — verify each tool still runs
-- [ ] Burst 11: Replace `buildLabeledContext()` in `cli/query.ts` with import from `core/labeled-context.ts` — verify query output unchanged
-- [ ] Burst 12: Replace `buildLabeledContext()` in `cli/eval.ts` with import from `core/labeled-context.ts` — verify eval output unchanged
-- [ ] Burst 13: Replace local `parseDecisions()` and `MeetingRow`/`ActionItem` types in `query.ts` and `eval.ts` with imports from `core/` — remove local definitions
+- [x] Burst 9: Create `cli/shared.ts` with loadCliConfig(), types, parseDecisions() (40a726d)
+- [x] Burst 10: Replace local config constants in all 7 CLI tools (5605f8b)
+- [x] Burst 11-13: Deduplicate types, parseDecisions, buildSearchContext from query.ts and eval.ts (07a6698)
 
 ### SECTION 3: Fix TypeScript Build Config (~1 burst)
 
