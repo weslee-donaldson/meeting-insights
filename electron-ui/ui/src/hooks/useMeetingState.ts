@@ -6,6 +6,7 @@ import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-ar
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
 import { useClearMessages } from "./useClearMessages.js";
+import { useMeetingSelection } from "./useMeetingSelection.js";
 
 interface DateRange {
   after: string;
@@ -19,16 +20,15 @@ export function useMeetingState(
   setCurrentView: (view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => void,
 ) {
   const queryClient = useQueryClient();
+  const selection = useMeetingSelection();
+  const { selectedMeetingId, setSelectedMeetingId, checkedMeetingIds, setCheckedMeetingIds, previewMeetingId, setPreviewMeetingId } = selection;
   const [dateRange, setDateRange] = useState<DateRange>({ after: "", before: "" });
-  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
-  const [checkedMeetingIds, setCheckedMeetingIds] = useState<Set<string>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupBy>("series");
   const [sortBy, setSortBy] = useState<SortBy>("date-desc");
   const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const meetingIdPerView = useRef<Record<string, string | null>>({});
-  const [previewMeetingId, setPreviewMeetingId] = useState<string | null>(null);
   const [isReExtracting, setIsReExtracting] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[] | null>(null);
   const [newMeetingOpen, setNewMeetingOpen] = useState(false);
@@ -231,24 +231,7 @@ export function useMeetingState(
     });
   }, [scopeMeetings]);
 
-  const handleCheck = useCallback((id: string) => {
-    setCheckedMeetingIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const handleCheckGroup = useCallback((ids: string[]) => {
-    setCheckedMeetingIds((prev) => {
-      const allChecked = ids.every((id) => prev.has(id));
-      const next = new Set(prev);
-      if (allChecked) ids.forEach((id) => next.delete(id));
-      else ids.forEach((id) => next.add(id));
-      return next;
-    });
-  }, []);
+  const { handleCheck, handleCheckGroup } = selection;
 
   const handleDeleteMeetings = useCallback(() => {
     setPendingDeleteIds([...checkedMeetingIds]);
@@ -551,9 +534,7 @@ export function useMeetingState(
     setSearchQuery("");
   }, []);
 
-  const handleResetChecked = useCallback(() => {
-    setCheckedMeetingIds(new Set());
-  }, []);
+  const { handleResetChecked } = selection;
 
   const transcriptQuery = useQuery<string | null>({
     queryKey: ["transcript", selectedMeetingId],
