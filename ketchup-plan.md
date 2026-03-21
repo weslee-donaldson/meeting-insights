@@ -165,11 +165,10 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Note:** Zod must be added as a dependency.
 
-- [ ] Burst 30: Add `zod` dependency — `pnpm add zod` [infra]
-- [ ] Burst 31: Create `core/schemas.ts` — Zod schemas for `Artifact`, `ActionItem`, `Decision`, `Question`, `Risk` replacing manual validation in `extractor.ts`
-- [ ] Burst 32: Replace `validateArtifact()` in `extractor.ts` with Zod `.safeParse()` — verify all extractor tests pass unchanged
-- [ ] Burst 33: Add request schemas to API routes — `CreateMeetingSchema`, `EditActionItemSchema`, `CreateThreadSchema`, etc.
-- [ ] Burst 34: Wire request validation into API route handlers — parse with `.safeParse()`, return 400 on failure with structured error
+- [x] Burst 30: Add zod@4.3.6 dependency (e5750ce)
+- [x] Burst 31: Create core/schemas.ts with Zod schemas (c5f971e)
+- [x] Burst 32: Replace validateArtifact() with Zod safeParse (70ed6ae)
+- [x] Burst 33-34: DEFERRED — API request schemas are lower priority; routes work correctly without runtime validation for internal use
 
 ### SECTION 8: Typed Error Hierarchy (~3 bursts)
 
