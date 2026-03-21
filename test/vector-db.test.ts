@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/vector-db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable, searchWithFilters } from "../core/vector-db.js";
 
 let dbPath: string;
 let db: Awaited<ReturnType<typeof connectVectorDb>>;
@@ -70,5 +70,28 @@ describe("createItemTable", () => {
     const table1 = await createItemTable(db);
     const table2 = await createItemTable(db);
     expect(table1.name).toBe(table2.name);
+  });
+});
+
+describe("searchWithFilters", () => {
+  it("returns results filtered by conditions", async () => {
+    const table = await createMeetingTable(db);
+    const vec = new Float32Array(384).fill(0.1);
+    await table.add([
+      { meeting_id: "m1", vector: Array.from(vec), client: "Acme", meeting_type: "sync", date: "2025-01-01" },
+      { meeting_id: "m2", vector: Array.from(vec), client: "Beta", meeting_type: "sync", date: "2025-02-01" },
+    ]);
+    const results = await searchWithFilters(table, vec, [
+      { field: "client", op: "=", value: "Acme" },
+    ], 10);
+    expect(results.length).toBe(1);
+    expect(results[0].meeting_id).toBe("m1");
+  });
+
+  it("returns all results when no filters provided", async () => {
+    const table = await createMeetingTable(db);
+    const vec = new Float32Array(384).fill(0.1);
+    const results = await searchWithFilters(table, vec, [], 10);
+    expect(results.length).toBeGreaterThanOrEqual(2);
   });
 });

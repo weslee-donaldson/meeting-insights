@@ -54,3 +54,25 @@ export async function createItemTable(db: VectorDb): Promise<VectorTable> {
   if (names.includes("item_vectors")) return db.openTable("item_vectors");
   return db.createEmptyTable("item_vectors", itemSchema);
 }
+
+export interface VectorSearchFilter {
+  field: string;
+  op: "=" | ">=" | "<=";
+  value: string;
+}
+
+export async function searchWithFilters(
+  table: VectorTable,
+  vec: Float32Array,
+  filters: VectorSearchFilter[],
+  limit: number,
+): Promise<Record<string, unknown>[]> {
+  let query = table.search(Array.from(vec)).limit(limit);
+  const conditions = filters
+    .map((f) => `${f.field} ${f.op} '${f.value}'`)
+    .filter(Boolean);
+  if (conditions.length > 0) {
+    query = query.where(conditions.join(" AND "));
+  }
+  return query.toArray();
+}

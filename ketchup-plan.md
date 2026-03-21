@@ -104,7 +104,7 @@ Full review: `.claude/plans/crystalline-finding-platypus.md`
 >
 > **Files affected:** `tsconfig.json`
 
-- [ ] Burst 14: Add `"api/**/*"`, `"cli/**/*"` to tsconfig.json include array — fix any type errors that surface [infra]
+- [x] Burst 14: Add api/**/* and cli/**/* to tsconfig.json include, fix stale architecture refs (591b7ce)
 
 ### SECTION 4: Centralize Vector Search (~4 bursts)
 
