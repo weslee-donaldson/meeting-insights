@@ -99,7 +99,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > - `layout.tablet: { sidebarWidth: 280, chatPanelWidth: 320 }`
 > - `layout.desktop: { ...existing values }`
 
-- [ ] Burst 4: Add responsive breakpoints and layout tokens to design-tokens.ts
+- [x] Burst 4: Add responsive breakpoints and layout tokens to design-tokens.ts
 - [ ] Burst 5: Add CSS media query custom properties and bottom-tab/sheet variables to index.css
 
 ## SECTION 2: Bottom Tab Bar Component (~3 bursts)

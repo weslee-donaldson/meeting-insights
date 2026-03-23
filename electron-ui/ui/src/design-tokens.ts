@@ -255,6 +255,36 @@ export const density = {
   },
 } as const;
 
+// ─── Responsive Breakpoints ─────────────────────────────────
+export const breakpoints = {
+  mobile: 768,
+  tablet: 1280,
+} as const;
+
+// ─── Per-Breakpoint Layout ──────────────────────────────────
+export const layout = {
+  mobile: {
+    navRailWidth: 0,
+    bottomTabHeight: 56,
+    sheetHandleHeight: 20,
+    sidebarWidth: 0,
+    chatPanelWidth: 0,
+  },
+  tablet: {
+    navRailWidth: 0,
+    bottomTabHeight: 56,
+    sheetHandleHeight: 20,
+    sidebarWidth: 280,
+    chatPanelWidth: 320,
+  },
+  desktop: {
+    navRailWidth: 56,
+    bottomTabHeight: 0,
+    sidebarWidth: 300,
+    chatPanelWidth: 380,
+  },
+} as const;
+
 export const filterChip = {
   padding: "4px 10px",
   borderRadius: "6px",
