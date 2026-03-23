@@ -124,9 +124,9 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/BreadcrumbBar.tsx` (NEW), test file
 
-- [ ] Burst 9: Create BreadcrumbBar with segments array prop, render chevron separators
-- [ ] Burst 10: Style active segment (dark bg pill), tappable amber links for ancestors
-- [ ] Burst 11: Add horizontal scroll overflow behavior, test segment click callbacks
+- [x] Burst 9: Create BreadcrumbBar with segments array prop, render chevron separators
+- [x] Burst 10: Style active segment (dark bg pill), tappable amber links for ancestors
+- [x] Burst 11: Add horizontal scroll overflow behavior, test segment click callbacks
 
 ## SECTION 4: Bottom Sheet Component (~4 bursts)
 
