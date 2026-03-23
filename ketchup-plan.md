@@ -227,10 +227,10 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`, `electron-ui/ui/src/components/ui/dialog.tsx`, test files
 
-- [ ] Burst 37: Create responsive dialog wrapper — uses BottomSheet on mobile, Dialog on tablet+
-- [ ] Burst 38: Migrate NotesDialog to responsive wrapper
-- [ ] Burst 39: Migrate TranscriptDialog and remaining meeting dialogs
-- [ ] Burst 40: Test dialog/sheet switching across breakpoints
+- [x] Burst 37: Create responsive dialog wrapper — uses BottomSheet on mobile, Dialog on tablet+
+- [x] Burst 38: Migrate NotesDialog to responsive wrapper
+- [x] Burst 39: Migrate TranscriptDialog and remaining meeting dialogs
+- [x] Burst 40: Test dialog/sheet switching across breakpoints
 
 ## SECTION 11: PWA Manifest & Meta Tags (~2 bursts)
 
