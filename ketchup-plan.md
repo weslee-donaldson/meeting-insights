@@ -199,11 +199,11 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/MeetingDetail.tsx`, test files
 
-- [ ] Burst 29: Add "Show more" truncation for Summary section (4-line clamp on mobile)
-- [ ] Burst 30: Implement single-accordion-expanded behavior on mobile (auto-collapse others)
-- [ ] Burst 31: Command buttons wrap to horizontal scroll on narrow viewports
-- [ ] Burst 32: Chat FAB button on mobile detail (positioned bottom-right, above tab bar)
-- [ ] Burst 33: Test MeetingDetail responsive behavior at 390px and 768px viewports
+- [x] Burst 29: Add "Show more" truncation for Summary section (4-line clamp on mobile)
+- [x] Burst 30: Implement single-accordion-expanded behavior on mobile (auto-collapse others)
+- [x] Burst 31: Command buttons wrap to horizontal scroll on narrow viewports
+- [x] Burst 32: Chat FAB button on mobile detail (positioned bottom-right, above tab bar)
+- [x] Burst 33: Test MeetingDetail responsive behavior at 390px and 768px viewports
 
 ## SECTION 9: Meetings — Chat Integration (~3 bursts)
 
