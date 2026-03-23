@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useBreakpoint } from "../hooks/useBreakpoint.js";
+import { MobileNavContext } from "../hooks/useMobileNav.js";
 import { LinearShell } from "./LinearShell.js";
 import { BottomTabBar } from "./BottomTabBar.js";
 import { BreadcrumbBar, type BreadcrumbSegment } from "./BreadcrumbBar.js";
@@ -79,8 +80,16 @@ export function ResponsiveShell({
     );
   }
 
+  const mobileNavValue = useMemo(() => ({
+    goToDetail: handleSelectItem,
+    goToChat: handleOpenChat,
+    goToList: handleBackToList,
+    isMobile: breakpoint === "mobile",
+  }), [breakpoint, handleSelectItem, handleOpenChat, handleBackToList]);
+
   if (breakpoint === "tablet") {
     return (
+      <MobileNavContext.Provider value={mobileNavValue}>
       <div className="flex flex-col h-screen overflow-hidden" data-testid="responsive-shell-tablet">
         <div className="shrink-0">{topBar}</div>
         <div className="flex flex-1 overflow-hidden">
@@ -106,6 +115,7 @@ export function ResponsiveShell({
         </div>
         <BottomTabBar currentView={currentView} onNavigate={handleNavigate} />
       </div>
+      </MobileNavContext.Provider>
     );
   }
 
@@ -125,6 +135,7 @@ export function ResponsiveShell({
   }
 
   return (
+    <MobileNavContext.Provider value={mobileNavValue}>
     <div className="flex flex-col h-screen overflow-hidden" data-testid="responsive-shell-mobile">
       <div className="shrink-0">{topBar}</div>
       {mobileScreen !== "list" && (
@@ -137,6 +148,7 @@ export function ResponsiveShell({
       </div>
       <BottomTabBar currentView={currentView} onNavigate={handleNavigate} />
     </div>
+    </MobileNavContext.Provider>
   );
 }
 

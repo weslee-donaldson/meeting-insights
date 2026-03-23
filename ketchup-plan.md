@@ -214,9 +214,9 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/ChatPanel.tsx`, `electron-ui/ui/src/components/ResponsiveShell.tsx`, test files
 
-- [ ] Burst 34: Mobile chat FAB → opens ChatPanel inside BottomSheet
-- [ ] Burst 35: Tablet chat button → swaps list panel for ChatPanel, shows back button
-- [ ] Burst 36: Test chat open/close transitions on mobile and tablet viewports
+- [x] Burst 34: Mobile chat FAB → opens ChatPanel inside BottomSheet
+- [x] Burst 35: Tablet chat button → swaps list panel for ChatPanel, shows back button
+- [x] Burst 36: Test chat open/close transitions on mobile and tablet viewports
 
 ## SECTION 10: Meetings — Dialog Migration (~4 bursts)
 
