@@ -1,15 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
+import { selectClient } from "./helpers.js";
 
 const API = "http://localhost:3000";
 
 test.use({ viewport: { width: 1400, height: 900 } });
-
-async function selectClient(page: Page, clientName: string) {
-  const trigger = page.locator('[aria-label="Client"]');
-  await trigger.click();
-  await page.locator('[role="option"]').filter({ hasText: clientName }).click();
-  await expect(trigger).toContainText(clientName);
-}
 
 async function navigateToInsights(page: Page) {
   await page.getByLabel("Insights").click();

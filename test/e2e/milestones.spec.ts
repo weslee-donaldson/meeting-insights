@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { selectClient } from "./helpers.js";
 
 const API_BASE = "http://localhost:3000";
 
@@ -27,13 +28,6 @@ async function cleanupAllTestMilestones(clientName: string) {
   for (const m of milestones) {
     await deleteMilestoneViaAPI(m.id);
   }
-}
-
-async function selectClient(page: Page, clientName: string) {
-  const trigger = page.locator('[aria-label="Client"]');
-  await trigger.click();
-  await page.locator('[role="option"]').filter({ hasText: clientName }).click();
-  await expect(trigger).toContainText(clientName);
 }
 
 async function navigateToTimelines(page: Page) {

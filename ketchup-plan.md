@@ -83,7 +83,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > **Files affected:** `test/e2e/helpers.ts` (NEW), `test/e2e/insights.spec.ts`, `test/e2e/milestones.spec.ts`, `test/e2e/meeting-notes.spec.ts`, `test/e2e/thread-notes.spec.ts`, `test/e2e/milestone-notes.spec.ts`, `test/e2e/insight-notes.spec.ts`
 
 - [x] Burst 1: Create `test/e2e/helpers.ts` with shared `selectClient()` using native `<select>` via `selectOption()`
-- [ ] Burst 2: Replace all 6 inline `selectClient()` definitions with import from helpers
+- [x] Burst 2: Replace all 6 inline `selectClient()` definitions with import from helpers
 - [ ] Burst 3: Run full e2e suite, verify all 56 tests pass
 
 ## SECTION 1: Responsive Design Tokens (~2 bursts)
