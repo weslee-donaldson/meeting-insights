@@ -111,7 +111,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/BottomTabBar.tsx` (NEW), test file
 
-- [ ] Burst 6: Create BottomTabBar with 5 nav items, active state styling, test renders
+- [x] Burst 6: Create BottomTabBar with 5 nav items, active state styling, test renders
 - [ ] Burst 7: Add responsive visibility — hidden on desktop (≥1280px), visible below
 - [ ] Burst 8: Wire currentView + onNavigate props, verify active state matches NavRail behavior
 
