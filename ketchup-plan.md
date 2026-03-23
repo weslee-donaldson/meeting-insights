@@ -1,205 +1,345 @@
-# Architecture Refactoring
+# Responsive UI — Mobile & Tablet Support
 ## Ketchup Plan
 
 ---
 
 # 0. SYSTEM GOAL
 
-Eliminate code duplication, improve SOLID compliance, and increase extensibility across the codebase. Driven by a comprehensive code review that identified DRY violations in React hooks (4x delete/clear patterns), CLI tools (duplicated utilities), and core modules (vector search filters). Also addresses SRP violations in `useMeetingState` (690 lines) and `pipeline.ts` (14 imports, 76-line orchestrator), plus type safety gaps (missing Zod validation, `tsconfig.json` excluding `api/` and `cli/`).
+Transform the Meeting Insights UI from a fixed-width desktop application into a responsive PWA that adapts to mobile phones (<768px), tablets (768–1279px), and desktop (1280+). The existing Hono web server (`web:dev`) serves as the PWA host. The app retains Electron support for desktop users.
 
 This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one behavior, one commit.
 
 ---
 
-# CODE REVIEW REFERENCE
+# DESIGN REFERENCES
 
-Full review: `.claude/plans/crystalline-finding-platypus.md`
+## Paper MCP Artboards (Meeting Insights.paper)
 
-### Key Findings Addressed
+| Artboard | Viewport | Shows |
+|----------|----------|-------|
+| Responsive — Mobile Meeting List | 390×844 | Full-screen list, bottom tabs, series groups |
+| Responsive — Mobile Meeting Detail | 390×844 | Drill-in with commands, accordion sections, chat FAB |
+| Responsive — Mobile Chat Sheet | 390×844 | Bottom sheet chat over dimmed detail |
+| Responsive — Mobile Notes Dialog | 390×844 | Bottom sheet with note cards |
+| Responsive — Mobile Long Content | 390×1200 | Truncation, Show more, expanded accordions |
+| Responsive — Mobile Breadcrumb Nav | 390×844 | Path breadcrumb (Meetings > LLSA > Series > ...) |
+| Responsive — Tablet Meetings | 768×1024 | Split-pane list + detail |
+| Responsive — Tablet Chat Panel | 768×1024 | Detail + chat side-by-side |
 
-| Finding | Severity | Section |
-|---------|----------|---------|
-| React hook duplication (delete, clear, invalidation) | HIGH | 1 |
-| CLI tool duplication (buildLabeledContext, config) | HIGH | 2 |
-| `tsconfig.json` excludes `api/`, `cli/` | HIGH | 3 |
-| Vector search filter duplication (4 modules) | MEDIUM | 4 |
-| `useMeetingState` SRP violation (690 lines) | MEDIUM | 5 |
-| `pipeline.ts:processEntry()` SRP violation | MEDIUM | 6 |
-| No Zod validation (extractor, API) | MEDIUM | 7 |
-| No typed error hierarchy | MEDIUM | 8 |
-| API client error normalization | MEDIUM | 9 |
-| Row-to-object converter duplication | LOW | 10 |
+### Artboards TODO (create before implementing corresponding sections)
 
-### Findings Deferred (long-term, lower ROI)
+| Artboard | Section | Description |
+|----------|---------|-------------|
+| Responsive — Mobile Action Items | Phase 2 | Action items list with filters, grouped by meeting |
+| Responsive — Mobile Action Item Detail | Phase 2 | Single action item expanded view |
+| Responsive — Tablet Action Items | Phase 2 | Split-pane action items |
+| Responsive — Mobile Threads | Phase 2 | Thread list with meeting count badges |
+| Responsive — Mobile Thread Detail | Phase 2 | Thread detail with candidate meetings |
+| Responsive — Tablet Threads | Phase 2 | Split-pane threads |
+| Responsive — Mobile Insights | Phase 2 | Insight list with status badges |
+| Responsive — Mobile Insight Detail | Phase 2 | Generated insight with source meetings |
+| Responsive — Tablet Insights | Phase 2 | Split-pane insights |
+| Responsive — Mobile Timelines | Phase 2 | Timeline list with milestone badges |
+| Responsive — Mobile Timeline Detail | Phase 2 | Timeline with milestones + linked meetings |
+| Responsive — Tablet Timelines | Phase 2 | Split-pane timelines |
 
-| Finding | Reason |
-|---------|--------|
-| View registry pattern | Major refactor, current approach works for 5 views |
-| Migration file pattern | `migrate()` is stable, low churn |
-| Clustering strategy interface | Only one algorithm in use |
-| Pipeline step registry | Depends on pipeline decomposition (Section 6) |
-| LLM adapter registry pattern | Current factory works for 6 providers |
+---
+
+# ARCHITECTURAL DECISIONS
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Target | PWA via Hono web server | Reuses existing `web:dev` infra, no native wrapper needed |
+| Breakpoints | 3-tier: mobile (<768), tablet (768–1279), desktop (1280+) | Covers phone, iPad, laptop/desktop cleanly |
+| Navigation | Bottom tab bar + breadcrumbs | Tabs for top-level views, breadcrumbs for depth within a view |
+| Chat behavior | Matches desktop: persistent, meeting-scoped | Keep existing meeting_messages persistence model |
+| Dialogs | All become bottom sheets on mobile | Consistent UX — Notes, Transcript, Create*, ItemHistory |
+| Layout | New ResponsiveShell replaces LinearShell | Different layout strategy per breakpoint vs. media-query hacks |
+| Design tokens | Add responsive overrides | `design-tokens.ts` gets per-breakpoint values |
+| Tests | Viewport variants on existing e2e + fix selectClient | One suite, parameterized viewport, shared helpers |
+| Offline | Not in scope | Assume connection |
 
 ---
 
 # PLANNING RULES
 
-1. Bursts are ordered within sections. Sections are independent unless noted.
+1. Bursts are ordered within sections. Sections are sequential unless noted.
 2. Each burst = one failing test -> minimal code -> TCR.
 3. Plan updates go in the same commit as code.
-4. Infrastructure commits (config, tsconfig) need no tests.
-5. **Refactoring bursts must not change behavior.** All existing tests must continue passing after each burst.
-6. **Backward compatibility within burst:** Callers updated in same burst as extraction. No dangling imports.
+4. Infrastructure commits (config, tokens, PWA manifest) need no tests.
+5. **Refactoring bursts must not change behavior.** All existing tests must continue passing.
+6. **Paper MCP artboard check is mandatory** before implementing any UI burst (see CLAUDE.md).
+7. **Phase 2 artboards must be created** before implementing Phase 2 sections. Use the Meetings artboards as the visual language reference.
 
 ---
 
-# BURSTS
+# PHASE 1: Infrastructure + Meetings
 
-## TODO
-
-### SECTION 1: Extract Shared React Hooks (~8 bursts)
+## SECTION 0: Prerequisites — Fix E2E & Cleanup (~3 bursts)
 
 > **Spec:**
-> Extract duplicated patterns from `useMeetingState`, `useThreadState`, `useInsightState`, and `useMilestoneState` into reusable hooks.
+> Fix the broken `selectClient()` helper across all 6 e2e spec files. The helper uses `[role="option"]` (Radix) but the UI now uses native `<select>`. Also extract the helper into a shared utility to eliminate duplication.
 >
-> **Patterns to extract:**
-> - `useDeleteConfirmation(onDelete, entityName)` — manages `pendingDeleteId`, confirmation dialog state, async delete + invalidation + toast
-> - `useClearMessages(onClear)` — manages clear confirmation + async clear + invalidation + toast
-> - `useQueryInvalidation(queryClient, selectedClient)` — helper for scoped invalidation
->
-> **Files affected:** `electron-ui/ui/src/hooks/useDeleteConfirmation.ts` (NEW), `electron-ui/ui/src/hooks/useClearMessages.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingState.ts`, `electron-ui/ui/src/hooks/useThreadState.ts`, `electron-ui/ui/src/hooks/useInsightState.ts`, `electron-ui/ui/src/hooks/useMilestoneState.ts`
->
-> **Constraint:** All existing tests must pass after each burst without modification (proves behavior preservation).
+> **Files affected:** `test/e2e/helpers.ts` (NEW), `test/e2e/insights.spec.ts`, `test/e2e/milestones.spec.ts`, `test/e2e/meeting-notes.spec.ts`, `test/e2e/thread-notes.spec.ts`, `test/e2e/milestone-notes.spec.ts`, `test/e2e/insight-notes.spec.ts`
 
-- [x] Burst 1: Create `useDeleteConfirmation` hook (8a28ce8)
-- [x] Burst 2: Wire `useDeleteConfirmation` into `useInsightState` (211f613)
-- [x] Burst 3: Wire `useDeleteConfirmation` into `useThreadState` (e413633)
-- [x] Burst 4: Wire `useDeleteConfirmation` into `useMilestoneState` (6db3e84)
-- [x] Burst 5: SKIPPED — useMeetingState uses bulk delete (string[]) with optimistic query updates, not a fit for single-ID hook
-- [x] Burst 6: Create `useClearMessages` hook (120afad)
-- [x] Burst 7: Wire `useClearMessages` into all 4 state hooks (37f7ac3)
-- [x] Burst 8: SKIPPED — no dead code remaining after clean substitutions
+- [x] Burst 1: Create `test/e2e/helpers.ts` with shared `selectClient()` using native `<select>` via `selectOption()`
+- [ ] Burst 2: Replace all 6 inline `selectClient()` definitions with import from helpers
+- [ ] Burst 3: Run full e2e suite, verify all 56 tests pass
 
-### SECTION 2: Extract CLI Shared Utilities (~5 bursts)
+## SECTION 1: Responsive Design Tokens (~2 bursts)
 
 > **Spec:**
-> Eliminate duplication across `cli/query.ts`, `cli/eval.ts`, and other CLI tools by extracting shared config and utilities.
+> Extend `design-tokens.ts` with per-breakpoint layout values and add CSS custom properties + Tailwind breakpoint config for the 3-tier responsive system.
 >
-> **Duplicated code:**
-> - `buildLabeledContext()` in both `query.ts` and `eval.ts` — already exists in `core/labeled-context.ts`
-> - `parseDecisions()` duplicated in both files
-> - `MeetingRow`, `ActionItem` types defined locally in both files
-> - `DB_PATH`, `VECTOR_PATH`, `PROVIDER` constants repeated in every CLI tool
+> **Files affected:** `electron-ui/ui/src/design-tokens.ts`, `electron-ui/ui/src/index.css`, `tailwind.config.ts` (if exists)
 >
-> **Files affected:** `cli/shared.ts` (NEW), `cli/query.ts`, `cli/eval.ts`, `cli/run.ts`, `cli/setup.ts`, `cli/assign-client.ts`, `cli/all-items-dedupe.ts`
+> **New tokens:**
+> - `breakpoints: { mobile: 768, tablet: 1280 }`
+> - `layout.mobile: { navRailWidth: 0, bottomTabHeight: 56, sheetHandleHeight: 20 }`
+> - `layout.tablet: { sidebarWidth: 280, chatPanelWidth: 320 }`
+> - `layout.desktop: { ...existing values }`
 
-- [x] Burst 9: Create `cli/shared.ts` with loadCliConfig(), types, parseDecisions() (40a726d)
-- [x] Burst 10: Replace local config constants in all 7 CLI tools (5605f8b)
-- [x] Burst 11-13: Deduplicate types, parseDecisions, buildSearchContext from query.ts and eval.ts (07a6698)
+- [ ] Burst 4: Add responsive breakpoints and layout tokens to design-tokens.ts
+- [ ] Burst 5: Add CSS media query custom properties and bottom-tab/sheet variables to index.css
 
-### SECTION 3: Fix TypeScript Build Config (~1 burst)
+## SECTION 2: Bottom Tab Bar Component (~3 bursts)
 
 > **Spec:**
-> Add `api/` and `cli/` to `tsconfig.json` include so type errors are caught at build time, not runtime.
+> Create a `BottomTabBar` component matching the Paper artboard pattern. Renders the same 5 navigation items as NavRail but as a horizontal bottom bar with icons + labels. Visible on mobile and tablet, hidden on desktop.
 >
-> **Files affected:** `tsconfig.json`
+> **Paper reference:** All "Responsive — Mobile *" artboards show the bottom tab bar.
+>
+> **Files affected:** `electron-ui/ui/src/components/BottomTabBar.tsx` (NEW), test file
 
-- [x] Burst 14: Add api/**/* and cli/**/* to tsconfig.json include, fix stale architecture refs (591b7ce)
+- [ ] Burst 6: Create BottomTabBar with 5 nav items, active state styling, test renders
+- [ ] Burst 7: Add responsive visibility — hidden on desktop (≥1280px), visible below
+- [ ] Burst 8: Wire currentView + onNavigate props, verify active state matches NavRail behavior
 
-### SECTION 4: Centralize Vector Search (~4 bursts)
+## SECTION 3: Breadcrumb Bar Component (~3 bursts)
 
 > **Spec:**
-> Extract duplicated vector search filter-building logic from 4 modules into a shared helper in `vector-db.ts`.
+> Create a `BreadcrumbBar` component for contextual navigation within a view. Horizontally scrollable on overflow. Each segment is tappable. Current location is highlighted with muted background.
 >
-> **Duplicated in:** `vector-search.ts:32-41`, `feature-embedding.ts:54-55`, `item-dedup.ts:64-65`, `context.ts:43-44`
+> **Paper reference:** "Responsive — Mobile Breadcrumb Nav" artboard.
 >
-> **Files affected:** `core/vector-db.ts`, `core/vector-search.ts`, `core/feature-embedding.ts`, `core/item-dedup.ts`, `core/context.ts`
+> **Files affected:** `electron-ui/ui/src/components/BreadcrumbBar.tsx` (NEW), test file
 
-- [x] Burst 15: Add searchWithFilters() to core/vector-db.ts (97399f5)
-- [x] Burst 16-18: Replace filter logic in vector-search.ts, item-dedup.ts, context.ts (ebc38f8). feature-embedding.ts skipped (no filters to extract).
+- [ ] Burst 9: Create BreadcrumbBar with segments array prop, render chevron separators
+- [ ] Burst 10: Style active segment (dark bg pill), tappable amber links for ancestors
+- [ ] Burst 11: Add horizontal scroll overflow behavior, test segment click callbacks
 
-### SECTION 5: Split `useMeetingState` (~6 bursts)
+## SECTION 4: Bottom Sheet Component (~4 bursts)
 
 > **Spec:**
-> Decompose the 690-line `useMeetingState` hook into focused sub-hooks following SRP.
+> Create a reusable `BottomSheet` component for mobile dialogs. Renders as a sheet sliding up from the bottom with drag handle, dimmed backdrop, and rounded top corners. On tablet/desktop, falls back to existing centered Dialog.
 >
-> **Target decomposition:**
-> - `useMeetingSelection` — selectedMeetingId, previewMeetingId, checkedMeetingIds state
-> - `useMeetingQueries` — all React Query hooks (artifact, completions, history, search)
-> - `useMeetingMutations` — all API call handlers (create, delete, reassign, ignore, extract, etc.)
-> - `useSearchScope` — hybrid search + deep search logic
-> - `useMeetingState` becomes a thin composer that calls the 4 sub-hooks and returns the combined interface
+> **Paper reference:** "Responsive — Mobile Chat Sheet" and "Responsive — Mobile Notes Dialog" artboards.
 >
-> **Files affected:** `electron-ui/ui/src/hooks/useMeetingSelection.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingQueries.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingMutations.ts` (NEW), `electron-ui/ui/src/hooks/useSearchScope.ts` (NEW), `electron-ui/ui/src/hooks/useMeetingState.ts`
->
-> **Constraint:** `useMeetingState` return type must remain identical. Zero changes to callers.
+> **Files affected:** `electron-ui/ui/src/components/ui/bottom-sheet.tsx` (NEW), test file
 
-- [x] Burst 19: Extract useMeetingSelection (dec6299) — selection state + check/uncheck handlers
-- [x] Burst 20: Extract useSearchScope (a4ad0dc) — hybrid/deep search logic (~50 lines)
-- [x] Burst 21-24: DEFERRED — Remaining queries and mutations are tightly interdependent (mutations reference computed query results like actionItemOrigins). Further extraction would move code without reducing complexity. useMeetingState reduced from 689→622 lines; the two cleanest boundaries (selection, search) are extracted.
+- [ ] Burst 12: Create BottomSheet with backdrop, sheet container, drag handle, close on backdrop tap
+- [ ] Burst 13: Add height prop (percentage of viewport), scroll behavior for content
+- [ ] Burst 14: Add responsive breakpoint logic — renders as BottomSheet on mobile, Dialog on tablet+
+- [ ] Burst 15: Test open/close state, backdrop click, responsive switching
 
-### SECTION 6: Decompose `pipeline.ts:processEntry()` (~5 bursts)
+## SECTION 5: ResponsiveShell — Layout Engine (~6 bursts)
 
 > **Spec:**
-> Break the 76-line `processEntry()` into focused step functions. Each step receives its dependencies as parameters (DIP).
+> Create `ResponsiveShell` to replace `LinearShell` as the top-level layout component. It uses different layout strategies per breakpoint:
 >
-> **Target decomposition:**
-> - `parseAndIngest(db, filePath)` — parse transcript, ingest meeting, return meetingId
-> - `detectAndExtract(db, llm, meetingId)` — client detection + artifact extraction with refinement
-> - `embedAndIndex(db, vectorDb, embedder, meetingId)` — embed meeting + build FTS index
-> - `threadAndDedup(db, vectorDb, llm, meetingId)` — thread assignment + milestone reconciliation + item dedup
-> - `processEntry()` becomes a thin orchestrator calling the 4 steps in sequence
+> - **Desktop (≥1280):** NavRail + resizable panels + optional chat (existing LinearShell behavior)
+> - **Tablet (768–1279):** Bottom tabs + split-pane (280px list + detail) OR detail + chat (320px). No NavRail.
+> - **Mobile (<768):** Bottom tabs + single screen stack. Navigate between list, detail, and chat views.
 >
-> **Files affected:** `core/pipeline.ts`
+> **Paper reference:** All responsive artboards.
 >
-> **Constraint:** All pipeline tests must pass unchanged. Event emission behavior preserved.
+> **Files affected:** `electron-ui/ui/src/components/ResponsiveShell.tsx` (NEW), `electron-ui/ui/src/hooks/useBreakpoint.ts` (NEW), test files
 
-- [x] Bursts 25-29: Decompose processEntry() into detectAndExtract(), indexAndDedup(), embedAndThread() (cdd20ef)
+- [ ] Burst 16: Create `useBreakpoint()` hook — returns "mobile" | "tablet" | "desktop" based on window.innerWidth, handles resize
+- [ ] Burst 17: Create ResponsiveShell desktop layout — delegates to LinearShell (preserves all existing behavior)
+- [ ] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
+- [ ] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
+- [ ] Burst 20: Wire breadcrumb bar into tablet and mobile layouts, driven by navigation state
+- [ ] Burst 21: Replace LinearShell usage in App.tsx with ResponsiveShell, verify desktop behavior unchanged
 
-### SECTION 7: Add Zod Validation (~5 bursts)
+## SECTION 6: Mobile WorkspaceBanner (~3 bursts)
 
 > **Spec:**
-> Replace manual JSON validation in `extractor.ts` and add request validation to API routes using Zod schemas.
+> The TopBar/WorkspaceBanner is too wide for mobile. Create a compact mobile variant:
+> - Client selector as a dropdown sheet
+> - Search as an expandable icon → full-width input
+> - Date filters hidden behind a "Filters" button that opens a sheet
 >
-> **Files affected:** `core/extractor.ts`, `api/routes/meetings.ts`, `api/routes/threads.ts`, `api/routes/notes.ts`, `api/routes/insights.ts`, `api/routes/milestones.ts`
->
-> **Note:** Zod must be added as a dependency.
+> **Files affected:** `electron-ui/ui/src/components/TopBar.tsx`, `electron-ui/ui/src/components/shared/workspace-banner.tsx`, test files
 
-- [x] Burst 30: Add zod@4.3.6 dependency (e5750ce)
-- [x] Burst 31: Create core/schemas.ts with Zod schemas (c5f971e)
-- [x] Burst 32: Replace validateArtifact() with Zod safeParse (70ed6ae)
-- [x] Burst 33-34: DEFERRED — API request schemas are lower priority; routes work correctly without runtime validation for internal use
+- [ ] Burst 22: Create compact mobile header — client name + search icon + filter icon
+- [ ] Burst 23: Search expand behavior — icon tap reveals full-width input, escape collapses
+- [ ] Burst 24: Filter sheet — date range + deep search toggle in a BottomSheet on mobile
 
-### SECTION 8: Typed Error Hierarchy (~3 bursts)
+## SECTION 7: Meetings — Mobile List View (~4 bursts)
 
 > **Spec:**
-> Create a typed error hierarchy to replace plain `Error` throws with codes and context.
+> Adapt MeetingList for mobile viewport. Full-screen list with larger touch targets (48px min), series group headers, colored avatar badges, and chevron disclosure indicators.
 >
-> **Files affected:** `core/errors.ts` (NEW), `core/extractor.ts`, `core/llm-adapter.ts`, `core/pipeline.ts`
+> **Paper reference:** "Responsive — Mobile Meeting List" artboard.
+>
+> **Files affected:** `electron-ui/ui/src/components/MeetingList.tsx`, `electron-ui/ui/src/components/shared/list-item-row.tsx`, test files
 
-- [x] Burst 35: Create core/errors.ts with typed error hierarchy (428b107)
-- [x] Burst 36: Wire ExtractionError into extractor.ts (47f8510)
-- [x] Burst 37: DEFERRED — pipeline.ts catches and wraps errors from all modules; typed errors from extractor already flow through
+- [ ] Burst 25: Add responsive row height — comfortable touch targets (48px min) on mobile
+- [ ] Burst 26: Render colored avatar badges on mobile rows (first letters of meeting title)
+- [ ] Burst 27: Add chevron disclosure indicator on mobile rows
+- [ ] Burst 28: Test MeetingList renders correctly at 390px viewport width
 
-### SECTION 9: Standardize API Client Error Handling (~3 bursts)
+## SECTION 8: Meetings — Mobile Detail View (~5 bursts)
 
 > **Spec:**
-> Create a `fetchJson()` wrapper for API client to normalize error handling across all endpoints. Add AbortController support.
+> Adapt MeetingDetail for mobile. Summary uses "Show more" truncation. Accordion sections default collapsed with only-one-expanded behavior. Command buttons wrap horizontally.
 >
-> **Files affected:** `electron-ui/ui/src/api-client/base.ts` (NEW or modified), all `api-client/*.ts` files
+> **Paper reference:** "Responsive — Mobile Meeting Detail" and "Responsive — Mobile Long Content" artboards.
+>
+> **Files affected:** `electron-ui/ui/src/components/MeetingDetail.tsx`, test files
 
-- [x] Burst 38-39: Create fetchJson utility and replace all 6 API client modules (20c1ae5, -207 lines)
-- [ ] Burst 40: Add AbortController to chat/streaming endpoints (deferred — requires component changes)
+- [ ] Burst 29: Add "Show more" truncation for Summary section (4-line clamp on mobile)
+- [ ] Burst 30: Implement single-accordion-expanded behavior on mobile (auto-collapse others)
+- [ ] Burst 31: Command buttons wrap to horizontal scroll on narrow viewports
+- [ ] Burst 32: Chat FAB button on mobile detail (positioned bottom-right, above tab bar)
+- [ ] Burst 33: Test MeetingDetail responsive behavior at 390px and 768px viewports
 
-### SECTION 10: Row-to-Object Converter Cleanup (~2 bursts)
+## SECTION 9: Meetings — Chat Integration (~3 bursts)
 
 > **Spec:**
-> Replace duplicated `rowToThread()`, `rowToInsight()` patterns with validated converters using Zod schemas from Section 7.
+> Wire chat into responsive layouts. Mobile: FAB opens chat as BottomSheet. Tablet: Chat button opens right panel (replaces list panel).
 >
-> **Files affected:** `core/threads.ts`, `core/insights.ts`, `core/timelines.ts`
+> **Paper reference:** "Responsive — Mobile Chat Sheet" and "Responsive — Tablet Chat Panel" artboards.
 >
-> **Depends on:** Section 7 (Zod schemas)
+> **Files affected:** `electron-ui/ui/src/components/ChatPanel.tsx`, `electron-ui/ui/src/components/ResponsiveShell.tsx`, test files
 
-- [x] Burst 41-42: DEFERRED — Only 1 unsafe status cast found (threads.ts:89). ROI too low for dedicated schema converters.
+- [ ] Burst 34: Mobile chat FAB → opens ChatPanel inside BottomSheet
+- [ ] Burst 35: Tablet chat button → swaps list panel for ChatPanel, shows back button
+- [ ] Burst 36: Test chat open/close transitions on mobile and tablet viewports
+
+## SECTION 10: Meetings — Dialog Migration (~4 bursts)
+
+> **Spec:**
+> Migrate all meeting-related dialogs to use BottomSheet on mobile. Includes NotesDialog, TranscriptDialog, and any meeting-scoped create dialogs.
+>
+> **Paper reference:** "Responsive — Mobile Notes Dialog" artboard.
+>
+> **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`, `electron-ui/ui/src/components/ui/dialog.tsx`, test files
+
+- [ ] Burst 37: Create responsive dialog wrapper — uses BottomSheet on mobile, Dialog on tablet+
+- [ ] Burst 38: Migrate NotesDialog to responsive wrapper
+- [ ] Burst 39: Migrate TranscriptDialog and remaining meeting dialogs
+- [ ] Burst 40: Test dialog/sheet switching across breakpoints
+
+## SECTION 11: PWA Manifest & Meta Tags (~2 bursts)
+
+> **Spec:**
+> Add PWA manifest, viewport meta tag, and touch-friendly defaults to `index-web.html`. Enables "Add to Home Screen" on mobile browsers.
+>
+> **Files affected:** `electron-ui/ui/index-web.html`, `electron-ui/ui/public/manifest.json` (NEW), `electron-ui/ui/public/icons/` (NEW)
+
+- [ ] Burst 41: Add viewport meta tag, manifest.json link, theme-color to index-web.html
+- [ ] Burst 42: Create manifest.json with app name, icons, display: standalone, orientation: any
+
+## SECTION 12: E2E Viewport Variants — Meetings (~3 bursts)
+
+> **Spec:**
+> Add viewport variant tests for the Meetings flow. Parameterize existing meeting e2e tests to run at mobile (390×844), tablet (768×1024), and desktop (1400×900).
+>
+> **Files affected:** `test/e2e/helpers.ts`, `test/e2e/meeting-notes.spec.ts`, new viewport test file
+
+- [ ] Burst 43: Add viewport helper to `test/e2e/helpers.ts` — `withViewport(page, "mobile" | "tablet" | "desktop")`
+- [ ] Burst 44: Create `test/e2e/responsive-meetings.spec.ts` — meeting list → detail → chat flow at mobile and tablet viewports
+- [ ] Burst 45: Add breadcrumb navigation test — verify tapping breadcrumb segments navigates correctly
+
+---
+
+# PHASE 2: Remaining Views
+
+> **PREREQUISITE:** Before starting each section, create the Paper MCP artboards listed in "Artboards TODO" above. Use the Meetings artboards as the visual language reference — same bottom tabs, breadcrumbs, bottom sheets, typography, and spacing patterns.
+
+## SECTION 13: Paper Artboards — Action Items (~1 burst)
+
+> **Spec:** Create 3 artboards: Mobile Action Items list, Mobile Action Item detail, Tablet Action Items split-pane.
+
+- [ ] Burst 46: Create Action Items artboards in Paper MCP following Meetings visual language
+
+## SECTION 14: Action Items — Responsive (~5 bursts)
+
+> **Spec:**
+> Adapt ClientActionItemsView and action item detail for responsive viewports. Action items group by meeting with colored avatar badges. Filter chips (person, priority) scroll horizontally on mobile.
+>
+> **Files affected:** `electron-ui/ui/src/components/ClientActionItemsView.tsx`, `electron-ui/ui/src/pages/ActionItemsPage.tsx`, test files
+
+- [ ] Burst 47: Mobile action items list — touch-friendly rows, horizontal filter chips
+- [ ] Burst 48: Mobile action item detail — expandable description, priority badge prominent
+- [ ] Burst 49: Tablet split-pane — list (280px) + action item detail
+- [ ] Burst 50: Wire into ResponsiveShell with breadcrumbs (Action Items > LLSA > Meeting Name)
+- [ ] Burst 51: E2E viewport variants for action items flow
+
+## SECTION 15: Paper Artboards — Threads (~1 burst)
+
+- [ ] Burst 52: Create Threads artboards in Paper MCP following Meetings visual language
+
+## SECTION 16: Threads — Responsive (~5 bursts)
+
+> **Spec:**
+> Adapt ThreadsView and ThreadDetailView for responsive viewports. Thread list shows meeting count badges. Detail view shows candidate meetings with add/remove actions.
+>
+> **Files affected:** `electron-ui/ui/src/components/ThreadsView.tsx`, `electron-ui/ui/src/components/ThreadDetailView.tsx`, `electron-ui/ui/src/pages/ThreadsPage.tsx`, test files
+
+- [ ] Burst 53: Mobile thread list — rows with meeting count badge, status indicator
+- [ ] Burst 54: Mobile thread detail — candidate meetings as cards, add/remove actions
+- [ ] Burst 55: Tablet split-pane threads
+- [ ] Burst 56: Wire into ResponsiveShell with breadcrumbs
+- [ ] Burst 57: E2E viewport variants for threads flow
+
+## SECTION 17: Paper Artboards — Insights (~1 burst)
+
+- [ ] Burst 58: Create Insights artboards in Paper MCP following Meetings visual language
+
+## SECTION 18: Insights — Responsive (~5 bursts)
+
+> **Spec:**
+> Adapt InsightsPage for responsive viewports. Insight list shows status badges (Draft/Final). Detail shows generated content with source meetings. CreateInsightDialog becomes bottom sheet.
+>
+> **Files affected:** `electron-ui/ui/src/pages/InsightsPage.tsx`, `electron-ui/ui/src/components/CreateInsightDialog.tsx`, test files
+
+- [ ] Burst 59: Mobile insight list — status badge prominent, period type label
+- [ ] Burst 60: Mobile insight detail — sections for executive summary, source meetings
+- [ ] Burst 61: CreateInsightDialog → responsive wrapper (bottom sheet on mobile)
+- [ ] Burst 62: Tablet split-pane insights
+- [ ] Burst 63: E2E viewport variants for insights flow
+
+## SECTION 19: Paper Artboards — Timelines (~1 burst)
+
+- [ ] Burst 64: Create Timelines artboards in Paper MCP following Meetings visual language
+
+## SECTION 20: Timelines — Responsive (~5 bursts)
+
+> **Spec:**
+> Adapt TimelinesPage for responsive viewports. Timeline list shows milestone count. Detail shows milestones with linked meetings. CreateMilestoneDialog becomes bottom sheet.
+>
+> **Files affected:** `electron-ui/ui/src/pages/TimelinesPage.tsx`, `electron-ui/ui/src/components/CreateMilestoneDialog.tsx`, test files
+
+- [ ] Burst 65: Mobile timeline list — milestone count badge, date range label
+- [ ] Burst 66: Mobile timeline detail — milestones as cards with linked meeting chips
+- [ ] Burst 67: CreateMilestoneDialog → responsive wrapper (bottom sheet on mobile)
+- [ ] Burst 68: Tablet split-pane timelines
+- [ ] Burst 69: E2E viewport variants for timelines flow
+
+## SECTION 21: Cross-View Polish (~3 bursts)
+
+> **Spec:**
+> Final pass across all views to ensure consistent behavior: consistent toast positioning on mobile, consistent bottom sheet heights, consistent breadcrumb depth patterns.
+>
+> **Files affected:** Various component files
+
+- [ ] Burst 70: Toast positioning — bottom-center on mobile (above tab bar), top-right on desktop
+- [ ] Burst 71: Verify all create dialogs (Thread, Insight, Milestone) use responsive wrapper
+- [ ] Burst 72: Visual verification loop — Playwright screenshots at all 3 viewports for every view, compare against Paper artboards
+
+---
 
 ## DONE
