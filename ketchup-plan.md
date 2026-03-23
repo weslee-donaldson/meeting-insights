@@ -239,8 +239,8 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/index-web.html`, `electron-ui/ui/public/manifest.json` (NEW), `electron-ui/ui/public/icons/` (NEW)
 
-- [ ] Burst 41: Add viewport meta tag, manifest.json link, theme-color to index-web.html
-- [ ] Burst 42: Create manifest.json with app name, icons, display: standalone, orientation: any
+- [x] Burst 41: Add viewport meta tag, manifest.json link, theme-color to index-web.html
+- [x] Burst 42: Create manifest.json with app name, icons, display: standalone, orientation: any
 
 ## SECTION 12: E2E Viewport Variants — Meetings (~3 bursts)
 

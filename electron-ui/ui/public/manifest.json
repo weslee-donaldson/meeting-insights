@@ -1,0 +1,22 @@
+{
+  "name": "Meeting Intelligence Explorer",
+  "short_name": "Ketchup",
+  "description": "Transform meeting transcripts into actionable knowledge",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#D97706",
+  "background_color": "#FAFAF9",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
