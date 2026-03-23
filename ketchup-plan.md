@@ -172,9 +172,9 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/TopBar.tsx`, `electron-ui/ui/src/components/shared/workspace-banner.tsx`, test files
 
-- [ ] Burst 22: Create compact mobile header — client name + search icon + filter icon
-- [ ] Burst 23: Search expand behavior — icon tap reveals full-width input, escape collapses
-- [ ] Burst 24: Filter sheet — date range + deep search toggle in a BottomSheet on mobile
+- [x] Burst 22: Create compact mobile header — client name + search icon + filter icon
+- [x] Burst 23: Search expand behavior — icon tap reveals full-width input, escape collapses
+- [x] Burst 24: Filter sheet — date range + deep search toggle in a BottomSheet on mobile
 
 ## SECTION 7: Meetings — Mobile List View (~4 bursts)
 
