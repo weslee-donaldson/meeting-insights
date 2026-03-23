@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ConversationMessage, ConversationChatResponse } from "../../electron/channels.js";
-import { LinearShell } from "./components/LinearShell.js";
+import { ResponsiveShell } from "./components/ResponsiveShell.js";
 import { TopBar } from "./components/TopBar.js";
 import { ChatPanel } from "./components/ChatPanel.js";
 import { NavRail } from "./components/NavRail.js";
@@ -428,10 +428,19 @@ export function App() {
 
   return (
     <>
-    <LinearShell
+    <ResponsiveShell
       viewId={currentView}
       defaultSidebarWidth={currentView === "action-items" ? 520 : undefined}
       chatOpen={chatOpenForCurrentView}
+      currentView={currentView}
+      onNavigate={meeting.handleNavigate}
+      selectedItemTitle={
+        currentView === "meetings" ? meeting.selectedMeeting?.title :
+        currentView === "threads" ? thread.selectedThread?.title :
+        currentView === "insights" ? (insight.selectedInsight as { period_type?: string } | undefined)?.period_type :
+        currentView === "timelines" ? milestone.selectedMilestone?.title :
+        undefined
+      }
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}

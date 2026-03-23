@@ -28,6 +28,7 @@ const ARTIFACT_M2 = {
 };
 
 beforeAll(() => {
+  Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: 1440 });
   (window as unknown as Record<string, unknown>).api = {
     getClients: vi.fn().mockResolvedValue(["Acme"]),
     getMeetings: vi.fn().mockResolvedValue([

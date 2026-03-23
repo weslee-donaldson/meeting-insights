@@ -160,7 +160,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 - [x] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
 - [x] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
 - [x] Burst 20: Wire breadcrumb bar into tablet and mobile layouts, driven by navigation state
-- [ ] Burst 21: Replace LinearShell usage in App.tsx with ResponsiveShell, verify desktop behavior unchanged
+- [x] Burst 21: Replace LinearShell usage in App.tsx with ResponsiveShell, verify desktop behavior unchanged
 
 ## SECTION 6: Mobile WorkspaceBanner (~3 bursts)
 
