@@ -155,7 +155,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/ResponsiveShell.tsx` (NEW), `electron-ui/ui/src/hooks/useBreakpoint.ts` (NEW), test files
 
-- [ ] Burst 16: Create `useBreakpoint()` hook — returns "mobile" | "tablet" | "desktop" based on window.innerWidth, handles resize
+- [x] Burst 16: Create `useBreakpoint()` hook — returns "mobile" | "tablet" | "desktop" based on window.innerWidth, handles resize
 - [ ] Burst 17: Create ResponsiveShell desktop layout — delegates to LinearShell (preserves all existing behavior)
 - [ ] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
 - [ ] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
