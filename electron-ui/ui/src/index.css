@@ -126,6 +126,34 @@ body {
   --color-search-deep:    #2DD4BF;
 }
 
+/* ── Responsive Layout ────────────────────────────────────── */
+
+:root {
+  --layout-nav-rail-width: 56px;
+  --layout-bottom-tab-height: 0px;
+  --layout-sheet-handle-height: 20px;
+  --layout-sidebar-width: 300px;
+  --layout-chat-panel-width: 380px;
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --layout-nav-rail-width: 0px;
+    --layout-bottom-tab-height: 56px;
+    --layout-sidebar-width: 280px;
+    --layout-chat-panel-width: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --layout-nav-rail-width: 0px;
+    --layout-bottom-tab-height: 56px;
+    --layout-sidebar-width: 0px;
+    --layout-chat-panel-width: 0px;
+  }
+}
+
 .chat-markdown h1 {
   font-size: 1.15em;
   font-weight: 700;

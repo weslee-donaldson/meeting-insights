@@ -26,22 +26,22 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 | Responsive — Tablet Meetings | 768×1024 | Split-pane list + detail |
 | Responsive — Tablet Chat Panel | 768×1024 | Detail + chat side-by-side |
 
-### Artboards TODO (create before implementing corresponding sections)
+### Artboards DONE (all Phase 2 artboards created)
 
 | Artboard | Section | Description |
 |----------|---------|-------------|
-| Responsive — Mobile Action Items | Phase 2 | Action items list with filters, grouped by meeting |
-| Responsive — Mobile Action Item Detail | Phase 2 | Single action item expanded view |
-| Responsive — Tablet Action Items | Phase 2 | Split-pane action items |
-| Responsive — Mobile Threads | Phase 2 | Thread list with meeting count badges |
-| Responsive — Mobile Thread Detail | Phase 2 | Thread detail with candidate meetings |
-| Responsive — Tablet Threads | Phase 2 | Split-pane threads |
-| Responsive — Mobile Insights | Phase 2 | Insight list with status badges |
-| Responsive — Mobile Insight Detail | Phase 2 | Generated insight with source meetings |
-| Responsive — Tablet Insights | Phase 2 | Split-pane insights |
-| Responsive — Mobile Timelines | Phase 2 | Timeline list with milestone badges |
-| Responsive — Mobile Timeline Detail | Phase 2 | Timeline with milestones + linked meetings |
-| Responsive — Tablet Timelines | Phase 2 | Split-pane timelines |
+| Responsive — Mobile Action Items | Phase 2 | Action items list with filters, grouped by priority |
+| Responsive — Mobile Action Item Detail | Phase 2 | Single action item with breadcrumb, source meeting, context |
+| Responsive — Tablet Action Items | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
+| Responsive — Mobile Threads | Phase 2 | Thread list with shorthand badges, meeting counts |
+| Responsive — Mobile Thread Detail | Phase 2 | Thread detail with summary, meeting relevance scores |
+| Responsive — Tablet Threads | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
+| Responsive — Mobile Insights | Phase 2 | Insight list with RAG dots, period labels, status badges |
+| Responsive — Mobile Insight Detail | Phase 2 | Executive summary, topic details with RAG dots |
+| Responsive — Tablet Insights | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
+| Responsive — Mobile Timelines | Phase 2 | Milestone list with status dots, target dates, filter chips |
+| Responsive — Mobile Timeline Detail | Phase 2 | Description, mentions with type badges, linked meetings |
+| Responsive — Tablet Timelines | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
 
 ---
 
@@ -100,7 +100,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > - `layout.desktop: { ...existing values }`
 
 - [x] Burst 4: Add responsive breakpoints and layout tokens to design-tokens.ts
-- [ ] Burst 5: Add CSS media query custom properties and bottom-tab/sheet variables to index.css
+- [x] Burst 5: Add CSS media query custom properties and bottom-tab/sheet variables to index.css
 
 ## SECTION 2: Bottom Tab Bar Component (~3 bursts)
 
@@ -263,7 +263,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 > **Spec:** Create 3 artboards: Mobile Action Items list, Mobile Action Item detail, Tablet Action Items split-pane.
 
-- [ ] Burst 46: Create Action Items artboards in Paper MCP following Meetings visual language
+- [x] Burst 46: Create Action Items artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
 
 ## SECTION 14: Action Items — Responsive (~5 bursts)
 
@@ -280,7 +280,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 ## SECTION 15: Paper Artboards — Threads (~1 burst)
 
-- [ ] Burst 52: Create Threads artboards in Paper MCP following Meetings visual language
+- [x] Burst 52: Create Threads artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
 
 ## SECTION 16: Threads — Responsive (~5 bursts)
 
@@ -297,7 +297,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 ## SECTION 17: Paper Artboards — Insights (~1 burst)
 
-- [ ] Burst 58: Create Insights artboards in Paper MCP following Meetings visual language
+- [x] Burst 58: Create Insights artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
 
 ## SECTION 18: Insights — Responsive (~5 bursts)
 
@@ -314,7 +314,7 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 ## SECTION 19: Paper Artboards — Timelines (~1 burst)
 
-- [ ] Burst 64: Create Timelines artboards in Paper MCP following Meetings visual language
+- [x] Burst 64: Create Timelines artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
 
 ## SECTION 20: Timelines — Responsive (~5 bursts)
 
