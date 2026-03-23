@@ -185,10 +185,10 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/MeetingList.tsx`, `electron-ui/ui/src/components/shared/list-item-row.tsx`, test files
 
-- [ ] Burst 25: Add responsive row height — comfortable touch targets (48px min) on mobile
-- [ ] Burst 26: Render colored avatar badges on mobile rows (first letters of meeting title)
-- [ ] Burst 27: Add chevron disclosure indicator on mobile rows
-- [ ] Burst 28: Test MeetingList renders correctly at 390px viewport width
+- [x] Burst 25: Add responsive row height — comfortable touch targets (48px min) on mobile
+- [x] Burst 26: Render colored avatar badges on mobile rows (first letters of meeting title)
+- [x] Burst 27: Add chevron disclosure indicator on mobile rows
+- [x] Burst 28: Test MeetingList renders correctly at 390px viewport width
 
 ## SECTION 8: Meetings — Mobile Detail View (~5 bursts)
 
