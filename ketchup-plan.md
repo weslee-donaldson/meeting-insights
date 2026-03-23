@@ -156,10 +156,10 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > **Files affected:** `electron-ui/ui/src/components/ResponsiveShell.tsx` (NEW), `electron-ui/ui/src/hooks/useBreakpoint.ts` (NEW), test files
 
 - [x] Burst 16: Create `useBreakpoint()` hook — returns "mobile" | "tablet" | "desktop" based on window.innerWidth, handles resize
-- [ ] Burst 17: Create ResponsiveShell desktop layout — delegates to LinearShell (preserves all existing behavior)
-- [ ] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
-- [ ] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
-- [ ] Burst 20: Wire breadcrumb bar into tablet and mobile layouts, driven by navigation state
+- [x] Burst 17: Create ResponsiveShell desktop layout — delegates to LinearShell (preserves all existing behavior)
+- [x] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
+- [x] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
+- [x] Burst 20: Wire breadcrumb bar into tablet and mobile layouts, driven by navigation state
 - [ ] Burst 21: Replace LinearShell usage in App.tsx with ResponsiveShell, verify desktop behavior unchanged
 
 ## SECTION 6: Mobile WorkspaceBanner (~3 bursts)
