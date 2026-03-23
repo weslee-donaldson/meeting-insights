@@ -137,10 +137,10 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `electron-ui/ui/src/components/ui/bottom-sheet.tsx` (NEW), test file
 
-- [ ] Burst 12: Create BottomSheet with backdrop, sheet container, drag handle, close on backdrop tap
-- [ ] Burst 13: Add height prop (percentage of viewport), scroll behavior for content
-- [ ] Burst 14: Add responsive breakpoint logic — renders as BottomSheet on mobile, Dialog on tablet+
-- [ ] Burst 15: Test open/close state, backdrop click, responsive switching
+- [x] Burst 12: Create BottomSheet with backdrop, sheet container, drag handle, close on backdrop tap
+- [x] Burst 13: Add height prop (percentage of viewport), scroll behavior for content
+- [x] Burst 14: Add responsive breakpoint logic — renders as BottomSheet on mobile, Dialog on tablet+
+- [x] Burst 15: Test open/close state, backdrop click, responsive switching
 
 ## SECTION 5: ResponsiveShell — Layout Engine (~6 bursts)
 
