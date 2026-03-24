@@ -129,7 +129,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `local-service/watcher.ts`, `test/watcher.test.ts`
 
-- [ ] Burst 23: createWatcher detects new JSON file and calls callback with filename
+- [x] Burst 23: createWatcher detects new JSON file and calls callback with filename
 - [ ] Burst 24: createWatcher debounces rapid events for the same file (wait for write to stabilize)
 - [ ] Burst 25: createWatcher periodic scan catches files that fs.watch missed
 - [ ] Burst 26: createWatcher ignores non-JSON and hidden files
