@@ -139,6 +139,14 @@ export function listTranscriptFiles(dir: string): string[] {
   return files;
 }
 
+export function listWebhookFiles(dir: string): string[] {
+  const files = readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .sort();
+  logDir("found %d webhook files in %s", files.length, dir);
+  return files;
+}
+
 export interface ManifestEntry {
   meeting_id: string;
   meeting_title: string;

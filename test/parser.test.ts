@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile } from "../core/parser.js";
+import { listTranscriptFiles, listWebhookFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile } from "../core/parser.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -194,6 +194,21 @@ describe("parseWebVttBody", () => {
     ].join("\n");
     expect(parseWebVttBody(vtt)).toEqual([
       { speaker_name: "Alice", timestamp: "00:00", text: "Hi." },
+    ]);
+  });
+});
+
+describe("listWebhookFiles", () => {
+  it("returns sorted array of *.json filenames from directory", () => {
+    const webhookDir = join(tmpDir, "webhook-raw");
+    mkdirSync(webhookDir, { recursive: true });
+    writeFileSync(join(webhookDir, "krisp-2026-03-24T19-24-42-538Z.json"), "{}");
+    writeFileSync(join(webhookDir, "krisp-2026-03-24T18-43-29-593Z.json"), "{}");
+    writeFileSync(join(webhookDir, ".DS_Store"), "");
+    const result = listWebhookFiles(webhookDir);
+    expect(result).toEqual([
+      "krisp-2026-03-24T18-43-29-593Z.json",
+      "krisp-2026-03-24T19-24-42-538Z.json",
     ]);
   });
 });

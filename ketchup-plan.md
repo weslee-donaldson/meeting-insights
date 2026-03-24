@@ -1,47 +1,21 @@
-# Responsive UI — Mobile & Tablet Support
+# Webhook Transcript Processing + Local Service
 ## Ketchup Plan
 
 ---
 
-# 0. SYSTEM GOAL
+# 0. CONTEXT
 
-Transform the Meeting Insights UI from a fixed-width desktop application into a responsive PWA that adapts to mobile phones (<768px), tablets (768–1279px), and desktop (1280+). The existing Hono web server (`web:dev`) serves as the PWA host. The app retains Electron support for desktop users.
+The project processes Krisp meeting transcripts through a pipeline: parse → ingest → detect client → extract artifacts → embed → thread evaluation. The only source today is `data/raw-transcripts/` (markdown files + manifest.json), manually triggered via `pnpm process`.
 
-This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one behavior, one commit.
+A Firebase Cloud Function now receives Krisp webhook POST events and saves raw JSON payloads to Google Drive, which syncs locally to `data/webhook-rawtranscripts/`. These payloads are richer than the markdown transcripts (structured speakers with emails, Krisp-native meeting IDs, meeting URLs). The webhook is the preferred source going forward.
+
+This plan adds: (1) a parser for webhook JSON, (2) pipeline integration with dedup, (3) a local background service that auto-processes new webhook files.
 
 ---
 
-# DESIGN REFERENCES
+# 1. SYSTEM GOAL
 
-## Paper MCP Artboards (Meeting Insights.paper)
-
-| Artboard | Viewport | Shows |
-|----------|----------|-------|
-| Responsive — Mobile Meeting List | 390×844 | Full-screen list, bottom tabs, series groups |
-| Responsive — Mobile Meeting Detail | 390×844 | Drill-in with commands, accordion sections, chat FAB |
-| Responsive — Mobile Chat Sheet | 390×844 | Bottom sheet chat over dimmed detail |
-| Responsive — Mobile Notes Dialog | 390×844 | Bottom sheet with note cards |
-| Responsive — Mobile Long Content | 390×1200 | Truncation, Show more, expanded accordions |
-| Responsive — Mobile Breadcrumb Nav | 390×844 | Path breadcrumb (Meetings > LLSA > Series > ...) |
-| Responsive — Tablet Meetings | 768×1024 | Split-pane list + detail |
-| Responsive — Tablet Chat Panel | 768×1024 | Detail + chat side-by-side |
-
-### Artboards DONE (all Phase 2 artboards created)
-
-| Artboard | Section | Description |
-|----------|---------|-------------|
-| Responsive — Mobile Action Items | Phase 2 | Action items list with filters, grouped by priority |
-| Responsive — Mobile Action Item Detail | Phase 2 | Single action item with breadcrumb, source meeting, context |
-| Responsive — Tablet Action Items | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
-| Responsive — Mobile Threads | Phase 2 | Thread list with shorthand badges, meeting counts |
-| Responsive — Mobile Thread Detail | Phase 2 | Thread detail with summary, meeting relevance scores |
-| Responsive — Tablet Threads | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
-| Responsive — Mobile Insights | Phase 2 | Insight list with RAG dots, period labels, status badges |
-| Responsive — Mobile Insight Detail | Phase 2 | Executive summary, topic details with RAG dots |
-| Responsive — Tablet Insights | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
-| Responsive — Mobile Timelines | Phase 2 | Milestone list with status dots, target dates, filter chips |
-| Responsive — Mobile Timeline Detail | Phase 2 | Description, mentions with type badges, linked meetings |
-| Responsive — Tablet Timelines | Phase 2 | Annotation: follows Meetings tablet split-pane pattern |
+Enable automatic ingestion of Krisp webhook JSON payloads as a first-class transcript source, prioritized over the existing markdown source, with a local background service that watches for new files and triggers the pipeline.
 
 ---
 
@@ -49,303 +23,224 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Target | PWA via Hono web server | Reuses existing `web:dev` infra, no native wrapper needed |
-| Breakpoints | 3-tier: mobile (<768), tablet (768–1279), desktop (1280+) | Covers phone, iPad, laptop/desktop cleanly |
-| Navigation | Bottom tab bar + breadcrumbs | Tabs for top-level views, breadcrumbs for depth within a view |
-| Chat behavior | Matches desktop: persistent, meeting-scoped | Keep existing meeting_messages persistence model |
-| Dialogs | All become bottom sheets on mobile | Consistent UX — Notes, Transcript, Create*, ItemHistory |
-| Layout | New ResponsiveShell replaces LinearShell | Different layout strategy per breakpoint vs. media-query hacks |
-| Design tokens | Add responsive overrides | `design-tokens.ts` gets per-breakpoint values |
-| Tests | Viewport variants on existing e2e + fix selectClient | One suite, parameterized viewport, shared helpers |
-| Offline | Not in scope | Assume connection |
+| Parser location | `parseWebhookPayload` in `core/parser.ts` | All parsers live here. Pure function: JSON string → `ParsedMeeting` |
+| Speaker names | `first_name + last_name`, fallback to email | Matches what Krisp already does in `content[].speaker` |
+| rawTranscript format | Synthesize pipe-delimited lines from content array | `parseSpeakerNames` in client-detection.ts regex-matches `^([^\|]+)\|` — must be compatible |
+| Dedup | Check `data.meeting.id` against `SELECT id FROM meetings` | No duplicates. Webhook processes first, naturally wins. |
+| Lifecycle dirs | `data/webhook-processed/`, `data/webhook-failed/` | Separate from markdown lifecycle to avoid confusion |
+| Event filtering | Only process `transcript_created` events | Multi-event correlation (notes, outline, recording) is a future enhancement |
+| Local service | `local-service/` dir with file watcher + pm2 | Auto-detect new files, process immediately, restart on crash |
+| Watcher strategy | `fs.watch` + periodic scan fallback (30s) | `fs.watch` can miss events on macOS with Google Drive sync |
 
 ---
 
 # PLANNING RULES
 
-1. Bursts are ordered within sections. Sections are sequential unless noted.
-2. Each burst = one failing test -> minimal code -> TCR.
-3. Plan updates go in the same commit as code.
-4. Infrastructure commits (config, tokens, PWA manifest) need no tests.
-5. **Refactoring bursts must not change behavior.** All existing tests must continue passing.
-6. **Paper MCP artboard check is mandatory** before implementing any UI burst (see CLAUDE.md).
-7. **Phase 2 artboards must be created** before implementing Phase 2 sections. Use the Meetings artboards as the visual language reference.
+1. Each burst = one failing test → minimal code → TCR
+2. Plan updates go in the same commit as code
+3. Infrastructure commits (config files, pm2) need no tests
+4. 100% coverage on new code
+5. Existing tests must continue passing
+6. Update scatter.md/gather.md when adding files
 
 ---
 
-# PHASE 1: Infrastructure + Meetings
+# FUTURE ENHANCEMENTS (out of scope)
 
-## SECTION 0: Prerequisites — Fix E2E & Cleanup (~3 bursts)
-
-> **Spec:**
-> Fix the broken `selectClient()` helper across all 6 e2e spec files. The helper uses `[role="option"]` (Radix) but the UI now uses native `<select>`. Also extract the helper into a shared utility to eliminate duplication.
->
-> **Files affected:** `test/e2e/helpers.ts` (NEW), `test/e2e/insights.spec.ts`, `test/e2e/milestones.spec.ts`, `test/e2e/meeting-notes.spec.ts`, `test/e2e/thread-notes.spec.ts`, `test/e2e/milestone-notes.spec.ts`, `test/e2e/insight-notes.spec.ts`
-
-- [x] Burst 1: Create `test/e2e/helpers.ts` with shared `selectClient()` using native `<select>` via `selectOption()`
-- [x] Burst 2: Replace all 6 inline `selectClient()` definitions with import from helpers
-- [x] Burst 3: Run full e2e suite, verify all 56 tests pass
-
-## SECTION 1: Responsive Design Tokens (~2 bursts)
-
-> **Spec:**
-> Extend `design-tokens.ts` with per-breakpoint layout values and add CSS custom properties + Tailwind breakpoint config for the 3-tier responsive system.
->
-> **Files affected:** `electron-ui/ui/src/design-tokens.ts`, `electron-ui/ui/src/index.css`, `tailwind.config.ts` (if exists)
->
-> **New tokens:**
-> - `breakpoints: { mobile: 768, tablet: 1280 }`
-> - `layout.mobile: { navRailWidth: 0, bottomTabHeight: 56, sheetHandleHeight: 20 }`
-> - `layout.tablet: { sidebarWidth: 280, chatPanelWidth: 320 }`
-> - `layout.desktop: { ...existing values }`
-
-- [x] Burst 4: Add responsive breakpoints and layout tokens to design-tokens.ts
-- [x] Burst 5: Add CSS media query custom properties and bottom-tab/sheet variables to index.css
-
-## SECTION 2: Bottom Tab Bar Component (~3 bursts)
-
-> **Spec:**
-> Create a `BottomTabBar` component matching the Paper artboard pattern. Renders the same 5 navigation items as NavRail but as a horizontal bottom bar with icons + labels. Visible on mobile and tablet, hidden on desktop.
->
-> **Paper reference:** All "Responsive — Mobile *" artboards show the bottom tab bar.
->
-> **Files affected:** `electron-ui/ui/src/components/BottomTabBar.tsx` (NEW), test file
-
-- [x] Burst 6: Create BottomTabBar with 5 nav items, active state styling, test renders
-- [x] Burst 7: Add responsive visibility — hidden on desktop (≥1280px), visible below
-- [x] Burst 8: Wire currentView + onNavigate props, verify active state matches NavRail behavior
-
-## SECTION 3: Breadcrumb Bar Component (~3 bursts)
-
-> **Spec:**
-> Create a `BreadcrumbBar` component for contextual navigation within a view. Horizontally scrollable on overflow. Each segment is tappable. Current location is highlighted with muted background.
->
-> **Paper reference:** "Responsive — Mobile Breadcrumb Nav" artboard.
->
-> **Files affected:** `electron-ui/ui/src/components/BreadcrumbBar.tsx` (NEW), test file
-
-- [x] Burst 9: Create BreadcrumbBar with segments array prop, render chevron separators
-- [x] Burst 10: Style active segment (dark bg pill), tappable amber links for ancestors
-- [x] Burst 11: Add horizontal scroll overflow behavior, test segment click callbacks
-
-## SECTION 4: Bottom Sheet Component (~4 bursts)
-
-> **Spec:**
-> Create a reusable `BottomSheet` component for mobile dialogs. Renders as a sheet sliding up from the bottom with drag handle, dimmed backdrop, and rounded top corners. On tablet/desktop, falls back to existing centered Dialog.
->
-> **Paper reference:** "Responsive — Mobile Chat Sheet" and "Responsive — Mobile Notes Dialog" artboards.
->
-> **Files affected:** `electron-ui/ui/src/components/ui/bottom-sheet.tsx` (NEW), test file
-
-- [x] Burst 12: Create BottomSheet with backdrop, sheet container, drag handle, close on backdrop tap
-- [x] Burst 13: Add height prop (percentage of viewport), scroll behavior for content
-- [x] Burst 14: Add responsive breakpoint logic — renders as BottomSheet on mobile, Dialog on tablet+
-- [x] Burst 15: Test open/close state, backdrop click, responsive switching
-
-## SECTION 5: ResponsiveShell — Layout Engine (~6 bursts)
-
-> **Spec:**
-> Create `ResponsiveShell` to replace `LinearShell` as the top-level layout component. It uses different layout strategies per breakpoint:
->
-> - **Desktop (≥1280):** NavRail + resizable panels + optional chat (existing LinearShell behavior)
-> - **Tablet (768–1279):** Bottom tabs + split-pane (280px list + detail) OR detail + chat (320px). No NavRail.
-> - **Mobile (<768):** Bottom tabs + single screen stack. Navigate between list, detail, and chat views.
->
-> **Paper reference:** All responsive artboards.
->
-> **Files affected:** `electron-ui/ui/src/components/ResponsiveShell.tsx` (NEW), `electron-ui/ui/src/hooks/useBreakpoint.ts` (NEW), test files
-
-- [x] Burst 16: Create `useBreakpoint()` hook — returns "mobile" | "tablet" | "desktop" based on window.innerWidth, handles resize
-- [x] Burst 17: Create ResponsiveShell desktop layout — delegates to LinearShell (preserves all existing behavior)
-- [x] Burst 18: Add tablet layout — bottom tabs, split-pane with list + detail panels
-- [x] Burst 19: Add mobile layout — bottom tabs, single-panel stack with navigation state (list | detail | chat)
-- [x] Burst 20: Wire breadcrumb bar into tablet and mobile layouts, driven by navigation state
-- [x] Burst 21: Replace LinearShell usage in App.tsx with ResponsiveShell, verify desktop behavior unchanged
-
-## SECTION 6: Mobile WorkspaceBanner (~3 bursts)
-
-> **Spec:**
-> The TopBar/WorkspaceBanner is too wide for mobile. Create a compact mobile variant:
-> - Client selector as a dropdown sheet
-> - Search as an expandable icon → full-width input
-> - Date filters hidden behind a "Filters" button that opens a sheet
->
-> **Files affected:** `electron-ui/ui/src/components/TopBar.tsx`, `electron-ui/ui/src/components/shared/workspace-banner.tsx`, test files
-
-- [x] Burst 22: Create compact mobile header — client name + search icon + filter icon
-- [x] Burst 23: Search expand behavior — icon tap reveals full-width input, escape collapses
-- [x] Burst 24: Filter sheet — date range + deep search toggle in a BottomSheet on mobile
-
-## SECTION 7: Meetings — Mobile List View (~4 bursts)
-
-> **Spec:**
-> Adapt MeetingList for mobile viewport. Full-screen list with larger touch targets (48px min), series group headers, colored avatar badges, and chevron disclosure indicators.
->
-> **Paper reference:** "Responsive — Mobile Meeting List" artboard.
->
-> **Files affected:** `electron-ui/ui/src/components/MeetingList.tsx`, `electron-ui/ui/src/components/shared/list-item-row.tsx`, test files
-
-- [x] Burst 25: Add responsive row height — comfortable touch targets (48px min) on mobile
-- [x] Burst 26: Render colored avatar badges on mobile rows (first letters of meeting title)
-- [x] Burst 27: Add chevron disclosure indicator on mobile rows
-- [x] Burst 28: Test MeetingList renders correctly at 390px viewport width
-
-## SECTION 8: Meetings — Mobile Detail View (~5 bursts)
-
-> **Spec:**
-> Adapt MeetingDetail for mobile. Summary uses "Show more" truncation. Accordion sections default collapsed with only-one-expanded behavior. Command buttons wrap horizontally.
->
-> **Paper reference:** "Responsive — Mobile Meeting Detail" and "Responsive — Mobile Long Content" artboards.
->
-> **Files affected:** `electron-ui/ui/src/components/MeetingDetail.tsx`, test files
-
-- [x] Burst 29: Add "Show more" truncation for Summary section (4-line clamp on mobile)
-- [x] Burst 30: Implement single-accordion-expanded behavior on mobile (auto-collapse others)
-- [x] Burst 31: Command buttons wrap to horizontal scroll on narrow viewports
-- [x] Burst 32: Chat FAB button on mobile detail (positioned bottom-right, above tab bar)
-- [x] Burst 33: Test MeetingDetail responsive behavior at 390px and 768px viewports
-
-## SECTION 9: Meetings — Chat Integration (~3 bursts)
-
-> **Spec:**
-> Wire chat into responsive layouts. Mobile: FAB opens chat as BottomSheet. Tablet: Chat button opens right panel (replaces list panel).
->
-> **Paper reference:** "Responsive — Mobile Chat Sheet" and "Responsive — Tablet Chat Panel" artboards.
->
-> **Files affected:** `electron-ui/ui/src/components/ChatPanel.tsx`, `electron-ui/ui/src/components/ResponsiveShell.tsx`, test files
-
-- [x] Burst 34: Mobile chat FAB → opens ChatPanel inside BottomSheet
-- [x] Burst 35: Tablet chat button → swaps list panel for ChatPanel, shows back button
-- [x] Burst 36: Test chat open/close transitions on mobile and tablet viewports
-
-## SECTION 10: Meetings — Dialog Migration (~4 bursts)
-
-> **Spec:**
-> Migrate all meeting-related dialogs to use BottomSheet on mobile. Includes NotesDialog, TranscriptDialog, and any meeting-scoped create dialogs.
->
-> **Paper reference:** "Responsive — Mobile Notes Dialog" artboard.
->
-> **Files affected:** `electron-ui/ui/src/components/NotesDialog.tsx`, `electron-ui/ui/src/components/ui/dialog.tsx`, test files
-
-- [x] Burst 37: Create responsive dialog wrapper — uses BottomSheet on mobile, Dialog on tablet+
-- [x] Burst 38: Migrate NotesDialog to responsive wrapper
-- [x] Burst 39: Migrate TranscriptDialog and remaining meeting dialogs
-- [x] Burst 40: Test dialog/sheet switching across breakpoints
-
-## SECTION 11: PWA Manifest & Meta Tags (~2 bursts)
-
-> **Spec:**
-> Add PWA manifest, viewport meta tag, and touch-friendly defaults to `index-web.html`. Enables "Add to Home Screen" on mobile browsers.
->
-> **Files affected:** `electron-ui/ui/index-web.html`, `electron-ui/ui/public/manifest.json` (NEW), `electron-ui/ui/public/icons/` (NEW)
-
-- [x] Burst 41: Add viewport meta tag, manifest.json link, theme-color to index-web.html
-- [x] Burst 42: Create manifest.json with app name, icons, display: standalone, orientation: any
-
-## SECTION 12: E2E Viewport Variants — Meetings (~3 bursts)
-
-> **Spec:**
-> Add viewport variant tests for the Meetings flow. Parameterize existing meeting e2e tests to run at mobile (390×844), tablet (768×1024), and desktop (1400×900).
->
-> **Files affected:** `test/e2e/helpers.ts`, `test/e2e/meeting-notes.spec.ts`, new viewport test file
-
-- [x] Burst 43: Add viewport helper to `test/e2e/helpers.ts` — `withViewport(page, "mobile" | "tablet" | "desktop")`
-- [x] Burst 44: Create `test/e2e/responsive-meetings.spec.ts` — meeting list → detail → chat flow at mobile and tablet viewports
-- [x] Burst 45: Add breadcrumb navigation test — verify tapping breadcrumb segments navigates correctly
+- **Multi-event correlation:** Krisp sends separate events (`notes_generated`, `outline_generated`, `recording_available`) for the same meeting. A future phase could correlate these by `data.meeting.id` to enrich meeting records with notes, outline, and recording URL.
 
 ---
 
-# PHASE 2: Remaining Views
+# PHASE 1: Webhook Parser (~10 bursts)
 
-> All Paper MCP artboards for Phase 2 are complete. Each implementation section references its artboard by name. Tablet views follow the "Responsive — Tablet Meetings" split-pane pattern with view-specific content — annotation cards on each tablet artboard describe the exact layout.
-
-## SECTION 13: Action Items — Responsive (~5 bursts)
+## SECTION 1.1: parseWebhookPayload (~8 bursts)
 
 > **Spec:**
-> Adapt ClientActionItemsView and action item detail for responsive viewports.
+> Pure function in `core/parser.ts`. Takes raw JSON string + filename, returns `ParsedMeeting | null`.
+> Maps webhook fields to existing `ParsedMeeting` interface. Returns null for non-`transcript_created` events or malformed payloads.
 >
-> **Paper artboards (completed):**
-> - "Responsive — Mobile Action Items" — Priority-grouped list with CRITICAL badges, checkbox per row, owner name, meeting source. Filter chips: Priority (active), Series, Owner, Day. Header: "Action Items" title, "LLSA · 490 open" subtitle, search + filter icons.
-> - "Responsive — Mobile Action Item Detail" — Breadcrumb (Actions > Critical > Detail). CRITICAL badge + meeting source in header. Owner/Requester pair. Command buttons: Edit, Complete, Copy, Reassign. Sections: Source Meeting (tappable card with avatar), Related Items, Context.
-> - "Responsive — Tablet Action Items" — Annotation: follows Meetings tablet split-pane (280px list | detail flex). Filter chips in list panel header. Chat via command button.
+> **Key compatibility detail:** `rawTranscript` must be synthesized as pipe-delimited lines (`Speaker Name | 00:00\ntext`) so `parseSpeakerNames()` in `core/client-detection.ts:32` continues to work via its `^([^|]+)\|` regex.
 >
-> **Files affected:** `electron-ui/ui/src/components/ClientActionItemsView.tsx`, `electron-ui/ui/src/pages/ActionItemsPage.tsx`, test files
+> **Files:** `core/parser.ts`, `test/parser.test.ts`
 
-- [x] Burst 46: Create Action Items artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [x] Burst 47: Mobile action items list — priority-grouped rows with checkbox, CRITICAL badge, owner, meeting source. Horizontal filter chips (Priority/Series/Owner/Day)
-- [x] Burst 48: Mobile action item detail — breadcrumb nav, CRITICAL badge header, Owner/Requester fields, Source Meeting tappable card, Related Items section, Context section, chat FAB
-- [x] Burst 49: Tablet split-pane — compact list (280px) with priority groups + detail panel matching mobile detail content
-- [x] Burst 50: Wire into ResponsiveShell with breadcrumbs (Actions > [Priority Group] > Detail)
-- [x] Burst 51: E2E viewport variants for action items flow
+- [ ] Burst 1: parseWebhookPayload returns ParsedMeeting with externalId from `data.meeting.id`
+- [ ] Burst 2: parseWebhookPayload maps `start_date` → timestamp, `title` → title, filename → sourceFilename
+- [ ] Burst 3: parseWebhookPayload maps `data.meeting.speakers` → Participant[] (first_name + last_name + email + id)
+- [ ] Burst 4: parseWebhookPayload handles speakers with null names (uses email as fallback in participant mapping)
+- [ ] Burst 5: parseWebhookPayload maps `data.content[]` → SpeakerTurn[] with "00:00" timestamps
+- [ ] Burst 6: parseWebhookPayload synthesizes rawTranscript as pipe-delimited lines compatible with parseSpeakerNames
+- [ ] Burst 7: parseWebhookPayload returns null for non-transcript_created events (notes_generated, etc.)
+- [ ] Burst 8: parseWebhookPayload returns null for malformed JSON / missing required fields
 
-## SECTION 14: Threads — Responsive (~5 bursts)
+## SECTION 1.2: Webhook file discovery (~2 bursts)
 
 > **Spec:**
-> Adapt ThreadsView and ThreadDetailView for responsive viewports.
+> `listWebhookFiles(dir)` returns sorted `*.json` filenames. Parallels `listTranscriptFiles`.
 >
-> **Paper artboards (completed):**
-> - "Responsive — Mobile Threads" — Full-screen list with amber "+ New" button. Each row: thread title, shorthand badge (outline), meeting count, optional "Resolved" badge. No filter chips (simpler than action items).
-> - "Responsive — Mobile Thread Detail" — Breadcrumb (Threads > Recurly Migration). Shorthand badge + Open/Resolved status badge. Command buttons: Edit, Notes, Resolve, Find. Sections: Summary, expandable Meetings accordion with relevance scores (tabular-nums, e.g. 0.94) and relevance summary per meeting card.
-> - "Responsive — Tablet Threads" — Annotation: follows Meetings tablet split-pane. List: title, shorthand, meeting count. Detail: summary, scored meetings, candidates.
->
-> **Files affected:** `electron-ui/ui/src/components/ThreadsView.tsx`, `electron-ui/ui/src/components/ThreadDetailView.tsx`, `electron-ui/ui/src/pages/ThreadsPage.tsx`, test files
+> **Files:** `core/parser.ts`, `test/parser.test.ts`
 
-- [x] Burst 52: Create Threads artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [x] Burst 53: Mobile thread list — rows with title, shorthand outline badge, meeting count, optional Resolved badge. "+ New" button in header
-- [x] Burst 54: Mobile thread detail — breadcrumb, status badges, summary section, meetings accordion with relevance scores and summary text per meeting card
-- [x] Burst 55: Tablet split-pane — compact thread list (280px) + thread detail panel
-- [x] Burst 56: Wire into ResponsiveShell with breadcrumbs (Threads > [Thread Name])
-- [x] Burst 57: E2E viewport variants for threads flow
-
-## SECTION 15: Insights — Responsive (~5 bursts)
-
-> **Spec:**
-> Adapt InsightsPage for responsive viewports.
->
-> **Paper artboards (completed):**
-> - "Responsive — Mobile Insights" — Full-screen list with amber "+ New" button. Each row: RAG status dot (green/yellow/red, 10px), period date range, Weekly/Monthly outline badge, Final/Draft status badge. RAG dot is the primary visual differentiator.
-> - "Responsive — Mobile Insight Detail" — Breadcrumb (Insights > Mar 10 – 16). Large RAG dot (12px) + period heading. Weekly badge + Final badge. Command buttons: Edit, Notes, Reopen. Sections: Executive Summary (body text), Topic Details (RAG dot per topic + name + summary).
-> - "Responsive — Tablet Insights" — Annotation: follows Meetings tablet split-pane. List: RAG dot, period label, type badge, status. Detail: executive summary, topics.
->
-> **Files affected:** `electron-ui/ui/src/pages/InsightsPage.tsx`, `electron-ui/ui/src/components/CreateInsightDialog.tsx`, test files
-
-- [x] Burst 58: Create Insights artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [x] Burst 59: Mobile insight list — RAG status dot, period date range, Weekly/Monthly badge, Final/Draft badge. "+ New" button
-- [x] Burst 60: Mobile insight detail — breadcrumb, RAG dot header, Executive Summary section, Topic Details with per-topic RAG dots and summaries
-- [x] Burst 61: CreateInsightDialog → responsive wrapper (bottom sheet on mobile)
-- [x] Burst 62: Tablet split-pane — compact insight list (280px) + insight detail panel
-- [x] Burst 63: E2E viewport variants for insights flow
-
-## SECTION 16: Timelines — Responsive (~5 bursts)
-
-> **Spec:**
-> Adapt TimelinesPage for responsive viewports.
->
-> **Paper artboards (completed):**
-> - "Responsive — Mobile Timelines" — Full-screen list with amber "+ New" button. Status filter chips: All (active), Tracked, Completed, Missed. Each row: status dot (blue=tracked, green=completed, gray=identified, red=missed), title, colored status badge, target date, mention count (tabular-nums).
-> - "Responsive — Mobile Timeline Detail" — Breadcrumb (Timeline > Recurly UAT). Blue status dot (12px) + title. Tracked badge + target date. Command buttons: Edit, Notes, Merge. Sections: Description, expandable Mentions accordion with type badge (status/target) per mention card showing meeting name + excerpt.
-> - "Responsive — Tablet Timelines" — Annotation: follows Meetings tablet split-pane. Status filter chips in list panel. List: status dot, title, badge, date, count. Detail: description, mentions, linked items.
->
-> **Files affected:** `electron-ui/ui/src/pages/TimelinesPage.tsx`, `electron-ui/ui/src/components/CreateMilestoneDialog.tsx`, test files
-
-- [x] Burst 64: Create Timelines artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [x] Burst 65: Mobile timeline list — status dot + colored badge per row, target date, mention count. Status filter chips (All/Tracked/Completed/Missed). "+ New" button
-- [x] Burst 66: Mobile timeline detail — breadcrumb, status dot header, Description section, Mentions accordion with type badges (status/target) and meeting excerpts
-- [x] Burst 67: CreateMilestoneDialog → responsive wrapper (bottom sheet on mobile)
-- [x] Burst 68: Tablet split-pane — compact milestone list (280px) with status filters + milestone detail panel
-- [x] Burst 69: E2E viewport variants for timelines flow
-
-## SECTION 17: Cross-View Polish (~3 bursts)
-
-> **Spec:**
-> Final pass across all views to ensure consistent behavior: consistent toast positioning on mobile, consistent bottom sheet heights, consistent breadcrumb depth patterns.
->
-> **Files affected:** Various component files
-
-- [x] Burst 70: Toast positioning — bottom-center on mobile (above tab bar), top-right on desktop
-- [x] Burst 71: Verify all create dialogs (Thread, Insight, Milestone) use responsive wrapper
-- [x] Burst 72: Visual verification loop — Playwright screenshots at all 3 viewports for every view, compare against Paper artboards
+- [x] Burst 9: listWebhookFiles returns sorted array of *.json filenames from directory
+- [ ] Burst 10: listWebhookFiles returns empty array for empty or non-existent directory; update `core/scatter.md`
 
 ---
 
-## DONE
+# PHASE 2: Pipeline Integration (~12 bursts)
+
+## SECTION 2.1: processWebhookMeetings (~8 bursts)
+
+> **Spec:**
+> New exported function in `core/pipeline.ts`. Scans a webhook directory for `*.json` files, parses each via `parseWebhookPayload`, deduplicates by meeting ID, delegates to existing `processEntry`. Returns `PipelineResult`.
+>
+> Reuses `processEntry` (the shared inner loop) and existing lifecycle functions. Webhook directories (`webhook-processed/`, `webhook-failed/`) are created automatically.
+>
+> **Files:** `core/pipeline.ts`, `test/pipeline.test.ts`
+
+- [ ] Burst 11: processWebhookMeetings returns PipelineResult with correct total count from directory scan
+- [ ] Burst 12: processWebhookMeetings parses JSON files via parseWebhookPayload and processes valid meetings
+- [ ] Burst 13: processWebhookMeetings skips meetings whose externalId already exists in DB
+- [ ] Burst 14: processWebhookMeetings moves processed files to webhook-processed directory
+- [ ] Burst 15: processWebhookMeetings moves failed files to webhook-failed directory with audit log
+- [ ] Burst 16: processWebhookMeetings emits PipelineEvent callbacks (processing, ok, failed, skipped)
+- [ ] Burst 17: processWebhookMeetings silently skips non-transcript_created events (not counted as failures)
+- [ ] Burst 18: processWebhookMeetings creates webhook-processed and webhook-failed dirs if missing
+
+## SECTION 2.2: Orchestration (~4 bursts)
+
+> **Spec:**
+> Update `processNewMeetings` to accept optional webhook config. Webhook processing runs first; its processed meeting IDs feed into the manifest dedup set. Update `cli/run.ts` entry point.
+>
+> **Files:** `core/pipeline.ts`, `cli/run.ts`, `test/pipeline.test.ts`
+
+- [ ] Burst 19: PipelineConfig accepts optional webhookRawDir, webhookProcessedDir, webhookFailedDir
+- [ ] Burst 20: processNewMeetings calls processWebhookMeetings first when webhookRawDir is provided
+- [ ] Burst 21: Meeting IDs from webhook processing are included in the manifest dedup set
+- [ ] Burst 22: cli/run.ts passes webhook directory paths; update scatter.md and gather.md
+
+---
+
+# PHASE 3: Local Background Service (~12 bursts)
+
+## SECTION 3.1: File watcher (~5 bursts)
+
+> **Spec:**
+> `local-service/watcher.ts` — a standalone module (not part of the API or web server) that detects new `*.json` files in the webhook directory and calls a callback. This runs as its own dedicated Node.js process managed by pm2 — it starts at boot, runs continuously in the background, and auto-restarts on crash. It is completely independent from the API server (`pnpm api:dev`) and web UI (`pnpm web:dev`).
+>
+> Uses `node:fs` watch with a periodic scan fallback (30s) since `fs.watch` is unreliable with Google Drive sync on macOS. Debounces rapid events for the same file (Drive may write incrementally).
+>
+> **Files:** `local-service/watcher.ts`, `test/watcher.test.ts`
+
+- [ ] Burst 23: createWatcher detects new JSON file and calls callback with filename
+- [ ] Burst 24: createWatcher debounces rapid events for the same file (wait for write to stabilize)
+- [ ] Burst 25: createWatcher periodic scan catches files that fs.watch missed
+- [ ] Burst 26: createWatcher ignores non-JSON and hidden files
+- [ ] Burst 27: createWatcher stop() cleans up watchers and timers
+
+## SECTION 3.2: Service entry point (~4 bursts)
+
+> **Spec:**
+> `local-service/main.ts` — pm2-managed process. Initializes DB, vector DB, embedder, LLM (same pattern as `cli/run.ts` using `cli/shared.ts`). Creates watcher, processes each detected file. Handles graceful shutdown.
+>
+> **Files:** `local-service/main.ts`, `local-service/scatter.md`
+
+- [ ] Burst 28: Service initializes core dependencies (DB, vector DB, session, LLM) using shared config pattern
+- [ ] Burst 29: Service processes newly detected webhook file through full pipeline
+- [ ] Burst 30: Service handles SIGINT/SIGTERM — stops watcher, closes resources
+- [ ] Burst 31: Service logs startup, processing events, and shutdown via createLogger
+
+## SECTION 3.3: pm2 configuration (~3 bursts)
+
+> **Spec:**
+> `ecosystem.config.cjs` at project root. npm scripts for start/stop. Documentation.
+>
+> **Files:** `ecosystem.config.cjs`, `package.json`, `local-service/scatter.md`, root `gather.md`
+
+- [ ] Burst 32: ecosystem.config.cjs defines webhook-watcher app (script path, interpreter, restart policy, log config)
+- [ ] Burst 33: package.json scripts: `service:start`, `service:stop`, `service:logs`
+- [ ] Burst 34: Update local-service/scatter.md and root gather.md
+
+---
+
+# PHASE 4: Documentation (~2 bursts)
+
+## SECTION 4.1: User-facing documentation (~2 bursts)
+
+> **Spec:**
+> Update README.md with instructions for the webhook ingestion pipeline: Firebase setup, Google Drive sync, how the local service works, and how to start/stop/monitor it. Update scatter.md and gather.md across all affected directories to reflect the new source, new files, and new service.
+>
+> **Files:** `README.md`, `core/scatter.md`, `cli/scatter.md`, `local-service/scatter.md`, root `gather.md`, `google-krisp-webhook/scatter.md`
+
+- [ ] Burst 35: Update README.md — add Webhook Ingestion section (Firebase setup, Drive sync, service commands, troubleshooting)
+- [ ] Burst 36: Update all scatter.md and gather.md files across affected directories (core, cli, local-service, google-krisp-webhook, root)
+
+---
+
+## TOTAL: ~36 bursts
+
+## CRITICAL FILES
+
+| File | Action | Phase |
+|------|--------|-------|
+| `core/parser.ts` | Add `parseWebhookPayload`, `listWebhookFiles` | 1 |
+| `core/pipeline.ts` | Add `processWebhookMeetings`, update `processNewMeetings` | 2 |
+| `core/lifecycle.ts` | Reuse existing `moveToProcessed`/`moveToFailed` (no changes needed) | — |
+| `core/client-detection.ts` | No changes — rawTranscript synthesis ensures compatibility | — |
+| `cli/run.ts` | Pass webhook directory paths | 2 |
+| `local-service/watcher.ts` | New file — file watcher module | 3 |
+| `local-service/main.ts` | New file — service entry point | 3 |
+| `ecosystem.config.cjs` | New file — pm2 config | 3 |
+| `test/parser.test.ts` | Add webhook parser tests | 1 |
+| `test/pipeline.test.ts` | Add webhook pipeline tests | 2 |
+| `test/watcher.test.ts` | New file — watcher tests | 3 |
+| `README.md` | Add Webhook Ingestion section | 4 |
+| `google-krisp-webhook/scatter.md` | Update with Firebase function docs | 4 |
+
+## SEQUENCING & DEPENDENCY MAP
+
+```
+Phase 1 → Phase 2 → Phase 3 → Phase 4
+
+Phase 1: Webhook Parser
+├── Section 1.1: parseWebhookPayload (Bursts 1-8)
+│   └── Each burst is sequential (builds on previous)
+└── Section 1.2: listWebhookFiles (Bursts 9-10)
+    └── INDEPENDENT of Section 1.1 — can run in parallel via subagent
+
+Phase 2: Pipeline Integration (depends on ALL of Phase 1)
+├── Section 2.1: processWebhookMeetings (Bursts 11-18)
+│   ├── Depends on: parseWebhookPayload, listWebhookFiles
+│   └── Each burst is sequential
+└── Section 2.2: Orchestration (Bursts 19-22)
+    └── Depends on: Section 2.1 (processWebhookMeetings must exist)
+
+Phase 3: Local Background Service (depends on ALL of Phase 2)
+├── Section 3.1: File watcher (Bursts 23-27)
+│   └── INDEPENDENT of pipeline — can run in parallel via subagent
+├── Section 3.2: Service entry point (Bursts 28-31)
+│   └── Depends on: Section 3.1 (watcher) + Phase 2 (pipeline)
+└── Section 3.3: pm2 configuration (Bursts 32-34)
+    └── Depends on: Section 3.2 (main.ts must exist)
+
+Phase 4: Documentation (depends on ALL of Phase 3)
+├── Burst 35: README.md — INDEPENDENT
+└── Burst 36: scatter/gather — INDEPENDENT
+    └── Can run in parallel via subagent
+```
+
+### Parallel subagent opportunities
+
+| Opportunity | What runs in parallel | Prerequisite |
+|---|---|---|
+| Phase 1 split | Section 1.1 (parser) ∥ Section 1.2 (file discovery) | None |
+| Phase 3 split | Section 3.1 (watcher) ∥ Section 3.3 (pm2 config scaffolding) | Phase 2 complete |
+| Phase 4 split | Burst 35 (README) ∥ Burst 36 (scatter/gather) | Phase 3 complete |
+
+## VERIFICATION
+
+1. **Unit tests:** `pnpm test --run` — all existing + new tests pass
+2. **Manual E2E:** Copy a webhook JSON to `data/webhook-rawtranscripts/`, run `pnpm process`, verify meeting appears in DB and JSON moves to `data/webhook-processed/`
+3. **Service E2E:** Start service via `pnpm service:start`, copy a webhook JSON to the watched directory, verify auto-processing within 30s
+4. **Dedup:** Process same meeting via webhook then via raw-transcripts — second attempt should skip
+
+## PREREQUISITE
+
+Rename existing `ketchup-plan.md` → `mobile-ketchup-plan.old.md` before starting Burst 1.
