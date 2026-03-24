@@ -19,7 +19,11 @@
     "api:dev": "tsx api/main.ts",
     "web:dev": "vite --config vite.web.config.ts",
     "llm:check": "tsx scripts/llm-check.ts",
-    "import-external": "tsx cli/import-external.ts"
+    "import-external": "tsx cli/import-external.ts",
+    "service:start": "pm2 start ecosystem.config.cjs",
+    "service:stop": "pm2 stop webhook-watcher",
+    "service:logs": "pm2 logs webhook-watcher",
+    "service:status": "pm2 status"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +39,7 @@
     "@types/react-dom": "^19.2.3",
     "electron": "^40.6.1",
     "jsdom": "^28.1.0",
+    "pm2": "^6.0.14",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",

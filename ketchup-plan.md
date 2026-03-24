@@ -155,7 +155,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 > **Files:** `ecosystem.config.cjs`, `package.json`, `local-service/scatter.md`, root `gather.md`
 
 - [x] Burst 32: ecosystem.config.cjs defines webhook-watcher app (script path, interpreter, restart policy, log config)
-- [ ] Burst 33: package.json scripts: `service:start`, `service:stop`, `service:logs`
+- [x] Burst 33: package.json scripts: `service:start`, `service:stop`, `service:logs`
 - [ ] Burst 34: Update local-service/scatter.md and root gather.md
 
 ---
