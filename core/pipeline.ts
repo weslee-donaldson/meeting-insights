@@ -203,17 +203,39 @@ async function processEntry(
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder, webhookRawDir, webhookProcessedDir, webhookFailedDir } = config;
+
+  let succeeded = 0;
+  let failed = 0;
+  let skipped = 0;
+  let totalCount = 0;
+
+  if (webhookRawDir && webhookProcessedDir && webhookFailedDir) {
+    const webhookResult = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir,
+      webhookFailedDir,
+      auditDir,
+      db,
+      vdb,
+      session,
+      llm,
+      tokenLimit,
+      extractionPromptPath,
+      onProgress,
+      threadSimilarityThreshold,
+    });
+    succeeded += webhookResult.succeeded;
+    failed += webhookResult.failed;
+    skipped += webhookResult.skipped;
+    totalCount += webhookResult.total;
+  }
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
     : undefined;
 
   mkdirSync(auditDir, { recursive: true });
-
-  let succeeded = 0;
-  let failed = 0;
-  let skipped = 0;
 
   const table = await createMeetingTable(vdb);
   const itemTable = await createItemTable(vdb);
@@ -261,8 +283,9 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
       }
     }
 
-    log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
-    return { total, succeeded, failed, skipped };
+    const grandTotal = totalCount + total;
+    log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", grandTotal, succeeded, failed, skipped);
+    return { total: grandTotal, succeeded, failed, skipped };
   }
 
   // Legacy flat-file processing (used by tests)
@@ -293,8 +316,9 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
     }
   }
 
-  log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
-  return { total, succeeded, failed, skipped };
+  const grandTotal = totalCount + total;
+  log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", grandTotal, succeeded, failed, skipped);
+  return { total: grandTotal, succeeded, failed, skipped };
 }
 
 interface WebhookPipelineConfig {

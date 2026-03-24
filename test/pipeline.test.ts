@@ -665,4 +665,42 @@ describe("processNewMeetings with webhook config", () => {
 
     expect(result).toEqual({ total: 0, succeeded: 0, failed: 0, skipped: 0 });
   });
+
+  it("calls processWebhookMeetings first and aggregates results with manifest processing", async () => {
+    const rawDir = join(oBaseDir, "burst20-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const webhookRawDir = join(oBaseDir, "burst20-webhook-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+
+    writeFileSync(join(webhookRawDir, "burst20.json"), makeWebhookJson({ meetingId: "burst20-webhook" }), "utf-8");
+
+    const FILENAME = " 2026-01-20T00:00:00.000ZBurst20 Manifest Test";
+    writeFileSync(join(rawDir, FILENAME), GOOD_CONTENT, "utf-8");
+
+    const events: PipelineEvent[] = [];
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(oBaseDir, "burst20-processed"),
+      failedDir: join(oBaseDir, "burst20-failed"),
+      auditDir: join(oBaseDir, "burst20-audit"),
+      db: oDb,
+      vdb: oVdb,
+      session,
+      llm,
+      webhookRawDir,
+      webhookProcessedDir: join(oBaseDir, "burst20-webhook-processed"),
+      webhookFailedDir: join(oBaseDir, "burst20-webhook-failed"),
+      onProgress: (e) => events.push(e),
+    });
+
+    expect(result.succeeded).toBe(2);
+    expect(result.total).toBe(2);
+
+    const webhookMeeting = oDb.prepare("SELECT id FROM meetings WHERE id = ?").get("burst20-webhook") as { id: string } | undefined;
+    expect(webhookMeeting).toBeDefined();
+
+    const okEvents = events.filter((e) => e.type === "ok");
+    expect(okEvents.length).toBe(2);
+  });
 });
