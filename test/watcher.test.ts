@@ -31,4 +31,31 @@ describe("createWatcher", () => {
 
     expect(await received).toBe("meeting.json");
   });
+
+  it("debounces rapid events for the same file", async () => {
+    tmpDir = join(tmpdir(), `watcher-debounce-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    const calls: string[] = [];
+    const settled = new Promise<void>((resolve) => {
+      watcher = createWatcher({
+        dir: tmpDir,
+        onFile: (filename) => {
+          calls.push(filename);
+          resolve();
+        },
+        debounceMs: 100,
+        pollIntervalMs: 5000,
+      });
+    });
+
+    writeFileSync(join(tmpDir, "data.json"), '{"v":1}');
+    writeFileSync(join(tmpDir, "data.json"), '{"v":2}');
+    writeFileSync(join(tmpDir, "data.json"), '{"v":3}');
+
+    await settled;
+    await new Promise((r) => setTimeout(r, 200));
+
+    expect(calls).toEqual(["data.json"]);
+  });
 });
