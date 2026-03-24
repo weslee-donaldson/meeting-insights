@@ -338,4 +338,12 @@ describe("parseWebhookPayload", () => {
     });
     expect(parseWebhookPayload(notesPayload, "notes.json")).toBeNull();
   });
+
+  it("returns null for malformed JSON and missing required fields", () => {
+    expect(parseWebhookPayload("", "empty.json")).toBeNull();
+    expect(parseWebhookPayload("not json", "bad.json")).toBeNull();
+    expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created" }), "no-data.json")).toBeNull();
+    expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created", data: {} }), "no-meeting.json")).toBeNull();
+    expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created", data: { meeting: { id: "m1" } } }), "no-content.json")).toBeNull();
+  });
 });

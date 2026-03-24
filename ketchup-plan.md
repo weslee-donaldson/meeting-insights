@@ -70,7 +70,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 - [x] Burst 5: parseWebhookPayload maps `data.content[]` → SpeakerTurn[] with "00:00" timestamps
 - [x] Burst 6: parseWebhookPayload synthesizes rawTranscript as pipe-delimited lines compatible with parseSpeakerNames
 - [x] Burst 7: parseWebhookPayload returns null for non-transcript_created events (notes_generated, etc.)
-- [ ] Burst 8: parseWebhookPayload returns null for malformed JSON / missing required fields
+- [x] Burst 8: parseWebhookPayload returns null for malformed JSON / missing required fields
 
 ## SECTION 1.2: Webhook file discovery (~2 bursts)
 

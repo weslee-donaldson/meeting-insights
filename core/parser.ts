@@ -211,28 +211,34 @@ interface WebhookContentEntry {
 }
 
 export function parseWebhookPayload(json: string, filename: string): ParsedMeeting | null {
-  const payload = JSON.parse(json);
-  if (payload.event !== "transcript_created") return null;
-  const meeting = payload.data.meeting;
-  const participants: Participant[] = meeting.speakers.map((s: WebhookSpeaker) => ({
-    first_name: s.first_name ?? s.email.split("@")[0],
-    last_name: s.last_name ?? "",
-    id: s.id,
-    email: s.email,
-  }));
-  const turns: SpeakerTurn[] = payload.data.content.map((c: WebhookContentEntry) => ({
-    speaker_name: c.speaker,
-    timestamp: "00:00",
-    text: c.text,
-  }));
-  const rawTranscript = turns.map((t) => `${t.speaker_name} | ${t.timestamp}\n${t.text}\n`).join("");
-  return {
-    externalId: meeting.id,
-    timestamp: meeting.start_date,
-    title: meeting.title,
-    participants,
-    turns,
-    rawTranscript,
-    sourceFilename: filename,
-  };
+  try {
+    const payload = JSON.parse(json);
+    if (payload.event !== "transcript_created") return null;
+    const meeting = payload.data.meeting;
+    if (!meeting?.speakers || !Array.isArray(payload.data.content)) return null;
+    const participants: Participant[] = meeting.speakers.map((s: WebhookSpeaker) => ({
+      first_name: s.first_name ?? s.email.split("@")[0],
+      last_name: s.last_name ?? "",
+      id: s.id,
+      email: s.email,
+    }));
+    const turns: SpeakerTurn[] = payload.data.content.map((c: WebhookContentEntry) => ({
+      speaker_name: c.speaker,
+      timestamp: "00:00",
+      text: c.text,
+    }));
+    const rawTranscript = turns.map((t) => `${t.speaker_name} | ${t.timestamp}\n${t.text}\n`).join("");
+    return {
+      externalId: meeting.id,
+      timestamp: meeting.start_date,
+      title: meeting.title,
+      participants,
+      turns,
+      rawTranscript,
+      sourceFilename: filename,
+    };
+  } catch (err) {
+    logParser("failed to parse webhook %s: %s", filename, err);
+    return null;
+  }
 }
