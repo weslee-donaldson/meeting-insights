@@ -67,4 +67,39 @@ describe("startService", () => {
 
     service.stop();
   });
+
+  it("processes detected webhook file through full pipeline", async () => {
+    let capturedOnFile: ((filename: string) => void | Promise<void>) | undefined;
+    vi.mocked(createWatcher).mockImplementation((opts) => {
+      capturedOnFile = opts.onFile;
+      return { stop: vi.fn() };
+    });
+
+    const service = await startService({
+      dbPath: ":memory:",
+      vectorPath: "/tmp/test-vdb",
+      modelPath: "models/test.onnx",
+      tokenizerPath: "models/tokenizer.json",
+      llmConfig: { type: "stub" as const },
+      clientsPath: "config/clients.json",
+      webhookRawDir: "data/webhook-rawtranscripts",
+      webhookProcessedDir: "data/webhook-processed",
+      webhookFailedDir: "data/webhook-failed",
+      auditDir: "data/audit",
+    });
+
+    expect(capturedOnFile).toBeDefined();
+    await capturedOnFile!("new-meeting.json");
+
+    expect(processWebhookMeetings).toHaveBeenCalledWith(
+      expect.objectContaining({
+        webhookRawDir: "data/webhook-rawtranscripts",
+        webhookProcessedDir: "data/webhook-processed",
+        webhookFailedDir: "data/webhook-failed",
+        auditDir: "data/audit",
+      }),
+    );
+
+    service.stop();
+  });
 });
