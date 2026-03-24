@@ -441,6 +441,14 @@ export function App() {
         currentView === "timelines" ? milestone.selectedMilestone?.title :
         undefined
       }
+      selectedItemId={
+        currentView === "meetings" ? meeting.selectedMeetingId :
+        currentView === "action-items" ? meeting.previewMeetingId :
+        currentView === "threads" ? thread.selectedThreadId :
+        currentView === "insights" ? insight.selectedInsightId :
+        currentView === "timelines" ? milestone.selectedMilestoneId :
+        null
+      }
       topBar={
         <TopBar
           clients={clientsQuery.data ?? []}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useBreakpoint } from "../hooks/useBreakpoint.js";
 import { MobileNavContext } from "../hooks/useMobileNav.js";
 import { LinearShell } from "./LinearShell.js";
@@ -20,6 +20,7 @@ interface ResponsiveShellProps {
   currentView: View;
   onNavigate: (view: View) => void;
   selectedItemTitle?: string;
+  selectedItemId?: string | null;
 }
 
 const VIEW_LABELS: Record<View, string> = {
@@ -41,6 +42,7 @@ export function ResponsiveShell({
   currentView,
   onNavigate,
   selectedItemTitle,
+  selectedItemId,
 }: ResponsiveShellProps) {
   const breakpoint = useBreakpoint();
   const [mobileScreen, setMobileScreen] = useState<MobileScreen>("list");
@@ -65,6 +67,19 @@ export function ResponsiveShell({
   const handleBackToDetail = useCallback(() => {
     setMobileScreen("detail");
   }, []);
+
+  const prevItemIdRef = useRef(selectedItemId);
+  useEffect(() => {
+    const prev = prevItemIdRef.current;
+    prevItemIdRef.current = selectedItemId;
+    if (breakpoint !== "mobile") return;
+    if (!prev && selectedItemId && mobileScreen === "list") {
+      setMobileScreen("detail");
+    }
+    if (prev && !selectedItemId && mobileScreen !== "list") {
+      setMobileScreen("list");
+    }
+  }, [selectedItemId, breakpoint, mobileScreen]);
 
   const mobileNavValue = useMemo(() => ({
     goToDetail: handleSelectItem,
