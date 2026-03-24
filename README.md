@@ -136,3 +136,58 @@ pnpm test:e2e         # run Playwright end-to-end tests
 
 See [SETUP.md](SETUP.md) for prerequisites, model download, and environment variable reference.
 See [docs/applications.md](docs/applications.md) for detailed CLI and API documentation.
+
+---
+
+## Webhook Ingestion
+
+Krisp webhook events flow through a multi-stage pipeline: Krisp sends POST events to a Firebase Cloud Function, which saves the raw JSON to Google Drive. Google Drive for Desktop syncs files locally. A background file watcher detects new files and runs them through the processing pipeline automatically.
+
+### Firebase Cloud Function
+
+The `krispWebhook` Cloud Function lives in `google-krisp-webhook/firebase/`. It accepts POST requests from Krisp, authenticates via a bearer token, and writes the raw JSON payload to a Google Drive folder.
+
+**Project:** krisp-meeting-insights (Firebase Blaze plan)
+
+**Secrets** (configured via `firebase functions:secrets:set`):
+
+| Secret | Purpose |
+|--------|---------|
+| `KRISP_AUTH_TOKEN` | Bearer token Krisp sends with each webhook |
+| `DRIVE_FOLDER_ID` | Google Drive folder where payloads are saved |
+| `GOOGLE_CLIENT_ID` | OAuth client ID for Drive API access |
+| `GOOGLE_CLIENT_SECRET` | OAuth client secret |
+| `GOOGLE_REFRESH_TOKEN` | Long-lived OAuth refresh token |
+
+**Deploy:**
+
+```bash
+cd google-krisp-webhook/firebase && firebase deploy --only functions
+```
+
+### Google Drive Sync
+
+Webhook JSON files land in the configured Google Drive folder. Google Drive for Desktop syncs them to your local machine. Configure Drive sync so the folder maps to `data/webhook-rawtranscripts/` in this project (or symlink the synced directory there).
+
+### Local Background Service
+
+A pm2-managed Node.js process watches `data/webhook-rawtranscripts/` for new JSON files and processes them through the full pipeline (parse, ingest, detect client, extract artifacts, embed). Processed files move to `data/webhook-processed/`; failures move to `data/webhook-failed/`.
+
+```bash
+pnpm service:start    # start the file watcher via pm2
+pnpm service:stop     # stop the watcher
+pnpm service:logs     # tail watcher logs
+pnpm service:status   # check if the watcher is running
+```
+
+The watcher uses `fs.watch` with a 30-second periodic scan fallback (macOS + Google Drive sync can miss `fs.watch` events). File writes are debounced to avoid processing partially-synced files.
+
+### Manual Processing
+
+`pnpm process` still works for batch processing. It processes webhook files first (from `data/webhook-rawtranscripts/`), then raw transcripts (from `data/raw-transcripts/`). Meeting IDs from webhook processing feed into the dedup set, so a meeting ingested via webhook will not be re-processed from a raw transcript.
+
+### Troubleshooting
+
+- **Files not being processed:** Check `pnpm service:logs` for errors. Verify the watcher is running with `pnpm service:status`.
+- **Drive sync not working:** Check that Google Drive for Desktop is running and the sync folder maps to `data/webhook-rawtranscripts/`.
+- **OAuth token expired:** Re-run `node google-krisp-webhook/firebase/get-refresh-token.js` and update the `GOOGLE_REFRESH_TOKEN` secret via `firebase functions:secrets:set GOOGLE_REFRESH_TOKEN`.

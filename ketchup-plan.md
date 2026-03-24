@@ -169,7 +169,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `README.md`, `core/scatter.md`, `cli/scatter.md`, `local-service/scatter.md`, root `gather.md`, `google-krisp-webhook/scatter.md`
 
-- [ ] Burst 35: Update README.md — add Webhook Ingestion section (Firebase setup, Drive sync, service commands, troubleshooting)
+- [x] Burst 35: Update README.md — add Webhook Ingestion section (Firebase setup, Drive sync, service commands, troubleshooting)
 - [ ] Burst 36: Update all scatter.md and gather.md files across affected directories (core, cli, local-service, google-krisp-webhook, root)
 
 ---
