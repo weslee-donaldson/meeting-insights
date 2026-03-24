@@ -104,4 +104,28 @@ describe("createWatcher", () => {
 
     expect(calls).toEqual(["valid.json"]);
   });
+
+  it("stop() cleans up watchers and timers — no callbacks after stop", async () => {
+    tmpDir = join(tmpdir(), `watcher-stop-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    const calls: string[] = [];
+    watcher = createWatcher({
+      dir: tmpDir,
+      onFile: (filename) => {
+        calls.push(filename);
+      },
+      debounceMs: 50,
+      pollIntervalMs: 100,
+    });
+
+    watcher.stop();
+    watcher = undefined;
+
+    writeFileSync(join(tmpDir, "after-stop.json"), "{}");
+
+    await new Promise((r) => setTimeout(r, 400));
+
+    expect(calls).toEqual([]);
+  });
 });
