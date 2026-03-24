@@ -103,22 +103,31 @@ export function ResponsiveShell({
   }
 
   if (breakpoint === "tablet") {
+    const hasSplitPanels = panels.length > 1;
     const tabletSidebarWidth = Math.min(defaultSidebarWidth ?? layout.tablet.sidebarWidth, 380);
     return (
       <MobileNavContext.Provider value={mobileNavValue}>
       <div className="flex flex-col h-screen overflow-hidden" data-testid="responsive-shell-tablet">
         <div className="shrink-0">{topBar}</div>
         <div className="flex flex-1 overflow-hidden">
-          <div
-            className="shrink-0 overflow-auto border-r border-[var(--color-line)]"
-            style={{ width: tabletSidebarWidth + "px" }}
-            data-testid="tablet-list-panel"
-          >
-            {panels[0]}
-          </div>
-          <div className="flex-1 overflow-auto" data-testid="tablet-detail-panel">
-            {panels[1] ?? panels[0]}
-          </div>
+          {hasSplitPanels ? (
+            <>
+              <div
+                className="shrink-0 overflow-auto border-r border-[var(--color-line)]"
+                style={{ width: tabletSidebarWidth + "px" }}
+                data-testid="tablet-list-panel"
+              >
+                {panels[0]}
+              </div>
+              <div className="flex-1 overflow-auto" data-testid="tablet-detail-panel">
+                {panels[1]}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 overflow-auto" data-testid="tablet-list-panel">
+              {panels[0]}
+            </div>
+          )}
           {chatOpen && chat && (
             <div
               className="shrink-0 overflow-hidden border-l border-[var(--color-line)]"
