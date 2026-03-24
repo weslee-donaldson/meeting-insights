@@ -329,4 +329,13 @@ describe("parseWebhookPayload", () => {
       "Alice Smith | 00:00\nHello there.\nBob Jones | 00:00\nHi Alice.\n"
     );
   });
+
+  it("returns null for non-transcript_created events", () => {
+    const notesPayload = JSON.stringify({
+      id: "evt1",
+      event: "notes_generated",
+      data: { meeting: { id: "mtg1" }, content: "Some notes" },
+    });
+    expect(parseWebhookPayload(notesPayload, "notes.json")).toBeNull();
+  });
 });

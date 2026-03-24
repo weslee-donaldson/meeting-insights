@@ -212,6 +212,7 @@ interface WebhookContentEntry {
 
 export function parseWebhookPayload(json: string, filename: string): ParsedMeeting | null {
   const payload = JSON.parse(json);
+  if (payload.event !== "transcript_created") return null;
   const meeting = payload.data.meeting;
   const participants: Participant[] = meeting.speakers.map((s: WebhookSpeaker) => ({
     first_name: s.first_name ?? s.email.split("@")[0],
