@@ -543,4 +543,34 @@ describe("processWebhookMeetings", () => {
     const auditFiles = readdirSync(auditDir).filter((f) => f.endsWith(".json"));
     expect(auditFiles.length).toBeGreaterThan(0);
   });
+
+  it("emits PipelineEvent callbacks for processing, ok, failed, and skipped", async () => {
+    const webhookRawDir = join(wBaseDir, "burst16-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+    const existingId = "burst16-existing";
+    wDb.prepare("INSERT INTO meetings (id, title, date, participants, raw_transcript, source_filename, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").run(existingId, "Existing", "2026-01-01T00:00:00.000Z", "[]", "", "burst16-old", new Date().toISOString());
+    writeFileSync(join(webhookRawDir, "good.json"), makeWebhookJson({ meetingId: "burst16-new" }), "utf-8");
+    writeFileSync(join(webhookRawDir, "dup.json"), makeWebhookJson({ meetingId: existingId }), "utf-8");
+    writeFileSync(join(webhookRawDir, "bad.json"), '{"event":"transcript_created","data":{}}', "utf-8");
+
+    const events: PipelineEvent[] = [];
+    const llm = createLlmAdapter({ type: "stub" });
+    await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst16-processed"),
+      webhookFailedDir: join(wBaseDir, "burst16-failed"),
+      auditDir: join(wBaseDir, "burst16-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+      onProgress: (e) => events.push(e),
+    });
+
+    const types = events.map((e) => e.type);
+    expect(types).toContain("processing");
+    expect(types).toContain("ok");
+    expect(types).toContain("failed");
+    expect(types).toContain("skipped");
+  });
 });
