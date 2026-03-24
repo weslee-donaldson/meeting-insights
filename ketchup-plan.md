@@ -249,9 +249,9 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** `test/e2e/helpers.ts`, `test/e2e/meeting-notes.spec.ts`, new viewport test file
 
-- [ ] Burst 43: Add viewport helper to `test/e2e/helpers.ts` — `withViewport(page, "mobile" | "tablet" | "desktop")`
-- [ ] Burst 44: Create `test/e2e/responsive-meetings.spec.ts` — meeting list → detail → chat flow at mobile and tablet viewports
-- [ ] Burst 45: Add breadcrumb navigation test — verify tapping breadcrumb segments navigates correctly
+- [x] Burst 43: Add viewport helper to `test/e2e/helpers.ts` — `withViewport(page, "mobile" | "tablet" | "desktop")`
+- [x] Burst 44: Create `test/e2e/responsive-meetings.spec.ts` — meeting list → detail → chat flow at mobile and tablet viewports
+- [x] Burst 45: Add breadcrumb navigation test — verify tapping breadcrumb segments navigates correctly
 
 ---
 
