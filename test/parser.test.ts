@@ -300,4 +300,33 @@ describe("parseWebhookPayload", () => {
       { speaker_name: "Wesley Donaldson", timestamp: "00:00", text: "Good afternoon." },
     ]);
   });
+
+  it("synthesizes rawTranscript as pipe-delimited lines compatible with parseSpeakerNames", () => {
+    const twoTurnPayload = JSON.stringify({
+      id: "evt1",
+      event: "transcript_created",
+      data: {
+        meeting: {
+          id: "mtg1",
+          title: "Test",
+          duration: 100,
+          speakers: [
+            { index: 1, first_name: "Alice", last_name: "Smith", id: "a1", email: "alice@test.com" },
+            { index: 2, first_name: "Bob", last_name: "Jones", id: "b1", email: "bob@test.com" },
+          ],
+          start_date: "2026-01-01T00:00:00.000Z",
+          end_date: "2026-01-01T00:10:00.000Z",
+          url: "https://app.krisp.ai/n/mtg1",
+        },
+        content: [
+          { speaker: "Alice Smith", speakerIndex: 1, text: "Hello there." },
+          { speaker: "Bob Jones", speakerIndex: 2, text: "Hi Alice." },
+        ],
+      },
+    });
+    const result = parseWebhookPayload(twoTurnPayload, "test.json");
+    expect(result!.rawTranscript).toBe(
+      "Alice Smith | 00:00\nHello there.\nBob Jones | 00:00\nHi Alice.\n"
+    );
+  });
 });

@@ -224,13 +224,14 @@ export function parseWebhookPayload(json: string, filename: string): ParsedMeeti
     timestamp: "00:00",
     text: c.text,
   }));
+  const rawTranscript = turns.map((t) => `${t.speaker_name} | ${t.timestamp}\n${t.text}\n`).join("");
   return {
     externalId: meeting.id,
     timestamp: meeting.start_date,
     title: meeting.title,
     participants,
     turns,
-    rawTranscript: "",
+    rawTranscript,
     sourceFilename: filename,
   };
 }
