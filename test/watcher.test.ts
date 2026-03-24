@@ -76,4 +76,32 @@ describe("createWatcher", () => {
 
     expect(await received).toBe("pre-existing.json");
   });
+
+  it("ignores non-JSON and hidden files", async () => {
+    tmpDir = join(tmpdir(), `watcher-filter-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    const calls: string[] = [];
+    const validReceived = new Promise<void>((resolve) => {
+      watcher = createWatcher({
+        dir: tmpDir,
+        onFile: (filename) => {
+          calls.push(filename);
+          resolve();
+        },
+        debounceMs: 50,
+        pollIntervalMs: 5000,
+      });
+    });
+
+    writeFileSync(join(tmpDir, ".DS_Store"), "");
+    writeFileSync(join(tmpDir, "readme.txt"), "hello");
+    writeFileSync(join(tmpDir, ".hidden.json"), "{}");
+    writeFileSync(join(tmpDir, "valid.json"), "{}");
+
+    await validReceived;
+    await new Promise((r) => setTimeout(r, 200));
+
+    expect(calls).toEqual(["valid.json"]);
+  });
 });
