@@ -517,4 +517,30 @@ describe("processWebhookMeetings", () => {
     expect(existsSync(join(webhookRawDir, "to-process.json"))).toBe(false);
     expect(existsSync(join(webhookProcessedDir, "to-process.json"))).toBe(true);
   });
+
+  it("moves failed files to webhook-failed directory with audit log", async () => {
+    const webhookRawDir = join(wBaseDir, "burst15-raw");
+    const webhookFailedDir = join(wBaseDir, "burst15-failed");
+    const auditDir = join(wBaseDir, "burst15-audit");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "bad.json"), '{"event":"transcript_created","data":{}}', "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst15-processed"),
+      webhookFailedDir,
+      auditDir,
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(result.failed).toBe(1);
+    expect(existsSync(join(webhookFailedDir, "bad.json"))).toBe(true);
+    expect(existsSync(join(webhookRawDir, "bad.json"))).toBe(false);
+    const auditFiles = readdirSync(auditDir).filter((f) => f.endsWith(".json"));
+    expect(auditFiles.length).toBeGreaterThan(0);
+  });
 });

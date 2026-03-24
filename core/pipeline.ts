@@ -24,6 +24,15 @@ import type { LlmAdapter } from "./llm-adapter.js";
 
 const log = createLogger("pipeline");
 
+function isKnownNonTranscriptEvent(json: string): boolean {
+  try {
+    const payload = JSON.parse(json);
+    return typeof payload.event === "string" && payload.event !== "transcript_created";
+  } catch {
+    return false;
+  }
+}
+
 function extractErrorType(reason: string): "rate_limit" | "api_error" | "json_parse" | "unknown" {
   if (reason.startsWith("[rate_limit]")) return "rate_limit";
   if (reason.startsWith("[api_error]")) return "api_error";
@@ -326,7 +335,15 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     const parsed = parseWebhookPayload(json, filename);
 
     if (!parsed) {
-      skipped++;
+      const isNonTranscriptEvent = isKnownNonTranscriptEvent(json);
+      if (isNonTranscriptEvent) {
+        skipped++;
+        continue;
+      }
+      onProgress?.({ type: "processing", name: filename, title: filename, index, total });
+      const result = await processEntry(null, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold);
+      onProgress?.({ type: "failed", name: filename, title: filename, reason: result.status === "failed" ? result.reason : "parse failed", elapsed_ms: result.status === "failed" ? result.elapsed_ms : 0 });
+      failed++;
       continue;
     }
 
