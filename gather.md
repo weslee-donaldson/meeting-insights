@@ -4,7 +4,7 @@ Each directory has its own `scatter.md` (local file documentation) and optionall
 
 ## From `core/`
 
-The 46-file business logic layer is the dependency sink — it imports only from Node built-ins and npm packages. The pipeline orchestrator (`pipeline.ts`) drives the full batch flow: parse → ingest → detect client → extract → reconcile milestones → FTS → deduplicate items → embed → evaluate threads. Clustering uses `table.query()` (full scan), not KNN search with zero vectors — KNN is unreliable for bulk retrieval of L2-normalized vectors. The LLM layer supports 6 providers (Anthropic, OpenAI, Ollama, Claude CLI, Claude API, stub) via a pluggable adapter pattern; `withRepair` retries once on JSON parse failure.
+The 46-file business logic layer is the dependency sink — it imports only from Node built-ins and npm packages. The pipeline orchestrator (`pipeline.ts`) drives the full batch flow: webhook JSON files first (when configured), then manifest/legacy transcripts. Webhook-ingested meeting IDs naturally deduplicate against the manifest. Per-meeting flow: parse → ingest → detect client → extract → reconcile milestones → FTS → deduplicate items → embed → evaluate threads. Clustering uses `table.query()` (full scan), not KNN search with zero vectors — KNN is unreliable for bulk retrieval of L2-normalized vectors. The LLM layer supports 6 providers (Anthropic, OpenAI, Ollama, Claude CLI, Claude API, stub) via a pluggable adapter pattern; `withRepair` retries once on JSON parse failure.
 
 ## From `api/`
 

@@ -81,7 +81,7 @@ This directory contains the entire domain model. It has no imports from `electro
 
 | File | Purpose |
 |------|---------|
-| `pipeline.ts` | `processNewMeetings(config)` is the end-to-end batch processor. For each unprocessed transcript (manifest-folder format or legacy flat files), it runs: parse → ingest → client detection → artifact extraction → milestone reconciliation → FTS update → item deduplication → optional deep scan (`MTNINSIGHTS_DEDUP_DEEP=1`) → meeting vector embedding → thread evaluation (cosine pre-filter then LLM eval for open threads). Failed entries are moved to `failed-processing/` and written to `data/audit/`. Emits `PipelineEvent` progress callbacks. |
+| `pipeline.ts` | `processNewMeetings(config)` is the end-to-end batch processor. When optional `webhookRawDir`/`webhookProcessedDir`/`webhookFailedDir` fields are set, it first delegates to `processWebhookMeetings` to process webhook JSON payloads; webhook-ingested meeting IDs are then naturally deduplicated by the manifest path. For each unprocessed transcript (manifest-folder format or legacy flat files), it runs: parse → ingest → client detection → artifact extraction → milestone reconciliation → FTS update → item deduplication → optional deep scan (`MTNINSIGHTS_DEDUP_DEEP=1`) → meeting vector embedding → thread evaluation (cosine pre-filter then LLM eval for open threads). `processWebhookMeetings(config)` scans a webhook directory for `*.json` files, parses via `parseWebhookPayload`, deduplicates by meeting ID, and delegates to the shared `processEntry` inner loop. Both functions return `PipelineResult` and emit `PipelineEvent` progress callbacks. Failed entries are moved to their respective failed directories and written to `data/audit/`. |
 
 ## Related
 
