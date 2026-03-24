@@ -36,6 +36,16 @@ Vitest tests for the Electron/web UI layer, run under a jsdom environment with `
 | `shadcn-components.test.tsx` | Shared shadcn/ui component integration checks |
 | `toast.test.tsx` | Toast notification rendering and dismissal |
 | `theme.test.tsx` | Theme toggling and CSS variable application |
+| `responsive-shell.test.tsx` | `ResponsiveShell` layout delegation per viewport tier (desktop, tablet, mobile) |
+| `bottom-tab-bar.test.tsx` | `BottomTabBar` rendering, active state, and navigation callbacks |
+| `breadcrumb-bar.test.tsx` | `BreadcrumbBar` chevron separators and navigation |
+| `bottom-sheet.test.tsx` | `BottomSheet` slide-up behavior and fallback to `Dialog` on desktop |
+| `responsive-dialog.test.tsx` | `responsive-dialog` viewport-based rendering (BottomSheet vs Dialog) |
+| `use-breakpoint.test.tsx` | `useBreakpoint` hook returning correct tier for various widths |
+| `mobile-nav.test.tsx` | `useMobileNav` context and navigation state transitions |
+| `workspace-banner-mobile.test.tsx` | `workspace-banner` compact mobile mode rendering |
+| `list-item-row-mobile.test.tsx` | `list-item-row` touchTarget prop and `MeetingAvatar` export |
+| `mobile-detail-components.test.tsx` | Mobile detail view components (show-more, chat-fab) |
 
 ### Hooks and Utilities
 
@@ -54,5 +64,5 @@ Vitest tests for the Electron/web UI layer, run under a jsdom environment with `
 
 ## Related
 
-- Parent: [test/README.md](../README.md)
-- E2E tests: [test/e2e/README.md](../e2e/README.md)
+- Parent: [test/scatter.md](../scatter.md)
+- E2E tests: [test/e2e/scatter.md](../e2e/scatter.md)

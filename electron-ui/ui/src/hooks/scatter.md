@@ -4,6 +4,13 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 
 ## Files
 
+### Responsive hooks
+
+| File | Purpose |
+|------|---------|
+| `useBreakpoint.ts` | Returns `"mobile"` / `"tablet"` / `"desktop"` based on `window.innerWidth` breakpoints; drives conditional rendering throughout the responsive layout |
+| `useMobileNav.ts` | React context and provider for mobile navigation state — exposes `goToDetail`, `goToChat`, `goToList`, and an `isMobile` flag consumed by `ResponsiveShell` and child views |
+
 ### Simple query hooks
 
 | File | Purpose |
@@ -26,6 +33,8 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 
 ## Key Concepts
 
+**`useBreakpoint` is the responsive layout driver.** It determines the current viewport tier and is consumed by `ResponsiveShell`, `BottomTabBar`, `responsive-dialog`, and any component that adapts its rendering per viewport. `useMobileNav` provides imperative navigation within the mobile single-stack layout (list -> detail -> chat transitions).
+
 **`useMeetingState` search pipeline:** The hook chains two queries — `useSearch` (hybrid semantic search returning meeting IDs) followed by `useDeepSearch` (LLM re-ranking of those IDs). When deep search returns results, the meeting list is filtered to that set. When deep search returns empty, the list shows nothing. When deep search errors, a toast is shown and the search gracefully degrades to hybrid results.
 
 **Multi-select and artifact merging:** When ≥2 meetings are checked, `useMeetingState` issues parallel `useQueries` for all checked artifacts and passes them to `mergeArtifactsDeduped` and `computeActionItemOrigins`. Completion mutations then resolve the merged item index back to the correct origin meeting via `actionItemOrigins`.
@@ -34,6 +43,6 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 
 ## Related
 
-- Parent: [../README.md](../README.md)
+- Parent: [../gather.md](../gather.md)
 - Consumers: `../App.tsx`, `../pages/`
 - `mergeArtifactsDeduped`: `../lib/merge-artifacts.ts`

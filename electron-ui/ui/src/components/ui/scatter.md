@@ -12,6 +12,8 @@ Low-level UI primitives used throughout the component tree. These are unstyled o
 | `scroll-area.tsx` | Radix UI ScrollArea wrapper for styled, cross-platform scrollbars |
 | `rich-text-editor.tsx` | Full Lexical editor with a formatting toolbar (bold, italic, underline, ordered/unordered list); supports HTML input/output, `HeadingNode`, `QuoteNode`, `ListNode`, `ListItemNode`, and history/undo; controlled via `onChange` callback |
 | `toast.tsx` | Toast notification system; exports `ToastContainer`, `useToast` hook, and toast state management |
+| `bottom-sheet.tsx` | Sheet that slides up from the bottom of the screen on mobile; falls back to `Dialog` on desktop viewports |
+| `responsive-dialog.tsx` | Wrapper that renders `BottomSheet` on mobile or `Dialog` on desktop, based on `useBreakpoint()` |
 
 ## Key Concepts
 
@@ -21,5 +23,5 @@ Low-level UI primitives used throughout the component tree. These are unstyled o
 
 ## Related
 
-- Parent: [../README.md](../README.md)
+- Parent: [../gather.md](../gather.md)
 - `cn` utility: `../../lib/utils.ts`

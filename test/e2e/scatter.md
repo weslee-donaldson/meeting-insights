@@ -6,8 +6,10 @@ Playwright tests that exercise the full application stack: API server (port 3000
 
 | File | Purpose |
 |------|---------|
+| `helpers.ts` | Shared e2e utilities — `selectClient` (client selector interaction) and `withViewport` (resize to named viewport size for responsive testing) |
 | `insights.spec.ts` | Full lifecycle coverage for the Insights feature: navigation, empty state, create dialog (validation, period preview, cancel), detail panel (header elements, Executive Summary, Source Meetings), finalize/reopen status transitions, generate with toast feedback, delete with confirmation dialog, source meeting removal, client filtering (LLSA vs TerraQuantum isolation), chat panel visibility and clear-messages flow, and state consistency (detail panel cleared after delete, list badge updated after finalize) |
 | `milestones.spec.ts` | Full lifecycle coverage for the Timelines/Milestones feature: navigation and empty state, create milestone dialog, detail panel (title, status badge, target date), edit mode (title and status changes), delete with confirmation (cancel preserves, confirm removes), Gantt view with today marker, Calendar view with month grid and navigation, chat panel visibility, and state consistency (detail cleared after delete) |
+| `responsive-meetings.spec.ts` | Responsive layout verification for meetings view across desktop, tablet, and mobile viewports — validates layout delegation (NavRail vs BottomTabBar), panel arrangement, navigation transitions, and touch interactions |
 
 ## Key Concepts
 
