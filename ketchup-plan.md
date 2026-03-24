@@ -80,7 +80,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 > **Files:** `core/parser.ts`, `test/parser.test.ts`
 
 - [x] Burst 9: listWebhookFiles returns sorted array of *.json filenames from directory
-- [ ] Burst 10: listWebhookFiles returns empty array for empty or non-existent directory; update `core/scatter.md`
+- [x] Burst 10: listWebhookFiles returns empty array for empty or non-existent directory; update `core/scatter.md`
 
 ---
 

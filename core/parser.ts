@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createLogger } from "./logger.js";
 
@@ -140,6 +140,7 @@ export function listTranscriptFiles(dir: string): string[] {
 }
 
 export function listWebhookFiles(dir: string): string[] {
+  if (!existsSync(dir)) return [];
   const files = readdirSync(dir)
     .filter((f) => f.endsWith(".json"))
     .sort();

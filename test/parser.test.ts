@@ -211,4 +211,15 @@ describe("listWebhookFiles", () => {
       "krisp-2026-03-24T19-24-42-538Z.json",
     ]);
   });
+
+  it("returns empty array for empty directory", () => {
+    const emptyWebhookDir = join(tmpDir, "webhook-empty");
+    mkdirSync(emptyWebhookDir, { recursive: true });
+    expect(listWebhookFiles(emptyWebhookDir)).toEqual([]);
+  });
+
+  it("returns empty array for non-existent directory", () => {
+    const missingDir = join(tmpDir, "webhook-does-not-exist");
+    expect(listWebhookFiles(missingDir)).toEqual([]);
+  });
 });

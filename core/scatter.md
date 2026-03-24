@@ -18,7 +18,7 @@ This directory contains the entire domain model. It has no imports from `electro
 
 | File | Purpose |
 |------|---------|
-| `parser.ts` | Parses Krisp transcript files. `parseFilename` extracts ISO timestamp and title from the filename. `splitSections` splits raw file content on the `Transcript:` delimiter. `parseAttendance` parses the JSON-like attendance block. `parseTranscriptBody` / `parseWebVttBody` / `parseMarkdownTranscriptBody` produce arrays of `SpeakerTurn`. `parseKrispFile` combines these for single-file transcripts; `parseKrispFolder` handles the folder-based manifest format. `listTranscriptFiles` and `parseManifest` support batch discovery. |
+| `parser.ts` | Parses Krisp transcript files. `parseFilename` extracts ISO timestamp and title from the filename. `splitSections` splits raw file content on the `Transcript:` delimiter. `parseAttendance` parses the JSON-like attendance block. `parseTranscriptBody` / `parseWebVttBody` / `parseMarkdownTranscriptBody` produce arrays of `SpeakerTurn`. `parseKrispFile` combines these for single-file transcripts; `parseKrispFolder` handles the folder-based manifest format. `listTranscriptFiles` and `parseManifest` support batch discovery. `parseWebhookPayload` parses Krisp webhook JSON payloads into `ParsedMeeting` (returns null for non-`transcript_created` events or malformed input). `listWebhookFiles` returns sorted `*.json` filenames from a directory, returning `[]` for empty or non-existent paths. |
 | `chunker.ts` | `chunkTranscript(turns, tokenLimit)` splits `SpeakerTurn[]` into sub-arrays that stay within an estimated token budget (character count / 4), enabling parallel LLM extraction on long transcripts. |
 | `lifecycle.ts` | `moveToProcessed` and `moveToFailed` rename files between `raw-transcripts/`, `processed/`, and `failed-processing/` directories. `processDirectory` does a batch parse-and-move pass without LLM or DB, used for file-system triage. |
 | `ingest.ts` | `ingestMeeting(db, parsed)` inserts a `ParsedMeeting` into the `meetings` table, generating a UUID if no `externalId` is set. `getMeeting(db, id)` retrieves a single `MeetingRow`. |
@@ -85,6 +85,6 @@ This directory contains the entire domain model. It has no imports from `electro
 
 ## Related
 
-- Parent: [Root README](../README.md)
+- Parent: [Root gather](../gather.md)
 - Consumed by `api/` (HTTP layer) and `electron-ui/electron/ipc-handlers.ts` (Electron IPC layer)
 - CLI tools in `cli/` import directly from here
