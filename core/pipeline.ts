@@ -317,6 +317,8 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     : undefined;
 
   mkdirSync(auditDir, { recursive: true });
+  mkdirSync(webhookProcessedDir, { recursive: true });
+  mkdirSync(webhookFailedDir, { recursive: true });
 
   const files = listWebhookFiles(webhookRawDir);
   const total = files.length;

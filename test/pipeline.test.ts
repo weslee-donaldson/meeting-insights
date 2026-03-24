@@ -594,4 +594,30 @@ describe("processWebhookMeetings", () => {
 
     expect(result).toEqual({ total: 2, succeeded: 1, failed: 0, skipped: 1 });
   });
+
+  it("creates webhook-processed and webhook-failed dirs if they do not exist", async () => {
+    const webhookRawDir = join(wBaseDir, "burst18-raw");
+    const webhookProcessedDir = join(wBaseDir, "burst18-processed");
+    const webhookFailedDir = join(wBaseDir, "burst18-failed");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "burst18.json"), makeWebhookJson({ meetingId: "burst18-auto-dirs" }), "utf-8");
+
+    expect(existsSync(webhookProcessedDir)).toBe(false);
+    expect(existsSync(webhookFailedDir)).toBe(false);
+
+    const llm = createLlmAdapter({ type: "stub" });
+    await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir,
+      webhookFailedDir,
+      auditDir: join(wBaseDir, "burst18-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(existsSync(webhookProcessedDir)).toBe(true);
+    expect(existsSync(webhookFailedDir)).toBe(true);
+  });
 });
