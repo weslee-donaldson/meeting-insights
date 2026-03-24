@@ -301,9 +301,46 @@ interface WebhookPipelineConfig {
 }
 
 export async function processWebhookMeetings(config: WebhookPipelineConfig): Promise<PipelineResult> {
-  const { webhookRawDir } = config;
+  const { webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3 } = config;
+
+  const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
+    ? readFileSync(extractionPromptPath, "utf-8")
+    : undefined;
+
+  mkdirSync(auditDir, { recursive: true });
+
   const files = listWebhookFiles(webhookRawDir);
   const total = files.length;
+  let succeeded = 0;
+  let failed = 0;
+  let skipped = 0;
 
-  return { total, succeeded: 0, failed: 0, skipped: 0 };
+  const table = await createMeetingTable(vdb);
+  const itemTable = await createItemTable(vdb);
+
+  for (let i = 0; i < files.length; i++) {
+    const filename = files[i];
+    const index = i + 1;
+    const json = readFileSync(join(webhookRawDir, filename), "utf-8");
+    const parsed = parseWebhookPayload(json, filename);
+
+    if (!parsed) {
+      skipped++;
+      continue;
+    }
+
+    onProgress?.({ type: "processing", name: filename, title: parsed.title, index, total });
+    const result = await processEntry(parsed, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold);
+
+    if (result.status === "ok") {
+      onProgress?.({ type: "ok", name: filename, title: parsed.title, client: result.client, elapsed_ms: result.elapsed_ms });
+      succeeded++;
+    } else {
+      onProgress?.({ type: "failed", name: filename, title: parsed.title, reason: result.reason, elapsed_ms: result.elapsed_ms });
+      failed++;
+    }
+  }
+
+  log("webhook pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
+  return { total, succeeded, failed, skipped };
 }

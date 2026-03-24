@@ -451,4 +451,26 @@ describe("processWebhookMeetings", () => {
 
     expect(result.total).toBe(2);
   });
+
+  it("parses JSON files and processes valid meetings into the database", async () => {
+    const webhookRawDir = join(wBaseDir, "burst12-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "valid.json"), makeWebhookJson({ meetingId: "burst12-valid" }), "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst12-processed"),
+      webhookFailedDir: join(wBaseDir, "burst12-failed"),
+      auditDir: join(wBaseDir, "burst12-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(result.succeeded).toBe(1);
+    const meeting = wDb.prepare("SELECT id, title FROM meetings WHERE id = ?").get("burst12-valid") as { id: string; title: string };
+    expect(meeting).toEqual({ id: "burst12-valid", title: "Webhook Test Meeting" });
+  });
 });
