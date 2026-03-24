@@ -103,6 +103,7 @@ export function ResponsiveShell({
   }
 
   if (breakpoint === "tablet") {
+    const tabletSidebarWidth = Math.min(defaultSidebarWidth ?? layout.tablet.sidebarWidth, 380);
     return (
       <MobileNavContext.Provider value={mobileNavValue}>
       <div className="flex flex-col h-screen overflow-hidden" data-testid="responsive-shell-tablet">
@@ -110,7 +111,7 @@ export function ResponsiveShell({
         <div className="flex flex-1 overflow-hidden">
           <div
             className="shrink-0 overflow-auto border-r border-[var(--color-line)]"
-            style={{ width: layout.tablet.sidebarWidth + "px" }}
+            style={{ width: tabletSidebarWidth + "px" }}
             data-testid="tablet-list-panel"
           >
             {panels[0]}
