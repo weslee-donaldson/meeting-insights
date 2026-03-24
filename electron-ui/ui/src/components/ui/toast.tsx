@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useBreakpoint } from "../../hooks/useBreakpoint.js";
 
 export interface Toast {
   id: number;
@@ -22,9 +23,15 @@ export function ToastItem({ id, message, type, onDismiss }: Toast & { onDismiss:
 }
 
 export function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+  const breakpoint = useBreakpoint();
   if (toasts.length === 0) return null;
+
+  const positionClass = breakpoint === "mobile"
+    ? "fixed bottom-[72px] left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 items-center"
+    : "fixed top-4 right-4 z-[100] flex flex-col gap-2";
+
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
+    <div className={positionClass} data-testid="toast-container">
       {toasts.map((t) => (
         <ToastItem key={t.id} {...t} onDismiss={onDismiss} />
       ))}

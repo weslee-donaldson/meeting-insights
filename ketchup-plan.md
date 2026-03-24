@@ -342,9 +342,9 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 >
 > **Files affected:** Various component files
 
-- [ ] Burst 70: Toast positioning — bottom-center on mobile (above tab bar), top-right on desktop
-- [ ] Burst 71: Verify all create dialogs (Thread, Insight, Milestone) use responsive wrapper
-- [ ] Burst 72: Visual verification loop — Playwright screenshots at all 3 viewports for every view, compare against Paper artboards
+- [x] Burst 70: Toast positioning — bottom-center on mobile (above tab bar), top-right on desktop
+- [x] Burst 71: Verify all create dialogs (Thread, Insight, Milestone) use responsive wrapper
+- [x] Burst 72: Visual verification loop — Playwright screenshots at all 3 viewports for every view, compare against Paper artboards
 
 ---
 
