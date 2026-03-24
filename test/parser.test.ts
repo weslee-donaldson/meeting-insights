@@ -250,4 +250,13 @@ describe("parseWebhookPayload", () => {
     const result = parseWebhookPayload(validPayload, "krisp-2026-03-24.json");
     expect(result!.externalId).toBe("019d213a456f75cf950826ad521ca886");
   });
+
+  it("maps start_date to timestamp, title to title, filename to sourceFilename", () => {
+    const result = parseWebhookPayload(validPayload, "krisp-2026-03-24.json");
+    expect(result).toEqual(expect.objectContaining({
+      timestamp: "2026-03-24T19:02:09.316Z",
+      title: "03:02 PM - Microsoft Teams meeting March 24",
+      sourceFilename: "krisp-2026-03-24.json",
+    }));
+  });
 });
