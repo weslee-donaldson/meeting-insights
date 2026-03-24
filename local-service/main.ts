@@ -1,12 +1,14 @@
 import { mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { seedClients } from "../core/client-registry.js";
 import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
-import { createWatcher, type Watcher } from "./watcher.js";
+import { createWatcher } from "./watcher.js";
 import { createLogger } from "../core/logger.js";
+import { loadCliConfig } from "../cli/shared.js";
 
 const log = createLogger("service");
 
@@ -69,4 +71,43 @@ export async function startService(config: ServiceConfig): Promise<Service> {
   }
 
   return { stop };
+}
+
+const isMainModule = resolve(process.argv[1] ?? "") === resolve(import.meta.dirname ?? "", "main.ts");
+
+if (isMainModule) {
+  const { dbPath, vectorPath, provider, apiKey, localBaseUrl, localModel, claudeApiUrl } = loadCliConfig();
+
+  const llmConfig = provider === "local"
+    ? { type: "local" as const, baseUrl: localBaseUrl, model: localModel }
+    : provider === "claudecli"
+      ? { type: "claudecli" as const }
+      : provider === "local-claudeapi"
+        ? { type: "local-claudeapi" as const, baseUrl: claudeApiUrl }
+        : provider === "stub"
+          ? { type: "stub" as const }
+          : { type: "anthropic" as const, apiKey: apiKey! };
+
+  const service = await startService({
+    dbPath,
+    vectorPath,
+    modelPath: "models/all-MiniLM-L6-v2.onnx",
+    tokenizerPath: "models/tokenizer.json",
+    llmConfig,
+    clientsPath: process.env.MTNINSIGHTS_CLIENTS_PATH ?? "config/clients.json",
+    webhookRawDir: "data/webhook-rawtranscripts",
+    webhookProcessedDir: "data/webhook-processed",
+    webhookFailedDir: "data/webhook-failed",
+    auditDir: "data/audit",
+  });
+
+  process.on("SIGINT", () => {
+    service.stop();
+    process.exit(0);
+  });
+
+  process.on("SIGTERM", () => {
+    service.stop();
+    process.exit(0);
+  });
 }

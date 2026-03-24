@@ -102,4 +102,28 @@ describe("startService", () => {
 
     service.stop();
   });
+
+  it("stop() calls watcher.stop() for graceful shutdown", async () => {
+    const mockStop = vi.fn();
+    vi.mocked(createWatcher).mockImplementation(() => ({
+      stop: mockStop,
+    }));
+
+    const service = await startService({
+      dbPath: ":memory:",
+      vectorPath: "/tmp/test-vdb",
+      modelPath: "models/test.onnx",
+      tokenizerPath: "models/tokenizer.json",
+      llmConfig: { type: "stub" as const },
+      clientsPath: "config/clients.json",
+      webhookRawDir: "data/webhook-rawtranscripts",
+      webhookProcessedDir: "data/webhook-processed",
+      webhookFailedDir: "data/webhook-failed",
+      auditDir: "data/audit",
+    });
+
+    expect(mockStop).not.toHaveBeenCalled();
+    service.stop();
+    expect(mockStop).toHaveBeenCalledOnce();
+  });
 });
