@@ -266,4 +266,31 @@ describe("parseWebhookPayload", () => {
       { first_name: "Wesley", last_name: "Donaldson", id: "2d123521305e5ba2b050e5c705b00890", email: "wesley.donaldson@xolv.io" },
     ]);
   });
+
+  it("handles speakers with null names using email prefix as first_name fallback", () => {
+    const payload = JSON.stringify({
+      id: "evt1",
+      event: "transcript_created",
+      data: {
+        meeting: {
+          id: "mtg1",
+          title: "Test",
+          duration: 100,
+          speakers: [
+            { index: 1, first_name: null, last_name: null, id: "abc123", email: "jeremy.campeau@llsa.com" },
+          ],
+          start_date: "2026-03-24T19:02:09.316Z",
+          end_date: "2026-03-24T19:24:02.316Z",
+          url: "https://app.krisp.ai/n/mtg1",
+        },
+        content: [
+          { speaker: "jeremy.campeau@llsa.com", speakerIndex: 1, text: "Hello." },
+        ],
+      },
+    });
+    const result = parseWebhookPayload(payload, "test.json");
+    expect(result!.participants).toEqual([
+      { first_name: "jeremy.campeau", last_name: "", id: "abc123", email: "jeremy.campeau@llsa.com" },
+    ]);
+  });
 });

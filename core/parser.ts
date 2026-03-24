@@ -208,7 +208,7 @@ export function parseWebhookPayload(json: string, filename: string): ParsedMeeti
   const payload = JSON.parse(json);
   const meeting = payload.data.meeting;
   const participants: Participant[] = meeting.speakers.map((s: WebhookSpeaker) => ({
-    first_name: s.first_name ?? "",
+    first_name: s.first_name ?? s.email.split("@")[0],
     last_name: s.last_name ?? "",
     id: s.id,
     email: s.email,
