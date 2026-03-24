@@ -101,7 +101,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 - [x] Burst 14: processWebhookMeetings moves processed files to webhook-processed directory
 - [x] Burst 15: processWebhookMeetings moves failed files to webhook-failed directory with audit log
 - [x] Burst 16: processWebhookMeetings emits PipelineEvent callbacks (processing, ok, failed, skipped)
-- [ ] Burst 17: processWebhookMeetings silently skips non-transcript_created events (not counted as failures)
+- [x] Burst 17: processWebhookMeetings silently skips non-transcript_created events (not counted as failures)
 - [ ] Burst 18: processWebhookMeetings creates webhook-processed and webhook-failed dirs if missing
 
 ## SECTION 2.2: Orchestration (~4 bursts)

@@ -573,4 +573,25 @@ describe("processWebhookMeetings", () => {
     expect(types).toContain("failed");
     expect(types).toContain("skipped");
   });
+
+  it("silently skips non-transcript_created events without counting as failures", async () => {
+    const webhookRawDir = join(wBaseDir, "burst17-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "notes.json"), JSON.stringify({ event: "notes_generated", data: { meeting: { id: "burst17-notes" } } }), "utf-8");
+    writeFileSync(join(webhookRawDir, "burst17-valid.json"), makeWebhookJson({ meetingId: "burst17-valid" }), "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst17-processed"),
+      webhookFailedDir: join(wBaseDir, "burst17-failed"),
+      auditDir: join(wBaseDir, "burst17-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(result).toEqual({ total: 2, succeeded: 1, failed: 0, skipped: 1 });
+  });
 });
