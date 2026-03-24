@@ -495,4 +495,26 @@ describe("processWebhookMeetings", () => {
 
     expect(result).toEqual({ total: 1, succeeded: 0, failed: 0, skipped: 1 });
   });
+
+  it("moves processed files to webhook-processed directory", async () => {
+    const webhookRawDir = join(wBaseDir, "burst14-raw");
+    const webhookProcessedDir = join(wBaseDir, "burst14-processed");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "to-process.json"), makeWebhookJson({ meetingId: "burst14-move" }), "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir,
+      webhookFailedDir: join(wBaseDir, "burst14-failed"),
+      auditDir: join(wBaseDir, "burst14-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(existsSync(join(webhookRawDir, "to-process.json"))).toBe(false);
+    expect(existsSync(join(webhookProcessedDir, "to-process.json"))).toBe(true);
+  });
 });
