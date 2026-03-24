@@ -63,7 +63,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `core/parser.ts`, `test/parser.test.ts`
 
-- [ ] Burst 1: parseWebhookPayload returns ParsedMeeting with externalId from `data.meeting.id`
+- [x] Burst 1: parseWebhookPayload returns ParsedMeeting with externalId from `data.meeting.id`
 - [ ] Burst 2: parseWebhookPayload maps `start_date` → timestamp, `title` → title, filename → sourceFilename
 - [ ] Burst 3: parseWebhookPayload maps `data.meeting.speakers` → Participant[] (first_name + last_name + email + id)
 - [ ] Burst 4: parseWebhookPayload handles speakers with null names (uses email as fallback in participant mapping)

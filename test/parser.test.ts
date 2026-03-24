@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, listWebhookFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile } from "../core/parser.js";
+import { listTranscriptFiles, listWebhookFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile, parseWebhookPayload } from "../core/parser.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -221,5 +221,33 @@ describe("listWebhookFiles", () => {
   it("returns empty array for non-existent directory", () => {
     const missingDir = join(tmpDir, "webhook-does-not-exist");
     expect(listWebhookFiles(missingDir)).toEqual([]);
+  });
+});
+
+describe("parseWebhookPayload", () => {
+  const validPayload = JSON.stringify({
+    id: "019d214e5f7874eba207b346751c7061",
+    event: "transcript_created",
+    data: {
+      meeting: {
+        id: "019d213a456f75cf950826ad521ca886",
+        title: "03:02 PM - Microsoft Teams meeting March 24",
+        duration: 1313,
+        speakers: [
+          { index: 1, first_name: "Wesley", last_name: "Donaldson", id: "2d123521305e5ba2b050e5c705b00890", email: "wesley.donaldson@xolv.io" },
+        ],
+        start_date: "2026-03-24T19:02:09.316Z",
+        end_date: "2026-03-24T19:24:02.316Z",
+        url: "https://app.krisp.ai/n/019d213a456f75cf950826ad521ca886",
+      },
+      content: [
+        { speaker: "Wesley Donaldson", speakerIndex: 1, text: "Good afternoon." },
+      ],
+    },
+  });
+
+  it("returns ParsedMeeting with externalId from data.meeting.id", () => {
+    const result = parseWebhookPayload(validPayload, "krisp-2026-03-24.json");
+    expect(result!.externalId).toBe("019d213a456f75cf950826ad521ca886");
   });
 });

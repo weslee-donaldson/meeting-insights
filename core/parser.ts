@@ -195,3 +195,16 @@ export function parseKrispFolder(rawDir: string, folderName: string, entry: Mani
     return null;
   }
 }
+
+export function parseWebhookPayload(json: string, filename: string): ParsedMeeting | null {
+  const payload = JSON.parse(json);
+  return {
+    externalId: payload.data.meeting.id,
+    timestamp: payload.data.meeting.start_date,
+    title: payload.data.meeting.title,
+    participants: [],
+    turns: [],
+    rawTranscript: "",
+    sourceFilename: filename,
+  };
+}
