@@ -66,6 +66,13 @@ export function ResponsiveShell({
     setMobileScreen("detail");
   }, []);
 
+  const mobileNavValue = useMemo(() => ({
+    goToDetail: handleSelectItem,
+    goToChat: handleOpenChat,
+    goToList: handleBackToList,
+    isMobile: breakpoint === "mobile",
+  }), [breakpoint, handleSelectItem, handleOpenChat, handleBackToList]);
+
   if (breakpoint === "desktop") {
     return (
       <LinearShell
@@ -79,13 +86,6 @@ export function ResponsiveShell({
       />
     );
   }
-
-  const mobileNavValue = useMemo(() => ({
-    goToDetail: handleSelectItem,
-    goToChat: handleOpenChat,
-    goToList: handleBackToList,
-    isMobile: breakpoint === "mobile",
-  }), [breakpoint, handleSelectItem, handleOpenChat, handleBackToList]);
 
   if (breakpoint === "tablet") {
     return (
