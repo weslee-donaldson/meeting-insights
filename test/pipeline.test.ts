@@ -703,4 +703,63 @@ describe("processNewMeetings with webhook config", () => {
     const okEvents = events.filter((e) => e.type === "ok");
     expect(okEvents.length).toBe(2);
   });
+
+  it("skips manifest entries whose meeting_id was already processed by webhook", async () => {
+    const b21Db = createDb(":memory:");
+    migrate(b21Db);
+    const b21VdbPath = join(tmpdir(), `lancedb-burst21-${Date.now()}`);
+    mkdirSync(b21VdbPath, { recursive: true });
+    const b21Vdb = await connectVectorDb(b21VdbPath);
+
+    const rawDir = join(oBaseDir, "burst21-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const webhookRawDir = join(oBaseDir, "burst21-webhook-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+
+    const sharedMeetingId = "burst21-shared-id";
+
+    writeFileSync(join(webhookRawDir, "burst21.json"), makeWebhookJson({ meetingId: sharedMeetingId, title: "Webhook Version" }), "utf-8");
+
+    const folderName = "burst21_meeting-" + sharedMeetingId;
+    const folderPath = join(rawDir, folderName);
+    mkdirSync(folderPath, { recursive: true });
+    writeFileSync(join(folderPath, "transcript.md"), GOOD_CONTENT, "utf-8");
+    const manifest = [{
+      meeting_id: sharedMeetingId,
+      meeting_title: "Manifest Version",
+      meeting_date: "2026-01-21T00:00:00.000Z",
+      meeting_files: [folderName + "/transcript.md"],
+    }];
+    writeFileSync(join(rawDir, "manifest.json"), JSON.stringify(manifest), "utf-8");
+
+    const events: PipelineEvent[] = [];
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(oBaseDir, "burst21-processed"),
+      failedDir: join(oBaseDir, "burst21-failed"),
+      auditDir: join(oBaseDir, "burst21-audit"),
+      db: b21Db,
+      vdb: b21Vdb,
+      session,
+      llm,
+      webhookRawDir,
+      webhookProcessedDir: join(oBaseDir, "burst21-webhook-processed"),
+      webhookFailedDir: join(oBaseDir, "burst21-webhook-failed"),
+      onProgress: (e) => events.push(e),
+    });
+
+    expect(result.succeeded).toBe(1);
+    expect(result.skipped).toBe(1);
+    expect(result.total).toBe(2);
+
+    const meeting = b21Db.prepare("SELECT title FROM meetings WHERE id = ?").get(sharedMeetingId) as { title: string };
+    expect(meeting.title).toBe("Webhook Version");
+
+    const skippedEvents = events.filter((e) => e.type === "skipped");
+    expect(skippedEvents.length).toBe(1);
+    expect((skippedEvents[0] as Extract<PipelineEvent, { type: "skipped" }>).title).toBe("Manifest Version");
+
+    rmSync(b21VdbPath, { recursive: true, force: true });
+  });
 });
