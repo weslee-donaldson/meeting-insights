@@ -60,6 +60,9 @@ interface PipelineConfig {
   onProgress?: (event: PipelineEvent) => void;
   threadSimilarityThreshold?: number;
   filterFolder?: string;
+  webhookRawDir?: string;
+  webhookProcessedDir?: string;
+  webhookFailedDir?: string;
 }
 
 interface PipelineResult {

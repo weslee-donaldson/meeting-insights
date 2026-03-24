@@ -111,7 +111,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `core/pipeline.ts`, `cli/run.ts`, `test/pipeline.test.ts`
 
-- [ ] Burst 19: PipelineConfig accepts optional webhookRawDir, webhookProcessedDir, webhookFailedDir
+- [x] Burst 19: PipelineConfig accepts optional webhookRawDir, webhookProcessedDir, webhookFailedDir
 - [ ] Burst 20: processNewMeetings calls processWebhookMeetings first when webhookRawDir is provided
 - [ ] Burst 21: Meeting IDs from webhook processing are included in the manifest dedup set
 - [ ] Burst 22: cli/run.ts passes webhook directory paths; update scatter.md and gather.md

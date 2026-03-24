@@ -621,3 +621,48 @@ describe("processWebhookMeetings", () => {
     expect(existsSync(webhookFailedDir)).toBe(true);
   });
 });
+
+describe("processNewMeetings with webhook config", () => {
+  let oDb: Database;
+  let oVdbPath: string;
+  let oVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let oBaseDir: string;
+
+  beforeAll(async () => {
+    oBaseDir = join(tmpdir(), `pipeline-orchestration-${Date.now()}`);
+    oDb = createDb(":memory:");
+    migrate(oDb);
+    oVdbPath = join(tmpdir(), `lancedb-orchestration-${Date.now()}`);
+    mkdirSync(oVdbPath, { recursive: true });
+    oVdb = await connectVectorDb(oVdbPath);
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(oBaseDir, { recursive: true, force: true });
+    rmSync(oVdbPath, { recursive: true, force: true });
+  });
+
+  it("accepts optional webhookRawDir, webhookProcessedDir, webhookFailedDir fields", async () => {
+    const rawDir = join(oBaseDir, "burst19-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const webhookRawDir = join(oBaseDir, "burst19-webhook-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(oBaseDir, "burst19-processed"),
+      failedDir: join(oBaseDir, "burst19-failed"),
+      auditDir: join(oBaseDir, "burst19-audit"),
+      db: oDb,
+      vdb: oVdb,
+      session,
+      llm,
+      webhookRawDir,
+      webhookProcessedDir: join(oBaseDir, "burst19-webhook-processed"),
+      webhookFailedDir: join(oBaseDir, "burst19-webhook-failed"),
+    });
+
+    expect(result).toEqual({ total: 0, succeeded: 0, failed: 0, skipped: 0 });
+  });
+});
