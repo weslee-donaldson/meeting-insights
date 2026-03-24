@@ -7,7 +7,7 @@ import { createLlmAdapter } from "../core/llm-adapter.js";
 import { seedClients } from "../core/client-registry.js";
 import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
 import { createWatcher } from "./watcher.js";
-import { createLogger } from "../core/logger.js";
+import { createLogger, setLogDir } from "../core/logger.js";
 import { loadCliConfig } from "../cli/shared.js";
 
 const log = createLogger("service");
@@ -31,6 +31,7 @@ export interface Service {
 
 export async function startService(config: ServiceConfig): Promise<Service> {
   mkdirSync("db", { recursive: true });
+  setLogDir("logs/api");
 
   const db = createDb(config.dbPath);
   migrate(db);
@@ -56,6 +57,7 @@ export async function startService(config: ServiceConfig): Promise<Service> {
         vdb,
         session,
         llm,
+        extractionPromptPath: "config/prompts/extraction.md",
         onProgress: (event: PipelineEvent) => {
           log("%s %s", event.type, event.name);
         },

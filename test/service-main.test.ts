@@ -7,6 +7,7 @@ const { mockLog } = vi.hoisted(() => {
 
 vi.mock("../core/logger.js", () => ({
   createLogger: vi.fn(() => mockLog),
+  setLogDir: vi.fn(),
 }));
 
 vi.mock("../core/db.js", () => ({

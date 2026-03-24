@@ -83,6 +83,26 @@ interface MeetingParsed {
   title: string;
 }
 
+import type { SpeakerTurn } from "./parser.js";
+
+const EMAIL_RE = /^[^@]+@[^@]+\.[^@]+$/;
+
+export function resolveSpeakerNames(turns: SpeakerTurn[], participants: Participant[]): SpeakerTurn[] {
+  const emailToName = new Map<string, string>();
+  for (const p of participants) {
+    if (p.email && p.name) {
+      emailToName.set(p.email.toLowerCase(), p.name);
+    }
+  }
+  if (emailToName.size === 0) return turns;
+  return turns.map((turn) => {
+    if (!EMAIL_RE.test(turn.speaker_name)) return turn;
+    const friendly = emailToName.get(turn.speaker_name.toLowerCase());
+    if (!friendly) return turn;
+    return { ...turn, speaker_name: friendly };
+  });
+}
+
 function detectAndExtract(
   db: Database,
   llm: LlmAdapter,
@@ -94,13 +114,16 @@ function detectAndExtract(
   storeDetection(db, parsed.meetingId, detections);
   const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
   const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
+  const clientTeam = JSON.parse(clientRow?.client_team ?? "[]") as Participant[];
+  const implTeam = JSON.parse(clientRow?.implementation_team ?? "[]") as Participant[];
   const clientContext = clientRow ? buildClientContext(
     clientRow.name,
-    JSON.parse(clientRow.client_team ?? "[]") as Participant[],
-    JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
+    clientTeam,
+    implTeam,
     clientRow.additional_extraction_llm_prompt ?? undefined,
   ) : undefined;
-  return { topClient, clientContext, extractFn: () => extractSummary(llm, parsed.turns.turns, tokenLimit, promptTemplate, clientContext) };
+  const resolvedTurns = resolveSpeakerNames(parsed.turns.turns, [...clientTeam, ...implTeam]);
+  return { topClient, clientContext, extractFn: () => extractSummary(llm, resolvedTurns, tokenLimit, promptTemplate, clientContext) };
 }
 
 async function indexAndDedup(
@@ -203,7 +226,8 @@ async function processEntry(
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder, webhookRawDir, webhookProcessedDir, webhookFailedDir } = config;
+  const defaultChunkLimit = parseInt(process.env.MTNINSIGHTS_LLM_CHUNK_TOKEN_LIMIT ?? "30000", 10);
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder, webhookRawDir, webhookProcessedDir, webhookFailedDir } = config;
 
   let succeeded = 0;
   let failed = 0;
@@ -337,7 +361,8 @@ interface WebhookPipelineConfig {
 }
 
 export async function processWebhookMeetings(config: WebhookPipelineConfig): Promise<PipelineResult> {
-  const { webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, vdb, session, llm, tokenLimit = 2000, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3 } = config;
+  const defaultChunkLimit = parseInt(process.env.MTNINSIGHTS_LLM_CHUNK_TOKEN_LIMIT ?? "30000", 10);
+  const { webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3 } = config;
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
