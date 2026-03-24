@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
+import { ResponsiveDialog } from "./ui/responsive-dialog.js";
+import { DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 
 type PeriodType = "day" | "week" | "month";
@@ -88,9 +89,7 @@ export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsi
     : "";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined}>
-        <DialogTitle>Create Insight</DialogTitle>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title="Create Insight" sheetHeight={50}>
         <div className="flex flex-col gap-4 mt-2">
           <div className="flex gap-1">
             {PERIOD_TYPES.map((pt) => (
@@ -129,7 +128,6 @@ export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsi
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

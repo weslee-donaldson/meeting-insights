@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
+import { ResponsiveDialog } from "./ui/responsive-dialog.js";
+import { DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 
 interface ThreadFormData {
@@ -49,9 +50,7 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="min-w-[800px]">
-        <DialogTitle>{isEdit ? "Edit Thread" : "Create Thread"}</DialogTitle>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title={isEdit ? "Edit Thread" : "Create Thread"} sheetHeight={85}>
         <div className="flex flex-col gap-3 mt-2">
           <label className="flex flex-col gap-1 text-sm">
             <span>Title</span>
@@ -110,7 +109,6 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

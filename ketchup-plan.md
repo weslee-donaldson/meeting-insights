@@ -310,11 +310,11 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > **Files affected:** `electron-ui/ui/src/pages/InsightsPage.tsx`, `electron-ui/ui/src/components/CreateInsightDialog.tsx`, test files
 
 - [x] Burst 58: Create Insights artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [ ] Burst 59: Mobile insight list — RAG status dot, period date range, Weekly/Monthly badge, Final/Draft badge. "+ New" button
-- [ ] Burst 60: Mobile insight detail — breadcrumb, RAG dot header, Executive Summary section, Topic Details with per-topic RAG dots and summaries
-- [ ] Burst 61: CreateInsightDialog → responsive wrapper (bottom sheet on mobile)
-- [ ] Burst 62: Tablet split-pane — compact insight list (280px) + insight detail panel
-- [ ] Burst 63: E2E viewport variants for insights flow
+- [x] Burst 59: Mobile insight list — RAG status dot, period date range, Weekly/Monthly badge, Final/Draft badge. "+ New" button
+- [x] Burst 60: Mobile insight detail — breadcrumb, RAG dot header, Executive Summary section, Topic Details with per-topic RAG dots and summaries
+- [x] Burst 61: CreateInsightDialog → responsive wrapper (bottom sheet on mobile)
+- [x] Burst 62: Tablet split-pane — compact insight list (280px) + insight detail panel
+- [x] Burst 63: E2E viewport variants for insights flow
 
 ## SECTION 16: Timelines — Responsive (~5 bursts)
 
@@ -329,11 +329,11 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > **Files affected:** `electron-ui/ui/src/pages/TimelinesPage.tsx`, `electron-ui/ui/src/components/CreateMilestoneDialog.tsx`, test files
 
 - [x] Burst 64: Create Timelines artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [ ] Burst 65: Mobile timeline list — status dot + colored badge per row, target date, mention count. Status filter chips (All/Tracked/Completed/Missed). "+ New" button
-- [ ] Burst 66: Mobile timeline detail — breadcrumb, status dot header, Description section, Mentions accordion with type badges (status/target) and meeting excerpts
-- [ ] Burst 67: CreateMilestoneDialog → responsive wrapper (bottom sheet on mobile)
-- [ ] Burst 68: Tablet split-pane — compact milestone list (280px) with status filters + milestone detail panel
-- [ ] Burst 69: E2E viewport variants for timelines flow
+- [x] Burst 65: Mobile timeline list — status dot + colored badge per row, target date, mention count. Status filter chips (All/Tracked/Completed/Missed). "+ New" button
+- [x] Burst 66: Mobile timeline detail — breadcrumb, status dot header, Description section, Mentions accordion with type badges (status/target) and meeting excerpts
+- [x] Burst 67: CreateMilestoneDialog → responsive wrapper (bottom sheet on mobile)
+- [x] Burst 68: Tablet split-pane — compact milestone list (280px) with status filters + milestone detail panel
+- [x] Burst 69: E2E viewport variants for timelines flow
 
 ## SECTION 17: Cross-View Polish (~3 bursts)
 

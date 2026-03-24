@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
+import { ResponsiveDialog } from "./ui/responsive-dialog.js";
+import { DialogClose } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 import type { CreateMilestoneRequest } from "../../electron/channels.js";
 
@@ -38,9 +39,7 @@ export function CreateMilestoneDialog({ open, onOpenChange, onSubmit, clientName
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined}>
-        <DialogTitle>Create Milestone</DialogTitle>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title="Create Milestone" sheetHeight={60}>
         <div className="flex flex-col gap-3 mt-2">
           <label className="flex flex-col gap-1 text-sm">
             <span>Title</span>
@@ -79,7 +78,6 @@ export function CreateMilestoneDialog({ open, onOpenChange, onSubmit, clientName
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }
