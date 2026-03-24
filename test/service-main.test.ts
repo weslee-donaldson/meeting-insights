@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+const { mockLog } = vi.hoisted(() => {
+  const mockLog = vi.fn();
+  return { mockLog };
+});
+
+vi.mock("../core/logger.js", () => ({
+  createLogger: vi.fn(() => mockLog),
+}));
+
 vi.mock("../core/db.js", () => ({
   createDb: vi.fn(() => ({ prepare: vi.fn(() => ({ all: vi.fn(() => []), run: vi.fn() })) })),
   migrate: vi.fn(),
@@ -125,5 +134,49 @@ describe("startService", () => {
     expect(mockStop).not.toHaveBeenCalled();
     service.stop();
     expect(mockStop).toHaveBeenCalledOnce();
+  });
+
+  it("logs startup, processing events, and shutdown via createLogger", async () => {
+    let capturedOnFile: ((filename: string) => void | Promise<void>) | undefined;
+    let capturedOnProgress: ((event: { type: string; name: string }) => void) | undefined;
+    vi.mocked(createWatcher).mockImplementation((opts) => {
+      capturedOnFile = opts.onFile;
+      return { stop: vi.fn() };
+    });
+    vi.mocked(processWebhookMeetings).mockImplementation(async (config) => {
+      capturedOnProgress = config.onProgress as (event: { type: string; name: string }) => void;
+      return { total: 1, succeeded: 1, failed: 0, skipped: 0 };
+    });
+
+    const service = await startService({
+      dbPath: ":memory:",
+      vectorPath: "/tmp/test-vdb",
+      modelPath: "models/test.onnx",
+      tokenizerPath: "models/tokenizer.json",
+      llmConfig: { type: "stub" as const },
+      clientsPath: "config/clients.json",
+      webhookRawDir: "data/webhook-rawtranscripts",
+      webhookProcessedDir: "data/webhook-processed",
+      webhookFailedDir: "data/webhook-failed",
+      auditDir: "data/audit",
+    });
+
+    const startupCalls = mockLog.mock.calls.map((c) => c[0] as string);
+    expect(startupCalls).toContain("loading embedding model...");
+    expect(startupCalls).toContain("model loaded");
+    expect(startupCalls.some((s) => s.includes("webhook-watcher started"))).toBe(true);
+
+    mockLog.mockClear();
+    await capturedOnFile!("meeting.json");
+
+    expect(capturedOnProgress).toBeDefined();
+    capturedOnProgress!({ type: "ok", name: "meeting.json" });
+    const processingCalls = mockLog.mock.calls.map((c) => String(c[0]));
+    expect(processingCalls.some((s) => s.includes("ok") || s.includes("%s %s"))).toBe(true);
+
+    mockLog.mockClear();
+    service.stop();
+    const shutdownCalls = mockLog.mock.calls.map((c) => c[0] as string);
+    expect(shutdownCalls).toContain("shutdown");
   });
 });

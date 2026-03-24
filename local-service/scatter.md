@@ -9,7 +9,7 @@ This directory contains a background service that watches `data/webhook-rawtrans
 | File | Purpose |
 |------|---------|
 | `watcher.ts` | `createWatcher(options)` detects new `*.json` files via `fs.watch` with a periodic scan fallback (30s). Debounces rapid events for the same file (Drive may write incrementally). Ignores non-JSON and hidden files. Returns a `Watcher` with a `stop()` method. |
-| `main.ts` | Service entry point. Initializes DB, vector DB, embedder, and LLM (same pattern as `cli/run.ts`). Creates the watcher, processes each detected file through `processWebhookMeetings`. Handles SIGINT/SIGTERM for graceful shutdown. *(planned — Section 3.2)* |
+| `main.ts` | Service entry point. Exports `startService(config)` which initializes DB, vector DB, embedder, and LLM. Creates the watcher, processes each detected file through `processWebhookMeetings`. Handles SIGINT/SIGTERM for graceful shutdown. When run directly via pm2/tsx, loads config from `.env.local` via `loadCliConfig()`. |
 
 ## Commands
 
