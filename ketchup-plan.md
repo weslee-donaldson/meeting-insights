@@ -257,79 +257,85 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 
 # PHASE 2: Remaining Views
 
-> **PREREQUISITE:** Before starting each section, create the Paper MCP artboards listed in "Artboards TODO" above. Use the Meetings artboards as the visual language reference — same bottom tabs, breadcrumbs, bottom sheets, typography, and spacing patterns.
+> All Paper MCP artboards for Phase 2 are complete. Each implementation section references its artboard by name. Tablet views follow the "Responsive — Tablet Meetings" split-pane pattern with view-specific content — annotation cards on each tablet artboard describe the exact layout.
 
-## SECTION 13: Paper Artboards — Action Items (~1 burst)
-
-> **Spec:** Create 3 artboards: Mobile Action Items list, Mobile Action Item detail, Tablet Action Items split-pane.
-
-- [x] Burst 46: Create Action Items artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-
-## SECTION 14: Action Items — Responsive (~5 bursts)
+## SECTION 13: Action Items — Responsive (~5 bursts)
 
 > **Spec:**
-> Adapt ClientActionItemsView and action item detail for responsive viewports. Action items group by meeting with colored avatar badges. Filter chips (person, priority) scroll horizontally on mobile.
+> Adapt ClientActionItemsView and action item detail for responsive viewports.
+>
+> **Paper artboards (completed):**
+> - "Responsive — Mobile Action Items" — Priority-grouped list with CRITICAL badges, checkbox per row, owner name, meeting source. Filter chips: Priority (active), Series, Owner, Day. Header: "Action Items" title, "LLSA · 490 open" subtitle, search + filter icons.
+> - "Responsive — Mobile Action Item Detail" — Breadcrumb (Actions > Critical > Detail). CRITICAL badge + meeting source in header. Owner/Requester pair. Command buttons: Edit, Complete, Copy, Reassign. Sections: Source Meeting (tappable card with avatar), Related Items, Context.
+> - "Responsive — Tablet Action Items" — Annotation: follows Meetings tablet split-pane (280px list | detail flex). Filter chips in list panel header. Chat via command button.
 >
 > **Files affected:** `electron-ui/ui/src/components/ClientActionItemsView.tsx`, `electron-ui/ui/src/pages/ActionItemsPage.tsx`, test files
 
-- [ ] Burst 47: Mobile action items list — touch-friendly rows, horizontal filter chips
-- [ ] Burst 48: Mobile action item detail — expandable description, priority badge prominent
-- [ ] Burst 49: Tablet split-pane — list (280px) + action item detail
-- [ ] Burst 50: Wire into ResponsiveShell with breadcrumbs (Action Items > LLSA > Meeting Name)
-- [ ] Burst 51: E2E viewport variants for action items flow
+- [x] Burst 46: Create Action Items artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
+- [x] Burst 47: Mobile action items list — priority-grouped rows with checkbox, CRITICAL badge, owner, meeting source. Horizontal filter chips (Priority/Series/Owner/Day)
+- [x] Burst 48: Mobile action item detail — breadcrumb nav, CRITICAL badge header, Owner/Requester fields, Source Meeting tappable card, Related Items section, Context section, chat FAB
+- [x] Burst 49: Tablet split-pane — compact list (280px) with priority groups + detail panel matching mobile detail content
+- [x] Burst 50: Wire into ResponsiveShell with breadcrumbs (Actions > [Priority Group] > Detail)
+- [x] Burst 51: E2E viewport variants for action items flow
 
-## SECTION 15: Paper Artboards — Threads (~1 burst)
-
-- [x] Burst 52: Create Threads artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-
-## SECTION 16: Threads — Responsive (~5 bursts)
+## SECTION 14: Threads — Responsive (~5 bursts)
 
 > **Spec:**
-> Adapt ThreadsView and ThreadDetailView for responsive viewports. Thread list shows meeting count badges. Detail view shows candidate meetings with add/remove actions.
+> Adapt ThreadsView and ThreadDetailView for responsive viewports.
+>
+> **Paper artboards (completed):**
+> - "Responsive — Mobile Threads" — Full-screen list with amber "+ New" button. Each row: thread title, shorthand badge (outline), meeting count, optional "Resolved" badge. No filter chips (simpler than action items).
+> - "Responsive — Mobile Thread Detail" — Breadcrumb (Threads > Recurly Migration). Shorthand badge + Open/Resolved status badge. Command buttons: Edit, Notes, Resolve, Find. Sections: Summary, expandable Meetings accordion with relevance scores (tabular-nums, e.g. 0.94) and relevance summary per meeting card.
+> - "Responsive — Tablet Threads" — Annotation: follows Meetings tablet split-pane. List: title, shorthand, meeting count. Detail: summary, scored meetings, candidates.
 >
 > **Files affected:** `electron-ui/ui/src/components/ThreadsView.tsx`, `electron-ui/ui/src/components/ThreadDetailView.tsx`, `electron-ui/ui/src/pages/ThreadsPage.tsx`, test files
 
-- [ ] Burst 53: Mobile thread list — rows with meeting count badge, status indicator
-- [ ] Burst 54: Mobile thread detail — candidate meetings as cards, add/remove actions
-- [ ] Burst 55: Tablet split-pane threads
-- [ ] Burst 56: Wire into ResponsiveShell with breadcrumbs
+- [x] Burst 52: Create Threads artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
+- [ ] Burst 53: Mobile thread list — rows with title, shorthand outline badge, meeting count, optional Resolved badge. "+ New" button in header
+- [ ] Burst 54: Mobile thread detail — breadcrumb, status badges, summary section, meetings accordion with relevance scores and summary text per meeting card
+- [ ] Burst 55: Tablet split-pane — compact thread list (280px) + thread detail panel
+- [ ] Burst 56: Wire into ResponsiveShell with breadcrumbs (Threads > [Thread Name])
 - [ ] Burst 57: E2E viewport variants for threads flow
 
-## SECTION 17: Paper Artboards — Insights (~1 burst)
-
-- [x] Burst 58: Create Insights artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-
-## SECTION 18: Insights — Responsive (~5 bursts)
+## SECTION 15: Insights — Responsive (~5 bursts)
 
 > **Spec:**
-> Adapt InsightsPage for responsive viewports. Insight list shows status badges (Draft/Final). Detail shows generated content with source meetings. CreateInsightDialog becomes bottom sheet.
+> Adapt InsightsPage for responsive viewports.
+>
+> **Paper artboards (completed):**
+> - "Responsive — Mobile Insights" — Full-screen list with amber "+ New" button. Each row: RAG status dot (green/yellow/red, 10px), period date range, Weekly/Monthly outline badge, Final/Draft status badge. RAG dot is the primary visual differentiator.
+> - "Responsive — Mobile Insight Detail" — Breadcrumb (Insights > Mar 10 – 16). Large RAG dot (12px) + period heading. Weekly badge + Final badge. Command buttons: Edit, Notes, Reopen. Sections: Executive Summary (body text), Topic Details (RAG dot per topic + name + summary).
+> - "Responsive — Tablet Insights" — Annotation: follows Meetings tablet split-pane. List: RAG dot, period label, type badge, status. Detail: executive summary, topics.
 >
 > **Files affected:** `electron-ui/ui/src/pages/InsightsPage.tsx`, `electron-ui/ui/src/components/CreateInsightDialog.tsx`, test files
 
-- [ ] Burst 59: Mobile insight list — status badge prominent, period type label
-- [ ] Burst 60: Mobile insight detail — sections for executive summary, source meetings
+- [x] Burst 58: Create Insights artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
+- [ ] Burst 59: Mobile insight list — RAG status dot, period date range, Weekly/Monthly badge, Final/Draft badge. "+ New" button
+- [ ] Burst 60: Mobile insight detail — breadcrumb, RAG dot header, Executive Summary section, Topic Details with per-topic RAG dots and summaries
 - [ ] Burst 61: CreateInsightDialog → responsive wrapper (bottom sheet on mobile)
-- [ ] Burst 62: Tablet split-pane insights
+- [ ] Burst 62: Tablet split-pane — compact insight list (280px) + insight detail panel
 - [ ] Burst 63: E2E viewport variants for insights flow
 
-## SECTION 19: Paper Artboards — Timelines (~1 burst)
-
-- [x] Burst 64: Create Timelines artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-
-## SECTION 20: Timelines — Responsive (~5 bursts)
+## SECTION 16: Timelines — Responsive (~5 bursts)
 
 > **Spec:**
-> Adapt TimelinesPage for responsive viewports. Timeline list shows milestone count. Detail shows milestones with linked meetings. CreateMilestoneDialog becomes bottom sheet.
+> Adapt TimelinesPage for responsive viewports.
+>
+> **Paper artboards (completed):**
+> - "Responsive — Mobile Timelines" — Full-screen list with amber "+ New" button. Status filter chips: All (active), Tracked, Completed, Missed. Each row: status dot (blue=tracked, green=completed, gray=identified, red=missed), title, colored status badge, target date, mention count (tabular-nums).
+> - "Responsive — Mobile Timeline Detail" — Breadcrumb (Timeline > Recurly UAT). Blue status dot (12px) + title. Tracked badge + target date. Command buttons: Edit, Notes, Merge. Sections: Description, expandable Mentions accordion with type badge (status/target) per mention card showing meeting name + excerpt.
+> - "Responsive — Tablet Timelines" — Annotation: follows Meetings tablet split-pane. Status filter chips in list panel. List: status dot, title, badge, date, count. Detail: description, mentions, linked items.
 >
 > **Files affected:** `electron-ui/ui/src/pages/TimelinesPage.tsx`, `electron-ui/ui/src/components/CreateMilestoneDialog.tsx`, test files
 
-- [ ] Burst 65: Mobile timeline list — milestone count badge, date range label
-- [ ] Burst 66: Mobile timeline detail — milestones as cards with linked meeting chips
+- [x] Burst 64: Create Timelines artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
+- [ ] Burst 65: Mobile timeline list — status dot + colored badge per row, target date, mention count. Status filter chips (All/Tracked/Completed/Missed). "+ New" button
+- [ ] Burst 66: Mobile timeline detail — breadcrumb, status dot header, Description section, Mentions accordion with type badges (status/target) and meeting excerpts
 - [ ] Burst 67: CreateMilestoneDialog → responsive wrapper (bottom sheet on mobile)
-- [ ] Burst 68: Tablet split-pane timelines
+- [ ] Burst 68: Tablet split-pane — compact milestone list (280px) with status filters + milestone detail panel
 - [ ] Burst 69: E2E viewport variants for timelines flow
 
-## SECTION 21: Cross-View Polish (~3 bursts)
+## SECTION 17: Cross-View Polish (~3 bursts)
 
 > **Spec:**
 > Final pass across all views to ensure consistent behavior: consistent toast positioning on mobile, consistent bottom sheet heights, consistent breadcrumb depth patterns.
