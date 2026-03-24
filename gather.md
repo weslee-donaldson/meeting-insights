@@ -22,6 +22,10 @@ CLI tools import from `core/` directly — no IPC, no HTTP. They handle their ow
 
 UI tests mock `window.api` — this is the key testing seam. Core tests use the stub LLM adapter for deterministic behavior without API keys. E2E tests (Playwright) hit the real HTTP stack and catch issues unit tests miss (CORS, serialization, real DOM). Responsive UI Phase 1 added 11 unit tests (responsive shell, bottom tab bar, breadcrumbs, bottom sheet, responsive dialog, breakpoint hook, mobile nav, and mobile component variants) plus an E2E spec for cross-viewport meetings view verification. Shared E2E helpers (`helpers.ts`) provide `selectClient` and `withViewport`. 100% branch coverage is enforced.
 
+## From `local-service/`
+
+A standalone background service managed by pm2 that watches `data/webhook-rawtranscripts/` for new Krisp webhook JSON files and auto-processes them through the full pipeline. Uses `fs.watch` with a 30s periodic scan fallback (macOS + Google Drive sync is unreliable). Debounces rapid file events to avoid processing partially-written files. Completely independent from the API server and web UI — runs as its own Node.js process via `ecosystem.config.cjs`.
+
 ## From `config/`
 
 Prompt templates use `{{variable}}` placeholders and instruct strict JSON output. The extraction prompt uses a two-trigger action item model. These prompts are load-bearing — changing output format requires updating the corresponding parser in `core/`.
@@ -53,6 +57,7 @@ Prompt templates use `{{variable}}` placeholders and instruct strict JSON output
 | `test/e2e/` | [scatter](test/e2e/scatter.md) | — |
 | `config/` | [scatter](config/scatter.md) | [gather](config/gather.md) |
 | `config/prompts/` | [scatter](config/prompts/scatter.md) | — |
+| `local-service/` | [scatter](local-service/scatter.md) | — |
 | `scripts/` | [scatter](scripts/scatter.md) | — |
 | `planning/` | [scatter](planning/scatter.md) | — |
 | `google-krisp-webhook/` | [scatter](google-krisp-webhook/scatter.md) | — |

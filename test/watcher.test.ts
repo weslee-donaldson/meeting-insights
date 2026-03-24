@@ -58,4 +58,22 @@ describe("createWatcher", () => {
 
     expect(calls).toEqual(["data.json"]);
   });
+
+  it("periodic scan catches files that fs.watch missed", async () => {
+    tmpDir = join(tmpdir(), `watcher-poll-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    writeFileSync(join(tmpDir, "pre-existing.json"), "{}");
+
+    const received = new Promise<string>((resolve) => {
+      watcher = createWatcher({
+        dir: tmpDir,
+        onFile: resolve,
+        debounceMs: 50,
+        pollIntervalMs: 150,
+      });
+    });
+
+    expect(await received).toBe("pre-existing.json");
+  });
 });
