@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e9]: L
+        - combobox "Client" [ref=e10] [cursor=pointer]:
+          - option "All Clients"
+          - option "Hypercurrent"
+          - option "LLSA" [selected]
+          - option "Revenium"
+          - option "TerraQuantum"
+        - generic [ref=e11]: 72 meetings · 0 action items · 0 threads
+        - button "Reset" [ref=e12] [cursor=pointer]
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - textbox "Search meetings" [ref=e18]:
+            - /placeholder: Search within LLSA…
+        - generic [ref=e19] [cursor=pointer]:
+          - checkbox "Deep Search" [checked] [ref=e20]
+          - generic [ref=e21]: Deep
+        - generic [ref=e22]: From
+        - textbox "After date" [ref=e23]
+        - generic [ref=e24]: to
+        - textbox "Before date" [ref=e25]
+    - 'button "Theme: stone-light" [ref=e27] [cursor=pointer]':
+      - img [ref=e28]
+  - generic [ref=e34]:
+    - generic [ref=e36]:
+      - generic [ref=e38]: K
+      - button "Meetings" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e42]: Meetings
+      - button "Action Items" [ref=e43] [cursor=pointer]:
+        - img [ref=e44]
+        - generic [ref=e47]: Action Items
+      - button "Threads" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e52]: Threads
+      - button "Insights" [active] [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e62]: Insights
+      - button "Timelines" [ref=e63] [cursor=pointer]:
+        - img [ref=e64]
+        - generic [ref=e66]: Timelines
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - heading "LLSA Insights" [level=2] [ref=e70]
+        - button "New Insight" [ref=e71] [cursor=pointer]:
+          - img [ref=e72]
+          - text: New Insight
+      - option "Mar 2 – Mar 8 week" [ref=e77] [cursor=pointer]:
+        - generic [ref=e79]: Mar 2 – Mar 8
+        - generic [ref=e80]: week
+```

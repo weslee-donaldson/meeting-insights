@@ -1,7 +1,7 @@
 import { mkdirSync, readdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createLogger } from "./logger.js";
-import { parseKrispFile, parseManifest, parseKrispFolder } from "./parser.js";
+import { parseKrispFile, parseManifest, parseKrispFolder, listWebhookFiles, parseWebhookPayload } from "./parser.js";
 import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
@@ -283,4 +283,27 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
   log("pipeline complete total=%d succeeded=%d failed=%d skipped=%d", total, succeeded, failed, skipped);
   return { total, succeeded, failed, skipped };
+}
+
+interface WebhookPipelineConfig {
+  webhookRawDir: string;
+  webhookProcessedDir: string;
+  webhookFailedDir: string;
+  auditDir: string;
+  db: Database;
+  vdb: VectorDb;
+  session: InferenceSession & { _tokenizer: unknown };
+  llm: LlmAdapter;
+  tokenLimit?: number;
+  extractionPromptPath?: string;
+  onProgress?: (event: PipelineEvent) => void;
+  threadSimilarityThreshold?: number;
+}
+
+export async function processWebhookMeetings(config: WebhookPipelineConfig): Promise<PipelineResult> {
+  const { webhookRawDir } = config;
+  const files = listWebhookFiles(webhookRawDir);
+  const total = files.length;
+
+  return { total, succeeded: 0, failed: 0, skipped: 0 };
 }

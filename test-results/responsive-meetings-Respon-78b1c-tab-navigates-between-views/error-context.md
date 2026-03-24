@@ -1,0 +1,498 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e9]: L
+        - combobox "Client" [ref=e10] [cursor=pointer]:
+          - option "All Clients"
+          - option "Hypercurrent"
+          - option "LLSA" [selected]
+          - option "Revenium"
+          - option "TerraQuantum"
+        - generic [ref=e11]: 72 meetings · 0 action items · 0 threads
+        - button "Reset" [ref=e12] [cursor=pointer]
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - textbox "Search meetings" [ref=e18]:
+            - /placeholder: Search within LLSA…
+        - generic [ref=e19] [cursor=pointer]:
+          - checkbox "Deep Search" [checked] [ref=e20]
+          - generic [ref=e21]: Deep
+        - generic [ref=e22]: From
+        - textbox "After date" [ref=e23]
+        - generic [ref=e24]: to
+        - textbox "Before date" [ref=e25]
+    - 'button "Theme: stone-light" [ref=e27] [cursor=pointer]':
+      - img [ref=e28]
+  - generic [ref=e34]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - button "+ Add Meeting" [ref=e39] [cursor=pointer]
+        - generic [ref=e41]:
+          - toolbar "Filters" [ref=e43]:
+            - 'button "Group: Series" [ref=e45]':
+              - generic [ref=e46]: "Group:"
+              - generic [ref=e47]: Series
+              - img [ref=e48]
+            - 'button "Sort: Newest" [ref=e51]':
+              - generic [ref=e52]: "Sort:"
+              - generic [ref=e53]: Newest
+              - img [ref=e54]
+          - radiogroup "List density" [ref=e56]:
+            - radio "comfortable density" [checked] [ref=e57]:
+              - img [ref=e58]
+            - radio "compact density" [ref=e62]:
+              - img [ref=e63]
+            - radio "dense density" [ref=e68]:
+              - img [ref=e69]
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e80]: LLSA, Sam x Jeremy
+            - button "Select all in group" [ref=e81] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e82] [cursor=pointer]:
+            - generic [ref=e83]:
+              - checkbox [ref=e84]
+              - generic [ref=e85]: Mon, Mar 23, 2026
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - generic [ref=e89]: LLSA, State of Integration
+            - button "Select all in group" [ref=e90] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e91] [cursor=pointer]:
+            - generic [ref=e92]:
+              - checkbox [ref=e93]
+              - generic [ref=e94]: Mon, Mar 23, 2026
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e98]: LLSA, Sam x Lance
+            - button "Select all in group" [ref=e99] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e100] [cursor=pointer]:
+            - generic [ref=e101]:
+              - checkbox [ref=e102]
+              - generic [ref=e103]: Mon, Mar 23, 2026
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - generic [ref=e107]: Product X AppDev Office Hours
+            - button "Select all in group" [ref=e108] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e109] [cursor=pointer]:
+            - generic [ref=e110]:
+              - checkbox [ref=e111]
+              - generic [ref=e112]: Mon, Mar 23, 2026
+          - option "Thu, Mar 19, 2026" [ref=e113] [cursor=pointer]:
+            - generic [ref=e114]:
+              - checkbox [ref=e115]
+              - generic [ref=e116]: Thu, Mar 19, 2026
+          - option "Wed, Mar 18, 2026" [ref=e117] [cursor=pointer]:
+            - generic [ref=e118]:
+              - checkbox [ref=e119]
+              - generic [ref=e120]: Wed, Mar 18, 2026
+          - option "Tue, Mar 17, 2026" [ref=e121] [cursor=pointer]:
+            - generic [ref=e122]:
+              - checkbox [ref=e123]
+              - generic [ref=e124]: Tue, Mar 17, 2026
+          - option "Wed, Mar 11, 2026" [ref=e125] [cursor=pointer]:
+            - generic [ref=e126]:
+              - checkbox [ref=e127]
+              - generic [ref=e128]: Wed, Mar 11, 2026
+          - option "Mon, Mar 9, 2026" [ref=e129] [cursor=pointer]:
+            - generic [ref=e130]:
+              - checkbox [ref=e131]
+              - generic [ref=e132]: Mon, Mar 9, 2026
+          - option "Wed, Mar 4, 2026" [ref=e133] [cursor=pointer]:
+            - generic [ref=e134]:
+              - checkbox [ref=e135]
+              - generic [ref=e136]: Wed, Mar 4, 2026
+          - option "Tue, Mar 3, 2026" [ref=e137] [cursor=pointer]:
+            - generic [ref=e138]:
+              - checkbox [ref=e139]
+              - generic [ref=e140]: Tue, Mar 3, 2026
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - generic [ref=e144]: LLSA, Sam x Wes, State of Integration
+            - button "Select all in group" [ref=e145] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e146] [cursor=pointer]:
+            - generic [ref=e147]:
+              - checkbox [ref=e148]
+              - generic [ref=e149]: Mon, Mar 23, 2026
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e153]: Mandalore DSU
+            - button "Select all in group" [ref=e154] [cursor=pointer]: Select all
+          - option "Mon, Mar 23, 2026" [ref=e155] [cursor=pointer]:
+            - generic [ref=e156]:
+              - checkbox [ref=e157]
+              - generic [ref=e158]: Mon, Mar 23, 2026
+          - option "Thu, Mar 19, 2026" [ref=e159] [cursor=pointer]:
+            - generic [ref=e160]:
+              - checkbox [ref=e161]
+              - generic [ref=e162]: Thu, Mar 19, 2026
+          - option "Wed, Mar 18, 2026" [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]:
+              - checkbox [ref=e165]
+              - generic [ref=e166]: Wed, Mar 18, 2026
+          - option "Tue, Mar 17, 2026" [ref=e167] [cursor=pointer]:
+            - generic [ref=e168]:
+              - checkbox [ref=e169]
+              - generic [ref=e170]: Tue, Mar 17, 2026
+          - option "Mon, Mar 16, 2026" [ref=e171] [cursor=pointer]:
+            - generic [ref=e172]:
+              - checkbox [ref=e173]
+              - generic [ref=e174]: Mon, Mar 16, 2026
+          - option "Thu, Mar 12, 2026" [ref=e175] [cursor=pointer]:
+            - generic [ref=e176]:
+              - checkbox [ref=e177]
+              - generic [ref=e178]: Thu, Mar 12, 2026
+          - option "Wed, Mar 11, 2026" [ref=e179] [cursor=pointer]:
+            - generic [ref=e180]:
+              - checkbox [ref=e181]
+              - generic [ref=e182]: Wed, Mar 11, 2026
+          - option "Tue, Mar 10, 2026" [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]:
+              - checkbox [ref=e185]
+              - generic [ref=e186]: Tue, Mar 10, 2026
+          - option "Mon, Mar 9, 2026" [ref=e187] [cursor=pointer]:
+            - generic [ref=e188]:
+              - checkbox [ref=e189]
+              - generic [ref=e190]: Mon, Mar 9, 2026
+          - option "Thu, Mar 5, 2026" [ref=e191] [cursor=pointer]:
+            - generic [ref=e192]:
+              - checkbox [ref=e193]
+              - generic [ref=e194]: Thu, Mar 5, 2026
+          - option "Wed, Mar 4, 2026" [ref=e195] [cursor=pointer]:
+            - generic [ref=e196]:
+              - checkbox [ref=e197]
+              - generic [ref=e198]: Wed, Mar 4, 2026
+          - option "Tue, Mar 3, 2026" [ref=e199] [cursor=pointer]:
+            - generic [ref=e200]:
+              - checkbox [ref=e201]
+              - generic [ref=e202]: Tue, Mar 3, 2026
+          - option "Mon, Mar 2, 2026" [ref=e203] [cursor=pointer]:
+            - generic [ref=e204]:
+              - checkbox [ref=e205]
+              - generic [ref=e206]: Mon, Mar 2, 2026
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - generic [ref=e210]: Mandalore, EOD State of Integration
+            - button "Select all in group" [ref=e211] [cursor=pointer]: Select all
+          - option "Fri, Mar 20, 2026" [ref=e212] [cursor=pointer]:
+            - generic [ref=e213]:
+              - checkbox [ref=e214]
+              - generic [ref=e215]: Fri, Mar 20, 2026
+          - option "Thu, Mar 19, 2026" [ref=e216] [cursor=pointer]:
+            - generic [ref=e217]:
+              - checkbox [ref=e218]
+              - generic [ref=e219]: Thu, Mar 19, 2026
+        - generic [ref=e220]:
+          - generic [ref=e221]:
+            - generic [ref=e223]: LLSA, Recurly, BI Reporting
+            - button "Select all in group" [ref=e224] [cursor=pointer]: Select all
+          - option "Fri, Mar 20, 2026" [ref=e225] [cursor=pointer]:
+            - generic [ref=e226]:
+              - checkbox [ref=e227]
+              - generic [ref=e228]: Fri, Mar 20, 2026
+        - generic [ref=e229]:
+          - generic [ref=e230]:
+            - generic [ref=e232]: LLSA, AppDev Demo
+            - button "Select all in group" [ref=e233] [cursor=pointer]: Select all
+          - option "Fri, Mar 20, 2026" [ref=e234] [cursor=pointer]:
+            - generic [ref=e235]:
+              - checkbox [ref=e236]
+              - generic [ref=e237]: Fri, Mar 20, 2026
+        - generic [ref=e238]:
+          - generic [ref=e239]:
+            - generic [ref=e241]: AppDev Leads - Weekly Sync
+            - button "Select all in group" [ref=e242] [cursor=pointer]: Select all
+          - option "Fri, Mar 20, 2026" [ref=e243] [cursor=pointer]:
+            - generic [ref=e244]:
+              - checkbox [ref=e245]
+              - generic [ref=e246]: Fri, Mar 20, 2026
+          - option "Fri, Mar 13, 2026" [ref=e247] [cursor=pointer]:
+            - generic [ref=e248]:
+              - checkbox [ref=e249]
+              - generic [ref=e250]: Fri, Mar 13, 2026
+        - generic [ref=e251]:
+          - generic [ref=e252]:
+            - generic [ref=e254]: Mandalore DSU, Fridays
+            - button "Select all in group" [ref=e255] [cursor=pointer]: Select all
+          - option "Fri, Mar 20, 2026" [ref=e256] [cursor=pointer]:
+            - generic [ref=e257]:
+              - checkbox [ref=e258]
+              - generic [ref=e259]: Fri, Mar 20, 2026
+          - option "Fri, Mar 13, 2026" [ref=e260] [cursor=pointer]:
+            - generic [ref=e261]:
+              - checkbox [ref=e262]
+              - generic [ref=e263]: Fri, Mar 13, 2026
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e267]: LLSA, Jennifier 1:1
+            - button "Select all in group" [ref=e268] [cursor=pointer]: Select all
+          - option "Thu, Mar 19, 2026" [ref=e269] [cursor=pointer]:
+            - generic [ref=e270]:
+              - checkbox [ref=e271]
+              - generic [ref=e272]: Thu, Mar 19, 2026
+        - generic [ref=e273]:
+          - generic [ref=e274]:
+            - generic [ref=e276]: Architecture Solutioning
+            - button "Select all in group" [ref=e277] [cursor=pointer]: Select all
+          - option "Thu, Mar 19, 2026" [ref=e278] [cursor=pointer]:
+            - generic [ref=e279]:
+              - checkbox [ref=e280]
+              - generic [ref=e281]: Thu, Mar 19, 2026
+          - option "Tue, Mar 10, 2026" [ref=e282] [cursor=pointer]:
+            - generic [ref=e283]:
+              - checkbox [ref=e284]
+              - generic [ref=e285]: Tue, Mar 10, 2026
+          - option "Tue, Mar 3, 2026" [ref=e286] [cursor=pointer]:
+            - generic [ref=e287]:
+              - checkbox [ref=e288]
+              - generic [ref=e289]: Tue, Mar 3, 2026
+        - generic [ref=e290]:
+          - generic [ref=e291]:
+            - generic [ref=e293]: AppDev Leads DSU
+            - button "Select all in group" [ref=e294] [cursor=pointer]: Select all
+          - option "Thu, Mar 19, 2026" [ref=e295] [cursor=pointer]:
+            - generic [ref=e296]:
+              - checkbox [ref=e297]
+              - generic [ref=e298]: Thu, Mar 19, 2026
+          - option "Wed, Mar 18, 2026" [ref=e299] [cursor=pointer]:
+            - generic [ref=e300]:
+              - checkbox [ref=e301]
+              - generic [ref=e302]: Wed, Mar 18, 2026
+          - option "Tue, Mar 17, 2026" [ref=e303] [cursor=pointer]:
+            - generic [ref=e304]:
+              - checkbox [ref=e305]
+              - generic [ref=e306]: Tue, Mar 17, 2026
+          - option "Mon, Mar 16, 2026" [ref=e307] [cursor=pointer]:
+            - generic [ref=e308]:
+              - checkbox [ref=e309]
+              - generic [ref=e310]: Mon, Mar 16, 2026
+          - option "Thu, Mar 12, 2026" [ref=e311] [cursor=pointer]:
+            - generic [ref=e312]:
+              - checkbox [ref=e313]
+              - generic [ref=e314]: Thu, Mar 12, 2026
+          - option "Wed, Mar 11, 2026" [ref=e315] [cursor=pointer]:
+            - generic [ref=e316]:
+              - checkbox [ref=e317]
+              - generic [ref=e318]: Wed, Mar 11, 2026
+          - option "Tue, Mar 10, 2026" [ref=e319] [cursor=pointer]:
+            - generic [ref=e320]:
+              - checkbox [ref=e321]
+              - generic [ref=e322]: Tue, Mar 10, 2026
+          - option "Mon, Mar 9, 2026" [ref=e323] [cursor=pointer]:
+            - generic [ref=e324]:
+              - checkbox [ref=e325]
+              - generic [ref=e326]: Mon, Mar 9, 2026
+          - option "Thu, Mar 5, 2026" [ref=e327] [cursor=pointer]:
+            - generic [ref=e328]:
+              - checkbox [ref=e329]
+              - generic [ref=e330]: Thu, Mar 5, 2026
+          - option "Wed, Mar 4, 2026" [ref=e331] [cursor=pointer]:
+            - generic [ref=e332]:
+              - checkbox [ref=e333]
+              - generic [ref=e334]: Wed, Mar 4, 2026
+          - option "Tue, Mar 3, 2026" [ref=e335] [cursor=pointer]:
+            - generic [ref=e336]:
+              - checkbox [ref=e337]
+              - generic [ref=e338]: Tue, Mar 3, 2026
+          - option "Mon, Mar 2, 2026" [ref=e339] [cursor=pointer]:
+            - generic [ref=e340]:
+              - checkbox [ref=e341]
+              - generic [ref=e342]: Mon, Mar 2, 2026
+        - generic [ref=e343]:
+          - generic [ref=e344]:
+            - generic [ref=e346]: Qbridg - MCP Core
+            - button "Select all in group" [ref=e347] [cursor=pointer]: Select all
+          - option "Thu, Mar 19, 2026" [ref=e348] [cursor=pointer]:
+            - generic [ref=e349]:
+              - checkbox [ref=e350]
+              - generic [ref=e351]: Thu, Mar 19, 2026
+        - generic [ref=e352]:
+          - generic [ref=e353]:
+            - generic [ref=e355]: X Team review
+            - button "Select all in group" [ref=e356] [cursor=pointer]: Select all
+          - option "Wed, Mar 18, 2026" [ref=e357] [cursor=pointer]:
+            - generic [ref=e358]:
+              - checkbox [ref=e359]
+              - generic [ref=e360]: Wed, Mar 18, 2026
+        - generic [ref=e361]:
+          - generic [ref=e362]:
+            - generic [ref=e364]: LLSA, Sam Status on Recurly Progress
+            - button "Select all in group" [ref=e365] [cursor=pointer]: Select all
+          - option "Tue, Mar 17, 2026" [ref=e366] [cursor=pointer]:
+            - generic [ref=e367]:
+              - checkbox [ref=e368]
+              - generic [ref=e369]: Tue, Mar 17, 2026
+        - generic [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e373]: LLSA, Beth Epic Review
+            - button "Select all in group" [ref=e374] [cursor=pointer]: Select all
+          - option "Tue, Mar 17, 2026" [ref=e375] [cursor=pointer]:
+            - generic [ref=e376]:
+              - checkbox [ref=e377]
+              - generic [ref=e378]: Tue, Mar 17, 2026
+        - generic [ref=e379]:
+          - generic [ref=e380]:
+            - generic [ref=e382]: LLSA, Engineering Sync, Recurly
+            - button "Select all in group" [ref=e383] [cursor=pointer]: Select all
+          - option "Mon, Mar 16, 2026" [ref=e384] [cursor=pointer]:
+            - generic [ref=e385]:
+              - checkbox [ref=e386]
+              - generic [ref=e387]: Mon, Mar 16, 2026
+        - generic [ref=e388]:
+          - generic [ref=e389]:
+            - generic [ref=e391]: LLSA, SRE Onboarding Jivko
+            - button "Select all in group" [ref=e392] [cursor=pointer]: Select all
+          - option "Mon, Mar 16, 2026" [ref=e393] [cursor=pointer]:
+            - generic [ref=e394]:
+              - checkbox [ref=e395]
+              - generic [ref=e396]: Mon, Mar 16, 2026
+        - generic [ref=e397]:
+          - generic [ref=e398]:
+            - generic [ref=e400]: Mandalore, State of Integration Review
+            - button "Select all in group" [ref=e401] [cursor=pointer]: Select all
+          - option "Fri, Mar 13, 2026" [ref=e402] [cursor=pointer]:
+            - generic [ref=e403]:
+              - checkbox [ref=e404]
+              - generic [ref=e405]: Fri, Mar 13, 2026
+        - generic [ref=e406]:
+          - generic [ref=e407]:
+            - generic [ref=e409]: Pre-Mortem for Commerce
+            - button "Select all in group" [ref=e410] [cursor=pointer]: Select all
+          - option "Fri, Mar 13, 2026" [ref=e411] [cursor=pointer]:
+            - generic [ref=e412]:
+              - checkbox [ref=e413]
+              - generic [ref=e414]: Fri, Mar 13, 2026
+        - generic [ref=e415]:
+          - generic [ref=e416]:
+            - generic [ref=e418]: AppDev Weekly Demo
+            - button "Select all in group" [ref=e419] [cursor=pointer]: Select all
+          - option "Fri, Mar 13, 2026" [ref=e420] [cursor=pointer]:
+            - generic [ref=e421]:
+              - checkbox [ref=e422]
+              - generic [ref=e423]: Fri, Mar 13, 2026
+          - option "Fri, Mar 6, 2026" [ref=e424] [cursor=pointer]:
+            - generic [ref=e425]:
+              - checkbox [ref=e426]
+              - generic [ref=e427]: Fri, Mar 6, 2026
+        - generic [ref=e428]:
+          - generic [ref=e429]:
+            - generic [ref=e431]: LLSA, Eng Recurly process
+            - button "Select all in group" [ref=e432] [cursor=pointer]: Select all
+          - option "Thu, Mar 12, 2026" [ref=e433] [cursor=pointer]:
+            - generic [ref=e434]:
+              - checkbox [ref=e435]
+              - generic [ref=e436]: Thu, Mar 12, 2026
+          - option "Tue, Mar 10, 2026" [ref=e437] [cursor=pointer]:
+            - generic [ref=e438]:
+              - checkbox [ref=e439]
+              - generic [ref=e440]: Tue, Mar 10, 2026
+        - generic [ref=e441]:
+          - generic [ref=e442]:
+            - generic [ref=e444]: "X Team: LLSA Pre-Mortem"
+            - button "Select all in group" [ref=e445] [cursor=pointer]: Select all
+          - option "Wed, Mar 11, 2026" [ref=e446] [cursor=pointer]:
+            - generic [ref=e447]:
+              - checkbox [ref=e448]
+              - generic [ref=e449]: Wed, Mar 11, 2026
+        - generic [ref=e450]:
+          - generic [ref=e451]:
+            - generic [ref=e453]: LLSA, Jennifer 1:1
+            - button "Select all in group" [ref=e454] [cursor=pointer]: Select all
+          - option "Wed, Mar 11, 2026" [ref=e455] [cursor=pointer]:
+            - generic [ref=e456]:
+              - checkbox [ref=e457]
+              - generic [ref=e458]: Wed, Mar 11, 2026
+        - generic [ref=e459]:
+          - generic [ref=e460]:
+            - generic [ref=e462]: Mandalore, Engineering Refinement
+            - button "Select all in group" [ref=e463] [cursor=pointer]: Select all
+          - option "Mon, Mar 9, 2026" [ref=e464] [cursor=pointer]:
+            - generic [ref=e465]:
+              - checkbox [ref=e466]
+              - generic [ref=e467]: Mon, Mar 9, 2026
+        - generic [ref=e468]:
+          - generic [ref=e469]:
+            - generic [ref=e471]: LLSA, Order Obj Ownership
+            - button "Select all in group" [ref=e472] [cursor=pointer]: Select all
+          - option "Mon, Mar 9, 2026" [ref=e473] [cursor=pointer]:
+            - generic [ref=e474]:
+              - checkbox [ref=e475]
+              - generic [ref=e476]: Mon, Mar 9, 2026
+        - generic [ref=e477]:
+          - generic [ref=e478]:
+            - generic [ref=e480]: LLSA, Engineering Epic Review
+            - button "Select all in group" [ref=e481] [cursor=pointer]: Select all
+          - option "Mon, Mar 9, 2026" [ref=e482] [cursor=pointer]:
+            - generic [ref=e483]:
+              - checkbox [ref=e484]
+              - generic [ref=e485]: Mon, Mar 9, 2026
+        - generic [ref=e486]:
+          - generic [ref=e487]:
+            - generic [ref=e489]: Mandalore, AI Work-share
+            - button "Select all in group" [ref=e490] [cursor=pointer]: Select all
+          - option "Fri, Mar 6, 2026" [ref=e491] [cursor=pointer]:
+            - generic [ref=e492]:
+              - checkbox [ref=e493]
+              - generic [ref=e494]: Fri, Mar 6, 2026
+        - generic [ref=e495]:
+          - generic [ref=e496]:
+            - generic [ref=e498]: LLSA, Recurly Product Review (final)
+            - button "Select all in group" [ref=e499] [cursor=pointer]: Select all
+          - option "Thu, Mar 5, 2026" [ref=e500] [cursor=pointer]:
+            - generic [ref=e501]:
+              - checkbox [ref=e502]
+              - generic [ref=e503]: Thu, Mar 5, 2026
+        - generic [ref=e504]:
+          - generic [ref=e505]:
+            - generic [ref=e507]: LLSA, Blue/Green Deployment Planning
+            - button "Select all in group" [ref=e508] [cursor=pointer]: Select all
+          - option "Wed, Mar 4, 2026" [ref=e509] [cursor=pointer]:
+            - generic [ref=e510]:
+              - checkbox [ref=e511]
+              - generic [ref=e512]: Wed, Mar 4, 2026
+        - generic [ref=e513]:
+          - generic [ref=e514]:
+            - generic [ref=e516]: 02:30 PM - Recurly Product UAT
+            - button "Select all in group" [ref=e517] [cursor=pointer]: Select all
+          - option "Mon, Mar 2, 2026" [ref=e518] [cursor=pointer]:
+            - generic [ref=e519]:
+              - checkbox [ref=e520]
+              - generic [ref=e521]: Mon, Mar 2, 2026
+        - generic [ref=e522]:
+          - generic [ref=e523]:
+            - generic [ref=e525]: 02:00 PM - LLSA, Recurly Order Architecture
+            - button "Select all in group" [ref=e526] [cursor=pointer]: Select all
+          - option "Mon, Mar 2, 2026" [ref=e527] [cursor=pointer]:
+            - generic [ref=e528]:
+              - checkbox [ref=e529]
+              - generic [ref=e530]: Mon, Mar 2, 2026
+        - generic [ref=e531]:
+          - generic [ref=e532]:
+            - generic [ref=e534]: 10:00 AM - LLSA, Engineering review, Recurly MVP
+            - button "Select all in group" [ref=e535] [cursor=pointer]: Select all
+          - option "Mon, Mar 2, 2026" [ref=e536] [cursor=pointer]:
+            - generic [ref=e537]:
+              - checkbox [ref=e538]
+              - generic [ref=e539]: Mon, Mar 2, 2026
+    - generic [ref=e541]: Select a meeting
+  - navigation [ref=e542]:
+    - button "Meetings" [ref=e543] [cursor=pointer]:
+      - img [ref=e544]
+      - generic [ref=e546]: Meetings
+    - button "Items" [ref=e547] [cursor=pointer]:
+      - img [ref=e548]
+      - generic [ref=e551]: Items
+    - button "Threads" [ref=e552] [cursor=pointer]:
+      - img [ref=e553]
+      - generic [ref=e556]: Threads
+    - button "Insights" [ref=e557] [cursor=pointer]:
+      - img [ref=e558]
+      - generic [ref=e566]: Insights
+    - button "Timelines" [ref=e567] [cursor=pointer]:
+      - img [ref=e568]
+      - generic [ref=e570]: Timelines
+```

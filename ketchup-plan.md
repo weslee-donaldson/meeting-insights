@@ -95,7 +95,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `core/pipeline.ts`, `test/pipeline.test.ts`
 
-- [ ] Burst 11: processWebhookMeetings returns PipelineResult with correct total count from directory scan
+- [x] Burst 11: processWebhookMeetings returns PipelineResult with correct total count from directory scan
 - [ ] Burst 12: processWebhookMeetings parses JSON files via parseWebhookPayload and processes valid meetings
 - [ ] Burst 13: processWebhookMeetings skips meetings whose externalId already exists in DB
 - [ ] Burst 14: processWebhookMeetings moves processed files to webhook-processed directory

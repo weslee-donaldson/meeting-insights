@@ -6,7 +6,7 @@ import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
-import { processNewMeetings, type PipelineEvent } from "../core/pipeline.js";
+import { processNewMeetings, processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
 import { createThread } from "../core/threads.js";
 import { listMilestonesByClient } from "../core/timelines.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -388,5 +388,67 @@ describe("manifest with missing folder", () => {
     expect(failedEvents).toHaveLength(1);
     expect(failedEvents[0].reason).toBe("folder not found: ghost_meeting-missing-001");
     expect(failedEvents[0].title).toBe("Ghost Meeting");
+  });
+});
+
+function makeWebhookJson(overrides: Record<string, unknown> = {}): string {
+  return JSON.stringify({
+    event: "transcript_created",
+    data: {
+      meeting: {
+        id: overrides.meetingId ?? "webhook-meeting-001",
+        title: overrides.title ?? "Webhook Test Meeting",
+        start_date: "2026-03-20T10:00:00.000Z",
+        speakers: [
+          { index: 0, first_name: "Alice", last_name: "Smith", id: "spk-001", email: "alice@example.com" },
+        ],
+      },
+      content: [
+        { speaker: "Alice Smith", speakerIndex: 0, text: "Let us discuss the webhook integration." },
+      ],
+    },
+    ...overrides,
+  });
+}
+
+describe("processWebhookMeetings", () => {
+  let wDb: Database;
+  let wVdbPath: string;
+  let wVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let wBaseDir: string;
+
+  beforeAll(async () => {
+    wBaseDir = join(tmpdir(), `pipeline-webhook-${Date.now()}`);
+    wDb = createDb(":memory:");
+    migrate(wDb);
+    wVdbPath = join(tmpdir(), `lancedb-webhook-${Date.now()}`);
+    mkdirSync(wVdbPath, { recursive: true });
+    wVdb = await connectVectorDb(wVdbPath);
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(wBaseDir, { recursive: true, force: true });
+    rmSync(wVdbPath, { recursive: true, force: true });
+  });
+
+  it("returns PipelineResult with correct total count from directory scan", async () => {
+    const webhookRawDir = join(wBaseDir, "burst11-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+    writeFileSync(join(webhookRawDir, "meeting-a.json"), makeWebhookJson({ meetingId: "burst11-a" }), "utf-8");
+    writeFileSync(join(webhookRawDir, "meeting-b.json"), makeWebhookJson({ meetingId: "burst11-b" }), "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst11-processed"),
+      webhookFailedDir: join(wBaseDir, "burst11-failed"),
+      auditDir: join(wBaseDir, "burst11-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(result.total).toBe(2);
   });
 });

@@ -1,0 +1,53 @@
+[     235ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ http://localhost:5188/:0
+[     250ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5188/favicon.ico:0
+[   27966ms] [ERROR] In HTML, %s cannot be a descendant of <%s>.
+This will cause a hydration error.%s <button> button 
+
+  ...
+    <QueryClientProvider client={{}}>
+      <App>
+        <ResponsiveShell viewId="meetings" defaultSidebarWidth={undefined} chatOpen={true} currentView="meetings" ...>
+          <div className="flex flex-..." data-testid="responsive...">
+            <div>
+            <BreadcrumbBar>
+            <div className="flex-1 ove..." data-testid="mobile-con...">
+              <MeetingDetail meeting={{id:"019d1c...", ...}} meetings={undefined} artifact={{summary:"-...", ...}} ...>
+                <div className="flex flex-...">
+                  <div>
+                  <div className="flex-1 ove...">
+                    <AttachmentsSection>
+                    <ArtifactView artifact={{summary:"-...", ...}} completions={[...]} onComplete={function} ...>
+                      <div className="flex flex-col">
+                        <div>
+                        <SectionHeader>
+                        <SectionHeader>
+                        <SectionHeader label="Action Items" isEmpty={false} expanded={true} ...>
+                          <div className="flex flex-...">
+>                           <button
+>                             onClick={function onClick}
+>                             className="flex items-center gap-2 w-full"
+>                             aria-expanded={true}
+>                           >
+                              <svg>
+                              <span>
+                              <span>
+                              <div>
+                              <div className="flex-shrink-0">
+                                <div className="flex items...">
+                                  <select>
+                                  <span>
+                                  <div>
+                                  <Button variant="ghost" size="sm" onClick={function onClick} aria-label="Mark all c..." ...>
+>                                   <button
+>                                     className="inline-flex items-center justify-center gap-2 rounded-md font-medium ..."
+>                                     onClick={function onClick}
+>                                     aria-label="Mark all complete"
+>                                   >
+                                  ...
+                            ...
+                        ...
+            ...
+        ...
+ @ http://localhost:5188/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7d9bc68a:2155
+[   27967ms] [ERROR] <%s> cannot contain a nested %s.
+See this log for the ancestor stack trace. button <button> @ http://localhost:5188/@fs/Users/wdonaldson/tools/krisp-meeting-insights/node_modules/.vite/deps/react-dom_client.js?v=7d9bc68a:2162
