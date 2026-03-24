@@ -293,4 +293,11 @@ describe("parseWebhookPayload", () => {
       { first_name: "jeremy.campeau", last_name: "", id: "abc123", email: "jeremy.campeau@llsa.com" },
     ]);
   });
+
+  it("maps data.content[] to SpeakerTurn[] with 00:00 timestamps", () => {
+    const result = parseWebhookPayload(validPayload, "krisp-2026-03-24.json");
+    expect(result!.turns).toEqual([
+      { speaker_name: "Wesley Donaldson", timestamp: "00:00", text: "Good afternoon." },
+    ]);
+  });
 });

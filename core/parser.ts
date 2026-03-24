@@ -204,6 +204,12 @@ interface WebhookSpeaker {
   email: string;
 }
 
+interface WebhookContentEntry {
+  speaker: string;
+  speakerIndex: number;
+  text: string;
+}
+
 export function parseWebhookPayload(json: string, filename: string): ParsedMeeting | null {
   const payload = JSON.parse(json);
   const meeting = payload.data.meeting;
@@ -213,12 +219,17 @@ export function parseWebhookPayload(json: string, filename: string): ParsedMeeti
     id: s.id,
     email: s.email,
   }));
+  const turns: SpeakerTurn[] = payload.data.content.map((c: WebhookContentEntry) => ({
+    speaker_name: c.speaker,
+    timestamp: "00:00",
+    text: c.text,
+  }));
   return {
     externalId: meeting.id,
     timestamp: meeting.start_date,
     title: meeting.title,
     participants,
-    turns: [],
+    turns,
     rawTranscript: "",
     sourceFilename: filename,
   };
