@@ -259,4 +259,11 @@ describe("parseWebhookPayload", () => {
       sourceFilename: "krisp-2026-03-24.json",
     }));
   });
+
+  it("maps data.meeting.speakers to Participant[] with first_name, last_name, email, id", () => {
+    const result = parseWebhookPayload(validPayload, "krisp-2026-03-24.json");
+    expect(result!.participants).toEqual([
+      { first_name: "Wesley", last_name: "Donaldson", id: "2d123521305e5ba2b050e5c705b00890", email: "wesley.donaldson@xolv.io" },
+    ]);
+  });
 });

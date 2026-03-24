@@ -196,13 +196,28 @@ export function parseKrispFolder(rawDir: string, folderName: string, entry: Mani
   }
 }
 
+interface WebhookSpeaker {
+  index: number;
+  first_name: string | null;
+  last_name: string | null;
+  id: string;
+  email: string;
+}
+
 export function parseWebhookPayload(json: string, filename: string): ParsedMeeting | null {
   const payload = JSON.parse(json);
+  const meeting = payload.data.meeting;
+  const participants: Participant[] = meeting.speakers.map((s: WebhookSpeaker) => ({
+    first_name: s.first_name ?? "",
+    last_name: s.last_name ?? "",
+    id: s.id,
+    email: s.email,
+  }));
   return {
-    externalId: payload.data.meeting.id,
-    timestamp: payload.data.meeting.start_date,
-    title: payload.data.meeting.title,
-    participants: [],
+    externalId: meeting.id,
+    timestamp: meeting.start_date,
+    title: meeting.title,
+    participants,
     turns: [],
     rawTranscript: "",
     sourceFilename: filename,
