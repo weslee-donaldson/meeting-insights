@@ -142,7 +142,7 @@ Enable automatic ingestion of Krisp webhook JSON payloads as a first-class trans
 >
 > **Files:** `local-service/main.ts`, `local-service/scatter.md`
 
-- [ ] Burst 28: Service initializes core dependencies (DB, vector DB, session, LLM) using shared config pattern
+- [x] Burst 28: Service initializes core dependencies (DB, vector DB, session, LLM) using shared config pattern
 - [ ] Burst 29: Service processes newly detected webhook file through full pipeline
 - [ ] Burst 30: Service handles SIGINT/SIGTERM — stops watcher, closes resources
 - [ ] Burst 31: Service logs startup, processing events, and shutdown via createLogger
