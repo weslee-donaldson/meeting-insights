@@ -317,6 +317,7 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
 
   const table = await createMeetingTable(vdb);
   const itemTable = await createItemTable(vdb);
+  const existingIds = new Set((db.prepare("SELECT id FROM meetings").all() as { id: string }[]).map((r) => r.id));
 
   for (let i = 0; i < files.length; i++) {
     const filename = files[i];
@@ -325,6 +326,12 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     const parsed = parseWebhookPayload(json, filename);
 
     if (!parsed) {
+      skipped++;
+      continue;
+    }
+
+    if (parsed.externalId && existingIds.has(parsed.externalId)) {
+      onProgress?.({ type: "skipped", name: filename, title: parsed.title, index, total });
       skipped++;
       continue;
     }

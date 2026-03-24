@@ -473,4 +473,26 @@ describe("processWebhookMeetings", () => {
     const meeting = wDb.prepare("SELECT id, title FROM meetings WHERE id = ?").get("burst12-valid") as { id: string; title: string };
     expect(meeting).toEqual({ id: "burst12-valid", title: "Webhook Test Meeting" });
   });
+
+  it("skips meetings whose externalId already exists in the database", async () => {
+    const webhookRawDir = join(wBaseDir, "burst13-raw");
+    mkdirSync(webhookRawDir, { recursive: true });
+    const existingId = "burst13-existing";
+    wDb.prepare("INSERT INTO meetings (id, title, date, participants, raw_transcript, source_filename, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").run(existingId, "Pre-existing", "2026-01-01T00:00:00.000Z", "[]", "", "old-source", new Date().toISOString());
+    writeFileSync(join(webhookRawDir, "duplicate.json"), makeWebhookJson({ meetingId: existingId }), "utf-8");
+
+    const llm = createLlmAdapter({ type: "stub" });
+    const result = await processWebhookMeetings({
+      webhookRawDir,
+      webhookProcessedDir: join(wBaseDir, "burst13-processed"),
+      webhookFailedDir: join(wBaseDir, "burst13-failed"),
+      auditDir: join(wBaseDir, "burst13-audit"),
+      db: wDb,
+      vdb: wVdb,
+      session,
+      llm,
+    });
+
+    expect(result).toEqual({ total: 1, succeeded: 0, failed: 0, skipped: 1 });
+  });
 });
