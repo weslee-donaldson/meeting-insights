@@ -26,6 +26,10 @@ UI tests mock `window.api` — this is the key testing seam. Core tests use the 
 
 A standalone background service managed by pm2 that watches `data/webhook-rawtranscripts/` for new Krisp webhook JSON files and auto-processes them through the full pipeline. Uses `fs.watch` with a 30s periodic scan fallback (macOS + Google Drive sync is unreliable). Debounces rapid file events to avoid processing partially-written files. Completely independent from the API server and web UI — runs as its own Node.js process via `ecosystem.config.cjs`.
 
+## From `google-krisp-webhook/`
+
+Two webhook receiver implementations that write Krisp payloads to Google Drive: `Code.gs` (Google Apps Script, writes structured folders with extracted fields + manifest) and `firebase/` (Firebase Cloud Function, writes raw JSON payloads as individual files). Both target the same Drive folder. Auth tokens are passed as query parameters because Apps Script cannot access custom HTTP headers. The Firebase function uses OAuth2 with a refresh token stored in Firebase Secret Manager to write to Drive via the v3 API. Files land in Drive and sync to `data/webhook-rawtranscripts/` via Google Drive Desktop, where `local-service/` picks them up.
+
 ## From `config/`
 
 Prompt templates use `{{variable}}` placeholders and instruct strict JSON output. The extraction prompt uses a two-trigger action item model. These prompts are load-bearing — changing output format requires updating the corresponding parser in `core/`.
