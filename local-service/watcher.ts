@@ -1,5 +1,4 @@
 import { watch, readdirSync } from "node:fs";
-import { basename } from "node:path";
 
 export interface WatcherOptions {
   dir: string;
