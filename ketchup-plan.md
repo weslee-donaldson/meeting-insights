@@ -291,11 +291,11 @@ This plan follows **The Ketchup Technique**. Each Burst is atomic: one test, one
 > **Files affected:** `electron-ui/ui/src/components/ThreadsView.tsx`, `electron-ui/ui/src/components/ThreadDetailView.tsx`, `electron-ui/ui/src/pages/ThreadsPage.tsx`, test files
 
 - [x] Burst 52: Create Threads artboards in Paper MCP — Mobile list, Mobile detail, Tablet annotation
-- [ ] Burst 53: Mobile thread list — rows with title, shorthand outline badge, meeting count, optional Resolved badge. "+ New" button in header
-- [ ] Burst 54: Mobile thread detail — breadcrumb, status badges, summary section, meetings accordion with relevance scores and summary text per meeting card
-- [ ] Burst 55: Tablet split-pane — compact thread list (280px) + thread detail panel
-- [ ] Burst 56: Wire into ResponsiveShell with breadcrumbs (Threads > [Thread Name])
-- [ ] Burst 57: E2E viewport variants for threads flow
+- [x] Burst 53: Mobile thread list — rows with title, shorthand outline badge, meeting count, optional Resolved badge. "+ New" button in header
+- [x] Burst 54: Mobile thread detail — breadcrumb, status badges, summary section, meetings accordion with relevance scores and summary text per meeting card
+- [x] Burst 55: Tablet split-pane — compact thread list (280px) + thread detail panel
+- [x] Burst 56: Wire into ResponsiveShell with breadcrumbs (Threads > [Thread Name])
+- [x] Burst 57: E2E viewport variants for threads flow
 
 ## SECTION 15: Insights — Responsive (~5 bursts)
 
