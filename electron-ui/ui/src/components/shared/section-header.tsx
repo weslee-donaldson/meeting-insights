@@ -86,7 +86,7 @@ export function SectionHeader({
         )}
         <div className="flex-1 h-px bg-[var(--color-line)]" />
         {filterSlot && expanded && (
-          <div className="flex-shrink-0">{filterSlot}</div>
+          <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>{filterSlot}</div>
         )}
       </button>
       {expanded && children && (
