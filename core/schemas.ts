@@ -30,7 +30,10 @@ export const MilestoneSchema = z.object({
 });
 
 export const ArtifactSchema = z.object({
-  summary: z.string(),
+  summary: z.union([
+    z.string(),
+    z.array(z.string()).transform((arr) => arr.join("\n")),
+  ]),
   decisions: z.array(DecisionSchema),
   proposed_features: z.array(z.string()),
   action_items: z.array(ActionItemSchema),
