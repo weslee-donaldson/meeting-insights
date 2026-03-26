@@ -54,27 +54,35 @@ interface AttachmentItem {
   url: string;
 }
 
+interface NoteOption {
+  id: string;
+  title: string;
+  noteType: string;
+}
+
 interface ChatPanelProps {
   activeMeetingIds: string[];
   charCount: number;
-  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
+  onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean, noteIds?: string[]) => Promise<ConversationChatResponse>;
   templates?: string[];
   persistedMessages?: PersistedMessage[];
-  onSendMessage?: (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => void;
+  onSendMessage?: (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[], noteIds?: string[]) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
   onSourceClick?: (meetingId: string) => void;
   showIncludeAssets?: boolean;
+  availableNotes?: NoteOption[];
 }
 
 function toDisplayName(stem: string): string {
   return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread, onSourceClick, showIncludeAssets }: ChatPanelProps) {
+export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, persistedMessages, onSendMessage, onClearMessages, onSaveAsThread, onSourceClick, showIncludeAssets, availableNotes }: ChatPanelProps) {
   const isPersisted = persistedMessages !== undefined;
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<InternalMessage[]>([]);
+  const [selectedNoteIds, setSelectedNoteIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [includeTranscripts, setIncludeTranscripts] = useState(false);
@@ -112,7 +120,8 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
           }),
         );
       }
-      onSendMessage(q || "Generate the output.", includeTranscripts, selectedTemplate || undefined, includeAssets || undefined, base64Attachments);
+      const noteIdsArray = selectedNoteIds.size > 0 ? [...selectedNoteIds] : undefined;
+      onSendMessage(q || "Generate the output.", includeTranscripts, selectedTemplate || undefined, includeAssets || undefined, base64Attachments, noteIdsArray);
       return;
     }
     const currentAttachments = [...attachments];
@@ -139,7 +148,8 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
           }),
         );
       }
-      const response = await onChat(historyForApi, base64Attachments, includeTranscripts, selectedTemplate, includeAssets);
+      const noteIdsForChat = selectedNoteIds.size > 0 ? [...selectedNoteIds] : undefined;
+      const response = await onChat(historyForApi, base64Attachments, includeTranscripts, selectedTemplate, includeAssets, noteIdsForChat);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.answer, sources: response.sources },
@@ -449,6 +459,25 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                   />
                   <span className="text-[0.7rem] text-muted-foreground">Assets</span>
                 </label>
+              )}
+              {availableNotes && availableNotes.length > 0 && (
+                <div className="flex items-center gap-1.5 select-none">
+                  <span className="text-[0.7rem] text-muted-foreground">Notes</span>
+                  <select
+                    aria-label="Include notes"
+                    multiple
+                    value={[...selectedNoteIds]}
+                    onChange={(e) => {
+                      const selected = new Set(Array.from(e.target.selectedOptions, (o) => o.value));
+                      setSelectedNoteIds(selected);
+                    }}
+                    className="text-[0.7rem] text-muted-foreground bg-transparent border border-border rounded px-1 py-0.5 cursor-pointer min-w-[100px]"
+                  >
+                    {availableNotes.map((n) => (
+                      <option key={n.id} value={n.id}>{n.title} ({n.noteType})</option>
+                    ))}
+                  </select>
+                </div>
               )}
             </div>
           </div>

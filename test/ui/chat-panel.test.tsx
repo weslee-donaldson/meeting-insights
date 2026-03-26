@@ -58,7 +58,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "What was decided?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false, "", false);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "What was decided?" }], undefined, false, "", false, undefined);
   });
 
   it("sends full message history including prior exchanges on second question", async () => {
@@ -81,7 +81,7 @@ describe("ChatPanel", () => {
       { role: "user", content: "Q1" },
       { role: "assistant", content: "First answer." },
       { role: "user", content: "Q2" },
-    ], undefined, false, "", false);
+    ], undefined, false, "", false, undefined);
   });
 
   it("include full transcripts checkbox renders unchecked by default", () => {
@@ -97,7 +97,7 @@ describe("ChatPanel", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Include full transcripts" }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "q?" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true, "", false);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "q?" }], undefined, true, "", false, undefined);
   });
 
   it("displays sources beneath each assistant bubble", async () => {
@@ -269,7 +269,7 @@ describe("ChatPanel", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Output template" }), { target: { value: "jira-ticket" } });
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Make a ticket" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "Make a ticket" }], undefined, false, "jira-ticket", false);
+    expect(onChat).toHaveBeenCalledWith([{ role: "user", content: "Make a ticket" }], undefined, false, "jira-ticket", false, undefined);
   });
 
   it("template selection resets to Default when activeMeetingIds changes", async () => {
@@ -364,7 +364,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Thread question" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onSend).toHaveBeenCalledWith("Thread question", false, undefined, undefined, undefined);
+    expect(onSend).toHaveBeenCalledWith("Thread question", false, undefined, undefined, undefined, undefined);
     expect(onChat).not.toHaveBeenCalled();
   });
 
@@ -512,7 +512,25 @@ describe("ChatPanel", () => {
       false,
       "",
       true,
+      undefined,
     );
+  });
+
+  it("renders Notes multi-select when availableNotes provided", () => {
+    const notes = [
+      { id: "n1", title: "Krisp Key Points", noteType: "key-points" },
+      { id: "n2", title: "Krisp Action Items", noteType: "action-items" },
+    ];
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} availableNotes={notes} />);
+    const select = screen.getByLabelText("Include notes") as HTMLSelectElement;
+    expect(select).toBeDefined();
+    expect(select.options).toHaveLength(2);
+    expect(screen.getByText("Notes")).toBeDefined();
+  });
+
+  it("does not render Notes dropdown when availableNotes is empty", () => {
+    render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} availableNotes={[]} />);
+    expect(screen.queryByLabelText("Include notes")).toBeNull();
   });
 
   it("renders persisted structured sources as clickable buttons", () => {

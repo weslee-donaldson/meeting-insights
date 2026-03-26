@@ -120,8 +120,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `ChatPanel.tsx`, `useMeetingState.ts`, `test/ui/chat-panel.test.tsx`
 
-- [ ] Burst 23: ChatPanel renders "Notes" label with multi-select dropdown listing meeting notes (type + title)
-- [ ] Burst 24: Selected note IDs passed through `onChat` callback to `handleMeetingSendMessage`
+- [ ] Burst 23-24 (E2E): ChatPanel Notes multi-select dropdown, noteIds passed through onChat/onSendMessage
 - [ ] Burst 25: `useMeetingState` fetches notes list for selected meeting, passes to ChatPanel
 
 ### SECTION 9: E2E (~1 burst)
