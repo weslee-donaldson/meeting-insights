@@ -314,6 +314,34 @@ describe("updateArtifact", () => {
     expect(JSON.parse(stored.decisions)).toEqual([{ text: "Decision A", decided_by: "Alice" }]);
     expect(JSON.parse(stored.open_questions)).toEqual(["What next?"]);
   });
+
+  it("updates a JSON array field and preserves other fields", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const mid = ingestMeeting(freshDb, parsed);
+    const artifact: Artifact = {
+      summary: "original",
+      decisions: [{ text: "Decision A", decided_by: "Alice" }],
+      proposed_features: ["Feature X"],
+      action_items: [],
+      open_questions: ["Q1"],
+      risk_items: [],
+      additional_notes: [],
+      milestones: [],
+    };
+    storeArtifact(freshDb, mid, artifact);
+    updateArtifact(freshDb, mid, { decisions: JSON.stringify([{ text: "Decision B", decided_by: "Bob" }]) });
+    const stored = getArtifact(freshDb, mid);
+    expect(stored.summary).toBe("original");
+    expect(JSON.parse(stored.decisions)).toEqual([{ text: "Decision B", decided_by: "Bob" }]);
+    expect(JSON.parse(stored.open_questions)).toEqual(["Q1"]);
+  });
+
+  it("throws when artifact does not exist", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    expect(() => updateArtifact(freshDb, "nonexistent", { summary: "nope" })).toThrow("Artifact not found");
+  });
 });
 
 describe("extractSummary with refinementPrompt", () => {
