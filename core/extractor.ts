@@ -191,3 +191,16 @@ export function storeArtifact(db: Database, meetingId: string, artifact: Artifac
 export function getArtifact(db: Database, meetingId: string): ArtifactRow {
   return db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meetingId) as ArtifactRow;
 }
+
+const UPDATABLE_FIELDS = ["summary", "decisions", "proposed_features", "open_questions", "risk_items"] as const;
+type UpdatableField = (typeof UPDATABLE_FIELDS)[number];
+
+export function updateArtifact(db: Database, meetingId: string, fields: Partial<Record<UpdatableField, string>>): void {
+  const existing = getArtifact(db, meetingId);
+  if (!existing) throw new Error("Artifact not found");
+  const entries = Object.entries(fields).filter(([k]) => (UPDATABLE_FIELDS as readonly string[]).includes(k));
+  if (entries.length === 0) return;
+  const setClauses = entries.map(([k]) => `${k} = ?`).join(", ");
+  const values = entries.map(([, v]) => v);
+  db.prepare(`UPDATE artifacts SET ${setClauses} WHERE meeting_id = ?`).run(...values, meetingId);
+}

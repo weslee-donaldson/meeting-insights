@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
-import { extractSummary, validateArtifact, storeArtifact, getArtifact, generateShortId, type Artifact } from "../core/extractor.js";
+import { extractSummary, validateArtifact, storeArtifact, getArtifact, updateArtifact, generateShortId, type Artifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -289,6 +289,30 @@ describe("extractSummary with fallback adapter", () => {
       complete: async () => ({ __fallback: true, raw_text: "not json" }),
     };
     await expect(extractSummary(fallbackAdapter, parsed.turns, 8000)).rejects.toThrow("Extraction failed");
+  });
+});
+
+describe("updateArtifact", () => {
+  it("updates summary field and preserves other fields", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const mid = ingestMeeting(freshDb, parsed);
+    const artifact: Artifact = {
+      summary: "original summary",
+      decisions: [{ text: "Decision A", decided_by: "Alice" }],
+      proposed_features: ["Feature X"],
+      action_items: [],
+      open_questions: ["What next?"],
+      risk_items: [{ category: "engineering", description: "Risk 1" }],
+      additional_notes: [],
+      milestones: [],
+    };
+    storeArtifact(freshDb, mid, artifact);
+    updateArtifact(freshDb, mid, { summary: "updated summary" });
+    const stored = getArtifact(freshDb, mid);
+    expect(stored.summary).toBe("updated summary");
+    expect(JSON.parse(stored.decisions)).toEqual([{ text: "Decision A", decided_by: "Alice" }]);
+    expect(JSON.parse(stored.open_questions)).toEqual(["What next?"]);
   });
 });
 
