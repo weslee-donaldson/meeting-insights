@@ -72,7 +72,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `core/db.ts`, `core/notes.ts`, `test/notes.test.ts`
 
-- [ ] Burst 1: Migration adds `note_type TEXT DEFAULT 'user'` to notes table (infra, no test)
+- [x] Burst 1: Migration adds `note_type TEXT DEFAULT 'user'` to notes table (8926b25)
 - [ ] Burst 2: `Note`/`NoteRow`/`CreateNoteInput` include `noteType`; `createNote` stores it; `rowToNote` maps it
 - [ ] Burst 3: `getNotesByMeeting(db, meetingId)` returns all notes for a meeting regardless of type
 

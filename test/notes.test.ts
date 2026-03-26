@@ -30,6 +30,7 @@ describe("createNote", () => {
       objectId: "m1",
       title: "Risk: timeline unclear",
       body: "<p>Jennifer flagged the checkout issue</p>",
+      noteType: "user",
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
@@ -45,6 +46,25 @@ describe("createNote", () => {
 
     expect(result.title).toBeNull();
     expect(result.objectType).toBe("insight");
+  });
+
+  it("defaults noteType to user when omitted", () => {
+    const result = createNote(db, {
+      objectType: "meeting",
+      objectId: "m1",
+      body: "<p>user note</p>",
+    });
+    expect(result.noteType).toBe("user");
+  });
+
+  it("stores noteType when provided", () => {
+    const result = createNote(db, {
+      objectType: "meeting",
+      objectId: "m1",
+      body: "key points content",
+      noteType: "key-points",
+    });
+    expect(result.noteType).toBe("key-points");
   });
 });
 
@@ -92,6 +112,7 @@ describe("updateNote", () => {
       objectId: "m1",
       title: "New title",
       body: "<p>new body</p>",
+      noteType: "user",
       createdAt: note.createdAt,
       updatedAt: expect.any(String),
     });

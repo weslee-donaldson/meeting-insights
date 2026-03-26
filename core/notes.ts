@@ -9,6 +9,7 @@ export interface Note {
   objectId: string;
   title: string | null;
   body: string;
+  noteType: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface CreateNoteInput {
   objectId: string;
   title?: string;
   body: string;
+  noteType?: string;
 }
 
 export interface UpdateNoteInput {
@@ -31,6 +33,7 @@ interface NoteRow {
   object_id: string;
   title: string | null;
   body: string;
+  note_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +45,7 @@ function rowToNote(row: NoteRow): Note {
     objectId: row.object_id,
     title: row.title,
     body: row.body,
+    noteType: row.note_type ?? "user",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -88,8 +92,8 @@ export function createNote(db: Database, input: CreateNoteInput): Note {
   const id = randomUUID();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO notes (id, object_type, object_id, title, body, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(id, input.objectType, input.objectId, input.title ?? null, input.body, now, now);
+    INSERT INTO notes (id, object_type, object_id, title, body, note_type, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, input.objectType, input.objectId, input.title ?? null, input.body, input.noteType ?? "user", now, now);
   return rowToNote(db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow);
 }

@@ -33,6 +33,7 @@ describe("Notes API routes", () => {
       objectId: "m1",
       title: "Risk note",
       body: "<p>checkout issue</p>",
+      noteType: "user",
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
