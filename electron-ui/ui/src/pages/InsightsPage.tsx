@@ -17,6 +17,7 @@ interface InsightsPageProps {
   onRegenerateInsight: (checkedMeetingIds: string[]) => void;
   onFinalizeInsight: () => void;
   onUpdateInsightSummary: (summary: string) => void;
+  onUpdateInsightName: (name: string) => void;
   onShowAllInsightMeetings: () => void;
   isRegenerating: boolean;
   selectedMeeting: MeetingRow | null;
@@ -31,7 +32,7 @@ export function InsightsPage(props: InsightsPageProps): React.ReactNode[] {
   const {
     insights, selectedClient, selectedInsightId, onSelectInsight, onCreateInsight,
     selectedInsight, insightMeetings, onDeleteInsight, onRegenerateInsight, onFinalizeInsight,
-    onUpdateInsightSummary, onShowAllInsightMeetings, isRegenerating,
+    onUpdateInsightSummary, onUpdateInsightName, onShowAllInsightMeetings, isRegenerating,
     selectedMeeting, selectedArtifact, selectedArtifactLoading, selectedCompletions,
     notesCount, onNotesClick,
   } = props;
@@ -54,6 +55,7 @@ export function InsightsPage(props: InsightsPageProps): React.ReactNode[] {
         onRegenerate={onRegenerateInsight}
         onFinalize={onFinalizeInsight}
         onUpdateSummary={onUpdateInsightSummary}
+        onUpdateName={onUpdateInsightName}
         onShowAllMeetings={onShowAllInsightMeetings}
         isRegenerating={isRegenerating}
         notesCount={notesCount}

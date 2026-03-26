@@ -342,6 +342,7 @@ export function App() {
     onRegenerateInsight: insight.handleRegenerateInsight,
     onFinalizeInsight: insight.handleFinalizeInsight,
     onUpdateInsightSummary: insight.handleUpdateInsightSummary,
+    onUpdateInsightName: insight.handleUpdateInsightName,
     onShowAllInsightMeetings: insight.handleShowAllInsightMeetings,
     isRegenerating: insight.regeneratingInsightId === insight.selectedInsightId,
     selectedMeeting: meeting.selectedMeeting,
@@ -603,6 +604,19 @@ export function App() {
         <div className="flex gap-2 justify-end">
           <Button variant="outline" size="sm" onClick={() => milestone.setPendingClearMilestoneMessages(false)}>Cancel</Button>
           <Button variant="destructive" size="sm" onClick={milestone.handleConfirmClearMilestoneMessages}>Clear messages</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={meeting.pendingClearMeetingMessages} onOpenChange={(o) => { if (!o) meeting.setPendingClearMeetingMessages(false); }}>
+      <DialogContent aria-describedby={undefined}>
+        <DialogTitle>Clear messages</DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          Clear all chat messages for this meeting?
+        </p>
+        <p className="text-xs text-muted-foreground">This cannot be undone.</p>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" size="sm" onClick={() => meeting.setPendingClearMeetingMessages(false)}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={meeting.handleConfirmClearMeetingMessages}>Clear messages</Button>
         </div>
       </DialogContent>
     </Dialog>

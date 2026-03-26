@@ -879,6 +879,29 @@ describe("InsightDetailView", () => {
     expect(onUpdateName).toHaveBeenCalledWith("New Name");
   });
 
+  it("allows editing insight name while in edit mode", () => {
+    const onUpdateName = vi.fn();
+    const named = { ...INSIGHT, name: "Old Name" };
+    render(
+      <InsightDetailView
+        insight={named}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onUpdateName={onUpdateName}
+      />,
+    );
+    enterEditMode();
+    expect(screen.getByText("Source Meetings")).toBeDefined();
+    const nameEl = screen.getByText("Old Name");
+    fireEvent.click(nameEl);
+    const input = screen.getByDisplayValue("Old Name") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "Renamed" } });
+    fireEvent.blur(input);
+    expect(onUpdateName).toHaveBeenCalledWith("Renamed");
+  });
+
   it("shows empty state message in edit mode when no source meetings exist", () => {
     render(
       <InsightDetailView
