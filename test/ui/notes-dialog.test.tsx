@@ -8,8 +8,8 @@ import type { Note } from "../../core/notes.js";
 afterEach(cleanup);
 
 const sampleNotes: Note[] = [
-  { id: "n1", objectType: "meeting", objectId: "m1", title: "Risk: timeline", body: "<p>Jennifer flagged the issue</p>", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: "n2", objectType: "meeting", objectId: "m1", title: null, body: "<p>Untitled note body content here</p>", createdAt: "2026-03-14T10:00:00Z", updatedAt: "2026-03-14T10:00:00Z" },
+  { id: "n1", objectType: "meeting", objectId: "m1", title: "Risk: timeline", body: "<p>Jennifer flagged the issue</p>", noteType: "user", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "n2", objectType: "meeting", objectId: "m1", title: null, body: "<p>Untitled note body content here</p>", noteType: "user", createdAt: "2026-03-14T10:00:00Z", updatedAt: "2026-03-14T10:00:00Z" },
 ];
 
 const defaultProps = {
@@ -145,5 +145,32 @@ describe("NotesDialog — Edit Mode", () => {
     render(<NotesDialog {...defaultProps} mode="edit" editingNote={sampleNotes[0]} />);
 
     expect(screen.getByTestId("save-note-button").textContent).toContain("Save Changes");
+  });
+});
+
+describe("NotesDialog — Note Type Display", () => {
+  const keyPointsNote: Note = { id: "kp1", objectType: "meeting", objectId: "m1", title: "Krisp Key Points", body: "- Point 1", noteType: "key-points", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  const actionItemsNote: Note = { id: "ai1", objectType: "meeting", objectId: "m1", title: "Krisp Action Items", body: "- [ ] Task 1", noteType: "action-items", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+
+  it("renders type badge for non-user notes", () => {
+    render(<NotesDialog {...defaultProps} notes={[keyPointsNote, actionItemsNote]} />);
+    expect(screen.getByText("Key Points")).toBeDefined();
+    expect(screen.getByText("Action Items")).toBeDefined();
+  });
+
+  it("does not render type badge for user notes", () => {
+    render(<NotesDialog {...defaultProps} notes={sampleNotes} />);
+    expect(screen.queryByText("Key Points")).toBeNull();
+    expect(screen.queryByText("Action Items")).toBeNull();
+  });
+
+  it("hides action menu for non-user notes", () => {
+    render(<NotesDialog {...defaultProps} notes={[keyPointsNote]} />);
+    expect(screen.queryByTestId("note-menu-kp1")).toBeNull();
+  });
+
+  it("shows action menu for user notes", () => {
+    render(<NotesDialog {...defaultProps} notes={sampleNotes} />);
+    expect(screen.getByTestId("note-menu-n1")).toBeDefined();
   });
 });

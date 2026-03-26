@@ -106,14 +106,13 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `api/routes/notes.ts`, `api/routes/meetings.ts`, `electron-ui/ui/src/api-client/meetings.ts`
 
-- [ ] Burst 16-18 (E2E): Notes API 403 guard, chat API passes noteIds, api-client adds noteIds param
+- [x] Burst 16-18 (E2E): Notes API 403 guard, chat API passes noteIds, api-client adds noteIds param (0c27630)
 
 ### SECTION 7: UI — NotesDialog (~4 bursts)
 
 > Files: `NotesDialog.tsx`, `useNotesState.ts`, `test/ui/notes-dialog.test.tsx`
 
-- [ ] Burst 19: `NoteItem` renders type badge ("In-Meeting", "Key Points", "Action Items") for non-user notes
-- [ ] Burst 20: `NoteItem` hides action menu for non-user notes (read-only)
+- [ ] Burst 19-20 (E2E): NoteItem renders type badge and hides action menu for non-user notes
 - [ ] Burst 21: Clicking non-user note opens read-only view
 - [ ] Burst 22: Create note form includes type selector dropdown (user, in-meeting)
 

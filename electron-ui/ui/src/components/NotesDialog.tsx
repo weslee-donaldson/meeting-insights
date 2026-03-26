@@ -80,9 +80,17 @@ function NoteItemMenu({ noteId, onEdit, onDelete }: { noteId: string; onEdit: (i
   );
 }
 
+const NOTE_TYPE_LABELS: Record<string, string> = {
+  "key-points": "Key Points",
+  "action-items": "Action Items",
+  "in-meeting": "In-Meeting",
+};
+
 function NoteItem({ note, onEdit, onDelete }: { note: Note; onEdit: (id: string) => void; onDelete: (id: string) => void }) {
   const displayTitle = note.title || stripHtml(note.body).slice(0, 60) || "Untitled";
   const bodyPreview = stripHtml(note.body).slice(0, 150);
+  const isUserNote = !note.noteType || note.noteType === "user";
+  const typeBadge = !isUserNote ? NOTE_TYPE_LABELS[note.noteType] ?? note.noteType : null;
   return (
     <div
       className="flex flex-col gap-2 px-5 py-6 border-b border-[#F0EEEA] cursor-pointer hover:bg-[var(--color-bg-elevated)]/50"
@@ -90,10 +98,15 @@ function NoteItem({ note, onEdit, onDelete }: { note: Note; onEdit: (id: string)
       data-testid={`note-item-${note.id}`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-[var(--color-text-primary)] truncate pr-2">{displayTitle}</span>
+        <div className="flex items-center gap-2 truncate pr-2">
+          <span className="text-[13px] font-semibold text-[var(--color-text-primary)] truncate">{displayTitle}</span>
+          {typeBadge && (
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] whitespace-nowrap">{typeBadge}</span>
+          )}
+        </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-[11px] text-[var(--color-text-muted)]">{relativeTime(note.createdAt)}</span>
-          <NoteItemMenu noteId={note.id} onEdit={onEdit} onDelete={onDelete} />
+          {isUserNote && <NoteItemMenu noteId={note.id} onEdit={onEdit} onDelete={onDelete} />}
         </div>
       </div>
       {bodyPreview && note.title && (
