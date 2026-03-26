@@ -1,7 +1,8 @@
 import { mkdirSync, readdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createLogger } from "./logger.js";
-import { parseKrispFile, parseManifest, parseKrispFolder, listWebhookFiles, parseWebhookPayload } from "./parser.js";
+import { parseKrispFile, parseManifest, parseKrispFolder, listWebhookFiles, parseWebhookPayload, parseWebhookNote } from "./parser.js";
+import { createNote } from "./notes.js";
 import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
@@ -37,6 +38,26 @@ function handleRecordingReady(db: Database, json: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function handleWebhookNote(db: Database, json: string): boolean {
+  const parsed = parseWebhookNote(json, "");
+  if (!parsed) return false;
+  const meeting = db.prepare("SELECT id FROM meetings WHERE id = ?").get(parsed.externalMeetingId) as { id: string } | undefined;
+  if (!meeting) return false;
+  const existing = db.prepare(
+    "SELECT id FROM notes WHERE object_type = 'meeting' AND object_id = ? AND note_type = ?"
+  ).get(meeting.id, parsed.noteType) as { id: string } | undefined;
+  if (existing) return true;
+  createNote(db, {
+    objectType: "meeting",
+    objectId: meeting.id,
+    title: parsed.title,
+    body: parsed.body,
+    noteType: parsed.noteType,
+  });
+  log("webhook note created type=%s meeting=%s", parsed.noteType, meeting.id);
+  return true;
 }
 
 function isKnownNonTranscriptEvent(json: string): boolean {
@@ -411,6 +432,11 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
 
     if (!parsed) {
       if (handleRecordingReady(db, json)) {
+        moveToProcessed(webhookRawDir, webhookProcessedDir, filename);
+        skipped++;
+        continue;
+      }
+      if (handleWebhookNote(db, json)) {
         moveToProcessed(webhookRawDir, webhookProcessedDir, filename);
         skipped++;
         continue;

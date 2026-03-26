@@ -6,7 +6,7 @@ import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
-import { processNewMeetings, processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
+import { processNewMeetings, processWebhookMeetings, handleWebhookNote, type PipelineEvent } from "../core/pipeline.js";
 import { createThread } from "../core/threads.js";
 import { listMilestonesByClient } from "../core/timelines.js";
 import type { DatabaseSync as Database } from "node:sqlite";
@@ -761,5 +761,61 @@ describe("processNewMeetings with webhook config", () => {
     expect((skippedEvents[0] as Extract<PipelineEvent, { type: "skipped" }>).title).toBe("Manifest Version");
 
     rmSync(b21VdbPath, { recursive: true, force: true });
+  });
+});
+
+describe("handleWebhookNote", () => {
+  let nDb: ReturnType<typeof createDb>;
+
+  beforeAll(() => {
+    nDb = createDb(":memory:");
+    migrate(nDb);
+  });
+
+  it("returns false for non-note events", () => {
+    expect(handleWebhookNote(nDb, JSON.stringify({ event: "transcript_created", data: {} }))).toBe(false);
+    expect(handleWebhookNote(nDb, JSON.stringify({ event: "recording_ready", data: {} }))).toBe(false);
+  });
+
+  it("creates note with correct type when meeting exists in DB", () => {
+    nDb.prepare("INSERT INTO meetings (id, title, date, raw_transcript) VALUES (?, ?, ?, ?)").run("hwn-m1", "Test Meeting", "2026-03-26T13:00:00Z", "transcript");
+    const payload = JSON.stringify({
+      event: "key_points_generated",
+      data: { meeting: { id: "hwn-m1" }, raw_content: "- Key point 1\n- Key point 2" },
+    });
+    expect(handleWebhookNote(nDb, payload)).toBe(true);
+    const notes = nDb.prepare("SELECT * FROM notes WHERE object_id = 'hwn-m1'").all() as { note_type: string; title: string; body: string }[];
+    expect(notes).toHaveLength(1);
+    expect(notes[0].note_type).toBe("key-points");
+    expect(notes[0].title).toBe("Krisp Key Points");
+    expect(notes[0].body).toBe("- Key point 1\n- Key point 2");
+  });
+
+  it("returns false when meeting does not exist in DB", () => {
+    const payload = JSON.stringify({
+      event: "key_points_generated",
+      data: { meeting: { id: "nonexistent-meeting" }, raw_content: "- Point" },
+    });
+    expect(handleWebhookNote(nDb, payload)).toBe(false);
+  });
+
+  it("is idempotent — skips if note of same type already exists for meeting", () => {
+    const payload = JSON.stringify({
+      event: "key_points_generated",
+      data: { meeting: { id: "hwn-m1" }, raw_content: "- Updated point" },
+    });
+    expect(handleWebhookNote(nDb, payload)).toBe(true);
+    const notes = nDb.prepare("SELECT * FROM notes WHERE object_id = 'hwn-m1' AND note_type = 'key-points'").all();
+    expect(notes).toHaveLength(1);
+  });
+
+  it("creates action-items note for action_items_generated event", () => {
+    const payload = JSON.stringify({
+      event: "action_items_generated",
+      data: { meeting: { id: "hwn-m1" }, raw_content: "- [ ] Task 1" },
+    });
+    expect(handleWebhookNote(nDb, payload)).toBe(true);
+    const notes = nDb.prepare("SELECT * FROM notes WHERE object_id = 'hwn-m1' AND note_type = 'action-items'").all();
+    expect(notes).toHaveLength(1);
   });
 });

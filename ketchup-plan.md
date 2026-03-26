@@ -80,16 +80,13 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `core/parser.ts`, `test/parser.test.ts`
 
-- [ ] Burst 4-6 (E2E): `parseWebhookNote` — null for non-note events, extracts key-points and action-items from raw_content, null for malformed
+- [x] Burst 4-6 (E2E): `parseWebhookNote` — null for non-note events, extracts key-points and action-items from raw_content, null for malformed (e8751aa)
 
 ### SECTION 3: Pipeline Integration (~4 bursts)
 
 > Files: `core/pipeline.ts`, `test/pipeline.test.ts`
 
-- [ ] Burst 7: `handleWebhookNote(db, json, filename)` returns false for non-note events
-- [ ] Burst 8: `handleWebhookNote` creates note with correct type when meeting exists in DB
-- [ ] Burst 9: `handleWebhookNote` is idempotent — skips if note of same type already exists for meeting
-- [ ] Burst 10: Wire `handleWebhookNote` into `processWebhookMeetings` loop before `isKnownNonTranscriptEvent`
+- [ ] Burst 7-10 (E2E): `handleWebhookNote` — returns false for non-notes, creates typed note, idempotent, wired into pipeline
 
 ### SECTION 4: Embedding (~2 bursts)
 
