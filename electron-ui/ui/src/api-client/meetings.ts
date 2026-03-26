@@ -111,4 +111,7 @@ export const meetingsMethods = {
     fetch(`${API_BASE}/api/meetings/${meetingId}/transcript`).then(async (r) =>
       r.status === 404 ? null : ((await r.json()) as { transcript: string }).transcript,
     ),
+
+  updateArtifactSection: (meetingId: string, field: string, value: unknown) =>
+    jsonPatch(`${API_BASE}/api/meetings/${meetingId}/artifact`, { field, value }).then(() => undefined),
 };

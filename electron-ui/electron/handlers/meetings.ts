@@ -1,5 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getArtifact, extractSummary, storeArtifact, generateShortId } from "../../../core/extractor.js";
+import { getArtifact, extractSummary, storeArtifact, generateShortId, updateArtifact } from "../../../core/extractor.js";
 import { storeAsset, getAssets, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../../../core/assets.js";
 import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
@@ -492,6 +492,14 @@ export async function handleMeetingChat(
 
 export function handleClearMeetingMessages(db: Database, meetingId: string): void {
   clearMeetingMessages(db, meetingId);
+}
+
+const ARTIFACT_SECTION_FIELDS = new Set(["summary", "decisions", "proposed_features", "open_questions", "risk_items"]);
+
+export function handleUpdateArtifactSection(db: Database, meetingId: string, field: string, value: unknown): void {
+  if (!ARTIFACT_SECTION_FIELDS.has(field)) throw new Error(`Invalid artifact field: ${field}`);
+  const dbValue = field === "summary" ? String(value) : JSON.stringify(value);
+  updateArtifact(db, meetingId, { [field]: dbValue });
 }
 
 export function handleGetTranscript(db: Database, meetingId: string): string | null {

@@ -30,6 +30,7 @@ export {
   handleMeetingChat,
   handleClearMeetingMessages,
   handleGetTranscript,
+  handleUpdateArtifactSection,
 } from "./handlers/meetings.js";
 
 export {

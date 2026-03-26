@@ -567,6 +567,17 @@ export function useMeetingState(
     meetingClear.requestClear();
   }, [selectedMeetingId, meetingClear]);
 
+  const handleUpdateArtifactSection = useCallback(async (field: string, value: unknown) => {
+    if (!selectedMeetingId) return;
+    try {
+      await window.api.updateArtifactSection(selectedMeetingId, field, value);
+      queryClient.invalidateQueries({ queryKey: ["artifact", selectedMeetingId] });
+      addToast("Section updated", "success");
+    } catch (err) {
+      addToast(`Update failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedMeetingId, queryClient, addToast]);
+
   return {
     dateRange,
     setDateRange,
@@ -652,6 +663,7 @@ export function useMeetingState(
     meetingMessagesQuery,
     availableNotes,
     handleMeetingSendMessage,
+    handleUpdateArtifactSection,
     handleClearMeetingMessages,
     handleConfirmClearMeetingMessages: meetingClear.confirmClear,
     pendingClearMeetingMessages: meetingClear.pendingClear,
