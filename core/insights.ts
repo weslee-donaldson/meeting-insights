@@ -31,6 +31,7 @@ export function stripHtml(html: string): string {
 export interface Insight {
   id: string;
   client_name: string;
+  name: string;
   period_type: "day" | "week" | "month";
   period_start: string;
   period_end: string;
@@ -48,6 +49,7 @@ export interface Insight {
 interface InsightRow {
   id: string;
   client_name: string;
+  name: string;
   period_type: string;
   period_start: string;
   period_end: string;
@@ -66,6 +68,7 @@ function rowToInsight(row: InsightRow): Insight {
   return {
     id: row.id,
     client_name: row.client_name,
+    name: row.name ?? "",
     period_type: row.period_type as Insight["period_type"],
     period_start: row.period_start,
     period_end: row.period_end,
@@ -83,6 +86,7 @@ function rowToInsight(row: InsightRow): Insight {
 
 export interface CreateInsightInput {
   client_name: string;
+  name?: string;
   period_type: "day" | "week" | "month";
   period_start: string;
   period_end: string;
@@ -92,9 +96,9 @@ export function createInsight(db: Database, input: CreateInsightInput): Insight 
   const id = randomUUID();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO insights (id, client_name, period_type, period_start, period_end, status, rag_status, rag_rationale, executive_summary, topic_details, generated_at, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 'draft', 'green', '', '', '[]', ?, ?, ?)
-  `).run(id, input.client_name, input.period_type, input.period_start, input.period_end, now, now, now);
+    INSERT INTO insights (id, client_name, name, period_type, period_start, period_end, status, rag_status, rag_rationale, executive_summary, topic_details, generated_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'draft', 'green', '', '', '[]', ?, ?, ?)
+  `).run(id, input.client_name, input.name ?? "", input.period_type, input.period_start, input.period_end, now, now, now);
   return rowToInsight(db.prepare("SELECT * FROM insights WHERE id = ?").get(id) as InsightRow);
 }
 
@@ -116,6 +120,7 @@ export function listInsightsByClient(db: Database, clientName: string): Insight[
 }
 
 export interface UpdateInsightInput {
+  name?: string;
   status?: "draft" | "final";
   rag_status?: "red" | "yellow" | "green";
   rag_rationale?: string;
@@ -128,6 +133,7 @@ export function updateInsight(db: Database, id: string, input: UpdateInsightInpu
   const now = new Date().toISOString();
   db.prepare(`
     UPDATE insights SET
+      name = ?,
       status = ?,
       rag_status = ?,
       rag_rationale = ?,
@@ -136,6 +142,7 @@ export function updateInsight(db: Database, id: string, input: UpdateInsightInpu
       updated_at = ?
     WHERE id = ?
   `).run(
+    input.name ?? current.name,
     input.status ?? current.status,
     input.rag_status ?? current.rag_status,
     input.rag_rationale ?? current.rag_rationale,

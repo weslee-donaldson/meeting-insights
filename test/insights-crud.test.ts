@@ -29,6 +29,7 @@ describe("createInsight", () => {
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
+      name: "",
       period_type: "week",
       period_start: "2026-03-02",
       period_end: "2026-03-08",
@@ -41,6 +42,17 @@ describe("createInsight", () => {
       created_at: expect.any(String),
       updated_at: expect.any(String),
     });
+  });
+
+  it("stores a custom name when provided", () => {
+    const result = createInsight(db, {
+      client_name: "Acme",
+      period_type: "week",
+      period_start: "2026-03-09",
+      period_end: "2026-03-15",
+      name: "Leadership Weekly",
+    });
+    expect(result.name).toBe("Leadership Weekly");
   });
 });
 
@@ -110,6 +122,17 @@ describe("updateInsight", () => {
       executive_summary: "Good progress overall",
       updated_at: expect.any(String),
     });
+  });
+
+  it("updates insight name", () => {
+    const created = createInsight(db, {
+      client_name: "Acme",
+      period_type: "day",
+      period_start: "2026-03-10",
+      period_end: "2026-03-10",
+    });
+    const result = updateInsight(db, created.id, { name: "Renamed Insight" });
+    expect(result.name).toBe("Renamed Insight");
   });
 });
 

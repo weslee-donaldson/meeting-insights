@@ -127,6 +127,7 @@ export function migrate(db: DatabaseSync): void {
     CREATE TABLE IF NOT EXISTS insights (
       id TEXT PRIMARY KEY,
       client_name TEXT NOT NULL,
+      name TEXT DEFAULT '',
       period_type TEXT NOT NULL,
       period_start TEXT NOT NULL,
       period_end TEXT NOT NULL,
@@ -289,6 +290,10 @@ export function migrate(db: DatabaseSync): void {
 
   if (artifactCols.some(c => c.name === "technical_topics")) {
     db.exec("ALTER TABLE artifacts RENAME COLUMN technical_topics TO architecture");
+  }
+
+  if (!meetingCols.some(c => c.name === "recording_url")) {
+    db.exec("ALTER TABLE meetings ADD COLUMN recording_url TEXT");
   }
 
   const threadCols = db.prepare("PRAGMA table_info(threads)").all() as { name: string }[];
