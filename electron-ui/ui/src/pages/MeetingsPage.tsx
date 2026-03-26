@@ -49,6 +49,7 @@ interface MeetingsPageProps {
   onThreadClick: (threadId: string) => void;
   onMilestoneClick: (milestoneId: string) => void;
   onEditActionItem?: (index: number, fields: EditActionItemFields) => void;
+  onUpdateArtifactSection?: (field: string, value: unknown) => void;
   assets?: AssetRow[];
   onUploadAsset?: (file: File) => void;
   onDeleteAsset?: (assetId: string) => void;
@@ -70,7 +71,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     artifact, artifactLoading, clients, onReExtract, reExtractPending, onReassignClient,
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
-    onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename, rawTranscript,
+    onEditActionItem, onUpdateArtifactSection, assets, onUploadAsset, onDeleteAsset, onRename, rawTranscript,
     densityMode, onDensityChange, notesCount, onNotesClick, onCopyTranscripts,
   } = props;
 
@@ -126,6 +127,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       milestoneTags={isMultiMode ? undefined : selectedMeeting?.milestone_tags}
       onMilestoneClick={onMilestoneClick}
       onEditActionItem={isMultiMode ? undefined : onEditActionItem}
+      onUpdateArtifactSection={isMultiMode ? undefined : onUpdateArtifactSection}
       assets={isMultiMode ? undefined : assets}
       onUploadAsset={isMultiMode ? undefined : onUploadAsset}
       onDeleteAsset={isMultiMode ? undefined : onDeleteAsset}

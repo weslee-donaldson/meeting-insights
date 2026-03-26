@@ -114,7 +114,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 - [x] Burst 19-20 (E2E): NoteItem renders type badge and hides action menu for non-user notes (0912d9a)
 - [ ] Burst 21: Clicking non-user note opens read-only view
-- [ ] Burst 22: Create note form includes type selector dropdown (user, in-meeting)
+- [x] Burst 22: Create note form includes type selector dropdown (user, in-meeting) (6433e28)
 
 ### SECTION 8: UI — Chat Notes Selector (~3 bursts)
 
