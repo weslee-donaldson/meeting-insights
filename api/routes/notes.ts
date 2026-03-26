@@ -17,9 +17,9 @@ export function registerNoteRoutes(app: Hono, db: Database): void {
     const objectType = c.req.param("objectType");
     if (!VALID_OBJECT_TYPES.has(objectType)) return c.json({ error: "Invalid object type" }, 400);
     const objectId = c.req.param("objectId");
-    const { title, body } = await c.req.json<{ title?: string; body: string }>();
+    const { title, body, noteType } = await c.req.json<{ title?: string; body: string; noteType?: string }>();
     if (!body) return c.json({ error: "body is required" }, 400);
-    const note = createNote(db, { objectType: objectType as ObjectType, objectId, title, body });
+    const note = createNote(db, { objectType: objectType as ObjectType, objectId, title, body, noteType });
     return c.json(note, 201);
   });
 

@@ -381,7 +381,7 @@ export interface ElectronAPI {
   renameMeeting: (meetingId: string, newTitle: string) => Promise<void>;
   getTranscript: (meetingId: string) => Promise<string | null>;
   notesList: (objectType: string, objectId: string) => Promise<import("../../core/notes.js").Note[]>;
-  notesCreate: (objectType: string, objectId: string, title: string | null, body: string) => Promise<import("../../core/notes.js").Note>;
+  notesCreate: (objectType: string, objectId: string, title: string | null, body: string, noteType?: string) => Promise<import("../../core/notes.js").Note>;
   notesUpdate: (id: string, title?: string | null, body?: string) => Promise<import("../../core/notes.js").Note>;
   notesDelete: (id: string) => Promise<void>;
   notesCount: (objectType: string, objectId: string) => Promise<number>;

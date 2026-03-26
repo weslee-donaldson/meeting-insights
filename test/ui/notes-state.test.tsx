@@ -126,7 +126,7 @@ describe("useNotesState", () => {
     act(() => result.current.handleStartCompose());
     await act(() => result.current.handleCreateNote("Title", "<p>body</p>"));
 
-    expect(mockApi.notesCreate).toHaveBeenCalledWith("meeting", "m1", "Title", "<p>body</p>");
+    expect(mockApi.notesCreate).toHaveBeenCalledWith("meeting", "m1", "Title", "<p>body</p>", undefined);
     expect(addToast).toHaveBeenCalledWith("Note saved", "success");
     expect(result.current.notesDialogMode).toBe("list");
   });

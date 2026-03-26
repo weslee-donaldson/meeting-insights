@@ -174,3 +174,19 @@ describe("NotesDialog — Note Type Display", () => {
     expect(screen.getByTestId("note-menu-n1")).toBeDefined();
   });
 });
+
+describe("NotesDialog — Compose Type Selector", () => {
+  it("renders note type selector in compose mode with user and in-meeting options", () => {
+    render(<NotesDialog {...defaultProps} mode="compose" />);
+    const select = screen.getByTestId("note-type-select") as HTMLSelectElement;
+    expect(select).toBeDefined();
+    expect(select.value).toBe("user");
+    expect(screen.getByRole("option", { name: "Note" })).toBeDefined();
+    expect(screen.getByRole("option", { name: "In-Meeting" })).toBeDefined();
+  });
+
+  it("does not render note type selector in edit mode", () => {
+    render(<NotesDialog {...defaultProps} mode="edit" editingNote={sampleNotes[0]} />);
+    expect(screen.queryByTestId("note-type-select")).toBeNull();
+  });
+});

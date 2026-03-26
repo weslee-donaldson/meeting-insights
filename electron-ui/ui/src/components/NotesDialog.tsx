@@ -19,7 +19,7 @@ interface NotesDialogProps {
   onStartCompose: () => void;
   onStartEdit: (id: string) => void;
   onBackToList: () => void;
-  onCreateNote: (title: string | null, body: string) => void;
+  onCreateNote: (title: string | null, body: string, noteType?: string) => void;
   onUpdateNote: (id: string, title: string | null, body: string) => void;
   onDeleteNote: (id: string) => void;
   onConfirmDelete: () => void;
@@ -160,15 +160,16 @@ function ComposeEditForm({
   initialTitle: string;
   initialBody: string;
   onBack: () => void;
-  onSave: (title: string | null, body: string) => void;
+  onSave: (title: string | null, body: string, noteType?: string) => void;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [body, setBody] = useState(initialBody);
+  const [noteType, setNoteType] = useState("user");
   const bodyEmpty = useMemo(() => isBodyEmpty(body), [body]);
 
   const handleSave = useCallback(() => {
-    onSave(title.trim() || null, body);
-  }, [title, body, onSave]);
+    onSave(title.trim() || null, body, mode === "compose" ? noteType : undefined);
+  }, [title, body, noteType, mode, onSave]);
 
   return (
     <div className="flex flex-col" data-testid="notes-compose-form">
@@ -183,15 +184,27 @@ function ComposeEditForm({
         </div>
         <span className="text-[12px] text-[var(--color-text-muted)]">{objectLabel}</span>
       </div>
-      <div className="px-5 py-3 border-b border-[#F0EEEA]">
+      <div className="px-5 py-3 border-b border-[#F0EEEA] flex items-center gap-3">
         <input
           type="text"
           placeholder="Title (optional)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full text-[14px] font-medium text-[var(--color-text-primary)] bg-transparent outline-none placeholder:text-[#CCCCCC]"
+          className="flex-1 text-[14px] font-medium text-[var(--color-text-primary)] bg-transparent outline-none placeholder:text-[#CCCCCC]"
           data-testid="note-title-input"
         />
+        {mode === "compose" && (
+          <select
+            aria-label="Note type"
+            value={noteType}
+            onChange={(e) => setNoteType(e.target.value)}
+            className="text-[12px] text-[var(--color-text-secondary)] bg-transparent border border-[var(--color-line)] rounded px-2 py-1 cursor-pointer"
+            data-testid="note-type-select"
+          >
+            <option value="user">Note</option>
+            <option value="in-meeting">In-Meeting</option>
+          </select>
+        )}
       </div>
       <div className="px-5 py-4 min-h-[180px]" data-testid="note-body-editor">
         <RichTextEditor initialHtml={initialBody} onChange={setBody} />

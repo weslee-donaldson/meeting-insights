@@ -31,10 +31,10 @@ export function useNotesState({ objectType, objectId, addToast }: UseNotesStateP
 
   const editingNote = notesQuery.data?.find((n) => n.id === editingNoteId) ?? null;
 
-  const handleCreateNote = useCallback(async (title: string | null, body: string) => {
+  const handleCreateNote = useCallback(async (title: string | null, body: string, noteType?: string) => {
     if (!objectId) return;
     try {
-      await window.api.notesCreate(objectType, objectId, title, body);
+      await window.api.notesCreate(objectType, objectId, title, body, noteType);
       queryClient.invalidateQueries({ queryKey: ["notes", objectType, objectId] });
       queryClient.invalidateQueries({ queryKey: ["noteCount", objectType, objectId] });
       setNotesDialogMode("list");

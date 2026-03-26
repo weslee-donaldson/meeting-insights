@@ -4,8 +4,8 @@ export const notesMethods = {
   notesList: (objectType: string, objectId: string) =>
     fetchJson(`${API_BASE}/api/notes/${objectType}/${objectId}`),
 
-  notesCreate: (objectType: string, objectId: string, title: string | null, body: string) =>
-    jsonPost(`${API_BASE}/api/notes/${objectType}/${objectId}`, { title, body }),
+  notesCreate: (objectType: string, objectId: string, title: string | null, body: string, noteType?: string) =>
+    jsonPost(`${API_BASE}/api/notes/${objectType}/${objectId}`, { title, body, noteType }),
 
   notesUpdate: (id: string, title?: string | null, body?: string) =>
     jsonPatch(`${API_BASE}/api/notes/${id}`, { title, body }),
