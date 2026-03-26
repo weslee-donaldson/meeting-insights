@@ -252,6 +252,7 @@ export function App() {
     onThreadClick: handleThreadClick,
     onMilestoneClick: handleMilestoneClick,
     onEditActionItem: meeting.handleEditActionItem,
+    onUpdateArtifactSection: meeting.handleUpdateArtifactSection,
     assets: assetsQuery.data,
     onUploadAsset: meeting.selectedMeetingId ? handleUploadAsset : undefined,
     onDeleteAsset: meeting.selectedMeetingId ? handleDeleteAsset : undefined,

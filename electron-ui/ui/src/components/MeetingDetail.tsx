@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
@@ -13,6 +13,9 @@ import { EditActionItemDialog } from "./EditActionItemDialog.js";
 import { CommandBar } from "./shared/command-bar.js";
 import { SectionHeader } from "./shared/section-header.js";
 import type { EditActionItemFields } from "../../../electron/channels.js";
+import { arrayToHtml, htmlToArray } from "../lib/artifact-edit-helpers.js";
+
+const RichTextEditor = lazy(() => import("./ui/rich-text-editor.js").then((m) => ({ default: m.RichTextEditor })));
 
 interface MeetingDetailProps {
   meeting: MeetingRow | null;
@@ -35,6 +38,7 @@ interface MeetingDetailProps {
   milestoneTags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
   onMilestoneClick?: (milestoneId: string) => void;
   onEditActionItem?: (index: number, fields: EditActionItemFields) => void;
+  onUpdateArtifactSection?: (field: string, value: unknown) => void;
   assets?: AssetRow[];
   onDeleteAsset?: (assetId: string) => void;
   onUploadAsset?: (file: File) => void;
@@ -78,12 +82,38 @@ function NoteDialogBody({ initialNote, onSave, onCancel, saveLabel = "Save" }: {
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery, onEditActionItem }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string; onEditActionItem?: (index: number, fields: EditActionItemFields) => void }) {
+function EditButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="inline-flex items-center gap-1 text-[0.65rem] text-muted-foreground hover:text-foreground bg-transparent border-0 cursor-pointer p-0 ml-2" aria-label="Edit section">
+      <Pencil className="w-3 h-3" /><span>Edit</span>
+    </button>
+  );
+}
+
+function SectionEditor({ initialHtml, onSave, onCancel }: { initialHtml: string; onSave: (html: string) => void; onCancel: () => void }) {
+  const [draft, setDraft] = useState(initialHtml);
+  return (
+    <div className="flex flex-col gap-2">
+      <Suspense fallback={<div className="h-32 border rounded bg-muted animate-pulse" />}>
+        <RichTextEditor initialHtml={draft} onChange={setDraft} />
+      </Suspense>
+      <div className="flex gap-1">
+        <Button size="sm" onClick={() => onSave(draft)}>Save</Button>
+        <Button size="sm" variant="outline" onClick={onCancel}>Cancel</Button>
+      </div>
+    </div>
+  );
+}
+
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery, onEditActionItem, onUpdateSection }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string; onEditActionItem?: (index: number, fields: EditActionItemFields) => void; onUpdateSection?: (field: string, value: unknown) => void }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [editDialog, setEditDialog] = useState<{ index: number; item: Artifact["action_items"][number] } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
   const [actionItemFilter, setActionItemFilter] = useState("");
   const [decisionFilter, setDecisionFilter] = useState("");
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+
+  useEffect(() => { setEditingSection(null); }, [artifact]);
 
   const completedSet = useMemo(() => new Set(completions.map((c) => c.item_index)), [completions]);
 
@@ -205,9 +235,26 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
         </Button>
       </div>
       <SectionHeader label="Summary" isEmpty={!artifact.summary} expanded={effectiveOpen("Summary")} onExpandedChange={(o) => setSectionOpen("Summary", o)}
-        filterSlot={matchesBySection["Summary"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Summary"]} match{matchesBySection["Summary"] > 1 ? "es" : ""}</span> : undefined}
+        filterSlot={
+          <div className="flex items-center">
+            {matchesBySection["Summary"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Summary"]} match{matchesBySection["Summary"] > 1 ? "es" : ""}</span> : undefined}
+            {onUpdateSection && editingSection !== "summary" && <EditButton onClick={() => setEditingSection("summary")} />}
+          </div>
+        }
       >
-        <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
+        {editingSection === "summary" ? (
+          <SectionEditor
+            initialHtml={artifact.summary}
+            onSave={(html) => { onUpdateSection?.("summary", html); setEditingSection(null); }}
+            onCancel={() => setEditingSection(null)}
+          />
+        ) : (
+          artifact.summary.includes("<") ? (
+            <div className="leading-[1.65] text-secondary-foreground [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_p]:m-0" dangerouslySetInnerHTML={{ __html: artifact.summary }} />
+          ) : (
+            <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
+          )
+        )}
       </SectionHeader>
 
       <SectionHeader
@@ -230,20 +277,34 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                 {decisionPeople.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             )}
+            {onUpdateSection && editingSection !== "decisions" && <EditButton onClick={() => setEditingSection("decisions")} />}
           </div>
         }
       >
-        <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
-          {filteredDecisions.map((d, i) => (
-            <li key={i} className="flex gap-2.5 items-start">
-              <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground">—</span>
-              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                <span className="leading-[1.6]"><HighlightText text={d.text} terms={matchedTerms} /></span>
-                {d.decided_by && <Badge variant="secondary">{d.decided_by}</Badge>}
-              </div>
-            </li>
-          ))}
-        </ul>
+        {editingSection === "decisions" ? (
+          <SectionEditor
+            initialHtml={arrayToHtml(artifact.decisions.map((d) => d.text))}
+            onSave={(html) => {
+              const texts = htmlToArray(html);
+              const updated = texts.map((text, i) => ({ text, decided_by: artifact.decisions[i]?.decided_by ?? "" }));
+              onUpdateSection?.("decisions", updated);
+              setEditingSection(null);
+            }}
+            onCancel={() => setEditingSection(null)}
+          />
+        ) : (
+          <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
+            {filteredDecisions.map((d, i) => (
+              <li key={i} className="flex gap-2.5 items-start">
+                <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground">—</span>
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                  <span className="leading-[1.6]"><HighlightText text={d.text} terms={matchedTerms} /></span>
+                  {d.decided_by && <Badge variant="secondary">{d.decided_by}</Badge>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </SectionHeader>
 
       <SectionHeader
@@ -420,29 +481,73 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
       />
 
       <SectionHeader label="Open Questions" isEmpty={artifact.open_questions.length === 0} expanded={effectiveOpen("Open Questions")} onExpandedChange={(o) => setSectionOpen("Open Questions", o)}
-        filterSlot={matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
+        filterSlot={
+          <div className="flex items-center">
+            {matchesBySection["Open Questions"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Open Questions"]} match{matchesBySection["Open Questions"] > 1 ? "es" : ""}</span> : undefined}
+            {onUpdateSection && editingSection !== "open_questions" && <EditButton onClick={() => setEditingSection("open_questions")} />}
+          </div>
+        }
       >
-        <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} />
+        {editingSection === "open_questions" ? (
+          <SectionEditor
+            initialHtml={arrayToHtml(artifact.open_questions)}
+            onSave={(html) => { onUpdateSection?.("open_questions", htmlToArray(html)); setEditingSection(null); }}
+            onCancel={() => setEditingSection(null)}
+          />
+        ) : (
+          <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} />
+        )}
       </SectionHeader>
 
       <SectionHeader label="Risks" isEmpty={artifact.risk_items.length === 0} expanded={effectiveOpen("Risks")} onExpandedChange={(o) => setSectionOpen("Risks", o)}
-        filterSlot={matchesBySection["Risks"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Risks"]} match{matchesBySection["Risks"] > 1 ? "es" : ""}</span> : undefined}
+        filterSlot={
+          <div className="flex items-center">
+            {matchesBySection["Risks"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Risks"]} match{matchesBySection["Risks"] > 1 ? "es" : ""}</span> : undefined}
+            {onUpdateSection && editingSection !== "risk_items" && <EditButton onClick={() => setEditingSection("risk_items")} />}
+          </div>
+        }
       >
-        <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
-          {artifact.risk_items.map((r, i) => (
-            <li key={i} className="flex flex-wrap gap-x-1.5 gap-y-0.5 items-baseline">
-              <span className="shrink-0 mt-px text-[0.8rem]" style={{ color: "var(--color-danger)" }}>⚠</span>
-              <span className="leading-[1.6]"><HighlightText text={r.description} terms={matchedTerms} /></span>
-              <Badge variant="muted">{r.category}</Badge>
-            </li>
-          ))}
-        </ul>
+        {editingSection === "risk_items" ? (
+          <SectionEditor
+            initialHtml={arrayToHtml(artifact.risk_items.map((r) => r.description))}
+            onSave={(html) => {
+              const descriptions = htmlToArray(html);
+              const updated = descriptions.map((description, i) => ({ category: artifact.risk_items[i]?.category ?? "engineering", description }));
+              onUpdateSection?.("risk_items", updated);
+              setEditingSection(null);
+            }}
+            onCancel={() => setEditingSection(null)}
+          />
+        ) : (
+          <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
+            {artifact.risk_items.map((r, i) => (
+              <li key={i} className="flex flex-wrap gap-x-1.5 gap-y-0.5 items-baseline">
+                <span className="shrink-0 mt-px text-[0.8rem]" style={{ color: "var(--color-danger)" }}>⚠</span>
+                <span className="leading-[1.6]"><HighlightText text={r.description} terms={matchedTerms} /></span>
+                <Badge variant="muted">{r.category}</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
       </SectionHeader>
 
       <SectionHeader label="Proposed Features" isEmpty={artifact.proposed_features.length === 0} expanded={effectiveOpen("Proposed Features")} onExpandedChange={(o) => setSectionOpen("Proposed Features", o)}
-        filterSlot={matchesBySection["Proposed Features"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Proposed Features"]} match{matchesBySection["Proposed Features"] > 1 ? "es" : ""}</span> : undefined}
+        filterSlot={
+          <div className="flex items-center">
+            {matchesBySection["Proposed Features"] ? <span className="text-[0.65rem] text-yellow-500 ml-1">{matchesBySection["Proposed Features"]} match{matchesBySection["Proposed Features"] > 1 ? "es" : ""}</span> : undefined}
+            {onUpdateSection && editingSection !== "proposed_features" && <EditButton onClick={() => setEditingSection("proposed_features")} />}
+          </div>
+        }
       >
-        <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} />
+        {editingSection === "proposed_features" ? (
+          <SectionEditor
+            initialHtml={arrayToHtml(artifact.proposed_features)}
+            onSave={(html) => { onUpdateSection?.("proposed_features", htmlToArray(html)); setEditingSection(null); }}
+            onCancel={() => setEditingSection(null)}
+          />
+        ) : (
+          <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} />
+        )}
       </SectionHeader>
 
       <SectionHeader label="Additional Notes" isEmpty={artifact.additional_notes.length === 0} expanded={effectiveOpen("Additional Notes")} onExpandedChange={(o) => setSectionOpen("Additional Notes", o)}
@@ -537,7 +642,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, onUpdateArtifactSection, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -774,7 +879,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
           <AttachmentsSection assets={assets ?? []} onDeleteAsset={onDeleteAsset} onUploadAsset={onUploadAsset} />
         )}
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} onUpdateSection={onUpdateArtifactSection} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (
