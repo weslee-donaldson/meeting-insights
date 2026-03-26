@@ -552,6 +552,31 @@ describe("InsightDetailView", () => {
     expect(headers[1].textContent).toContain("Beta Daily");
   });
 
+  it("shows meeting date instead of title when grouped by series", () => {
+    const meetings: InsightMeeting[] = [
+      { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha Weekly", meeting_date: "2026-01-06", contribution_summary: "s1" },
+      { insight_id: "i1", meeting_id: "m2", meeting_title: "Alpha Weekly", meeting_date: "2026-01-13", contribution_summary: "s2" },
+      { insight_id: "i1", meeting_id: "m3", meeting_title: "Beta Daily", meeting_date: "2026-01-07", contribution_summary: "s3" },
+    ];
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={meetings}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    enterEditMode();
+    fireEvent.click(screen.getByRole("button", { name: "Series" }));
+    const rows = screen.getAllByRole("checkbox");
+    expect(rows).toHaveLength(3);
+    const labels = rows.map((cb) => cb.closest("label")!.querySelector(".font-medium")!.textContent);
+    expect(labels[0]).toContain("Jan 13");
+    expect(labels[1]).toContain("Jan 6");
+    expect(labels[2]).toContain("Jan 7");
+  });
+
   it("per-group deselect all deselects only meetings in that group", () => {
     const meetings: InsightMeeting[] = [
       { insight_id: "i1", meeting_id: "m1", meeting_title: "Alpha", meeting_date: "2026-01-06", contribution_summary: "s1" },

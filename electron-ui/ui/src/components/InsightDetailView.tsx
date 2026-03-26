@@ -44,6 +44,11 @@ function formatDayLabel(dateStr: string): string {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
+function formatMeetingDate(dateStr: string): string {
+  const d = new Date(dateStr.slice(0, 10) + "T12:00:00Z");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+}
+
 function groupMeetingsByDay(meetings: InsightMeeting[]): MeetingGroup[] {
   const map = new Map<string, InsightMeeting[]>();
   for (const m of meetings) {
@@ -353,7 +358,7 @@ export function InsightDetailView({
                           className="mt-1 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium">{m.meeting_title}</p>
+                          <p className="font-medium">{meetingGroupBy === "series" ? formatMeetingDate(m.meeting_date) : m.meeting_title}</p>
                           <p className="text-xs text-muted-foreground">{m.contribution_summary}</p>
                         </div>
                       </label>
