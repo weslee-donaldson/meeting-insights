@@ -62,7 +62,7 @@ describe("CreateInsightDialog", () => {
     expect(screen.getByTestId("period-preview").textContent).toContain("Jan 15");
   });
 
-  it("calls onSubmit with period_type, period_start, period_end on Create click", () => {
+  it("calls onSubmit with period_type, period_start, period_end and empty name on Create click", () => {
     const onSubmit = vi.fn();
     render(
       <CreateInsightDialog
@@ -75,6 +75,29 @@ describe("CreateInsightDialog", () => {
     fireEvent.change(dateInput, { target: { value: "2026-01-07" } });
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
     expect(onSubmit).toHaveBeenCalledWith({
+      name: "",
+      period_type: "week",
+      period_start: "2026-01-05",
+      period_end: "2026-01-11",
+    });
+  });
+
+  it("renders name input and passes value to onSubmit", () => {
+    const onSubmit = vi.fn();
+    render(
+      <CreateInsightDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+    const nameInput = screen.getByLabelText("Name") as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: "Leadership Weekly" } });
+    const dateInput = screen.getByLabelText("Reference Date") as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: "2026-01-07" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    expect(onSubmit).toHaveBeenCalledWith({
+      name: "Leadership Weekly",
       period_type: "week",
       period_start: "2026-01-05",
       period_end: "2026-01-11",

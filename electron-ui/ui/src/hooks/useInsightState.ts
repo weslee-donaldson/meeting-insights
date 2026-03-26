@@ -48,12 +48,12 @@ export function useInsightState(
     return insightsQuery.data?.find((i) => i.id === selectedInsightId) ?? null;
   }, [insightsQuery.data, selectedInsightId]);
 
-  const handleCreateInsight = useCallback(async (data: { period_type: "day" | "week" | "month"; period_start: string; period_end: string }) => {
+  const handleCreateInsight = useCallback(async (data: { name: string; period_type: "day" | "week" | "month"; period_start: string; period_end: string }) => {
     if (!selectedClient) return;
     try {
       setCreateInsightOpen(false);
       addToast("Discovering meetings...", "success");
-      const insight = await window.api.createInsight({ client_name: selectedClient, ...data });
+      const insight = await window.api.createInsight({ client_name: selectedClient, name: data.name, period_type: data.period_type, period_start: data.period_start, period_end: data.period_end });
       await window.api.discoverInsightMeetings(insight.id);
       queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
       setSelectedInsightId(insight.id);

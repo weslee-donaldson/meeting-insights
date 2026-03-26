@@ -31,6 +31,7 @@ function computePeriodBounds(periodType: PeriodType, referenceDate: string): { s
 }
 
 interface CreateInsightSubmitData {
+  name: string;
   period_type: PeriodType;
   period_start: string;
   period_end: string;
@@ -60,11 +61,13 @@ const PERIOD_TYPES: PeriodType[] = ["day", "week", "month"];
 const PERIOD_LABELS: Record<PeriodType, string> = { day: "Day", week: "Week", month: "Month" };
 
 export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsightDialogProps) {
+  const [name, setName] = useState("");
   const [periodType, setPeriodType] = useState<PeriodType>("week");
   const [referenceDate, setReferenceDate] = useState(todayISO());
 
   useEffect(() => {
     if (open) {
+      setName("");
       setPeriodType("week");
       setReferenceDate(todayISO());
     }
@@ -79,7 +82,7 @@ export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsi
 
   function handleSubmit() {
     if (!bounds) return;
-    onSubmit({ period_type: periodType, period_start: bounds.start, period_end: bounds.end });
+    onSubmit({ name, period_type: periodType, period_start: bounds.start, period_end: bounds.end });
   }
 
   const previewText = bounds
@@ -91,6 +94,17 @@ export function CreateInsightDialog({ open, onOpenChange, onSubmit }: CreateInsi
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange} title="Create Insight" sheetHeight={50}>
         <div className="flex flex-col gap-4 mt-2">
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Name</span>
+            <input
+              type="text"
+              aria-label="Name"
+              placeholder="e.g. Leadership Weekly"
+              className="border border-border rounded px-3 py-2 text-sm bg-background text-foreground"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
           <div className="flex gap-1">
             {PERIOD_TYPES.map((pt) => (
               <Button
