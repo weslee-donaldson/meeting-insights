@@ -400,7 +400,13 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
   for (let i = 0; i < files.length; i++) {
     const filename = files[i];
     const index = i + 1;
-    const json = readFileSync(join(webhookRawDir, filename), "utf-8");
+    const filePath = join(webhookRawDir, filename);
+    if (!existsSync(filePath)) {
+      log("skipping %s — file no longer exists (concurrent run)", filename);
+      skipped++;
+      continue;
+    }
+    const json = readFileSync(filePath, "utf-8");
     const parsed = parseWebhookPayload(json, filename);
 
     if (!parsed) {

@@ -101,8 +101,8 @@ export const meetingsMethods = {
   getMeetingMessages: (meetingId: string) =>
     fetchJson(`${API_BASE}/api/meetings/${meetingId}/messages`),
 
-  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean) =>
-    jsonPost(`${API_BASE}/api/meetings/${meetingId}/chat`, { message, includeTranscripts, template, includeAssets }),
+  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) =>
+    jsonPost(`${API_BASE}/api/meetings/${meetingId}/chat`, { message, includeTranscripts, template, includeAssets, attachments }),
 
   clearMeetingMessages: (meetingId: string) =>
     jsonDelete(`${API_BASE}/api/meetings/${meetingId}/messages`).then(() => undefined),

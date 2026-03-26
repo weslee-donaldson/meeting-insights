@@ -364,7 +364,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Thread question" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onSend).toHaveBeenCalledWith("Thread question", false, undefined, undefined);
+    expect(onSend).toHaveBeenCalledWith("Thread question", false, undefined, undefined, undefined);
     expect(onChat).not.toHaveBeenCalled();
   });
 

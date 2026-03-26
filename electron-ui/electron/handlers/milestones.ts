@@ -70,7 +70,7 @@ export async function handleMilestoneChat(
   const { systemContext, meetingIds } = await getMilestoneChatContext(db, vdb, session, req.milestoneId, req.message, req.includeTranscripts ?? false);
   appendMilestoneMessage(db, { milestoneId: req.milestoneId, role: "user", content: req.message });
   const history = getMilestoneMessages(db, req.milestoneId).map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
-  const answer = await llm.converse(systemContext, history);
+  const answer = await llm.converse(systemContext, history, req.attachments);
   const sources = resolveMeetingSources(db, meetingIds);
   appendMilestoneMessage(db, { milestoneId: req.milestoneId, role: "assistant", content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };

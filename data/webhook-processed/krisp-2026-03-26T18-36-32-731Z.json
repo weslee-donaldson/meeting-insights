@@ -1,0 +1,83 @@
+{
+  "id": "019d2b6f02db74c09b9d17d595a68bda",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2b3394e572b89b9baf9ba044ad94",
+      "title": "TerraQuantum: Architecture Review & Planning",
+      "duration": 3904,
+      "calendar_event_id": "04jstppbm6jqvbr2vu1in63b9u_20260326T173000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "274fceb833b952b1ac88c4eceb1572e7",
+          "first_name": null,
+          "email": "jt@terraquantum.swiss"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "82a8d5b1dc27586989c6208263a48a4c",
+          "first_name": null,
+          "email": "bd@terraquantum.swiss"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "rb@terraquantum.swiss"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "17ec3cc2f07056c98f63d0119509774c",
+          "first_name": "Brian",
+          "email": "6f32d831f40e4131abeca2b8c479c267@noemail.krisp.ai"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "55602e702fb4509883e2f104f0b37bf6",
+          "first_name": "Jeff",
+          "email": "1d8b647f34494ef08db299a7f5092dfb@noemail.krisp.ai"
+        },
+        {
+          "index": 4
+        }
+      ],
+      "start_date": "2026-03-26T17:31:03.960Z",
+      "end_date": "2026-03-26T18:36:07.960Z",
+      "url": "https://app.krisp.ai/n/019d2b3394e572b89b9baf9ba044ad94"
+    },
+    "content": {
+      "id": "019d2b33a42572b1adf9b87ad5aa094f",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 3902.308,
+      "size": 15605280,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d2b33a42572b1adf9b87ad5aa094f.mp3?AWSAccessKeyId=ASIA2I62CR7VOH52M747&Expires=1775154988&Signature=rmQhzHEBLY0GvttBoKWuXTbMIL0%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEAAaCXVzLWVhc3QtMSJGMEQCIBuJyXI1fLzbW55ny8CfliMaOL7Q2yu4eVAZkOpKBeEKAiBmg%2BxpYMFqxUOoKlgMzG7dTiomz420wRjcUntxfTbEwyqEBAjI%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAMaDDcwNjQ0MjU5NjMzMCIMhxYBGMVW5ji%2BRv0tKtgDkn3L6q71siw94yK1kfPnfXgca%2FoaMMbBiWERpnFmwqVxM6f5Id1swXFvZkTvDVlFqfy89RFW4XMW2d2D6i%2FJPvPKNTHkX5It9xB9WjoLBkOMu9rECDnPY3ffw1OWzVFxE7NRb0yRZCmeDgshs6gf0VB11breA4rJSYvNbz%2FMpeCt8xvdtlTei7iHTmNMgWVKLfDQODhEBDGuFKARdTMzNdOg6di9qRBlrLXQZ99Zat1i8RQBR%2B4ckOBGW%2BNVyONWFdfhwWo6b9%2ByM4x5X0%2B0d3mqAv%2BvsB6yNdP0ECAi3DD3uD%2BTRbuBddepZLGRyqCSOGITI%2FRZg6%2BP1oGeWs8giV2QERQT%2FWCBuWrWtbtf%2BIyBfUAYAuFxhbrYYXsIVzhFh3%2FljltxTQmRytkXiHPHtTmuntZ4X2vxeIywx84%2F20vB6Khq%2FFTgvqDZb4jm3JKMy1Nc2h6i7uhxBuq1zz%2Ba%2FizbEtm32pJ%2BEpWWtkD1O6igSWNQ1QZTfHyzTm6q6tDbfiMYKES5fnZAe%2BIq1izvUKk9KQiVTupr%2F95tZSGiPyZPeSvLCtoY9wDAqC8Luai55gfnOTrp8vwQKdmIO7XSlCFem6r4yHrALi%2B0SW%2FbOXTdGsxwFqN4JzCElpXOBjqmAZKCUgdhby1gV6PGyLgqHiwotVN0abhYPAPb8ZOvKdnc0qmHkkojf%2FgaF%2BU3FwjpIJ7emsIVrxKFrFdgTWMYKeI5yz%2BpolZHocQ91Iqhyf82uzUlEhB4R1lScCv2MMYy%2F7VDftzMBRG%2BRwavagtNKzIqnKv3yK6fslthRJ7ia1Udc5XcDBHv4MpcPu75Wcwpf7yIhbqD9ubeg1CfRCdp90I7gxtSdi8%3D",
+      "expires_at": "2026-04-02T18:36:28.761Z"
+    },
+    "raw_meeting": "**TerraQuantum: Architecture Review & Planning**\n🕞 Started at 05:31 PM on 26 Mar, lasted 1h 5m"
+  }
+}

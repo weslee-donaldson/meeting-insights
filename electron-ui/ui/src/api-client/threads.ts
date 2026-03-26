@@ -36,7 +36,7 @@ export const threadsMethods = {
     fetchJson(`${API_BASE}/api/threads/${threadId}/messages`),
 
   threadChat: (req: ThreadChatRequest) =>
-    jsonPost(`${API_BASE}/api/threads/${req.threadId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts }),
+    jsonPost(`${API_BASE}/api/threads/${req.threadId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts, attachments: req.attachments }),
 
   clearThreadMessages: (threadId: string) =>
     jsonDelete(`${API_BASE}/api/threads/${threadId}/messages`),

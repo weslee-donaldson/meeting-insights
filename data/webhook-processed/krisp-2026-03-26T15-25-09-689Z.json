@@ -1,0 +1,582 @@
+{
+  "id": "019d2abfd8f5718e8bca2fcbb90cbb5a",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2aa9a0e276deaf25710c6e459213",
+      "title": "Mandalore DSU",
+      "duration": 1451,
+      "calendar_event_id": "68qj8p9mc9hmcb9hcphm2b9k61j3ebb16dj68bb3c8rm6ob468sm2p1p68_20260326T150000Z",
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "f23890c1a965529d8c72eea3679538c9",
+          "first_name": null,
+          "email": "francis.pena@llsa.com"
+        },
+        {
+          "index": 4,
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "index": 5,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "index": 6,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        },
+        {
+          "index": 7,
+          "last_name": null,
+          "id": "0341aec2d238511c8c28a37517ef47a3",
+          "first_name": "Yoelvis",
+          "email": "b7625e3086204824aaca72e3c83e0398@noemail.krisp.ai"
+        },
+        {
+          "index": 8
+        },
+        {
+          "index": 9,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 10,
+          "last_name": null,
+          "id": "dc1e19fa4ae15adc849e08797a8e375c",
+          "first_name": "Jennifer",
+          "email": "09859407fa054afe80f3b7887e066613@noemail.krisp.ai"
+        },
+        {
+          "index": 11
+        }
+      ],
+      "start_date": "2026-03-26T15:00:22.487Z",
+      "end_date": "2026-03-26T15:24:33.487Z",
+      "url": "https://app.krisp.ai/n/019d2aa9a0e276deaf25710c6e459213"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Good morning, all."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Good morning, Mararet."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so I'm going to get us started because I want to leave any extra time I can for us to just take a quick pass through the integration document, the state of integration document. So we'll just attack. We'll just get folks as they come in.\nSo let's start with you. Let's start Devon with you. You're not here. That's fine then, I can hear you."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Yeah, sorry, I can hear you. So yesterday, I added the... We talked about the test cases playbook. So this morning I added that to Confluence. We spoke about maybe going through and testing the environment just to maybe find some of those spots that could be an issue.\nSo I'm going to do that, and update the playbook as necessary. I'll share that, and I'll share that in this chat as well, but in the Mandalor team channel."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, if I could ask you, just as I said, put it underneath the one recurring area so we can have it all in one place, okay?"
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "It should be there. Maybe it needs refreshing."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Fresh? Yeah, I don't worry about it. Alright. Let's go to Francis next."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "The... What is it? The first one in the right there. Ready for prop. That one. I shared the keys with Jeremy a few minutes ago, so he should be able to set up a Confluence with this to connect to the..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay.\nOkay, can I then review just...?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "So I think... Okay, that's fine. We still need to test that. So once he has set it up, we can test."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, all good. I saw you closed out the APA security and the whitelisting, so just that's good as well.\nNothing outstanding from your perspective on the connection between Recurly and us."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yes. The entries for the web API endpoint... That's still depending on Infra. I raised that this morning with them, so I hope they can fix that today. So the endpoints that we have that I shared in the chat with Jennifer that are not working yet..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "They're not working yet. Okay, got it."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "No.\nUntil that is completed, then working that is a link to that one."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, I'd rather have a ticket that represents that. Still, this one right here, you're ready for..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "If you open that infra ticket..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, cool."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, there's a ticket link to this. That is for improvement."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I see it's seen in... Perfect."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "One, yeah, guys, I have this... A great... LLaMA in review, please take a look when you have a chance."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, sounds good, thank you. Antonio, are you with us? Yes, you are. What do you need next, Antonio?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Yeah, it's pretty much the... Yeah, we are adopting... As a framework for this, and we are creating a new event store on top of Postgres, and we are using inline projections and workflow for reactors.\nSo really nice work."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, can I go a little harder on this one? Can we have someone raise their hand to do the review for this? This is pretty critical for our flow, and I don't want this to go multiple days waiting for a review.\nSo who has bandwidth? Who can take on a review for Antonio?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Think of me... Help... And go ahead."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, me out. Thank you. Do you want to go ahead?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "No, I was just about to say that the one in progress has no. No block in. So I just have to make a change to the reactor to... Right up to deconfigurations now. Yeah, that's pretty much it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I don't have a sub task for it, but I think we're all we all touched on this. Like if you could just craft the aut renew version of this str this page that we. Jeremy sorry, Lance gonna kind of keep moving and doing his testing."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "Absolutely."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Cool.\nI love a good segue. So to you, Lance."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "The Slack event grid stack, there's a PR open for something somewhat related to it. I did... I dropped the comment on Antonio's PR, \"We will need the unit amount for the membership.\" Right now, I'm just mapping that to null in the data that I send to the event grid.\nSo I didn't know if we wanted to make that update in Antonio's existing PR or get our stuff merged inch and do that as a separate task."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Lu co. Let' let's take it off line and then we let Wesley know."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, just take a look at the notes on that ticket line. I think Jennifer had explicitly said that Jennifer or Beth had explicitly said that we wanted a zero unit amount. Think it's in one of the notes or one of the technical notes."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "Okay. If we're right, if it's going to be zero, then I'll just update it to zero in mine."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Any concerns, any blockers, anything you feel confident about? Team, as a reminder, our goal is to basically be pencils down feature complete. I understand that during testing we find something but be feature complete for tomorrow. Anyone working on something where they feel they will not get to a PR by the end of the day, or will people block in getting to that goal?\nPlease raise your hand so we can support getting that to the finish line. Okay, let's keep going."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "A new stack hasn't been deployed yet, so I think it'll be ready by tomorrow. But once the PR is complete and we deploy it, I'll let you know then."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Is there anything where maybe Francis can push a little bit to get us a little bit of priority in the stack deployment? I'm not sure. That's a trigger. We can pull a lever."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "I don't think. I don't think we need anything like that. Just since I haven't seen it get deployed yet. I don't know how that's going to go."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Understood? Okay, just keep an eye on it, please. Just like in today's meeting at 3 pm eastern time, please just give us a status on that. Okay, let's keep going. Me? How are you?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 6,
+        "text": "Everyone. So I wrapped up the implement tracking tag ticket. I'm going to test it now. LBS already started reviewing that, so thank you so much for that. If everything looks good, I'm just going to merge it later today.\nI think it should be possible to test it on dev because the ticket says the dev container ID is available on the parent epic, so I assume we will have something to test against that before we go to prod. I might reach out to someone for...\nTo configure the stuff for me as a GitHub secret because I don't have access to GitHub secrets. In terms of the other ticket that chat is still blocked. So I might work on Playwright in the meantime. Once I'm done with the tracking tag.\nUnless there's anything more urgent I can help with."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, if you could help with the review, that'd be a good one to help with. Sorry, go ahead."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "I can't help you with adding the environment variable. Okay, great."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Just on the tracking, Beth, I think you're here with us. So we have the dev one. Do we have the production version yet?"
+      },
+      {
+        "speaker": "Speaker 8",
+        "speakerIndex": 8,
+        "text": "No, let me reach back out. I reminded Doug of that yesterday. So let me see if you've had a chance to look at it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. It shouldn't be any development from that since we're going to put it inside of a secret.\nSo not like on fire, but we definitely should aim to happen early next week if we can. The latest... What can we do, Jennifer, myself, Beth, anyone? What can we do to help unblock this? It's exclusively outside our control.\nIt's just on Rob to get us... What do you need to unblock this?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 6,
+        "text": "It's on Rob. So we already have a chat with Beth and Rob, so we're in touch. It just needs to be configured for dev and prod so it can be used. Because without that conflict, I'm completely blocked and can do anything."
+      },
+      {
+        "speaker": "Speaker 8",
+        "speakerIndex": 8,
+        "text": "Let's just mention Rob in the comment and ask him his ETA on the configuration."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, alright's keep going. We didn't touch on. We didn't go to u. Jeremy Apologies."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "No worries. I was late. So Francis gave me the keys for prod and Devon test environments for the event grid. So now all those are in my PR. Lance and I went over it, and it's good to go. I just need to actually merge at this point for the BI schema. I added a confluence page, and I sent it to Antonio with something I came up with.\nBut there are a few things I wanted him to look at. I left questions on it. Yeah. So, Antonio, when you get a chance to look at it, please. And Wesley, if there's anyone else that you want to look at it, I can ping them as well.\nIt's only the phase one items, just to be clear. Then for the other ticket, I have the one for the spreadsheet. I have the changes made. I'm just trying to test them and figure out if I can see them in the actual SharePoint drive.\nSo I'm trying to test that now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Nice. For the BI for the mapping, Tamk Ben maybe just message the chat for the meeting and just have the conversation there, so just make sure they're aware of what we're targeting.\nIf you could include the spreadsheet in the confluence page inside of the ticket as well. So we have it one place tracked and then share that in the chat and the meeting chat and start getting some feedback on it."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Which meaning chap?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The one from... Sorry, you may not have it, I'll send it to you.\nI'll send it to you off the call."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Okay, sounds good then. I'll throw the confluence page as a comment on there too."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect. Okay. You all this to you. Finally."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "Hey, I've been reviewing PRs and having discussions with Jeremy. We found a couple of details that are not okay in the e-commerce, and we are working on those ones. In addition to that, I'm trying to reproduce the issue with the slash appointment in... I see this happening on the dev environment, but I don't... Basically, in the sandbox.\nBut I cannot reproduce it locally, but I am trying to figure out what's going on."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Maybe we're getting a different environment to have a PV there since it's not happening in local. It could be."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "Yeah. The production environment is completely broken at the moment, so it's. It may be worth taking a look because the back is... No, it is returning an internal server error."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "I don't know, maybe we need to... We messed something up with one of the deployments or... I don't know, we need to fix it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. Who's the best person for you to pair with to kind of work through that as a triage? Is that just goes the best person since he had so many, so much of the UI and part of the CD K work. Or is it Antonio who had most of the CDK initial CDK work?"
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "I don't know who is... Who knows very well the blue, green, and everything else? Maybe Francis or Antonio can help him with that."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, I can. I can have a look at it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can I ask you guys just to please message back the teams channel? That's pretty urgent. I want to see if we can add... Capture a ticket for it or just get to an understanding if there is a blue-green issue.\nSo if you could message back the channel or myself directly, maybe target before the 3 pm meeting. Okay, one additional... Giffco, unfortunately, had a... His daughter's not feeling well, so he's running to pick her up from school. His status is he's still working through the coupon entry and checkout, as well as the other UI component.\nSorry, the UI element for updating for a member. Updating that to minus $30 when you add a membership inside of the checkout flow. So ticket number 7903, and he's still doing some cleanup on the PR on 7411. Quick one for you. You're... Not sure if I saw it.\nYeah, you did have it. Okay. So this is... You have this in PR review. Who's the best person to get a review on this? Is this maybe Jeremy by virtue of his just proximity to Recurly and the order flow that...?"
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "I think it's lens. I'm going to send the PR but..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, perfect. All right, guys. So can I ask everyone to please be very diligent around your PRs? We have a couple of days outstanding to get to our goal of having the full checkout flow working end to end. Our timelines on PR as a team are not ideal.\nSo I could please ask you if you need a PR to get something that must be delivered by an update tomorrow for testing this week and next week. Please prioritize reaching out to someone to force the issue.\nPlease get yourself a PR review. Help. If you're not getting one, please reach out to me and I'll help push them forward as well. Anyone? Any questions, concerns, or anything they're not clear on?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "I have a few things if just a couple of minutes if that's time. So first is the endpoints that I mentioned about Webbook that are working now. Then we just finished that. Second is that we have blue-green for the webhook stack, but we don't have the switch.\nSo if we can have a ticket for that, we can work on it. So that we can have a switch Slack for that and thirteen is... I'm forgetting now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so the number one, we with a bullet there, we need a script for actually doing this switch between blue-green."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Okay, forgot about it. Let's see if I remember later.\nYeah, we need to add it to the deployment so there is a workflow for that with the other components. We just need to add this one there so that it can be ticked. I can work on that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I think that may be a bigger conversation. Yovis Antonio Giffco as well, if you were here, the idea that the blue-green switch that we have in the main application repo is the same blue-green switch for the recurrently specific work."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "So I guess the question is if we want to have it in the same because there's nothing now for at least for the web, we don't have it. The switch is not there. There's no switching like a workflow for switching."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "So I guess the question is if we want to put it in the same workflow as the other components or the other things, or if it has to be separate, I guess."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I'll create a ticket for us to put it in the existing flow and then we can address it as a team in architecture, in the architecture chat or in the three or 3 o'clock today."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Sounds great. Sorry, I just remember the other thing. So we have booked for the frontend booked at Lifelong Sabook that book that lifelinescreening.com, we haven't switched that. Do we want to do that? When?\nSo I can work on that but we still haven't switched. We're still using the temporary... Yeah, domain subdomains... Yeah, exactly."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So by fix, you mean we haven't adopted using that within workflow. Is it currently correct?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Do you want to do that?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Is it currently pointing to the correct S3 bucket? Is it effectively live? We're just not using it.\nAnd the real the realt."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, it's not using a... It should work, so it's just the application conflict."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so the task there is just to set up a great task for actually switching out temp to booking on the application config."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "So it's a GitHub variable. And redeploying. That should do it. Yeah, correct. That is all for me. Sorry."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 10,
+        "text": "I have something I wanted to introduce you guys to. New employee we have Willie. He sat in on your guys' standup today. So he's our new senior software developer and he's going to be on the Endoor team.\nBut I wanted to have him meet you all in the Mandalor team. So, Willie, I don't know if you want to say a sentence or two about yourself again. I know you've said it to a few different groups, but if you want to do that here and then we'll go around the room and have everyone introduce themselves."
+      },
+      {
+        "speaker": "Speaker 11",
+        "speakerIndex": 11,
+        "text": "Okay? Thanks, Jennifer. So, hi, nice to meet you guys. So this is Willie, and I've been a software engineer for over a decade. I'm a TASCRIPT-no-JS guy, and I have some experience on a of CDK and hope to learn from you so much and excited to join the team."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Welcome, Willie. My name is Antonio. I'm from Brazil. I work as a principal software engineer on the Showvill side. So really glad to have you here, man. If you need something, let me know."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I can go next really quickly introduce myself already. But Wesley or West, for short, technical manager with the Mandalor team part of the ZLVIO group as well. But as always, welcome anything you need, just let me know. I could nominate the next person down.\nSo, Devon. You're the next in the chat window. You're on me, bud."
+      },
+      {
+        "speaker": "Speaker 2",
+        "speakerIndex": 2,
+        "text": "Sorry about that, I was muted. Welcome, Willie. I'm Devon Woods, QA engineer. I work out of Akron, Ohio, so pretty close to the Independence office. On the M&A Lord team. Excited to have you reach out if you need help or like to talk, and I'll nominate Jeremy if he's on."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Thanks, Deebn. I'm Jeremy Campo. Nice to meet you. I've been here for just over a year now as a software developer. I worked on our Shopify integration, and I'm working on the Recurly one right now. I am located in Boston, Massachusetts.\nI think it's opening day. So go Red Sox. I will nominate Lance."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The thin glass dropped."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Did he disappear? I don't know if I see him on here."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah. He dropped."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Okay, I'll go with you all of this then."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 7,
+        "text": "Hey, Willie, I have already introduced myself to you a couple of times, but... Yeah, and you have... Is a principal software engineer, and I've been in the company, I guess, for over a month now."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 10,
+        "text": "Did we get through everyone?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Four."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 6,
+        "text": "My not mi."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Ki miha me I guess."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 6,
+        "text": "But feel free to call me Michael, it's easier to pronounce. I'm part of the Soviet team. I've been there for a year, I believe, or even longer. Yeah, happy to have you on board, and I'm a software engineer."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Hi, Willie. I'm Francis. I'm from the Dominican Republic. I'm a Web engineer. Welcome to the team, and if you need anything, just shout. You're welcome. Thanks."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 10,
+        "text": "Thanks, everyone. Appreciate it. Welcome, Willie. Thank you, guys."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So. By. For now."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 9,
+        "text": "Have a good one. Bye."
+      }
+    ],
+    "raw_meeting": "**Mandalore DSU**\n🕞 Started at 03:00 PM on 26 Mar, lasted 24m",
+    "raw_content": "Wesley Donaldson | 00:36\nGood morning, all.\nSpeaker 2 | 00:41\nGood morning, Mararet.\nWesley Donaldson | 00:51\nOkay, so I'm going to get us started because I want to leave any extra time I can for us to just take a quick pass through the integration document, the state of integration document. So we'll just attack. We'll just get folks as they come in.\nSo let's start with you. Let's start Devon with you. You're not here. That's fine then, I can hear you.\nSpeaker 2 | 01:25\nYeah, sorry, I can hear you. So yesterday, I added the... We talked about the test cases playbook. So this morning I added that to Confluence. We spoke about maybe going through and testing the environment just to maybe find some of those spots that could be an issue.\nSo I'm going to do that, and update the playbook as necessary. I'll share that, and I'll share that in this chat as well, but in the Mandalor team channel.\nWesley Donaldson | 02:04\nOkay, if I could ask you, just as I said, put it underneath the one recurring area so we can have it all in one place, okay?\nSpeaker 2 | 02:13\nIt should be there. Maybe it needs refreshing.\nWesley Donaldson | 02:15\nFresh? Yeah, I don't worry about it. Alright. Let's go to Francis next.\nfrancis.pena@llsa.com | 02:26\nThe... What is it? The first one in the right there. Ready for prop. That one. I shared the keys with Jeremy a few minutes ago, so he should be able to set up a Confluence with this to connect to the...\nWesley Donaldson | 02:39\nOkay.\nOkay, can I then review just...?\nfrancis.pena@llsa.com | 02:47\nSo I think... Okay, that's fine. We still need to test that. So once he has set it up, we can test.\nWesley Donaldson | 02:59\nOkay, all good. I saw you closed out the APA security and the whitelisting, so just that's good as well.\nNothing outstanding from your perspective on the connection between Recurly and us.\nfrancis.pena@llsa.com | 03:12\nYes. The entries for the web API endpoint... That's still depending on Infra. I raised that this morning with them, so I hope they can fix that today. So the endpoints that we have that I shared in the chat with Jennifer that are not working yet...\nWesley Donaldson | 03:30\nThey're not working yet. Okay, got it.\nfrancis.pena@llsa.com | 03:32\nNo.\nUntil that is completed, then working that is a link to that one.\nWesley Donaldson | 03:35\nYeah, I'd rather have a ticket that represents that. Still, this one right here, you're ready for...\nfrancis.pena@llsa.com | 03:41\nIf you open that infra ticket...\nWesley Donaldson | 03:44\nOkay, cool.\nfrancis.pena@llsa.com | 03:44\nYeah, there's a ticket link to this. That is for improvement.\nWesley Donaldson | 03:48\nOkay, I see it's seen in... Perfect.\nAntônio Falcão Jr | 03:50\nOne, yeah, guys, I have this... A great... LLaMA in review, please take a look when you have a chance.\nWesley Donaldson | 03:51\nOkay, sounds good, thank you. Antonio, are you with us? Yes, you are. What do you need next, Antonio?\nAntônio Falcão Jr | 04:11\nYeah, it's pretty much the... Yeah, we are adopting... As a framework for this, and we are creating a new event store on top of Postgres, and we are using inline projections and workflow for reactors.\nSo really nice work.\nWesley Donaldson | 04:31\nOkay, can I go a little harder on this one? Can we have someone raise their hand to do the review for this? This is pretty critical for our flow, and I don't want this to go multiple days waiting for a review.\nSo who has bandwidth? Who can take on a review for Antonio?\nAntônio Falcão Jr | 04:52\nThink of me... Help... And go ahead.\nWesley Donaldson | 04:53\nOkay, me out. Thank you. Do you want to go ahead?\nAntônio Falcão Jr | 05:03\nNo, I was just about to say that the one in progress has no. No block in. So I just have to make a change to the reactor to... Right up to deconfigurations now. Yeah, that's pretty much it.\nWesley Donaldson | 05:25\nOkay, I don't have a sub task for it, but I think we're all we all touched on this. Like if you could just craft the aut renew version of this str this page that we. Jeremy sorry, Lance gonna kind of keep moving and doing his testing.\nlance.fallon@llsa.com | 05:44\nAbsolutely.\nWesley Donaldson | 05:45\nCool.\nI love a good segue. So to you, Lance.\nlance.fallon@llsa.com | 05:53\nThe Slack event grid stack, there's a PR open for something somewhat related to it. I did... I dropped the comment on Antonio's PR, \"We will need the unit amount for the membership.\" Right now, I'm just mapping that to null in the data that I send to the event grid.\nSo I didn't know if we wanted to make that update in Antonio's existing PR or get our stuff merged inch and do that as a separate task.\nAntônio Falcão Jr | 06:35\nLu co. Let' let's take it off line and then we let Wesley know.\nWesley Donaldson | 06:43\nYeah, just take a look at the notes on that ticket line. I think Jennifer had explicitly said that Jennifer or Beth had explicitly said that we wanted a zero unit amount. Think it's in one of the notes or one of the technical notes.\nlance.fallon@llsa.com | 06:55\nOkay. If we're right, if it's going to be zero, then I'll just update it to zero in mine.\nWesley Donaldson | 07:06\nAny concerns, any blockers, anything you feel confident about? Team, as a reminder, our goal is to basically be pencils down feature complete. I understand that during testing we find something but be feature complete for tomorrow. Anyone working on something where they feel they will not get to a PR by the end of the day, or will people block in getting to that goal?\nPlease raise your hand so we can support getting that to the finish line. Okay, let's keep going.\nlance.fallon@llsa.com | 07:34\nA new stack hasn't been deployed yet, so I think it'll be ready by tomorrow. But once the PR is complete and we deploy it, I'll let you know then.\nWesley Donaldson | 07:47\nIs there anything where maybe Francis can push a little bit to get us a little bit of priority in the stack deployment? I'm not sure. That's a trigger. We can pull a lever.\nlance.fallon@llsa.com | 07:59\nI don't think. I don't think we need anything like that. Just since I haven't seen it get deployed yet. I don't know how that's going to go.\nWesley Donaldson | 08:08\nUnderstood? Okay, just keep an eye on it, please. Just like in today's meeting at 3 pm eastern time, please just give us a status on that. Okay, let's keep going. Me? How are you?\nMichal Kawka | 08:23\nEveryone. So I wrapped up the implement tracking tag ticket. I'm going to test it now. LBS already started reviewing that, so thank you so much for that. If everything looks good, I'm just going to merge it later today.\nI think it should be possible to test it on dev because the ticket says the dev container ID is available on the parent epic, so I assume we will have something to test against that before we go to prod. I might reach out to someone for...\nTo configure the stuff for me as a GitHub secret because I don't have access to GitHub secrets. In terms of the other ticket that chat is still blocked. So I might work on Playwright in the meantime. Once I'm done with the tracking tag.\nUnless there's anything more urgent I can help with.\nWesley Donaldson | 09:22\nYeah, if you could help with the review, that'd be a good one to help with. Sorry, go ahead.\nYoelvis | 09:29\nI can't help you with adding the environment variable. Okay, great.\nWesley Donaldson | 09:37\nJust on the tracking, Beth, I think you're here with us. So we have the dev one. Do we have the production version yet?\nSpeaker 8 | 09:46\nNo, let me reach back out. I reminded Doug of that yesterday. So let me see if you've had a chance to look at it.\nWesley Donaldson | 09:54\nOkay. It shouldn't be any development from that since we're going to put it inside of a secret.\nSo not like on fire, but we definitely should aim to happen early next week if we can. The latest... What can we do, Jennifer, myself, Beth, anyone? What can we do to help unblock this? It's exclusively outside our control.\nIt's just on Rob to get us... What do you need to unblock this?\nMichal Kawka | 10:22\nIt's on Rob. So we already have a chat with Beth and Rob, so we're in touch. It just needs to be configured for dev and prod so it can be used. Because without that conflict, I'm completely blocked and can do anything.\nSpeaker 8 | 10:38\nLet's just mention Rob in the comment and ask him his ETA on the configuration.\nWesley Donaldson | 10:59\nOkay, alright's keep going. We didn't touch on. We didn't go to u. Jeremy Apologies.\njeremy.campeau@llsa.com | 11:12\nNo worries. I was late. So Francis gave me the keys for prod and Devon test environments for the event grid. So now all those are in my PR. Lance and I went over it, and it's good to go. I just need to actually merge at this point for the BI schema. I added a confluence page, and I sent it to Antonio with something I came up with.\nBut there are a few things I wanted him to look at. I left questions on it. Yeah. So, Antonio, when you get a chance to look at it, please. And Wesley, if there's anyone else that you want to look at it, I can ping them as well.\nIt's only the phase one items, just to be clear. Then for the other ticket, I have the one for the spreadsheet. I have the changes made. I'm just trying to test them and figure out if I can see them in the actual SharePoint drive.\nSo I'm trying to test that now.\nWesley Donaldson | 12:13\nNice. For the BI for the mapping, Tamk Ben maybe just message the chat for the meeting and just have the conversation there, so just make sure they're aware of what we're targeting.\nIf you could include the spreadsheet in the confluence page inside of the ticket as well. So we have it one place tracked and then share that in the chat and the meeting chat and start getting some feedback on it.\njeremy.campeau@llsa.com | 12:39\nWhich meaning chap?\nWesley Donaldson | 12:41\nThe one from... Sorry, you may not have it, I'll send it to you.\nI'll send it to you off the call.\njeremy.campeau@llsa.com | 12:47\nOkay, sounds good then. I'll throw the confluence page as a comment on there too.\nWesley Donaldson | 12:51\nPerfect. Okay. You all this to you. Finally.\nYoelvis | 12:58\nHey, I've been reviewing PRs and having discussions with Jeremy. We found a couple of details that are not okay in the e-commerce, and we are working on those ones. In addition to that, I'm trying to reproduce the issue with the slash appointment in... I see this happening on the dev environment, but I don't... Basically, in the sandbox.\nBut I cannot reproduce it locally, but I am trying to figure out what's going on.\nWesley Donaldson | 13:43\nMaybe we're getting a different environment to have a PV there since it's not happening in local. It could be.\nYoelvis | 13:48\nYeah. The production environment is completely broken at the moment, so it's. It may be worth taking a look because the back is... No, it is returning an internal server error.\nWesley Donaldson | 14:06\nNo.\nYoelvis | 14:06\nI don't know, maybe we need to... We messed something up with one of the deployments or... I don't know, we need to fix it.\nWesley Donaldson | 14:16\nOkay. Who's the best person for you to pair with to kind of work through that as a triage? Is that just goes the best person since he had so many, so much of the UI and part of the CD K work. Or is it Antonio who had most of the CDK initial CDK work?\nYoelvis | 14:35\nI don't know who is... Who knows very well the blue, green, and everything else? Maybe Francis or Antonio can help him with that.\nfrancis.pena@llsa.com | 14:47\nYeah, I can. I can have a look at it.\nWesley Donaldson | 14:52\nCan I ask you guys just to please message back the teams channel? That's pretty urgent. I want to see if we can add... Capture a ticket for it or just get to an understanding if there is a blue-green issue.\nSo if you could message back the channel or myself directly, maybe target before the 3 pm meeting. Okay, one additional... Giffco, unfortunately, had a... His daughter's not feeling well, so he's running to pick her up from school. His status is he's still working through the coupon entry and checkout, as well as the other UI component.\nSorry, the UI element for updating for a member. Updating that to minus $30 when you add a membership inside of the checkout flow. So ticket number 7903, and he's still doing some cleanup on the PR on 7411. Quick one for you. You're... Not sure if I saw it.\nYeah, you did have it. Okay. So this is... You have this in PR review. Who's the best person to get a review on this? Is this maybe Jeremy by virtue of his just proximity to Recurly and the order flow that...?\nYoelvis | 16:07\nI think it's lens. I'm going to send the PR but...\nWesley Donaldson | 16:15\nOkay, perfect. All right, guys. So can I ask everyone to please be very diligent around your PRs? We have a couple of days outstanding to get to our goal of having the full checkout flow working end to end. Our timelines on PR as a team are not ideal.\nSo I could please ask you if you need a PR to get something that must be delivered by an update tomorrow for testing this week and next week. Please prioritize reaching out to someone to force the issue.\nPlease get yourself a PR review. Help. If you're not getting one, please reach out to me and I'll help push them forward as well. Anyone? Any questions, concerns, or anything they're not clear on?\nfrancis.pena@llsa.com | 17:01\nI have a few things if just a couple of minutes if that's time. So first is the endpoints that I mentioned about Webbook that are working now. Then we just finished that. Second is that we have blue-green for the webhook stack, but we don't have the switch.\nSo if we can have a ticket for that, we can work on it. So that we can have a switch Slack for that and thirteen is... I'm forgetting now.\nWesley Donaldson | 17:26\nOkay, so the number one, we with a bullet there, we need a script for actually doing this switch between blue-green.\nfrancis.pena@llsa.com | 17:37\nOkay, forgot about it. Let's see if I remember later.\nYeah, we need to add it to the deployment so there is a workflow for that with the other components. We just need to add this one there so that it can be ticked. I can work on that.\nWesley Donaldson | 17:57\nI think that may be a bigger conversation. Yovis Antonio Giffco as well, if you were here, the idea that the blue-green switch that we have in the main application repo is the same blue-green switch for the recurrently specific work.\nfrancis.pena@llsa.com | 18:23\nSo I guess the question is if we want to have it in the same because there's nothing now for at least for the web, we don't have it. The switch is not there. There's no switching like a workflow for switching.\nWesley Donaldson | 18:32\nHe.\nfrancis.pena@llsa.com | 18:35\nSo I guess the question is if we want to put it in the same workflow as the other components or the other things, or if it has to be separate, I guess.\nWesley Donaldson | 18:45\nI'll create a ticket for us to put it in the existing flow and then we can address it as a team in architecture, in the architecture chat or in the three or 3 o'clock today.\nfrancis.pena@llsa.com | 18:58\nSounds great. Sorry, I just remember the other thing. So we have booked for the frontend booked at Lifelong Sabook that book that lifelinescreening.com, we haven't switched that. Do we want to do that? When?\nSo I can work on that but we still haven't switched. We're still using the temporary... Yeah, domain subdomains... Yeah, exactly.\nWesley Donaldson | 19:22\nSo by fix, you mean we haven't adopted using that within workflow. Is it currently correct?\nfrancis.pena@llsa.com | 19:29\nDo you want to do that?\nWesley Donaldson | 19:30\nIs it currently pointing to the correct S3 bucket? Is it effectively live? We're just not using it.\nAnd the real the realt.\nfrancis.pena@llsa.com | 19:36\nYeah, it's not using a... It should work, so it's just the application conflict.\nWesley Donaldson | 19:38\nOkay, so the task there is just to set up a great task for actually switching out temp to booking on the application config.\nfrancis.pena@llsa.com | 19:40\nSo it's a GitHub variable. And redeploying. That should do it. Yeah, correct. That is all for me. Sorry.\nJennifer | 20:02\nI have something I wanted to introduce you guys to. New employee we have Willie. He sat in on your guys' standup today. So he's our new senior software developer and he's going to be on the Endoor team.\nBut I wanted to have him meet you all in the Mandalor team. So, Willie, I don't know if you want to say a sentence or two about yourself again. I know you've said it to a few different groups, but if you want to do that here and then we'll go around the room and have everyone introduce themselves.\nSpeaker 11 | 20:41\nOkay? Thanks, Jennifer. So, hi, nice to meet you guys. So this is Willie, and I've been a software engineer for over a decade. I'm a TASCRIPT-no-JS guy, and I have some experience on a of CDK and hope to learn from you so much and excited to join the team.\nAntônio Falcão Jr | 21:04\nWelcome, Willie. My name is Antonio. I'm from Brazil. I work as a principal software engineer on the Showvill side. So really glad to have you here, man. If you need something, let me know.\nWesley Donaldson | 21:19\nI can go next really quickly introduce myself already. But Wesley or West, for short, technical manager with the Mandalor team part of the ZLVIO group as well. But as always, welcome anything you need, just let me know. I could nominate the next person down.\nSo, Devon. You're the next in the chat window. You're on me, bud.\nSpeaker 2 | 21:49\nSorry about that, I was muted. Welcome, Willie. I'm Devon Woods, QA engineer. I work out of Akron, Ohio, so pretty close to the Independence office. On the M&A Lord team. Excited to have you reach out if you need help or like to talk, and I'll nominate Jeremy if he's on.\njeremy.campeau@llsa.com | 22:17\nThanks, Deebn. I'm Jeremy Campo. Nice to meet you. I've been here for just over a year now as a software developer. I worked on our Shopify integration, and I'm working on the Recurly one right now. I am located in Boston, Massachusetts.\nI think it's opening day. So go Red Sox. I will nominate Lance.\nWesley Donaldson | 22:40\nThe thin glass dropped.\njeremy.campeau@llsa.com | 22:41\nDid he disappear? I don't know if I see him on here.\nWesley Donaldson | 22:46\nYeah. He dropped.\njeremy.campeau@llsa.com | 22:48\nOkay, I'll go with you all of this then.\nYoelvis | 22:52\nHey, Willie, I have already introduced myself to you a couple of times, but... Yeah, and you have... Is a principal software engineer, and I've been in the company, I guess, for over a month now.\nJennifer | 23:13\nDid we get through everyone?\nWesley Donaldson | 23:14\nFour.\nMichal Kawka | 23:17\nMy not mi.\nfrancis.pena@llsa.com | 23:18\nKi miha me I guess.\nMichal Kawka | 23:22\nBut feel free to call me Michael, it's easier to pronounce. I'm part of the Soviet team. I've been there for a year, I believe, or even longer. Yeah, happy to have you on board, and I'm a software engineer.\nfrancis.pena@llsa.com | 23:40\nHi, Willie. I'm Francis. I'm from the Dominican Republic. I'm a Web engineer. Welcome to the team, and if you need anything, just shout. You're welcome. Thanks.\nJennifer | 23:55\nThanks, everyone. Appreciate it. Welcome, Willie. Thank you, guys.\nWesley Donaldson | 24:00\nSo. By. For now.\njeremy.campeau@llsa.com | 24:05\nHave a good one. Bye."
+  }
+}

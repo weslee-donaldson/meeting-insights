@@ -93,7 +93,7 @@ export interface MeetingRow {
 export interface ChatRequest {
   meetingIds: string[];
   question: string;
-  attachments?: { name: string; filePath: string; mimeType: string }[];
+  attachments?: { name: string; base64: string; mimeType: string }[];
 }
 
 export interface ChatResponse {
@@ -110,7 +110,7 @@ export interface ConversationMessage {
 export interface ConversationChatRequest {
   meetingIds: string[];
   messages: ConversationMessage[];
-  attachments?: { name: string; filePath: string; mimeType: string }[];
+  attachments?: { name: string; base64: string; mimeType: string }[];
   includeTranscripts?: boolean;
   template?: string;
 }
@@ -236,6 +236,7 @@ export interface ThreadChatRequest {
   threadId: string;
   message: string;
   includeTranscripts?: boolean;
+  attachments?: { name: string; base64: string; mimeType: string }[];
 }
 
 export interface SourceRef {
@@ -269,6 +270,7 @@ export interface InsightChatRequest {
   insightId: string;
   message: string;
   includeTranscripts?: boolean;
+  attachments?: { name: string; base64: string; mimeType: string }[];
 }
 
 export interface InsightChatResponse {
@@ -294,6 +296,7 @@ export interface MilestoneChatRequest {
   milestoneId: string;
   message: string;
   includeTranscripts?: boolean;
+  attachments?: { name: string; base64: string; mimeType: string }[];
 }
 
 export interface MilestoneChatResponse {

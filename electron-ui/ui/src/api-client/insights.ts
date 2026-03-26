@@ -27,7 +27,7 @@ export const insightsMethods = {
     fetchJson(`${API_BASE}/api/insights/${insightId}/messages`),
 
   insightChat: (req: InsightChatRequest) =>
-    jsonPost(`${API_BASE}/api/insights/${req.insightId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts }),
+    jsonPost(`${API_BASE}/api/insights/${req.insightId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts, attachments: req.attachments }),
 
   clearInsightMessages: (insightId: string) =>
     jsonDelete(`${API_BASE}/api/insights/${insightId}/messages`).then(() => undefined),

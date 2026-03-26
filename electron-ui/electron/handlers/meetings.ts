@@ -472,13 +472,14 @@ export function handleGetMeetingMessages(db: Database, meetingId: string): Meeti
 }
 
 export async function handleMeetingChat(
-  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean,
+  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[],
 ): Promise<ConversationChatResponse> {
   appendMeetingMessage(db, { meeting_id: meetingId, role: "user", content: message });
   const history = getMeetingMessages(db, meetingId).map((m) => ({ role: m.role, content: m.content }));
   const result = await handleConversationChat(db, llm, {
     meetingIds: [meetingId],
     messages: history,
+    attachments,
     includeTranscripts,
     template,
     includeAssets,

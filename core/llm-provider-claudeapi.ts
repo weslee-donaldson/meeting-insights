@@ -9,7 +9,7 @@ export function createClaudeapiAdapter(baseUrl: string): LlmAdapter {
 
   function serializeAttachments(attachments?: ImageAttachment[]) {
     if (!attachments || attachments.length === 0) return undefined;
-    return attachments.map((a) => ({ name: a.name, file_path: a.filePath, mime_type: a.mimeType }));
+    return attachments.map((a) => ({ name: a.name, base64: a.base64, mime_type: a.mimeType }));
   }
 
   async function post(path: string, body: Record<string, unknown>): Promise<{ result: string; session_id: string }> {

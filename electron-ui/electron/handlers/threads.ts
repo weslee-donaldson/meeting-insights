@@ -66,7 +66,7 @@ export async function handleThreadChat(
   const { systemContext, meetingIds } = await getThreadChatContext(db, vdb, session, req.threadId, req.message, req.includeTranscripts ?? false);
   appendThreadMessage(db, { thread_id: req.threadId, role: 'user', content: req.message });
   const history = getThreadMessages(db, req.threadId).map((m) => ({ role: m.role, content: m.content }));
-  const answer = await llm.converse(systemContext, history);
+  const answer = await llm.converse(systemContext, history, req.attachments);
   const sources = resolveMeetingSources(db, meetingIds);
   appendThreadMessage(db, { thread_id: req.threadId, role: 'assistant', content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };

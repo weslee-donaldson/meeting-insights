@@ -296,6 +296,11 @@ export function migrate(db: DatabaseSync): void {
     db.exec("ALTER TABLE meetings ADD COLUMN recording_url TEXT");
   }
 
+  const noteCols = db.prepare("PRAGMA table_info(notes)").all() as { name: string }[];
+  if (!noteCols.some(c => c.name === "note_type")) {
+    db.exec("ALTER TABLE notes ADD COLUMN note_type TEXT DEFAULT 'user'");
+  }
+
   const threadCols = db.prepare("PRAGMA table_info(threads)").all() as { name: string }[];
   if (threadCols.length > 0 && !threadCols.some(c => c.name === "keywords")) {
     db.exec("ALTER TABLE threads ADD COLUMN keywords TEXT DEFAULT ''");

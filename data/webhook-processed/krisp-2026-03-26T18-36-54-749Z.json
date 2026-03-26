@@ -1,0 +1,837 @@
+{
+  "id": "019d2b6f66567678934068c3e4bb7155",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2b3394e572b89b9baf9ba044ad94",
+      "title": "TerraQuantum: Architecture Review & Planning",
+      "duration": 3904,
+      "calendar_event_id": "04jstppbm6jqvbr2vu1in63b9u_20260326T173000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "274fceb833b952b1ac88c4eceb1572e7",
+          "first_name": null,
+          "email": "jt@terraquantum.swiss"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "82a8d5b1dc27586989c6208263a48a4c",
+          "first_name": null,
+          "email": "bd@terraquantum.swiss"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "rb@terraquantum.swiss"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "17ec3cc2f07056c98f63d0119509774c",
+          "first_name": "Brian",
+          "email": "6f32d831f40e4131abeca2b8c479c267@noemail.krisp.ai"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "55602e702fb4509883e2f104f0b37bf6",
+          "first_name": "Jeff",
+          "email": "1d8b647f34494ef08db299a7f5092dfb@noemail.krisp.ai"
+        },
+        {
+          "index": 4
+        }
+      ],
+      "start_date": "2026-03-26T17:31:03.960Z",
+      "end_date": "2026-03-26T18:36:07.960Z",
+      "url": "https://app.krisp.ai/n/019d2b3394e572b89b9baf9ba044ad94"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Thank you. Good afternoon, Brian."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "He. Hey, how are you?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I cannot complain. I mean, I could, but I won't. I feel like I could always complain."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "You can always find something to complain about? Yeah, I'm a little under the weather. I feel like complaining about that, but it seems like it's par for the course lately when I take the kids to the daycare and they get something and bring it home and then I eventually get to deal with it.\nIt's this circle that continues to happen."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, they're just the disease vector, right? That's not being mean to them. It's like when I when our kids were in daycare, everything, like we got at least five times. At least five times a year, each one of themmm."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah, it's unavoidable, it seems. Hey, Jeff."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "So you got a cool Brian, what's up?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Just..."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Sounds like you have a cool..."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I do. That's what I was just talking about, Leslie. We were saying, not a lot to complain about, but I got that right now. Kids bringing home stuff again as usual."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, no worries. Sam said he's running late. Five minutes."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "There you go."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Something he's dealing with at home, by the way. Well, cool. So today's meeting, the one thing I covered at the end... I'm sure that four out of five people on the meeting didn't even know half the stuff I was talking about.\nBut I was trying to get back to the basics on something because I want to make sure we don't lose sight. Everybody right now is excited about QMM. I'm excited about QMM, these tools are really interesting and cool. I'm super excited about it, but I have two other things that are worthy of focus and should continue to be focused on. Not even as the secondary considerations, secondary pursuits of the team, but as a standard thing that we keep working on and eventually we'll scale things out so we have maybe a larger team, but I'll talk about that today too.\nWhen it comes down to specifically what I'm looking for outside of Q&A, when there's not very specific work on Q&A to be done, I'd like to pivot directly over to Cubri's core to make sure we continue to reinforce that.\nWhat I mean by reinforce is there are certain tools that I would like in the organization that have nothing to do with any one product. One of those tools, Brian, you and I have talked about this quite a bit is data preprocessing, and I've come back to this many times.\nI've tried to implement it in terms of putting that in front of certain applications like Qai Hub. That was one of the early efforts before you joined, Wesley. The Zolvio team originally dealt with that and tried to address that.\nBut I really want to just have the provable capability that if we run into a customer with large datasets and they're structured, unstructured, whatever they are, and they're introducing them into our system and they're trying to pair that up with their use of an algorithm library or to implement something in a specific workflow."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "What? Never."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I want to make sure that we're able to do automated and scalable introspection on the dataset and to get a clear understanding of what's there so that we have the equivalent of a structural reference and diffs against what needs to be done and that sort of stuff presented without even worrying about what action is taken on it. All I care about is that we have the ability to do detailed analysis of the data that's trying to be introduced into our systems.\nThere are lots of tools for this. The only thing I care about here in talking about this tool in this way is not the tool that we need to use, because that could be anything. We could end up with data breaks or something if we went full-blown corporate craziness. Who knows?\nWe may not need anything to do with what I'm talking about here, but I'm interested in this lightweight approach of attaching an MCP server that provides this capability and then dropping it into a test workflow when we get whatever tools or whatever things set up against Keybridge Core.\nSo to me, it's a really good opportunity for orchestration of the MCP servers, and that's what I'm super interested in pursuing and understanding here. One of the reasons for that is orchestration and combined use of various tools. Various services from inside and outside of our company could be really cool for customers coming in.\nBut even for teams, I really am interested in setting things up so that there's more of a motivation for them to build something in a super collaborative and open environment like this, to attach it to Keybridge Core, when it really makes sense and to make it as standardized and simple as possible. It may not even be something that's right for Keybridge Core, and in that case, then we find that out by considering it, which is fine if it ends up being direct APIs or whatever the hell it is. There's no reason to send things through this every time.\nBut when someone's got a workflow where they come in and they do something with our backend and I've been asked this a lot by people like Sean and all, what's the value of Keybridge Core? Why do we even do this? I don't really get it.\nI've mentioned that it's quick for onboarding and useful and much faster for someone to start working with our tools."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Entry."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "But even more important, it's a place for us to capture multiple MCP server interactions and do something about it. I don't know what that is. It could be just straight-up logging, it could be alerts, it could be something unique that needs to be done away from that particular tool.\nBecause I know the tools often have their own logs, analysis, and everything going on. But I know when we start to do something like use this for a customer for a particular initiative, they're going to want to know how many times we used this service that you charge for or whatever.\nSometimes we can just get that directly from that service, but sometimes the service is us, and we might need to charge for that service. Anyway, this is... There's a bigger picture here.\nIt's not just one thing or just data preprocessing. It's just a candidate. Sorry, go ahead, Leslie."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah. I had a couple of thoughts going backwards, starting from the last thing you said. Is the part of the conversation and part of the need to understand how we're leveraging our cost impacts for different LMS that we're interacting with?\nI'm sure Sam has mentioned the work we do with Revenum. That sounds like a way for us to get to some insights around how we're using or what the costs are for LMS. One point and the other... Sorry. Go ahead."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "That's one of the things. Yeah. So if you've got tokens being utilized and they're used by our applications or whatever, I mean, however they're being utilized, maybe a team uses it behind their application only.\nWe don't really... It's not like something attached to the middleware that we would track. Someone might have a customer, for instance, and that customer might have a dedicated environment of some kind that they're working with, and they're just extending that environment by allowing them to use their algorithm library or some shit like that.\nI don't know, there might be a reason for us to let them deal with that and let them keep track of it for us. If we go use tokens, I want to know who used them and why. I'd love it that we don't have to go into every single provider to figure that out, because that sucks.\nBut, Sam, I'm always doomed. The saying that there are two main things: we know and then there's the effort there. If and when we have things slow down that need more analysis before we go rushing forward with continued development on it, we have the other thing to pivot to, which I still want to continue to maintain, enrich, and expand where it makes sense, which is Keybridge Core because we're not done with that by any means.\nI'm really... I have a lot of wind in my sails right now about it because of the great feeling I had in the demonstration to investors and everybody and the value I can clearly see now. It's so clear to me.\nBut it's only one part of our entire ecosystem. I just want to make sure that if we have to do something with a customer, that we have confidence to go down that road. That's why I introduced data preprocessing again.\nI don't care that that's the product at all. I just want somebody to attach it to an MCP server and go through a use case where we've attached that in. We've got a large data set. It's done some sort of introspection and analysis and presented that to us.\nIf that is as far as we go, I'm super happy because that will just say that at least we've consumed that and brought it into the core."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So wasn't the problem always...? It's good. It's great. By the way, I'm not punching holes in it, but wasn't the problem here that we faced all the time was like, \"How do we get the data in there?\" Just remind me either I've forgotten something.\nYeah."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Here's the reason. So an algorithm library requires datasets to be set up with a certain structure type, a certain schema. When those datasets come in, often a customer will upload a CSP that's just completely messed up.\nIt's got something... Columns and fields and things are all messed up, types, whatever. There are lots of ways you can do that from an ETL perspective. You could just do the whole typical thing you're doing to cast things or whatever. In our case, the only thing I care about is that we have a way of reflecting the diff.\nIt's the goal I've had for a million years: that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why.\nHere's a detailed breakdown. The goal I've had for a million years is that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why. Here's a detailed breakdown. The goal I've had for a million years is that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why.\nI can see it being a standardized step in any dataset that someone tries to upload utilizing MCP-enabled tools, because it might be an orchestration of those tools and a unique schema that's nothing to do with what one tool or the other would even require.\nIt's really interesting to me how that could work. But I'm just saying they have some sort of way of uploading their data, and we're able to at least do that basic step of ingesting it. Understanding enough about that structure or ingesting the structure and understanding enough about that to reflect back to their LM or to whatever that diff is.\nI would hope the action would be really fluid and automated like that. It would be just like a warning shown to them, if anything, or back to the client that's requesting it, and it just flows through and fixes everything and makes it right. That would be the best-case scenario.\nBut, and I said before, this is just one thing, but my biggest objective here is to attach a third-party MCP server. I want to see that done. I want to know it can be done. I just want it to be..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "The MCP server to so."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Keybridge core. Yeah, specifically to Keybridge core so that it can be called and that it's... One of the things here is, \"Do we...?\" Because we're behind an authentication, right? So even better, the next level would be something where we're able to provide some sort of an IDP capability for them to use a third-party tool that requires an ID or some sort of system-to-system or whatever the service keys are. In some way, it can just be seamlessly integrated, and that off can be tracked and invalid for that particular use.\nThat would be even better. But right now, all I care about is that someone can demonstrate to me that third-party integration to Keybridge core use case specifically in a case where they're working with, like I said, an Algo library.\nIt requires it by its definition to require things to be set up correctly in a certain way. Someone introduces the data, and it's supposed to be adherent to that. Then we have just a quick check and balance on... That would be useful to me. Brian, I don't know if you have anything to add to this or if you contend with the concept necessarily, but this is work to be done, as far as I'm concerned. Concerned to continue to enhance what's already been done on Core. There are many other things that could be done, including the stuff I talked about with the Agenttic guys, because it's bothering me that they're just off and running still. We still need to get into that and sink our teeth into what they're doing. There's a lot of GenAI core work to be done. As far as I'm concerned, I don't think it should just stop because we have a shiny object in front of us. We have to be careful."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "There are two models that we've discussed in the past that I think we would want to clarify which path we're taking. Right? I've been more resistant to the one where we put the data processing on the backend as a service, which I think is what you're hearing now or saying now versus still interacting with MCP but connecting it to the clients. LLaMA as an option to interface with so if the client doesn't show up with their own data preprocessing thing, we have this scenario where, okay, you can go use data bricks or whatever. We use it all the time. This is how we do it. Here's how it can be connected to your environment. Here's how you deal with your data to get it in the shape you need before you then send it into our more interesting thing."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Well, let me ask you a question. Let me ask you one thing there. I just want to insert. Let me insert an edge case. Okay, here's the edge case. If someone comes in and they're completely validated with their LLM and their data preprocessing on their side and they're introducing data to our LLM server, how do we know that's okay?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "So... And that one thing that you mentioned to me, the scheme of validation of what's coming in, is a role of the tool that you're calling, right? Each tool is going to have its own unique schema requirements, not the data preprocessing thing."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "That's why I said we don't know that it's going to be one tool, and we can't rely on one team and one tool to correctly define that in a mixed case. I mean, by that, I could have multiple things happening. I could have a model that I'm building and training. I could have the results that are coming out of that be integrated into additional streaming data.\nI have... There are so many other things I could have that are multiple schemas. So would we deal with that in a sort of let it break down the line approach, or would we just have a way of being smart about it ourselves and having...\nBecause one of the things that bugs me here is sure, every tool can be responsible for stuff. But you're assuming in that case, when we talk about tools or applications, that those teams are good at that, especially when it comes to customers. That they're going to be really good at making sure it's really usable with the right error messages and the right kind of processing and handling and all that kind of stuff.\nIn my experience, they're horrible at that. So I just don't see giving that responsibility to those guys for a customer experience as being a good thing, especially when it's not that hard for them to just contribute their requirements for all of that stuff into something that's centralized and can be used intelligently based on requests without the LLM on the client side ever even hitting their application.\nIt's why not be smart about it and just know if something's registered against Keybridge core, shouldn't we at the core level have a really clear catalog of skills? Wouldn't we have a clear and specific catalog schema, something that needs to match up and that we can use to keep that interaction really low cost\nupfront, directly back to the client. I don't understand the whole thing where you're relying on a team down the line when that team is horribly unreliable. That's one thing that's bad about that.\nBut the other bit that's bad about it is I think we should have corporate standards for data. And it should go in both directions. A team that's building something should have to adhere to those standards and work with us to make sure they're not introducing something unsafe or up or whatever.\nWe should be able to check and implement standards against things coming in. So I see it as both... There's got to be some governance."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "It would maybe be something where we'd have to talk through more specific examples to really talk about how it works. But I think what I'm suggesting is pretty close to what you're suggesting. There's a gateway that enforces a schema.\nBut I feel like that's the role of the tool that you're consuming. If you need some sort of auto-magical conversion of your data, that happens outside of those tools, that's what I'm saying."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Totally. Well, that's what I was saying too, is that it happens outside of those tools. But I don't think it happens automatically for everybody in the same way. It's not necessarily the lowest cost, fastest performing.\nIf you offer that as a service for people coming in, I can see that as actually being a value add. That's why it's an MCP thing as opposed to anything else. It's not necessarily that you make it a rigid part of the entire thing, but to have that capability where you engage with the customer, and they have certain standards for things, but they don't allow this or they don't have that.\nWhy let them go hunt and peck and figure it out for themselves when you can provide that service to their LM without... Anything having to be done."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "All I'm saying is I think a lot of those customers come with their own. It would be hard for us to build something that supports everyone. But yet if someone doesn't show up to them, we just have... Here's what we've always done for people like you. Here's how you connect up and massage your data into a good format to then start working with our stuff."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "See, that's the thing I don't understand. The reason that I ran into this particular data re-angular product is because there's incredible pain by data scientists getting their data in shape to run and to build models and to run against agents.\nIt's really difficult, and it causes all kinds of issues. So these products are addressing exactly that. So is your contention that they don't need this? I don't understand."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "What it if there are products that solve this and it's already like a tough problem to solve for data scientists. And we've got on our side like the specialty is not really that we have currently in that domain of like how do we make, you know, data readiness for consumption. What would we be doing here?\nLike what's our job?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "It's actually really easy just to hook up this MC server and show that it works."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Hook up. The M cir P server will give you access to today at least, let's say to CVA and to whatever. Like a couple of functions. I can we can do that like problem all day long. No problem, we can get authentication and all of that.\nLike. Okay, fine."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "No. You got all that that's there. This what I'm looking for is that someone comes in to use CBA and that this is something that they have as an option in the tools."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "The option being one."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "To use Polars to utilize that engine for their data preprocessing if they want to."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So it's hints."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Hints or actual tools like they can actually use the tool to optimize their dataset. For instance."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Do we do they have do these tools exist as in MCP form already?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "That's why I sent that example in the meeting. You weren't there. Let me give this to you... Sorry, I thought you were there. I didn't..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Okay, well that's what this is. It explains the whole thing."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Okay, but do we have something more...? This is what I'm saying. I think we need something more concrete to work against. I haven't read through this all yet, but my impression of Polars is that I've used it before. It's a Rust rewrite of Pandas. Pandas is letting you create a database over top of CSV files. The common use case is, right?\nSo you can get a schema out of your CSV file and then start writing queries against it. I want this row. Maybe some transformations or whatever. So in that scenario, you would be able to help a customer query a larger dataset to then be fed into something else, right? Is that what we're talking about? Or is it something else?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "This is purely and simply a standard interface for data preprocessing, transformation, and analysis tasks. That's all it is. So that's what we'd be providing with this as an option."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "If I were to just lay out what a user journey might look like here... If I'm understanding you correctly, I'm a data scientist. I've been told about this thing called Keybridge from Tero Quantum that might help me do XYZ with my CVA with my data, whatever value that gives them. I connect up, I hook in, I authenticate.\nI've now got Keybridge connected to my MCP server as I use it. It says, \"Okay, tell me where your dataset is.\" So here's my dataset. Will the agent, not us? Nothing to do with us at this point. The agent says, \"Okay, I need... There's this data set over here,\nand there is this tool over here called Canva that I need to call.\" There's some potential gap between these. Now the Canva tool. When I call it, it says to me, \"Make sure that part of the prompt for the system prompt for the Canva tools is to ensure your data is structured. You may want to leverage tools like this.\"\nLike this Polaris, whatever it's called. To tidy up the data before we consume it in Canva, and here's a link to install it or something like that. The user says, \"Okay, well, would you like me to install the MCP server or anything like that?\" That data scientist now has the extra job to go and do the additional MCP server they need to configure.\nThat's option one. Option two is when we say install Canva, we say, \"We highly recommend you install Polaris as a MCP server at the same time because now you have both of them.\" Like, \"Okay, so we don't have to go through this journey.\"\nSo now they've got both MCP servers, they come in, and they say, \"I'm trying to do this with my data. Our server, our MCP tool, says, 'I need the data in this shape.'\" The agent says, \"I know how to get it in that shape because here's the data, and here's that Polaris tool, a Polaris tool, and I'll do that.\" Is that the idea?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, it's... I would explain what you were talking about as the full-blown vision as to what a data preprocessing tool could do. What I'm saying with this particular one is not to do all of that, but just to actually use it as a way of getting a data set in as a part of that workflow.\nSomeone has a data set, and for instance, it would go off and find a compatible algorithm to fit that dataset. But that's an example of something that it might do. It's only because it's able to do introspection on the dataset\nand match against those algorithm libraries. So the person doesn't know the LLM doesn't know I have a dataset. I want to see what TQ has that will help me optimize for XYZ. They have no clue whether it's going to fit their use case or not because they don't know what the fuck quantum hybrid algorithms are good for.\nWe tell them because we take their dataset, we know what's in it, how it's structured, and we go, \"Let me see which one that would work with.\" That seems like a great candidate for these two algorithm libraries.\nMaybe you'd like to do this optimization problem, and it becomes really clear. Maybe it's even a simple thing that happens on their LLM, it just recognizes the capabilities and then comes back with an answer itself.\nBut the point is, this tool is super limited. It just goes, \"What's in there?\" Maybe just do some simple things like row count, column count, and all the other things that you'd want to know about, like the names and types, and the data types that are in there.\nThis is literally just attaching that to prove two things. 1, any third-party MCP server can be attached to Keybridge core, period. I don't care what it is. It could go butter your bread and come back with buttered bread. I don't give a shit, but you're calling. You're coming into the way I do from cloud code. Go in, authenticate against Keybridge to utilize CVA.\nI just need access to a tool right there, and it's what do you know? It's in the same exact place. Just keep asking questions, keep wanting it to do stuff, and it knows exactly how to do what I want to. Seamless tool. It can be applied to any workflow, for any tool, for any application, and it gives me the options of doing things in the middle of doing something, that I'm working on, which I usually use this way of doing it with my own backend and everything.\nMaybe I just need a way of doing that the... The way it's going to work in a quantum environment. I don't know shit about it. So there are a lot of things, there are so many unknowns that no LLM is going to figure out. No, there's no way.\nIt's just doesn't work. I've already seen it. You can't just go in there and tell it this is exactly what I want to do, and it'll just run that shit intelligently by understanding how to build a quantum hybrid algorithm. I haven't seen that working. It gives you theoretical stuff and it gives you stuff you can work with, but as part of an actual problem and solving that problem. Then the LLM would have won the X Prize already.\nIt's just not there. So applying it to certain business problems is a really hard thing. I just see that we're going to need more capabilities that people aren't seeing now. They're thinking of tools and capabilities and implementations and things, just like the old API days.\nI'm thinking, no, we're providing expertise because it's just fluidly available for you and your LLM to come work with us, right? That's too much shit. All I was talking about was just adding the third party and just proving that could be done and then the third. The second thing is that data preprocessing seems like a great candidate just for the reason I mentioned. Happy to do."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I just want again, third party. What's missing then for us to do the third party LLM?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "You tell me. I said, I have not seen it yet. If you did it in five minutes, I'd be super happy."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "But haven't you connected when you say third? But haven't you connected from your CSOR to Keybridge? Isn't that?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, that's not the point. It's where the work's being done. That's the question. When you're introducing a dataset into Keybridge because you're introducing that there, you're not introducing it on your local cursor environment, right? You're in. Pushing that up to have a job run and some back in somewhere. When you do that, there are all kinds of things that should be thought of and considered. Is it not just structurally ready?\nBut is it not just a big bunch of binary malware you're uploading? I don't know, things like that. So that's why ETLs exist, right?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, so the journey is that we. Yeah, I think we should need to draw this out to understand, like, exactly what the what what's on your mind. The. Let me get the mirror out. Got about."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Just fetching a dataset, would that not minimize what you're suggesting, but would that cover the details that you're thinking of, Jeff, in terms of interacting with a third party? Fetching the dataset?\nYeah. So you would maybe be saying something from your cursor client. You'd be saying, \"I have this dataset that lives at this S3 URL.\" So from... We assume that within our MCP tools in Keybridge, we're going to want to interact with that, right?\nSo then we have to build some sort of integration to get to S3. The third party authenticates with S3. Is that what you're going after?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "That's part of it, yeah. Well, let me actually tell you where this came to my mind and why it became important. When I was doing the demonstration to the investors with Keybridge Core and hitting CVA, there was a step in there for me to synthesize a dataset, which I did. I asked the LM to synthesize the dataset, and it was seamless and easy, and that was great.\nLater, when I was talking about that dataset with a data scientist on our team, he was remarking about how incredibly simple it was and that it wasn't really representative of what they'd typically be dealing with.\nThat's when it came to me that it would be really good for me if I brought my own dataset, and I really knew what I was doing, and if I was to bring my own dataset and work with someone at the VIS. What I've learned from Peter Strauss is that it takes a long time for them to tell someone how to configure, form, and format their data and understand why.\nBecause it's not just about giving me a dataset that's valid in the moment, it's in an ongoing way, you understand you can use these data types, these columns, these rows, and this is why this is how they're calculated and all that kind of stuff.\nI just imagine myself again with the same thing where I want an abbreviated learning curve. I would want to know that something was formed or not and wouldn't necessarily know. If I went to get someone's dataset and applied it against that use case, it would be really cool in that moment for me to know.\nSo I was like, \"Shit, I wish I could... Just like you were saying, Sam, I'm attaching to my cursor.\" But in that moment I was working at a cloud code at the command line, and I just wanted it all to be right there for me.\nJust like the other tools were. So there was a list of tools. There were MCP tools and it included Canva, but there were other things in there, and it would have been nice to know that I just had this kind of data wrangler tool that I could just call right there.\nSo that's what I was... That's where it came from. I just was thinking to myself, \"Man, I just wish I had a way to know that the dataset it just synthesized for me is good and why.\" All this because I started asking myself questions about it, and it's just provided me more datasets."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "And these are massive data sets, right? Like when we talk about these data sets."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, most of the time, the reality is, yes, they're massive, being gigabytes and gigabytes. But I don't know how large, how much, what actual size it gets to. It probably gets up to petabytes for some verticals."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "This is a good scenario to talk through, though, because like now we're getting to how do we define that schema back to the client? LL right, like, what is the information? I mean, Sandy already kind of talked through this, right?\nLike, how do I know that this is good or it needs transformation, right? And that information, I think, comes from the CVA tool first. And then if something has to happen, you know, then what is that?\nBut I like these are the details I think we could talk through to get to something more concrete. And I think there's a Couple of Ways you could design it."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I just. I just did, you know, as we all do. I just asked for some help getting this together in terms of like what the structure I'm looking for here in this workflow and what might inform the diagram.\nAnd this is the breakdown that I got from my favorite two. So. All. Just. One second this. So you got these. I've always been talking about these contracts. And for me, some of the information that like that I'm looking for is actually in this kind of a workflow is it is gonna be shittily labeled. I'm so sorry I'm not formatting this correctly and I'm using profanity in front of children."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "He left. Don't worry."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I don't know, it feels so bad. So this kind of thing. So a user agent submits a dataset to Keybridge Core, and it's all fucked up because it's coming from AA, by the way. But it defines what I wrote out in the long sentence. The request says something like \"Change this dataset against algorithm library and find compatible algorithms.\" Then Keybridge Core sends the dataset to the data wrangler MCP server. The server inspects the dataset, returns basic facts schema of data time summary, stat size, counts distributions to core, converts that output into canonical data set profile, and then it normalizes the MCP response into one internal format for the...\nFor example, with Rose columns, Ericks, all this other stuff here. And then finally, it goes into... This is even worse formatted, sorry, because this is pretty much correct so load's requirements reach out, then it compares it against the profile so...\nThen the final steps... Again, sorry about the formatting. Numbers are all wrong, so you might have a recommendation that comes back at the end. Now, whether these are the right steps for this particular flow or not, I think they're correct from what I'm reading because it does reflect what I was looking for, but I would need more information from somebody using this on a regular basis. What they would actually need from this... For me, out of these steps, the only thing I really cared about was that it's going off and getting information about the data itself and coming back with a representation of that.\nThat would be enough of an attachment, right? For the QB core. Don't even care if we use it or not. I just want to get back to this thing that says, \"Here's the dataset that was uploaded in a comparison against what's required.\" That would be sweet.\nSo this is just... The other thing is Kubber core. There are probably lots of other things to consider. But the third thing that I was going to mention, which I was saying at the beginning, is that we have these guys with this Anthropic thing that they're doing on the QML side, and they're continuing down the road, continuing to work on it.\nIt could be yesterday. I'd be barely satisfied if we were taking over the concept of what they're trying to do architecturally because it's really scary me when they're sending out benchmarks.\nThose benchmarks are being used in front of investors and customers. Those benchmarks are taken from one VM because they don't know how to scale up into parallel jobs and many other things. They have five subagents being orchestrated. What's the orchestration layer? Who determined that? How does that work?\nSo I just wanted to know what's going on. And I'm getting less and less comfortable with the days that are going by because I'm hearing more and more words coming from Alexei that sound like he's trying to convert this into a product.\nSo yes, you can smile. Rinor, because it's exactly what you think it is."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Do we have a demo of this though, or did you guys see it already? Sam, I really don't even know what it does. I can guess."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I've seen it. I don't know what it does, but I've seen it. I saw a big map of things that they were running, which is not necessarily a bad thing. It was just a lot of... When I asked them a bunch of questions about how they're tracking what they know, like \"Do they have the observability enabled?\"\nThe answer was no, which is flying blind when you're doing something that complex with flying blind. But that's all I know. I don't know how far they've got. This was a long time ago. I don't know."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "The thing that I'm worried about is that this is again just like AR implementation of an AI pipeline. So if we take it over, are we now tasked with reimplementing tools out there that are way better than anything we can rebuild?\nYou know what I mean? It's just that process, train a model, evaluate a model. That's it. It's data brick. So it's every cloud provider has their own suite."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Well, I just think it's time for me to take it a step further. Rinor, give you guys access to this repo. I'm going to do that right now because it's time to just look at what they're doing and try to get a handle on what the fuck is going on here. Do whatever you have to do to bring yourself up to speed. I'm all I'm adding."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I'm seeing this diagram now before that's the same one. Okay."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, same shit. Yeah, it's evolved a little, but because they've applied MCP to... According to non-most of their most things are now enabled that way and some aren't. I didn't quite understand. But yeah, the primary concern for me there is that first issue, which is when they're claiming to have extremely performant capabilities and they're doing benchmarks. What does that mean?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So for the first thing with the data, we need to make sure that we can get when we say third party, it means that somebody can connect this MCP tool and they can upload some data, which we may or may not have some methods for that to happen, I believe.\nI know there was some stuff done in the past, but we need to make sure that would be all integrated that we can get data in whether that's... I give you a location TOS three and now we've got to pull it like... Is the data, the storage infrastructure all there already? Brian because there's like that amount of data. Sounds enormous."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "No, I mean, that's all the stuff that you would have to deal with, which is one of the reasons I argue for putting it on the client side, right? MCP integration on the client side rather than..."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I think your client-side things the most... I mean, it would be 75% to 80% of the use cases will be bed by that."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So it's client-side. It's not going to be the developer's machine, like the data scientists' machine where they have this data. Right? It's still going to be massive."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "What's right? So my example is we have a platform that we are comfortable with. I know in GCP it's like Vertex, right? So we say, \"Okay, you have to put your link into Vertex for S3 and Vertex sucks it all in and does the fingerprinting schema or whatever and then gives it back to your client.\" LLM, right?\nSo the API integration is with Vertex. In that case... Do you see what I'm saying? It just offloads all of that backend orchestration but you get the same schema back still in the same way.\nAt the end of the day..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "You're saying we run our Keybridge in their cloud using Vertex. That's what you're saying about..."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I'm saying the fingerprinting has nothing to do with Keybridge at this point. The ear, the schema, right? That's just something that assists the client in getting their metadata and if you don't already have it, this is one way you can do it so that we aren't orchestrating it in the back end."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I don't. Yeah, I need more. I need to understand more. There's so much to this. Like it's not. It doesn't sound still. In my mind. It still doesn't sound trivial. So do you want to spend some time now doing a mirror board or do you want to. Do you want to do that, some other stuff that. I don't know. 15 minutes is enough."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "If you're asking me... Yeah, I'm happy to talk about it."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Now, let's just go through this and figure something out because I'm lost. I'm lost with the ask."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Didn't I show one thing? Before we go forward, I just wanted to share with you guys earlier while I was saying that we might be in a moment of pause with M because Slava is arguing that the actual gain is 30% less loss is coming from having an increased number of parameters instead of any inherent benefit from QM.\nSo it's... This is something that obviously can see... Typing right now because it's going to be a debate that has to happen and it's going to be low level and in depth. But I just wanted to show you what was happening. They're starting to do this.\nKind of like rifling through the actual merits of utilizing Q&A for error mitigation. I have confidence that Florent will come out with a victory here because in talking to Slava, he didn't seem to understand that storing state prior to actually doing error correction and running jobs is actually beneficial by itself.\nSo we'll see if that's true or not."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "But even if Q&A didn't work, the overall idea still has legs, right? This idea of helping a quantum developer by optimizing their work. We just don't have the right optimizer yet. Maybe if that were the case."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Maybe. Yeah, that's what I asked Slava. He was part of three of his research. Should be... If we're not doing the right thing, what is the right thing?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Or the castic compression or other things, right?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, stochastic compression is definitely part of all of the mitigation tools that I've seen. So we'll see if there's a real Q on them advantage or not. I think there is, because think Florent is correct, but we'll see. Salam is a really smart by the fucker."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Right? I'm going to just create a board over here in your Terra Quantum space. So today we have MCP, Keybridge, and MTP. Inside here it has a CVA as a tool that is then accessible over the wire to clients like cursor, etc. Just keep it nice and simple. Where basically they make a call over here they do some author of some kind and now they're able to call these tools which are remote.\nWhen CVA runs, that is running in a runtime over here. Now remind me again, what does CBA do exactly?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Just for sols? It's optimization. It's finding the optimal parameters to feed into a model."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Optimal param finder. So this CBA tool is gonna run and it's gonna run. The run time it's gonna run in is on our side, right? Like, so if I put this on Keybridge now, when it finds the optimal model, it needs some data input, surely for it to do that.\nAnd that's the problem we're talking about, right? Like we have data in here that we need."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "In the case of CVICV, I don't think we use datasets. Did your example use datasets? Jeff usually... It's my understanding that it's usually an objective function which just helps us evaluate."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "It does all of those things. So it does optimization and needs just for that objective function. And it needs it does building and training models."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Okay, so your example was training a model. So you vetted a dataset and it trained based on that dataset?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Okay, so let's just use the training set. Data use case then, Sam, so we don't... So that would be a dataset comes into CVA and CVA does some simple training to spit out a model artifact."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "All right. I'm just going to say this is ten gig plus... Is what we're talking about. Okay, whatever that is. So this dataset typically belongs to the client, right? We're not going to invent this.\nSo that's over here. We need to find a way to slap it over there."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Well, that's... Yeah, that's a bit different than what I thought we were talking about. I thought we were just talking about finding the schema of the dataset."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, okay. I mean, either. I'm. Yeah, I just want to make sure we're on the same page because, like, I'm getting very lost in what exactly we're doing. So either, like, we do it this way. And that's why I was saying, like, we do. We instead want to take this and run it on the client and even then, like, what is this client? There's the this is the developer's computer, let's say like in a laptop versus the data set is not going to be in their laptop, right?\nLike so if this boundary here, a lot of the time that data says it's going to be probably in something. It could be on their laptop or it could be on the cloud."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah, CV is kind of unique because most of its customers are actually doing it in their on prime environment that they're doing it like for manufacturing."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, so then that's... Yeah, another one just like that, which would be... There are three possibilities."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I've argued before that the reason for that is their sales model, not their tool. Because BMW, for instance, which they went in originally with them doing exactly that running everything on their local Desktops, very quickly had to scale the team up and wanted it centrally implemented.\nThey do that now. So they had to provide containers for them that were hosting and running this and not having it running on the local workstations. If you look at the use case that I demoed, you'll quickly see that in a case where you have a data set locally, uploading it into a backend may have its advantages depending on how you're going to be running their jobs.\nSo there's no... You might host... You might have the actual data set locally, sitting there, but it doesn't necessarily mean that things are happening with that data set locally, it's just being stored there."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So is it that we need the data over here, though? Regardless, no matter where it is, whether it's on frame, cloud or laptop, we need it over here."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "If yeah, for trading, you do. Okay."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So that's the problem, how do we slap it? Now, we can either do this in two ways, we can push or we can pull, like when you're doing data transform data migration, transport."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah, we built all of this for TK 42."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "That's what I was wondering."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "So yeah, I mean, we do both."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "But it's completely valid to provide an MCP server that exposes the TK 42 stuff. There's nothing invalid about that at all. That'd be amazing."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Is the client always going to be MCP enabled? Because right now all those flows expect other... Like a more of an interactive browser session."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I think in your guess is as good as mine, but I can see things flowing in that direction."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "That's okay. Like if we need to on the client over here, say, like, you know, click this link. That's okay. Like, we can do that, like if there's infrastructure already there to bring the data in and we just need to like.\nOkay, through our tooling. Like, you know, we can have a basically like a, MCP like a it's a TQ 42 MCP shell, with, you know, instruction. Instruction shell or shell, something like that, you know what I mean?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "If I remember right, it's facilitated one of two ways. Either you have the data in an S3 bucket and you have to go through some steps to enable us to sync from that bucket. We put it in our own bucket. Or you can get a URL generated which allows you to upload into that storage bucket.\nI'm thinking the TK 42 SDK enabled that. So yeah, right. So it was like file copy or something, but behind the scenes, it was opening up that. Yeah, URL and pushing to that URL."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, I think give an agency to the client to do that. At the end of the day, it's instructions if they've enabled it, for example, locally on my machine, I have Cloudflare. I have GitHub. I have Google... Every... I've logged into everything already, right? Then I just give agency to my agent to go do the work. I'm crazy like that. Not everyone is. So that's up to them, right? At least they have the instructions and they can follow them themselves, or they can just give it to the agent if it has...\nThat's what we say here, you do it, or here's how your agent can do it, right? Help page or something like that. Alright, if we do that and we can find a way to have this as the shell for this guy over here and we'll build an MCP shell of some kind for it. That...\nThat enables us to do what you want, which is get data into the system. All right, so now this person's working over there, they're like, \"I got some data on blah.\" Okay, cool. We... In order to get your data in... Here's how you do it.\nNow this instruction, it doesn't matter where it is, that's up to them or their agent to go pull it from here and shove it into here. Now we've got the data, they can call Cube Britol so it sounds to me like all that's missing here is this data, like this connectivity here, this is what's missing. Is that correct, Jeff?\nYeah, we just basically got to provide a set of instructions to work with TQ 42 and test it."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Keybridge doesn't have any of the authorization name spacing concepts that TQ 42 had that allowed it to get to... There were a lot of security controls around what that data, how it was accessed, right?\nIt's possible, but we're... I think there's going to have to be a lot of enhancements to that CBA tool to understand how to interface with TQ42 in a way that's isolated to customer context."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "So this one over here is... So step two would be access control for CBA given to the customer."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah, it's going to have to be very TQ42-aware. It's not just one bucket. It's a bucket per data set. So it's going to have to know where to find the buckets, right? So it's going to have to look them up from TQ42 somehow."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Well, unless this guy just tells you where it is."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "It doesn't know."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Wouldn't this know when it follows instructions or does it get some kind of...?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I don't think so. I think it gets a unique ID that is... It's an ID for the data set that is meaningful to TQ42."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay. I mean, we need to find some way to tie these sessions up. When you create a session over here with the orth or something, it needs to be... So it needs to be like the add up somehow. So that's what that is."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I'm just wondering... I feel like as we open this up, there's just going to be a thing after thing. There's an easier path. Step one of just sending the data in or something as a first test, right?\nIf we didn't have all of this TQ42 stuff, is there a way to just...?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "The easiest way would be this. You just say this here, they're basically assigned a URL, right? It makes you just say to like, \"Hey, bring me your data.\" If I signed a URL..."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Into this book, that's kind of that might even be smarter. I mean, that's kind of what we're doing, but we don't have all of the extra stuff to make it work in the T 42 context. Like we can just prove that this works first."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "We control that. Yeah, it says, okay, like, hey, I've got to do this. Okay? I'm gonna key this on the whatever, you know, so, like, here are your instructions, key on this, data on this, or blah. It gives you a signed ur L which includes that and I'll put it in the right bucket and then it has access to it that could that.\nLook."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I'm suggesting even just a unique bucket for a..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, I agree. So I'm saying the same thing. So Cube bridge, bucket, right? Plus, what this does here is we give them a signed URL when you interact with us here. We give them a signed URL with instructions, right?\nThen that signed URL because it was served from us in the first place, so it would put it in the right bucket keyed on something with that user's..."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "I think we get further faster doing it this way right now and then..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Right. So I'll get rid of Cube bridge then, and I'll say that's what that is there instead. It's basically not T42, it's Q Keybridge. So this is the new thing we'd have to build here, which is the keying on some authentication for getting data into a bucket.\nOnce we've got that far, effectively, we'd be rebuilding what's in T42, but slowly."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah. Then but that's to get the data in right. So then the CBAA tool has to know where to find the data. But based on my customer context..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "We'll know that from the all token, right?"
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "So we're assuming it's all going to be successful in one session. So..."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "We key in an org ID or something in the... Or token or something like when you sign in. We have additional information in there in the token."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Yeah, okay, so you're assuming one bucket per org with all the datasets in it."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, exactly."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "Okay, yeah, that works for now."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Then you can just explore it. Say, \"I uploaded this last time, blah.\" Okay, this one that you uploaded on this date with this name, whatever."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "So then the next time... Yeah, okay, with the name. So they'd be able to use this name and if it's there again, they could train again."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Not in here. Like saying that."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "That is a common ML use case. You maybe upload it once and then you come back to train many times, right? Or the same dataset."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "With org... Or name or similar to store or files in that bucket location. All right, well now it makes more sense to me. There's a lot to that, but if we can do this, it's simply great if that's what's needed. Happy to build some data upload and access control to it like this. This is trivial enough.\nI mean, it's work, it's just... It's a known quantity, very well known, very well trodden path."
+      },
+      {
+        "speaker": "Brian",
+        "speakerIndex": 2,
+        "text": "So the other thing Jeff was talking about is when you do the upload before you get to the train step, another MCP tool that looks at the file and says, \"Is this up to the schema that I expect to be able to train in?\" CBA."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, yeah. So that's only part one and part two is over here. We'd need to... Some kind of integration with Rinor data wrangler or whatever it was. I do have to go a few minutes over for this next thing I've got. I gotta go do it.\nAll right, this is enough for me to get stuck in just quick. What's the priority call? There are a couple of things there. You mentioned this mirror diagram for what the other team is working on versus this one.\nWhat do you want us to prioritize first, Jeff?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I'm anticipating that we might be on a pause until we get through this theoretical research side of things with Slava, Sasha, and Florent. So I'm looking to make sure the team has clear work to be done to keep moving."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I think so."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "That's the primary reason for this."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, if my opinion... Feel free to shoot it down. We should continue down the path of orchestration that we're doing right now because it is building infrastructure for doing all sorts of workloads, whether it's for Florian's experiments, this one, or whether it's a new experiment we're going to come up with, or even this stuff we're talking about right now, right? Just having a level of orchestration and observability that we can do in a robust system to do that or migrating this experiment, this pipeline that you mentioned, the other team is doing, bringing that to us now. All of those are enabled by having an orchestration process in place and..."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "Yeah, I'm still in favor of that. I just want to make sure if you run aground and you need... Because I've heard some talk. Wesley and I were talking earlier about potentially being stuck in the mud if we don't have Sasha and Slava.\nI don't want that to be the impression, I think. Anya might be driving some of that, and it's incorrect. She keeps saying they're going to come in and test what we've done, and that is not what they're doing at all.\nSo I just want to make sure that people understand we're not at a point or place where we need to wait for those guys."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, good. I mean, I think we should run Florian's experiment anyway. He's got a really cool, like. Like. Like that whole idea of how to do it and like, whether we can get QMM, you know, proof of QMM working, it's. I feel like that's in it, but that's just Florian's work rather than anyone else that we can support as a use case and we can just keep pushing towards that. Is there any reason it won't?"
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "No, it won't matter to me. It won't matter if we swapped that out for different error mitigation. Exactly. The workflow is still valid."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Exactly. All right, so nothing changes. The team is psyched about this, by the way. They love this orchestration because now we're building infrastructure. We know all right, but it's applying it to something called both agents and quantum.\nSo, all right, and honestly, I'm not saying this just because I built it, but I built it because there was nothing like it with auto engineers' pipelines. I'm thinking to extract it out of auto engineers, just have it as a pipeline repository by itself, just so it's independent.\nBut it does support things that, to my surprise, nothing else out there supports. Something simple. I think it's simple like scatter gather. You'd think that you want to scatter a bunch of stuff, let it do things, and then reduce the information back. Nothing gives you those sorts of constructs.\nIt's really freaking weird. Anyway, so I've looked."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "It might be just people falling back on what they know because it's how it is, right? People fall back on this more pedantic way of doing things. Yeah, and they don't think at scale."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I guess, so I guess. But anyway, in that case, you know, I can extract it and we can just all collaborate on it so that it's not just, you know, you're not afraid to mess anything else up. All right, I'll do that.\nI'll. I'll go to one thank you all really got to go."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "You like my pedantic reference?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I actually did, and I thought you said that, but anyway, I said pedantic. I did, yeah."
+      },
+      {
+        "speaker": "Jeff",
+        "speakerIndex": 3,
+        "text": "I was hoping someone was going to say, \"Do you mean pedantic?\""
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "It did ring. I just didn't come up with a remark on it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I guess. That's funny."
+      }
+    ],
+    "raw_meeting": "**TerraQuantum: Architecture Review & Planning**\n🕞 Started at 05:31 PM on 26 Mar, lasted 1h 5m",
+    "raw_content": "Wesley Donaldson | 00:05\nThank you. Good afternoon, Brian.\nBrian | 00:11\nHe. Hey, how are you?\nWesley Donaldson | 00:12\nI cannot complain. I mean, I could, but I won't. I feel like I could always complain.\nBrian | 00:19\nYou can always find something to complain about? Yeah, I'm a little under the weather. I feel like complaining about that, but it seems like it's par for the course lately when I take the kids to the daycare and they get something and bring it home and then I eventually get to deal with it.\nIt's this circle that continues to happen.\nWesley Donaldson | 00:36\nYeah, they're just the disease vector, right? That's not being mean to them. It's like when I when our kids were in daycare, everything, like we got at least five times. At least five times a year, each one of themmm.\nBrian | 00:46\nYeah, it's unavoidable, it seems. Hey, Jeff.\nJeff | 00:56\nSo you got a cool Brian, what's up?\nWesley Donaldson | 00:56\nJust...\nJeff | 01:01\nSounds like you have a cool...\nBrian | 01:03\nI do. That's what I was just talking about, Leslie. We were saying, not a lot to complain about, but I got that right now. Kids bringing home stuff again as usual.\nJeff | 01:14\nYeah, no worries. Sam said he's running late. Five minutes.\nWesley Donaldson | 01:17\nThere you go.\nJeff | 01:18\nSomething he's dealing with at home, by the way. Well, cool. So today's meeting, the one thing I covered at the end... I'm sure that four out of five people on the meeting didn't even know half the stuff I was talking about.\nBut I was trying to get back to the basics on something because I want to make sure we don't lose sight. Everybody right now is excited about QMM. I'm excited about QMM, these tools are really interesting and cool. I'm super excited about it, but I have two other things that are worthy of focus and should continue to be focused on. Not even as the secondary considerations, secondary pursuits of the team, but as a standard thing that we keep working on and eventually we'll scale things out so we have maybe a larger team, but I'll talk about that today too.\nWhen it comes down to specifically what I'm looking for outside of Q&A, when there's not very specific work on Q&A to be done, I'd like to pivot directly over to Cubri's core to make sure we continue to reinforce that.\nWhat I mean by reinforce is there are certain tools that I would like in the organization that have nothing to do with any one product. One of those tools, Brian, you and I have talked about this quite a bit is data preprocessing, and I've come back to this many times.\nI've tried to implement it in terms of putting that in front of certain applications like Qai Hub. That was one of the early efforts before you joined, Wesley. The Zolvio team originally dealt with that and tried to address that.\nBut I really want to just have the provable capability that if we run into a customer with large datasets and they're structured, unstructured, whatever they are, and they're introducing them into our system and they're trying to pair that up with their use of an algorithm library or to implement something in a specific workflow.\nWesley Donaldson | 03:23\nWhat? Never.\nJeff | 03:27\nI want to make sure that we're able to do automated and scalable introspection on the dataset and to get a clear understanding of what's there so that we have the equivalent of a structural reference and diffs against what needs to be done and that sort of stuff presented without even worrying about what action is taken on it. All I care about is that we have the ability to do detailed analysis of the data that's trying to be introduced into our systems.\nThere are lots of tools for this. The only thing I care about here in talking about this tool in this way is not the tool that we need to use, because that could be anything. We could end up with data breaks or something if we went full-blown corporate craziness. Who knows?\nWe may not need anything to do with what I'm talking about here, but I'm interested in this lightweight approach of attaching an MCP server that provides this capability and then dropping it into a test workflow when we get whatever tools or whatever things set up against Keybridge Core.\nSo to me, it's a really good opportunity for orchestration of the MCP servers, and that's what I'm super interested in pursuing and understanding here. One of the reasons for that is orchestration and combined use of various tools. Various services from inside and outside of our company could be really cool for customers coming in.\nBut even for teams, I really am interested in setting things up so that there's more of a motivation for them to build something in a super collaborative and open environment like this, to attach it to Keybridge Core, when it really makes sense and to make it as standardized and simple as possible. It may not even be something that's right for Keybridge Core, and in that case, then we find that out by considering it, which is fine if it ends up being direct APIs or whatever the hell it is. There's no reason to send things through this every time.\nBut when someone's got a workflow where they come in and they do something with our backend and I've been asked this a lot by people like Sean and all, what's the value of Keybridge Core? Why do we even do this? I don't really get it.\nI've mentioned that it's quick for onboarding and useful and much faster for someone to start working with our tools.\nWesley Donaldson | 06:11\nEntry.\nJeff | 06:13\nBut even more important, it's a place for us to capture multiple MCP server interactions and do something about it. I don't know what that is. It could be just straight-up logging, it could be alerts, it could be something unique that needs to be done away from that particular tool.\nBecause I know the tools often have their own logs, analysis, and everything going on. But I know when we start to do something like use this for a customer for a particular initiative, they're going to want to know how many times we used this service that you charge for or whatever.\nSometimes we can just get that directly from that service, but sometimes the service is us, and we might need to charge for that service. Anyway, this is... There's a bigger picture here.\nIt's not just one thing or just data preprocessing. It's just a candidate. Sorry, go ahead, Leslie.\nWesley Donaldson | 07:08\nYeah. I had a couple of thoughts going backwards, starting from the last thing you said. Is the part of the conversation and part of the need to understand how we're leveraging our cost impacts for different LMS that we're interacting with?\nI'm sure Sam has mentioned the work we do with Revenum. That sounds like a way for us to get to some insights around how we're using or what the costs are for LMS. One point and the other... Sorry. Go ahead.\nJeff | 07:33\nThat's one of the things. Yeah. So if you've got tokens being utilized and they're used by our applications or whatever, I mean, however they're being utilized, maybe a team uses it behind their application only.\nWe don't really... It's not like something attached to the middleware that we would track. Someone might have a customer, for instance, and that customer might have a dedicated environment of some kind that they're working with, and they're just extending that environment by allowing them to use their algorithm library or some shit like that.\nI don't know, there might be a reason for us to let them deal with that and let them keep track of it for us. If we go use tokens, I want to know who used them and why. I'd love it that we don't have to go into every single provider to figure that out, because that sucks.\nBut, Sam, I'm always doomed. The saying that there are two main things: we know and then there's the effort there. If and when we have things slow down that need more analysis before we go rushing forward with continued development on it, we have the other thing to pivot to, which I still want to continue to maintain, enrich, and expand where it makes sense, which is Keybridge Core because we're not done with that by any means.\nI'm really... I have a lot of wind in my sails right now about it because of the great feeling I had in the demonstration to investors and everybody and the value I can clearly see now. It's so clear to me.\nBut it's only one part of our entire ecosystem. I just want to make sure that if we have to do something with a customer, that we have confidence to go down that road. That's why I introduced data preprocessing again.\nI don't care that that's the product at all. I just want somebody to attach it to an MCP server and go through a use case where we've attached that in. We've got a large data set. It's done some sort of introspection and analysis and presented that to us.\nIf that is as far as we go, I'm super happy because that will just say that at least we've consumed that and brought it into the core.\nSpeaker 4 | 09:50\nSo wasn't the problem always...? It's good. It's great. By the way, I'm not punching holes in it, but wasn't the problem here that we faced all the time was like, \"How do we get the data in there?\" Just remind me either I've forgotten something.\nYeah.\nJeff | 10:01\nHere's the reason. So an algorithm library requires datasets to be set up with a certain structure type, a certain schema. When those datasets come in, often a customer will upload a CSP that's just completely messed up.\nIt's got something... Columns and fields and things are all messed up, types, whatever. There are lots of ways you can do that from an ETL perspective. You could just do the whole typical thing you're doing to cast things or whatever. In our case, the only thing I care about is that we have a way of reflecting the diff.\nIt's the goal I've had for a million years: that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why.\nHere's a detailed breakdown. The goal I've had for a million years is that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why. Here's a detailed breakdown. The goal I've had for a million years is that we have someone who wants to use X tool, and then they want to upload a dataset, and we go without even getting into the action that will be taken. We just have a way of saying you didn't fit the data structure and this is why.\nI can see it being a standardized step in any dataset that someone tries to upload utilizing MCP-enabled tools, because it might be an orchestration of those tools and a unique schema that's nothing to do with what one tool or the other would even require.\nIt's really interesting to me how that could work. But I'm just saying they have some sort of way of uploading their data, and we're able to at least do that basic step of ingesting it. Understanding enough about that structure or ingesting the structure and understanding enough about that to reflect back to their LM or to whatever that diff is.\nI would hope the action would be really fluid and automated like that. It would be just like a warning shown to them, if anything, or back to the client that's requesting it, and it just flows through and fixes everything and makes it right. That would be the best-case scenario.\nBut, and I said before, this is just one thing, but my biggest objective here is to attach a third-party MCP server. I want to see that done. I want to know it can be done. I just want it to be...\nSpeaker 4 | 12:19\nThe MCP server to so.\nJeff | 12:21\nKeybridge core. Yeah, specifically to Keybridge core so that it can be called and that it's... One of the things here is, \"Do we...?\" Because we're behind an authentication, right? So even better, the next level would be something where we're able to provide some sort of an IDP capability for them to use a third-party tool that requires an ID or some sort of system-to-system or whatever the service keys are. In some way, it can just be seamlessly integrated, and that off can be tracked and invalid for that particular use.\nThat would be even better. But right now, all I care about is that someone can demonstrate to me that third-party integration to Keybridge core use case specifically in a case where they're working with, like I said, an Algo library.\nIt requires it by its definition to require things to be set up correctly in a certain way. Someone introduces the data, and it's supposed to be adherent to that. Then we have just a quick check and balance on... That would be useful to me. Brian, I don't know if you have anything to add to this or if you contend with the concept necessarily, but this is work to be done, as far as I'm concerned. Concerned to continue to enhance what's already been done on Core. There are many other things that could be done, including the stuff I talked about with the Agenttic guys, because it's bothering me that they're just off and running still. We still need to get into that and sink our teeth into what they're doing. There's a lot of GenAI core work to be done. As far as I'm concerned, I don't think it should just stop because we have a shiny object in front of us. We have to be careful.\nBrian | 14:14\nThere are two models that we've discussed in the past that I think we would want to clarify which path we're taking. Right? I've been more resistant to the one where we put the data processing on the backend as a service, which I think is what you're hearing now or saying now versus still interacting with MCP but connecting it to the clients. LLaMA as an option to interface with so if the client doesn't show up with their own data preprocessing thing, we have this scenario where, okay, you can go use data bricks or whatever. We use it all the time. This is how we do it. Here's how it can be connected to your environment. Here's how you deal with your data to get it in the shape you need before you then send it into our more interesting thing.\nJeff | 15:08\nWell, let me ask you a question. Let me ask you one thing there. I just want to insert. Let me insert an edge case. Okay, here's the edge case. If someone comes in and they're completely validated with their LLM and their data preprocessing on their side and they're introducing data to our LLM server, how do we know that's okay?\nBrian | 15:31\nSo... And that one thing that you mentioned to me, the scheme of validation of what's coming in, is a role of the tool that you're calling, right? Each tool is going to have its own unique schema requirements, not the data preprocessing thing.\nJeff | 15:50\nThat's why I said we don't know that it's going to be one tool, and we can't rely on one team and one tool to correctly define that in a mixed case. I mean, by that, I could have multiple things happening. I could have a model that I'm building and training. I could have the results that are coming out of that be integrated into additional streaming data.\nI have... There are so many other things I could have that are multiple schemas. So would we deal with that in a sort of let it break down the line approach, or would we just have a way of being smart about it ourselves and having...\nBecause one of the things that bugs me here is sure, every tool can be responsible for stuff. But you're assuming in that case, when we talk about tools or applications, that those teams are good at that, especially when it comes to customers. That they're going to be really good at making sure it's really usable with the right error messages and the right kind of processing and handling and all that kind of stuff.\nIn my experience, they're horrible at that. So I just don't see giving that responsibility to those guys for a customer experience as being a good thing, especially when it's not that hard for them to just contribute their requirements for all of that stuff into something that's centralized and can be used intelligently based on requests without the LLM on the client side ever even hitting their application.\nIt's why not be smart about it and just know if something's registered against Keybridge core, shouldn't we at the core level have a really clear catalog of skills? Wouldn't we have a clear and specific catalog schema, something that needs to match up and that we can use to keep that interaction really low cost\nupfront, directly back to the client. I don't understand the whole thing where you're relying on a team down the line when that team is horribly unreliable. That's one thing that's bad about that.\nBut the other bit that's bad about it is I think we should have corporate standards for data. And it should go in both directions. A team that's building something should have to adhere to those standards and work with us to make sure they're not introducing something unsafe or up or whatever.\nWe should be able to check and implement standards against things coming in. So I see it as both... There's got to be some governance.\nBrian | 18:50\nIt would maybe be something where we'd have to talk through more specific examples to really talk about how it works. But I think what I'm suggesting is pretty close to what you're suggesting. There's a gateway that enforces a schema.\nBut I feel like that's the role of the tool that you're consuming. If you need some sort of auto-magical conversion of your data, that happens outside of those tools, that's what I'm saying.\nJeff | 19:29\nTotally. Well, that's what I was saying too, is that it happens outside of those tools. But I don't think it happens automatically for everybody in the same way. It's not necessarily the lowest cost, fastest performing.\nIf you offer that as a service for people coming in, I can see that as actually being a value add. That's why it's an MCP thing as opposed to anything else. It's not necessarily that you make it a rigid part of the entire thing, but to have that capability where you engage with the customer, and they have certain standards for things, but they don't allow this or they don't have that.\nWhy let them go hunt and peck and figure it out for themselves when you can provide that service to their LM without... Anything having to be done.\nBrian | 20:17\nAll I'm saying is I think a lot of those customers come with their own. It would be hard for us to build something that supports everyone. But yet if someone doesn't show up to them, we just have... Here's what we've always done for people like you. Here's how you connect up and massage your data into a good format to then start working with our stuff.\nJeff | 20:41\nSee, that's the thing I don't understand. The reason that I ran into this particular data re-angular product is because there's incredible pain by data scientists getting their data in shape to run and to build models and to run against agents.\nIt's really difficult, and it causes all kinds of issues. So these products are addressing exactly that. So is your contention that they don't need this? I don't understand.\nSpeaker 4 | 21:19\nWhat it if there are products that solve this and it's already like a tough problem to solve for data scientists. And we've got on our side like the specialty is not really that we have currently in that domain of like how do we make, you know, data readiness for consumption. What would we be doing here?\nLike what's our job?\nJeff | 21:45\nIt's actually really easy just to hook up this MC server and show that it works.\nSpeaker 4 | 21:50\nHook up. The M cir P server will give you access to today at least, let's say to CVA and to whatever. Like a couple of functions. I can we can do that like problem all day long. No problem, we can get authentication and all of that.\nLike. Okay, fine.\nJeff | 22:02\nNo. You got all that that's there. This what I'm looking for is that someone comes in to use CBA and that this is something that they have as an option in the tools.\nSpeaker 4 | 22:15\nThe option being one.\nJeff | 22:17\nTo use Polars to utilize that engine for their data preprocessing if they want to.\nSpeaker 4 | 22:24\nSo it's hints.\nJeff | 22:26\nHints or actual tools like they can actually use the tool to optimize their dataset. For instance.\nSpeaker 4 | 22:32\nDo we do they have do these tools exist as in MCP form already?\nJeff | 22:37\nThat's why I sent that example in the meeting. You weren't there. Let me give this to you... Sorry, I thought you were there. I didn't...\nSpeaker 4 | 22:47\nYeah.\nJeff | 22:48\nOkay, well that's what this is. It explains the whole thing.\nBrian | 22:54\nOkay, but do we have something more...? This is what I'm saying. I think we need something more concrete to work against. I haven't read through this all yet, but my impression of Polars is that I've used it before. It's a Rust rewrite of Pandas. Pandas is letting you create a database over top of CSV files. The common use case is, right?\nSo you can get a schema out of your CSV file and then start writing queries against it. I want this row. Maybe some transformations or whatever. So in that scenario, you would be able to help a customer query a larger dataset to then be fed into something else, right? Is that what we're talking about? Or is it something else?\nJeff | 23:44\nThis is purely and simply a standard interface for data preprocessing, transformation, and analysis tasks. That's all it is. So that's what we'd be providing with this as an option.\nSpeaker 4 | 24:02\nIf I were to just lay out what a user journey might look like here... If I'm understanding you correctly, I'm a data scientist. I've been told about this thing called Keybridge from Tero Quantum that might help me do XYZ with my CVA with my data, whatever value that gives them. I connect up, I hook in, I authenticate.\nI've now got Keybridge connected to my MCP server as I use it. It says, \"Okay, tell me where your dataset is.\" So here's my dataset. Will the agent, not us? Nothing to do with us at this point. The agent says, \"Okay, I need... There's this data set over here,\nand there is this tool over here called Canva that I need to call.\" There's some potential gap between these. Now the Canva tool. When I call it, it says to me, \"Make sure that part of the prompt for the system prompt for the Canva tools is to ensure your data is structured. You may want to leverage tools like this.\"\nLike this Polaris, whatever it's called. To tidy up the data before we consume it in Canva, and here's a link to install it or something like that. The user says, \"Okay, well, would you like me to install the MCP server or anything like that?\" That data scientist now has the extra job to go and do the additional MCP server they need to configure.\nThat's option one. Option two is when we say install Canva, we say, \"We highly recommend you install Polaris as a MCP server at the same time because now you have both of them.\" Like, \"Okay, so we don't have to go through this journey.\"\nSo now they've got both MCP servers, they come in, and they say, \"I'm trying to do this with my data. Our server, our MCP tool, says, 'I need the data in this shape.'\" The agent says, \"I know how to get it in that shape because here's the data, and here's that Polaris tool, a Polaris tool, and I'll do that.\" Is that the idea?\nJeff | 25:42\nYeah, it's... I would explain what you were talking about as the full-blown vision as to what a data preprocessing tool could do. What I'm saying with this particular one is not to do all of that, but just to actually use it as a way of getting a data set in as a part of that workflow.\nSomeone has a data set, and for instance, it would go off and find a compatible algorithm to fit that dataset. But that's an example of something that it might do. It's only because it's able to do introspection on the dataset\nand match against those algorithm libraries. So the person doesn't know the LLM doesn't know I have a dataset. I want to see what TQ has that will help me optimize for XYZ. They have no clue whether it's going to fit their use case or not because they don't know what the fuck quantum hybrid algorithms are good for.\nWe tell them because we take their dataset, we know what's in it, how it's structured, and we go, \"Let me see which one that would work with.\" That seems like a great candidate for these two algorithm libraries.\nMaybe you'd like to do this optimization problem, and it becomes really clear. Maybe it's even a simple thing that happens on their LLM, it just recognizes the capabilities and then comes back with an answer itself.\nBut the point is, this tool is super limited. It just goes, \"What's in there?\" Maybe just do some simple things like row count, column count, and all the other things that you'd want to know about, like the names and types, and the data types that are in there.\nThis is literally just attaching that to prove two things. 1, any third-party MCP server can be attached to Keybridge core, period. I don't care what it is. It could go butter your bread and come back with buttered bread. I don't give a shit, but you're calling. You're coming into the way I do from cloud code. Go in, authenticate against Keybridge to utilize CVA.\nI just need access to a tool right there, and it's what do you know? It's in the same exact place. Just keep asking questions, keep wanting it to do stuff, and it knows exactly how to do what I want to. Seamless tool. It can be applied to any workflow, for any tool, for any application, and it gives me the options of doing things in the middle of doing something, that I'm working on, which I usually use this way of doing it with my own backend and everything.\nMaybe I just need a way of doing that the... The way it's going to work in a quantum environment. I don't know shit about it. So there are a lot of things, there are so many unknowns that no LLM is going to figure out. No, there's no way.\nIt's just doesn't work. I've already seen it. You can't just go in there and tell it this is exactly what I want to do, and it'll just run that shit intelligently by understanding how to build a quantum hybrid algorithm. I haven't seen that working. It gives you theoretical stuff and it gives you stuff you can work with, but as part of an actual problem and solving that problem. Then the LLM would have won the X Prize already.\nIt's just not there. So applying it to certain business problems is a really hard thing. I just see that we're going to need more capabilities that people aren't seeing now. They're thinking of tools and capabilities and implementations and things, just like the old API days.\nI'm thinking, no, we're providing expertise because it's just fluidly available for you and your LLM to come work with us, right? That's too much shit. All I was talking about was just adding the third party and just proving that could be done and then the third. The second thing is that data preprocessing seems like a great candidate just for the reason I mentioned. Happy to do.\nSpeaker 4 | 29:51\nI just want again, third party. What's missing then for us to do the third party LLM?\nJeff | 29:56\nYou tell me. I said, I have not seen it yet. If you did it in five minutes, I'd be super happy.\nSpeaker 4 | 30:03\nBut haven't you connected when you say third? But haven't you connected from your CSOR to Keybridge? Isn't that?\nJeff | 30:10\nYeah, that's not the point. It's where the work's being done. That's the question. When you're introducing a dataset into Keybridge because you're introducing that there, you're not introducing it on your local cursor environment, right? You're in. Pushing that up to have a job run and some back in somewhere. When you do that, there are all kinds of things that should be thought of and considered. Is it not just structurally ready?\nBut is it not just a big bunch of binary malware you're uploading? I don't know, things like that. So that's why ETLs exist, right?\nSpeaker 4 | 30:53\nOkay, so the journey is that we. Yeah, I think we should need to draw this out to understand, like, exactly what the what what's on your mind. The. Let me get the mirror out. Got about.\nBrian | 31:13\nJust fetching a dataset, would that not minimize what you're suggesting, but would that cover the details that you're thinking of, Jeff, in terms of interacting with a third party? Fetching the dataset?\nYeah. So you would maybe be saying something from your cursor client. You'd be saying, \"I have this dataset that lives at this S3 URL.\" So from... We assume that within our MCP tools in Keybridge, we're going to want to interact with that, right?\nSo then we have to build some sort of integration to get to S3. The third party authenticates with S3. Is that what you're going after?\nJeff | 31:59\nThat's part of it, yeah. Well, let me actually tell you where this came to my mind and why it became important. When I was doing the demonstration to the investors with Keybridge Core and hitting CVA, there was a step in there for me to synthesize a dataset, which I did. I asked the LM to synthesize the dataset, and it was seamless and easy, and that was great.\nLater, when I was talking about that dataset with a data scientist on our team, he was remarking about how incredibly simple it was and that it wasn't really representative of what they'd typically be dealing with.\nThat's when it came to me that it would be really good for me if I brought my own dataset, and I really knew what I was doing, and if I was to bring my own dataset and work with someone at the VIS. What I've learned from Peter Strauss is that it takes a long time for them to tell someone how to configure, form, and format their data and understand why.\nBecause it's not just about giving me a dataset that's valid in the moment, it's in an ongoing way, you understand you can use these data types, these columns, these rows, and this is why this is how they're calculated and all that kind of stuff.\nI just imagine myself again with the same thing where I want an abbreviated learning curve. I would want to know that something was formed or not and wouldn't necessarily know. If I went to get someone's dataset and applied it against that use case, it would be really cool in that moment for me to know.\nSo I was like, \"Shit, I wish I could... Just like you were saying, Sam, I'm attaching to my cursor.\" But in that moment I was working at a cloud code at the command line, and I just wanted it all to be right there for me.\nJust like the other tools were. So there was a list of tools. There were MCP tools and it included Canva, but there were other things in there, and it would have been nice to know that I just had this kind of data wrangler tool that I could just call right there.\nSo that's what I was... That's where it came from. I just was thinking to myself, \"Man, I just wish I had a way to know that the dataset it just synthesized for me is good and why.\" All this because I started asking myself questions about it, and it's just provided me more datasets.\nSpeaker 4 | 34:22\nAnd these are massive data sets, right? Like when we talk about these data sets.\nJeff | 34:27\nYeah, most of the time, the reality is, yes, they're massive, being gigabytes and gigabytes. But I don't know how large, how much, what actual size it gets to. It probably gets up to petabytes for some verticals.\nBrian | 34:44\nThis is a good scenario to talk through, though, because like now we're getting to how do we define that schema back to the client? LL right, like, what is the information? I mean, Sandy already kind of talked through this, right?\nLike, how do I know that this is good or it needs transformation, right? And that information, I think, comes from the CVA tool first. And then if something has to happen, you know, then what is that?\nBut I like these are the details I think we could talk through to get to something more concrete. And I think there's a Couple of Ways you could design it.\nJeff | 35:28\nI just. I just did, you know, as we all do. I just asked for some help getting this together in terms of like what the structure I'm looking for here in this workflow and what might inform the diagram.\nAnd this is the breakdown that I got from my favorite two. So. All. Just. One second this. So you got these. I've always been talking about these contracts. And for me, some of the information that like that I'm looking for is actually in this kind of a workflow is it is gonna be shittily labeled. I'm so sorry I'm not formatting this correctly and I'm using profanity in front of children.\nSpeaker 4 | 36:27\nHe left. Don't worry.\nJeff | 36:31\nI don't know, it feels so bad. So this kind of thing. So a user agent submits a dataset to Keybridge Core, and it's all fucked up because it's coming from AA, by the way. But it defines what I wrote out in the long sentence. The request says something like \"Change this dataset against algorithm library and find compatible algorithms.\" Then Keybridge Core sends the dataset to the data wrangler MCP server. The server inspects the dataset, returns basic facts schema of data time summary, stat size, counts distributions to core, converts that output into canonical data set profile, and then it normalizes the MCP response into one internal format for the...\nFor example, with Rose columns, Ericks, all this other stuff here. And then finally, it goes into... This is even worse formatted, sorry, because this is pretty much correct so load's requirements reach out, then it compares it against the profile so...\nThen the final steps... Again, sorry about the formatting. Numbers are all wrong, so you might have a recommendation that comes back at the end. Now, whether these are the right steps for this particular flow or not, I think they're correct from what I'm reading because it does reflect what I was looking for, but I would need more information from somebody using this on a regular basis. What they would actually need from this... For me, out of these steps, the only thing I really cared about was that it's going off and getting information about the data itself and coming back with a representation of that.\nThat would be enough of an attachment, right? For the QB core. Don't even care if we use it or not. I just want to get back to this thing that says, \"Here's the dataset that was uploaded in a comparison against what's required.\" That would be sweet.\nSo this is just... The other thing is Kubber core. There are probably lots of other things to consider. But the third thing that I was going to mention, which I was saying at the beginning, is that we have these guys with this Anthropic thing that they're doing on the QML side, and they're continuing down the road, continuing to work on it.\nIt could be yesterday. I'd be barely satisfied if we were taking over the concept of what they're trying to do architecturally because it's really scary me when they're sending out benchmarks.\nThose benchmarks are being used in front of investors and customers. Those benchmarks are taken from one VM because they don't know how to scale up into parallel jobs and many other things. They have five subagents being orchestrated. What's the orchestration layer? Who determined that? How does that work?\nSo I just wanted to know what's going on. And I'm getting less and less comfortable with the days that are going by because I'm hearing more and more words coming from Alexei that sound like he's trying to convert this into a product.\nSo yes, you can smile. Rinor, because it's exactly what you think it is.\nBrian | 40:00\nDo we have a demo of this though, or did you guys see it already? Sam, I really don't even know what it does. I can guess.\nSpeaker 4 | 40:06\nI've seen it. I don't know what it does, but I've seen it. I saw a big map of things that they were running, which is not necessarily a bad thing. It was just a lot of... When I asked them a bunch of questions about how they're tracking what they know, like \"Do they have the observability enabled?\"\nThe answer was no, which is flying blind when you're doing something that complex with flying blind. But that's all I know. I don't know how far they've got. This was a long time ago. I don't know.\nBrian | 40:33\nThe thing that I'm worried about is that this is again just like AR implementation of an AI pipeline. So if we take it over, are we now tasked with reimplementing tools out there that are way better than anything we can rebuild?\nYou know what I mean? It's just that process, train a model, evaluate a model. That's it. It's data brick. So it's every cloud provider has their own suite.\nJeff | 41:06\nWell, I just think it's time for me to take it a step further. Rinor, give you guys access to this repo. I'm going to do that right now because it's time to just look at what they're doing and try to get a handle on what the fuck is going on here. Do whatever you have to do to bring yourself up to speed. I'm all I'm adding.\nSpeaker 4 | 41:33\nI'm seeing this diagram now before that's the same one. Okay.\nJeff | 41:36\nYeah, same shit. Yeah, it's evolved a little, but because they've applied MCP to... According to non-most of their most things are now enabled that way and some aren't. I didn't quite understand. But yeah, the primary concern for me there is that first issue, which is when they're claiming to have extremely performant capabilities and they're doing benchmarks. What does that mean?\nSpeaker 4 | 42:20\nSo for the first thing with the data, we need to make sure that we can get when we say third party, it means that somebody can connect this MCP tool and they can upload some data, which we may or may not have some methods for that to happen, I believe.\nI know there was some stuff done in the past, but we need to make sure that would be all integrated that we can get data in whether that's... I give you a location TOS three and now we've got to pull it like... Is the data, the storage infrastructure all there already? Brian because there's like that amount of data. Sounds enormous.\nBrian | 42:49\nNo, I mean, that's all the stuff that you would have to deal with, which is one of the reasons I argue for putting it on the client side, right? MCP integration on the client side rather than...\nJeff | 43:03\nI think your client-side things the most... I mean, it would be 75% to 80% of the use cases will be bed by that.\nSpeaker 4 | 43:11\nSo it's client-side. It's not going to be the developer's machine, like the data scientists' machine where they have this data. Right? It's still going to be massive.\nBrian | 43:19\nWhat's right? So my example is we have a platform that we are comfortable with. I know in GCP it's like Vertex, right? So we say, \"Okay, you have to put your link into Vertex for S3 and Vertex sucks it all in and does the fingerprinting schema or whatever and then gives it back to your client.\" LLM, right?\nSo the API integration is with Vertex. In that case... Do you see what I'm saying? It just offloads all of that backend orchestration but you get the same schema back still in the same way.\nAt the end of the day...\nSpeaker 4 | 44:01\nYou're saying we run our Keybridge in their cloud using Vertex. That's what you're saying about...\nBrian | 44:09\nI'm saying the fingerprinting has nothing to do with Keybridge at this point. The ear, the schema, right? That's just something that assists the client in getting their metadata and if you don't already have it, this is one way you can do it so that we aren't orchestrating it in the back end.\nSpeaker 4 | 44:28\nI don't. Yeah, I need more. I need to understand more. There's so much to this. Like it's not. It doesn't sound still. In my mind. It still doesn't sound trivial. So do you want to spend some time now doing a mirror board or do you want to. Do you want to do that, some other stuff that. I don't know. 15 minutes is enough.\nBrian | 44:46\nIf you're asking me... Yeah, I'm happy to talk about it.\nSpeaker 4 | 44:48\nNow, let's just go through this and figure something out because I'm lost. I'm lost with the ask.\nJeff | 44:56\nDidn't I show one thing? Before we go forward, I just wanted to share with you guys earlier while I was saying that we might be in a moment of pause with M because Slava is arguing that the actual gain is 30% less loss is coming from having an increased number of parameters instead of any inherent benefit from QM.\nSo it's... This is something that obviously can see... Typing right now because it's going to be a debate that has to happen and it's going to be low level and in depth. But I just wanted to show you what was happening. They're starting to do this.\nKind of like rifling through the actual merits of utilizing Q&A for error mitigation. I have confidence that Florent will come out with a victory here because in talking to Slava, he didn't seem to understand that storing state prior to actually doing error correction and running jobs is actually beneficial by itself.\nSo we'll see if that's true or not.\nBrian | 46:13\nBut even if Q&A didn't work, the overall idea still has legs, right? This idea of helping a quantum developer by optimizing their work. We just don't have the right optimizer yet. Maybe if that were the case.\nJeff | 46:29\nMaybe. Yeah, that's what I asked Slava. He was part of three of his research. Should be... If we're not doing the right thing, what is the right thing?\nBrian | 46:37\nOr the castic compression or other things, right?\nJeff | 46:40\nYeah, stochastic compression is definitely part of all of the mitigation tools that I've seen. So we'll see if there's a real Q on them advantage or not. I think there is, because think Florent is correct, but we'll see. Salam is a really smart by the fucker.\nSpeaker 4 | 46:57\nRight? I'm going to just create a board over here in your Terra Quantum space. So today we have MCP, Keybridge, and MTP. Inside here it has a CVA as a tool that is then accessible over the wire to clients like cursor, etc. Just keep it nice and simple. Where basically they make a call over here they do some author of some kind and now they're able to call these tools which are remote.\nWhen CVA runs, that is running in a runtime over here. Now remind me again, what does CBA do exactly?\nBrian | 48:00\nJust for sols? It's optimization. It's finding the optimal parameters to feed into a model.\nSpeaker 4 | 48:11\nOptimal param finder. So this CBA tool is gonna run and it's gonna run. The run time it's gonna run in is on our side, right? Like, so if I put this on Keybridge now, when it finds the optimal model, it needs some data input, surely for it to do that.\nAnd that's the problem we're talking about, right? Like we have data in here that we need.\nBrian | 48:34\nIn the case of CVICV, I don't think we use datasets. Did your example use datasets? Jeff usually... It's my understanding that it's usually an objective function which just helps us evaluate.\nJeff | 48:48\nIt does all of those things. So it does optimization and needs just for that objective function. And it needs it does building and training models.\nBrian | 49:01\nOkay, so your example was training a model. So you vetted a dataset and it trained based on that dataset?\nJeff | 49:08\nExactly.\nBrian | 49:09\nOkay, so let's just use the training set. Data use case then, Sam, so we don't... So that would be a dataset comes into CVA and CVA does some simple training to spit out a model artifact.\nSpeaker 4 | 49:25\nAll right. I'm just going to say this is ten gig plus... Is what we're talking about. Okay, whatever that is. So this dataset typically belongs to the client, right? We're not going to invent this.\nSo that's over here. We need to find a way to slap it over there.\nBrian | 49:41\nWell, that's... Yeah, that's a bit different than what I thought we were talking about. I thought we were just talking about finding the schema of the dataset.\nSpeaker 4 | 49:49\nYeah, okay. I mean, either. I'm. Yeah, I just want to make sure we're on the same page because, like, I'm getting very lost in what exactly we're doing. So either, like, we do it this way. And that's why I was saying, like, we do. We instead want to take this and run it on the client and even then, like, what is this client? There's the this is the developer's computer, let's say like in a laptop versus the data set is not going to be in their laptop, right?\nLike so if this boundary here, a lot of the time that data says it's going to be probably in something. It could be on their laptop or it could be on the cloud.\nBrian | 50:20\nYeah, CV is kind of unique because most of its customers are actually doing it in their on prime environment that they're doing it like for manufacturing.\nSpeaker 4 | 50:31\nOkay, so then that's... Yeah, another one just like that, which would be... There are three possibilities.\nJeff | 50:39\nI've argued before that the reason for that is their sales model, not their tool. Because BMW, for instance, which they went in originally with them doing exactly that running everything on their local Desktops, very quickly had to scale the team up and wanted it centrally implemented.\nThey do that now. So they had to provide containers for them that were hosting and running this and not having it running on the local workstations. If you look at the use case that I demoed, you'll quickly see that in a case where you have a data set locally, uploading it into a backend may have its advantages depending on how you're going to be running their jobs.\nSo there's no... You might host... You might have the actual data set locally, sitting there, but it doesn't necessarily mean that things are happening with that data set locally, it's just being stored there.\nSpeaker 4 | 51:50\nSo is it that we need the data over here, though? Regardless, no matter where it is, whether it's on frame, cloud or laptop, we need it over here.\nBrian | 51:58\nIf yeah, for trading, you do. Okay.\nSpeaker 4 | 52:02\nSo that's the problem, how do we slap it? Now, we can either do this in two ways, we can push or we can pull, like when you're doing data transform data migration, transport.\nBrian | 52:16\nYeah, we built all of this for TK 42.\nSpeaker 4 | 52:19\nThat's what I was wondering.\nBrian | 52:24\nSo yeah, I mean, we do both.\nJeff | 52:30\nBut it's completely valid to provide an MCP server that exposes the TK 42 stuff. There's nothing invalid about that at all. That'd be amazing.\nBrian | 52:47\nIs the client always going to be MCP enabled? Because right now all those flows expect other... Like a more of an interactive browser session.\nJeff | 53:01\nI think in your guess is as good as mine, but I can see things flowing in that direction.\nSpeaker 4 | 53:08\nThat's okay. Like if we need to on the client over here, say, like, you know, click this link. That's okay. Like, we can do that, like if there's infrastructure already there to bring the data in and we just need to like.\nOkay, through our tooling. Like, you know, we can have a basically like a, MCP like a it's a TQ 42 MCP shell, with, you know, instruction. Instruction shell or shell, something like that, you know what I mean?\nBrian | 53:37\nIf I remember right, it's facilitated one of two ways. Either you have the data in an S3 bucket and you have to go through some steps to enable us to sync from that bucket. We put it in our own bucket. Or you can get a URL generated which allows you to upload into that storage bucket.\nI'm thinking the TK 42 SDK enabled that. So yeah, right. So it was like file copy or something, but behind the scenes, it was opening up that. Yeah, URL and pushing to that URL.\nSpeaker 4 | 54:15\nOkay, I think give an agency to the client to do that. At the end of the day, it's instructions if they've enabled it, for example, locally on my machine, I have Cloudflare. I have GitHub. I have Google... Every... I've logged into everything already, right? Then I just give agency to my agent to go do the work. I'm crazy like that. Not everyone is. So that's up to them, right? At least they have the instructions and they can follow them themselves, or they can just give it to the agent if it has...\nThat's what we say here, you do it, or here's how your agent can do it, right? Help page or something like that. Alright, if we do that and we can find a way to have this as the shell for this guy over here and we'll build an MCP shell of some kind for it. That...\nThat enables us to do what you want, which is get data into the system. All right, so now this person's working over there, they're like, \"I got some data on blah.\" Okay, cool. We... In order to get your data in... Here's how you do it.\nNow this instruction, it doesn't matter where it is, that's up to them or their agent to go pull it from here and shove it into here. Now we've got the data, they can call Cube Britol so it sounds to me like all that's missing here is this data, like this connectivity here, this is what's missing. Is that correct, Jeff?\nYeah, we just basically got to provide a set of instructions to work with TQ 42 and test it.\nBrian | 55:46\nKeybridge doesn't have any of the authorization name spacing concepts that TQ 42 had that allowed it to get to... There were a lot of security controls around what that data, how it was accessed, right?\nIt's possible, but we're... I think there's going to have to be a lot of enhancements to that CBA tool to understand how to interface with TQ42 in a way that's isolated to customer context.\nSpeaker 4 | 56:21\nSo this one over here is... So step two would be access control for CBA given to the customer.\nBrian | 56:38\nYeah, it's going to have to be very TQ42-aware. It's not just one bucket. It's a bucket per data set. So it's going to have to know where to find the buckets, right? So it's going to have to look them up from TQ42 somehow.\nSpeaker 4 | 56:55\nWell, unless this guy just tells you where it is.\nBrian | 56:58\nIt doesn't know.\nSpeaker 4 | 56:59\nWouldn't this know when it follows instructions or does it get some kind of...?\nBrian | 57:03\nI don't think so. I think it gets a unique ID that is... It's an ID for the data set that is meaningful to TQ42.\nSpeaker 4 | 57:10\nOkay. I mean, we need to find some way to tie these sessions up. When you create a session over here with the orth or something, it needs to be... So it needs to be like the add up somehow. So that's what that is.\nBrian | 57:20\nI'm just wondering... I feel like as we open this up, there's just going to be a thing after thing. There's an easier path. Step one of just sending the data in or something as a first test, right?\nIf we didn't have all of this TQ42 stuff, is there a way to just...?\nSpeaker 4 | 57:41\nThe easiest way would be this. You just say this here, they're basically assigned a URL, right? It makes you just say to like, \"Hey, bring me your data.\" If I signed a URL...\nBrian | 57:50\nInto this book, that's kind of that might even be smarter. I mean, that's kind of what we're doing, but we don't have all of the extra stuff to make it work in the T 42 context. Like we can just prove that this works first.\nSpeaker 4 | 58:03\nWe control that. Yeah, it says, okay, like, hey, I've got to do this. Okay? I'm gonna key this on the whatever, you know, so, like, here are your instructions, key on this, data on this, or blah. It gives you a signed ur L which includes that and I'll put it in the right bucket and then it has access to it that could that.\nLook.\nBrian | 58:23\nI'm suggesting even just a unique bucket for a...\nSpeaker 4 | 58:28\nYeah, I agree. So I'm saying the same thing. So Cube bridge, bucket, right? Plus, what this does here is we give them a signed URL when you interact with us here. We give them a signed URL with instructions, right?\nThen that signed URL because it was served from us in the first place, so it would put it in the right bucket keyed on something with that user's...\nBrian | 58:49\nI think we get further faster doing it this way right now and then...\nSpeaker 4 | 58:53\nRight. So I'll get rid of Cube bridge then, and I'll say that's what that is there instead. It's basically not T42, it's Q Keybridge. So this is the new thing we'd have to build here, which is the keying on some authentication for getting data into a bucket.\nOnce we've got that far, effectively, we'd be rebuilding what's in T42, but slowly.\nBrian | 59:22\nYeah. Then but that's to get the data in right. So then the CBAA tool has to know where to find the data. But based on my customer context...\nSpeaker 4 | 59:38\nWe'll know that from the all token, right?\nBrian | 59:40\nSo we're assuming it's all going to be successful in one session. So...\nSpeaker 4 | 59:47\nWe key in an org ID or something in the... Or token or something like when you sign in. We have additional information in there in the token.\nBrian | 59:57\nYeah, okay, so you're assuming one bucket per org with all the datasets in it.\nSpeaker 4 | 00:03\nYeah, exactly.\nBrian | 00:04\nOkay, yeah, that works for now.\nSpeaker 4 | 00:06\nThen you can just explore it. Say, \"I uploaded this last time, blah.\" Okay, this one that you uploaded on this date with this name, whatever.\nBrian | 00:13\nSo then the next time... Yeah, okay, with the name. So they'd be able to use this name and if it's there again, they could train again.\nSpeaker 4 | 00:21\nNot in here. Like saying that.\nBrian | 00:23\nThat is a common ML use case. You maybe upload it once and then you come back to train many times, right? Or the same dataset.\nSpeaker 4 | 00:32\nWith org... Or name or similar to store or files in that bucket location. All right, well now it makes more sense to me. There's a lot to that, but if we can do this, it's simply great if that's what's needed. Happy to build some data upload and access control to it like this. This is trivial enough.\nI mean, it's work, it's just... It's a known quantity, very well known, very well trodden path.\nBrian | 01:01\nSo the other thing Jeff was talking about is when you do the upload before you get to the train step, another MCP tool that looks at the file and says, \"Is this up to the schema that I expect to be able to train in?\" CBA.\nSpeaker 4 | 01:17\nOkay, yeah. So that's only part one and part two is over here. We'd need to... Some kind of integration with Rinor data wrangler or whatever it was. I do have to go a few minutes over for this next thing I've got. I gotta go do it.\nAll right, this is enough for me to get stuck in just quick. What's the priority call? There are a couple of things there. You mentioned this mirror diagram for what the other team is working on versus this one.\nWhat do you want us to prioritize first, Jeff?\nJeff | 01:47\nI'm anticipating that we might be on a pause until we get through this theoretical research side of things with Slava, Sasha, and Florent. So I'm looking to make sure the team has clear work to be done to keep moving.\nSpeaker 4 | 02:01\nI think so.\nJeff | 02:02\nThat's the primary reason for this.\nSpeaker 4 | 02:04\nOkay, if my opinion... Feel free to shoot it down. We should continue down the path of orchestration that we're doing right now because it is building infrastructure for doing all sorts of workloads, whether it's for Florian's experiments, this one, or whether it's a new experiment we're going to come up with, or even this stuff we're talking about right now, right? Just having a level of orchestration and observability that we can do in a robust system to do that or migrating this experiment, this pipeline that you mentioned, the other team is doing, bringing that to us now. All of those are enabled by having an orchestration process in place and...\nJeff | 02:40\nYeah, I'm still in favor of that. I just want to make sure if you run aground and you need... Because I've heard some talk. Wesley and I were talking earlier about potentially being stuck in the mud if we don't have Sasha and Slava.\nI don't want that to be the impression, I think. Anya might be driving some of that, and it's incorrect. She keeps saying they're going to come in and test what we've done, and that is not what they're doing at all.\nSo I just want to make sure that people understand we're not at a point or place where we need to wait for those guys.\nSpeaker 4 | 03:09\nOkay, good. I mean, I think we should run Florian's experiment anyway. He's got a really cool, like. Like. Like that whole idea of how to do it and like, whether we can get QMM, you know, proof of QMM working, it's. I feel like that's in it, but that's just Florian's work rather than anyone else that we can support as a use case and we can just keep pushing towards that. Is there any reason it won't?\nJeff | 03:27\nNo, it won't matter to me. It won't matter if we swapped that out for different error mitigation. Exactly. The workflow is still valid.\nSpeaker 4 | 03:36\nExactly. All right, so nothing changes. The team is psyched about this, by the way. They love this orchestration because now we're building infrastructure. We know all right, but it's applying it to something called both agents and quantum.\nSo, all right, and honestly, I'm not saying this just because I built it, but I built it because there was nothing like it with auto engineers' pipelines. I'm thinking to extract it out of auto engineers, just have it as a pipeline repository by itself, just so it's independent.\nBut it does support things that, to my surprise, nothing else out there supports. Something simple. I think it's simple like scatter gather. You'd think that you want to scatter a bunch of stuff, let it do things, and then reduce the information back. Nothing gives you those sorts of constructs.\nIt's really freaking weird. Anyway, so I've looked.\nJeff | 04:21\nIt might be just people falling back on what they know because it's how it is, right? People fall back on this more pedantic way of doing things. Yeah, and they don't think at scale.\nSpeaker 4 | 04:31\nI guess, so I guess. But anyway, in that case, you know, I can extract it and we can just all collaborate on it so that it's not just, you know, you're not afraid to mess anything else up. All right, I'll do that.\nI'll. I'll go to one thank you all really got to go.\nJeff | 04:44\nYou like my pedantic reference?\nSpeaker 4 | 04:46\nI actually did, and I thought you said that, but anyway, I said pedantic. I did, yeah.\nJeff | 04:50\nI was hoping someone was going to say, \"Do you mean pedantic?\"\nSpeaker 4 | 04:53\nIt did ring. I just didn't come up with a remark on it.\nWesley Donaldson | 04:57\nI guess. That's funny."
+  }
+}

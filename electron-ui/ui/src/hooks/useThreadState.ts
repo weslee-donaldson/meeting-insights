@@ -175,10 +175,10 @@ export function useThreadState(
     }
   }, [selectedThreadId, selectedClient, queryClient, addToast]);
 
-  const handleThreadSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+  const handleThreadSendMessage = useCallback(async (message: string, includeTranscripts: boolean, _template?: string, _includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => {
     if (!selectedThreadId) return;
     try {
-      await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts });
+      await window.api.threadChat({ threadId: selectedThreadId, message, includeTranscripts, attachments });
       queryClient.invalidateQueries({ queryKey: ["threadMessages", selectedThreadId] });
     } catch (err) {
       console.error("Thread chat failed:", err);

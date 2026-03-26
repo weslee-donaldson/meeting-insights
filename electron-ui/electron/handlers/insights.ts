@@ -50,7 +50,7 @@ export async function handleInsightChat(
   const { systemContext, meetingIds } = await getInsightChatContext(db, vdb, session, req.insightId, req.message, req.includeTranscripts ?? false);
   appendInsightMessage(db, { insight_id: req.insightId, role: "user", content: req.message });
   const history = getInsightMessages(db, req.insightId).map((m) => ({ role: m.role, content: m.content }));
-  const answer = await llm.converse(systemContext, history);
+  const answer = await llm.converse(systemContext, history, req.attachments);
   const sources = resolveMeetingSources(db, meetingIds);
   appendInsightMessage(db, { insight_id: req.insightId, role: "assistant", content: answer, sources: sources.length > 0 ? JSON.stringify(sources) : undefined });
   return { answer, sources };

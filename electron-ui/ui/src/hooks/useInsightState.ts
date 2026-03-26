@@ -135,10 +135,10 @@ export function useInsightState(
     }
   }, [selectedInsightId, selectedInsight, selectedClient, queryClient, addToast]);
 
-  const handleInsightSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+  const handleInsightSendMessage = useCallback(async (message: string, includeTranscripts: boolean, _template?: string, _includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => {
     if (!selectedInsightId) return;
     try {
-      await window.api.insightChat({ insightId: selectedInsightId, message, includeTranscripts });
+      await window.api.insightChat({ insightId: selectedInsightId, message, includeTranscripts, attachments });
       queryClient.invalidateQueries({ queryKey: ["insightMessages", selectedInsightId] });
     } catch (err) {
       console.error("Insight chat failed:", err);

@@ -1,0 +1,456 @@
+{
+  "id": "019d2aaa68c37742a5637a0caa8cc8c7",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2a9b774b73fa813455d451dc555b",
+      "title": "(Hold) LLSA , Internal Engineering Sync",
+      "duration": 925,
+      "calendar_event_id": "7s524jmjh48kmmanjuhkiu5rfb_20260326T130000Z",
+      "participants": [
+        {
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 4,
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-26T14:44:54.109Z",
+      "end_date": "2026-03-26T15:00:19.109Z",
+      "url": "https://app.krisp.ai/n/019d2a9b774b73fa813455d451dc555b"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jeffco, can't make it."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "No, it was good."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "How'd you like that meeting?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "I mean, I think we needed that meeting to get on the same page with Jennifer. Because, you know, alerting was mostly between me and you on just between the two of us. And I think we needed her to prioritize to, you know, to get the direction and get on the same page.\nI think it was necessary. And, yeah, we know what to do now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, I'm going to fill out a specific epic for that. I think we just need to close the loop on the playbook just to get it off our plate."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "I don't know, but I wasn't going to make it up, but I'm going to make..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sorry, I go ahead."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "So I think I thought I wasn't going to make it, but then I ended up making it. So let's just see how things are going and how we're looking for the end of the week. Are we tracking?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You're right on time."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Is there something we can help with?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "With..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So I'll go really quickly. I'm a little concerned. Honestly, things are all coming together. Antonio, can you share? I think your stream is super important because it has downs, it's impacting the verification of a couple of the streams.\nSo maybe if you can share how you're doing, if you're progressing, if you... I think we need to leave a little bit of space for us to make sure everything is connected properly and address any bugs for that.\nSo I think we need to target the worst-case scenario at the end of the day today to have all of ours, all your pieces buttoned up, and that way we can support the proving everything goes through the system."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "You guys? Good morning. On my side, all is going pretty well. So, I have the code ready for a review, and I'm doing more interesting testing on it. So, I hope it will be all set by the end of today.\nIn addition to the change to the end into testing suites to validate this fully..."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Yeah. So, when you say \"ready,\" Antonio, can you just give me a quick overview of what surface area that is because I know we've spoken about a lot of things? I just want to be sure I'm tracking absolutely."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Is the recurring ACL refractory to be using EMET as a framework and post-degrees sorry, and both degrees as event store and projector?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Okay, and what is it doing? Just all recurring events?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Come over again."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Sorry, is it all recurring events?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "It's recurring specifically. Yeah, recurring specifically. We have two streams, order streams and membership streams, right? And those two streams are in PostgreSQL Event store and PostgreSQL Event store. Yeah, using Aurora both... Yeah, both it store and projections are on our other posts now."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "What about the stuff that Lance was doing? Is he going to be able to wire that up though in time? Have you managed to speak to him at all?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Yes, but he doesn't have to wire now. Yeah, actually, if I'm mistaken, it's the opposite, right? The reactor will produce events so he can consume."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "That's what I'm saying. So that's what I'm"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "So that's what I'm saying. Yeah, the we have two reactors on the mt side. One will we'll push the order placed, then the other one will push the membership renewed and those two messages will be consumed on."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Yeah, it's making sure that he's ready for that. Because is that going to guarantee what's going to put it in? I guess the guarantee wants delivery. You could probably use there too, to make sure that it actually goes into the SQS at all, right?\nThat's what we're saying."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Right? Correct, yes."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Okay, so just is that going to be like a...? I'm just trying to figure out how we're going to stage this. Let's just talk real quick about the exactly once delivery because I haven't done it. What does that involve? Is it just a configuration or is it trivial? Is it hard?\nEmmett, what do you have to do?"
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "On the Emmett side? We do have the workflow carrying on these as exactly one deliver for us. Got it."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Okay, and when that runs, does it work, put some state in post-grads, and now it's delivered? Great. Are you then going to make the call into the thing that Lance is building, which is the SQS? Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Curious."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "The reactor will make the work. Yeah, the idea around those two reactors is that they will become completely autonomous and independent. Independent with the workflow. They are how can I say they work by consuming the outbound stream.\nSo if we need to retry and avoid duplications, this workflow mechanism will care about that for us. So if SQS is down somehow or the connection fails, we will not lose or duplicate disintegration. So... Not sure if I answered your question."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "No, that. That is answering my question so hundred percent. I'm just wondering, like, o now that you've got this far, I assume, like, what is your boundary? And now are you taking care of the coal that happens from the reactors into SQS.\nSo and yeah now it says yeah, AZ that's now you right."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "It is me. I'm doing the full Emmett side work like the projectors, the reactors, and the AC hydration work. Yeah, it's all one fantastic."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "So just have that conversation with Lance to let him know to be ready. In the meantime, I would say give him the payload that you are going to be sending so he can start testing with that payload like a greedy interface effectively.\nThat way, you can slop together at the end and integrate."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Yeah, perfect. I would do that. Yeah, I have a SQS placeholder now just waiting for him to set up the infrastructure. I'm assuming he's done with that part already at this point, and I was about to share with him those two domain events."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Shape actually, we shared the order placed one already. I have to share the other one, the membership renewed one so he can mock and start working with."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, just the same thing you did over here. Just add that to the confluence page point I at."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "So as you said, you're concerned, were we concerned? Does it sound like everything's in hand with Antonio at least within the ET circle within the emit bunch?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No. So that's ideal. So we're tracking good there. Great, we'll have the payloads over. I think the other path that I'm concerned about is on the order side.\nSo Antonio, you're going to connect with Sam if you had a chance to do that yet."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "What is that?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The projections not yet."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Not yet. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, that's fine. When you guys connect, this is still an outstanding question as well. I... This assumes this SQL interface is going away because we're moving away from current for recursively.\nSo this seems obvious. And the next one is just confirming that this line now goes back to what it always was, which is just connecting directly to the Postgres inside of Aurora."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "No. They should be able to do... They're not going to be as nice, but because it's in Postgres and it's just SQL, they should be able to do SQL and then do deep inspection into the JSON events and then still get the data they want.\nBecause technically... Correct me if I'm wrong, Antonio. But I think we should just be able to do JSON queries and still get BI access Postgres and get whatever data they want."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "We do. But in order to simplify, I was... I took the path by using regular relational tables for projection. So either BI or supergraph can consume independently."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "I'm saying most far, we can still have BI. Everything that we've done so far for BI we can still have but for if BI wants something extra, that was the whole point. The same with current because current added the secondary DBS, but Postgres because it's Postgres, it has it implicitly in there."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Exactly."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "As long as we just tell them, \"Hey, here's the data schema. Here's the events. You can look at them.\" It's volatile because these are storage events, and we might change things, but at least they can be lagging behind a little bit."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "I see what you mean. Okay, they can clear the stream. They stream... I see what you mean."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Yeah, exactly. So I think all I'm saying is we don't get rid of the box, we can keep that exactly as it is. Yes. It goes away from current but we still have the facility to do that with Postgres."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Just in an unorthodox way basically."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So basically... Here now just to... If you're seeing the screen share, disconnection now goes to here by virtue of they can do whatever queries they need to against the underlying data."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Okay.\nOne.\nYeah, yes, correct."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so then let's just delete... Just to keep you clean. And then this is here. Okay. Perfect. Thank you."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "It's looking good, and thank you."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "For all this. Are you concerned about anything? Nothing specifically."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "I'm good. Yeah, I was just about to ask Wesley to share with me the conference page link again, because I'm not finding that I need...\nPlease, I need to put the membership renewed event on this one as well.\nYeah, thank you."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No worries. It's here."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Ref... Guys, I'm okay, I have no concerns, I'm very up positive about this."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "I mean to help. How about you, ma'am? Anything that you need to report or need help with?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "Not really. So I wrapped up the record Taug integration, I'm going to test it on that right now. You always already started reviewing the code, so I'm good. There's one thing unrelated to the e-commerce, which is removal of the event store DB streams.\nSo I was working on a job to delete the streams that we create for PR environments, but unfortunately, it's not as easy as I thought because event sourcing and event story B are built on this concept in mind where events are immutable."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "What?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "So it's not as easy to delete those events as I thought because we are running out of disk storage on... When we abuse the environment with PR environments. But I think we can defer that, and I'll simply do some research over the weekend with AI, Claude.\nWhatever we have... But it's not related to the e-commerce per se. So I think it can wait until Monday. I'll just invest some time on the weekend because there's constantly something on my plate, and I thought it would be easier than it actually is because..."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Yeah, I'm glad you discovered that. But what you can do look into this is you can actually put a tombstone on a. On a stream. You can basically say this stream is ended, and then you can scavenge. Yeah, that's the way you quote unquote delete. You can you basically like once these DOS streams ended, it basically keeps it there, but you can then say I want a Scaveng and now you can get some data back.\nSo look into that, into the documentation. Yeah."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "I need to do some research because there's an option to delete a stream. The stream doesn't appear in the system anymore, but the events are still preserved."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Right? Exactly. Because all it's doing is putting a tombstone on that. Really? On that final event. The... Says when you try and write to it again, it says no, you can't write to it. This is the dead stream, but you can still access all the data because it's a medium without...\nYou know it happened unless you specifically want to market for scavenging and so on, but look at the process around that. There is a way to delete."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "Sure, I will. Thank you so much, Sam, that helps."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Mer cool."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Thanks. Guys?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Leave you to it then. Anyone needs anything, reach out."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Y guys."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 3,
+        "text": "Thank you so much for your work."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 2,
+        "text": "You talk to you later."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 4,
+        "text": "Bye, guys. Have a good one."
+      }
+    ],
+    "raw_meeting": "**(Hold) LLSA , Internal Engineering Sync**\n🕞 Started at 02:44 PM on 26 Mar, lasted 15m",
+    "raw_content": "Wesley Donaldson | 00:23\nJeffco, can't make it.\nMichal Kawka | 01:30\nNo, it was good.\nWesley Donaldson | 01:31\nHow'd you like that meeting?\nMichal Kawka | 01:35\nI mean, I think we needed that meeting to get on the same page with Jennifer. Because, you know, alerting was mostly between me and you on just between the two of us. And I think we needed her to prioritize to, you know, to get the direction and get on the same page.\nI think it was necessary. And, yeah, we know what to do now.\nWesley Donaldson | 01:58\nYeah, I'm going to fill out a specific epic for that. I think we just need to close the loop on the playbook just to get it off our plate.\nSam Hatoum | 02:07\nI don't know, but I wasn't going to make it up, but I'm going to make...\nWesley Donaldson | 02:13\nSorry, I go ahead.\nSam Hatoum | 02:14\nSo I think I thought I wasn't going to make it, but then I ended up making it. So let's just see how things are going and how we're looking for the end of the week. Are we tracking?\nWesley Donaldson | 02:19\nYou're right on time.\nSam Hatoum | 02:24\nIs there something we can help with?\nAntônio Falcão Jr | 02:25\nWith...\nWesley Donaldson | 02:31\nSo I'll go really quickly. I'm a little concerned. Honestly, things are all coming together. Antonio, can you share? I think your stream is super important because it has downs, it's impacting the verification of a couple of the streams.\nSo maybe if you can share how you're doing, if you're progressing, if you... I think we need to leave a little bit of space for us to make sure everything is connected properly and address any bugs for that.\nSo I think we need to target the worst-case scenario at the end of the day today to have all of ours, all your pieces buttoned up, and that way we can support the proving everything goes through the system.\nAntônio Falcão Jr | 03:11\nYou guys? Good morning. On my side, all is going pretty well. So, I have the code ready for a review, and I'm doing more interesting testing on it. So, I hope it will be all set by the end of today.\nIn addition to the change to the end into testing suites to validate this fully...\nSam Hatoum | 03:37\nYeah. So, when you say \"ready,\" Antonio, can you just give me a quick overview of what surface area that is because I know we've spoken about a lot of things? I just want to be sure I'm tracking absolutely.\nAntônio Falcão Jr | 03:49\nIs the recurring ACL refractory to be using EMET as a framework and post-degrees sorry, and both degrees as event store and projector?\nSam Hatoum | 04:08\nOkay, and what is it doing? Just all recurring events?\nAntônio Falcão Jr | 04:14\nCome over again.\nSam Hatoum | 04:14\nSorry, is it all recurring events?\nAntônio Falcão Jr | 04:20\nIt's recurring specifically. Yeah, recurring specifically. We have two streams, order streams and membership streams, right? And those two streams are in PostgreSQL Event store and PostgreSQL Event store. Yeah, using Aurora both... Yeah, both it store and projections are on our other posts now.\nSam Hatoum | 04:42\nWhat about the stuff that Lance was doing? Is he going to be able to wire that up though in time? Have you managed to speak to him at all?\nAntônio Falcão Jr | 04:55\nYes, but he doesn't have to wire now. Yeah, actually, if I'm mistaken, it's the opposite, right? The reactor will produce events so he can consume.\nSam Hatoum | 05:09\nThat's what I'm saying. So that's what I'm\nAntônio Falcão Jr | 05:12\nSo that's what I'm saying. Yeah, the we have two reactors on the mt side. One will we'll push the order placed, then the other one will push the membership renewed and those two messages will be consumed on.\nSam Hatoum | 05:29\nYeah, it's making sure that he's ready for that. Because is that going to guarantee what's going to put it in? I guess the guarantee wants delivery. You could probably use there too, to make sure that it actually goes into the SQS at all, right?\nThat's what we're saying.\nAntônio Falcão Jr | 05:43\nRight? Correct, yes.\nSam Hatoum | 05:45\nOkay, so just is that going to be like a...? I'm just trying to figure out how we're going to stage this. Let's just talk real quick about the exactly once delivery because I haven't done it. What does that involve? Is it just a configuration or is it trivial? Is it hard?\nEmmett, what do you have to do?\nAntônio Falcão Jr | 06:04\nOn the Emmett side? We do have the workflow carrying on these as exactly one deliver for us. Got it.\nSam Hatoum | 06:12\nOkay, and when that runs, does it work, put some state in post-grads, and now it's delivered? Great. Are you then going to make the call into the thing that Lance is building, which is the SQS? Yeah.\nWesley Donaldson | 06:30\nCurious.\nAntônio Falcão Jr | 06:33\nThe reactor will make the work. Yeah, the idea around those two reactors is that they will become completely autonomous and independent. Independent with the workflow. They are how can I say they work by consuming the outbound stream.\nSo if we need to retry and avoid duplications, this workflow mechanism will care about that for us. So if SQS is down somehow or the connection fails, we will not lose or duplicate disintegration. So... Not sure if I answered your question.\nSam Hatoum | 07:17\nNo, that. That is answering my question so hundred percent. I'm just wondering, like, o now that you've got this far, I assume, like, what is your boundary? And now are you taking care of the coal that happens from the reactors into SQS.\nSo and yeah now it says yeah, AZ that's now you right.\nAntônio Falcão Jr | 07:37\nIt is me. I'm doing the full Emmett side work like the projectors, the reactors, and the AC hydration work. Yeah, it's all one fantastic.\nSam Hatoum | 07:47\nSo just have that conversation with Lance to let him know to be ready. In the meantime, I would say give him the payload that you are going to be sending so he can start testing with that payload like a greedy interface effectively.\nThat way, you can slop together at the end and integrate.\nAntônio Falcão Jr | 08:04\nYeah, perfect. I would do that. Yeah, I have a SQS placeholder now just waiting for him to set up the infrastructure. I'm assuming he's done with that part already at this point, and I was about to share with him those two domain events.\nWesley Donaldson | 08:15\nYes.\nAntônio Falcão Jr | 08:22\nShape actually, we shared the order placed one already. I have to share the other one, the membership renewed one so he can mock and start working with.\nWesley Donaldson | 08:33\nYeah, just the same thing you did over here. Just add that to the confluence page point I at.\nSam Hatoum | 08:39\nSo as you said, you're concerned, were we concerned? Does it sound like everything's in hand with Antonio at least within the ET circle within the emit bunch?\nWesley Donaldson | 08:46\nNo. So that's ideal. So we're tracking good there. Great, we'll have the payloads over. I think the other path that I'm concerned about is on the order side.\nSo Antonio, you're going to connect with Sam if you had a chance to do that yet.\nSam Hatoum | 09:00\nWhat is that?\nWesley Donaldson | 09:02\nThe projections not yet.\nAntônio Falcão Jr | 09:03\nNot yet. Yeah.\nWesley Donaldson | 09:05\nOkay, that's fine. When you guys connect, this is still an outstanding question as well. I... This assumes this SQL interface is going away because we're moving away from current for recursively.\nSo this seems obvious. And the next one is just confirming that this line now goes back to what it always was, which is just connecting directly to the Postgres inside of Aurora.\nSam Hatoum | 09:27\nNo. They should be able to do... They're not going to be as nice, but because it's in Postgres and it's just SQL, they should be able to do SQL and then do deep inspection into the JSON events and then still get the data they want.\nBecause technically... Correct me if I'm wrong, Antonio. But I think we should just be able to do JSON queries and still get BI access Postgres and get whatever data they want.\nAntônio Falcão Jr | 09:54\nWe do. But in order to simplify, I was... I took the path by using regular relational tables for projection. So either BI or supergraph can consume independently.\nSam Hatoum | 10:14\nI'm saying most far, we can still have BI. Everything that we've done so far for BI we can still have but for if BI wants something extra, that was the whole point. The same with current because current added the secondary DBS, but Postgres because it's Postgres, it has it implicitly in there.\nWesley Donaldson | 10:33\nExactly.\nSam Hatoum | 10:33\nAs long as we just tell them, \"Hey, here's the data schema. Here's the events. You can look at them.\" It's volatile because these are storage events, and we might change things, but at least they can be lagging behind a little bit.\nAntônio Falcão Jr | 10:46\nI see what you mean. Okay, they can clear the stream. They stream... I see what you mean.\nSam Hatoum | 10:56\nYeah, exactly. So I think all I'm saying is we don't get rid of the box, we can keep that exactly as it is. Yes. It goes away from current but we still have the facility to do that with Postgres.\nWesley Donaldson | 11:07\nYeah.\nSam Hatoum | 11:07\nJust in an unorthodox way basically.\nWesley Donaldson | 11:12\nSo basically... Here now just to... If you're seeing the screen share, disconnection now goes to here by virtue of they can do whatever queries they need to against the underlying data.\nSam Hatoum | 11:13\nOkay.\nOne.\nYeah, yes, correct.\nWesley Donaldson | 11:30\nOkay, so then let's just delete... Just to keep you clean. And then this is here. Okay. Perfect. Thank you.\nAntônio Falcão Jr | 11:44\nIt's looking good, and thank you.\nSam Hatoum | 11:46\nFor all this. Are you concerned about anything? Nothing specifically.\nAntônio Falcão Jr | 11:55\nI'm good. Yeah, I was just about to ask Wesley to share with me the conference page link again, because I'm not finding that I need...\nPlease, I need to put the membership renewed event on this one as well.\nYeah, thank you.\nWesley Donaldson | 12:14\nNo worries. It's here.\nAntônio Falcão Jr | 12:20\nRef... Guys, I'm okay, I have no concerns, I'm very up positive about this.\nSam Hatoum | 12:33\nI mean to help. How about you, ma'am? Anything that you need to report or need help with?\nMichal Kawka | 12:40\nNot really. So I wrapped up the record Taug integration, I'm going to test it on that right now. You always already started reviewing the code, so I'm good. There's one thing unrelated to the e-commerce, which is removal of the event store DB streams.\nSo I was working on a job to delete the streams that we create for PR environments, but unfortunately, it's not as easy as I thought because event sourcing and event story B are built on this concept in mind where events are immutable.\nWesley Donaldson | 13:04\nWhat?\nMichal Kawka | 13:14\nSo it's not as easy to delete those events as I thought because we are running out of disk storage on... When we abuse the environment with PR environments. But I think we can defer that, and I'll simply do some research over the weekend with AI, Claude.\nWhatever we have... But it's not related to the e-commerce per se. So I think it can wait until Monday. I'll just invest some time on the weekend because there's constantly something on my plate, and I thought it would be easier than it actually is because...\nSam Hatoum | 13:47\nYeah, I'm glad you discovered that. But what you can do look into this is you can actually put a tombstone on a. On a stream. You can basically say this stream is ended, and then you can scavenge. Yeah, that's the way you quote unquote delete. You can you basically like once these DOS streams ended, it basically keeps it there, but you can then say I want a Scaveng and now you can get some data back.\nSo look into that, into the documentation. Yeah.\nMichal Kawka | 14:22\nI need to do some research because there's an option to delete a stream. The stream doesn't appear in the system anymore, but the events are still preserved.\nSam Hatoum | 14:32\nRight? Exactly. Because all it's doing is putting a tombstone on that. Really? On that final event. The... Says when you try and write to it again, it says no, you can't write to it. This is the dead stream, but you can still access all the data because it's a medium without...\nYou know it happened unless you specifically want to market for scavenging and so on, but look at the process around that. There is a way to delete.\nMichal Kawka | 14:53\nSure, I will. Thank you so much, Sam, that helps.\nSam Hatoum | 14:55\nMer cool.\nWesley Donaldson | 14:57\nThanks. Guys?\nSam Hatoum | 15:00\nLeave you to it then. Anyone needs anything, reach out.\nWesley Donaldson | 15:01\nY guys.\nSam Hatoum | 15:02\nThank you so much for your work.\nMichal Kawka | 15:05\nYou talk to you later.\nAntônio Falcão Jr | 15:07\nBye, guys. Have a good one."
+  }
+}

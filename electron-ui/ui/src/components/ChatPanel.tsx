@@ -60,7 +60,7 @@ interface ChatPanelProps {
   onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
   templates?: string[];
   persistedMessages?: PersistedMessage[];
-  onSendMessage?: (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean) => void;
+  onSendMessage?: (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
   onSourceClick?: (meetingId: string) => void;
@@ -98,7 +98,21 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
     if ((!q && !hasTemplate) || loading) return;
     setInput("");
     if (isPersisted && onSendMessage) {
-      onSendMessage(q || "Generate the output.", includeTranscripts, selectedTemplate || undefined, includeAssets || undefined);
+      const currentAttachments = [...attachments];
+      setAttachments([]);
+      let base64Attachments: { name: string; base64: string; mimeType: string }[] | undefined;
+      if (currentAttachments.length > 0) {
+        base64Attachments = await Promise.all(
+          currentAttachments.map(async (a) => {
+            const resp = await fetch(a.url);
+            const buf = await resp.arrayBuffer();
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+            const mimeType = resp.headers.get("content-type") ?? "image/png";
+            return { name: a.name, base64, mimeType };
+          }),
+        );
+      }
+      onSendMessage(q || "Generate the output.", includeTranscripts, selectedTemplate || undefined, includeAssets || undefined, base64Attachments);
       return;
     }
     const currentAttachments = [...attachments];

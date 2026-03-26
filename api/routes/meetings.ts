@@ -204,8 +204,8 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
 
   app.post("/api/meetings/:id/chat", async (c) => {
     if (!llm) return c.json({ error: "LLM not available" }, 503);
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean; template?: string; includeAssets?: boolean };
-    const result = await handleMeetingChat(db, llm, c.req.param("id"), body.message, body.includeTranscripts ?? false, body.template, body.includeAssets);
+    const body = await c.req.json() as { message: string; includeTranscripts?: boolean; template?: string; includeAssets?: boolean; attachments?: { name: string; base64: string; mimeType: string }[] };
+    const result = await handleMeetingChat(db, llm, c.req.param("id"), body.message, body.includeTranscripts ?? false, body.template, body.includeAssets, body.attachments);
     return c.json(result);
   });
 

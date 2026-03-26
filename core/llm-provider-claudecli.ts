@@ -29,7 +29,7 @@ function prefixHash(system: string, messages: Array<{ role: string; content: str
 }
 
 function appendImageRefs(prompt: string, attachments: ImageAttachment[]): string {
-  const refs = attachments.map((a) => `Read the image file at ${a.filePath} (${a.name}) and include it in your analysis.`).join("\n");
+  const refs = attachments.map((a) => `[Attached image: ${a.name} (${a.mimeType})]`).join("\n");
   return `${prompt}\n\nIMPORTANT — The user has attached images.\n${refs}`;
 }
 

@@ -1,0 +1,87 @@
+{
+  "id": "019d2aa978e477fba2d4e16b6f09358a",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2a9b774b73fa813455d451dc555b",
+      "title": "(Hold) LLSA , Internal Engineering Sync",
+      "duration": 925,
+      "calendar_event_id": "7s524jmjh48kmmanjuhkiu5rfb_20260326T130000Z",
+      "participants": [
+        {
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 4,
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-26T14:44:54.109Z",
+      "end_date": "2026-03-26T15:00:19.109Z",
+      "url": "https://app.krisp.ai/n/019d2a9b774b73fa813455d451dc555b"
+    },
+    "content": {
+      "id": "019d2a9b7efc71f999d6df57c2204af5",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 923.292,
+      "size": null,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d2a9b7efc71f999d6df57c2204af5.mp3?AWSAccessKeyId=ASIA2I62CR7VJ2I5CNX7&Expires=1775142042&Signature=zgWuzH7m%2BOm%2B5DJNHGpYR1wappI%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDth2LTsU2CQH%2FijSvUih0N46Mgd%2FlP6f8VSovF0hDqQQIhAP2XztnHi6SSTyfzp5gpP%2BcS25HZUnWeqDzk7I9crofwKoQECMj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMNzA2NDQyNTk2MzMwIgxKwCAr0%2B6Uur0WQhEq2ANbd0TjaR3NGo7By%2BSiJleP95uthbmKLM7GglySEtrRXq2mZViRnNm28M7pnWCj5W8Nut4UHQsUB6B9w%2BMhVZzrhBUZXqSrBwgGwYoQCXH2vRq7%2B9bDWpHJUl%2BZWjhFIrb%2FcVCzNCMG9h37o1HJwEd3XOUjfPH0NdPeLo%2FYQnvRpVfkGDtyJ%2BM4kSl9GbEAoO2dkKq8wVsnf9gQ6qmYQz1nIQMBwEaY4EOZevpFeKE%2BLRY9FSCqOeojJ%2B4aiZ1ffFDuwYxkuN%2BzFsbZ0Vpj4llB6ZFOWwvH501ZloHKYRINWqS7GtIgaPY1mT7qZa86iiF7qvxZSJk7BTURV49stW6lBlfoJ30kc6AxlMUtiRZVnncqsYMKlumYrQVEbJHcfGyEledw2eESCvgUJaZLUq9QUdA%2FneKMVq2HiFhl0iSmkfaw0FA8KjqEbs%2FGCGrS6W9kYcmRQVxojjCSRtpr9tqs5tG%2FTowQYLNiFOHu0eJF1NAQDmD8BBjK%2BcKjigqGPdgQRrHWb%2FFoGd15i7EzjoAzzRWyYH3T4gLFG%2Fp2w%2FiOwO1NiLGeCp3wTNlRjSO73e%2FriVCdo7fd4I%2Bg%2F3yXVw1yjWoIxKriNYs5h0Jr0RBn6mhyAgW4tb2IMKeSlc4GOqQBGW2IRagpYId7NqI3a4cc2k8PjUjQ7cYkqXPesWTn4GJWdgvlA6R6%2FU4JJaT%2BGbxWZd7YqJaudHwMfyFyieJoYsi8TPAIo9u5bON3YM2DmdgDruqpiPkfxRkp51s4FZcqs3kJTjlBaSpxlqdv3KJK%2FpjN%2B8YuNnqeY4rAt3oWVGHm2UjDa1HBYp6a8zxXixtJa9eeeSTWc%2BdupEBbKQi3bmilU%2FU%3D",
+      "expires_at": "2026-04-02T15:00:42.851Z"
+    },
+    "raw_meeting": "**(Hold) LLSA , Internal Engineering Sync**\n🕞 Started at 02:44 PM on 26 Mar, lasted 15m"
+  }
+}

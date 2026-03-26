@@ -56,10 +56,10 @@ export function registerInsightRoutes(app: Hono, db: Database, llm?: LlmAdapter,
   });
 
   app.post('/api/insights/:id/chat', async (c) => {
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
+    const body = await c.req.json() as { message: string; includeTranscripts?: boolean; attachments?: { name: string; base64: string; mimeType: string }[] };
     if (!llm) return c.json({ error: 'LLM not available' }, 503);
     if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const req: InsightChatRequest = { insightId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
+    const req: InsightChatRequest = { insightId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts, attachments: body.attachments };
     const result = await handleInsightChat(db, llm, searchDeps.vdb, searchDeps.session, req);
     return c.json(result);
   });

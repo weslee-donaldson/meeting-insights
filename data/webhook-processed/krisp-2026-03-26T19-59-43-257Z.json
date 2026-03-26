@@ -1,0 +1,51 @@
+{
+  "id": "019d2bbb2842713a9dca6ce713caf60a",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2ba0c5ee74e49b5f41dc84ce8fb1",
+      "title": "Wes x Sam, Tue-Friday",
+      "duration": 1749,
+      "calendar_event_id": "56ngvu0b3i3hii62t0nq5r8sjo_20260326T183000Z",
+      "participants": [
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2
+        }
+      ],
+      "start_date": "2026-03-26T19:30:18.665Z",
+      "end_date": "2026-03-26T19:59:27.665Z",
+      "url": "https://app.krisp.ai/n/019d2ba0c5ee74e49b5f41dc84ce8fb1"
+    },
+    "content": {
+      "id": "019d2ba0d0ce751aa6389f0124ddad75",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 1747.288,
+      "size": 5160960,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d2ba0d0ce751aa6389f0124ddad75.mp3?AWSAccessKeyId=ASIA2I62CR7VFVOAIWHA&Expires=1775159979&Signature=Kv%2BM%2B95nv6QxezNwozZQRieTqdA%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEAEaCXVzLWVhc3QtMSJHMEUCIQCthx3CDuroEiIVXAChEzLLkg04PHVMHydGdIdld6to0wIgenpcDIaxMW0g2aqDvv283fHjtRO4vJx3a3SExZYp0UsqhAQIyf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw3MDY0NDI1OTYzMzAiDKK0fZu%2F7k%2BvzhEBwyrYAxX%2BS%2BjLpB81p%2FNzBb1%2Fb92hJ%2BFDZoDKPO0%2ByOw7iFEUTiI1qbJimddZ2nKN%2BYDYtjPVx2hqh549bJWvrQefg1z9jfBQoB43b3Njv89NasLbooyeH97lKckKO3dewSPlmCiiaHQunka534uInG1wyTRgAuN%2FdBql8lQPY4%2BMjBRMB8PapgVdu5zo8IZPF%2F%2Fblt037j2Vk2EHnU4vFUOg2zZvuQelcJU6WM29s8RmZH7nQprbRuJgZG4RKMz9Y6vDa7A092N4VXdvLknEO%2FmT1FN%2BuR0omD36DnNpyIuUyTqsWKNMjPhOlGHqfPt7BTLQ1vs%2F%2BNahtwAAxFafjcO6um1W4LEssruetRwa04w71sGCWkNJkX1ouWnb%2BlSse4anXhPQ7%2FeCXS%2FDJOlP2FHIG%2BqjJ%2BBrAWrvaw3C5D8bKdxIAoY%2BtWK4KtEyfywl23Zt3ZeA1ED7bJutrd8jIJPQfEdhvgoBd5f1g4P7wAOGDvMg2qBlYUM2firmJUjqyic9H28gU5n1GYCehcqAxT9im%2F9crK3y7E3FXwqfGG15686BVej1sbGdI56aPFkMMdom9PprLPCXfJOmPz7769NcN%2B2XokAwO8LVk%2F8WcHsUg5vU5vVQjneuH0swpbOVzgY6pQFHRdh%2FXCyTX8PEhrtwSwSdXu1RreWCv0rsyvmne2%2BRSytb6J%2BEea1CTZFHtuTTeYFYHOFhFsnSGNZVVRMBGxTA%2BrDT7GIi6VikOUuEC8%2BUdLmESYIPgq%2Bngqd5Z4iVePhuyl4F8ycU%2BoW%2Fe3wnIQTXcCAi8W9D2cUcDRFUgc9sp4JPb%2BpFuWbiivTuDb05iraHsbVM4j%2B8rnb7rEvSoEc6%2Fna%2FAnE%3D",
+      "expires_at": "2026-04-02T19:59:39.072Z"
+    },
+    "raw_meeting": "**Wes x Sam, Tue-Friday**\n🕞 Started at 07:30 PM on 26 Mar, lasted 29m"
+  }
+}

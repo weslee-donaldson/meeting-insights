@@ -9,7 +9,7 @@ export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task
 
 export interface ImageAttachment {
   name: string;
-  filePath: string;
+  base64: string;
   mimeType: string;
 }
 

@@ -524,10 +524,10 @@ export function useMeetingState(
     enabled: !!selectedMeetingId,
   });
 
-  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean) => {
+  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => {
     if (!selectedMeetingId) return;
     try {
-      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts, template, includeAssets);
+      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts, template, includeAssets, attachments);
       queryClient.invalidateQueries({ queryKey: ["meetingMessages", selectedMeetingId] });
     } catch (err) {
       addToast(`Chat failed: ${(err as Error).message}`, "error");

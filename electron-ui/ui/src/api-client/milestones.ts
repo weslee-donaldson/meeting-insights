@@ -40,7 +40,7 @@ export const milestonesMethods = {
     fetchJson(`${API_BASE}/api/milestones/${milestoneId}/action-items`),
 
   milestoneChat: (req: MilestoneChatRequest) =>
-    jsonPost(`${API_BASE}/api/milestones/${req.milestoneId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts }),
+    jsonPost(`${API_BASE}/api/milestones/${req.milestoneId}/chat`, { message: req.message, includeTranscripts: req.includeTranscripts, attachments: req.attachments }),
 
   getMilestoneMessages: (milestoneId: string) =>
     fetchJson(`${API_BASE}/api/milestones/${milestoneId}/messages`),

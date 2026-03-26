@@ -51,10 +51,10 @@ export function registerMilestoneRoutes(app: Hono, db: Database, llm?: LlmAdapte
   });
 
   app.post('/api/milestones/:id/chat', async (c) => {
-    const body = await c.req.json() as { message: string; includeTranscripts?: boolean };
+    const body = await c.req.json() as { message: string; includeTranscripts?: boolean; attachments?: { name: string; base64: string; mimeType: string }[] };
     if (!llm) return c.json({ error: 'LLM not available' }, 503);
     if (!searchDeps) return c.json({ error: 'Search not available' }, 503);
-    const req: MilestoneChatRequest = { milestoneId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts };
+    const req: MilestoneChatRequest = { milestoneId: c.req.param('id'), message: body.message, includeTranscripts: body.includeTranscripts, attachments: body.attachments };
     const result = await handleMilestoneChat(db, llm, searchDeps.vdb, searchDeps.session, req);
     return c.json(result);
   });

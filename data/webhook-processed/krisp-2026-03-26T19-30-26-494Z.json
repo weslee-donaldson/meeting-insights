@@ -1,0 +1,661 @@
+{
+  "id": "019d2ba066797768ae6e362d37e31fd3",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2b8557bc70009933b43a5e7634d4",
+      "title": "Mandalore, EOD State of Integration",
+      "duration": 1767,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g68o30ca58l23eg9g88rk8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8ko30e1h8d1j2d9j751k2cpk8oskcc9i8cq44g9h8crj2c9n890g_20260326T190000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "antonio.falcao@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jivko.ivanov@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "michal.kawka@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4
+        },
+        {
+          "index": 5,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "index": 6
+        }
+      ],
+      "start_date": "2026-03-26T19:00:22.467Z",
+      "end_date": "2026-03-26T19:29:49.467Z",
+      "url": "https://app.krisp.ai/n/019d2b8557bc70009933b43a5e7634d4"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Francis said.\nGood afternoon all.\nBrian welcome. Did you just say something I cannot hear? You can of just get an audio check from someone 2345689."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Check. 123. We can hear you."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Can you hear me now? Seven?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "[Laughter] Thank you. Yes, I can... Vary... Six, seven... I mean... Here you... I just picked Francis. He definitely has a few items that are super relevant to this conversation.\nAlright, let's jump in and share my screen. We got Jennifer, Jeremy, Brian, Lance, Jeffco, Antonio. Great. We can just get started with the folks that we have, and let's see if Francis and Tonyo can join us. Do you want to start, Tonyo?\nI think I know the status here. But let me not speak and give you guys a chance."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, sure. I have this actually. I had to create a PR environment for this one to have an isolated environment to test it properly, so I'm performing some tests now. I'm getting some minor issues on subscriptions, membership, actually webhooks. I'm fixing them now.\nMeanwhile, all the team is reviewing your part of this PR. I have no blockers besides those small issues. So I intend to finish this full validation until the end of the day. I think that's it. I may need to push and I may need to pull as well the webhook limb to the PR environment.\nIt's not complicated to do so just in order to have a validator. So far, I have some tricky scripts to make it work without the webhook one, but I think it may be easier from now. I just improved by bringing the webhook to the environment to the PR environment as well.\nSo yeah, that's it, guys. Talking too much."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, you're fine."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Sorry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can you speak a little? To where we are with the reactors specifically."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah. The reactors are the simplest part of this entire work because... Now, once we have the meeting workflow, those reactors are just... How can I say? In process but durable side effects.\nSo basically, every time we consume a new web, who can translate that into a domain event? This event will be dispatched and will trigger the projectors and the reactors. So the projectors will... As we all may know,\nthey will project information in whatever data source we want. The reactors will do this very specific case. They will push messages to SQS so they will push the membership renewed and the order placed. But this durable workflow gives us the exact... Exactly once delivery guarantee.\nSo they have individual checkpoints, and that's the main goal with this implementation."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, I think the team is all bought in on the value. I think just from a scheduling perspective, I just want to make sure that it's inherent or much of the effort is already a side effect.\nBut I just want to make sure we have it on our radar. We mentioned earlier... Instead of that, we wanted to do a sample schema sample payload where we can allow the SQS downstream work to be tested. We have order. Did you already send out the one for subscriptions?\nMembership, yeah. The subscription is on the renewal"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Membership yeah subscription is on reculy domain side in our side is membership."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Which. Where is it?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Can you scroll down? Is that one?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Okay, the point is, the reactor is in place already. It's implemented not in place, I mean not deployed, but it's implemented already those reactors and the I have shared the payloads, the schema with Lens, so we can do changes for that if needed.\nBut yeah, we have all of these in place already."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, perfect. I want to set a checkpoint and a milestone sometime tomorrow looking for the team. I don't answer now. Tonyo, it's not just for you. I want to set a checkpoint for the team to start doing some initial passes at end-to-end whenever it is tomorrow. It just needs to be tomorrow.\nSo just have a think on that and let's... We'll close the meeting. We're just trying to identify that point. So let's move to... I think I saw you on the call. Yes, I did."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "The stack is merged or it's merging in main right now. I will give Antonio the queue information that he needs so he can wire that up."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You'll give him the GitHub variable name or where to find it, right?"
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "Yeah, well, I guess I give. Branch is the value that we have to put in the GitHub.\nAnd then, that I guess I just have to give it to it's not a not an Antonio has to know what it's called, though. I did set the unit amount to zero. What was that? Jen on the call. Jen, I asked TED a question earlier today to confirm that we can change that if we need to. It was mentioned at stand up this morning that the d ter that we're sending to ECOM. Three API that we were going to Hardco the internet amount to zero at the moment."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So just because I saw that was for... Remember I just saw that and I just like... Sorry, I didn't see it earlier. So for membership renewals, we're not going to ECOM three, right? We're going to the listener that did... Jay just set up."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sorry, Lance, let me answer that. Let me jump in here like... Yes, sorry, Jennifer. Lance's work is kind of right in this level. So David, the closest to this is Jeremy's work here."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "But yes, there was a conversation between the two. And this MA listener is intended to represent what David is doing. Between the two of them, Jeremy and David, they've had a conversation and made sure that they're only accessing the events that they care about on the event grid.\nSo to answer your question, yes."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "The same event, but there are different events that can be handled differently."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "So it makes sense. From my understanding, DJ was supposed to make the amount deep, not required. It should be optional. If you have it, you can send it along. If you don't, I need to ask CJ if it's zero that you send it in or if it's no, let me figure that out. Okay?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so it sounds like this. So this is being merged into main, so we're projecting probably tomorrow for a green on this."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "Yeah, I once it's in main, I'll run the workflow. Trying to get the stack built and then go from there."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, can you just give me a favor? And."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Do you guys have the amount just wondering or is that not something that you have for the membership renewal?"
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "We can probably get it. It's not currently being mapped though."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay, no worries. Let me follow through. I'll let you know."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, sorry. Just make sure, Lance, if you can verify the notification, please, that that's indeed pushing to the appropriate teams channel. Just to make sure we have...\nAnd that we have an alert on the DLQI just... Just close the loop on observability on anything getting stuck in the SQS or getting failed in the SQS."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "I'll have to see how to make it fail. But I'll take a look."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. You've confirmed both the order placed and the renewal, right?\nNice. Awesome. Alright, Jeremy, over to you. Good sir."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "I merged in the initial change to actually have it working, but I need to do the... I have the changes working for that spreadsheet thing, so I just seem to merge that and I have all the keys, so we could potentially push into PRAD if we wanted to.\nSo I just have to make this one PR and then it should be green for now. Then if something comes up and testing, I'll table it then."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so that's on this entire leg then."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "ECOM three \" sha point thing? Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, that is so annoying. Inside a Miro.\nAwesome, our first green of the day. Everyone take a small break. Which means this is green, then...\nJennifer, good."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "I wanted to bring up before we move on.\nI just remembered I was talking to Francis. I don't know if you got the time yet, but remember I was asking you about the event grid thing where we have two listeners. Is there anything else that I would have to do or that DJ would have to do?\nSo that way the events work properly or anything."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "I haven't had a chance to review that. I remember I said that the list the event grid will... If he has more than one listener, it will drown off in the events. So both will not get them. It will just be sent to one of them, to one of the listeners each event."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "1."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So we don't know where they're going to go. Right now, the way that event grid is set up. There's no logic in it, it just forwards everything it gets to, ECOM or whoever the listener is. So if we want to add some logic there so that it can distribute the different events, we need to research that as well."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "So we need to have one listener and then have that listener send it to the right spot. If it sends an order placed, it's not guaranteed to go to ECOM 3. If there's an ECOM 3 listener, yeah."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "A listener that event type right now you'll get all the events and you can just filter down what you want, I think is the concept of what we're doing."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "It's just that event type doesn't have the logic to filter. I mean to say this goes to... This goes to Tom, if they are both listeners, right?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "But it should. Guys."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yes, yeah, they're both listeners."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Let's make sure we're recalling what we agreed to. We agreed that this would look for a specific known event, and it would basically just leave everything that it doesn't understand.\nSo since the event grid doesn't get an acknowledgment of the event, it should just keep on sending that, and then have a made listener should eventually grab the renewal. Is that not the case?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Yeah, if the event gets an error, it will retry. But I mean, why are the changes? This is just like we're just looking at being lucky here. If it gets to LLM at some point... Well, if you want to do that, it might work."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "We don't..."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Okay. It's like you will send to ECOM, it will reject, and then the error will be temporary, so event tries again. Once it hits LLM, then it gets a good response, and that's it. That might work, but I don't know if it's the other in robbing, actually."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "It's almost like a round-robin."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "What is the other if it's the other way around where it gets it sends to a listener first and is an order not a subscription, or what is it membership?\nI will respond rejecting it. Well, I don't know. The easiest way to fix this is easier for me, right? It's just to create another... Just for... I mean, separate one for ECOM, one for MMI, and then the LLaMA interview sends events, has logic to send to one or the other.\nThat's easier for me and faster. So we have one for order, one for them. Exactly.\nOr we can... I have to research if we can have the logic key in there, which I don't know the logic to send events to different listeners. So if you want to go with the tour event grids, I can work with that. That shouldn't take long."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jeremy, do you have a perspective? Jennifer, do you have a perspective on this? My instinct is this is the right call, considering where we are and just to have that separation and cleanliness, not having to worry about misses between the two of them."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "It sounds easier, and I think that having two event grids is not a bad solution if it's simpler for now."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So we'll need a load of another line to it to reserve and the LLaMA that has to it will have both configurations, but it will..."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "I'll need those new ones."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Yeah, the new one... When I have it, I'll share it. Okay, if you can... You can create a ticket for me to create this other event group."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I got it.\nOkay, so then, I'm going to turn this back to... Just because there's... We're going to need additional work to make sure we're hitting the right event grid."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 5,
+        "text": "It's not of... To update the land... As well."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jeremy, right."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So that can stay connected to the one that we have currently, right? It's just the other one. So you can have this one green, right?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I see what you're saying. Yep. So then..."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "It's got the one that is not existing yet, so that can stay the same."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "This S good point."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "That'll be the order one, and then the new one will be LLaMA 1."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. How do you do a gradient on this line? Kidding. Okay, Jeremy, do you want to speak to just the work you've been doing around the BI?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, I put up a schema. I'm just going to... I realized something to make it simpler for now, so I just asked some Tony to review it. I just made the change so once he gives it... Okay, we can share it with the other team just to double-check which things we're listening to and which events we're listening to because there are different ones for the Dunning campaigns. I don't know if that was... I'm assuming that wasn't already added to what's already been done.\nSo we would need work for that. But I just got to double-check with Antonio."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Just be aware, BI has flagged that there. That's not urgent for them.\nSo they don't need Dunning as part of the initial release. Dunning process activity. Where did I put it? DUNNING."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "So for phase, when you get the invoice from the API, it actually gives you the Dunning campaign ID and the Dunning step number, so it'll be there, but it definitely wouldn't be super detailed, so..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, it's already there."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Got it?\nYeah, I'll just make sure that I remove that stuff from that then, and not include stuff Dunning just to make sure that it's more streamlined."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I think my worry there is if you have the information and it's not going to cause uncertainty or false or unclear state downstream then include it. I think that's... Let's have that as a conversation with the BI team. Here's what we have. Is this relevant or not? Should we just scrub it out or not?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Okay? Yeah, I will take a look at that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "If it's no additional work to us, why not give it to them? If it's valuable, that's my concern."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Y yeah, I'll. I'll double check the documentation and make sure I give them, like, a clear example of, like, what it's going to give them.\nAnd then if they want it on there, you know, we can talk about it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, sounds good. I think that's everything. Sorry, Francis, I wanted to give you the floor for a bit. You have a few things on your plate. Walk us through where you are. Anything here you want to turn green for?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "How are the things? Which ones? Let me see."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So you have a couple of things, right? So you have the domain for booking that lifeline screening. You have the AWS security whitelisting on the API gateway. This guy here, that's done. Okay."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So the booking domain... The booking you see... Why booking would have been better."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "[Laughter] So book I'm just deploying now the deployment is not running correctly so me and me how and Jovis are chatting about that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I see that. Okay."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So I've configured the GitHub environment variables, but I need to deploy, and that is not working. So we need to figure that out."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You already... So Jennifer's awesome. You're here, so I think you already said that you're trying to see if you can push this through for us. You have everything you need on like just from Francis, correct? One cor."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Possibly."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I don't know. I will start looking at that and see. Rinor, do you want to get together with me to see if I... Or I'll... I'll look up and see what I need for the webhook and I'll let you know. Okay?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Cool. Yeah. There are a few things there, right? There's just the RL but the H Mac as well. Whatever we need to ensure that we're able to actually get the hook properly.\nAll right, the last thing I'd ask if folks just think about what's a milestone moment for us tomorrow. My thinking there is I want to have a big... An end-to-end walkthrough is where we can see a recorder and a recurring order is placed in booking...lifelinescreeningsandbox.com. It creates an order. That order gets pushed through our ingestion process. It makes it into the single process. It gets out of the DAL. It gets out of the reactors into the job processor. The obvious stuff.\nSo I know there are PRs in flow. I know team members will make best efforts to get those PRs approved and merged in for tomorrow. Do we want to target the same? Maybe after the demo tomorrow as that time... What are your thoughts, Ste?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Are still point. Are we still pointing at the prod screenings in our test environment."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes, but there is a ticket. Antonio, I gave that to you. If someone else... I know you're spending a bit of my effort here. Someone else can grab that, they're just there for everyone's knowledge. We are on the commerce store.\nRight now we're hitting the production endpoint for the Gateway API, which is causing us to consume bookings inside of production. So there's a ticket out there to actually properly reflect test versus prod instances of that."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "As if we try to test end-to-end including the c-star e-com 3 stuff that'll throw an error because it won't be able to find that appointment because the good will be from a different environment."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Different here."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "So I guess we could use it as a way to test a failure or something, but that will have to be done before we have a full end test and expect it to work."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's a fair point. And Tonyo, as I said, tickets on you... We can pull it up really quickly. Rinor, that DA... I thought it was on you. My brain... One second to catch up. No, that's the wrong one. Where's my epics?"
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Maybe the status is \"nothing to do.\" I don't know."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, maybe 1.2 is going back and forth and may have given it to me. How come on load be version domains to add blue-green switching endpoints for the live? Yeah, it's in... To death. Am I blind? Use the correct... Am I blind? Guys, right, okay, cool. I haven't seen that before, it's in... Ready for dev on the proper board."
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "Weird at five. [Laughter]."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, whatever. So this tick a year is to address the point Jeremy's flaking. Jeremy, Antonio, do you think you can knock us off quickly? Do we need Francis to create another GitHub variable to actually store this value?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "So we have one already in the value."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "5."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "Yeah, we do it we do have I it's I think it's only a matter of putting the right values in the dev one because dev is supposed to be use the same one from prad. That's."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Francis, it's a P1, if you can please take a look at that as soon as you can, please."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "All right."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "But why is that not on the board? That's so weird. Okay, so let's assume that we have that salt.\nSo, Jeremy, that takes care of the wrong domains for orders coming in. So now we have all orders going into production and Jennifer is on board. We'll make sure we're not burning through our monies here, but we'll... We won't be able to create maybe. Actually, that's a really good point. Let's be very careful\nwhen we're putting in final orders. So maybe make it all the way up to check out, but just let's communicate over the teams channel where you're going to place a live order. You're going to have to get the card from Jennifer anyway, so just be very mindful of that, please."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I think there's a whole process with canceling the appointment and getting the refund as well."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Let's test that. I will make a note to add that to our sheet as well, which Devon did provide to us, so I'll add that to the sheet. Okay, let's keep going. We think... I heard a positive from you after the demo, Francis, Lance, Jeremy, what are your thoughts?"
+      },
+      {
+        "speaker": "Speaker 6",
+        "speakerIndex": 6,
+        "text": "That sounds good to me."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. Everyone is clear on the tickets that they're going to. I'm going to say yes for us.\nEveryone's clear on the tickets that they're prioritizing to get to that milestone time of roughly 1:00 pm Eastern daylight savings time.\nAll right. I'm going to take that as a yes, because no answer means whatever the preferred answer is. If you disagree, please flag it in the channel. DM me directly. Let's... This is our milestone, our team's milestone, so let's all of us contribute to it.\nSo please, if you disagree or if you have a concern, please flag it. There are some other things that are outstanding, for example, some around the coupon and some other task, but if this flow is working, we can solve all those other features. The flow is my most important thing right now. Making sure we can go from end to end.\nAll right, guys. Thank you so much."
+      },
+      {
+        "speaker": "Speaker 4",
+        "speakerIndex": 4,
+        "text": "I guess."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Enjoy the day."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Thanks. A good one. Okay."
+      }
+    ],
+    "raw_meeting": "**Mandalore, EOD State of Integration**\n🕞 Started at 07:00 PM on 26 Mar, lasted 29m",
+    "raw_content": "Wesley Donaldson | 00:48\nFrancis said.\nGood afternoon all.\nBrian welcome. Did you just say something I cannot hear? You can of just get an audio check from someone 2345689.\njeremy.campeau@llsa.com | 01:43\nCheck. 123. We can hear you.\nSpeaker 3 | 01:48\nCan you hear me now? Seven?\nWesley Donaldson | 01:54\n[Laughter] Thank you. Yes, I can... Vary... Six, seven... I mean... Here you... I just picked Francis. He definitely has a few items that are super relevant to this conversation.\nAlright, let's jump in and share my screen. We got Jennifer, Jeremy, Brian, Lance, Jeffco, Antonio. Great. We can just get started with the folks that we have, and let's see if Francis and Tonyo can join us. Do you want to start, Tonyo?\nI think I know the status here. But let me not speak and give you guys a chance.\nSpeaker 4 | 02:44\nYeah, sure. I have this actually. I had to create a PR environment for this one to have an isolated environment to test it properly, so I'm performing some tests now. I'm getting some minor issues on subscriptions, membership, actually webhooks. I'm fixing them now.\nMeanwhile, all the team is reviewing your part of this PR. I have no blockers besides those small issues. So I intend to finish this full validation until the end of the day. I think that's it. I may need to push and I may need to pull as well the webhook limb to the PR environment.\nIt's not complicated to do so just in order to have a validator. So far, I have some tricky scripts to make it work without the webhook one, but I think it may be easier from now. I just improved by bringing the webhook to the environment to the PR environment as well.\nSo yeah, that's it, guys. Talking too much.\nWesley Donaldson | 04:19\nYeah, you're fine.\nSpeaker 4 | 04:22\nSorry.\nWesley Donaldson | 04:23\nCan you speak a little? To where we are with the reactors specifically.\nSpeaker 4 | 04:27\nYeah. The reactors are the simplest part of this entire work because... Now, once we have the meeting workflow, those reactors are just... How can I say? In process but durable side effects.\nSo basically, every time we consume a new web, who can translate that into a domain event? This event will be dispatched and will trigger the projectors and the reactors. So the projectors will... As we all may know,\nthey will project information in whatever data source we want. The reactors will do this very specific case. They will push messages to SQS so they will push the membership renewed and the order placed. But this durable workflow gives us the exact... Exactly once delivery guarantee.\nSo they have individual checkpoints, and that's the main goal with this implementation.\nWesley Donaldson | 05:47\nYeah, I think the team is all bought in on the value. I think just from a scheduling perspective, I just want to make sure that it's inherent or much of the effort is already a side effect.\nBut I just want to make sure we have it on our radar. We mentioned earlier... Instead of that, we wanted to do a sample schema sample payload where we can allow the SQS downstream work to be tested. We have order. Did you already send out the one for subscriptions?\nMembership, yeah. The subscription is on the renewal\nSpeaker 4 | 06:23\nMembership yeah subscription is on reculy domain side in our side is membership.\nWesley Donaldson | 06:31\nWhich. Where is it?\nSpeaker 4 | 06:37\nCan you scroll down? Is that one?\nWesley Donaldson | 06:38\nYeah.\nSpeaker 4 | 06:40\nOkay, the point is, the reactor is in place already. It's implemented not in place, I mean not deployed, but it's implemented already those reactors and the I have shared the payloads, the schema with Lens, so we can do changes for that if needed.\nBut yeah, we have all of these in place already.\nWesley Donaldson | 07:07\nOkay, perfect. I want to set a checkpoint and a milestone sometime tomorrow looking for the team. I don't answer now. Tonyo, it's not just for you. I want to set a checkpoint for the team to start doing some initial passes at end-to-end whenever it is tomorrow. It just needs to be tomorrow.\nSo just have a think on that and let's... We'll close the meeting. We're just trying to identify that point. So let's move to... I think I saw you on the call. Yes, I did.\nlance.fallon@llsa.com | 07:38\nThe stack is merged or it's merging in main right now. I will give Antonio the queue information that he needs so he can wire that up.\nWesley Donaldson | 07:56\nYou'll give him the GitHub variable name or where to find it, right?\nlance.fallon@llsa.com | 08:00\nYeah, well, I guess I give. Branch is the value that we have to put in the GitHub.\nAnd then, that I guess I just have to give it to it's not a not an Antonio has to know what it's called, though. I did set the unit amount to zero. What was that? Jen on the call. Jen, I asked TED a question earlier today to confirm that we can change that if we need to. It was mentioned at stand up this morning that the d ter that we're sending to ECOM. Three API that we were going to Hardco the internet amount to zero at the moment.\nSpeaker 3 | 08:45\nSo just because I saw that was for... Remember I just saw that and I just like... Sorry, I didn't see it earlier. So for membership renewals, we're not going to ECOM three, right? We're going to the listener that did... Jay just set up.\nWesley Donaldson | 09:12\nSorry, Lance, let me answer that. Let me jump in here like... Yes, sorry, Jennifer. Lance's work is kind of right in this level. So David, the closest to this is Jeremy's work here.\nSpeaker 3 | 09:20\nOkay.\nWesley Donaldson | 09:22\nBut yes, there was a conversation between the two. And this MA listener is intended to represent what David is doing. Between the two of them, Jeremy and David, they've had a conversation and made sure that they're only accessing the events that they care about on the event grid.\nSo to answer your question, yes.\nlance.fallon@llsa.com | 09:46\nThe same event, but there are different events that can be handled differently.\nSpeaker 3 | 09:50\nSo it makes sense. From my understanding, DJ was supposed to make the amount deep, not required. It should be optional. If you have it, you can send it along. If you don't, I need to ask CJ if it's zero that you send it in or if it's no, let me figure that out. Okay?\nWesley Donaldson | 10:17\nOkay, so it sounds like this. So this is being merged into main, so we're projecting probably tomorrow for a green on this.\nlance.fallon@llsa.com | 10:26\nYeah, I once it's in main, I'll run the workflow. Trying to get the stack built and then go from there.\nWesley Donaldson | 10:35\nYeah, can you just give me a favor? And.\nSpeaker 3 | 10:37\nDo you guys have the amount just wondering or is that not something that you have for the membership renewal?\nlance.fallon@llsa.com | 10:47\nWe can probably get it. It's not currently being mapped though.\nSpeaker 3 | 10:53\nOkay, no worries. Let me follow through. I'll let you know.\nWesley Donaldson | 11:01\nOkay, sorry. Just make sure, Lance, if you can verify the notification, please, that that's indeed pushing to the appropriate teams channel. Just to make sure we have...\nAnd that we have an alert on the DLQI just... Just close the loop on observability on anything getting stuck in the SQS or getting failed in the SQS.\nSpeaker 3 | 11:27\nOkay.\nlance.fallon@llsa.com | 11:28\nI'll have to see how to make it fail. But I'll take a look.\nWesley Donaldson | 11:34\nOkay. You've confirmed both the order placed and the renewal, right?\nNice. Awesome. Alright, Jeremy, over to you. Good sir.\njeremy.campeau@llsa.com | 11:48\nI merged in the initial change to actually have it working, but I need to do the... I have the changes working for that spreadsheet thing, so I just seem to merge that and I have all the keys, so we could potentially push into PRAD if we wanted to.\nSo I just have to make this one PR and then it should be green for now. Then if something comes up and testing, I'll table it then.\nWesley Donaldson | 12:22\nOkay, so that's on this entire leg then.\njeremy.campeau@llsa.com | 12:26\nECOM three \" sha point thing? Yeah.\nWesley Donaldson | 12:29\nOkay, that is so annoying. Inside a Miro.\nAwesome, our first green of the day. Everyone take a small break. Which means this is green, then...\nJennifer, good.\njeremy.campeau@llsa.com | 12:58\nI wanted to bring up before we move on.\nI just remembered I was talking to Francis. I don't know if you got the time yet, but remember I was asking you about the event grid thing where we have two listeners. Is there anything else that I would have to do or that DJ would have to do?\nSo that way the events work properly or anything.\nSpeaker 6 | 13:21\nI haven't had a chance to review that. I remember I said that the list the event grid will... If he has more than one listener, it will drown off in the events. So both will not get them. It will just be sent to one of them, to one of the listeners each event.\nWesley Donaldson | 13:40\n1.\nSpeaker 6 | 13:40\nSo we don't know where they're going to go. Right now, the way that event grid is set up. There's no logic in it, it just forwards everything it gets to, ECOM or whoever the listener is. So if we want to add some logic there so that it can distribute the different events, we need to research that as well.\njeremy.campeau@llsa.com | 14:01\nSo we need to have one listener and then have that listener send it to the right spot. If it sends an order placed, it's not guaranteed to go to ECOM 3. If there's an ECOM 3 listener, yeah.\nlance.fallon@llsa.com | 14:11\nA listener that event type right now you'll get all the events and you can just filter down what you want, I think is the concept of what we're doing.\nSpeaker 6 | 14:26\nIt's just that event type doesn't have the logic to filter. I mean to say this goes to... This goes to Tom, if they are both listeners, right?\nWesley Donaldson | 14:31\nBut it should. Guys.\njeremy.campeau@llsa.com | 14:36\nYes, yeah, they're both listeners.\nWesley Donaldson | 14:37\nLet's make sure we're recalling what we agreed to. We agreed that this would look for a specific known event, and it would basically just leave everything that it doesn't understand.\nSo since the event grid doesn't get an acknowledgment of the event, it should just keep on sending that, and then have a made listener should eventually grab the renewal. Is that not the case?\nSpeaker 6 | 14:58\nYeah, if the event gets an error, it will retry. But I mean, why are the changes? This is just like we're just looking at being lucky here. If it gets to LLM at some point... Well, if you want to do that, it might work.\nWesley Donaldson | 15:11\nWe don't...\nSpeaker 6 | 15:13\nOkay. It's like you will send to ECOM, it will reject, and then the error will be temporary, so event tries again. Once it hits LLM, then it gets a good response, and that's it. That might work, but I don't know if it's the other in robbing, actually.\nWesley Donaldson | 15:30\nIt's almost like a round-robin.\nSpeaker 6 | 15:33\nWhat is the other if it's the other way around where it gets it sends to a listener first and is an order not a subscription, or what is it membership?\nI will respond rejecting it. Well, I don't know. The easiest way to fix this is easier for me, right? It's just to create another... Just for... I mean, separate one for ECOM, one for MMI, and then the LLaMA interview sends events, has logic to send to one or the other.\nThat's easier for me and faster. So we have one for order, one for them. Exactly.\nOr we can... I have to research if we can have the logic key in there, which I don't know the logic to send events to different listeners. So if you want to go with the tour event grids, I can work with that. That shouldn't take long.\nWesley Donaldson | 16:50\nJeremy, do you have a perspective? Jennifer, do you have a perspective on this? My instinct is this is the right call, considering where we are and just to have that separation and cleanliness, not having to worry about misses between the two of them.\nSpeaker 3 | 17:07\nIt sounds easier, and I think that having two event grids is not a bad solution if it's simpler for now.\nSpeaker 6 | 17:24\nSo we'll need a load of another line to it to reserve and the LLaMA that has to it will have both configurations, but it will...\nlance.fallon@llsa.com | 17:33\nI'll need those new ones.\nSpeaker 6 | 17:34\nYeah, the new one... When I have it, I'll share it. Okay, if you can... You can create a ticket for me to create this other event group.\nWesley Donaldson | 17:46\nI got it.\nOkay, so then, I'm going to turn this back to... Just because there's... We're going to need additional work to make sure we're hitting the right event grid.\nlance.fallon@llsa.com | 17:56\nIt's not of... To update the land... As well.\nWesley Donaldson | 18:09\nJeremy, right.\nSpeaker 6 | 18:14\nSo that can stay connected to the one that we have currently, right? It's just the other one. So you can have this one green, right?\nWesley Donaldson | 18:21\nI see what you're saying. Yep. So then...\nSpeaker 6 | 18:22\nIt's got the one that is not existing yet, so that can stay the same.\nWesley Donaldson | 18:23\nThis S good point.\nSpeaker 6 | 18:28\nThat'll be the order one, and then the new one will be LLaMA 1.\nWesley Donaldson | 18:35\nOkay. How do you do a gradient on this line? Kidding. Okay, Jeremy, do you want to speak to just the work you've been doing around the BI?\njeremy.campeau@llsa.com | 18:50\nYeah, I put up a schema. I'm just going to... I realized something to make it simpler for now, so I just asked some Tony to review it. I just made the change so once he gives it... Okay, we can share it with the other team just to double-check which things we're listening to and which events we're listening to because there are different ones for the Dunning campaigns. I don't know if that was... I'm assuming that wasn't already added to what's already been done.\nSo we would need work for that. But I just got to double-check with Antonio.\nWesley Donaldson | 19:23\nJust be aware, BI has flagged that there. That's not urgent for them.\nSo they don't need Dunning as part of the initial release. Dunning process activity. Where did I put it? DUNNING.\njeremy.campeau@llsa.com | 19:41\nSo for phase, when you get the invoice from the API, it actually gives you the Dunning campaign ID and the Dunning step number, so it'll be there, but it definitely wouldn't be super detailed, so...\nWesley Donaldson | 19:47\nOkay, it's already there.\njeremy.campeau@llsa.com | 19:57\nGot it?\nYeah, I'll just make sure that I remove that stuff from that then, and not include stuff Dunning just to make sure that it's more streamlined.\nWesley Donaldson | 20:04\nI think my worry there is if you have the information and it's not going to cause uncertainty or false or unclear state downstream then include it. I think that's... Let's have that as a conversation with the BI team. Here's what we have. Is this relevant or not? Should we just scrub it out or not?\njeremy.campeau@llsa.com | 20:25\nOkay? Yeah, I will take a look at that.\nWesley Donaldson | 20:27\nIf it's no additional work to us, why not give it to them? If it's valuable, that's my concern.\njeremy.campeau@llsa.com | 20:32\nY yeah, I'll. I'll double check the documentation and make sure I give them, like, a clear example of, like, what it's going to give them.\nAnd then if they want it on there, you know, we can talk about it.\nWesley Donaldson | 20:42\nOkay, sounds good. I think that's everything. Sorry, Francis, I wanted to give you the floor for a bit. You have a few things on your plate. Walk us through where you are. Anything here you want to turn green for?\nSpeaker 6 | 20:59\nHow are the things? Which ones? Let me see.\nWesley Donaldson | 21:06\nSo you have a couple of things, right? So you have the domain for booking that lifeline screening. You have the AWS security whitelisting on the API gateway. This guy here, that's done. Okay.\nSpeaker 6 | 21:23\nSo the booking domain... The booking you see... Why booking would have been better.\nWesley Donaldson | 21:29\nYes.\nSpeaker 6 | 21:31\n[Laughter] So book I'm just deploying now the deployment is not running correctly so me and me how and Jovis are chatting about that.\nWesley Donaldson | 21:41\nI see that. Okay.\nSpeaker 6 | 21:43\nSo I've configured the GitHub environment variables, but I need to deploy, and that is not working. So we need to figure that out.\nWesley Donaldson | 21:54\nYou already... So Jennifer's awesome. You're here, so I think you already said that you're trying to see if you can push this through for us. You have everything you need on like just from Francis, correct? One cor.\nSpeaker 6 | 22:12\nPossibly.\nSpeaker 3 | 22:13\nI don't know. I will start looking at that and see. Rinor, do you want to get together with me to see if I... Or I'll... I'll look up and see what I need for the webhook and I'll let you know. Okay?\nWesley Donaldson | 22:33\nCool. Yeah. There are a few things there, right? There's just the RL but the H Mac as well. Whatever we need to ensure that we're able to actually get the hook properly.\nAll right, the last thing I'd ask if folks just think about what's a milestone moment for us tomorrow. My thinking there is I want to have a big... An end-to-end walkthrough is where we can see a recorder and a recurring order is placed in booking...lifelinescreeningsandbox.com. It creates an order. That order gets pushed through our ingestion process. It makes it into the single process. It gets out of the DAL. It gets out of the reactors into the job processor. The obvious stuff.\nSo I know there are PRs in flow. I know team members will make best efforts to get those PRs approved and merged in for tomorrow. Do we want to target the same? Maybe after the demo tomorrow as that time... What are your thoughts, Ste?\njeremy.campeau@llsa.com | 23:41\nAre still point. Are we still pointing at the prod screenings in our test environment.\nWesley Donaldson | 23:50\nYes, but there is a ticket. Antonio, I gave that to you. If someone else... I know you're spending a bit of my effort here. Someone else can grab that, they're just there for everyone's knowledge. We are on the commerce store.\nRight now we're hitting the production endpoint for the Gateway API, which is causing us to consume bookings inside of production. So there's a ticket out there to actually properly reflect test versus prod instances of that.\njeremy.campeau@llsa.com | 24:19\nAs if we try to test end-to-end including the c-star e-com 3 stuff that'll throw an error because it won't be able to find that appointment because the good will be from a different environment.\nWesley Donaldson | 24:32\nDifferent here.\njeremy.campeau@llsa.com | 24:33\nSo I guess we could use it as a way to test a failure or something, but that will have to be done before we have a full end test and expect it to work.\nWesley Donaldson | 24:45\nThat's a fair point. And Tonyo, as I said, tickets on you... We can pull it up really quickly. Rinor, that DA... I thought it was on you. My brain... One second to catch up. No, that's the wrong one. Where's my epics?\nSpeaker 4 | 25:15\nMaybe the status is \"nothing to do.\" I don't know.\nWesley Donaldson | 25:19\nYeah, maybe 1.2 is going back and forth and may have given it to me. How come on load be version domains to add blue-green switching endpoints for the live? Yeah, it's in... To death. Am I blind? Use the correct... Am I blind? Guys, right, okay, cool. I haven't seen that before, it's in... Ready for dev on the proper board.\nSpeaker 6 | 25:53\nWeird at five. [Laughter].\nWesley Donaldson | 26:06\nOkay, whatever. So this tick a year is to address the point Jeremy's flaking. Jeremy, Antonio, do you think you can knock us off quickly? Do we need Francis to create another GitHub variable to actually store this value?\nSpeaker 6 | 26:22\nSo we have one already in the value.\nWesley Donaldson | 26:25\n5.\nSpeaker 4 | 26:25\nYeah, we do it we do have I it's I think it's only a matter of putting the right values in the dev one because dev is supposed to be use the same one from prad. That's.\nWesley Donaldson | 26:40\nFrancis, it's a P1, if you can please take a look at that as soon as you can, please.\nSpeaker 3 | 26:45\nAll right.\nWesley Donaldson | 26:46\nBut why is that not on the board? That's so weird. Okay, so let's assume that we have that salt.\nSo, Jeremy, that takes care of the wrong domains for orders coming in. So now we have all orders going into production and Jennifer is on board. We'll make sure we're not burning through our monies here, but we'll... We won't be able to create maybe. Actually, that's a really good point. Let's be very careful\nwhen we're putting in final orders. So maybe make it all the way up to check out, but just let's communicate over the teams channel where you're going to place a live order. You're going to have to get the card from Jennifer anyway, so just be very mindful of that, please.\nSpeaker 3 | 27:28\nI think there's a whole process with canceling the appointment and getting the refund as well.\nWesley Donaldson | 27:36\nLet's test that. I will make a note to add that to our sheet as well, which Devon did provide to us, so I'll add that to the sheet. Okay, let's keep going. We think... I heard a positive from you after the demo, Francis, Lance, Jeremy, what are your thoughts?\nSpeaker 6 | 28:04\nThat sounds good to me.\nWesley Donaldson | 28:07\nOkay. Everyone is clear on the tickets that they're going to. I'm going to say yes for us.\nEveryone's clear on the tickets that they're prioritizing to get to that milestone time of roughly 1:00 pm Eastern daylight savings time.\nAll right. I'm going to take that as a yes, because no answer means whatever the preferred answer is. If you disagree, please flag it in the channel. DM me directly. Let's... This is our milestone, our team's milestone, so let's all of us contribute to it.\nSo please, if you disagree or if you have a concern, please flag it. There are some other things that are outstanding, for example, some around the coupon and some other task, but if this flow is working, we can solve all those other features. The flow is my most important thing right now. Making sure we can go from end to end.\nAll right, guys. Thank you so much.\nSpeaker 4 | 29:14\nI guess.\nWesley Donaldson | 29:15\nEnjoy the day.\njeremy.campeau@llsa.com | 29:16\nThanks. A good one. Okay."
+  }
+}

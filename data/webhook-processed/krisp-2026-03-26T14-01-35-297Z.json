@@ -1,0 +1,906 @@
+{
+  "id": "019d2a7343fa77ee95dc84c7808904c0",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2a49749f76e1a567c977a4fd3e70",
+      "title": "Mandalore, AWS Alert Planning",
+      "duration": 2711,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8p14ad268coj4dq3891k8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6gp46d1m8oojeh1j64pk2hhk6l136gpi6p23ie9g88qj4g9m74r0",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "francis.pena@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "michal.kawka@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "f23890c1a965529d8c72eea3679538c9",
+          "first_name": null,
+          "email": "francis.pena@llsa.com"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "dc1e19fa4ae15adc849e08797a8e375c",
+          "first_name": "Jennifer",
+          "email": "09859407fa054afe80f3b7887e066613@noemail.krisp.ai"
+        },
+        {
+          "index": 4,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-26T13:15:20.105Z",
+      "end_date": "2026-03-26T14:00:31.105Z",
+      "url": "https://app.krisp.ai/n/019d2a49749f76e1a567c977a4fd3e70"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Please not. I know she...\nGood morning, Francis."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Hey. Good morning. Hi, Ay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He me here. Sorry, I know this is a little early for meetings, but an important meeting. Let's give Jennifer it's extra early for her. Let's give her a little extra time. You guys are clear on what we're trying to accomplish for this meeting, right?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "I think we have an idea."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Good morning."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Morning."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Good early morning. All right, let's jump in quickly so we can maybe give team members back a couple of extra minutes in their early mornings.\nOkay, so we pulled this together to... TED, I guess, is a bit of a loaded word, but I think a good word here. We're looking to understand what existing alerts are firing now in the system. Take a bit of a review of those alerts and then maybe go through each one to understand what the severity of it is. Come up with a plan for that. We need to update thresholds. Are there any blind spots that we currently have on alerts that are not being reported?\nSo... You had shared some information back with me on one of your PRs. I'd called out some of the alarms that you flagged. So maybe... Let's start with just the alarms that are currently active, that are currently going off, and then we can try to address them and just come up with a plan of action of how we want to address them.\nMy goal for this session would just be a clear list of action items for us to get to a better state on notifications and alarms. That makes sense."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Okay, P. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jennifer, do you want to share the screen that you shared with me?\nWe can use that as a jumping-off point."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Well, getting that up right now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I am recording this, right?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "It's a great place to start."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Apologies. Let me start the recording."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "No worries. The computer seems to still be waking up, too. Air goes... Okay, this is the least amount of alerts I've ever seen. Of course, for this meeting."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The demo."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I do see... Okay, it says in alarm three, but I only see two here, so that's strange, but I guess...\nSo, Michel, I know we've talked about this one, the event bus one, sometimes, but I'm not sure necessarily what's still going on with this one. Something like this just needs a threshold change, I'm pretty sure.\nUnless there's actually an issue with S3. Then I feel like that might be something that we need to look into with as incognito and see how many are we expecting to fail. Then this one's new part."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Yeah. So this is the alert for the parked events that are parked in S3. So, as you remember, we have two different strategies to park events. So if there's an infrastructure issue, for example, an event cannot be delivered to the Lambda function, it's being parked in the dead letter queue provisioned by AWS.\nHowever, if there's an issue within the code. Right? So if we process an event using a connector from the event store DB and it throws an error, it's within the code, so we need to park that event somewhere else.\nSo we park them in S3. This particular alarm... So it's a main Pro Ops connector parked events, and it's for the events parked in S3, so they were merged, I believe, one week ago. So we might still need some fine-tuning on the thresholds because every now and then we will park some events in those S3 buckets for various reasons, right? That we, of course, need to investigate because, for example, we might be replaying the events, and there might be a first name missing or an email missing or a phone number or whatever.\nBut we definitely need an action, fine-tuning on the thresholds."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah, so I think what I said was new. It was not something that I saw yesterday, so unless it was... Okay. There are things being okay. So maybe I did see it yesterday, and I'm just mistaking, but yeah.\nSo we do have some parked events in S3 that are definitely not needing to be alerting on because I know we have email collisions, and we probably just need to trash those anyway because we don't... I don't think we do anything with them, so I don't know if we need to be saving them right now.\nI think there are other parked events that we can look into and see if these are actually valid. That's the triage that I'm talking about that we need to go into because right now, we've been setting up the alerting that we don't have, but we haven't gone through the alerting we do have."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "My hope is to do that during this session. Jennifer, we can step back and maybe include a few additional people. Maybe Harry and you would be good people to add to this conversation.\nBut just for the folks that we have here, could we maybe just come to this idea of greater than or equal to one? Maybe it's greater than or equal to five or so. Do we want to just... Are we comfortable making some updates just to reduce the severity?\nAre we comfortable saying maybe pushing this up from one to five? Just as an example."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I think... So this doesn't just need to be pushed up here like this parked event.\nOr are you talking about the SMS? We tried pushing this up from one to five, and it still was going off."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Interest."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So I think that there does need to be some look into what that right threshold is. I don't think that's something that's just non... I think that we need to see if pushing it... Are we expecting there to be a 10% failure rate on SMS because that to me seems very high, especially with the issues that we've been having with logging.\nSo I want to make sure that before we change that threshold above five, that we know why we are having over five% errors on SMS, and is that not... I feel like that might be something that we need to... Because AWS is sending out those SMS messages. Is that something that we need to change within our system?\nLike, do we. Are we expecting that failure because we aren't checking the phone numbers to make sure that they are S MS eligible phone numbers like there's just a lot of questions around that agree."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "So, same for the park events. It's not about adjusting the threshold because we can set the threshold to whatever we want and make the alarms not fire, right? But we definitely need to investigate why the SMS messages are failing\nbecause even if we have 5% or 1%, that's alarming because we don't have such issues with emails, for example. But like you said, Jennifer, there might be phone numbers that are not SMS-eligible, or there are various issues, but they need to be investigated.\nIn terms of the parked events, it's not a matter of increasing the threshold. I think we might need more confidence in what is being parked because if an event without a first name or emails is being parked, that's completely fine, right? We expect that because for some reason the user didn't provide an email or ended up in the system without an email or first name.\nBut we definitely..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So that's a question right there. If somebody without a first name is being parked, why are we preventing them from coming into the system because they don't have a first name? That shouldn't be something that limits them from getting set up in our system because they've already got an order and everything.\nSo we need to be creating their Cognito account because otherwise they're not able to log in and see their results. Just because for some reason they don't have a first name."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "That's true. In the end, I would need to track down the whole path because there might have been a few things that changed. I didn't really work on the front for quite a while, but if I'm not mistaken, we have the first name form when the users sign up, but those fields are ignored, so first name and last name are never collected."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "First name and last name are collected quite often. They're not added into Cognito ever. You're talking about the results. So we are preventing them from creating a ChatGPT account when they don't have a first name, when their order is created, which could happen in CSTAR, could happen in ECOM, like it's actually prevented in Shopify, but we shouldn't prevent them from being able to log in just because of that. In Thrive, the polling service shouldn't... If the polling service brings someone over that doesn't have a first name, then we should be able to create that ChatGPT account. Anyways, which I think that one Dane might actually have as a ticket that he's looking into.\nI think I saw it move, but... So... What I'm hoping that we can do because I don't think we can answer all the questions today, but I think that we can talk about these things that do need to be looked at and addressed."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Like each of the these alarms should get like poked into and we should be creating tickets off of each of them. So if we start with the parked events I did get. I do have, like, an epic or tickets, that talk like, there's one that says, go through all of these and, like, see, like, what's the issue?\nLike, what are the issues in each of these? So. For example, if I open up e mail. Collision. We don't need these."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can you just I just give me a little bit of context here. E mail collision. Just what does that. What does that. What does that bucket represent?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So this is when somebody signs... Sorry, somebody creates an order, and they have the same email address, I'm guessing, or phone number as somebody else that has already created an order.\nSo we're getting a second participant with the same email address, which we found to happen in about 20% of our users. At first, I think we had these because we were thinking that it was less common, and we were going to try to handle them manually.\nBut we've always known that this is something that is expected. So being alerted on it and having the parked events like this doesn't need to be alerted on and we need to be able to go through and clear out any as long as they have something.\nSorry, I'm just gonna open."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You're hitting on exactly what I need right here. What is the criteria necessary for us to clear?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah. So the thing is I don't know if all of these events have the same error because I haven't looked into them, but... Okay, so it says \"participant not found in email index,\" so maybe that is a different issue than an email collision."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's fine. I don't think we need to solve... Have a plan for every single version. What we need to identify is the common things that we know we can just put in our playbook to say, \"Engineer X, if you see this, delete this.\" It can be or just ignore this. Anything other than that must be escalated and who should we escalate to?\nThat's what I'm..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Well, so what we need to do with this is we need to go through and identify all of the different errors that we're seeing within these parked events, and we need to categorize them.\nThen we need to see which ones we need to handle, which ones we need to change."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect email collisions. Thank you for clearing on that. Do you want to just give me a three-sentence overview of each one of these buckets? I'll start working through it. I think setting up the effort to analyze them as well as adding them to the playbook. Just the top line of what each one represents."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Perfect. Okay. Athena participant that's creating the... Sorry, that's like adding stuff into Athena and what I've seen and it could be different things. Of course, we need to categorize them, but I think that there are a lot of timeouts that are happening with this one, but that's creating the participant in our Athena tables for... I believe the Cognito ones. I believe I have these taken care of in Rinor.\nI have some tickets around these. If there's extra stuff needed, we can add those in once we get the other tickets done from Rinor. So we'll skip the Cognito ones. Email collisions. As I said, it's supposed to be when there are two emails that are the same.\nWhat we just saw was an email not found, which has me really baffled right now. I didn't know that was an error that we're seeing for that one."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You mean los you?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I'm a publisher. We are sending files to IDM. I cannot remember exactly what it is like. Those like with results, I believe with the calculated results that we have so that they can send... I can't say exactly why... Table is around any notifications."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So what does IDM represent? What does that acronym represent?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "There is a vendor that we use for various things. They used to do our six for life calculations. Now, in Thrive, we do those ourselves. They send out our paper reports like our PDFs and our paper results from Legacy, so they represent various things."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Come..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "And I don't know which part of that is. I think that we're sending them. Once we've calculated our six for life results, I think we're sending those over to them. And that's what the IM my publisher is, I believe."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Understand?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Considerables and notifications. I don't know what participant events are. I believe that's if a participant's updated or created that type of stuff.\nI don't know. Projection. Participant. And then results. P PDF is when we're generating a PDF."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. I'd love to pivot away from part just the amount of time we have left and see if there's we can do kind of the same thing for another set of alerts."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "I my suggestion on this one is can we have an alert on the I mean the folders instead of the just the part. Eser, we can have one for each of these instead of the total one."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Four."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Now that we have this helpful alert."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah, and you can have..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "A better description of this is events related to this or what you were explaining now that..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Granular alerts at the folder level. Run our alerts."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, and we can see which ones are actually critical or not based on..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Good call out."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Great. A great idea.\nOkay, I feel better about getting our handle on parked events. This is the plan of attack, at least, for the SMS ones."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Okay, yeah, so..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can we go deep on that? You felt that we shouldn't have so many coming in. We don't want to do a manual increase in the rate to 5% or so.\nSo this is an investigation. This is event-triggering. Disabling manual intervention. Is that correct?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I'm just so I don't know if 1% is the right like it's that feels very low but is this a percentage seven what like."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "It's that right? So it shouldn't be an... I guess it says right, so if it says right, it means the person now that doesn't make more sense. But yeah."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "I think the description might be..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Might be correct. Yeah."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "So or there's some weird calculations because AWS checks data points for the last hour. So I think we. We really need to understand what's the issue with them? Because it doesn't look. It doesn't look right."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "No."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "It does. So something is going on with this alert or with SMS and Wes. I don't like this, just needs to be looked into further."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "I think you can see the percentages if you look at SMS. Let me find that if you look at the service itself, it gives you some value. I guess you can compare those. Let me see. We have the dashboard here.\nYeah. The gave me metrics. Here. Maybe we can go there to see if the alerts make sense when compared to these metrics."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Okay, do you want to send me a link?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, just now. Okay, there it is. They give you the number of delivered and the delivered percent is over 33%. That's low."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "We've talked about how we have some issues with call center. So we have that law of delivery that's not good. So where are you seeing this is percent delivered?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, the blue line is percentage delivery, delivered."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Delivered. Okay, so mostly a hundred percent."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, but it goes down a little bit there. Sometimes it's... Yeah, but that could be one. If you have three messages and then one or two fail, that goes down right? It's a lot."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Then maybe we need like a longer time period for like that."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, I really... So yeah. Because you sent three messages in an hour, and two of them failed, which would be incorrect numbers or whatever. That will bring down your percentage quite low, even if it's just two messages or three.\nYou know something... If you see when those times when you see those drops, you see the ascent volume is three and slow. Actually..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I wonder if this is for the... Because we were doing, I think five minutes."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Right? The one in the other... I think it says an hour. Well, that's what it says you have to look at."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "It does say..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Says an hour is..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Like greater than five for one data point within one hour. Yeah."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Maybe we can look at that and compare. I can take that if you... Yeah, if you have a ticket, I can work on this one. But if we have low volumes, obviously the percentages will be impacted significantly when you have...\nIf you have ten people and five of them have invalid numbers, that's 50%. But if you see the volumes are low, we are ten less than 10 messages per hour, something like..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So maybe we should do it by the hour. Maybe we should do it by the day."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Something like that makes more sense."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yes. Yeah."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Obviously that would mean that we will not catch issues that frequently."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "But that. Yeah, so I don't know, like we'll have to see like I mean, definitely."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, but I see these data points. We have two messages that if one of those fails, 50% failure. Which is maybe not bad, because we have numbers that are not SMS capable or invalid numbers or lines or whatever. I come from the SMS like industry, my previous job. 10% is good.\nI mean, failure rate, anything above that might not be as good, but the number of people with invalid numbers or incorrect numbers or that is a high all the time. And these volumes are low, so it's easy to see the percentages go high. CA we have volumes just ten1010 messs.\nSo yeah, we can do a daily instead. I believe that makes more sense. Daily we may have like one on 100 messages or 200 messages per day cont like that. No, 700 messages. So that's a better, how do I say."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Here we go. It's every 5 minutes, so we're seeing it here. So if I changed this to every six hours..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "That's the period. That's every time he checks, I guess."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah, and now it's having..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "The page is often checking, I think it is the period, isn't it? I think it is. Okay, yeah, so you say 93% that's better. Yeah, and if you have a..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah, that's much better."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, that's why these hours... Twelve hours or something?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "98% 97. And every six hours doesn't seem terrible. Yeah. You're probably going to have some uptime from us every six hours because there are times in the middle of the night where you're always going to get a lower amount of text messages."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "No matter what."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can we configure those as exception times in the metrics? I think that..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Is that a thing?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "If it's during business hours...\nWe could always do if it's during business hours and it's a certain rate, I don't know."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Versus with the anomalies. I think you can have that. Yeah. Anally."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "We could do anomaly instead of what we've got here."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, that's it."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "We're going to check how many messages we get overnight if we get 10 from midnight to 6 am. That's still good. It could be a good... What is a good chunk for a percentage?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Okay."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, we'll have to see. But with anomaly, I think we can do anomaly detection when... It's better than doing..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "If I look here, 6 hours is a pretty good... It looks like we're getting a good amount. If I go to 1 hour, we're getting down to 76%, so that's going to get triggered a lot versus 6 hours. Looks a lot more."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, but we can do shorter periods and lower thresholds, right? But maybe... Because for example, we can... If we have 70% as the threshold here, that will not trigger."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Yeah, if we wanted to do every hour, we could do a 50% threshold versus every six hours. We could do both. I don't know. Yes, I'm just... Yeah. So again, that's what's in this conversation. I just wanted to bring up that we really need to look into this alarm.\nYeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I think we're close to just an approach here. Do we want... Is the agreement that we want to pivot this alarm into an anomaly detection versus just a continuing alarm like it and only the text during a specific window? What's the final agreement or plan here?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I think Francis is going to take this one and look and see what options are based on the data. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Quiteine."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "So this one I can handle this one just to see and I can..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So..."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Maybe you can have both, but we'll see. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. So, Francis."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Cause I think we're only looking at one week right now. Like it might. I it's hard to make that decision just right here."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "But I think we have a better approach, an idea of a better approach that will not just be triggering all the time for North. If we change to six hours, that makes it more realistic. Even if we get it overnight, it's better than what we get it now, which is all the time."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "But yeah, I can hand... This can check if it compares between a normal detection or this comparison of the data to see if you have low volumes during midnight or what do you say late nine times or something.\nSo what's the best option? Maybe we can combine them, have something like this, and then anomaly detection as well. I will see."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So then for this one, I haven't... I don't know if this is targeting the right thing. It's been going off since December. Yeah, Michel, I think this is the one that you said was triggered once and then it never stopped.\nThat's the one that should have been triggering us on the event bus. But I mean it."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "It looks misconfigured. First of all, the problem is that once it enters the alarm state, it needs to be reset manually because alarms only trigger on state transitions, and if it's an alarm, there's no state transition.\nThe second thing is I think it might be really misconfigured. It hasn't been touched since December when it was created. But my assumption, my wild guess is I would need to confirm it and do some research.\nBut I think it goes into alarm state on missing data."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So it does. Yeah. So since we don't have any data, it keeps going into the alarm state even though... It never gets pulled out of it."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "Because it never gets any data. Okay?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "I mean it should get data, I believe, because there are events being parked in the event bus for retro. So we do have data, but I guess the threshold is just misconfigured and it cannot really learn how to detect anomalies."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "But well, so that's the thing, there's tons of stuff. So I don't know what... It's not seeing any events, so I think it's misconfigured and pointing to the wrong thing."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "That might be as well the case. Yeah, I can..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Configuration."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "I can create a ticket for that and take care of that because that's one of the most crucial alerts that we should have because it has a user-facing impact because we're basically not sending any emails to table.\nSo it should be one of the most important alerts, I believe, especially considering the fact that we've had tons of issues with the event bus and event bridge. So this should be working flawlessly and it really needs to be configured on the spot."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "That's exactly my thoughts. Yes. That's why I'm like best. That's why I was so worried about it is just because, like, we keep saying like that we should have these alerts, but then stuff like this is going off and we aren't noticing that they're misconfigured.\nSo that's why I wanted."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can we call that be one?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So having a ticket to figure that out is probably best."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can we call that AP1? I know we try to limit that, but it sounds like... How you described it, it sounds like this is pretty urgent. Would you agree that let's have him... P1 is to complete the work that we're working on for some of the features for Rickcuurly.\nBut then this is the next urgent item that he would have."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I believe that these are all issues. I don't know if it's a P1 because I do have some dashboards for the event bus and trying to go through them... I'm not seeing tons of issues. If I go through this each day, I can see that there are events happening for each of these, but hold on, I was... \"Order created.\" What did I just say? \"Participant email update.\" I needed... I was going one day, but yeah.\nSo I typically go through this to see that things are happening each day to make sure that we're getting something. As long as we're getting something, it's not a P1 because... But this is showing that the alarm is definitely wrong."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I still would like some attention to it. It doesn't necessarily have to be behind all recurring stuff, but if that does need to be the next thing that Meha looks into, I'd like to keep someone looking into all of these alerts until we get to a baseline of not having alerts going off."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So Miha... That's the whole idea of the recording that we need to create on the playbook. It's to specifically walk through how to do exactly what Jennifer just said and have it be something where I can give it to JFFCO, I can give it to lads, and say, \"Hey, follow this playbook.\" Here's a... That walks through how to run the playbook.\nSo we're working on this. Jennifer... I hear you. It's a bit stalled relative to some other priorities. But anyhow, are you clear on what Jennifer is looking for and the goal of that recording session and the playbook?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Yeah, absolutely. So first of all, developers should have a clear understanding of how to investigate the alerts and the alarms. So what to do in case of an issue, what to look for, which dashboards to check, how to interpret them.\nThat's clear to me. The next priority is to configure alarms and alerts in such a way that they don't trigger unnecessarily because we've seen too much noise in the past, which made us ignore important stuff."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That might be..."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "So we really need to get to a state where things trigger only when they are supposed to trigger."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "As my thinking is, the first point is more important than the second. They should be running in parallel. But the first point allows us to have more eyes on target, which gives us more ability to react and see things and have perspectives.\nThen the other idea of tweaking and addressing them is the core thing that actually fixes the problem. But I think having more eyes on... If anything were to happen to me, how Jennifer, the team should be able to address this. That's my primary...\nI think that's the most important thing to me."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I get that being the primary, but until we get this to a net zero, it's very difficult to have anybody be... As far as outside of it,\nwe need to get everything taken care of, and we need to get the alarms to zero before we can tell people, \"Hey, pay attention to the alarms because right now they're going off so much that no one has time to investigate those.\""
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Well."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So we need... These are things that are still going off because of when the infrastructure was set up. We had the alerts not being thought about when we were setting stuff up, and we set up the alerts after the fact.\nThen when we set up the alerts, nobody monitored them. So it's just been this cascading effect that started because when we set up all the CDK infrastructure at the beginning, we didn't set up alerts.\nSo we need to fix that, and we need to get to a place where we're not overwhelming anybody because if we say, \"Now everybody can look at alarms,\" who's in charge of doing that? We need to have these tickets created and fixed so that we get to that net zero."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's a fair point. I'm just... I'm going to take your direction, I guess. Jennifer, here, that's going to be the priority then. So we'll clean up the playbook to where it currently is.\nSo let's close out the recording tasks. Me how? Then we'll pivot the effort for our NSRE to focus on cleaning up the events."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "True thing, yeah, awesome."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so we have four minutes left. Is there another grouping that we can knock off even by what it is?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "I let me see, I don't know if there's another one that keeps going off, I have to look through the summaries."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "I think I've seen another one about Cocky. Normally, I think that comes free. Yeah."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "The Cognito ones I have tickets in Jira, so at least they're alarming in Century as well. But that might be... So after we take care of these alarms... Wes, there's another task of trying to figure out what we look at in Century and what we look at in Cloudwatch.\nBecause right now, I think they're duplicated."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "But again, that's probably less so than getting these alarms. So assign an anomaly."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I think the first priority is Century is probably misconfigured right now. The goal from states or just from my recollection is it's more about the intelligent notifications and insights that Centri can provide, as opposed to duplicating what CloudWatch is providing."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Makes sense. So, yeah. So, as I said, that's less so, but that would be the next thing once we get through these alarms."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Agreed."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "So, once we get through the ones that are always alerting, we will start noticing more of which ones are going off throughout the day.\nAny that are noisy, we should hit and create tickets for those and see what's going on."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sounds good."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Find an anomaly. Looks like one that happens a lot. 2.\nOkay, yeah, I would create one for this too, because it looks like this is happening a lot. So maybe this needs to be..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That is the signy of anomaly detection sign an anomaly."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "A different rate. Hope... Sorry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I got it."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Good boy."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I think we're at the natural stopping point. I'll bid out build out the QE, maybe it's Q2 now, an epic to have that tracks all of these.\nFrancis, you have a couple of clear tickets there if you have bandwidth. You actually have a few things on your plate from Mandalor if you want to tackle those first. But I should have a ticket over to you at least around the SMS by end of date today, right, guys?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 2,
+        "text": "That's perfect."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jennifer, thank you so much for walking us through and clarifying the urgency here for us."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 3,
+        "text": "Okay, yeah, no worries. Thank you, guys, for your..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Guys, you..."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Thank you so much, Thanke."
+      }
+    ],
+    "raw_meeting": "**Mandalore, AWS Alert Planning**\n🕞 Started at 01:15 PM on 26 Mar, lasted 45m",
+    "raw_content": "Wesley Donaldson | 00:01\nPlease not. I know she...\nGood morning, Francis.\nfrancis.pena@llsa.com | 00:29\nHey. Good morning. Hi, Ay.\nWesley Donaldson | 00:35\nHe me here. Sorry, I know this is a little early for meetings, but an important meeting. Let's give Jennifer it's extra early for her. Let's give her a little extra time. You guys are clear on what we're trying to accomplish for this meeting, right?\nfrancis.pena@llsa.com | 00:59\nI think we have an idea.\nWesley Donaldson | 01:03\nGood morning.\nfrancis.pena@llsa.com | 01:05\nMorning.\nWesley Donaldson | 01:08\nGood early morning. All right, let's jump in quickly so we can maybe give team members back a couple of extra minutes in their early mornings.\nOkay, so we pulled this together to... TED, I guess, is a bit of a loaded word, but I think a good word here. We're looking to understand what existing alerts are firing now in the system. Take a bit of a review of those alerts and then maybe go through each one to understand what the severity of it is. Come up with a plan for that. We need to update thresholds. Are there any blind spots that we currently have on alerts that are not being reported?\nSo... You had shared some information back with me on one of your PRs. I'd called out some of the alarms that you flagged. So maybe... Let's start with just the alarms that are currently active, that are currently going off, and then we can try to address them and just come up with a plan of action of how we want to address them.\nMy goal for this session would just be a clear list of action items for us to get to a better state on notifications and alarms. That makes sense.\nJennifer | 02:16\nOkay, P. Yeah.\nWesley Donaldson | 02:20\nJennifer, do you want to share the screen that you shared with me?\nWe can use that as a jumping-off point.\nJennifer | 02:25\nWell, getting that up right now.\nWesley Donaldson | 02:27\nI am recording this, right?\nJennifer | 02:33\nIt's a great place to start.\nWesley Donaldson | 02:48\nApologies. Let me start the recording.\nJennifer | 02:52\nNo worries. The computer seems to still be waking up, too. Air goes... Okay, this is the least amount of alerts I've ever seen. Of course, for this meeting.\nWesley Donaldson | 03:15\nThe demo.\nJennifer | 03:17\nI do see... Okay, it says in alarm three, but I only see two here, so that's strange, but I guess...\nSo, Michel, I know we've talked about this one, the event bus one, sometimes, but I'm not sure necessarily what's still going on with this one. Something like this just needs a threshold change, I'm pretty sure.\nUnless there's actually an issue with S3. Then I feel like that might be something that we need to look into with as incognito and see how many are we expecting to fail. Then this one's new part.\nMichal Kawka | 04:14\nYeah. So this is the alert for the parked events that are parked in S3. So, as you remember, we have two different strategies to park events. So if there's an infrastructure issue, for example, an event cannot be delivered to the Lambda function, it's being parked in the dead letter queue provisioned by AWS.\nHowever, if there's an issue within the code. Right? So if we process an event using a connector from the event store DB and it throws an error, it's within the code, so we need to park that event somewhere else.\nSo we park them in S3. This particular alarm... So it's a main Pro Ops connector parked events, and it's for the events parked in S3, so they were merged, I believe, one week ago. So we might still need some fine-tuning on the thresholds because every now and then we will park some events in those S3 buckets for various reasons, right? That we, of course, need to investigate because, for example, we might be replaying the events, and there might be a first name missing or an email missing or a phone number or whatever.\nBut we definitely need an action, fine-tuning on the thresholds.\nJennifer | 05:41\nYeah, so I think what I said was new. It was not something that I saw yesterday, so unless it was... Okay. There are things being okay. So maybe I did see it yesterday, and I'm just mistaking, but yeah.\nSo we do have some parked events in S3 that are definitely not needing to be alerting on because I know we have email collisions, and we probably just need to trash those anyway because we don't... I don't think we do anything with them, so I don't know if we need to be saving them right now.\nI think there are other parked events that we can look into and see if these are actually valid. That's the triage that I'm talking about that we need to go into because right now, we've been setting up the alerting that we don't have, but we haven't gone through the alerting we do have.\nWesley Donaldson | 06:46\nMy hope is to do that during this session. Jennifer, we can step back and maybe include a few additional people. Maybe Harry and you would be good people to add to this conversation.\nBut just for the folks that we have here, could we maybe just come to this idea of greater than or equal to one? Maybe it's greater than or equal to five or so. Do we want to just... Are we comfortable making some updates just to reduce the severity?\nAre we comfortable saying maybe pushing this up from one to five? Just as an example.\nJennifer | 07:17\nI think... So this doesn't just need to be pushed up here like this parked event.\nOr are you talking about the SMS? We tried pushing this up from one to five, and it still was going off.\nWesley Donaldson | 07:30\nInterest.\nJennifer | 07:30\nSo I think that there does need to be some look into what that right threshold is. I don't think that's something that's just non... I think that we need to see if pushing it... Are we expecting there to be a 10% failure rate on SMS because that to me seems very high, especially with the issues that we've been having with logging.\nSo I want to make sure that before we change that threshold above five, that we know why we are having over five% errors on SMS, and is that not... I feel like that might be something that we need to... Because AWS is sending out those SMS messages. Is that something that we need to change within our system?\nLike, do we. Are we expecting that failure because we aren't checking the phone numbers to make sure that they are S MS eligible phone numbers like there's just a lot of questions around that agree.\nMichal Kawka | 08:49\nSo, same for the park events. It's not about adjusting the threshold because we can set the threshold to whatever we want and make the alarms not fire, right? But we definitely need to investigate why the SMS messages are failing\nbecause even if we have 5% or 1%, that's alarming because we don't have such issues with emails, for example. But like you said, Jennifer, there might be phone numbers that are not SMS-eligible, or there are various issues, but they need to be investigated.\nIn terms of the parked events, it's not a matter of increasing the threshold. I think we might need more confidence in what is being parked because if an event without a first name or emails is being parked, that's completely fine, right? We expect that because for some reason the user didn't provide an email or ended up in the system without an email or first name.\nBut we definitely...\nJennifer | 10:04\nSo that's a question right there. If somebody without a first name is being parked, why are we preventing them from coming into the system because they don't have a first name? That shouldn't be something that limits them from getting set up in our system because they've already got an order and everything.\nSo we need to be creating their Cognito account because otherwise they're not able to log in and see their results. Just because for some reason they don't have a first name.\nMichal Kawka | 10:42\nThat's true. In the end, I would need to track down the whole path because there might have been a few things that changed. I didn't really work on the front for quite a while, but if I'm not mistaken, we have the first name form when the users sign up, but those fields are ignored, so first name and last name are never collected.\nJennifer | 11:07\nFirst name and last name are collected quite often. They're not added into Cognito ever. You're talking about the results. So we are preventing them from creating a ChatGPT account when they don't have a first name, when their order is created, which could happen in CSTAR, could happen in ECOM, like it's actually prevented in Shopify, but we shouldn't prevent them from being able to log in just because of that. In Thrive, the polling service shouldn't... If the polling service brings someone over that doesn't have a first name, then we should be able to create that ChatGPT account. Anyways, which I think that one Dane might actually have as a ticket that he's looking into.\nI think I saw it move, but... So... What I'm hoping that we can do because I don't think we can answer all the questions today, but I think that we can talk about these things that do need to be looked at and addressed.\nWesley Donaldson | 12:15\nI...\nJennifer | 12:21\nLike each of the these alarms should get like poked into and we should be creating tickets off of each of them. So if we start with the parked events I did get. I do have, like, an epic or tickets, that talk like, there's one that says, go through all of these and, like, see, like, what's the issue?\nLike, what are the issues in each of these? So. For example, if I open up e mail. Collision. We don't need these.\nWesley Donaldson | 13:07\nCan you just I just give me a little bit of context here. E mail collision. Just what does that. What does that. What does that bucket represent?\nJennifer | 13:19\nSo this is when somebody signs... Sorry, somebody creates an order, and they have the same email address, I'm guessing, or phone number as somebody else that has already created an order.\nSo we're getting a second participant with the same email address, which we found to happen in about 20% of our users. At first, I think we had these because we were thinking that it was less common, and we were going to try to handle them manually.\nBut we've always known that this is something that is expected. So being alerted on it and having the parked events like this doesn't need to be alerted on and we need to be able to go through and clear out any as long as they have something.\nSorry, I'm just gonna open.\nWesley Donaldson | 14:28\nYou're hitting on exactly what I need right here. What is the criteria necessary for us to clear?\nJennifer | 14:35\nYeah. So the thing is I don't know if all of these events have the same error because I haven't looked into them, but... Okay, so it says \"participant not found in email index,\" so maybe that is a different issue than an email collision.\nWesley Donaldson | 15:04\nThat's fine. I don't think we need to solve... Have a plan for every single version. What we need to identify is the common things that we know we can just put in our playbook to say, \"Engineer X, if you see this, delete this.\" It can be or just ignore this. Anything other than that must be escalated and who should we escalate to?\nThat's what I'm...\nJennifer | 15:25\nWell, so what we need to do with this is we need to go through and identify all of the different errors that we're seeing within these parked events, and we need to categorize them.\nThen we need to see which ones we need to handle, which ones we need to change.\nWesley Donaldson | 15:45\nPerfect email collisions. Thank you for clearing on that. Do you want to just give me a three-sentence overview of each one of these buckets? I'll start working through it. I think setting up the effort to analyze them as well as adding them to the playbook. Just the top line of what each one represents.\nJennifer | 16:05\nPerfect. Okay. Athena participant that's creating the... Sorry, that's like adding stuff into Athena and what I've seen and it could be different things. Of course, we need to categorize them, but I think that there are a lot of timeouts that are happening with this one, but that's creating the participant in our Athena tables for... I believe the Cognito ones. I believe I have these taken care of in Rinor.\nI have some tickets around these. If there's extra stuff needed, we can add those in once we get the other tickets done from Rinor. So we'll skip the Cognito ones. Email collisions. As I said, it's supposed to be when there are two emails that are the same.\nWhat we just saw was an email not found, which has me really baffled right now. I didn't know that was an error that we're seeing for that one.\nWesley Donaldson | 17:33\nYou mean los you?\nJennifer | 17:34\nI'm a publisher. We are sending files to IDM. I cannot remember exactly what it is like. Those like with results, I believe with the calculated results that we have so that they can send... I can't say exactly why... Table is around any notifications.\nWesley Donaldson | 18:08\nSo what does IDM represent? What does that acronym represent?\nJennifer | 18:22\nThere is a vendor that we use for various things. They used to do our six for life calculations. Now, in Thrive, we do those ourselves. They send out our paper reports like our PDFs and our paper results from Legacy, so they represent various things.\nWesley Donaldson | 18:46\nCome...\nJennifer | 18:54\nAnd I don't know which part of that is. I think that we're sending them. Once we've calculated our six for life results, I think we're sending those over to them. And that's what the IM my publisher is, I believe.\nWesley Donaldson | 19:14\nUnderstand?\nJennifer | 19:19\nConsiderables and notifications. I don't know what participant events are. I believe that's if a participant's updated or created that type of stuff.\nI don't know. Projection. Participant. And then results. P PDF is when we're generating a PDF.\nWesley Donaldson | 20:05\nOkay. I'd love to pivot away from part just the amount of time we have left and see if there's we can do kind of the same thing for another set of alerts.\nfrancis.pena@llsa.com | 20:17\nI my suggestion on this one is can we have an alert on the I mean the folders instead of the just the part. Eser, we can have one for each of these instead of the total one.\nWesley Donaldson | 20:31\nFour.\nfrancis.pena@llsa.com | 20:33\nNow that we have this helpful alert.\nJennifer | 20:38\nYeah, and you can have...\nfrancis.pena@llsa.com | 20:39\nA better description of this is events related to this or what you were explaining now that...\nWesley Donaldson | 20:45\nGranular alerts at the folder level. Run our alerts.\nfrancis.pena@llsa.com | 20:52\nYeah, and we can see which ones are actually critical or not based on...\nJennifer | 21:01\nGood call out.\nWesley Donaldson | 21:02\nGreat. A great idea.\nOkay, I feel better about getting our handle on parked events. This is the plan of attack, at least, for the SMS ones.\nJennifer | 21:26\nOkay, yeah, so...\nWesley Donaldson | 21:33\nCan we go deep on that? You felt that we shouldn't have so many coming in. We don't want to do a manual increase in the rate to 5% or so.\nSo this is an investigation. This is event-triggering. Disabling manual intervention. Is that correct?\nJennifer | 21:50\nI'm just so I don't know if 1% is the right like it's that feels very low but is this a percentage seven what like.\nfrancis.pena@llsa.com | 22:03\nIt's that right? So it shouldn't be an... I guess it says right, so if it says right, it means the person now that doesn't make more sense. But yeah.\nMichal Kawka | 22:16\nI think the description might be...\nfrancis.pena@llsa.com | 22:18\nMight be correct. Yeah.\nMichal Kawka | 22:19\nSo or there's some weird calculations because AWS checks data points for the last hour. So I think we. We really need to understand what's the issue with them? Because it doesn't look. It doesn't look right.\nfrancis.pena@llsa.com | 22:38\nNo.\nJennifer | 22:38\nIt does. So something is going on with this alert or with SMS and Wes. I don't like this, just needs to be looked into further.\nfrancis.pena@llsa.com | 22:53\nI think you can see the percentages if you look at SMS. Let me find that if you look at the service itself, it gives you some value. I guess you can compare those. Let me see. We have the dashboard here.\nYeah. The gave me metrics. Here. Maybe we can go there to see if the alerts make sense when compared to these metrics.\nJennifer | 23:24\nOkay, do you want to send me a link?\nfrancis.pena@llsa.com | 23:26\nYeah, just now. Okay, there it is. They give you the number of delivered and the delivered percent is over 33%. That's low.\nJennifer | 23:53\nWe've talked about how we have some issues with call center. So we have that law of delivery that's not good. So where are you seeing this is percent delivered?\nfrancis.pena@llsa.com | 24:10\nYeah, the blue line is percentage delivery, delivered.\nJennifer | 24:12\nDelivered. Okay, so mostly a hundred percent.\nfrancis.pena@llsa.com | 24:18\nYeah, but it goes down a little bit there. Sometimes it's... Yeah, but that could be one. If you have three messages and then one or two fail, that goes down right? It's a lot.\nJennifer | 24:31\nThen maybe we need like a longer time period for like that.\nfrancis.pena@llsa.com | 24:37\nYeah, I really... So yeah. Because you sent three messages in an hour, and two of them failed, which would be incorrect numbers or whatever. That will bring down your percentage quite low, even if it's just two messages or three.\nYou know something... If you see when those times when you see those drops, you see the ascent volume is three and slow. Actually...\nJennifer | 25:02\nI wonder if this is for the... Because we were doing, I think five minutes.\nfrancis.pena@llsa.com | 25:08\nRight? The one in the other... I think it says an hour. Well, that's what it says you have to look at.\nJennifer | 25:14\nIt does say...\nfrancis.pena@llsa.com | 25:15\nSays an hour is...\nJennifer | 25:17\nLike greater than five for one data point within one hour. Yeah.\nfrancis.pena@llsa.com | 25:27\nMaybe we can look at that and compare. I can take that if you... Yeah, if you have a ticket, I can work on this one. But if we have low volumes, obviously the percentages will be impacted significantly when you have...\nIf you have ten people and five of them have invalid numbers, that's 50%. But if you see the volumes are low, we are ten less than 10 messages per hour, something like...\nJennifer | 25:55\nSo maybe we should do it by the hour. Maybe we should do it by the day.\nfrancis.pena@llsa.com | 25:59\nSomething like that makes more sense.\nJennifer | 26:01\nYes. Yeah.\nfrancis.pena@llsa.com | 26:04\nObviously that would mean that we will not catch issues that frequently.\nJennifer | 26:09\nBut that. Yeah, so I don't know, like we'll have to see like I mean, definitely.\nfrancis.pena@llsa.com | 26:17\nYeah, but I see these data points. We have two messages that if one of those fails, 50% failure. Which is maybe not bad, because we have numbers that are not SMS capable or invalid numbers or lines or whatever. I come from the SMS like industry, my previous job. 10% is good.\nI mean, failure rate, anything above that might not be as good, but the number of people with invalid numbers or incorrect numbers or that is a high all the time. And these volumes are low, so it's easy to see the percentages go high. CA we have volumes just ten1010 messs.\nSo yeah, we can do a daily instead. I believe that makes more sense. Daily we may have like one on 100 messages or 200 messages per day cont like that. No, 700 messages. So that's a better, how do I say.\nJennifer | 27:37\nHere we go. It's every 5 minutes, so we're seeing it here. So if I changed this to every six hours...\nfrancis.pena@llsa.com | 27:49\nThat's the period. That's every time he checks, I guess.\nJennifer | 27:56\nYeah, and now it's having...\nfrancis.pena@llsa.com | 28:06\nThe page is often checking, I think it is the period, isn't it? I think it is. Okay, yeah, so you say 93% that's better. Yeah, and if you have a...\nJennifer | 28:31\nYeah, that's much better.\nfrancis.pena@llsa.com | 28:33\nYeah, that's why these hours... Twelve hours or something?\nJennifer | 28:40\n98% 97. And every six hours doesn't seem terrible. Yeah. You're probably going to have some uptime from us every six hours because there are times in the middle of the night where you're always going to get a lower amount of text messages.\nfrancis.pena@llsa.com | 29:02\nNo matter what.\nJennifer | 29:02\nYeah.\nWesley Donaldson | 29:03\nCan we configure those as exception times in the metrics? I think that...\nJennifer | 29:08\nYeah.\nWesley Donaldson | 29:10\nIs that a thing?\nJennifer | 29:11\nIf it's during business hours...\nWe could always do if it's during business hours and it's a certain rate, I don't know.\nfrancis.pena@llsa.com | 29:22\nVersus with the anomalies. I think you can have that. Yeah. Anally.\nJennifer | 29:30\nWe could do anomaly instead of what we've got here.\nWesley Donaldson | 29:35\nOkay, that's it.\nfrancis.pena@llsa.com | 29:35\nWe're going to check how many messages we get overnight if we get 10 from midnight to 6 am. That's still good. It could be a good... What is a good chunk for a percentage?\nJennifer | 29:49\nOkay.\nfrancis.pena@llsa.com | 29:50\nYeah, we'll have to see. But with anomaly, I think we can do anomaly detection when... It's better than doing...\nJennifer | 29:57\nIf I look here, 6 hours is a pretty good... It looks like we're getting a good amount. If I go to 1 hour, we're getting down to 76%, so that's going to get triggered a lot versus 6 hours. Looks a lot more.\nfrancis.pena@llsa.com | 30:24\nYeah, but we can do shorter periods and lower thresholds, right? But maybe... Because for example, we can... If we have 70% as the threshold here, that will not trigger.\nJennifer | 30:40\nYeah, if we wanted to do every hour, we could do a 50% threshold versus every six hours. We could do both. I don't know. Yes, I'm just... Yeah. So again, that's what's in this conversation. I just wanted to bring up that we really need to look into this alarm.\nYeah.\nWesley Donaldson | 31:02\nI think we're close to just an approach here. Do we want... Is the agreement that we want to pivot this alarm into an anomaly detection versus just a continuing alarm like it and only the text during a specific window? What's the final agreement or plan here?\nJennifer | 31:22\nI think Francis is going to take this one and look and see what options are based on the data. Yeah.\nWesley Donaldson | 31:30\nQuiteine.\nfrancis.pena@llsa.com | 31:31\nSo this one I can handle this one just to see and I can...\nWesley Donaldson | 31:31\nSo...\nfrancis.pena@llsa.com | 31:34\nMaybe you can have both, but we'll see. Yeah.\nWesley Donaldson | 31:37\nOkay. So, Francis.\nJennifer | 31:38\nCause I think we're only looking at one week right now. Like it might. I it's hard to make that decision just right here.\nfrancis.pena@llsa.com | 31:48\nBut I think we have a better approach, an idea of a better approach that will not just be triggering all the time for North. If we change to six hours, that makes it more realistic. Even if we get it overnight, it's better than what we get it now, which is all the time.\nWesley Donaldson | 32:05\nNo.\nfrancis.pena@llsa.com | 32:05\nBut yeah, I can hand... This can check if it compares between a normal detection or this comparison of the data to see if you have low volumes during midnight or what do you say late nine times or something.\nSo what's the best option? Maybe we can combine them, have something like this, and then anomaly detection as well. I will see.\nJennifer | 32:31\nSo then for this one, I haven't... I don't know if this is targeting the right thing. It's been going off since December. Yeah, Michel, I think this is the one that you said was triggered once and then it never stopped.\nThat's the one that should have been triggering us on the event bus. But I mean it.\nMichal Kawka | 33:02\nIt looks misconfigured. First of all, the problem is that once it enters the alarm state, it needs to be reset manually because alarms only trigger on state transitions, and if it's an alarm, there's no state transition.\nThe second thing is I think it might be really misconfigured. It hasn't been touched since December when it was created. But my assumption, my wild guess is I would need to confirm it and do some research.\nBut I think it goes into alarm state on missing data.\nJennifer | 33:39\nSo it does. Yeah. So since we don't have any data, it keeps going into the alarm state even though... It never gets pulled out of it.\nfrancis.pena@llsa.com | 33:52\nBecause it never gets any data. Okay?\nMichal Kawka | 33:55\nI mean it should get data, I believe, because there are events being parked in the event bus for retro. So we do have data, but I guess the threshold is just misconfigured and it cannot really learn how to detect anomalies.\nJennifer | 34:12\nBut well, so that's the thing, there's tons of stuff. So I don't know what... It's not seeing any events, so I think it's misconfigured and pointing to the wrong thing.\nMichal Kawka | 34:26\nThat might be as well the case. Yeah, I can...\nWesley Donaldson | 34:29\nConfiguration.\nMichal Kawka | 34:30\nI can create a ticket for that and take care of that because that's one of the most crucial alerts that we should have because it has a user-facing impact because we're basically not sending any emails to table.\nSo it should be one of the most important alerts, I believe, especially considering the fact that we've had tons of issues with the event bus and event bridge. So this should be working flawlessly and it really needs to be configured on the spot.\nJennifer | 35:02\nThat's exactly my thoughts. Yes. That's why I'm like best. That's why I was so worried about it is just because, like, we keep saying like that we should have these alerts, but then stuff like this is going off and we aren't noticing that they're misconfigured.\nSo that's why I wanted.\nWesley Donaldson | 35:20\nCan we call that be one?\nJennifer | 35:22\nSo having a ticket to figure that out is probably best.\nWesley Donaldson | 35:27\nCan we call that AP1? I know we try to limit that, but it sounds like... How you described it, it sounds like this is pretty urgent. Would you agree that let's have him... P1 is to complete the work that we're working on for some of the features for Rickcuurly.\nBut then this is the next urgent item that he would have.\nJennifer | 35:48\nI believe that these are all issues. I don't know if it's a P1 because I do have some dashboards for the event bus and trying to go through them... I'm not seeing tons of issues. If I go through this each day, I can see that there are events happening for each of these, but hold on, I was... \"Order created.\" What did I just say? \"Participant email update.\" I needed... I was going one day, but yeah.\nSo I typically go through this to see that things are happening each day to make sure that we're getting something. As long as we're getting something, it's not a P1 because... But this is showing that the alarm is definitely wrong.\nWesley Donaldson | 36:54\nOkay.\nJennifer | 37:06\nI still would like some attention to it. It doesn't necessarily have to be behind all recurring stuff, but if that does need to be the next thing that Meha looks into, I'd like to keep someone looking into all of these alerts until we get to a baseline of not having alerts going off.\nWesley Donaldson | 37:31\nSo Miha... That's the whole idea of the recording that we need to create on the playbook. It's to specifically walk through how to do exactly what Jennifer just said and have it be something where I can give it to JFFCO, I can give it to lads, and say, \"Hey, follow this playbook.\" Here's a... That walks through how to run the playbook.\nSo we're working on this. Jennifer... I hear you. It's a bit stalled relative to some other priorities. But anyhow, are you clear on what Jennifer is looking for and the goal of that recording session and the playbook?\nMichal Kawka | 38:10\nYeah, absolutely. So first of all, developers should have a clear understanding of how to investigate the alerts and the alarms. So what to do in case of an issue, what to look for, which dashboards to check, how to interpret them.\nThat's clear to me. The next priority is to configure alarms and alerts in such a way that they don't trigger unnecessarily because we've seen too much noise in the past, which made us ignore important stuff.\nWesley Donaldson | 38:42\nThat might be...\nMichal Kawka | 38:42\nSo we really need to get to a state where things trigger only when they are supposed to trigger.\nWesley Donaldson | 38:43\nAs my thinking is, the first point is more important than the second. They should be running in parallel. But the first point allows us to have more eyes on target, which gives us more ability to react and see things and have perspectives.\nThen the other idea of tweaking and addressing them is the core thing that actually fixes the problem. But I think having more eyes on... If anything were to happen to me, how Jennifer, the team should be able to address this. That's my primary...\nI think that's the most important thing to me.\nJennifer | 39:18\nI get that being the primary, but until we get this to a net zero, it's very difficult to have anybody be... As far as outside of it,\nwe need to get everything taken care of, and we need to get the alarms to zero before we can tell people, \"Hey, pay attention to the alarms because right now they're going off so much that no one has time to investigate those.\"\nWesley Donaldson | 39:42\nWell.\nJennifer | 39:53\nSo we need... These are things that are still going off because of when the infrastructure was set up. We had the alerts not being thought about when we were setting stuff up, and we set up the alerts after the fact.\nThen when we set up the alerts, nobody monitored them. So it's just been this cascading effect that started because when we set up all the CDK infrastructure at the beginning, we didn't set up alerts.\nSo we need to fix that, and we need to get to a place where we're not overwhelming anybody because if we say, \"Now everybody can look at alarms,\" who's in charge of doing that? We need to have these tickets created and fixed so that we get to that net zero.\nWesley Donaldson | 40:50\nThat's a fair point. I'm just... I'm going to take your direction, I guess. Jennifer, here, that's going to be the priority then. So we'll clean up the playbook to where it currently is.\nSo let's close out the recording tasks. Me how? Then we'll pivot the effort for our NSRE to focus on cleaning up the events.\nJennifer | 41:15\nTrue thing, yeah, awesome.\nWesley Donaldson | 41:23\nOkay, so we have four minutes left. Is there another grouping that we can knock off even by what it is?\nJennifer | 41:33\nI let me see, I don't know if there's another one that keeps going off, I have to look through the summaries.\nfrancis.pena@llsa.com | 41:47\nI think I've seen another one about Cocky. Normally, I think that comes free. Yeah.\nJennifer | 41:57\nThe Cognito ones I have tickets in Jira, so at least they're alarming in Century as well. But that might be... So after we take care of these alarms... Wes, there's another task of trying to figure out what we look at in Century and what we look at in Cloudwatch.\nBecause right now, I think they're duplicated.\nWesley Donaldson | 42:26\nYeah.\nJennifer | 42:29\nBut again, that's probably less so than getting these alarms. So assign an anomaly.\nWesley Donaldson | 42:36\nI think the first priority is Century is probably misconfigured right now. The goal from states or just from my recollection is it's more about the intelligent notifications and insights that Centri can provide, as opposed to duplicating what CloudWatch is providing.\nJennifer | 42:54\nMakes sense. So, yeah. So, as I said, that's less so, but that would be the next thing once we get through these alarms.\nWesley Donaldson | 43:03\nAgreed.\nJennifer | 43:05\nSo, once we get through the ones that are always alerting, we will start noticing more of which ones are going off throughout the day.\nAny that are noisy, we should hit and create tickets for those and see what's going on.\nWesley Donaldson | 43:24\nSounds good.\nJennifer | 43:25\nFind an anomaly. Looks like one that happens a lot. 2.\nOkay, yeah, I would create one for this too, because it looks like this is happening a lot. So maybe this needs to be...\nWesley Donaldson | 43:52\nThat is the signy of anomaly detection sign an anomaly.\nJennifer | 43:56\nA different rate. Hope... Sorry.\nWesley Donaldson | 44:04\nI got it.\nJennifer | 44:18\nGood boy.\nWesley Donaldson | 44:26\nOkay, I think we're at the natural stopping point. I'll bid out build out the QE, maybe it's Q2 now, an epic to have that tracks all of these.\nFrancis, you have a couple of clear tickets there if you have bandwidth. You actually have a few things on your plate from Mandalor if you want to tackle those first. But I should have a ticket over to you at least around the SMS by end of date today, right, guys?\nfrancis.pena@llsa.com | 44:48\nThat's perfect.\nWesley Donaldson | 44:53\nJennifer, thank you so much for walking us through and clarifying the urgency here for us.\nJennifer | 45:00\nOkay, yeah, no worries. Thank you, guys, for your...\nWesley Donaldson | 45:03\nGuys, you...\nMichal Kawka | 45:05\nThank you so much, Thanke."
+  }
+}

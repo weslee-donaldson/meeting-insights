@@ -148,9 +148,9 @@ export function useMilestoneState(
     }
   }, [queryClient, addToast]);
 
-  const handleMilestoneSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+  const handleMilestoneSendMessage = useCallback(async (message: string, includeTranscripts: boolean, _template?: string, _includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => {
     if (!selectedMilestoneId) return;
-    const req: MilestoneChatRequest = { milestoneId: selectedMilestoneId, message, includeTranscripts };
+    const req: MilestoneChatRequest = { milestoneId: selectedMilestoneId, message, includeTranscripts, attachments };
     try {
       await window.api.milestoneChat(req);
       queryClient.invalidateQueries({ queryKey: ["milestoneMessages", selectedMilestoneId] });
