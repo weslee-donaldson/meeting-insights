@@ -73,16 +73,14 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 > Files: `core/db.ts`, `core/notes.ts`, `test/notes.test.ts`
 
 - [x] Burst 1: Migration adds `note_type TEXT DEFAULT 'user'` to notes table (8926b25)
-- [ ] Burst 2: `Note`/`NoteRow`/`CreateNoteInput` include `noteType`; `createNote` stores it; `rowToNote` maps it
-- [ ] Burst 3: `getNotesByMeeting(db, meetingId)` returns all notes for a meeting regardless of type
+- [x] Burst 2: `Note`/`NoteRow`/`CreateNoteInput` include `noteType`; `createNote` stores it; `rowToNote` maps it (6c33f4a)
+- [x] Burst 3: `getNotesByMeeting(db, meetingId)` returns all notes for a meeting regardless of type (973f261)
 
 ### SECTION 2: Webhook Parsing (~3 bursts)
 
 > Files: `core/parser.ts`, `test/parser.test.ts`
 
-- [ ] Burst 4: `parseWebhookNote` returns null for non-matching events (transcript_created, recording_ready, etc.)
-- [ ] Burst 5: `parseWebhookNote` extracts `{externalMeetingId, noteType, title, body}` from `key_points_generated` using `raw_content`
-- [ ] Burst 6: `parseWebhookNote` extracts same shape from `action_items_generated`; returns null for malformed payloads
+- [ ] Burst 4-6 (E2E): `parseWebhookNote` — null for non-note events, extracts key-points and action-items from raw_content, null for malformed
 
 ### SECTION 3: Pipeline Integration (~4 bursts)
 

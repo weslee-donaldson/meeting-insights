@@ -242,3 +242,34 @@ export function parseWebhookPayload(json: string, filename: string): ParsedMeeti
     return null;
   }
 }
+
+export interface ParsedWebhookNote {
+  externalMeetingId: string;
+  noteType: string;
+  title: string;
+  body: string;
+}
+
+const NOTE_EVENT_MAP: Record<string, { noteType: string; title: string }> = {
+  key_points_generated: { noteType: "key-points", title: "Krisp Key Points" },
+  action_items_generated: { noteType: "action-items", title: "Krisp Action Items" },
+};
+
+export function parseWebhookNote(json: string, _filename: string): ParsedWebhookNote | null {
+  try {
+    const payload = JSON.parse(json);
+    const mapping = NOTE_EVENT_MAP[payload.event];
+    if (!mapping) return null;
+    const meetingId = payload.data?.meeting?.id;
+    const rawContent = payload.data?.raw_content;
+    if (!meetingId || typeof rawContent !== "string") return null;
+    return {
+      externalMeetingId: meetingId,
+      noteType: mapping.noteType,
+      title: mapping.title,
+      body: rawContent,
+    };
+  } catch {
+    return null;
+  }
+}

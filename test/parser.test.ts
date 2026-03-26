@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { listTranscriptFiles, listWebhookFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile, parseWebhookPayload } from "../core/parser.js";
+import { listTranscriptFiles, listWebhookFiles, parseFilename, readTranscriptFile, splitSections, parseAttendance, parseTranscriptBody, parseWebVttBody, parseKrispFile, parseWebhookPayload, parseWebhookNote } from "../core/parser.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -345,5 +345,53 @@ describe("parseWebhookPayload", () => {
     expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created" }), "no-data.json")).toBeNull();
     expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created", data: {} }), "no-meeting.json")).toBeNull();
     expect(parseWebhookPayload(JSON.stringify({ event: "transcript_created", data: { meeting: { id: "m1" } } }), "no-content.json")).toBeNull();
+  });
+});
+
+describe("parseWebhookNote", () => {
+  it("returns null for non-note events", () => {
+    expect(parseWebhookNote(JSON.stringify({ event: "transcript_created", data: {} }), "t.json")).toBeNull();
+    expect(parseWebhookNote(JSON.stringify({ event: "recording_ready", data: {} }), "r.json")).toBeNull();
+  });
+
+  it("extracts key_points_generated as key-points note using raw_content", () => {
+    const payload = {
+      event: "key_points_generated",
+      data: {
+        meeting: { id: "mtg-001", title: "Planning" },
+        raw_content: "- Point 1\n- Point 2",
+        content: [{ id: "c1", description: "Point 1" }],
+      },
+    };
+    expect(parseWebhookNote(JSON.stringify(payload), "kp.json")).toEqual({
+      externalMeetingId: "mtg-001",
+      noteType: "key-points",
+      title: "Krisp Key Points",
+      body: "- Point 1\n- Point 2",
+    });
+  });
+
+  it("extracts action_items_generated as action-items note using raw_content", () => {
+    const payload = {
+      event: "action_items_generated",
+      data: {
+        meeting: { id: "mtg-001", title: "Planning" },
+        raw_content: "- [ ] Task 1\n- [ ] Task 2",
+        content: [{ id: "a1", title: "Task 1" }],
+      },
+    };
+    expect(parseWebhookNote(JSON.stringify(payload), "ai.json")).toEqual({
+      externalMeetingId: "mtg-001",
+      noteType: "action-items",
+      title: "Krisp Action Items",
+      body: "- [ ] Task 1\n- [ ] Task 2",
+    });
+  });
+
+  it("returns null for malformed payloads", () => {
+    expect(parseWebhookNote("", "e.json")).toBeNull();
+    expect(parseWebhookNote("not json", "b.json")).toBeNull();
+    expect(parseWebhookNote(JSON.stringify({ event: "key_points_generated" }), "no-data.json")).toBeNull();
+    expect(parseWebhookNote(JSON.stringify({ event: "key_points_generated", data: { meeting: { id: "m1" } } }), "no-content.json")).toBeNull();
   });
 });
