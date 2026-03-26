@@ -58,6 +58,7 @@ interface MeetingsPageProps {
   onDensityChange?: (mode: DensityMode) => void;
   notesCount?: number;
   onNotesClick?: () => void;
+  onCopyTranscripts?: () => void;
 }
 
 export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
@@ -70,7 +71,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
     onIgnore, completions, onComplete, onUncomplete, mergedCompletions, onMultiComplete,
     onMultiUncomplete, mentionStats, onMentionClick, onThreadClick, onMilestoneClick,
     onEditActionItem, assets, onUploadAsset, onDeleteAsset, onRename, rawTranscript,
-    densityMode, onDensityChange, notesCount, onNotesClick,
+    densityMode, onDensityChange, notesCount, onNotesClick, onCopyTranscripts,
   } = props;
 
   return [
@@ -132,6 +133,7 @@ export function MeetingsPage(props: MeetingsPageProps): React.ReactNode[] {
       rawTranscript={isMultiMode ? undefined : rawTranscript}
       notesCount={isMultiMode ? undefined : notesCount}
       onNotesClick={isMultiMode ? undefined : onNotesClick}
+      onCopyTranscripts={isMultiMode ? onCopyTranscripts : undefined}
     />,
   ];
 }

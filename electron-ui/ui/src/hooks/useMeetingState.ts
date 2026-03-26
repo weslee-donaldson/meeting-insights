@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useSearchScope } from "./useSearchScope.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-artifacts.js";
+import { formatMultiTranscript } from "../../../../core/display-helpers.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
 import { useClearMessages } from "./useClearMessages.js";
@@ -144,6 +145,28 @@ export function useMeetingState(
   }, [isMultiMode, checkedArtifactQueries, checkedMeetings]);
 
   const mergedArtifactLoading = isMultiMode && checkedArtifactQueries.some((q) => q.isLoading);
+
+  const checkedTranscriptQueries = useQueries({
+    queries: checkedMeetings.map((m) => ({
+      queryKey: ["transcript", m.id] as const,
+      queryFn: () => window.api.getTranscript(m.id),
+      enabled: isMultiMode,
+    })),
+  });
+
+  const handleCopyMultiTranscripts = useCallback(() => {
+    const entries = checkedMeetings
+      .map((m, i) => {
+        const transcript = checkedTranscriptQueries[i]?.data;
+        if (!transcript) return null;
+        return { title: m.title, date: m.date, transcript };
+      })
+      .filter((e): e is { title: string; date: string; transcript: string } => e !== null);
+    if (entries.length === 0) return;
+    const text = formatMultiTranscript(entries);
+    navigator.clipboard.writeText(text).catch(() => {});
+    addToast(`${entries.length} transcript(s) copied`, "success");
+  }, [checkedMeetings, checkedTranscriptQueries, addToast]);
 
   const checkedCompletionQueries = useQueries({
     queries: checkedMeetings.map((m) => ({
@@ -608,6 +631,7 @@ export function useMeetingState(
     handleSaveAsThread,
     handleResetSearch,
     handleResetChecked,
+    handleCopyMultiTranscripts,
     transcriptQuery,
     meetingMessagesQuery,
     handleMeetingSendMessage,

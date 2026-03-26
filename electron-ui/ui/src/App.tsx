@@ -261,6 +261,7 @@ export function App() {
     onDensityChange: setDensityMode,
     notesCount: meetingNotes.noteCountQuery.data ?? 0,
     onNotesClick: meeting.selectedMeetingId ? () => meetingNotes.setNotesDialogOpen(true) : undefined,
+    onCopyTranscripts: meeting.handleCopyMultiTranscripts,
   });
 
   const actionItemsPanels = ActionItemsPage({
