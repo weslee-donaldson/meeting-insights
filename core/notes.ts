@@ -58,6 +58,13 @@ export function listNotes(db: Database, objectType: ObjectType, objectId: string
   return rows.map(rowToNote);
 }
 
+export function getNotesByMeeting(db: Database, meetingId: string): Note[] {
+  const rows = db.prepare(
+    "SELECT * FROM notes WHERE object_type = 'meeting' AND object_id = ? ORDER BY created_at DESC, rowid DESC"
+  ).all(meetingId) as NoteRow[];
+  return rows.map(rowToNote);
+}
+
 export function getNote(db: Database, id: string): Note | undefined {
   const row = db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow | undefined;
   return row ? rowToNote(row) : undefined;

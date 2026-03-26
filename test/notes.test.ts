@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
-import { createNote, listNotes, updateNote, deleteNote, deleteNotesByObject, countNotes } from "../core/notes.js";
+import { createNote, listNotes, getNotesByMeeting, updateNote, deleteNote, deleteNotesByObject, countNotes } from "../core/notes.js";
 
 function freshDb(): DatabaseSync {
   const db = new DatabaseSync(":memory:");
@@ -91,6 +91,30 @@ describe("listNotes", () => {
     const result = listNotes(db, "meeting", "nonexistent");
 
     expect(result).toEqual([]);
+  });
+});
+
+describe("getNotesByMeeting", () => {
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = freshDb();
+  });
+
+  it("returns all notes for a meeting regardless of type", () => {
+    createNote(db, { objectType: "meeting", objectId: "m1", body: "user note" });
+    createNote(db, { objectType: "meeting", objectId: "m1", body: "key points", noteType: "key-points" });
+    createNote(db, { objectType: "meeting", objectId: "m1", body: "action items", noteType: "action-items" });
+    createNote(db, { objectType: "meeting", objectId: "m2", body: "other meeting" });
+
+    const result = getNotesByMeeting(db, "m1");
+
+    expect(result).toHaveLength(3);
+    expect(result.map((n) => n.noteType).sort()).toEqual(["action-items", "key-points", "user"]);
+  });
+
+  it("returns empty array when no notes exist for meeting", () => {
+    expect(getNotesByMeeting(db, "nonexistent")).toEqual([]);
   });
 });
 
