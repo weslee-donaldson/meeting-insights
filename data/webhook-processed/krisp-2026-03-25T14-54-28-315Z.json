@@ -1,0 +1,301 @@
+{
+  "id": "019d257d640075be97fc123a59859b85",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2575902a74899bdfa046dca48015",
+      "title": "LLSA , Internal Engineering Sync",
+      "duration": 504,
+      "calendar_event_id": "7s524jmjh48kmmanjuhkiu5rfb_20260325T130000Z",
+      "participants": [
+        {
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "index": 4,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-25T14:45:24.664Z",
+      "end_date": "2026-03-25T14:53:48.664Z",
+      "url": "https://app.krisp.ai/n/019d2575902a74899bdfa046dca48015"
+    },
+    "content": [
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Good morning, Jeffka. Welcome back. You did you sentence them to oblivion? Did you do you like are they gone? [Laughter]."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "No, not gone. I'm technically still on jury duty. It got resolved. The case got settled. Literally out of our eyes. Because we were never selected, but we were sworn in, they said, \"Well, you need to check every day now till the end of this week.\"\nIf you need to come in again. So that's it. Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I've been called, like, four times, and I've never been selected. Kind of makes me sad."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "For me, it was an interesting experience. It was the first time I... They were doing it here. So it was like from the movies, with the judge and the lawyers and everything that the process was."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, Sam, just so you're aware, we did have... I moved the... I'll create another version of it, but I moved the 3 pm to this morning just so I can have a status, so I can get back to leadership on what... Can we turn green this morning?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Say that again, sorry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Of course, we had the end-of-day status for the team, and I use that to inform the conversation that we have with Stacey about what is green. I moved it this morning to earlier, not 03:00 pm, just so I can get that status from the team.\nNo worries if you missed that. You had to miss that. I'll recreate the meeting for this afternoon. If you saw it, drop off your calendar."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Yeah, I don't have any meetings on my calendar right now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Right, so question, how's everything going? Well, let's see, so what was Antonio coming for?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He should be. Who just spoke to him?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "So just in terms of lighting things up green... I'm just having a few fifteen-minute sessions just for the next day and tomorrow to find out what we can do together here to push... So that by the end of the week we're in a good spot.\nI think there's some infrastructure work to do. Is there any outstanding work for anyone to do right now? Wesley, we're not sure if... Do we know what you have to do?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes. So, Jivko, you have one additional task that was assigned to you, but other than that, he for this morning, he's completed the blue-green environment with me. He had an approval for it.\nSo he's just pushing it through the flow right now. The PR flow."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "Yes, it's currently deploying."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Me have the sorry me Jeffco CO the next thing up for you is the membership discount, which is related to the coupon entry. So. And some of the packages work you've done in the past, that's the next one up for you."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "Of course."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "[Laughter]."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "Well, I'll be glad to help. Just want to make sure that this diploma... Everything goes correctly, or if there's anything to fix it, then... Yeah, that's the focus right now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I guess let's keep going. Me... How are you clear on the next action that you have relative to getting us live for next week?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Yes, I currently have the record of tracking on my board, so working on that. I'm still blocked on the Genesis chat, still waiting for Rob and Beth to figure it all out with the setup, conf with the channels and all that stuff.\nBut yeah, I'll carry on working on... Unless there's anything more urgent I should support on."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Sorry guys, I dropped off the..."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Say that again, please."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Sorry, I just dropped off... But I missed something. All I wanted to know is, \"Can I be of help here to anybody?\" This is really what I'm offering every day. If you need me to pair with you to do something so we can make sure we just crossed the line\nand got everything green at the end of this week, then Jivko, do you need anything?"
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "I'm good at..."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Don't give how sound like okay, awesome. How far are we from getting the C names and everything else in production for the webhook?"
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "The C names?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Well, that's..."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 3,
+        "text": "Yeah, so what I'm doing is the blue-green. I'm deploying that right now. It's really deploying."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Embedded. Okay, anything I can do for anyone?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sam, the thing I'm concerned about is actually what Antonio raised in our chat. I asked him not to share that with the team this morning because we only had like five minutes. I think that requires more of a conversation. How do you want to approach that?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "How I want to approach the... Okay, the Emmett using postgress for one only once delivery. We decided that he's going to use postgress for Emmett for the new streams, and we're just going to say we did it because of that reason.\nI think we'll just run with it. Yeah, I think we just do it, we just bite the bullet. I'll talk to Stacey about it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He..."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "I think we just get it working first, though. Once it's working, it'll be like, fine.\nBut if it's if it if it's gonna be like, hey, we need to do something different. It might be scary, but if it's just done and working, it's like run with it. I'll just sell it at that point as a positive thing."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The only other thing that I had on my radar was a more holistic end-to-end test. We have Antonio's script. Jeremy's working on just proving out data in CSTAR versus data that we have inside of PostgreSQL. SLA current.\nThen I'm meeting with Devon today just to get some... He had some scripts that he ran the last time they did SHOPIF, so that in theory should give us some end-to-end test. Do you have any thoughts on running the full process and verifying?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Yeah. I think in terms of testing, do we have any endpoints that we're able to poke the state of CSTAR from?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's when I'm pushing Jeremy, Lance, and Jeremy for... Sorry, Devon and Jeremy for... I don't know who is my answer. I'm trying to get that for us."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Okay, I would say look at what call center can see because if call center can see stuff and see STAR and we can access those call center endpoints, we probably have access to all the things we need to verify."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Good point. Great point. Yep. Love that."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Alright, so that's what I look for. Cool. Alright guys, look, I'm not going to just say you're taking your time for no reason. If you want something, shout. I'll give you one more day tomorrow, and that's it. I just want to stay on top of things here. Are there any warnings that I should be aware of that or that I need to jump on from your perspective?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Not from my side. And I'll."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 2,
+        "text": "Let you go. I don't want to add loads of meetings to your comments. Thank you so much."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I guess."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Thank you so much. Thank you, later."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Without a date."
+      }
+    ],
+    "raw_meeting": "**LLSA , Internal Engineering Sync**\n🕞 Started at 02:45 PM on 25 Mar, lasted 8m",
+    "raw_content": "Sam Hatoum | 00:22\nGood morning, Jeffka. Welcome back. You did you sentence them to oblivion? Did you do you like are they gone? [Laughter].\nJivko Ivanov | 00:36\nNo, not gone. I'm technically still on jury duty. It got resolved. The case got settled. Literally out of our eyes. Because we were never selected, but we were sworn in, they said, \"Well, you need to check every day now till the end of this week.\"\nIf you need to come in again. So that's it. Okay.\nWesley Donaldson | 01:04\nI've been called, like, four times, and I've never been selected. Kind of makes me sad.\nJivko Ivanov | 01:11\nFor me, it was an interesting experience. It was the first time I... They were doing it here. So it was like from the movies, with the judge and the lawyers and everything that the process was.\nWesley Donaldson | 01:22\nYeah, Sam, just so you're aware, we did have... I moved the... I'll create another version of it, but I moved the 3 pm to this morning just so I can have a status, so I can get back to leadership on what... Can we turn green this morning?\nSam Hatoum | 01:43\nSay that again, sorry.\nWesley Donaldson | 01:44\nOf course, we had the end-of-day status for the team, and I use that to inform the conversation that we have with Stacey about what is green. I moved it this morning to earlier, not 03:00 pm, just so I can get that status from the team.\nNo worries if you missed that. You had to miss that. I'll recreate the meeting for this afternoon. If you saw it, drop off your calendar.\nSam Hatoum | 02:09\nYeah, I don't have any meetings on my calendar right now.\nWesley Donaldson | 02:12\nOkay.\nSam Hatoum | 02:14\nRight, so question, how's everything going? Well, let's see, so what was Antonio coming for?\nWesley Donaldson | 02:26\nHe should be. Who just spoke to him?\nSam Hatoum | 02:31\nSo just in terms of lighting things up green... I'm just having a few fifteen-minute sessions just for the next day and tomorrow to find out what we can do together here to push... So that by the end of the week we're in a good spot.\nI think there's some infrastructure work to do. Is there any outstanding work for anyone to do right now? Wesley, we're not sure if... Do we know what you have to do?\nWesley Donaldson | 02:55\nYes. So, Jivko, you have one additional task that was assigned to you, but other than that, he for this morning, he's completed the blue-green environment with me. He had an approval for it.\nSo he's just pushing it through the flow right now. The PR flow.\nJivko Ivanov | 03:13\nYes, it's currently deploying.\nWesley Donaldson | 03:35\nMe have the sorry me Jeffco CO the next thing up for you is the membership discount, which is related to the coupon entry. So. And some of the packages work you've done in the past, that's the next one up for you.\nJivko Ivanov | 03:48\nOf course.\nWesley Donaldson | 03:48\n[Laughter].\nJivko Ivanov | 03:49\nWell, I'll be glad to help. Just want to make sure that this diploma... Everything goes correctly, or if there's anything to fix it, then... Yeah, that's the focus right now.\nWesley Donaldson | 04:02\nI guess let's keep going. Me... How are you clear on the next action that you have relative to getting us live for next week?\nMichal Kawka | 04:14\nYes, I currently have the record of tracking on my board, so working on that. I'm still blocked on the Genesis chat, still waiting for Rob and Beth to figure it all out with the setup, conf with the channels and all that stuff.\nBut yeah, I'll carry on working on... Unless there's anything more urgent I should support on.\nSam Hatoum | 04:48\nSorry guys, I dropped off the...\nMichal Kawka | 04:56\nSay that again, please.\nSam Hatoum | 04:57\nSorry, I just dropped off... But I missed something. All I wanted to know is, \"Can I be of help here to anybody?\" This is really what I'm offering every day. If you need me to pair with you to do something so we can make sure we just crossed the line\nand got everything green at the end of this week, then Jivko, do you need anything?\nJivko Ivanov | 05:16\nI'm good at...\nSam Hatoum | 05:17\nDon't give how sound like okay, awesome. How far are we from getting the C names and everything else in production for the webhook?\nJivko Ivanov | 05:27\nThe C names?\nSam Hatoum | 05:28\nWell, that's...\nJivko Ivanov | 05:30\nYeah, so what I'm doing is the blue-green. I'm deploying that right now. It's really deploying.\nSam Hatoum | 05:36\nEmbedded. Okay, anything I can do for anyone?\nWesley Donaldson | 05:47\nSam, the thing I'm concerned about is actually what Antonio raised in our chat. I asked him not to share that with the team this morning because we only had like five minutes. I think that requires more of a conversation. How do you want to approach that?\nSam Hatoum | 06:05\nHow I want to approach the... Okay, the Emmett using postgress for one only once delivery. We decided that he's going to use postgress for Emmett for the new streams, and we're just going to say we did it because of that reason.\nI think we'll just run with it. Yeah, I think we just do it, we just bite the bullet. I'll talk to Stacey about it.\nWesley Donaldson | 06:29\nHe...\nSam Hatoum | 06:29\nI think we just get it working first, though. Once it's working, it'll be like, fine.\nBut if it's if it if it's gonna be like, hey, we need to do something different. It might be scary, but if it's just done and working, it's like run with it. I'll just sell it at that point as a positive thing.\nWesley Donaldson | 06:45\nThe only other thing that I had on my radar was a more holistic end-to-end test. We have Antonio's script. Jeremy's working on just proving out data in CSTAR versus data that we have inside of PostgreSQL. SLA current.\nThen I'm meeting with Devon today just to get some... He had some scripts that he ran the last time they did SHOPIF, so that in theory should give us some end-to-end test. Do you have any thoughts on running the full process and verifying?\nSam Hatoum | 07:14\nYeah. I think in terms of testing, do we have any endpoints that we're able to poke the state of CSTAR from?\nWesley Donaldson | 07:20\nThat's when I'm pushing Jeremy, Lance, and Jeremy for... Sorry, Devon and Jeremy for... I don't know who is my answer. I'm trying to get that for us.\nSam Hatoum | 07:33\nOkay, I would say look at what call center can see because if call center can see stuff and see STAR and we can access those call center endpoints, we probably have access to all the things we need to verify.\nWesley Donaldson | 07:38\nGood point. Great point. Yep. Love that.\nSam Hatoum | 07:47\nAlright, so that's what I look for. Cool. Alright guys, look, I'm not going to just say you're taking your time for no reason. If you want something, shout. I'll give you one more day tomorrow, and that's it. I just want to stay on top of things here. Are there any warnings that I should be aware of that or that I need to jump on from your perspective?\nMichal Kawka | 08:08\nNot from my side. And I'll.\nSam Hatoum | 08:10\nLet you go. I don't want to add loads of meetings to your comments. Thank you so much.\nWesley Donaldson | 08:13\nI guess.\nMichal Kawka | 08:15\nThank you so much. Thank you, later.\nWesley Donaldson | 08:22\nWithout a date."
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": "019d257cfae47478a28e6fff4ec7f255",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2575902a74899bdfa046dca48015",
+      "title": "(Hold) LLSA , Internal Engineering Sync",
+      "duration": 504,
+      "calendar_event_id": "7s524jmjh48kmmanjuhkiu5rfb_20260325T130000Z",
+      "participants": [
+        {
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "index": 4,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-25T14:45:24.664Z",
+      "end_date": "2026-03-25T14:53:48.664Z",
+      "url": "https://app.krisp.ai/n/019d2575902a74899bdfa046dca48015"
+    },
+    "content": {
+      "id": "019d25759a2f76d7b00d4c866cd25bd1",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 502.792,
+      "size": 2007360,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d25759a2f76d7b00d4c866cd25bd1.mp3?AWSAccessKeyId=ASIA2I62CR7VKWL7U3WG&Expires=1775055240&Signature=KiqWscrW6HhTKHxFxKTiMkMGbBw%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQC9Zp4I6suIPE0mDZ0mc46fMLWTsfLxSrIMqn%2FpZNcUFgIhAIiYmX7yWho%2FNgQrFqec3BQg9vHiSHYE%2FHoJIntabIXLKoQECK%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMNzA2NDQyNTk2MzMwIgyyx5CHmZ6BSThcAPEq2ANlNY94fcyoRTPZXGS2qlnmJORaXGA%2F%2FBspqIHF7Gdcm3%2FKWURFVOTSe2Ma9iVUb4W3ORCpUtC37gQ6AIX%2BJBddynvOm4qPGKApHOU4JB6JnVPLHpj%2B4TIGhNOp2DvOChWLhgTwpt92DfoRMaD7pUxmMpr3IWBlBrShZ7HuueQMI2iyT7Ewd%2BBElpnUXtsRv6fFc7lKWmkcUqMEaOH70%2BXyixT3ZoDcrxK1Srd%2BDTpDk68e4ITV5NNEPkk2JXds%2Bw6NmtoX8uoPm65CI%2BBSOUcPsBrVZcuFdA1w6UuY%2F7yBReKG1ROB%2F4UCSAfNAxGi6f%2FxRKsSF1wCZtQfPJnxAzBcmILEOQAm0BUvw7JMHdRIoGlmlBMeTBuIEuw52BYo6JprPcoJQIMzrI3l63MSO09XViRuDwMH23z%2BQvDkoul3bKA3eNrE8VMSE%2BrYzSC%2BU%2FO7oVKaCiI%2FvWBahZYeL8YGmFG5H%2BsFALXPiY%2F9kBH4EguwGmIVNJRDJeqhnEqIeuK61q1Nx677t4CATaiSNyY7B%2BTtILx%2Fs81zBOAFnK%2FaYOWHaL4huJerbDbYTCeX5BAo4mO8Kk%2FPKOKHSrIF1te3irzl2U1kbBBb4ypIZZHII%2FOfi8UrDUP5MOfGj84GOqQBc%2Bx6ou5xeUZ27hOnIxrcoHdCT8abF7OB8RBNhcht8XABum4I2c9lTGdNZsd9KaR25iYJs4N55%2BIzyZWUVGmaW7qW%2FVZ4%2BEgisfuGUZ0YZVH8Q9wxE7oo82i2FYeka5ImsiE2wDlOH6WfnxnY4aP8hE2RS%2BBBPjkKEeAZVricIKEeOz1Vib6E383DRAOyjfKDCoilpiHsfCEJgkBVJovaRpmvRwM%3D",
+      "expires_at": "2026-04-01T14:54:00.930Z"
+    },
+    "raw_meeting": "**(Hold) LLSA , Internal Engineering Sync**\n🕞 Started at 02:45 PM on 25 Mar, lasted 8m"
+  }
+}

@@ -6,6 +6,10 @@ import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
 
 const logLlm = createLogger("llm");
 
+const MAX_TOKENS_EXTRACT = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_EXTRACT ?? "16384", 10);
+const MAX_TOKENS_CONVERSE = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_CONVERSE ?? "10000", 10);
+const MAX_TOKENS_DEFAULT = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_DEFAULT ?? "8000", 10);
+
 function buildImageParts(attachments: ImageAttachment[]): ChatCompletionContentPart[] {
   return attachments.map((a) => ({
     type: "image_url" as const,
@@ -32,8 +36,10 @@ export function createOpenaiAdapter(apiKey: string, model?: string): LlmAdapter 
       const userContent: string | ChatCompletionContentPart[] = attachments && attachments.length > 0
         ? [...buildImageParts(attachments), { type: "text" as const, text: content }]
         : content;
+      const maxTokens = capability === "generate_insight" || capability === "extract_artifact" ? MAX_TOKENS_EXTRACT : MAX_TOKENS_DEFAULT;
       const completion = await client.chat.completions.create({
         model: resolvedModel,
+        max_tokens: maxTokens,
         messages: [{ role: "user", content: userContent }],
       });
       text = completion.choices[0]?.message?.content ?? "";
@@ -68,6 +74,7 @@ export function createOpenaiAdapter(apiKey: string, model?: string): LlmAdapter 
         });
         const completion = await client.chat.completions.create({
           model: resolvedModel,
+          max_tokens: MAX_TOKENS_CONVERSE,
           messages: [
             { role: "system", content: system },
             ...apiMessages,

@@ -1,0 +1,81 @@
+{
+  "id": "019d259e639874dfa59807e90c261370",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2595d77a70d8802477782d02c94d",
+      "title": "TQ, Internal",
+      "duration": 773,
+      "calendar_event_id": "krr9eo1hep6of0117nhe1mgadg_20260325T151500Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": "Lasek",
+          "id": "0a749525c4a3516887810ca23a1c24a7",
+          "first_name": "Dominik",
+          "email": "dominik.lasek@xolv.io"
+        },
+        {
+          "last_name": "Berrogorry",
+          "id": "9f14e74aa75d5a33b16d321ff561398b",
+          "first_name": "Nicolas",
+          "email": "nicolas.berrogorry@xolv.io"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Berrogorry",
+          "id": "9f14e74aa75d5a33b16d321ff561398b",
+          "first_name": "Nicolas",
+          "email": "nicolas.berrogorry@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": "Lasek",
+          "id": "0a749525c4a3516887810ca23a1c24a7",
+          "first_name": "Dominik",
+          "email": "dominik.lasek@xolv.io"
+        },
+        {
+          "index": 4,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-25T15:17:28.871Z",
+      "end_date": "2026-03-25T15:30:21.871Z",
+      "url": "https://app.krisp.ai/n/019d2595d77a70d8802477782d02c94d"
+    },
+    "content": {
+      "id": "019d25976df0725cbdc623c1b5df0fcf",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 770.977,
+      "size": 3080160,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d25976df0725cbdc623c1b5df0fcf.mp3?AWSAccessKeyId=ASIA2I62CR7VFJDYD3TJ&Expires=1775057430&Signature=HdHyO9CjxWBge%2BZc71F%2FvPvmWUM%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCkjrffM1SA5yid0z7cTw7fQ4gTO5iFC4L7pF9Uqy9owAIhAP%2B6UErzHn6%2B9ljthj6ZSxnGz9AtLm%2BtTwaB69IxiItoKoQECK%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMNzA2NDQyNTk2MzMwIgzTH0AD1tpsFfVdCvYq2APxmyLXYfKSngGhNA1wq4nYEva54Nq4paM77%2Fmi4PqudlrA7KX2imBQPQlOMahYlFQ1kHBnT6kjHrjgtLoWHQCpbGJOcT6S1G4Z3SrcwbCBT0kiMbV78dJTCNWPojkOqiUQKf41xQKkvbt%2FZP3E5QaVN7ZRoMrXbUJvcygbs8aTAviw%2FuoAWpcqpk%2BTpURwLq2TviZlqOMNEBXRdu%2Fxd4aveLzceK%2FLOkjeOVBeZ1BzCAoeAd%2FmA8Ww7rWM%2BynfMH6tKyLALFnyXOJGRJtv5Mlc4gCr1i5jXOrpg3Zy9UWCAjuRXdR1QxXExHuFTJR3MLhjUcfx3pVURg1pWscgfAT1FE9P47UYyW%2B9H%2FYISPbVKCXzUHzsux%2FsyQ71Ydoa3KtkYQ3xkQBjCZ5agAO5MLip6%2BfptfvEfek99aZwiu5XUX7KDODnoys0%2B06uyb%2FG3wVtussgNv%2F1tZp1jQ%2FDlzcMVpJrBnjdNBpMHi3L9sovuNeVriX0j%2BdIn3k8udqNPXss%2FvuQyUhkNfafRGO8ge0%2BZuGL5nNb3UyCgWgUYyGoFmeebFBAdqHO69U6hrEvLnj6qGrYKOku2NninDobtnEUdUlacCX19FIcRa88sgH8cgRiH%2B15lE6bMLDWj84GOqQBWzAGdhtk7aK4zRKRc%2BS%2BM4DO1yAigZwF95AL6WNBgM5Jv8r%2B0yEVrXr7ngcY%2BAFZDwLFXa8fNABTuZFtXh%2FvCZn3E5YoO7NvGDr2ndA8hLEjvrvVGLJjI4AvrmtN5zuqoVbJl%2FdAYybu4XsqGSxrouIsl5iOiKYRGdjFCIVaBdTjvCtIWM654QMDKWod82%2BO0yZCDH2K3cC8dGcS7h2QrnIs8yg%3D",
+      "expires_at": "2026-04-01T15:30:30.423Z"
+    },
+    "raw_meeting": "**TQ, Internal**\n🕞 Started at 03:17 PM on 25 Mar, lasted 12m"
+  }
+}

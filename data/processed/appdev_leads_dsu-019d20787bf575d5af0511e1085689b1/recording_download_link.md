@@ -1,0 +1,10 @@
+# AppDev Leads DSU - Mar, 24
+
+Please click the link to download the recording. If it does not work, please copy the link and open it in your browser.
+
+# Recording Download Link
+
+**File:** recording.mp3
+**Valid for:** 7 days
+
+[Download Recording](<https://kr-files-cdn.s3.amazonaws.com/recording/prod-team/1092776/13603869/019d20789bfd74ac922d206f6aefb879.mp3?AWSAccessKeyId=ASIA2I62CR7VJOFWTXO7&Expires=1775005212&Signature=J%2BQItXTXkI6U5JLMh4VwlXzOSrg%3D&x-amz-security-token=IQoJb3JpZ2luX2VjENj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCDfW4vWeY4uSrVgK%2FO1R28aLzspdrUwKmOHRHQl6hMgQIhALW58eqzQANBTUbRvo7J1dKSdBvzkR5%2FGiT172uhZ7TqKoQECKH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAxoMNzA2NDQyNTk2MzMwIgxCd5rJShCbxbccA6sq2AOVh%2BUj6U9h77ELtFmbdfbwJCP8pP0e1X6cXHBGGAOavvgRcuIY6%2FqGfsx1fAeK02Lp96EEH9saeDRK5xW%2FcdvB7euuF3lDDG1PaMHLooGO2iCGu6YMQVyTMWXvlnu5UYLXi%2BXgmq%2Fjmpa%2Fd5oUMVisbdgCjtzA37%2B7eex71wtBwq6PW%2FIC4fiElouDFKgmjuvCCveSvxzbx4abUjJeZEANQBqQTjM8twGEu%2B17EVkxwYcLtE%2Fsx%2FGxBjPtST1HmkYAlDqpVRutht0zr9jKF%2Bx4p%2BU%2BVrnhApRf%2Fh0%2F5nMLE9gs3aVdB6d0MgkYNKFnTtoM43xD2HG%2BEgcNRgPRJu0neszkVvKdqtMBapDd%2FcYbIAb%2FJ%2BehwX0frvoAvCQnTWcxVDYlgrVKr2H4mpbgln9LkgDYhGfgPPSG%2BpDOwVlOj8nYolitbbERLk0zapLc9HUOO1dQOkWo%2F%2FxY8%2BYsvrEInFB0kLmjspNwFBK16tCBs6Z6wsuHWQzal4gdER1tdj91t9h2vxu%2FarnCneCt%2B8o9ytCoii%2BYH4JLOMJoS3lzCuJkYQJEb1NSTMWRcLx1oKOJ5PbzQoQfCJxQb23CUZ4z34ADRDw7r4CPrzJJm46w8jF5MbCDp7xPMOHDjM4GOqQBBBeurSaIXPu4S3DJZOdEmw%2Bb9oNLO%2BcVffpEsSNr0FKjVD42m9zS5pw9vp53%2BP52tQ7WNxo8HMVfrLfEVEsZQxnixeqEOJivuLRlH%2BeP50ZlFhcs5WOJtHvEmRdZVgpnBLx0G234nfC3vMa68nMDwTIKSBeYyxNGe8tUV9t20Lj7eZacd1wkqCQ2KfmTauZa8sBnjsvaYt00PukMuiSYrCBKKOU%3D>)

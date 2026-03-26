@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Trash2, EyeOff } from "lucide-react";
+import { Trash2, EyeOff, GitMerge, Milestone } from "lucide-react";
 import type { MeetingRow } from "../../../electron/channels.js";
 import { Button } from "./ui/button.js";
 import { cn } from "../lib/utils.js";
@@ -369,16 +369,16 @@ export function MeetingList({
                     <div className="min-w-0 flex-1 text-[11px] font-medium overflow-hidden text-ellipsis whitespace-nowrap text-secondary-foreground">
                       {groupBy === "series" ? formatShortDate(m.date) : m.title}
                     </div>
-                    {m.thread_tags?.map((tag) => (
-                      <span key={tag.thread_id} className="text-[9px] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0">{tag.shorthand}</span>
-                    ))}
-                    {m.milestone_tags?.map((tag) => (
-                      <span
-                        key={tag.milestone_id}
-                        className="text-[0.6rem] px-1 py-0.5 rounded border border-border text-muted-foreground shrink-0 cursor-pointer hover:bg-secondary"
-                        onClick={(e) => { e.stopPropagation(); onMilestoneClick?.(tag.milestone_id); }}
-                      >{tag.title}</span>
-                    ))}
+                    {m.thread_tags && m.thread_tags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
+                        <GitMerge className="w-3 h-3" />{m.thread_tags.length}
+                      </span>
+                    )}
+                    {m.milestone_tags && m.milestone_tags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
+                        <Milestone className="w-3 h-3" />{m.milestone_tags.length}
+                      </span>
+                    )}
                     {newMeetingIds?.has(m.id) && (
                       <span className="text-[0.6rem] font-bold px-1 py-0.5 rounded bg-accent text-accent-foreground shrink-0">NEW</span>
                     )}

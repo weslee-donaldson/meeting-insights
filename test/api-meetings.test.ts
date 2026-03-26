@@ -336,6 +336,6 @@ describe("GET /api/templates", () => {
     const res = await app.request("/api/templates");
     expect(res.status).toBe(200);
     const body = await res.json() as string[];
-    expect(body).toEqual(["jira-epic", "jira-ticket", "thread-discovery"]);
+    expect(body).toEqual(["jira-epic", "jira-ticket", "team-actions", "thread-discovery"]);
   });
 });

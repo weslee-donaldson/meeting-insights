@@ -85,7 +85,7 @@ function NoteItem({ note, onEdit, onDelete }: { note: Note; onEdit: (id: string)
   const bodyPreview = stripHtml(note.body).slice(0, 150);
   return (
     <div
-      className="flex flex-col gap-2 px-5 py-4 border-b border-[#F0EEEA] cursor-pointer hover:bg-[var(--color-bg-elevated)]/50"
+      className="flex flex-col gap-2 px-5 py-6 border-b border-[#F0EEEA] cursor-pointer hover:bg-[var(--color-bg-elevated)]/50"
       onClick={() => onEdit(note.id)}
       data-testid={`note-item-${note.id}`}
     >
@@ -225,7 +225,7 @@ export function NotesDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="w-[520px] p-0 gap-0 overflow-hidden" data-testid="notes-dialog">
+      <DialogContent className="w-[720px] min-h-[70vh] p-0 gap-0 overflow-hidden flex flex-col" data-testid="notes-dialog">
         {mode === "list" && (
           <>
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-line)]">
@@ -249,7 +249,7 @@ export function NotesDialog({
                 </button>
               </div>
             </div>
-            <div className="max-h-[calc(70vh-80px)] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {notes.length === 0 ? (
                 <EmptyState onCompose={onStartCompose} />
               ) : (

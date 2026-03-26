@@ -24,6 +24,21 @@ import type { LlmAdapter } from "./llm-adapter.js";
 
 const log = createLogger("pipeline");
 
+function handleRecordingReady(db: Database, json: string): boolean {
+  try {
+    const payload = JSON.parse(json);
+    if (payload.event !== "recording_ready") return false;
+    const meetingId = payload.data?.meeting?.id;
+    const recordingUrl = payload.data?.meeting?.recording_url;
+    if (!meetingId || !recordingUrl) return false;
+    db.prepare("UPDATE meetings SET recording_url = ? WHERE id = ?").run(recordingUrl, meetingId);
+    log("recording_url updated for meeting=%s", meetingId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function isKnownNonTranscriptEvent(json: string): boolean {
   try {
     const payload = JSON.parse(json);
@@ -389,8 +404,13 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     const parsed = parseWebhookPayload(json, filename);
 
     if (!parsed) {
-      const isNonTranscriptEvent = isKnownNonTranscriptEvent(json);
-      if (isNonTranscriptEvent) {
+      if (handleRecordingReady(db, json)) {
+        moveToProcessed(webhookRawDir, webhookProcessedDir, filename);
+        skipped++;
+        continue;
+      }
+      if (isKnownNonTranscriptEvent(json)) {
+        moveToProcessed(webhookRawDir, webhookProcessedDir, filename);
         skipped++;
         continue;
       }
@@ -402,6 +422,7 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     }
 
     if (parsed.externalId && existingIds.has(parsed.externalId)) {
+      moveToProcessed(webhookRawDir, webhookProcessedDir, filename);
       onProgress?.({ type: "skipped", name: filename, title: parsed.title, index, total });
       skipped++;
       continue;

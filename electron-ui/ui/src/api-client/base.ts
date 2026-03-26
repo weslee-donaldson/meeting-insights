@@ -6,6 +6,7 @@ export async function fetchJson<T = unknown>(url: string, init?: RequestInit): P
     const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
     throw new Error(body.error);
   }
+  if (r.status === 204) return undefined as T;
   return r.json() as Promise<T>;
 }
 

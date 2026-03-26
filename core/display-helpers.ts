@@ -34,6 +34,22 @@ export function replaceCitations(
 /**
  * Renders an additional_notes array as a human-readable string with group headers and bullet points.
  */
+interface TranscriptEntry {
+  title: string;
+  date: string;
+  transcript: string;
+}
+
+const SEPARATOR = "═══════════════════════════════════════════════════════════════";
+
+export function formatMultiTranscript(entries: TranscriptEntry[]): string {
+  if (entries.length === 0) return "";
+  return entries.map((entry) => {
+    const dateStr = entry.date.slice(0, 10);
+    return [SEPARATOR, `${entry.title} — ${dateStr}`, SEPARATOR, "", entry.transcript].join("\n");
+  }).join("\n\n");
+}
+
 export function renderNotesGroups(notes: Array<Record<string, unknown>>): string {
   if (notes.length === 0) return "";
   const lines: string[] = [];

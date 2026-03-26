@@ -501,10 +501,10 @@ export function useMeetingState(
     enabled: !!selectedMeetingId,
   });
 
-  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean) => {
+  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean) => {
     if (!selectedMeetingId) return;
     try {
-      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts);
+      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts, template, includeAssets);
       queryClient.invalidateQueries({ queryKey: ["meetingMessages", selectedMeetingId] });
     } catch (err) {
       addToast(`Chat failed: ${(err as Error).message}`, "error");
@@ -614,6 +614,7 @@ export function useMeetingState(
     handleClearMeetingMessages,
     handleConfirmClearMeetingMessages: meetingClear.confirmClear,
     pendingClearMeetingMessages: meetingClear.pendingClear,
+    setPendingClearMeetingMessages: (v: boolean) => { if (v) meetingClear.requestClear(); else meetingClear.cancelClear(); },
     handlePreviewReExtract,
     handlePreviewReassignClient,
     handlePreviewIgnore,

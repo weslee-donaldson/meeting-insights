@@ -857,7 +857,7 @@ describe("MeetingList", () => {
       expect(screen.queryByRole("option", { name: "Thread" })).toBeNull();
     });
 
-    it("renders thread tag shorthand badges next to meeting title", () => {
+    it("renders thread count badge next to meeting title", () => {
       const meetings = [
         makeMeeting({ id: "m1", title: "Alpha Weekly", thread_tags: [
           { thread_id: "t1", title: "Deploy", shorthand: "DEP" },
@@ -876,8 +876,7 @@ describe("MeetingList", () => {
           onCheckGroup={vi.fn()}
         />,
       );
-      expect(screen.getByText("DEP")).toBeDefined();
-      expect(screen.getByText("ai-pol")).toBeDefined();
+      expect(screen.getByText("2")).toBeDefined();
     });
     it("thread sort puts threaded meetings first", () => {
       const meetings = [
@@ -901,7 +900,7 @@ describe("MeetingList", () => {
     });
   });
 
-  it("renders milestone tag title badge next to meeting row", () => {
+  it("renders milestone count badge next to meeting row", () => {
     const meetings = [
       makeMeeting({ id: "ms-m1", title: "Launch Meeting", milestone_tags: [{ milestone_id: "ms1", title: "Launch v2.0", target_date: "2026-03-15", status: "tracked" }] }),
     ];
@@ -916,6 +915,6 @@ describe("MeetingList", () => {
         onCheckGroup={vi.fn()}
       />,
     );
-    expect(screen.getByText("Launch v2.0")).toBeDefined();
+    expect(screen.getByText("1")).toBeDefined();
   });
 });

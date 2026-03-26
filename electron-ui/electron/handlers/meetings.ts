@@ -213,9 +213,9 @@ export async function handleConversationChat(
 
   const templateContent = req.template ? chatTemplates.get(req.template) : undefined;
   const templateDirective = templateContent
-    ? `IMPORTANT: The user has selected the "${req.template}" output template. You MUST follow ONLY the template below for your response structure. Disregard any formatting or structure from earlier messages in this conversation.\n\n${templateContent}`
+    ? `CRITICAL — OUTPUT FORMAT CONSTRAINT:\nYour response MUST contain ONLY the sections listed in the template below. Any section not listed (e.g. "Owner", "Due", "Tasks", "Sources to Investigate", "Open Question", "Requested by") is FORBIDDEN. If information does not fit into one of the listed sections, fold it into the closest matching section or omit it entirely.\n\n${templateContent}\n\nRemember: output ONLY the sections above. Nothing else.`
     : undefined;
-  const system = [SYSTEM_PROMPT, templateDirective, `Meeting Context:\n${contextText}`].filter(Boolean).join("\n\n");
+  const system = [SYSTEM_PROMPT, `Meeting Context:\n${contextText}`, templateDirective].filter(Boolean).join("\n\n");
 
   const rawAnswer = await llm.converse(system, req.messages, req.attachments);
   const answer = replaceCitations(rawAnswer, meetings);
@@ -472,7 +472,7 @@ export function handleGetMeetingMessages(db: Database, meetingId: string): Meeti
 }
 
 export async function handleMeetingChat(
-  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean,
+  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean,
 ): Promise<ConversationChatResponse> {
   appendMeetingMessage(db, { meeting_id: meetingId, role: "user", content: message });
   const history = getMeetingMessages(db, meetingId).map((m) => ({ role: m.role, content: m.content }));
@@ -480,6 +480,8 @@ export async function handleMeetingChat(
     meetingIds: [meetingId],
     messages: history,
     includeTranscripts,
+    template,
+    includeAssets,
   });
   appendMeetingMessage(db, { meeting_id: meetingId, role: "assistant", content: result.answer, sources: result.sources.length > 0 ? JSON.stringify(result.sources) : undefined });
   return result;

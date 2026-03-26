@@ -60,7 +60,7 @@ interface ChatPanelProps {
   onChat: (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
   templates?: string[];
   persistedMessages?: PersistedMessage[];
-  onSendMessage?: (message: string, includeTranscripts: boolean) => void;
+  onSendMessage?: (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean) => void;
   onClearMessages?: () => void;
   onSaveAsThread?: (content: string) => void;
   onSourceClick?: (meetingId: string) => void;
@@ -94,21 +94,24 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
 
   const submit = useCallback(async () => {
     const q = input.trim();
-    if (!q || loading) return;
+    const hasTemplate = selectedTemplate !== "";
+    if ((!q && !hasTemplate) || loading) return;
     setInput("");
     if (isPersisted && onSendMessage) {
-      onSendMessage(q, includeTranscripts);
+      onSendMessage(q || "Generate the output.", includeTranscripts, selectedTemplate || undefined, includeAssets || undefined);
       return;
     }
     const currentAttachments = [...attachments];
     setAttachments([]);
-    const userMsg: InternalMessage = { role: "user", content: q };
+    const displayText = q || toDisplayName(selectedTemplate);
+    const apiText = q || "Generate the output.";
+    const userMsg: InternalMessage = { role: "user", content: displayText };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     try {
       const historyForApi: ConversationMessage[] = [
         ...messages.map((m) => ({ role: m.role, content: m.content })),
-        { role: "user" as const, content: q },
+        { role: "user" as const, content: apiText },
       ];
       let base64Attachments: { name: string; base64: string; mimeType: string }[] | undefined;
       if (currentAttachments.length > 0) {
@@ -397,7 +400,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
             <div className="flex items-center gap-3">
               {templates && templates.length > 0 && (
                 <label className="flex items-center gap-1.5 select-none">
-                  <span className="text-[0.7rem] text-muted-foreground">Output Template</span>
+                  <span className="text-[0.7rem] text-muted-foreground">Template</span>
                   <select
                     aria-label="Output template"
                     value={selectedTemplate}
@@ -419,7 +422,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                   onChange={(e) => setIncludeTranscripts(e.target.checked)}
                   className="cursor-pointer"
                 />
-                <span className="text-[0.7rem] text-muted-foreground">Include full transcripts</span>
+                <span className="text-[0.7rem] text-muted-foreground">Transcripts</span>
               </label>
               {showIncludeAssets && (
                 <label className="flex items-center gap-1.5 cursor-pointer select-none w-fit">
@@ -430,7 +433,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
                     onChange={(e) => setIncludeAssets(e.target.checked)}
                     className="cursor-pointer"
                   />
-                  <span className="text-[0.7rem] text-muted-foreground">Include assets</span>
+                  <span className="text-[0.7rem] text-muted-foreground">Assets</span>
                 </label>
               )}
             </div>
@@ -448,7 +451,7 @@ export function ChatPanel({ activeMeetingIds, charCount, onChat, templates, pers
             </label>
             <Button
               onClick={submit}
-              disabled={!input.trim() || loading}
+              disabled={(!input.trim() && !selectedTemplate) || loading}
               size="icon"
               className="shrink-0"
               aria-label="Send"

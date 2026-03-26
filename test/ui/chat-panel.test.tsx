@@ -88,7 +88,7 @@ describe("ChatPanel", () => {
     render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} />);
     const checkbox = screen.getByRole("checkbox", { name: "Include full transcripts" });
     expect((checkbox as HTMLInputElement).checked).toBe(false);
-    expect(screen.getByText("Include full transcripts")).toBeDefined();
+    expect(screen.getByText("Transcripts")).toBeDefined();
   });
 
   it("when include full transcripts is checked, onChat is called with includeTranscripts: true", async () => {
@@ -364,7 +364,7 @@ describe("ChatPanel", () => {
     );
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Thread question" } });
     fireEvent.click(screen.getByLabelText("Send"));
-    expect(onSend).toHaveBeenCalledWith("Thread question", false);
+    expect(onSend).toHaveBeenCalledWith("Thread question", false, undefined, undefined);
     expect(onChat).not.toHaveBeenCalled();
   });
 
@@ -492,7 +492,7 @@ describe("ChatPanel", () => {
     render(<ChatPanel activeMeetingIds={["m1"]} charCount={100} onChat={vi.fn()} showIncludeAssets={true} />);
     const checkbox = screen.getByRole("checkbox", { name: "Include assets" });
     expect((checkbox as HTMLInputElement).checked).toBe(false);
-    expect(screen.getByText("Include assets")).toBeDefined();
+    expect(screen.getByText("Assets")).toBeDefined();
   });
 
   it("does not render Include assets checkbox when showIncludeAssets is false", () => {

@@ -1,0 +1,137 @@
+{
+  "id": "019d25b56e5f774f8a88c827fa38be92",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d259ec18a74489f32d302b0d52ba0",
+      "title": "FW: AppDev Leads DSU",
+      "duration": 1506,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6d330h9o8h144hhh710k8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6spj6cpj6cok2cq28cojcdpk6osjahhg6p23gdhn8gojggpl74qg_20260325T153000Z",
+      "participants": [
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "a4eb3c8f93f75ecb90d8ba47d8b25bfd",
+          "first_name": null,
+          "email": "ray.li@llsa.com"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "stace.baal@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "greg.christie@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "harry.dennen@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "salem.madani@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "sam.hatoum@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "dc1e19fa4ae15adc849e08797a8e375c",
+          "first_name": "Jennifer",
+          "email": "09859407fa054afe80f3b7887e066613@noemail.krisp.ai"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "40c060c1d205566780d8492730e4ce78",
+          "first_name": null,
+          "email": "harry.dennen@llsa.com"
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "085ddc9989e958cfb68a52b019482db9",
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "index": 5,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "41755a71c4615f4c801f0ebe241262d6",
+          "first_name": "Stace",
+          "email": "b87f19c5948649a39d29312f47b70352@noemail.krisp.ai"
+        }
+      ],
+      "start_date": "2026-03-25T15:30:24.283Z",
+      "end_date": "2026-03-25T15:55:30.283Z",
+      "url": "https://app.krisp.ai/n/019d259ec18a74489f32d302b0d52ba0"
+    },
+    "content": {
+      "id": "019d259ed12671e880bce1ca93186ca1",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 1503.864,
+      "size": null,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d259ed12671e880bce1ca93186ca1.mp3?AWSAccessKeyId=ASIA2I62CR7VK2GWIPNU&Expires=1775058940&Signature=A1cUbabCTzqgWroreCQs8i3KaXY%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIQDaG56L5nWmXxksOc%2B1vHP%2BRdxR6JkXuxR33CHJECXSSgIgF%2FP1Xxh2Dx8v16AWRgyRKybq2e6MDVYFCGWXnRTyR5cqhAQIsP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw3MDY0NDI1OTYzMzAiDM9yTVjWo5jlBhw0UCrYA0adJfuRnEic1tu2DTerSNJACGc1W2nMSKAbyQJBMnqcrm1u7Nsum42nprA%2ByO1XJkSjLXVUszT%2FJjbIVGnoI%2BsJElJRlA6zwpbsrPYsBpTmBB8Z0YGKkdtGzIqm1nIYpanBvYu67GhXeCWz1aadRb07HuQ0eofZEL2%2BwYmN%2FhEXNA7RwVhALVEyJGwMZ%2FVjuPloEJLY8A44MMbaW9ay2GkFE3kOAoRwsyXS37eirEH6r%2BHJfUfnjbNAD8LohDovY8Q5Xj6RVouY21nApzHmpQ%2BvvxwHf8aI30zxWgFgjw8%2FSMDOAOtVUDikFYwBvHHzX69PBwUv9yVv0sS0U8pmrrc2sc98ErfnO7CJQv5zgYtwq4IxMs%2BVdG0d5xkCJH32%2Fyrd8HDNLJA4hTa5CGlUlvmgtJcdgsRZy4CBgeHmO6Vdbf7d49joz315ozU6Hn7pEN2Z59yHJ2RcQbmkIrbmmow8FeTtBUEKTpN0vwyLZj4H0%2BB8jrG%2FvAYkl7oAelb7Ye9J1sNhT5K%2BRM%2FkZmScv0MVU45oAKLl9CGIZ6i0N1wHwvnjkK3lJr2PiXT2C79scL%2BUzvrbxz6GJarDWiGOXDejCNliegbk3FkF%2BZaN2wfulgRcGpVgOzEwjvSPzgY6pQFVbSJiGtcDulq4t9U3fCReoXNU6mhEM7y%2FrFoAJsVEOKxApg7mXucQnra7dRt0Fo%2FczLGfpHXSAFuLOIFWCiJ2RuKFFaaYrq1crDzWyWCm4N7ZJXdYorFZcEt59ou3FdvKe%2FjdXfvR17qDgdJcMpg%2BXbCzFM4WG6di880VRMpYs%2FyN27WONcu29%2Fo%2BQv7wOp9mgEJ5jXfsYXpcnD0i3rvsNpZOUGI%3D",
+      "expires_at": "2026-04-01T15:55:40.508Z"
+    },
+    "raw_meeting": "**FW: AppDev Leads DSU**\n🕞 Started at 03:30 PM on 25 Mar, lasted 25m"
+  }
+}

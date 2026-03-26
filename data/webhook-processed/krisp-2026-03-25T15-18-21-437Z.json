@@ -1,0 +1,410 @@
+{
+  "id": "019d259340bd727f8afbad4dc2863dc2",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2582d80f731e996f6a79665d7cf4",
+      "title": "Mandalore DSU",
+      "duration": 1041,
+      "calendar_event_id": "68qj8p9mc9hmcb9hcphm2b9k61j3ebb16dj68bb3c8rm6ob468sm2p1p68_20260325T150000Z",
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "f23890c1a965529d8c72eea3679538c9",
+          "first_name": null,
+          "email": "francis.pena@llsa.com"
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "0341aec2d238511c8c28a37517ef47a3",
+          "first_name": "Yoelvis",
+          "email": "b7625e3086204824aaca72e3c83e0398@noemail.krisp.ai"
+        },
+        {
+          "index": 5,
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 7,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "index": 8,
+          "last_name": null,
+          "id": "085ddc9989e958cfb68a52b019482db9",
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "index": 9,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-25T14:59:53.823Z",
+      "end_date": "2026-03-25T15:17:14.823Z",
+      "url": "https://app.krisp.ai/n/019d2582d80f731e996f6a79665d7cf4"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Four.\nGood morning, folks.\nWhile we wait for everyone else to join Devon, Jeremy, heads up, I dropped a meeting on your calendar just to do a bit of brainstorming around how we're going to do error validation based on Jeremy's excellent suggestion that we may have some thoughts from the Shopify effort that we can reuse for recurring validation.\nOkay, alright, let's get started. I think the most pressing thing. Let's start with Francis. Sorry. Let's start with Jiffco. That'll probably pair well with you, Francis."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 2,
+        "text": "Yeah, sounds good. Good morning, Tim. So on my side, I got the necessary approvals. Thank you very much for the reviews, guys. I pushed merch and currently deploying the infrastructure CDK stack for the recouping.\nI have the deploy chart on my screen."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I..."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 2,
+        "text": "It's currently running. Everything that is completed is green. We're on step 4, and step 5 is smoke tests in depth. So if that passes, it will continue with the Diplomat report. The only thing I would like to confirm with you, Francis, maybe when you go next. These are the subdomains currently set up.\nIt's not necessarily for my deployment to succeed, but right after that, it probably needs to happen in order for the deck to be actually fully functional."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "So yeah, I just saw that the environment is deployed. I need to wait for the product to be deployed so I can have the endpoints, the API endpoint that will be used for the C entries."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 2,
+        "text": "So the subdomains. You already said the search is there, and it's the all-subject covers all subdomains. So yes, we can sync up after the stand-up after the deployments, actually, yes, thank you. No, very much."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "And for you Jiffco, the next one up is the member cart and then for this you all this if I can ask you to help with the review on this one because you're so you're very close to just the whole checkout process and how discounting works generally.\nSo if I can ask you to tackle. Tackle the code review on this and you have your next task. Okay, let's go on to Francis."
+      },
+      {
+        "speaker": "Jivko Ivanov",
+        "speakerIndex": 2,
+        "text": "Thank you. Just a quick note, I'll ping you when that is ready. It's not yet ready for review, but I'll ping you a bit later today."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 4,
+        "text": "Yeah, just let me know. Thank you."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "I'm working with the security for the API gateway you're helping me with a few changes, but now it's in review. Actually, I just moved it to review that tick."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "This guy here."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, and..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, perfect. Do you anticipate any blockers or concerns that would prevent us from having that configured by the end of the week?"
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "No, I will be deployed today. I was about to merge, but we have some changes that we might need to do, so yeah, that should be done now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. Eight."
+      },
+      {
+        "speaker": "francis.pena@llsa.com",
+        "speakerIndex": 3,
+        "text": "I mean, if you a much two hours. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect. I think it'd be great if it were before the end-of-day meeting this afternoon.\nBut two hours is perfect. All right. Antonio, over to you."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 5,
+        "text": "Hi, Tim, good morning. I have these work in progress to migrate the ACL to LLaMA. Sorry, single process. I think these seven or eight are a bit of an overlap maybe. Wesley, I put it on... Yeah, I put it on past... We had some discussions on this topic.\nI think we can... It's on for now. That's good. No blockers, work in progress. I'll keep you guys posted about the reviews that I may need later today. Thank you, guys."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jeremy."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Good morning. Am going to review the ECOM 3 stuff with Lance after this. Just like a code review. Then I'm working on that ticket, the BI schema mapping 1. So, Antonio, I'll probably ping you with some questions and just some initial thoughts as I start to make that.\nSo, I'll probably start picking you after lunch."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Antônio Falcão Jr",
+        "speakerIndex": 5,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 7,
+        "text": "Feel free."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Beth, what that is like the current effort? We have the existing new recurring subscription order information that we have coming in as well as the KPIs that we got from the BI team.\nIf you need more information on that, I can share with you in the product app sync. Okay. Let's talk to you."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 7,
+        "text": "Okay, you're working on the event grid processor package."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Three."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 7,
+        "text": "Should have a PR up today that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "And no blockers, no concerns."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 7,
+        "text": "Now, I have a question about the blue-green that I mentioned in the previous meeting. But no real blockers."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, the decision on the blue-green, is that too late for 3 pm today? Do we want to do a one-off before then? Actually, let's just post the channel, post the question in the meeting chat, and then you can just add Sam and add Antonio on it.\nOkay? The only one that I'm concerned about is this one here we had mentioned. This is part of a conversation like the need for that Excel sheet. I'm not clear on exactly what the function of that Excel sheet is, but hearing the idea that this needs to be created can just clarify if this is still a task and if it's urgent or priority for the next week's deployment."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 8,
+        "text": "Yeah, we have to have that going into PD so that is when there's an expected failure on an order that needs manual intervention. We're putting it into a SharePoint spreadsheet on a daily basis for the support team to process."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "There's the need clarified and then... Lance anyway, is that a manual input process? Is that based off a failed something put on park? Is that a delke like where is this? How is that sourced?"
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 8,
+        "text": "The fees."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "It gets triggered whenever there's a failure in the ECOM what will be the ECOM 3 API? So if there's some sort of exception, it just puts it in the sheet automatically. Like Bethel saying, it's in SharePoint.\nSo the API just makes a CSV file on it, and then at the end of each day, it pushes that CSV file to the SharePoint drive with all the failures that happened on that day. So it doesn't have anything to do with the dead letter queue, but if something fails, then it's going to go there.\nBut it's technically separate. Do you know what I mean?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Gotcha, I reassigned it to you."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "It's..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I assume you verified that as part of the ECOM three work. If not, can you just verify it's actually pushing there?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Do we even have the sheet and share a space and SharePoint made for it yet? Because that's something that we can set up. I think DJ had to do some stuff last time put in a ticket with another team to get the... I don't know if it's permissions or just the sheet set up, so that might need to be done."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 8,
+        "text": "I would prefer to put it in the same spot because for a while we're going to have both shop by and the orders coming through, and I don't really want to make the team go to two separate spots if they don't have to."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Okay, I will. All right, so, Wesley, you said there's a ticket for me to work on this or something because I think it would be best just to push the code after Lance reviews it, assuming he thinks everything is good.\nThen I can just open another PR up. Then they change the name of the file or whatever. Just investigate that and change what needs to be changed. That way, both go to the same spot."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect. Yeah. This is the ticket that you're looking at right now, so... Yes, I resigned this from Lance to you need to share a..."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Okay.\nI think all the configuration is set up. I think there are just API keys or something. So those that already be on the EC3 API and then I believe I just need to change the naming and make sure that they're separate files or something and then figure out a way to test it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, no worries. I'll add that to the integration document so we can prove it out as well. Let's keep going. You have anything you want to add to your task?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "No, nothing to add. I'm still... Well, actually, I was looking at the document. I noticed that it said a phase one approach was just the new members renewals versus the failed renewals or whatever.\nSo, is this BII? I don't know the ticket to be honest, it's just for that phase one or is it all the phases?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "This ticket is the proposal of how to get to that data. It should be minimum phase one.\nBut if you have a perspective when you do the analysis on the additional phases, that's fine. Just be aware."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Okay, got it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Gunn is out of scope for this. Pha meha."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 6,
+        "text": "Okay, sounds good, thank you."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "Hi everyone. So from my side, there's only one blocker, which is the config/setup for the GenAI chat. Other than that, I'm working on the recordly tracking. Yesterday I worked on two things that we discussed.\nSo those allegedly one or our items, but unfortunately, it took longer."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "And it I think maybe it's good to get Jennifer's view of view on this one."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "There was indeed some action required. They are ready for review. I think one of them was already approved by Wes, so I'm going to merge it. There's some feedback on the other one, which I'm going to address, but they are resolved. Just a quick update. In terms of the alarm for the weights, it would be too complicated to build an alarm because we would need to provision a separate LLaMA which would periodically check the weights.\nSo instead, we added additional steps in the switch workflow and in the check current leg workflow, which check explicitly what the values of the weights are before and after the deployment.\nSo if after the deployment, after the leg switch, the weights are not zero and 100 on the corresponding legs, we are just going to fail the workflow. In general, developers who switch legs watch the workflow, so they trigger that and they watch the workflow in GitHub.\nIt's not like fire and forget. So I think that's enough of a safety measure, but I'm happy to disagree."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Jennifer and Harry as well. So if I could ask you just to start a chat to just share the planned approach with them."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "Sure thing."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay? Then for others, I know that I've given you reviews on these, so if you can just push them through the deploy process, they should be good to go as well, right?"
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "Sure."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect for you."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "Thank you so much."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You, all of us. The only one in the one we spoke about yesterday. That I think is top of mind. Anything else? Anything you want to go through?"
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 4,
+        "text": "Yeah, I am. I am working on that one. Regarding the visual discrepancies. I implemented all the findings, but, you know, I went into a rabbit hole for the screening page trying to fix the state. In general, I want to ask I have some questions for the for today's meeting, but yeah, it's working as I in a better way, I would say."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, and for this one, can I close? Can I cancel this? At this point, it feels like this is stale at this..."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 4,
+        "text": "Yeah. I always forget to give you the... But the thing is, I can give you a one-second summary. It's like the current behavior is okay for now, at least. We are creating the parent account, and if we are not successfully creating the purchase on the shared account, then we disable the parent account.\nThat's the current behavior. We are not recycling the account ID, and that's okay because if we want to recycle the account like this, we cannot close the parent account, or we need to do some changes that are already made.\nBut those changes were not approved by... So, the long story short is that the current approach is good for now. We don't need to do this for the MP."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Right? Sounds good, thank you."
+      },
+      {
+        "speaker": "Yoelvis",
+        "speakerIndex": 4,
+        "text": "The main. The main. The main thing is, if we do this is like we will have, like, orphan accounts, potential orphan accounts. And those accounts won't be closed. So we prefer those accounts to be closed rather than keeping them on recording as active accounts even though they are not in active."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "On... All right, guys, apologies. I think we're good. Thank you, everyone. Again, reminder to folks, focus on clearing RPRS. If you know someone needs a review on something, please reach out to them directly, and you're all set. This one's hanging out for a little while. If we can maybe get a PV on it tomorrow, get a PV on it if we can move this, if we could pull it out, or if it's good to go to move forward to production...\nAll right, guys, thank you so very much."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 9,
+        "text": "Thank you. To talk to you later."
+      }
+    ],
+    "raw_meeting": "**Mandalore DSU**\n🕞 Started at 02:59 PM on 25 Mar, lasted 17m",
+    "raw_content": "Wesley Donaldson | 00:47\nFour.\nGood morning, folks.\nWhile we wait for everyone else to join Devon, Jeremy, heads up, I dropped a meeting on your calendar just to do a bit of brainstorming around how we're going to do error validation based on Jeremy's excellent suggestion that we may have some thoughts from the Shopify effort that we can reuse for recurring validation.\nOkay, alright, let's get started. I think the most pressing thing. Let's start with Francis. Sorry. Let's start with Jiffco. That'll probably pair well with you, Francis.\nJivko Ivanov | 02:47\nYeah, sounds good. Good morning, Tim. So on my side, I got the necessary approvals. Thank you very much for the reviews, guys. I pushed merch and currently deploying the infrastructure CDK stack for the recouping.\nI have the deploy chart on my screen.\nWesley Donaldson | 03:09\nI...\nJivko Ivanov | 03:09\nIt's currently running. Everything that is completed is green. We're on step 4, and step 5 is smoke tests in depth. So if that passes, it will continue with the Diplomat report. The only thing I would like to confirm with you, Francis, maybe when you go next. These are the subdomains currently set up.\nIt's not necessarily for my deployment to succeed, but right after that, it probably needs to happen in order for the deck to be actually fully functional.\nfrancis.pena@llsa.com | 03:47\nSo yeah, I just saw that the environment is deployed. I need to wait for the product to be deployed so I can have the endpoints, the API endpoint that will be used for the C entries.\nJivko Ivanov | 03:59\nSo the subdomains. You already said the search is there, and it's the all-subject covers all subdomains. So yes, we can sync up after the stand-up after the deployments, actually, yes, thank you. No, very much.\nWesley Donaldson | 04:15\nAnd for you Jiffco, the next one up is the member cart and then for this you all this if I can ask you to help with the review on this one because you're so you're very close to just the whole checkout process and how discounting works generally.\nSo if I can ask you to tackle. Tackle the code review on this and you have your next task. Okay, let's go on to Francis.\nJivko Ivanov | 04:38\nThank you. Just a quick note, I'll ping you when that is ready. It's not yet ready for review, but I'll ping you a bit later today.\nYoelvis | 04:45\nYeah, just let me know. Thank you.\nfrancis.pena@llsa.com | 04:51\nI'm working with the security for the API gateway you're helping me with a few changes, but now it's in review. Actually, I just moved it to review that tick.\nWesley Donaldson | 05:00\nThis guy here.\nfrancis.pena@llsa.com | 05:02\nYeah, and...\nWesley Donaldson | 05:03\nOkay, perfect. Do you anticipate any blockers or concerns that would prevent us from having that configured by the end of the week?\nfrancis.pena@llsa.com | 05:12\nNo, I will be deployed today. I was about to merge, but we have some changes that we might need to do, so yeah, that should be done now.\nWesley Donaldson | 05:14\nOkay. Eight.\nfrancis.pena@llsa.com | 05:21\nI mean, if you a much two hours. Yeah.\nWesley Donaldson | 05:26\nPerfect. I think it'd be great if it were before the end-of-day meeting this afternoon.\nBut two hours is perfect. All right. Antonio, over to you.\nAntônio Falcão Jr | 05:37\nHi, Tim, good morning. I have these work in progress to migrate the ACL to LLaMA. Sorry, single process. I think these seven or eight are a bit of an overlap maybe. Wesley, I put it on... Yeah, I put it on past... We had some discussions on this topic.\nI think we can... It's on for now. That's good. No blockers, work in progress. I'll keep you guys posted about the reviews that I may need later today. Thank you, guys.\nWesley Donaldson | 06:30\nJeremy.\njeremy.campeau@llsa.com | 06:36\nGood morning. Am going to review the ECOM 3 stuff with Lance after this. Just like a code review. Then I'm working on that ticket, the BI schema mapping 1. So, Antonio, I'll probably ping you with some questions and just some initial thoughts as I start to make that.\nSo, I'll probably start picking you after lunch.\nWesley Donaldson | 07:03\nOkay.\nAntônio Falcão Jr | 07:03\nYeah.\nlance.fallon@llsa.com | 07:04\nFeel free.\nWesley Donaldson | 07:06\nBeth, what that is like the current effort? We have the existing new recurring subscription order information that we have coming in as well as the KPIs that we got from the BI team.\nIf you need more information on that, I can share with you in the product app sync. Okay. Let's talk to you.\nlance.fallon@llsa.com | 07:35\nOkay, you're working on the event grid processor package.\nWesley Donaldson | 07:37\nThree.\nlance.fallon@llsa.com | 07:41\nShould have a PR up today that.\nWesley Donaldson | 07:47\nAnd no blockers, no concerns.\nlance.fallon@llsa.com | 07:53\nNow, I have a question about the blue-green that I mentioned in the previous meeting. But no real blockers.\nWesley Donaldson | 08:02\nOkay, the decision on the blue-green, is that too late for 3 pm today? Do we want to do a one-off before then? Actually, let's just post the channel, post the question in the meeting chat, and then you can just add Sam and add Antonio on it.\nOkay? The only one that I'm concerned about is this one here we had mentioned. This is part of a conversation like the need for that Excel sheet. I'm not clear on exactly what the function of that Excel sheet is, but hearing the idea that this needs to be created can just clarify if this is still a task and if it's urgent or priority for the next week's deployment.\nbethany.duffy@llsa.com | 08:45\nYeah, we have to have that going into PD so that is when there's an expected failure on an order that needs manual intervention. We're putting it into a SharePoint spreadsheet on a daily basis for the support team to process.\nWesley Donaldson | 08:59\nThere's the need clarified and then... Lance anyway, is that a manual input process? Is that based off a failed something put on park? Is that a delke like where is this? How is that sourced?\nbethany.duffy@llsa.com | 09:11\nThe fees.\njeremy.campeau@llsa.com | 09:13\nIt gets triggered whenever there's a failure in the ECOM what will be the ECOM 3 API? So if there's some sort of exception, it just puts it in the sheet automatically. Like Bethel saying, it's in SharePoint.\nSo the API just makes a CSV file on it, and then at the end of each day, it pushes that CSV file to the SharePoint drive with all the failures that happened on that day. So it doesn't have anything to do with the dead letter queue, but if something fails, then it's going to go there.\nBut it's technically separate. Do you know what I mean?\nWesley Donaldson | 09:42\nGotcha, I reassigned it to you.\njeremy.campeau@llsa.com | 09:42\nIt's...\nWesley Donaldson | 09:44\nI assume you verified that as part of the ECOM three work. If not, can you just verify it's actually pushing there?\njeremy.campeau@llsa.com | 09:52\nDo we even have the sheet and share a space and SharePoint made for it yet? Because that's something that we can set up. I think DJ had to do some stuff last time put in a ticket with another team to get the... I don't know if it's permissions or just the sheet set up, so that might need to be done.\nbethany.duffy@llsa.com | 10:14\nI would prefer to put it in the same spot because for a while we're going to have both shop by and the orders coming through, and I don't really want to make the team go to two separate spots if they don't have to.\njeremy.campeau@llsa.com | 10:32\nOkay, I will. All right, so, Wesley, you said there's a ticket for me to work on this or something because I think it would be best just to push the code after Lance reviews it, assuming he thinks everything is good.\nThen I can just open another PR up. Then they change the name of the file or whatever. Just investigate that and change what needs to be changed. That way, both go to the same spot.\nWesley Donaldson | 10:55\nPerfect. Yeah. This is the ticket that you're looking at right now, so... Yes, I resigned this from Lance to you need to share a...\njeremy.campeau@llsa.com | 11:01\nOkay.\nI think all the configuration is set up. I think there are just API keys or something. So those that already be on the EC3 API and then I believe I just need to change the naming and make sure that they're separate files or something and then figure out a way to test it.\nWesley Donaldson | 11:25\nOkay, no worries. I'll add that to the integration document so we can prove it out as well. Let's keep going. You have anything you want to add to your task?\njeremy.campeau@llsa.com | 11:40\nNo, nothing to add. I'm still... Well, actually, I was looking at the document. I noticed that it said a phase one approach was just the new members renewals versus the failed renewals or whatever.\nSo, is this BII? I don't know the ticket to be honest, it's just for that phase one or is it all the phases?\nWesley Donaldson | 12:02\nThis ticket is the proposal of how to get to that data. It should be minimum phase one.\nBut if you have a perspective when you do the analysis on the additional phases, that's fine. Just be aware.\njeremy.campeau@llsa.com | 12:12\nOkay, got it.\nWesley Donaldson | 12:12\nGunn is out of scope for this. Pha meha.\njeremy.campeau@llsa.com | 12:16\nOkay, sounds good, thank you.\nMichal Kawka | 12:25\nHi everyone. So from my side, there's only one blocker, which is the config/setup for the GenAI chat. Other than that, I'm working on the recordly tracking. Yesterday I worked on two things that we discussed.\nSo those allegedly one or our items, but unfortunately, it took longer.\nWesley Donaldson | 12:47\nAnd it I think maybe it's good to get Jennifer's view of view on this one.\nMichal Kawka | 12:49\nThere was indeed some action required. They are ready for review. I think one of them was already approved by Wes, so I'm going to merge it. There's some feedback on the other one, which I'm going to address, but they are resolved. Just a quick update. In terms of the alarm for the weights, it would be too complicated to build an alarm because we would need to provision a separate LLaMA which would periodically check the weights.\nSo instead, we added additional steps in the switch workflow and in the check current leg workflow, which check explicitly what the values of the weights are before and after the deployment.\nSo if after the deployment, after the leg switch, the weights are not zero and 100 on the corresponding legs, we are just going to fail the workflow. In general, developers who switch legs watch the workflow, so they trigger that and they watch the workflow in GitHub.\nIt's not like fire and forget. So I think that's enough of a safety measure, but I'm happy to disagree.\nWesley Donaldson | 14:05\nJennifer and Harry as well. So if I could ask you just to start a chat to just share the planned approach with them.\nMichal Kawka | 14:12\nSure thing.\nWesley Donaldson | 14:13\nOkay? Then for others, I know that I've given you reviews on these, so if you can just push them through the deploy process, they should be good to go as well, right?\nMichal Kawka | 14:22\nSure.\nWesley Donaldson | 14:23\nPerfect for you.\nMichal Kawka | 14:25\nThank you so much.\nWesley Donaldson | 14:29\nYou, all of us. The only one in the one we spoke about yesterday. That I think is top of mind. Anything else? Anything you want to go through?\nYoelvis | 14:38\nYeah, I am. I am working on that one. Regarding the visual discrepancies. I implemented all the findings, but, you know, I went into a rabbit hole for the screening page trying to fix the state. In general, I want to ask I have some questions for the for today's meeting, but yeah, it's working as I in a better way, I would say.\nWesley Donaldson | 15:07\nOkay, and for this one, can I close? Can I cancel this? At this point, it feels like this is stale at this...\nYoelvis | 15:12\nYeah. I always forget to give you the... But the thing is, I can give you a one-second summary. It's like the current behavior is okay for now, at least. We are creating the parent account, and if we are not successfully creating the purchase on the shared account, then we disable the parent account.\nThat's the current behavior. We are not recycling the account ID, and that's okay because if we want to recycle the account like this, we cannot close the parent account, or we need to do some changes that are already made.\nBut those changes were not approved by... So, the long story short is that the current approach is good for now. We don't need to do this for the MP.\nWesley Donaldson | 16:22\nRight? Sounds good, thank you.\nYoelvis | 16:26\nThe main. The main. The main thing is, if we do this is like we will have, like, orphan accounts, potential orphan accounts. And those accounts won't be closed. So we prefer those accounts to be closed rather than keeping them on recording as active accounts even though they are not in active.\nWesley Donaldson | 16:46\nOn... All right, guys, apologies. I think we're good. Thank you, everyone. Again, reminder to folks, focus on clearing RPRS. If you know someone needs a review on something, please reach out to them directly, and you're all set. This one's hanging out for a little while. If we can maybe get a PV on it tomorrow, get a PV on it if we can move this, if we could pull it out, or if it's good to go to move forward to production...\nAll right, guys, thank you so very much.\nMichal Kawka | 17:13\nThank you. To talk to you later."
+  }
+}

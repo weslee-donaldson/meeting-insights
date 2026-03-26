@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderNotesGroups, parseCitations, replaceCitations } from "../core/display-helpers.js";
+import { renderNotesGroups, parseCitations, replaceCitations, formatMultiTranscript } from "../core/display-helpers.js";
 
 describe("renderNotesGroups", () => {
   it("returns empty string for empty notes array", () => {
@@ -94,5 +94,42 @@ describe("notes context cap", () => {
     const capped = rendered.length > 1000 ? rendered.slice(0, 1000) + "…" : rendered;
     expect(capped.endsWith("…")).toBe(false);
     expect(capped).toContain("brief note");
+  });
+});
+
+describe("formatMultiTranscript", () => {
+  it("formats multiple transcripts with meeting name, date, and separator", () => {
+    const result = formatMultiTranscript([
+      { title: "Alpha Meeting", date: "2026-02-25T10:00:00.000Z", transcript: "Speaker 1: Hello\nSpeaker 2: Hi" },
+      { title: "Beta Meeting", date: "2026-03-01T14:00:00.000Z", transcript: "Speaker A: Good morning" },
+    ]);
+    expect(result).toEqual(
+      [
+        "═══════════════════════════════════════════════════════════════",
+        "Alpha Meeting — 2026-02-25",
+        "═══════════════════════════════════════════════════════════════",
+        "",
+        "Speaker 1: Hello",
+        "Speaker 2: Hi",
+        "",
+        "═══════════════════════════════════════════════════════════════",
+        "Beta Meeting — 2026-03-01",
+        "═══════════════════════════════════════════════════════════════",
+        "",
+        "Speaker A: Good morning",
+      ].join("\n"),
+    );
+  });
+
+  it("returns empty string for empty array", () => {
+    expect(formatMultiTranscript([])).toEqual("");
+  });
+
+  it("formats single transcript without trailing separator", () => {
+    const result = formatMultiTranscript([
+      { title: "Solo Meeting", date: "2026-01-15T09:00:00.000Z", transcript: "Only content" },
+    ]);
+    expect(result).toContain("Solo Meeting — 2026-01-15");
+    expect(result).toContain("Only content");
   });
 });

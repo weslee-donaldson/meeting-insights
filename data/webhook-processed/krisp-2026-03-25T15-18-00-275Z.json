@@ -1,0 +1,91 @@
+{
+  "id": "019d2592dbe5762c815685f30eddb667",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2582d80f731e996f6a79665d7cf4",
+      "title": "Mandalore DSU",
+      "duration": 1041,
+      "calendar_event_id": "68qj8p9mc9hmcb9hcphm2b9k61j3ebb16dj68bb3c8rm6ob468sm2p1p68_20260325T150000Z",
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": "Ivanov",
+          "id": "a216548d8167560d86de0500491736a4",
+          "first_name": "Jivko",
+          "email": "jivko.ivanov@xolv.io"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "f23890c1a965529d8c72eea3679538c9",
+          "first_name": null,
+          "email": "francis.pena@llsa.com"
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "0341aec2d238511c8c28a37517ef47a3",
+          "first_name": "Yoelvis",
+          "email": "b7625e3086204824aaca72e3c83e0398@noemail.krisp.ai"
+        },
+        {
+          "index": 5,
+          "last_name": "Falcão Jr",
+          "id": "528bedd4e3c25721bf38f59bc808f51f",
+          "first_name": "Antônio",
+          "email": "antonio.falcao@xolv.io"
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 7,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "index": 8,
+          "last_name": null,
+          "id": "085ddc9989e958cfb68a52b019482db9",
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "index": 9,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        }
+      ],
+      "start_date": "2026-03-25T14:59:53.823Z",
+      "end_date": "2026-03-25T15:17:14.823Z",
+      "url": "https://app.krisp.ai/n/019d2582d80f731e996f6a79665d7cf4"
+    },
+    "content": {
+      "id": "019d2582e6c773dfa99154adc779378d",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 1039.145,
+      "size": null,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d2582e6c773dfa99154adc779378d.mp3?AWSAccessKeyId=ASIA2I62CR7VGV62SKCB&Expires=1775056674&Signature=LZSVSpPZleB2OTAZMbe1egt8GHQ%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJGMEQCIDD%2FYW1VU93wsiQwL0lcWqwvVg52uB%2BF16JXn9fbCq2eAiAdZZM%2BiJjpkk5q%2BkKaYJHziVj%2BH1NAos9m7T%2FTZKWRJCqEBAiw%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAMaDDcwNjQ0MjU5NjMzMCIM%2BpHc7bN440pFHM8jKtgDOoa50F28Kyj629%2FKRAjn1LG5ZKjkVAcYJOA3yR3KyWVBJsUy%2FXu0OOMs2XFTUvxYDrY55qi4Xxe5Sp37Wt3u5XcrSaFelwoC4XkAZpKoGPx0VOtwf8Gh%2FjtRuHshlAtyzoS6FYtnRVIZX9tg29zv7z0if4%2FvF%2Fci%2BsM5BtviaXzOpGJsRXOk3ZHMqaRzlJytUk%2BQxUvCS%2BPLwQSS%2BpSEi1ydd%2FyH9usM6cAxrv8SMz2N9ZFhdTCuYSLrT6S6qwoBFpBY%2BXinqG4VdHz2JPUvf04SI2U4LbrCZSYLDNPpY6jl5bxjEoQoCkuzxl5Zl9orVwVILb4y3lUOmaAgkCeBrLzXcWiSbVduMfu%2BOcN0eHIPiDa%2FS4C6r95oQ0fbC69qNC4a6JZ6YLcWgu%2FqlKkABEcEdU%2BOgiSwX1Cemn8avHaZBbrFGH%2FN%2BgbvNaVdI7KN8YaF9efO7PN0SFsta82o7KpWinI1yXsrnoDI%2BWRZyhF9p%2FUm9txpo1iLnAwhMA9kllHv%2Fs8jvM9h0Zq%2BlT%2BSAs8PKA6j5VmczCSvDwDjuLtmJcl4I37pYuPD2s%2BVbErIgC0iM65BW%2F8TqmG0By2hcPL0KEy8S7w6q8E7SDsozDo%2ByNsvyL1S0zDL4Y%2FOBjqmAZgv12RZCRMYMncJwTINyFKyjOZvgey6zbsWhoGl5lBym2tTVPk3k7CGB63CQDq%2BeaWFkFCTRpfg8aA2R1pB7O25tjNe0oVE9TEqTEw1prfqQXosRt3fghmTL4Dk%2BhynypGbIFRC7B%2FKScVbCLA7lcWe0SJ6pzC7lW%2BZoSBneFw3CSfjTI8O85W9fFlF30NnN1E6fO3pR9zDCTsi6Oc9FXgrs5KPrmA%3D",
+      "expires_at": "2026-04-01T15:17:54.788Z"
+    },
+    "raw_meeting": "**Mandalore DSU**\n🕞 Started at 02:59 PM on 25 Mar, lasted 17m"
+  }
+}

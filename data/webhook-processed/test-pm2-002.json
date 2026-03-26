@@ -1,0 +1,71 @@
+{
+  "id": "test-event-002",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "test-meeting-002-xyz789ghi012",
+      "title": "TEST PM2: Architecture Review Session",
+      "duration": 1800,
+      "calendar_event_id": null,
+      "participants": [],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        }
+      ],
+      "start_date": "2026-03-25T15:30:00.000Z",
+      "end_date": "2026-03-25T16:00:00.000Z",
+      "url": "https://app.krisp.ai/n/test-meeting-002-xyz789ghi012"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Alright, let's review the new pipeline architecture. We've got the webhook flow working end to end now."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Yeah, I saw the Firebase function went live. How's the latency on the Drive sync?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "It's pretty fast. Usually under 30 seconds from webhook to local file. The watcher picks it up within another 30 seconds."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 3,
+        "text": "That's impressive. What about error handling? If the LLM extraction fails, does it retry?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Failed files get moved to webhook-failed with an audit log. No automatic retry yet, but we could add that."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Makes sense. Let's revisit retry logic after we've seen how often failures happen in practice."
+      }
+    ]
+  }
+}

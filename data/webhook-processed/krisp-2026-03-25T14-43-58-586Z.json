@@ -1,0 +1,111 @@
+{
+  "id": "019d2573b515738182daea5e337b1332",
+  "event": "recording_ready",
+  "data": {
+    "meeting": {
+      "id": "019d2567561875fd91bf7b4546d1ce19",
+      "title": "Mandalore, EOD State of Integration",
+      "duration": 826,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g68o30ca58l23eg9g88rk8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8ko30e1h8d1j2d9j751k2cpk8oskcc9i8cq44g9h8crj2c9n890g_20260325T190000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "antonio.falcao@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jivko.ivanov@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "michal.kawka@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        },
+        {
+          "index": 5
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        }
+      ],
+      "start_date": "2026-03-25T14:29:52.367Z",
+      "end_date": "2026-03-25T14:43:38.367Z",
+      "url": "https://app.krisp.ai/n/019d2567561875fd91bf7b4546d1ce19"
+    },
+    "content": {
+      "id": "019d2567659677bb8f41a68d433e7aba",
+      "type": "audio",
+      "mime_type": "audio/mp3",
+      "duration": 823.9540000000001,
+      "size": null,
+      "recording_url": "https://files.krisp.ai/recording/prod-team/1092776/13603869/019d2567659677bb8f41a68d433e7aba.mp3?AWSAccessKeyId=ASIA2I62CR7VE74JO6YG&Expires=1775054633&Signature=VIiDKvx%2BM8LOZeRNSukWq5YnmFM%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEOb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIEduLyLqbuxF3YyIMF%2B0inRv%2BuSZK4wKbypPpiWlc2sFAiEAnUe8Xwwyv83%2FojFm4Ff5edzGrpCW2aBb%2F3SZy%2FqK434qhAQIr%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw3MDY0NDI1OTYzMzAiDMw%2BaJYH%2B1qLhHqipyrYA3mkZSDfcgWdjqLu6EIJ%2BqDWLSOrvmNu27Iz6e%2BpLwACwpGu3ri%2F2WkLOfM0upEfrcdOtGPTTG8oQnP20b%2F3bzHLTEQrUZEgMI4%2Fpco8mCY1RSTH1StQOC0%2BVO72lt1yujZxcLrRPc7J63DmTeFdW2m%2Bt4p2C3c4ctL44v2kLMyN0mUgLVROBQ6HrdwLbczOF1qqr2AkJggx8ifWDpZ%2BvdD3PPZjlp3zAwwzJkvLY2mWB0qHYNjK5bP2YLIDfROopyybfrwPoHIL0zYxzfYZOODtvdz6QQcHqYpkOqNVmDHUATzsx5DVBbmWGDBlQDXwluUgOZBYYXUGYxhQbT01xntmuA%2FCR9VwWbifWfYZYY%2BzIxzEBAooDBJcZQohGalxZZFWd1zVviRQLekPOwVSZB2Svgmg24AXH3IAdHadG0HeMEC3M5VYMUzqCZU3sI1mL%2F0%2FKGd484eRe%2FkjDhKLUlz0hMES%2BFNr4a0StkAYNPOHQ86nQagtMCqwjncunq%2B67jGYNP7C%2FzAHjxj0Tg%2B1KKb%2BUesdpV4k%2Bfp9zhFRWVDTyIjHlWk7NXwg5D6XuV7IazCBq2y%2FitktH4wGwH3qE1Z6zDygrtC5xO%2F0D49vROqWSohQGQ7oAdMw79WPzgY6pQHqAm565vaqTU6yUq1SDDPZVhT6P1hO2Kvsj%2B1kSxiBQIimbNFHF2pWLDTk4KvMDivoc8xItNUqdD8f5LK5GoxSnA0l5aigxsbqNlXEakCMp1qjI7fD9N2rbX6oMn8KNAO%2BYsjUOp8vGLfh25d6dhphJ03PDA%2BfU8PT%2BNNjcCJQ5tIUH5Xb%2Bq1DJ4Y6vv9STFJaqMGUITB6sy9tqh03wOWcXMYYM5M%3D",
+      "expires_at": "2026-04-01T14:43:53.234Z"
+    },
+    "raw_meeting": "**Mandalore, EOD State of Integration**\n🕞 Started at 02:29 PM on 25 Mar, lasted 13m"
+  }
+}

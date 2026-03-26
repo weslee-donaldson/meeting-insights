@@ -373,8 +373,8 @@ describe("IPC handlers", () => {
         template: "jira-ticket",
       });
       expect(capturedSystem).toContain("Output Template: Jira Ticket");
-      expect(capturedSystem).toContain('selected the "jira-ticket" output template');
-      expect(capturedSystem).toContain("Disregard any formatting or structure from earlier messages");
+      expect(capturedSystem).toContain("CRITICAL");
+      expect(capturedSystem).toContain("output ONLY the sections above");
     });
 
     it("does not inject template content when template is not set", async () => {
@@ -684,7 +684,7 @@ describe("IPC handlers", () => {
   describe("handleGetTemplates", () => {
     it("returns sorted list of template names from chat-templates directory", () => {
       const templates = handleGetTemplates();
-      expect(templates).toEqual(["jira-epic", "jira-ticket", "thread-discovery"]);
+      expect(templates).toEqual(["jira-epic", "jira-ticket", "team-actions", "thread-discovery"]);
     });
   });
 

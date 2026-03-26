@@ -5,6 +5,10 @@ import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
 
 const logLlm = createLogger("llm");
 
+const MAX_TOKENS_EXTRACT = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_EXTRACT ?? "16384", 10);
+const MAX_TOKENS_CONVERSE = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_CONVERSE ?? "10000", 10);
+const MAX_TOKENS_DEFAULT = parseInt(process.env.MTNINSIGHTS_LLM_MAX_TOKENS_DEFAULT ?? "8000", 10);
+
 export function createAnthropicAdapter(apiKey: string, model?: string): LlmAdapter {
   const client = new Anthropic({ apiKey });
   const resolvedModel = model ?? "claude-sonnet-4-6";
@@ -26,7 +30,7 @@ export function createAnthropicAdapter(apiKey: string, model?: string): LlmAdapt
             { type: "text" as const, text: content },
           ]
         : content;
-      const maxTokens = capability === "generate_insight" || capability === "extract_artifact" ? 8192 : 2048;
+      const maxTokens = capability === "generate_insight" || capability === "extract_artifact" ? MAX_TOKENS_EXTRACT : MAX_TOKENS_DEFAULT;
       const message = await client.messages.create({
         model: resolvedModel,
         max_tokens: maxTokens,
@@ -76,7 +80,7 @@ export function createAnthropicAdapter(apiKey: string, model?: string): LlmAdapt
       });
       const message = await client.messages.create({
         model: resolvedModel,
-        max_tokens: 4096,
+        max_tokens: MAX_TOKENS_CONVERSE,
         system,
         messages: apiMessages,
       });

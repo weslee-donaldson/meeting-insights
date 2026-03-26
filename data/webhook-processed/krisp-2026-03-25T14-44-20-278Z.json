@@ -1,0 +1,435 @@
+{
+  "id": "019d25741b797749a9afb30acb494615",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d2567561875fd91bf7b4546d1ce19",
+      "title": "Mandalore, EOD State of Integration",
+      "duration": 826,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g68o30ca58l23eg9g88rk8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8ko30e1h8d1j2d9j751k2cpk8oskcc9i8cq44g9h8crj2c9n890g_20260325T190000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "antonio.falcao@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jivko.ivanov@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "michal.kawka@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "771f5f6ba9835b7d8a6996ccdf1810ee",
+          "first_name": null,
+          "email": "jeremy.campeau@llsa.com"
+        },
+        {
+          "index": 3
+        },
+        {
+          "index": 4,
+          "last_name": "Kawka",
+          "id": "592d172d2ac35a49a09554a92abd3654",
+          "first_name": "Michal",
+          "email": "michal.kawka@xolv.io"
+        },
+        {
+          "index": 5
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "4221ca9e284d546babd6b7ac1a25bbf3",
+          "first_name": null,
+          "email": "lance.fallon@llsa.com"
+        }
+      ],
+      "start_date": "2026-03-25T14:29:52.367Z",
+      "end_date": "2026-03-25T14:43:38.367Z",
+      "url": "https://app.krisp.ai/n/019d2567561875fd91bf7b4546d1ce19"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Morning, Germany."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Good morning. How are you?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Not bad. Not bad yourself. While I have you, I did send you that one ticket that we spoke about yesterday."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Six?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "It's just... It's really more just proposing the scheme. I'm more looking for research.\nThen, maybe just a confluence page on what you think the schema might look like, and then we can have a conversation about it."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Okay, yeah, I was looking through it yesterday, writing down some questions. I'm actually trying to write out a scheme, and now... So I'll put up a confluence page under that area and start writing stuff.\nThen throw my questions too."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes. Yeah. So Antonio is probably the best person to start with. He'll coordinate with Sam. Alright's... Yeah, I think my worry there is don't run independently on it, just do your investigation, get his thoughts. His work is in process or in flow, so there may be changes coming out of that."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Okay, I'll ping in with my questions then. Is that what you're saying? Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I just don't want to spend too much time cycling.\nAll right? Jiffco, Francis, I'd love to have him here. Actually, maybe you have to go. I know it's early, but have you ever had a chance to connect with Francis, by any chance? Or see his last comments?"
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "No, I have not connected to Francis yet."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No, okay."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Let's see about his comments."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "All right, well let me just maybe just rephrase the conversation. I saw the conversation generally around the blue green. I know that you and me how are me how did some initial review for you just wanted to the goal that we had or what was set to these yesterday was we're going to target trying to get some of these flagged as green these being just the stuff on the ingestion side inside of the MIRR and document.\nI'll share my screen. So I don't want to go back to space and just not have a clear reason why these are not green. So I just wanted to... If you and Francis can connect before standup...\nI know standup is in half an hour, so maybe we can just step away now and give you guys a chance to connect. That's more important to me than getting a clear status on this before 11:00. It's really what I need to get for Stacey to three."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "I can give you the status right now. It's straightforward. So I'm merging currently my changes. The merch queue estimates about eight minutes from now to merge, so probably ten more minutes to actually deploy and merge, then validate and connect to Francis to see if all the domains and everything is there. He said there are...\nBut just to check every piece after the merch. If anything is broken, obviously you have to work to fix it, but hopefully it's not. I did some patches. So it seems... Shouldn't be bog 31."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah. So great. Let's say that sounds like 30 minutes ish for that effort since it's already in the merge queue and that will effectively prove out or you'll validate that we have a blue-green instance for all of these resources within... We have a blue-green instance for all these instances. My question would be, does that include Islam?\nBecause, Antonio, we're reworking this quite a bit, so this may be moot, that point may be moot."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. So then the answer is you're still work in progress on that. We're focused solely around this, okay?\nAll right, Justo, that's good news. Please, as soon as you have that, just let me know or feel free to hit it in status."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Sounds good."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. You had a couple of things that are not... That are more status. But if you have anything pertaining to what Jiffco just mentioned, if you had a chance to review, welcome your thoughts as well."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "I already reviewed one PR, so it was the one about blue-green. I approved it, so I think it's good to go. Other than that, I don't have any updates on this thing. So I'm ready to start working on the ticket that Sam suggested I should work on.\nBut the two items that I had yesterday on my board that were in progress, I actually had to take some action. It wasn't an hour of work, so it took a bit longer, but I'm ready to work on e-commerce now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, I still... Okay, the action at Sam, remind me what that was again, please."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "To be honest, I don't even know myself. I would have started, but I don't have the ticket number. It was something that at first we thought we might need to wait for Antonio to finish his tasks, but then we agreed that I could work on that in parallel."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I'll find it. Don't worry about it. Okay, all good, let's keep going. Antonio, anything? Well, actually before Antonio... Jeremy, now that we're pivoting away from here, is this merged into Tours already?\nIt's tested. It's in quote unquote production on that side and just needs to add additional validation."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "No, I still got it reviewed. I was going to be with Lance today just to go over it. He's aware of how it works. Just in case something happens or ever makes sure that it's looking good from what he knows about CSTAR and recurly and stuff."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So it's there's still a bit of a review there. No worries."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Correct?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "We had talked about like the possibility of some kind of automated script or some way of validating data coming from kind of like orders coming in what they look like on an our on the Thrive side or what they look like on the current side versus what they look like not in transit.\nBut like the final point, like being able to do a diff against them. Do you want a ticket for actually doing that investigation? Do you have a sense of what that could be already?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "I think there's at least going to need to be something where whatever we're doing for testing, we need to look at CTAR and FSA beyond that. I'm not really sure. I can't remember if I mentioned to you, but I know Devon helped with the QA on the Shopify project, so he might actually already have something he used there to validate stuff.\nSo maybe there's something that he has we could use as a starting point for how we can make sure that those things coming from an integration look good."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, yeah, all right, no problem. I owe Devon a follow-up anyway, and me... What I think I remember from yesterday was around just the blue-green support. He wanted you to pivot and help validate the blue-green environment.\nSo you already did that. So I think stay course, focus on what you have for the tracking and the chat feature."
+      },
+      {
+        "speaker": "Michal Kawka",
+        "speakerIndex": 4,
+        "text": "Truth thing makes sense."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, cool. Antonio, larger conversation there. So, anything you want to share on this? Or do you think just still work in progress on the...?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "No, I can share. Do you mean it's work on the side? It's work in progress. Would you like me to share the decision with the team now, or should we do that later or if...?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, let's do that later, please. And then?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay. Yeah, but it's the work in progress. I will have a PR available for the team in more two hours. I'm starting testing it right now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, and then... Lens to you."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 6,
+        "text": "That is primarily done. I'm just checking some things out at the moment. It is not wired up into any active GitHub workflows. It's going to need... It's reliant on some of the stuff that Antonio is doing.\nSo I didn't know if you wanted me to create a PR with what I have. Then we have a separate ticket for the actual production deployments and updating the GitHub workflows."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes, absolutely. At minimum, we get a PR just to get this spun up, and I'd say maybe pair with Jira just to make sure that we have blue-green set up for this. The production instance set up for this as well. The connection back... You're right, that's a thing, but we can add that to the PR afterward. At least... Let's show that we..."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "I'm sorry. I'm sorry. I'm sorry to interrupt these those reactors are not lens side work. Those are with me because they became way more con way more simple now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "So I just need the SQS queue name, and then I will be pushing those messages. This is part of my work, Wesley."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yep, we're on the same page as to Lance, it's just those... Those Rangers that you need to actually connect into the SQS. Don't worry about that. That shouldn't be a blocker yet.\nHe should be able to spin up this environment, this mini-stack, and be able to have the SQS, the DLQ, the notifications, whatever labs are needed here. All this can be built without having to wait for you to do the refactor. The reactors?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Sure, I will be using a placeholder so far, don't worry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Perfect."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "But, yeah, for full testing, I need the SQS in place. But I got it, thank you."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Can we not do that over a key inside of AWS?\nWhy do we need to literally hardcode that in? Isn't that just a variable we need?"
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "It is a variable. Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, cool, all right, perfect. So... Lance, you're going to have a..."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 6,
+        "text": "So you mentioned I had a question, you mentioned blue-green for this keys stack that's sent into event grid. I guess my only question there would be we don't have the concept of blue-green on Azure event grid.\nSo if something is on an inactive leg, for instance, it's still going to be sending to the live event grid."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That is a really good point and something that we should address in architecture, which is a fair point."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 6,
+        "text": "So I did not have blue-green set up yet for that reason."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Let me... I'll rebuild this meeting for this afternoon as well. Which time I think I was able to join the regular one, so we'll give them a chance to weigh in on that.\nBut that's a very good point, so let's table that for this afternoon. I would say take what you have now. PR that so we can at least start getting eyes on it for you."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 6,
+        "text": "So one more question, just to be clear. You do want me to set up a standalone deployment for this? It wouldn't tie into any of our other workflows, but we would want a mechanism for just deploying this on its own and then perhaps giving Antonio the... So he can work with it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes, from the last two conversations, we had the idea we had agreed and settled on the idea that these are mini stacks. We had an architecture meeting yesterday and we cemented that decision.\nI think you all of... Concerns were raised and like his ask is \"Let's just bring that up in conversation as instances of the need to create stacks come up.\" But the general direction is, yes, this can be a mini stack by itself."
+      },
+      {
+        "speaker": "lance.fallon@llsa.com",
+        "speakerIndex": 6,
+        "text": "Got it meaning its own workflow as well."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes. All right, anyone have any questions or uncertainties? I can quickly summarize if no one has any questions."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Not good, guys."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Actually, I have one quick question, Antonio.\nSo just so you're aware, Jeremy is tackling building out a proposed schema for what the order, what this layer would look like, and the data model would look like. He's going to pull the three things that we talked about yesterday, and he'll reach out to you once he has something based off what's there now, what you've provided as a demonstration, and what we know from the BI need."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "That's great.\nAwesome."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, sweet."
+      },
+      {
+        "speaker": "Speaker 5",
+        "speakerIndex": 5,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "All right, that's it. Thank you, guys, so much. CO, as soon as you have something on this, actually, that's not true, just let me know by status because that'll give me enough time to create a talk track for leadership.\nRight. Guys, thank you so much."
+      },
+      {
+        "speaker": "Speaker 3",
+        "speakerIndex": 3,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "See?"
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Thanks."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Us."
+      },
+      {
+        "speaker": "jeremy.campeau@llsa.com",
+        "speakerIndex": 2,
+        "text": "Have a good one."
+      }
+    ],
+    "raw_meeting": "**Mandalore, EOD State of Integration**\n🕞 Started at 02:29 PM on 25 Mar, lasted 13m",
+    "raw_content": "Wesley Donaldson | 00:21\nMorning, Germany.\njeremy.campeau@llsa.com | 00:24\nGood morning. How are you?\nWesley Donaldson | 00:27\nNot bad. Not bad yourself. While I have you, I did send you that one ticket that we spoke about yesterday.\njeremy.campeau@llsa.com | 00:38\nSix?\nWesley Donaldson | 00:39\nIt's just... It's really more just proposing the scheme. I'm more looking for research.\nThen, maybe just a confluence page on what you think the schema might look like, and then we can have a conversation about it.\njeremy.campeau@llsa.com | 00:51\nOkay, yeah, I was looking through it yesterday, writing down some questions. I'm actually trying to write out a scheme, and now... So I'll put up a confluence page under that area and start writing stuff.\nThen throw my questions too.\nWesley Donaldson | 01:05\nYes. Yeah. So Antonio is probably the best person to start with. He'll coordinate with Sam. Alright's... Yeah, I think my worry there is don't run independently on it, just do your investigation, get his thoughts. His work is in process or in flow, so there may be changes coming out of that.\njeremy.campeau@llsa.com | 01:15\nOkay, I'll ping in with my questions then. Is that what you're saying? Okay.\nWesley Donaldson | 01:28\nI just don't want to spend too much time cycling.\nAll right? Jiffco, Francis, I'd love to have him here. Actually, maybe you have to go. I know it's early, but have you ever had a chance to connect with Francis, by any chance? Or see his last comments?\nSpeaker 3 | 01:52\nNo, I have not connected to Francis yet.\nWesley Donaldson | 01:54\nNo, okay.\nSpeaker 3 | 01:56\nLet's see about his comments.\nWesley Donaldson | 02:20\nAll right, well let me just maybe just rephrase the conversation. I saw the conversation generally around the blue green. I know that you and me how are me how did some initial review for you just wanted to the goal that we had or what was set to these yesterday was we're going to target trying to get some of these flagged as green these being just the stuff on the ingestion side inside of the MIRR and document.\nI'll share my screen. So I don't want to go back to space and just not have a clear reason why these are not green. So I just wanted to... If you and Francis can connect before standup...\nI know standup is in half an hour, so maybe we can just step away now and give you guys a chance to connect. That's more important to me than getting a clear status on this before 11:00. It's really what I need to get for Stacey to three.\nSpeaker 3 | 03:12\nI can give you the status right now. It's straightforward. So I'm merging currently my changes. The merch queue estimates about eight minutes from now to merge, so probably ten more minutes to actually deploy and merge, then validate and connect to Francis to see if all the domains and everything is there. He said there are...\nBut just to check every piece after the merch. If anything is broken, obviously you have to work to fix it, but hopefully it's not. I did some patches. So it seems... Shouldn't be bog 31.\nWesley Donaldson | 03:51\nYeah. So great. Let's say that sounds like 30 minutes ish for that effort since it's already in the merge queue and that will effectively prove out or you'll validate that we have a blue-green instance for all of these resources within... We have a blue-green instance for all these instances. My question would be, does that include Islam?\nBecause, Antonio, we're reworking this quite a bit, so this may be moot, that point may be moot.\nSpeaker 3 | 04:19\nYes.\nWesley Donaldson | 04:22\nOkay. So then the answer is you're still work in progress on that. We're focused solely around this, okay?\nAll right, Justo, that's good news. Please, as soon as you have that, just let me know or feel free to hit it in status.\nSpeaker 3 | 04:35\nSounds good.\nWesley Donaldson | 04:35\nOkay. You had a couple of things that are not... That are more status. But if you have anything pertaining to what Jiffco just mentioned, if you had a chance to review, welcome your thoughts as well.\nMichal Kawka | 04:51\nI already reviewed one PR, so it was the one about blue-green. I approved it, so I think it's good to go. Other than that, I don't have any updates on this thing. So I'm ready to start working on the ticket that Sam suggested I should work on.\nBut the two items that I had yesterday on my board that were in progress, I actually had to take some action. It wasn't an hour of work, so it took a bit longer, but I'm ready to work on e-commerce now.\nWesley Donaldson | 05:19\nYeah, I still... Okay, the action at Sam, remind me what that was again, please.\nMichal Kawka | 05:31\nTo be honest, I don't even know myself. I would have started, but I don't have the ticket number. It was something that at first we thought we might need to wait for Antonio to finish his tasks, but then we agreed that I could work on that in parallel.\nWesley Donaldson | 05:48\nOkay, I'll find it. Don't worry about it. Okay, all good, let's keep going. Antonio, anything? Well, actually before Antonio... Jeremy, now that we're pivoting away from here, is this merged into Tours already?\nIt's tested. It's in quote unquote production on that side and just needs to add additional validation.\njeremy.campeau@llsa.com | 06:18\nNo, I still got it reviewed. I was going to be with Lance today just to go over it. He's aware of how it works. Just in case something happens or ever makes sure that it's looking good from what he knows about CSTAR and recurly and stuff.\nWesley Donaldson | 06:35\nSo it's there's still a bit of a review there. No worries.\njeremy.campeau@llsa.com | 06:38\nCorrect?\nWesley Donaldson | 06:38\nWe had talked about like the possibility of some kind of automated script or some way of validating data coming from kind of like orders coming in what they look like on an our on the Thrive side or what they look like on the current side versus what they look like not in transit.\nBut like the final point, like being able to do a diff against them. Do you want a ticket for actually doing that investigation? Do you have a sense of what that could be already?\njeremy.campeau@llsa.com | 07:09\nI think there's at least going to need to be something where whatever we're doing for testing, we need to look at CTAR and FSA beyond that. I'm not really sure. I can't remember if I mentioned to you, but I know Devon helped with the QA on the Shopify project, so he might actually already have something he used there to validate stuff.\nSo maybe there's something that he has we could use as a starting point for how we can make sure that those things coming from an integration look good.\nWesley Donaldson | 07:38\nOkay, yeah, all right, no problem. I owe Devon a follow-up anyway, and me... What I think I remember from yesterday was around just the blue-green support. He wanted you to pivot and help validate the blue-green environment.\nSo you already did that. So I think stay course, focus on what you have for the tracking and the chat feature.\nMichal Kawka | 08:01\nTruth thing makes sense.\nWesley Donaldson | 08:03\nOkay, cool. Antonio, larger conversation there. So, anything you want to share on this? Or do you think just still work in progress on the...?\nSpeaker 5 | 08:14\nNo, I can share. Do you mean it's work on the side? It's work in progress. Would you like me to share the decision with the team now, or should we do that later or if...?\nWesley Donaldson | 08:25\nYeah, let's do that later, please. And then?\nSpeaker 5 | 08:29\nOkay. Yeah, but it's the work in progress. I will have a PR available for the team in more two hours. I'm starting testing it right now.\nWesley Donaldson | 08:42\nOkay, and then... Lens to you.\nlance.fallon@llsa.com | 08:50\nThat is primarily done. I'm just checking some things out at the moment. It is not wired up into any active GitHub workflows. It's going to need... It's reliant on some of the stuff that Antonio is doing.\nSo I didn't know if you wanted me to create a PR with what I have. Then we have a separate ticket for the actual production deployments and updating the GitHub workflows.\nWesley Donaldson | 09:11\nYes, absolutely. At minimum, we get a PR just to get this spun up, and I'd say maybe pair with Jira just to make sure that we have blue-green set up for this. The production instance set up for this as well. The connection back... You're right, that's a thing, but we can add that to the PR afterward. At least... Let's show that we...\nSpeaker 5 | 09:36\nI'm sorry. I'm sorry. I'm sorry to interrupt these those reactors are not lens side work. Those are with me because they became way more con way more simple now.\nWesley Donaldson | 09:48\nYes.\nSpeaker 5 | 09:53\nSo I just need the SQS queue name, and then I will be pushing those messages. This is part of my work, Wesley.\nWesley Donaldson | 10:04\nYep, we're on the same page as to Lance, it's just those... Those Rangers that you need to actually connect into the SQS. Don't worry about that. That shouldn't be a blocker yet.\nHe should be able to spin up this environment, this mini-stack, and be able to have the SQS, the DLQ, the notifications, whatever labs are needed here. All this can be built without having to wait for you to do the refactor. The reactors?\nSpeaker 5 | 10:30\nSure, I will be using a placeholder so far, don't worry.\nWesley Donaldson | 10:33\nPerfect.\nSpeaker 5 | 10:33\nBut, yeah, for full testing, I need the SQS in place. But I got it, thank you.\nWesley Donaldson | 10:39\nCan we not do that over a key inside of AWS?\nWhy do we need to literally hardcode that in? Isn't that just a variable we need?\nSpeaker 5 | 10:48\nIt is a variable. Yeah.\nWesley Donaldson | 10:50\nOkay, cool, all right, perfect. So... Lance, you're going to have a...\nlance.fallon@llsa.com | 10:53\nSo you mentioned I had a question, you mentioned blue-green for this keys stack that's sent into event grid. I guess my only question there would be we don't have the concept of blue-green on Azure event grid.\nSo if something is on an inactive leg, for instance, it's still going to be sending to the live event grid.\nWesley Donaldson | 11:18\nThat is a really good point and something that we should address in architecture, which is a fair point.\nlance.fallon@llsa.com | 11:25\nSo I did not have blue-green set up yet for that reason.\nWesley Donaldson | 11:30\nLet me... I'll rebuild this meeting for this afternoon as well. Which time I think I was able to join the regular one, so we'll give them a chance to weigh in on that.\nBut that's a very good point, so let's table that for this afternoon. I would say take what you have now. PR that so we can at least start getting eyes on it for you.\nlance.fallon@llsa.com | 11:51\nSo one more question, just to be clear. You do want me to set up a standalone deployment for this? It wouldn't tie into any of our other workflows, but we would want a mechanism for just deploying this on its own and then perhaps giving Antonio the... So he can work with it.\nWesley Donaldson | 12:13\nYes, from the last two conversations, we had the idea we had agreed and settled on the idea that these are mini stacks. We had an architecture meeting yesterday and we cemented that decision.\nI think you all of... Concerns were raised and like his ask is \"Let's just bring that up in conversation as instances of the need to create stacks come up.\" But the general direction is, yes, this can be a mini stack by itself.\nlance.fallon@llsa.com | 12:41\nGot it meaning its own workflow as well.\nWesley Donaldson | 12:43\nYes. All right, anyone have any questions or uncertainties? I can quickly summarize if no one has any questions.\nSpeaker 5 | 12:56\nNot good, guys.\nWesley Donaldson | 12:57\nActually, I have one quick question, Antonio.\nSo just so you're aware, Jeremy is tackling building out a proposed schema for what the order, what this layer would look like, and the data model would look like. He's going to pull the three things that we talked about yesterday, and he'll reach out to you once he has something based off what's there now, what you've provided as a demonstration, and what we know from the BI need.\nSpeaker 5 | 13:09\nThat's great.\nAwesome.\nWesley Donaldson | 13:22\nOkay, sweet.\nSpeaker 5 | 13:22\nOkay.\nWesley Donaldson | 13:23\nAll right, that's it. Thank you, guys, so much. CO, as soon as you have something on this, actually, that's not true, just let me know by status because that'll give me enough time to create a talk track for leadership.\nRight. Guys, thank you so much.\nSpeaker 3 | 13:37\nThank you.\nWesley Donaldson | 13:38\nSee?\njeremy.campeau@llsa.com | 13:38\nThanks.\nWesley Donaldson | 13:38\nUs.\njeremy.campeau@llsa.com | 13:38\nHave a good one."
+  }
+}

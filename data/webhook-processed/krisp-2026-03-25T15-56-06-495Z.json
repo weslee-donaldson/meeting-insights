@@ -1,0 +1,531 @@
+{
+  "id": "019d25b5d1ed7057a5e6cac9b14c316e",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d259ec18a74489f32d302b0d52ba0",
+      "title": "FW: AppDev Leads DSU",
+      "duration": 1506,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6d330h9o8h144hhh710k8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6spj6cpj6cok2cq28cojcdpk6osjahhg6p23gdhn8gojggpl74qg_20260325T153000Z",
+      "participants": [
+        {
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": "a4eb3c8f93f75ecb90d8ba47d8b25bfd",
+          "first_name": null,
+          "email": "ray.li@llsa.com"
+        },
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "stace.baal@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "greg.christie@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "harry.dennen@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "salem.madani@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "sam.hatoum@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "dc1e19fa4ae15adc849e08797a8e375c",
+          "first_name": "Jennifer",
+          "email": "09859407fa054afe80f3b7887e066613@noemail.krisp.ai"
+        },
+        {
+          "index": 3,
+          "last_name": null,
+          "id": "40c060c1d205566780d8492730e4ce78",
+          "first_name": null,
+          "email": "harry.dennen@llsa.com"
+        },
+        {
+          "index": 4,
+          "last_name": null,
+          "id": "085ddc9989e958cfb68a52b019482db9",
+          "first_name": null,
+          "email": "bethany.duffy@llsa.com"
+        },
+        {
+          "index": 5,
+          "last_name": "Hatoum",
+          "id": "5568e69bfd1755719056d6dca8357116",
+          "first_name": "Sam",
+          "email": "sam@xolv.io"
+        },
+        {
+          "index": 6,
+          "last_name": null,
+          "id": "41755a71c4615f4c801f0ebe241262d6",
+          "first_name": "Stace",
+          "email": "b87f19c5948649a39d29312f47b70352@noemail.krisp.ai"
+        }
+      ],
+      "start_date": "2026-03-25T15:30:24.283Z",
+      "end_date": "2026-03-25T15:55:30.283Z",
+      "url": "https://app.krisp.ai/n/019d259ec18a74489f32d302b0d52ba0"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Right. That's weird."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "You guys, sorry, my authenticator turned on. I was in another meeting and then came to this and it made me authenticate again, sign in again. Do we want to get started?"
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Let's do it."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Harry, you wanna kick us off?"
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Sure. Up."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Thanks. Sure this is accurate loading on a VPN. It still seems to be working on good... By this. Okay, we have a new P-zero round shop. There are five orders. Are we at 3:38 in there? It's because Shopify has made phone numbers not required. Manual intervention is just to add the phone number that they've given us that we already had for people and then rerunning those.\nNext on that part, there's a little bit of investigation as to why we're putting them in the DL queue when they don't have a phone number and whether Krisp DB actually needs that or if it's just a UI thing for Krisp UI.\nSo the immediate fix is happening now. Then we'll figure out how to make it so that we don't have this issue in the future. I think we can just put these in without a phone number, which is not ideal, but at least it's something we can reconcile later. Which is exactly what we're doing. This manual process as far as the MMA stuff, the critical pieces are done. Now there are a couple of web conflict things that we need from Mandalor team once that part of the work is done.\nThere's a separate ticket for us for DG to go and add that. The other parts of that are just listeners and alerts, so not critical but ongoing. Now... On another break fix on that stands on this is another one-off so he's looking into that now."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "What is this one, right?"
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "So this partial failure. We are... Actually looking at augmenting the stuff we get on the issues from the point of care. So we'll get specific product updates there. When we have that and we can complete some of the other ones, that's the other part of the groundwork.\nSo the first part was specific statuses on screenings that shipped up this morning. So it's in polling, it's in Thrive, it goes into the or dub now the front end can use it. It's on the projections and then the other groundwork part of that is the specific product statuses, of which we have a bunch of them. It might be worth a chat after this. How we want to put those through.\nBecause he has one solution. I don't know if it's great to be what is it, distilling a status in the polling service when we actually have a whole bunch of statuses coming from CSTAR. The gateway, no movement still blocked. What?\nI've just been speaking to Lily's profile. That's some conversations there. The rest in review should go today. Next running into snapshot issues again after emerging Maine. So I'm probably going to take over from there while he deals with the live issue to get that in.\nI think that's everything that's happening. The colonoscopy stuff is almost completely done, according to DJ so we would expect this to go in tomorrow.\nWe're getting some more test templates. So when we generate demo users, we have a number of templates and Stefan's looking into some of the other specific states that a user needs to be in and some templates that we would be useful to us for that.\nSo that's in progress. Some of the as states and this one I just paused until he's got the other live stuff done. That's everything for..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "All right, I can go back."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Thanks. We can talk about the statuses in a minute."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I'm going to start with just some things that we had outstanding for a little while around the SRE track. How has most of those? So all these are actually just waiting to be finalized. The team to review them this morning. These are all reviewed, just waiting for them to make it through the bill queue or for us to complete a merge and emerge conflicts.\nSo the outstanding issues around dead letter queues not having alerts, those have been resolved. No additional changes are needed here, we're just pushing these into the normal notification schemes that we had before.\nStill waiting on just an additional conversation amongst the team and the cleaning up. The PR cleaning up the instance on current in the dev environment. But the thing that was outstanding from yesterday that we time boxed for an hour because we expected these were already resolved as part of other efforts we have... Did have some fixes on these. One of these, Jennifer, is the one around the weights. The approach that we're doing here is a little unorthodox, per se.\nSo, Miha's going to reach out to you, Harry as well, just to share the perspective of what we had and how we're solving for this. But generally these have PRs in place, have a plan of attack in place.\nSo nothing outstanding. And some of the long-running concerns that we had from the SR re-track... I'm going to... We're talking under some of the features that we have from Beth and from the team, specifically around chat tracking, the direction that we have on the manual coupon entry. Manual coupon entry, we have that as well.\nIt's in PR status. We have the two additional efforts around the membership. So the UI fixes, those are... We're in development now. You all... This is tackling the order placed handling of how we're sending that over to recurrly. No concerns, no issues there. I'm rather than go through the board...\nI think it's probably a little bit easier to understand the holistic status by looking at the state of integration diagram. The one thing that we're targeting for this morning end of day yesterday was getting to greens on some of the ingestion resources, specifically the API gateway have the webhook? Yes, this should be green as well. The Qs, the D LQ around all the ingestion work.\nSo those are green now. I think we still have a small bit of work on Francis's side. Just to confirm some security updates that we wanted to make. This is nothing major. This is just whitelisting on the API gateway. He has a ticket for that. He's committed to having that in PR for today. He'd asked for a couple of hours.\nSo let's say end of day today we should be fully green and all of the elements on the ingestion side of information."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "So Wes, sorry, real quick on that one, go back to the left. So we'll have Sticky just make a dotted line to another box that is blue. That is called whatever the actual task is.\nThat's what Francis is working on because it's just another element that's not done and it should be an integration box."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's all. That's what you... Just got it. So I'll add that afterwards."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, and Antonio has been working on the single process and just additional... The work that Savage shared before around changing a bit of a pivot towards a different approach, a more optimized approach. He's still working through that. He anticipates having a PR by end of day today. Sam, anything you want to add on that side?"
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "So..."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "We spoke yesterday about, like, the making a single box."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I would like to make a single so we have this to say that I'm not looking ever."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "So we have less room for failure. I'm now working with Antonio on exactly once delivery semantics and it supports the concept of workflows where we can make sure that it's either sent to the projections, for example, or we send something to an external system, we want to make sure we only ever send it once."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Exactly what sort of concept of workflows where we can make sure they ascend to the projections, for example, or sounds 400% it was and so just what you're trying to figure out how they were quite high lot few things so this go the first rate but I were an exactly synonymously exactly."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "And so just working with Antonio through that and how we implement it requires some kind of locking and things. So it's just looking into the best way to do that. But yeah, the end goals will have exactly once semantics. Exactly. Wants the delivery semantics in place."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay. Any questions there? Up to this point, rather... Okay, additional work on the back-end side first, where we have... Jeremy has completed the work here. I think two things outstanding on this. There is a PR that he's asking Lance just to... By virtue of just Lance's proximity to Krisp and just having worked on the... Before...\nSo he's getting a more detailed review from Lance on this, but expecting that to be closed out today as well. One challenge or concern that we have generally is just how we are proving out information that is coming in on the ingestion side and then making sure on the output side when it's... Inc Star making sure that's a one-to-one map. Sam had a good suggestion of... This is probably best thought of from the admin perspective.\nSo connecting with Jeremy and Devon later today, just to talk through... How can we use the past Shopify experience and the customer and the admin portal as a mechanism for us to verify information coming through the process? Jennifer, you're optional on that if you can make it... Good conversation, but generally, this is in good standing. The coding is done, just reading some reviews, and then we have another stream of... How to verify information coming through the system. The only thing that we haven't spoken about is two things: one, Lance is owning just the event grid task.\nAgain, just a reminder, that's taking information out of the reactors and then pushing that into its own SQS queue and then processing those and sending those onto an event grid. He expects to have a PR up for this today. He's making good progress.\nSay worst if that slips, that'll still be a PR tomorrow. He had one question, Sam, around, \"Do we need blue-green for this environment since even Grid does not have a construct of blue-green?\" My intention was for us to tackle that in this afternoon's session. Do you have a perspective now?"
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "Right on the spot. Now, do we want that to be blue-green? I think if it's one of our environments, it should be blue-green, but then if we split while stuff is in a dead-lettic queue and so on, that makes no sense.\nSo it is a shared service between the legs. So no, it shouldn't be blue-green, I don't think. But we can discuss more in the session."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The last item that we haven't touched on is we do have an epic 1.5 for recurringly is around the BI team. Jeremy is working on drafting up using the word that Antonio has done using the existing projections that we have in the system as well as what BI has asked us for phase one, the initial launch. He's generating a proposed schema, and I'll have a meeting with the BI team to work through that on Friday.\nBut this work has not been dropped. Still in process. The thinking here is that once we have that proposed schema, we should be able to rework this in service of both the existing projections as well as any of the new work that the BI team needs.\nThat is Mandalor status. Any questions? Again, I can go through tickets, but I think this is the most critical view of how the system is and how we are relative to the goal of getting to production."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "What's our estimate? Just updated for today on doing full end and UAT."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Let me get back the status of the status from Antonio on this layer as well as the approval or the review from Jeremy. We're projecting end of the week right now, I think, based on this conversation with the team."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Two."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So it looks like Fridays. The target is a good. It would be a good target. But I'll confirm that once we have a conversation this afternoon."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Okay, if you could... I'm curious just what the current state of Sandbox is like. If things are getting into CSTAR at all, or if that's still just in local development, I'd be interested in that as well."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, Jeremy has confirmed that he's able to push orders into CSTAR, coming out of test orders that he's created. I think since this layer is still in development, we don't have an end-to-end yet. That proves out he's able to push information.\nHe's confirmed he could push information into CSTAR."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Awesome to try else seven."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "As a state thing... So she... I'm going to show a code as much as we would to... So Ray, this comes down to that the stuff we talked about the specific... Not cancellation. But for whatever reason, we don't have something, and we know it upfront.\nIt's these specific product statuses. So, this is the proposed change, and what this is effectively doing is creating a new status that Thrive would read, which just says \"canceled\" or \"scheduled,\" and then it would default to whatever the actual one is.\nIt's consolidating these different statuses like \"not applicable,\" \"abandoned,\" \"change of mind,\" \"health-related,\" \"sent back to us,\" and that kind of thing. So, I think my question is, do we want to pipe through exactly what we get at CSTAR and then deal with it granularly as we need to downstream? Or do we want the polling service to actually make a decision about what it's going to show, Thrive? Personally, I'm for piping stuff straight through because I don't like pieces that are supposed to be throwaway interfaces getting smart.\nBut I don't know what the future looks like for this kind of ingestion around specific products."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "It's a really good question. And both sides would throw away to tell you the truth. Yeah, so I guess it might be a little simpler just to let's see... Bunch dump a bunch of stuff in and filter on the thrive side because the article is cleaner and a little bit easier, more nimble to deal with."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "S points filtering."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "On our side, it does reduce noise over the wire."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "Yeah, I think the single responsibility principle. The more facts we have on our side, the more power we have to deal with problems."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, that's where I was at. Plus, if Ray comes to me tomorrow and says, \"Hey, actually, I want this. I don't have to go change the polling service because Ray does that all the time.\""
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "I mean, you know, if you just change it from polling service to message mirroring service, for example, right? That's really what it is, right? And if it's message mirroring, you should do one thing and that is just mirroring the messages over.\nSo yeah."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Well, it already does more than that because there's a few... There are all kinds of weird stuff we have to deal with, but not here. You're absolutely right. It should be that."
+      },
+      {
+        "speaker": "Sam Hatoum",
+        "speakerIndex": 5,
+        "text": "If one of my tires is flat on the car, I certainly wouldn't go slash the other three."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Yeah, no, I hear you. That's kind of where I'm at. I'm like rather just give me the raw stuff, you know, even if it's on like a raw property, and then I'll interpret it where I need to actually."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "Now that I'm even thinking about it from performance bottlenecks because we're faking events on the C-star side in a transactional system, the more filtering and logic we add is more overhead.\nThat's actually going to slow the entire monolith down. Because. Because we've killed the database already. This before. So we might as well just let it dump into it because it's que processing on the AWS side, right?\nIt's just lambless. It's magic. We can they take a little longer, they take a little longer, we throw more concurrency at it."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Okay, so I think... It sounds like we're leaning towards just piping it, don't get smart at polling."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yeah, the less smart we are at polling, the more information and the more flexible we are going forward."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "Yeah, I respect once... I've been mentioned before to the group, but I'd like to see the system just work end to end, get orders, insert it in..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "To... Re..."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "We still have... We're going to have two PA goods we have to sort out the problem before we can really scale right because we're going to want the same identifier on the order and in the data stored to thrive as...\nSo I was thinking of the resulting entity. If we just launched this plain vanilla right now, they're going to have an identifier for the participant in the order and then the C-star identifier for the results.\nYeah. We got to chew that up at some point."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "I've been thinking about that. So in my previous life, we had some concepts of central authorities. We used it for a security thing where APIs couldn't just talk to each other. They had to check in with a central authority that had a registry of who was allowed to talk to who, but that central authority is the issuer of unique identifiers."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "[Laughter]."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "So because we're doing this kind of strangler pattern, it almost makes sense to pull PGO creation out of CSTAR. So if it's just happening on like a procedure auto in."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "That is the right thing to do. But I don't know if we can do that per se until the day we get call center out of placing orders. C start right because still we turn on recurrently. We're going to start migrating traffic.\nBut the lion's share of the participants are still going to be graded. So it's..."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Gonna come to the... Yeah, I mean..."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "I kind of think there's a way... And this was harder when you added more relational database or an orrcal world where we're around sequences and things like that. But in a good world, anything can create it. 100%.\nSo I'm wondering if there's a way once we get the order, the happy path orders just flowing into CSTAR can we... I don't even know if there are constraints, right? Maybe if we insert them with the good created by recurly, we can just stop it from creating its own PD or there might be a little code change to maybe do that."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "But that seems reasonable. Yeah."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "For economics to think through ideas team. But, you know, I'm kind of waiting to see it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Probably see how grow around."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "I don't want to throw a wrench in it before everything's working and we can start on all the tests. But then that might be one of the last cleanup items that we have to stitch in because that's going to ultimately be important for BI, right?\nBecause they're going to have to sort out the new data and thrive from the historic data. That's in Azure Data Lake and those identifiers have to stay consistent across people."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "[Laughter]."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "I mean, there's always the option of version two, right? And we just have this idea of two different... I mean, it's not great, but V2 is..."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "It's not unheard of."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Usually, with APIs, it generally works like that, right? When we have to change some sort of identification, then you just add a new property and call it V2 identifier and then you take a year to phase out the old one."
+      },
+      {
+        "speaker": "Stace",
+        "speakerIndex": 6,
+        "text": "Okay, but overall, good progress. I think if we can get these last couple of items out of the door, make sure the pipeline is working, and make sure the sandbox is solid so we can begin the end testing..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Of work everything."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Okay?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Is there anything else? Are there any DES that are happening in the product office hours?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Wesley, I think you want to share some additional UI tweaks that you've made yet."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. So we've got some from Recurly."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sam.com."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Then, are there any tickets that we have to refine in the product office?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Want..."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Krisp, I do have some new ones that I read from the team, but it sounds like they're pretty full for this week, so we can wait until they're more ready to pick it up so we're not doing it too far ahead."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "People may speak soon."
+      },
+      {
+        "speaker": "bethany.duffy@llsa.com",
+        "speakerIndex": 4,
+        "text": "Okay, they're all production-like launch stories anyway. They're just the follow-up, so I don't need them going into the production launches."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. And then, just for anybody that wasn't in the end or stand-up when Willie started, today he's the new senior developer. I might have him join Harry instead of him joining the end stand-up. Tomorrow I might join Mandalor just to introduce him.\nAnd then hop over to the end or tomorrow."
+      },
+      {
+        "speaker": "harry.dennen@llsa.com",
+        "speakerIndex": 3,
+        "text": "Sounds good."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Talk to you all soon."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sounds good's."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Five minutes."
+      }
+    ],
+    "raw_meeting": "**FW: AppDev Leads DSU**\n🕞 Started at 03:30 PM on 25 Mar, lasted 25m",
+    "raw_content": "Wesley Donaldson | 00:44\nRight. That's weird.\nJennifer | 01:27\nYou guys, sorry, my authenticator turned on. I was in another meeting and then came to this and it made me authenticate again, sign in again. Do we want to get started?\nharry.dennen@llsa.com | 01:43\nLet's do it.\nJennifer | 01:46\nHarry, you wanna kick us off?\nbethany.duffy@llsa.com | 01:48\nSure. Up.\nharry.dennen@llsa.com | 01:53\nThanks. Sure this is accurate loading on a VPN. It still seems to be working on good... By this. Okay, we have a new P-zero round shop. There are five orders. Are we at 3:38 in there? It's because Shopify has made phone numbers not required. Manual intervention is just to add the phone number that they've given us that we already had for people and then rerunning those.\nNext on that part, there's a little bit of investigation as to why we're putting them in the DL queue when they don't have a phone number and whether Krisp DB actually needs that or if it's just a UI thing for Krisp UI.\nSo the immediate fix is happening now. Then we'll figure out how to make it so that we don't have this issue in the future. I think we can just put these in without a phone number, which is not ideal, but at least it's something we can reconcile later. Which is exactly what we're doing. This manual process as far as the MMA stuff, the critical pieces are done. Now there are a couple of web conflict things that we need from Mandalor team once that part of the work is done.\nThere's a separate ticket for us for DG to go and add that. The other parts of that are just listeners and alerts, so not critical but ongoing. Now... On another break fix on that stands on this is another one-off so he's looking into that now.\nSam Hatoum | 03:42\nWhat is this one, right?\nharry.dennen@llsa.com | 03:47\nSo this partial failure. We are... Actually looking at augmenting the stuff we get on the issues from the point of care. So we'll get specific product updates there. When we have that and we can complete some of the other ones, that's the other part of the groundwork.\nSo the first part was specific statuses on screenings that shipped up this morning. So it's in polling, it's in Thrive, it goes into the or dub now the front end can use it. It's on the projections and then the other groundwork part of that is the specific product statuses, of which we have a bunch of them. It might be worth a chat after this. How we want to put those through.\nBecause he has one solution. I don't know if it's great to be what is it, distilling a status in the polling service when we actually have a whole bunch of statuses coming from CSTAR. The gateway, no movement still blocked. What?\nI've just been speaking to Lily's profile. That's some conversations there. The rest in review should go today. Next running into snapshot issues again after emerging Maine. So I'm probably going to take over from there while he deals with the live issue to get that in.\nI think that's everything that's happening. The colonoscopy stuff is almost completely done, according to DJ so we would expect this to go in tomorrow.\nWe're getting some more test templates. So when we generate demo users, we have a number of templates and Stefan's looking into some of the other specific states that a user needs to be in and some templates that we would be useful to us for that.\nSo that's in progress. Some of the as states and this one I just paused until he's got the other live stuff done. That's everything for...\nWesley Donaldson | 06:12\nAll right, I can go back.\nJennifer | 06:13\nThanks. We can talk about the statuses in a minute.\nSam Hatoum | 06:18\nYeah.\nWesley Donaldson | 06:21\nOkay, I'm going to start with just some things that we had outstanding for a little while around the SRE track. How has most of those? So all these are actually just waiting to be finalized. The team to review them this morning. These are all reviewed, just waiting for them to make it through the bill queue or for us to complete a merge and emerge conflicts.\nSo the outstanding issues around dead letter queues not having alerts, those have been resolved. No additional changes are needed here, we're just pushing these into the normal notification schemes that we had before.\nStill waiting on just an additional conversation amongst the team and the cleaning up. The PR cleaning up the instance on current in the dev environment. But the thing that was outstanding from yesterday that we time boxed for an hour because we expected these were already resolved as part of other efforts we have... Did have some fixes on these. One of these, Jennifer, is the one around the weights. The approach that we're doing here is a little unorthodox, per se.\nSo, Miha's going to reach out to you, Harry as well, just to share the perspective of what we had and how we're solving for this. But generally these have PRs in place, have a plan of attack in place.\nSo nothing outstanding. And some of the long-running concerns that we had from the SR re-track... I'm going to... We're talking under some of the features that we have from Beth and from the team, specifically around chat tracking, the direction that we have on the manual coupon entry. Manual coupon entry, we have that as well.\nIt's in PR status. We have the two additional efforts around the membership. So the UI fixes, those are... We're in development now. You all... This is tackling the order placed handling of how we're sending that over to recurrly. No concerns, no issues there. I'm rather than go through the board...\nI think it's probably a little bit easier to understand the holistic status by looking at the state of integration diagram. The one thing that we're targeting for this morning end of day yesterday was getting to greens on some of the ingestion resources, specifically the API gateway have the webhook? Yes, this should be green as well. The Qs, the D LQ around all the ingestion work.\nSo those are green now. I think we still have a small bit of work on Francis's side. Just to confirm some security updates that we wanted to make. This is nothing major. This is just whitelisting on the API gateway. He has a ticket for that. He's committed to having that in PR for today. He'd asked for a couple of hours.\nSo let's say end of day today we should be fully green and all of the elements on the ingestion side of information.\nSam Hatoum | 09:07\nSo Wes, sorry, real quick on that one, go back to the left. So we'll have Sticky just make a dotted line to another box that is blue. That is called whatever the actual task is.\nThat's what Francis is working on because it's just another element that's not done and it should be an integration box.\nWesley Donaldson | 09:16\nThat's all. That's what you... Just got it. So I'll add that afterwards.\nharry.dennen@llsa.com | 09:26\nYeah.\nWesley Donaldson | 09:27\nYeah, and Antonio has been working on the single process and just additional... The work that Savage shared before around changing a bit of a pivot towards a different approach, a more optimized approach. He's still working through that. He anticipates having a PR by end of day today. Sam, anything you want to add on that side?\nharry.dennen@llsa.com | 09:49\nSo...\nSam Hatoum | 09:50\nWe spoke yesterday about, like, the making a single box.\nWesley Donaldson | 09:51\nI would like to make a single so we have this to say that I'm not looking ever.\nSam Hatoum | 09:54\nSo we have less room for failure. I'm now working with Antonio on exactly once delivery semantics and it supports the concept of workflows where we can make sure that it's either sent to the projections, for example, or we send something to an external system, we want to make sure we only ever send it once.\nWesley Donaldson | 09:59\nExactly what sort of concept of workflows where we can make sure they ascend to the projections, for example, or sounds 400% it was and so just what you're trying to figure out how they were quite high lot few things so this go the first rate but I were an exactly synonymously exactly.\nSam Hatoum | 10:14\nAnd so just working with Antonio through that and how we implement it requires some kind of locking and things. So it's just looking into the best way to do that. But yeah, the end goals will have exactly once semantics. Exactly. Wants the delivery semantics in place.\nWesley Donaldson | 10:29\nOkay. Any questions there? Up to this point, rather... Okay, additional work on the back-end side first, where we have... Jeremy has completed the work here. I think two things outstanding on this. There is a PR that he's asking Lance just to... By virtue of just Lance's proximity to Krisp and just having worked on the... Before...\nSo he's getting a more detailed review from Lance on this, but expecting that to be closed out today as well. One challenge or concern that we have generally is just how we are proving out information that is coming in on the ingestion side and then making sure on the output side when it's... Inc Star making sure that's a one-to-one map. Sam had a good suggestion of... This is probably best thought of from the admin perspective.\nSo connecting with Jeremy and Devon later today, just to talk through... How can we use the past Shopify experience and the customer and the admin portal as a mechanism for us to verify information coming through the process? Jennifer, you're optional on that if you can make it... Good conversation, but generally, this is in good standing. The coding is done, just reading some reviews, and then we have another stream of... How to verify information coming through the system. The only thing that we haven't spoken about is two things: one, Lance is owning just the event grid task.\nAgain, just a reminder, that's taking information out of the reactors and then pushing that into its own SQS queue and then processing those and sending those onto an event grid. He expects to have a PR up for this today. He's making good progress.\nSay worst if that slips, that'll still be a PR tomorrow. He had one question, Sam, around, \"Do we need blue-green for this environment since even Grid does not have a construct of blue-green?\" My intention was for us to tackle that in this afternoon's session. Do you have a perspective now?\nSam Hatoum | 12:36\nRight on the spot. Now, do we want that to be blue-green? I think if it's one of our environments, it should be blue-green, but then if we split while stuff is in a dead-lettic queue and so on, that makes no sense.\nSo it is a shared service between the legs. So no, it shouldn't be blue-green, I don't think. But we can discuss more in the session.\nWesley Donaldson | 12:56\nThe last item that we haven't touched on is we do have an epic 1.5 for recurringly is around the BI team. Jeremy is working on drafting up using the word that Antonio has done using the existing projections that we have in the system as well as what BI has asked us for phase one, the initial launch. He's generating a proposed schema, and I'll have a meeting with the BI team to work through that on Friday.\nBut this work has not been dropped. Still in process. The thinking here is that once we have that proposed schema, we should be able to rework this in service of both the existing projections as well as any of the new work that the BI team needs.\nThat is Mandalor status. Any questions? Again, I can go through tickets, but I think this is the most critical view of how the system is and how we are relative to the goal of getting to production.\nbethany.duffy@llsa.com | 13:55\nWhat's our estimate? Just updated for today on doing full end and UAT.\nWesley Donaldson | 14:06\nLet me get back the status of the status from Antonio on this layer as well as the approval or the review from Jeremy. We're projecting end of the week right now, I think, based on this conversation with the team.\nbethany.duffy@llsa.com | 14:21\nTwo.\nWesley Donaldson | 14:22\nSo it looks like Fridays. The target is a good. It would be a good target. But I'll confirm that once we have a conversation this afternoon.\nbethany.duffy@llsa.com | 14:28\nOkay, if you could... I'm curious just what the current state of Sandbox is like. If things are getting into CSTAR at all, or if that's still just in local development, I'd be interested in that as well.\nWesley Donaldson | 14:41\nYeah, Jeremy has confirmed that he's able to push orders into CSTAR, coming out of test orders that he's created. I think since this layer is still in development, we don't have an end-to-end yet. That proves out he's able to push information.\nHe's confirmed he could push information into CSTAR.\nbethany.duffy@llsa.com | 15:00\nThank you.\nJennifer | 15:14\nAwesome to try else seven.\nharry.dennen@llsa.com | 15:19\nAs a state thing... So she... I'm going to show a code as much as we would to... So Ray, this comes down to that the stuff we talked about the specific... Not cancellation. But for whatever reason, we don't have something, and we know it upfront.\nIt's these specific product statuses. So, this is the proposed change, and what this is effectively doing is creating a new status that Thrive would read, which just says \"canceled\" or \"scheduled,\" and then it would default to whatever the actual one is.\nIt's consolidating these different statuses like \"not applicable,\" \"abandoned,\" \"change of mind,\" \"health-related,\" \"sent back to us,\" and that kind of thing. So, I think my question is, do we want to pipe through exactly what we get at CSTAR and then deal with it granularly as we need to downstream? Or do we want the polling service to actually make a decision about what it's going to show, Thrive? Personally, I'm for piping stuff straight through because I don't like pieces that are supposed to be throwaway interfaces getting smart.\nBut I don't know what the future looks like for this kind of ingestion around specific products.\nStace | 16:46\nIt's a really good question. And both sides would throw away to tell you the truth. Yeah, so I guess it might be a little simpler just to let's see... Bunch dump a bunch of stuff in and filter on the thrive side because the article is cleaner and a little bit easier, more nimble to deal with.\nSam Hatoum | 17:13\nS points filtering.\nStace | 17:15\nOn our side, it does reduce noise over the wire.\nSam Hatoum | 17:18\nYeah, I think the single responsibility principle. The more facts we have on our side, the more power we have to deal with problems.\nharry.dennen@llsa.com | 17:27\nYeah, that's where I was at. Plus, if Ray comes to me tomorrow and says, \"Hey, actually, I want this. I don't have to go change the polling service because Ray does that all the time.\"\nSam Hatoum | 17:37\nI mean, you know, if you just change it from polling service to message mirroring service, for example, right? That's really what it is, right? And if it's message mirroring, you should do one thing and that is just mirroring the messages over.\nSo yeah.\nharry.dennen@llsa.com | 17:51\nWell, it already does more than that because there's a few... There are all kinds of weird stuff we have to deal with, but not here. You're absolutely right. It should be that.\nSam Hatoum | 18:03\nIf one of my tires is flat on the car, I certainly wouldn't go slash the other three.\nharry.dennen@llsa.com | 18:08\nYeah, no, I hear you. That's kind of where I'm at. I'm like rather just give me the raw stuff, you know, even if it's on like a raw property, and then I'll interpret it where I need to actually.\nStace | 18:18\nNow that I'm even thinking about it from performance bottlenecks because we're faking events on the C-star side in a transactional system, the more filtering and logic we add is more overhead.\nThat's actually going to slow the entire monolith down. Because. Because we've killed the database already. This before. So we might as well just let it dump into it because it's que processing on the AWS side, right?\nIt's just lambless. It's magic. We can they take a little longer, they take a little longer, we throw more concurrency at it.\nharry.dennen@llsa.com | 18:53\nOkay, so I think... It sounds like we're leaning towards just piping it, don't get smart at polling.\nJennifer | 19:01\nYeah, the less smart we are at polling, the more information and the more flexible we are going forward.\nStace | 19:10\nYeah, I respect once... I've been mentioned before to the group, but I'd like to see the system just work end to end, get orders, insert it in...\nWesley Donaldson | 19:17\nTo... Re...\nStace | 19:25\nWe still have... We're going to have two PA goods we have to sort out the problem before we can really scale right because we're going to want the same identifier on the order and in the data stored to thrive as...\nSo I was thinking of the resulting entity. If we just launched this plain vanilla right now, they're going to have an identifier for the participant in the order and then the C-star identifier for the results.\nYeah. We got to chew that up at some point.\nharry.dennen@llsa.com | 19:55\nI've been thinking about that. So in my previous life, we had some concepts of central authorities. We used it for a security thing where APIs couldn't just talk to each other. They had to check in with a central authority that had a registry of who was allowed to talk to who, but that central authority is the issuer of unique identifiers.\nWesley Donaldson | 20:15\n[Laughter].\nharry.dennen@llsa.com | 20:21\nSo because we're doing this kind of strangler pattern, it almost makes sense to pull PGO creation out of CSTAR. So if it's just happening on like a procedure auto in.\nStace | 20:36\nThat is the right thing to do. But I don't know if we can do that per se until the day we get call center out of placing orders. C start right because still we turn on recurrently. We're going to start migrating traffic.\nBut the lion's share of the participants are still going to be graded. So it's...\nharry.dennen@llsa.com | 20:56\nGonna come to the... Yeah, I mean...\nStace | 21:00\nI kind of think there's a way... And this was harder when you added more relational database or an orrcal world where we're around sequences and things like that. But in a good world, anything can create it. 100%.\nSo I'm wondering if there's a way once we get the order, the happy path orders just flowing into CSTAR can we... I don't even know if there are constraints, right? Maybe if we insert them with the good created by recurly, we can just stop it from creating its own PD or there might be a little code change to maybe do that.\nharry.dennen@llsa.com | 21:43\nBut that seems reasonable. Yeah.\nStace | 21:45\nFor economics to think through ideas team. But, you know, I'm kind of waiting to see it.\nWesley Donaldson | 21:53\nProbably see how grow around.\nStace | 21:54\nI don't want to throw a wrench in it before everything's working and we can start on all the tests. But then that might be one of the last cleanup items that we have to stitch in because that's going to ultimately be important for BI, right?\nBecause they're going to have to sort out the new data and thrive from the historic data. That's in Azure Data Lake and those identifiers have to stay consistent across people.\nWesley Donaldson | 22:22\n[Laughter].\nharry.dennen@llsa.com | 22:34\nI mean, there's always the option of version two, right? And we just have this idea of two different... I mean, it's not great, but V2 is...\nStace | 22:47\nIt's not unheard of.\nharry.dennen@llsa.com | 22:51\nUsually, with APIs, it generally works like that, right? When we have to change some sort of identification, then you just add a new property and call it V2 identifier and then you take a year to phase out the old one.\nStace | 23:06\nOkay, but overall, good progress. I think if we can get these last couple of items out of the door, make sure the pipeline is working, and make sure the sandbox is solid so we can begin the end testing...\nWesley Donaldson | 23:17\nOf work everything.\nbethany.duffy@llsa.com | 23:35\nOkay?\nJennifer | 23:37\nIs there anything else? Are there any DES that are happening in the product office hours?\nWesley Donaldson | 23:45\nWesley, I think you want to share some additional UI tweaks that you've made yet.\nJennifer | 23:54\nOkay. So we've got some from Recurly.\nWesley Donaldson | 23:54\nSam.com.\nJennifer | 23:56\nThen, are there any tickets that we have to refine in the product office?\nWesley Donaldson | 23:59\nWant...\nbethany.duffy@llsa.com | 24:02\nKrisp, I do have some new ones that I read from the team, but it sounds like they're pretty full for this week, so we can wait until they're more ready to pick it up so we're not doing it too far ahead.\nWesley Donaldson | 24:10\nPeople may speak soon.\nbethany.duffy@llsa.com | 24:18\nOkay, they're all production-like launch stories anyway. They're just the follow-up, so I don't need them going into the production launches.\nJennifer | 24:29\nOkay. And then, just for anybody that wasn't in the end or stand-up when Willie started, today he's the new senior developer. I might have him join Harry instead of him joining the end stand-up. Tomorrow I might join Mandalor just to introduce him.\nAnd then hop over to the end or tomorrow.\nharry.dennen@llsa.com | 24:50\nSounds good.\nJennifer | 24:54\nTalk to you all soon.\nWesley Donaldson | 24:56\nSounds good's.\nJennifer | 24:57\nFive minutes."
+  }
+}

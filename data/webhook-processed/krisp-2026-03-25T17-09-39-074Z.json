@@ -1,0 +1,955 @@
+{
+  "id": "019d25f924bf74b28f69d13057b95eb8",
+  "event": "transcript_created",
+  "data": {
+    "meeting": {
+      "id": "019d25d5b59872198392ac752ad6500d",
+      "title": "FW: Wes/Jennifer Bi-weekly sync",
+      "duration": 2316,
+      "calendar_event_id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g64p32dho6cq42gi385248gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8ko3cci264rkah2368sjgd1k6csj0cpm851jcgq66l1j4c9k6l20_20260325T163000Z",
+      "participants": [
+        {
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "jennifer.karavakis@llsa.com"
+        },
+        {
+          "last_name": null,
+          "id": null,
+          "first_name": null,
+          "email": "wesley.donaldson@llsa.com"
+        }
+      ],
+      "speakers": [
+        {
+          "index": 1,
+          "last_name": "Donaldson",
+          "id": "2d123521305e5ba2b050e5c705b00890",
+          "first_name": "Wesley",
+          "email": "wesley.donaldson@xolv.io"
+        },
+        {
+          "index": 2,
+          "last_name": null,
+          "id": "dc1e19fa4ae15adc849e08797a8e375c",
+          "first_name": "Jennifer",
+          "email": "09859407fa054afe80f3b7887e066613@noemail.krisp.ai"
+        }
+      ],
+      "start_date": "2026-03-25T16:30:25.940Z",
+      "end_date": "2026-03-25T17:09:01.940Z",
+      "url": "https://app.krisp.ai/n/019d25d5b59872198392ac752ad6500d"
+    },
+    "content": [
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "She was... Fine. Okay.\nI don't think we got here fully intentionally. I think it was parked.\nOkay. I... Why?\nI don't have time to finish yet. It wasn't canceled. I just closed the meeting to test and... Okay.\nSo that meeting, shall we?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Hey."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Hey, Jennifer, good afternoon."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "How are you doing?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Morning. I'm good exactly we take all comers exactly I love these inter international teams why."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Morning. Afternoon, whatever it is, 09:34 here. So my morning is your afternoon. I know, right? It's fun. Honestly, I don't know, I don't mind getting on early, so it works for me."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "For me, it's just... What is the definition of early? As long as it's around 07:30, it's fine. In my past employee, I would often wake up at 05:30 my time just to connect with my Indian team, my team in India.\nSo those were stressful."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "India is difficult for West Coast folks. It's twelve hours difference here, so. But yeah, I wake up typically. Well, I always set my alarm for six, and I check my phone then, typically, unless I had a really late night or something, like with the kids or just because I have insomnia. I typically check my phone at six.\nAnd then as long as nothing's, like, super. Like, I'll answer questions. And then, as long as nothing's super urgent, depending on what I have to do for the day, I'll either get on then or wait and get on later."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That's the right thing to do. It gives you a schedule you could follow in your brain. You're like, \"Wait, I know what's happening next.\""
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yes, so it works."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I don't have much. There are a couple of things I wanted to run by you. One asked me last time, \"What about those?\""
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. Perfect."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Are we dropping anything regarding some of the issues that we saw on tickets 06:04 just like related to the environment?\nSo I do have a status of that for you on status but made progress to do and as you all this..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Hey."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So there were a little bit of my hope was this was just like we've already addressed this part of some of the fixes that we did later on after these were created, but there were a few things that we had to do on these tickets.\nSo this one here is probably the one that's the most interesting. I've asked how to reach out to you and Harry specifically is just the approach in which he's actually trying to address the different weights and detecting based on invalid weights that is not necessarily its own dashboard or something like that.\nSo it's trying to sell for it as part of an action, as part of a build step but so he can better articulate this than I can. So I've asked him to just set up a quick meeting for you or just reach out to you and Harry directly. Did you already get a DM from him?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Not yet but as far as I build step, I'm wondering if... That feels not like what we want to do, right?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, so. And that's kind of where him and I knitted out. Like, this doesn't feel like exactly the perfect solve, but it felt like the best SL you could come up with in the short term.\nThat's kind of why I asked for, like, hey, bring it as a proposal as opposed to, like, let's finalize this. So if he hasn't had that conversation with me yet, I will. I will schedule something or I'll coordinate it."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "And he might want to reach out to Elvis as like. But rather than having, like, a meeting, like, let's see if he can reach out to Yo Elvis about this. If, like, if you Elvis has any suggestions.\nAnd then once, like, we have a proposal, like, even if it's short, even if it's like Scentle, just because it's it is something small like. And we can put together an RFC and then we can like share that in the a RB meeting and then they'll satisfy Stacey's thing of that meeting being what it is.\nOkay, let's look at this RFC and let's decide. We should start trying to feel like coordinate that meeting that way where we have where we bring proposals to it rather than questions."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Proposals, thoughts? I agree. Okay, so I think that..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I know it's been a long...\nI think that it served that purpose because of where we were at the time. Now we can get to where we need to be."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He, so he actually is taking on two smaller bits of functionality from product."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yeah, if we can do that. What else does he have on his plate?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He has the chat. He's been blocked on this for a bit. He's conversing with Rob, so he's trying to work it through, but my understanding is the Genesis doc. The Genesis setup is going to require identifiers for us to provide to him.\nHe's still waiting on that."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "What about the one with all of the alarms that are currently going off? Because I don't think those are getting addressed yet."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Sorry, different one there. Okay, so you're talking about the missing..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "No, that's what I asked. Then now I'm just wondering...\nIn addition, is it in your...?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, so let's pause on the features then. And then there is one that is specific for the alarms, which hold on I actually had as a follow up item myself. What's the name? That? That is. 1911 29.\nOkay, so 1129."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Does...? I keep getting a million alarms over the weekend, and I think that needs to be addressed before... Because we... That's what we've been saying is there's noisy alarms and therefore we're not catching them."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, that's different because this is silent alarms that I was worried about. The missing alarms is that not clear to me? Alert... I'm missing during leg... No, none of those are specific to that.\nSo the weights... 1. What's...? Can you just give me a list of the alarms that you're seeing, please?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. First, let me see if I can find the ticket because the ticket is definitely outdated. So we should update it. Let me see. For if we can find the ticket."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So I'm storing everything underneath the Q1 epic."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Just so we can reference it."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So let me just filter. Actually, I can just search for it and...\nMy... Got this keyboard."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I don't know why, I swear I saw it just recently."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So we had a Q1 triage. Q1 2026."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yeah, win ticket. Yeah, that's it. Triage ticket."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Q when I called it... What the hell.\nI may not see it as my list of epics drive commerce engineering."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Is and or..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "No, but no, you're right. We did absolutely have... I did absolutely create an epic, which I was tracking all of the Q1 production issues that we're seeing build errors."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Phil as W. 2026 read for prod 34."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "What's the ticket number on that?\nThe epic 34 I can't..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "This doesn't have an alert I can handle. Get web that I feel like, seriously, I feel like you and I are very similar."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I'm that old."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I would definitely say that to... Sorry today."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Right now. 05:34, okay, no, I was like 34, that was so long ago."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "34 alarm maybe it's alarm that I'm looking for."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "There we go, investigate 06:04, that's the one I'm talking about."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "06:04, okay, because that was that's what well, this should be, it should be done."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "It says ready for death."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Hold on, yeah, that should be done. Okay, so 06:04 is what you said. I don't know, this was... There were tickets underneath this. I remember this one to do."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "And we kind of lowered the priority because we got the big ones taken care of."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, exactly."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "But over every single post mortem we've talked about, the logs are noisy. Let's get through them. So this is one that I don't think we're going to be able to say other stuff is done until our logs stop being noisy.\nAs we keep adding more alarms, we're not looking at them to see, like, \"Hey, is this going off for a reason? Because everything that he's added is now triggering alerts, and nobody's looking at the alerts."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "He..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So it's like if once he adds one, we need to make sure that they're taken care of."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah. Can product connectors... So we've looked at the connectors."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So I'm getting the alarm. I'm going to get the alarm thing open so I can show you what I'm seeing. Tickets, of course. Old...\nSo those might be out of date, but here's...\nAlarms. Okay, so we have SMS voices going off, ROM, and event bridge. This event bridge one is the one that had been going off and he had said, \"Never got reset,\" and it looks like it's still hasn't been reset or he did and it's this is the first time I've actually seen data in it, honestly.\nSo something got changed. Wait, no, here it is, the event bus anomaly, it doesn't have any events in it. I don't know if this alarm is even right because it hasn't had events in it for months. The reason it's going off is because it doesn't have events.\nBut if it hasn't had... Even when we fix stuff, it doesn't have events. So it's like, \"I don't think this alarm is even a thing, but it's going off and it's like, \"Okay, well, that's going to be noise.\"\nWe're seeing that, so we should see what..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You already did. No, could you send me the alarm name, please? Can I propose something? I want to get this nipped in the bud. Can I? I'm going to close these. I'm going to set up a meeting for tomorrow morning.\nIs 10 am too early for you? 10 am..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I think I'd prefer 9 am because"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Really?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I block off 10:00 am for getting kids off to school."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, there you go. So you're getting up earlier, that's why. Okay, so I'm gonna mark these as do we have a will not do? No, I like, I guess it's canceled is the closest thing. And then what?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yeah, canceled is what we do. Or just to complete it, do the under tasks as completed, then these ones as canceled, and then the top one is completed."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Five? Yeah, I can be completed on this."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Because we did some..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I could do this one. So I'm really avoiding completed unless we actually had work items that we took on."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "But these two did get completed."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Exactly.\nSo if you were being completed..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "That's why I'm saying, yeah, okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Alright, yeah, and I am sure the engineers... Having been an engineer, having to do all the time sheets and still doing time sheets."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I appreciate that because that helps my tracking so much better if we use \"canceled\" and \"completed\" correctly.\nBecause I go through old tickets every month to... Because I have to do CAPEX work. So instead of having people track their time, I just go through everything because it helps me know, \"Hey, what happened over the month?\"\nSo it's an exercise I do. Completed versus canceled makes a huge difference."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I'm sure they appreciate us doing that."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I never like. Well, one, they never do it correctorruptly so.\nAnd two, I don't want, like, I used to, like, try to, like, expect because, like, I could do it when I was an engineer. But I have a different mind than a lot of people, so."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "There's a tool I used to use. It was like a little. It was an app on your phone.\nAnd literally, I just leave the app open. And I have like the three projects that I'm working on. Like, I was a director, so like, I was always working on a billion things. So I just like click on that, do my thing, come back, click on a different button, and then it just aggregate it all for me based on kind of like a Description of each of the project for me."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yes. Yeah, and I used to be a consultant or a contractor, so I would have to track my time exactly. So yeah, I again, I can do it, but at the same time, I can't trust it when they do it, and that is such a waste of their time."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Exactly, especially since their time is so valuable at this point."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So you said 9 am my time is better for you, which 9 am can do 9 am Hold on, let me just give me one second."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay, as long as it's not too early for you."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "I start at 07:30, so it's fine.\nOkay, perfect. Yeah, I can do that. I just... Let me confirm with you how I'll set up a 30-minute meeting, but we could probably go a little bit longer just to walk through. I want to go over a couple of things I'm tracking, and there are some alarms that just don't have notifications at all, so that's one thing. I'm like, \"We're working on this morning.\" Well, why don't these...? What is the genesis of this? What is our process for new alarms being created?\nBecause with the recurring, we're now adding in the Q alarms at three spots. So that's what he and I have been working on behind the scenes. But this is a bigger concern. So let's just do a working session.\nThe goal for that working session is just to clear accounting of all the events that the alerts that you're currently seeing or the things that are not currently taking resolution and will create a priority. I don't think the priority one, but I think it's before we go live because we don't want noise.\nBecause folks will ignore the meaningful alarms that there's too much noise."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "You invite Francis because he has done a lot of work and he is continuing to update things, so he will be a great resource because he's the one that created this summary."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Great."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "But if we go back through here like this is tons of alarms going off all weekend, it looks like a lot of these are okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So these are ones that Francis just added. So like, let's talk about turning those into please stop annoying me too much alarms. But like, and that's the thing, it's not just about addressing the alarms."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "You refresh meat?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I need someone to look at these specific alarms and say what needs to change on this? Is it a fix, or is it changing the threshold? Or is it set up to look at the wrong place?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So we..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Because if we're keep. If we keep setting up things like we've set up d LQ ones and nobody has seen them like. Or they keep going off. Like, there was a bunch of new ones that got set up. Like last week and then all weekend I was getting alerts from them.\nSo, like, whatever Mihael, like, and Francis are setting up, it's great, but unless somebody's looking at it, like, especially right when it gets set up, it's gonna just cause more issues than help."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, yeah, I'm I totally hear you on that."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "That's really what I'm worried about. Talking about the LinkedIn course."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Let me get the meeting on the calendar for tomorrow morning."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "It's just..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "We'll go through it in this level of detail."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I don't know. It's like you can never get..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Miha has a good grasp of all these better than I do, honestly.\nSo let's get the image part of the conversation."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "And I think he's just scared of, like, not scared, but like. I mean, maybe like, because I talked to him about this one and he told me something about it, like how to turn it off, but I'm just like, well, why didn't he turn it off?\nAnd is it maybe like that he doesn't, like, feel like that he has the authority."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "In that case, we need to solve that because he should feel that if something is correct, or... Well, okay, if we don't want to just be turning off an alarm, maybe we need a process before we do it because someone's scared about just doing that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Two."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So we have Century, which is going off with the same alerts that other things are going. So I'm adding into that meeting, we want to talk about what should alert in teams and what should alert in Century."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Agreed, I'll..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay, I have a lot of things."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So your has your Elvis and Jifco are the ones that are closest to Century."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Sorry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Your co okay, so you have that."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I am now... You're good."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Great, I guess the next thing."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I've been. I've been on Senty so much, I haven't done any of the coding stuff for it yet, but for now I don't think it's about the coding, I think it's about the execution.\nAnd like what? Like the higher level, what should we do? So."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Agree. All right, I have one additional item that I just want to make sure I go over with you."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yep."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "If I could share my screen. I think we're good on this, but let's just let's be bulletproof. Share here.\nOkay, so good conversation generally between Jeremy and David on how we're servicing kind of the, well, hoping the epic for us remember this and I may."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "The MA. The memberships?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, so I think we're good."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yeah."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So just so you're aware, it's a little bit in the minutia, but so you're aware of what we're doing and how we're ultimately solving for Antonio's membership reduction reactor."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I. St."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "At the end of the day, they do something very similar. So this is the events. The raw data hydrated data coming from recurrently that we have been... That's been hydrated based on what we got from the webhooks, and now it's basically being made available and pushed on the SQS.\nSo we have an SQS that represents all of the information that CSTAR is going to need or the downstream process relative to CSTAR is going to need to represent the recurring information, right?\nSo to get there, we have to harp on it again. We have AD LQ, we have the standard process stuff. We have this idea of an event grid processor job which deals with pulling together these different reactors and it services the renewal and services the order place. This is then pushed onto event grid. All this is already set up. Event grid. Everything there is already set up is then pushed on the event grid that has the contract that you're expect that you're expecting, right?\nSo this here will take care of the content that you provided to me that represents the kind of hydrated information from the recurring side."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "This is true for orders and this is true for renewals. That gets pushed on your bank grid. Then who's pulling?\nSo Jeremy's already completed. Completed is not the best word is damn close to being completed on the ECOM 3 API, which takes here pulling the order place information and pushing it into C Star. The thing that's missing here is there's actually. What David has done is he has his own listener.\nRight. That its job is to do something very similar to what the. Not order listener member MMA listener. Just something very similar to what EC epi does in the sense that it listens to the event grid and it pulls information specific to the member renewal.\nAnd then that gets pushed into CSTAR, however it normally does it right. So that's where our like boundary is. Like our boundary is we push onto the stack based on the contract we've provided and everything is good to go. The only thing that's missing in this conversation that right now is.\nThat's the wrong one two.\nThe only thing that's missing in this conversation is how we're actually pulling in the member specific data. Sorry, the. Participant GUID ID Member Renewal Notification to CTAR event grid processor is this one I created under."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I thought you got that from the DBA team."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The DBA team?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "When they're putting it into acuurly. I gave you that. The information of what they're putting into recurly."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, so I see that data like the sample data you provided to me. Yes, I have that, but when it comes back to us, it has to fit within an existing data object, right?\nSo the object where it makes the most sense is on the order. Sorry, the account. The account has a custom items field inside there. So on our side, I guess you probably don't even need this information. On our side, we actually were not passing that back.\nSo this is an additional ticket that's outstanding for us to just update our code that is dealing with the hydration of the events, this hydration layer here. We were not honoring the custom orders and custom items field that was coming back on the account information.\nIn conversation with David, it sounds like that's where they're storing it. So that's not true. They're storing that on the account ID field, which, sorry, I'm confusing myself here, we don't..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Why does David know that?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Why does he know that? I don't know. It was a question that we posed inside the channel to confirm where it's coming back on, to make sure we're passing it along correctly."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I thought that was okay. So, I just want to be clear, I'm trying to separate the concerns as much as possible. I'm trying to keep David focused on just the Star side, which means he shouldn't know anything about Curly. The people that should know about Curly are who I passed that thing from.\nI passed that to you from Brian and the DBAS because they've done the migration to her."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "There is..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Curly. So when we get information from David, that should just be the contract for that listener, yes."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Which we got. Okay."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So then that that's kind of like just because like, I'm trying to separate concerns because he has like a million things to do.\nSo I'm trying to make him just stay in his lane on that and not like know the whole world."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Six."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So then from the Curly side there, the DBAS team did a migration and they put everything up. So that's who we should be talking to about what we get back from or Curly or what like how we deal with that information that got into recurring.\nAnd so just to, like, define who is who. So."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Is that Rinor? I think it's actually... We're good."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "With that information. Yeah, Brian."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "The answer that he gave us was actually perfect."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "It's basically just said that it's in the account ID, which is what we wanted to confirm because it's an open question of how we're getting it because once we have that, then we have everything we need to build the contract."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Perfect."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So we should be good to go. Actually, I need to close this ticket deck. This is no longer valid."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I know we both have to go probably, but I'm going to listen... You asked the question about the participant ID or the participant GUID and using that when you're doing that."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yes, I do at my clock."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I cannot remember the word. Anyways, hydration. Thank you.\nSorry. I think that the difference is, for an order, you're probably linking it up based on something else. I don't even know what you're linking up the order with... Curly on when you're hydrating an order. This here for the membership renewal event is complete... It is not an order. Not like it might... We might call it an order, but it's different.\nIt's a renewal, like it's a subscription renewal."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Hmming hydration."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So it should be thought of as something different. If it is an order, that's fine, but it does need something to trace it back in Thrive. So what do we trace it back to in Thrive?\nIf it had nothing to do with Krisp, what are we going to do in that case?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Hold on, I just want to find subscription renewed. Okay, subscription renewed. So we're getting hydrated based on the subscription endpoint, so we're not hydrating it based on account. We are pulling the account information, however, but the primary is the subscription information."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay, and do we...? So we have those subscriptions in Thrive."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah. Everything that we get from the webhook and all of the steps necessary to hydrate it are inside Thrive as one large payload attached to the event."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Well, so... Okay, so I guess I'm going with... Okay. When we first make an order, let's say the first iteration of that subscription, we're making an order. Are we storing the subscription information?\nIf we set up a new subscription with that new order, if we ignore the renewal account invoice..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So if we when we get create order again, we're just web ho comes in if we get the create order, the create webhook or notification.\nWe basically... What we do with that is we hydrate and we store everything pertaining to that event. So that includes... This is again just a high level top line of the plan, but that includes everything in the subscription, everything in the account and everything on the invoice."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. Is that stored within the order object or something else?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "That I don't know, that's a little too far down I can get ant to here's the order model."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay, do we have the if we have the, model on the state of in integration?"
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So this is from Antonio, this is literally what he..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "If you send it to me, I'll. I want to just look through it. Then I'll talk to you. I don't want to take you away from your meeting. Sorry."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So that's the... This is literally the map that he created. It's part of the build effort. So this is what the order is to do. Items. This is...\nWell, this is not everything. This is just items. Where is subscription? Yeah, you didn't create one for subscription here. Let's... So that's the one for order. Let me create one just like this for subscription.\nSo I need this."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "What I want to know is he taking the subscription information or are we ignoring that because we're letting...? Because we've talked about letting recurrently handle the subscription."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "YP. Got a question from?"
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "In that case, what are we going to do with that? Because that's... So basically, I think what you're trying to do with trying to take in this subscription renew is you're trying to match it with this order stuff.\nBut I don't think we've set up anything to match it. So I think it's a completely separate problem. I think that we should do the renewal as if it's just for CTAR right now. Then whenever we do need to do the renewal for Thrive, we can come back to it then."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I'm just writing that down."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So the Renew event might just be... Right now it's just for CTAR. The Renew event has nothing to do with Thrive yet we haven't defined the requirements for renewing a subscription on Thrive.\nSo if we're talking about where to get that participant ID and involved like the reason... So for this event we... This is how we're matching it is the participant ID, not the account information, not any of the other stuff, because it was all created by a migration.\nSo it doesn't have an order, an original order."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yeah, I'm tracking what your concern is."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "So..."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Effectively that there are two separate object. There's two separate objects that don't necessarily have a natural foreign key between them and a natural relationship."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Yes, yeah. So we might need to just think of them completely different until we get requirements.\nWe don't need the requirements yet for that to link together."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Order and subscription."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "I have a meeting with Stacey today, so I will double-check my assumptions with him."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "So let's..."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "My meeting with Stacey is tomorrow, but I'll double-check and make sure he doesn't disagree with me.\nBut I'm pretty sure that's how we should think of it. It's completely separate from our curly orders. It's our recurring renew events."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Independent of borders in the current... That's called a bridged implementation, bridged into C star."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "For now."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Okay, I think it's super clear on what that is. This is that alone is enough for us to... It's super important.\nI think he has all of that data already hydrated. I'll have Claude do a quick quarter review and see if I can get the answer before he gets to it. But I'll have him just confirm the separation and how he's addressing the idea that there is no organic connection between the two."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Okay. And then, just because I want to add if they've already solved for it, I mean, let the solve happen. Like, I'm not saying go backwards. I'm just saying don't solve for it if you haven't done that.\nLike, you know, like don't add on extra work for yourself right yet."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Got you. Yeah, I think all he's basically done is pulled the structure from recurring of what the objects look like and represent those, and it's a one-to-one match for anything pertaining to that subscription.\nThen you should be able to do it via the decider pattern. You should be able to pull in any additional secondary object. But I think there's no... There would have been no reason for him to organically say, \"Hey, go pull order information.\"\nI know I didn't give a ticket. I explicitly asked for that."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Exactly, because we don't need it yet, and all we need is the amount and the participant ID."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "Yep, all right, we're good."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Perfect, thank you. Sorry I took extra, but thank you."
+      },
+      {
+        "speaker": "Wesley Donaldson",
+        "speakerIndex": 1,
+        "text": "All good is important for now."
+      },
+      {
+        "speaker": "Jennifer",
+        "speakerIndex": 2,
+        "text": "Talk to you later."
+      }
+    ],
+    "raw_meeting": "**FW: Wes/Jennifer Bi-weekly sync**\n🕞 Started at 04:30 PM on 25 Mar, lasted 38m",
+    "raw_content": "Wesley Donaldson | 00:05\nShe was... Fine. Okay.\nI don't think we got here fully intentionally. I think it was parked.\nOkay. I... Why?\nI don't have time to finish yet. It wasn't canceled. I just closed the meeting to test and... Okay.\nSo that meeting, shall we?\nJennifer | 03:48\nHey.\nWesley Donaldson | 03:49\nHey, Jennifer, good afternoon.\nJennifer | 03:52\nHow are you doing?\nWesley Donaldson | 03:52\nMorning. I'm good exactly we take all comers exactly I love these inter international teams why.\nJennifer | 03:55\nMorning. Afternoon, whatever it is, 09:34 here. So my morning is your afternoon. I know, right? It's fun. Honestly, I don't know, I don't mind getting on early, so it works for me.\nWesley Donaldson | 04:24\nFor me, it's just... What is the definition of early? As long as it's around 07:30, it's fine. In my past employee, I would often wake up at 05:30 my time just to connect with my Indian team, my team in India.\nSo those were stressful.\nJennifer | 04:43\nIndia is difficult for West Coast folks. It's twelve hours difference here, so. But yeah, I wake up typically. Well, I always set my alarm for six, and I check my phone then, typically, unless I had a really late night or something, like with the kids or just because I have insomnia. I typically check my phone at six.\nAnd then as long as nothing's, like, super. Like, I'll answer questions. And then, as long as nothing's super urgent, depending on what I have to do for the day, I'll either get on then or wait and get on later.\nWesley Donaldson | 05:25\nThat's the right thing to do. It gives you a schedule you could follow in your brain. You're like, \"Wait, I know what's happening next.\"\nJennifer | 05:34\nYes, so it works.\nWesley Donaldson | 05:35\nI don't have much. There are a couple of things I wanted to run by you. One asked me last time, \"What about those?\"\nJennifer | 05:40\nOkay. Perfect.\nWesley Donaldson | 05:43\nAre we dropping anything regarding some of the issues that we saw on tickets 06:04 just like related to the environment?\nSo I do have a status of that for you on status but made progress to do and as you all this...\nJennifer | 05:54\nHey.\nWesley Donaldson | 06:04\nSo there were a little bit of my hope was this was just like we've already addressed this part of some of the fixes that we did later on after these were created, but there were a few things that we had to do on these tickets.\nSo this one here is probably the one that's the most interesting. I've asked how to reach out to you and Harry specifically is just the approach in which he's actually trying to address the different weights and detecting based on invalid weights that is not necessarily its own dashboard or something like that.\nSo it's trying to sell for it as part of an action, as part of a build step but so he can better articulate this than I can. So I've asked him to just set up a quick meeting for you or just reach out to you and Harry directly. Did you already get a DM from him?\nJennifer | 06:52\nNot yet but as far as I build step, I'm wondering if... That feels not like what we want to do, right?\nWesley Donaldson | 07:08\nYeah, so. And that's kind of where him and I knitted out. Like, this doesn't feel like exactly the perfect solve, but it felt like the best SL you could come up with in the short term.\nThat's kind of why I asked for, like, hey, bring it as a proposal as opposed to, like, let's finalize this. So if he hasn't had that conversation with me yet, I will. I will schedule something or I'll coordinate it.\nJennifer | 07:26\nAnd he might want to reach out to Elvis as like. But rather than having, like, a meeting, like, let's see if he can reach out to Yo Elvis about this. If, like, if you Elvis has any suggestions.\nAnd then once, like, we have a proposal, like, even if it's short, even if it's like Scentle, just because it's it is something small like. And we can put together an RFC and then we can like share that in the a RB meeting and then they'll satisfy Stacey's thing of that meeting being what it is.\nOkay, let's look at this RFC and let's decide. We should start trying to feel like coordinate that meeting that way where we have where we bring proposals to it rather than questions.\nWesley Donaldson | 08:14\nProposals, thoughts? I agree. Okay, so I think that...\nJennifer | 08:24\nI know it's been a long...\nI think that it served that purpose because of where we were at the time. Now we can get to where we need to be.\nWesley Donaldson | 08:36\nHe, so he actually is taking on two smaller bits of functionality from product.\nJennifer | 08:36\nYeah, if we can do that. What else does he have on his plate?\nWesley Donaldson | 08:45\nHe has the chat. He's been blocked on this for a bit. He's conversing with Rob, so he's trying to work it through, but my understanding is the Genesis doc. The Genesis setup is going to require identifiers for us to provide to him.\nHe's still waiting on that.\nJennifer | 09:08\nWhat about the one with all of the alarms that are currently going off? Because I don't think those are getting addressed yet.\nWesley Donaldson | 09:17\nSorry, different one there. Okay, so you're talking about the missing...\nJennifer | 09:20\nNo, that's what I asked. Then now I'm just wondering...\nIn addition, is it in your...?\nWesley Donaldson | 09:27\nOkay, so let's pause on the features then. And then there is one that is specific for the alarms, which hold on I actually had as a follow up item myself. What's the name? That? That is. 1911 29.\nOkay, so 1129.\nJennifer | 09:51\nDoes...? I keep getting a million alarms over the weekend, and I think that needs to be addressed before... Because we... That's what we've been saying is there's noisy alarms and therefore we're not catching them.\nWesley Donaldson | 10:07\nOkay, that's different because this is silent alarms that I was worried about. The missing alarms is that not clear to me? Alert... I'm missing during leg... No, none of those are specific to that.\nSo the weights... 1. What's...? Can you just give me a list of the alarms that you're seeing, please?\nJennifer | 10:31\nOkay. First, let me see if I can find the ticket because the ticket is definitely outdated. So we should update it. Let me see. For if we can find the ticket.\nWesley Donaldson | 10:44\nSo I'm storing everything underneath the Q1 epic.\nJennifer | 10:45\nJust so we can reference it.\nWesley Donaldson | 10:48\nSo let me just filter. Actually, I can just search for it and...\nMy... Got this keyboard.\nJennifer | 11:26\nI don't know why, I swear I saw it just recently.\nWesley Donaldson | 11:33\nSo we had a Q1 triage. Q1 2026.\nJennifer | 11:39\nYeah, win ticket. Yeah, that's it. Triage ticket.\nWesley Donaldson | 11:54\nQ when I called it... What the hell.\nI may not see it as my list of epics drive commerce engineering.\nJennifer | 12:15\nIs and or...\nWesley Donaldson | 12:15\nNo, but no, you're right. We did absolutely have... I did absolutely create an epic, which I was tracking all of the Q1 production issues that we're seeing build errors.\nJennifer | 12:27\nPhil as W. 2026 read for prod 34.\nWesley Donaldson | 12:34\nWhat's the ticket number on that?\nThe epic 34 I can't...\nJennifer | 12:43\nThis doesn't have an alert I can handle. Get web that I feel like, seriously, I feel like you and I are very similar.\nWesley Donaldson | 12:57\nI'm that old.\nJennifer | 13:02\nI would definitely say that to... Sorry today.\nWesley Donaldson | 13:06\nRight now. 05:34, okay, no, I was like 34, that was so long ago.\nJennifer | 13:16\n34 alarm maybe it's alarm that I'm looking for.\nWesley Donaldson | 13:21\nYes.\nJennifer | 13:23\nThere we go, investigate 06:04, that's the one I'm talking about.\nWesley Donaldson | 13:28\n06:04, okay, because that was that's what well, this should be, it should be done.\nJennifer | 13:29\nIt says ready for death.\nWesley Donaldson | 13:34\nHold on, yeah, that should be done. Okay, so 06:04 is what you said. I don't know, this was... There were tickets underneath this. I remember this one to do.\nJennifer | 13:54\nAnd we kind of lowered the priority because we got the big ones taken care of.\nWesley Donaldson | 13:54\nYeah, exactly.\nJennifer | 14:00\nBut over every single post mortem we've talked about, the logs are noisy. Let's get through them. So this is one that I don't think we're going to be able to say other stuff is done until our logs stop being noisy.\nAs we keep adding more alarms, we're not looking at them to see, like, \"Hey, is this going off for a reason? Because everything that he's added is now triggering alerts, and nobody's looking at the alerts.\nWesley Donaldson | 14:32\nHe...\nJennifer | 14:34\nSo it's like if once he adds one, we need to make sure that they're taken care of.\nWesley Donaldson | 14:40\nYeah. Can product connectors... So we've looked at the connectors.\nJennifer | 14:44\nSo I'm getting the alarm. I'm going to get the alarm thing open so I can show you what I'm seeing. Tickets, of course. Old...\nSo those might be out of date, but here's...\nAlarms. Okay, so we have SMS voices going off, ROM, and event bridge. This event bridge one is the one that had been going off and he had said, \"Never got reset,\" and it looks like it's still hasn't been reset or he did and it's this is the first time I've actually seen data in it, honestly.\nSo something got changed. Wait, no, here it is, the event bus anomaly, it doesn't have any events in it. I don't know if this alarm is even right because it hasn't had events in it for months. The reason it's going off is because it doesn't have events.\nBut if it hasn't had... Even when we fix stuff, it doesn't have events. So it's like, \"I don't think this alarm is even a thing, but it's going off and it's like, \"Okay, well, that's going to be noise.\"\nWe're seeing that, so we should see what...\nWesley Donaldson | 16:08\nYou already did. No, could you send me the alarm name, please? Can I propose something? I want to get this nipped in the bud. Can I? I'm going to close these. I'm going to set up a meeting for tomorrow morning.\nIs 10 am too early for you? 10 am...\nJennifer | 16:27\nI think I'd prefer 9 am because\nWesley Donaldson | 16:33\nReally?\nJennifer | 16:35\nI block off 10:00 am for getting kids off to school.\nWesley Donaldson | 16:40\nOkay, there you go. So you're getting up earlier, that's why. Okay, so I'm gonna mark these as do we have a will not do? No, I like, I guess it's canceled is the closest thing. And then what?\nJennifer | 16:51\nYeah, canceled is what we do. Or just to complete it, do the under tasks as completed, then these ones as canceled, and then the top one is completed.\nWesley Donaldson | 17:00\nFive? Yeah, I can be completed on this.\nJennifer | 17:06\nBecause we did some...\nWesley Donaldson | 17:08\nI could do this one. So I'm really avoiding completed unless we actually had work items that we took on.\nJennifer | 17:15\nBut these two did get completed.\nWesley Donaldson | 17:17\nExactly.\nSo if you were being completed...\nJennifer | 17:17\nThat's why I'm saying, yeah, okay.\nWesley Donaldson | 17:20\nAlright, yeah, and I am sure the engineers... Having been an engineer, having to do all the time sheets and still doing time sheets.\nJennifer | 17:21\nI appreciate that because that helps my tracking so much better if we use \"canceled\" and \"completed\" correctly.\nBecause I go through old tickets every month to... Because I have to do CAPEX work. So instead of having people track their time, I just go through everything because it helps me know, \"Hey, what happened over the month?\"\nSo it's an exercise I do. Completed versus canceled makes a huge difference.\nWesley Donaldson | 17:57\nI'm sure they appreciate us doing that.\nJennifer | 18:00\nI never like. Well, one, they never do it correctorruptly so.\nAnd two, I don't want, like, I used to, like, try to, like, expect because, like, I could do it when I was an engineer. But I have a different mind than a lot of people, so.\nWesley Donaldson | 18:14\nThere's a tool I used to use. It was like a little. It was an app on your phone.\nAnd literally, I just leave the app open. And I have like the three projects that I'm working on. Like, I was a director, so like, I was always working on a billion things. So I just like click on that, do my thing, come back, click on a different button, and then it just aggregate it all for me based on kind of like a Description of each of the project for me.\nJennifer | 18:36\nYes. Yeah, and I used to be a consultant or a contractor, so I would have to track my time exactly. So yeah, I again, I can do it, but at the same time, I can't trust it when they do it, and that is such a waste of their time.\nWesley Donaldson | 18:48\nExactly, especially since their time is so valuable at this point.\nJennifer | 19:00\nYes.\nWesley Donaldson | 19:01\nSo you said 9 am my time is better for you, which 9 am can do 9 am Hold on, let me just give me one second.\nJennifer | 19:10\nOkay, as long as it's not too early for you.\nWesley Donaldson | 19:13\nI start at 07:30, so it's fine.\nOkay, perfect. Yeah, I can do that. I just... Let me confirm with you how I'll set up a 30-minute meeting, but we could probably go a little bit longer just to walk through. I want to go over a couple of things I'm tracking, and there are some alarms that just don't have notifications at all, so that's one thing. I'm like, \"We're working on this morning.\" Well, why don't these...? What is the genesis of this? What is our process for new alarms being created?\nBecause with the recurring, we're now adding in the Q alarms at three spots. So that's what he and I have been working on behind the scenes. But this is a bigger concern. So let's just do a working session.\nThe goal for that working session is just to clear accounting of all the events that the alerts that you're currently seeing or the things that are not currently taking resolution and will create a priority. I don't think the priority one, but I think it's before we go live because we don't want noise.\nBecause folks will ignore the meaningful alarms that there's too much noise.\nJennifer | 20:13\nYou invite Francis because he has done a lot of work and he is continuing to update things, so he will be a great resource because he's the one that created this summary.\nWesley Donaldson | 20:24\nGreat.\nJennifer | 20:24\nBut if we go back through here like this is tons of alarms going off all weekend, it looks like a lot of these are okay.\nWesley Donaldson | 20:32\nYeah.\nJennifer | 20:34\nSo these are ones that Francis just added. So like, let's talk about turning those into please stop annoying me too much alarms. But like, and that's the thing, it's not just about addressing the alarms.\nWesley Donaldson | 20:48\nYou refresh meat?\nJennifer | 20:48\nI need someone to look at these specific alarms and say what needs to change on this? Is it a fix, or is it changing the threshold? Or is it set up to look at the wrong place?\nWesley Donaldson | 21:07\nSo we...\nJennifer | 21:08\nBecause if we're keep. If we keep setting up things like we've set up d LQ ones and nobody has seen them like. Or they keep going off. Like, there was a bunch of new ones that got set up. Like last week and then all weekend I was getting alerts from them.\nSo, like, whatever Mihael, like, and Francis are setting up, it's great, but unless somebody's looking at it, like, especially right when it gets set up, it's gonna just cause more issues than help.\nWesley Donaldson | 21:43\nOkay, yeah, I'm I totally hear you on that.\nJennifer | 21:43\nThat's really what I'm worried about. Talking about the LinkedIn course.\nWesley Donaldson | 21:47\nLet me get the meeting on the calendar for tomorrow morning.\nJennifer | 21:49\nIt's just...\nWesley Donaldson | 21:49\nWe'll go through it in this level of detail.\nJennifer | 21:50\nI don't know. It's like you can never get...\nWesley Donaldson | 21:52\nMiha has a good grasp of all these better than I do, honestly.\nSo let's get the image part of the conversation.\nJennifer | 21:59\nAnd I think he's just scared of, like, not scared, but like. I mean, maybe like, because I talked to him about this one and he told me something about it, like how to turn it off, but I'm just like, well, why didn't he turn it off?\nAnd is it maybe like that he doesn't, like, feel like that he has the authority.\nWesley Donaldson | 22:17\nYes.\nJennifer | 22:17\nIn that case, we need to solve that because he should feel that if something is correct, or... Well, okay, if we don't want to just be turning off an alarm, maybe we need a process before we do it because someone's scared about just doing that.\nWesley Donaldson | 22:30\nTwo.\nJennifer | 22:34\nSo we have Century, which is going off with the same alerts that other things are going. So I'm adding into that meeting, we want to talk about what should alert in teams and what should alert in Century.\nWesley Donaldson | 22:53\nAgreed, I'll...\nJennifer | 22:55\nOkay, I have a lot of things.\nWesley Donaldson | 22:57\nSo your has your Elvis and Jifco are the ones that are closest to Century.\nJennifer | 22:57\nSorry.\nWesley Donaldson | 23:03\nYour co okay, so you have that.\nJennifer | 23:04\nI am now... You're good.\nWesley Donaldson | 23:08\nGreat, I guess the next thing.\nJennifer | 23:09\nI've been. I've been on Senty so much, I haven't done any of the coding stuff for it yet, but for now I don't think it's about the coding, I think it's about the execution.\nAnd like what? Like the higher level, what should we do? So.\nWesley Donaldson | 23:24\nAgree. All right, I have one additional item that I just want to make sure I go over with you.\nJennifer | 23:26\nYep.\nWesley Donaldson | 23:30\nIf I could share my screen. I think we're good on this, but let's just let's be bulletproof. Share here.\nOkay, so good conversation generally between Jeremy and David on how we're servicing kind of the, well, hoping the epic for us remember this and I may.\nJennifer | 23:58\nThe MA. The memberships?\nWesley Donaldson | 23:59\nYeah, so I think we're good.\nJennifer | 23:59\nYeah.\nWesley Donaldson | 24:02\nSo just so you're aware, it's a little bit in the minutia, but so you're aware of what we're doing and how we're ultimately solving for Antonio's membership reduction reactor.\nJennifer | 24:04\nI. St.\nWesley Donaldson | 24:10\nAt the end of the day, they do something very similar. So this is the events. The raw data hydrated data coming from recurrently that we have been... That's been hydrated based on what we got from the webhooks, and now it's basically being made available and pushed on the SQS.\nSo we have an SQS that represents all of the information that CSTAR is going to need or the downstream process relative to CSTAR is going to need to represent the recurring information, right?\nSo to get there, we have to harp on it again. We have AD LQ, we have the standard process stuff. We have this idea of an event grid processor job which deals with pulling together these different reactors and it services the renewal and services the order place. This is then pushed onto event grid. All this is already set up. Event grid. Everything there is already set up is then pushed on the event grid that has the contract that you're expect that you're expecting, right?\nSo this here will take care of the content that you provided to me that represents the kind of hydrated information from the recurring side.\nJennifer | 25:10\nOkay.\nWesley Donaldson | 25:17\nThis is true for orders and this is true for renewals. That gets pushed on your bank grid. Then who's pulling?\nSo Jeremy's already completed. Completed is not the best word is damn close to being completed on the ECOM 3 API, which takes here pulling the order place information and pushing it into C Star. The thing that's missing here is there's actually. What David has done is he has his own listener.\nRight. That its job is to do something very similar to what the. Not order listener member MMA listener. Just something very similar to what EC epi does in the sense that it listens to the event grid and it pulls information specific to the member renewal.\nAnd then that gets pushed into CSTAR, however it normally does it right. So that's where our like boundary is. Like our boundary is we push onto the stack based on the contract we've provided and everything is good to go. The only thing that's missing in this conversation that right now is.\nThat's the wrong one two.\nThe only thing that's missing in this conversation is how we're actually pulling in the member specific data. Sorry, the. Participant GUID ID Member Renewal Notification to CTAR event grid processor is this one I created under.\nJennifer | 27:15\nI thought you got that from the DBA team.\nWesley Donaldson | 27:21\nThe DBA team?\nJennifer | 27:25\nWhen they're putting it into acuurly. I gave you that. The information of what they're putting into recurly.\nWesley Donaldson | 27:32\nYeah, so I see that data like the sample data you provided to me. Yes, I have that, but when it comes back to us, it has to fit within an existing data object, right?\nSo the object where it makes the most sense is on the order. Sorry, the account. The account has a custom items field inside there. So on our side, I guess you probably don't even need this information. On our side, we actually were not passing that back.\nSo this is an additional ticket that's outstanding for us to just update our code that is dealing with the hydration of the events, this hydration layer here. We were not honoring the custom orders and custom items field that was coming back on the account information.\nIn conversation with David, it sounds like that's where they're storing it. So that's not true. They're storing that on the account ID field, which, sorry, I'm confusing myself here, we don't...\nJennifer | 28:28\nWhy does David know that?\nWesley Donaldson | 28:32\nWhy does he know that? I don't know. It was a question that we posed inside the channel to confirm where it's coming back on, to make sure we're passing it along correctly.\nJennifer | 28:38\nI thought that was okay. So, I just want to be clear, I'm trying to separate the concerns as much as possible. I'm trying to keep David focused on just the Star side, which means he shouldn't know anything about Curly. The people that should know about Curly are who I passed that thing from.\nI passed that to you from Brian and the DBAS because they've done the migration to her.\nWesley Donaldson | 29:06\nThere is...\nJennifer | 29:09\nCurly. So when we get information from David, that should just be the contract for that listener, yes.\nWesley Donaldson | 29:15\nWhich we got. Okay.\nJennifer | 29:18\nSo then that that's kind of like just because like, I'm trying to separate concerns because he has like a million things to do.\nSo I'm trying to make him just stay in his lane on that and not like know the whole world.\nWesley Donaldson | 29:28\nSix.\nJennifer | 29:33\nSo then from the Curly side there, the DBAS team did a migration and they put everything up. So that's who we should be talking to about what we get back from or Curly or what like how we deal with that information that got into recurring.\nAnd so just to, like, define who is who. So.\nWesley Donaldson | 29:55\nIs that Rinor? I think it's actually... We're good.\nJennifer | 29:55\nWith that information. Yeah, Brian.\nWesley Donaldson | 30:03\nThe answer that he gave us was actually perfect.\nJennifer | 30:03\nOkay.\nWesley Donaldson | 30:06\nIt's basically just said that it's in the account ID, which is what we wanted to confirm because it's an open question of how we're getting it because once we have that, then we have everything we need to build the contract.\nJennifer | 30:12\nPerfect.\nWesley Donaldson | 30:18\nSo we should be good to go. Actually, I need to close this ticket deck. This is no longer valid.\nJennifer | 30:25\nI know we both have to go probably, but I'm going to listen... You asked the question about the participant ID or the participant GUID and using that when you're doing that.\nWesley Donaldson | 30:27\nYes, I do at my clock.\nJennifer | 30:41\nI cannot remember the word. Anyways, hydration. Thank you.\nSorry. I think that the difference is, for an order, you're probably linking it up based on something else. I don't even know what you're linking up the order with... Curly on when you're hydrating an order. This here for the membership renewal event is complete... It is not an order. Not like it might... We might call it an order, but it's different.\nIt's a renewal, like it's a subscription renewal.\nWesley Donaldson | 31:22\nHmming hydration.\nJennifer | 31:23\nSo it should be thought of as something different. If it is an order, that's fine, but it does need something to trace it back in Thrive. So what do we trace it back to in Thrive?\nIf it had nothing to do with Krisp, what are we going to do in that case?\nWesley Donaldson | 31:47\nHold on, I just want to find subscription renewed. Okay, subscription renewed. So we're getting hydrated based on the subscription endpoint, so we're not hydrating it based on account. We are pulling the account information, however, but the primary is the subscription information.\nJennifer | 32:18\nOkay, and do we...? So we have those subscriptions in Thrive.\nWesley Donaldson | 32:23\nYeah. Everything that we get from the webhook and all of the steps necessary to hydrate it are inside Thrive as one large payload attached to the event.\nJennifer | 32:32\nWell, so... Okay, so I guess I'm going with... Okay. When we first make an order, let's say the first iteration of that subscription, we're making an order. Are we storing the subscription information?\nIf we set up a new subscription with that new order, if we ignore the renewal account invoice...\nWesley Donaldson | 32:51\nSo if we when we get create order again, we're just web ho comes in if we get the create order, the create webhook or notification.\nWe basically... What we do with that is we hydrate and we store everything pertaining to that event. So that includes... This is again just a high level top line of the plan, but that includes everything in the subscription, everything in the account and everything on the invoice.\nJennifer | 33:18\nOkay. Is that stored within the order object or something else?\nWesley Donaldson | 33:23\nThat I don't know, that's a little too far down I can get ant to here's the order model.\nJennifer | 33:26\nOkay, do we have the if we have the, model on the state of in integration?\nWesley Donaldson | 33:34\nSo this is from Antonio, this is literally what he...\nJennifer | 33:37\nIf you send it to me, I'll. I want to just look through it. Then I'll talk to you. I don't want to take you away from your meeting. Sorry.\nWesley Donaldson | 33:46\nSo that's the... This is literally the map that he created. It's part of the build effort. So this is what the order is to do. Items. This is...\nWell, this is not everything. This is just items. Where is subscription? Yeah, you didn't create one for subscription here. Let's... So that's the one for order. Let me create one just like this for subscription.\nSo I need this.\nJennifer | 34:11\nWhat I want to know is he taking the subscription information or are we ignoring that because we're letting...? Because we've talked about letting recurrently handle the subscription.\nWesley Donaldson | 34:23\nYP. Got a question from?\nJennifer | 34:25\nIn that case, what are we going to do with that? Because that's... So basically, I think what you're trying to do with trying to take in this subscription renew is you're trying to match it with this order stuff.\nBut I don't think we've set up anything to match it. So I think it's a completely separate problem. I think that we should do the renewal as if it's just for CTAR right now. Then whenever we do need to do the renewal for Thrive, we can come back to it then.\nWesley Donaldson | 35:02\nOkay, I'm just writing that down.\nJennifer | 35:03\nSo the Renew event might just be... Right now it's just for CTAR. The Renew event has nothing to do with Thrive yet we haven't defined the requirements for renewing a subscription on Thrive.\nSo if we're talking about where to get that participant ID and involved like the reason... So for this event we... This is how we're matching it is the participant ID, not the account information, not any of the other stuff, because it was all created by a migration.\nSo it doesn't have an order, an original order.\nWesley Donaldson | 35:49\nYeah, I'm tracking what your concern is.\nJennifer | 35:51\nSo...\nWesley Donaldson | 35:53\nEffectively that there are two separate object. There's two separate objects that don't necessarily have a natural foreign key between them and a natural relationship.\nJennifer | 36:00\nYes, yeah. So we might need to just think of them completely different until we get requirements.\nWe don't need the requirements yet for that to link together.\nWesley Donaldson | 36:13\nOrder and subscription.\nJennifer | 36:19\nI have a meeting with Stacey today, so I will double-check my assumptions with him.\nWesley Donaldson | 36:28\nSo let's...\nJennifer | 36:28\nMy meeting with Stacey is tomorrow, but I'll double-check and make sure he doesn't disagree with me.\nBut I'm pretty sure that's how we should think of it. It's completely separate from our curly orders. It's our recurring renew events.\nWesley Donaldson | 36:48\nIndependent of borders in the current... That's called a bridged implementation, bridged into C star.\nJennifer | 36:52\nFor now.\nWesley Donaldson | 37:05\nOkay, I think it's super clear on what that is. This is that alone is enough for us to... It's super important.\nI think he has all of that data already hydrated. I'll have Claude do a quick quarter review and see if I can get the answer before he gets to it. But I'll have him just confirm the separation and how he's addressing the idea that there is no organic connection between the two.\nJennifer | 37:27\nOkay. And then, just because I want to add if they've already solved for it, I mean, let the solve happen. Like, I'm not saying go backwards. I'm just saying don't solve for it if you haven't done that.\nLike, you know, like don't add on extra work for yourself right yet.\nWesley Donaldson | 37:44\nGot you. Yeah, I think all he's basically done is pulled the structure from recurring of what the objects look like and represent those, and it's a one-to-one match for anything pertaining to that subscription.\nThen you should be able to do it via the decider pattern. You should be able to pull in any additional secondary object. But I think there's no... There would have been no reason for him to organically say, \"Hey, go pull order information.\"\nI know I didn't give a ticket. I explicitly asked for that.\nJennifer | 38:13\nExactly, because we don't need it yet, and all we need is the amount and the participant ID.\nWesley Donaldson | 38:22\nYep, all right, we're good.\nJennifer | 38:23\nPerfect, thank you. Sorry I took extra, but thank you.\nWesley Donaldson | 38:27\nAll good is important for now.\nJennifer | 38:31\nTalk to you later."
+  }
+}
