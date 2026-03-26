@@ -5,6 +5,7 @@ import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { buildLabeledContext, buildDistilledContext } from "../core/labeled-context.js";
 import { recordMention } from "../core/item-dedup.js";
 import { createMilestone, addMilestoneMention } from "../core/timelines.js";
+import { createNote } from "../core/notes.js";
 
 function makeArtifact() {
   return {
@@ -268,5 +269,44 @@ describe("buildDistilledContext", () => {
   it("returns empty string for unknown meeting IDs", () => {
     const result = buildDistilledContext(dDb, ["nonexistent"]);
     expect(result).toBe("");
+  });
+
+  it("appends selected notes to distilled context", () => {
+    const note = createNote(dDb, { objectType: "meeting", objectId: dId1, title: "Krisp Key Points", body: "- Key point A\n- Key point B", noteType: "key-points" });
+    const result = buildDistilledContext(dDb, [dId1], [note.id]);
+    expect(result).toContain("Krisp Key Points:");
+    expect(result).toContain("- Key point A");
+  });
+});
+
+describe("buildLabeledContext with notes", () => {
+  let nDb: ReturnType<typeof createDb>;
+  let nId: string;
+
+  beforeAll(() => {
+    nDb = createDb(":memory:");
+    migrate(nDb);
+    nId = ingestMeeting(nDb, {
+      timestamp: "2026-03-26T10:00:00.000Z",
+      title: "Notes Test Meeting",
+      participants: [],
+      turns: [],
+      rawTranscript: "transcript",
+      sourceFilename: "notes-test.md",
+    });
+    storeArtifact(nDb, nId, { ...makeArtifact(), summary: "Notes meeting summary." });
+  });
+
+  it("includes selected note bodies in labeled context", () => {
+    const note = createNote(nDb, { objectType: "meeting", objectId: nId, title: "Krisp Action Items", body: "- [ ] Task 1", noteType: "action-items" });
+    const { contextText } = buildLabeledContext(nDb, [nId], [note.id]);
+    expect(contextText).toContain("Notes:");
+    expect(contextText).toContain("Krisp Action Items:");
+    expect(contextText).toContain("- [ ] Task 1");
+  });
+
+  it("excludes notes when noteIds is empty", () => {
+    const { contextText } = buildLabeledContext(nDb, [nId]);
+    expect(contextText).not.toContain("Krisp Action Items:");
   });
 });

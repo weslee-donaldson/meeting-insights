@@ -4,6 +4,7 @@ import { getArtifact } from "./extractor.js";
 import type { ArtifactRow, Artifact } from "./extractor.js";
 import { getMentionStats } from "./item-dedup.js";
 import { getMeetingMilestones } from "./timelines.js";
+import { getNote } from "./notes.js";
 
 interface ContextMeeting {
   id: string;
@@ -110,6 +111,7 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
 export function buildDistilledContext(
   db: Database,
   meetingIds: string[],
+  noteIds: string[] = [],
 ): string {
   const blocks: string[] = [];
   for (const id of meetingIds) {
@@ -139,14 +141,31 @@ export function buildDistilledContext(
       lines.push("Notes:");
       lines.push(JSON.stringify(artifact.additional_notes, null, 2));
     }
+    const meetingNoteIds = noteIds.filter((nid) => {
+      const n = getNote(db, nid);
+      return n && n.objectId === id;
+    });
+    const noteBlock = notesSection(db, meetingNoteIds);
+    if (noteBlock) lines.push(noteBlock.trim());
     blocks.push(lines.join("\n"));
   }
   return blocks.join("\n\n---\n\n");
 }
 
+function notesSection(db: Database, noteIds: string[]): string {
+  if (noteIds.length === 0) return "";
+  const bodies: string[] = [];
+  for (const id of noteIds) {
+    const note = getNote(db, id);
+    if (note) bodies.push(`${note.title ?? note.noteType}:\n${note.body}`);
+  }
+  return bodies.length > 0 ? `\nNotes:\n${bodies.join("\n\n")}` : "";
+}
+
 export function buildLabeledContext(
   db: Database,
   meetingIds: string[],
+  noteIds: string[] = [],
 ): LabeledContextResult {
   const rows = meetingIds
     .map((id) => {
@@ -179,8 +198,13 @@ export function buildLabeledContext(
       ? `\nMilestones:\n${milestones.map((m) => `- ${m.title} (target: ${m.target_date ?? "unscheduled"}, status: ${m.status})`).join("\n")}`
       : "";
     const transcript = mtg.raw_transcript ? `\nTranscript:\n${mtg.raw_transcript}` : "";
+    const meetingNoteIds = noteIds.filter((nid) => {
+      const n = getNote(db, nid);
+      return n && n.objectId === mtg.id;
+    });
+    const notes = notesSection(db, meetingNoteIds);
     blocks.push(
-      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}${milestoneSection}${transcript}`,
+      `${label} ${mtg.title} — ${mtg.date.slice(0, 10)}\n${body}${milestoneSection}${notes}${transcript}`,
     );
     meetings.push({ id: mtg.id, title: mtg.title, date: mtg.date });
   }

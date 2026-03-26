@@ -86,7 +86,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `core/pipeline.ts`, `test/pipeline.test.ts`
 
-- [ ] Burst 7-10 (E2E): `handleWebhookNote` — returns false for non-notes, creates typed note, idempotent, wired into pipeline
+- [x] Burst 7-10 (E2E): `handleWebhookNote` — returns false for non-notes, creates typed note, idempotent, wired into pipeline (cbb394a)
 
 ### SECTION 4: Embedding (~2 bursts)
 
@@ -99,8 +99,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `core/labeled-context.ts`, `core/notes.ts`, `electron-ui/electron/channels.ts`, `electron-ui/electron/handlers/meetings.ts`
 
-- [ ] Burst 13: `buildLabeledContext` accepts optional `noteIds` param, appends matched note bodies to context
-- [ ] Burst 14: `buildDistilledContext` same extension
+- [ ] Burst 13-14 (E2E): both context builders accept noteIds, append matched note bodies to meeting blocks
 - [ ] Burst 15: `noteIds` field on `ConversationChatRequest`; `handleConversationChat` passes to context builders; `handleMeetingChat` passes through
 
 ### SECTION 6: API Layer (~3 bursts)
