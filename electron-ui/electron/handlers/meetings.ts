@@ -197,13 +197,14 @@ export async function handleConversationChat(
   let charCount: number;
   let meetings: Array<{ id: string; title: string; date: string }>;
 
+  const noteIds = req.noteIds ?? [];
   if (req.includeTranscripts) {
-    const labeled = buildLabeledContext(db, req.meetingIds);
+    const labeled = buildLabeledContext(db, req.meetingIds, noteIds);
     contextText = labeled.contextText;
     charCount = labeled.charCount;
     meetings = labeled.meetings;
   } else {
-    contextText = buildDistilledContext(db, req.meetingIds);
+    contextText = buildDistilledContext(db, req.meetingIds, noteIds);
     charCount = contextText.length;
     meetings = req.meetingIds.flatMap((id) => {
       const m = getMeeting(db, id);
@@ -472,7 +473,7 @@ export function handleGetMeetingMessages(db: Database, meetingId: string): Meeti
 }
 
 export async function handleMeetingChat(
-  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[],
+  db: Database, llm: LlmAdapter, meetingId: string, message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[], noteIds?: string[],
 ): Promise<ConversationChatResponse> {
   appendMeetingMessage(db, { meeting_id: meetingId, role: "user", content: message });
   const history = getMeetingMessages(db, meetingId).map((m) => ({ role: m.role, content: m.content }));
@@ -483,6 +484,7 @@ export async function handleMeetingChat(
     includeTranscripts,
     template,
     includeAssets,
+    noteIds,
   });
   appendMeetingMessage(db, { meeting_id: meetingId, role: "assistant", content: result.answer, sources: result.sources.length > 0 ? JSON.stringify(result.sources) : undefined });
   return result;

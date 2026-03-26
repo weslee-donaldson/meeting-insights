@@ -113,6 +113,7 @@ export interface ConversationChatRequest {
   attachments?: { name: string; base64: string; mimeType: string }[];
   includeTranscripts?: boolean;
   template?: string;
+  noteIds?: string[];
 }
 
 export interface ConversationChatResponse {

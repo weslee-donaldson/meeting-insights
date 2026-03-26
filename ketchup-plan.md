@@ -99,8 +99,8 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 > Files: `core/labeled-context.ts`, `core/notes.ts`, `electron-ui/electron/channels.ts`, `electron-ui/electron/handlers/meetings.ts`
 
-- [ ] Burst 13-14 (E2E): both context builders accept noteIds, append matched note bodies to meeting blocks
-- [ ] Burst 15: `noteIds` field on `ConversationChatRequest`; `handleConversationChat` passes to context builders; `handleMeetingChat` passes through
+- [x] Burst 13-14 (E2E): both context builders accept noteIds, append matched note bodies to meeting blocks (49b8c05)
+- [ ] Burst 15: `noteIds` on ConversationChatRequest, handleConversationChat + handleMeetingChat pass through
 
 ### SECTION 6: API Layer (~3 bursts)
 
