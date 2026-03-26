@@ -179,7 +179,7 @@ export function InsightDetailView({
     knownMeetingIds.current = incoming;
   }, [meetings]);
 
-  const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("none");
+  const [meetingGroupBy, setMeetingGroupBy] = useState<"none" | "series" | "day" | "week" | "month">("series");
   const [seriesFilter, setSeriesFilter] = useState("");
 
   const seriesOptions = [...new Set(meetings.map((m) => m.meeting_title))].sort();
