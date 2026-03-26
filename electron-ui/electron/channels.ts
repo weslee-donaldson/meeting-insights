@@ -250,12 +250,14 @@ export interface ThreadChatResponse {
 
 export interface CreateInsightRequest {
   client_name: string;
+  name?: string;
   period_type: "day" | "week" | "month";
   period_start: string;
   period_end: string;
 }
 
 export interface UpdateInsightRequest {
+  name?: string;
   status?: "draft" | "final";
   rag_status?: "red" | "yellow" | "green";
   rag_rationale?: string;
@@ -306,7 +308,7 @@ export interface ElectronAPI {
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
   getMeetingMessages: (meetingId: string) => Promise<import("../../core/meeting-messages.js").MeetingMessage[]>;
-  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean) => Promise<ConversationChatResponse>;
+  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
   clearMeetingMessages: (meetingId: string) => Promise<void>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;
