@@ -107,6 +107,17 @@ export function useInsightState(
     }
   }, [selectedInsightId, selectedClient, queryClient, addToast]);
 
+  const handleUpdateInsightName = useCallback(async (name: string) => {
+    if (!selectedInsightId) return;
+    try {
+      await window.api.updateInsight(selectedInsightId, { name });
+      queryClient.invalidateQueries({ queryKey: ["insights", selectedClient] });
+      addToast("Name updated", "success");
+    } catch (err) {
+      addToast(`Update failed: ${(err as Error).message}`, "error");
+    }
+  }, [selectedInsightId, selectedClient, queryClient, addToast]);
+
   const handleRegenerateInsight = useCallback(async (checkedMeetingIds?: string[]) => {
     if (!selectedInsightId) return;
     const isFirst = !selectedInsight?.executive_summary;
@@ -172,6 +183,7 @@ export function useInsightState(
     handleConfirmDeleteInsight: insightDelete.confirmDelete,
     handleFinalizeInsight,
     handleUpdateInsightSummary,
+    handleUpdateInsightName,
     handleRegenerateInsight,
     handleInsightSendMessage,
     handleClearInsightMessages,

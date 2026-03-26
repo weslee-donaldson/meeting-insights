@@ -10,6 +10,7 @@ afterEach(cleanup);
 const INSIGHT: Insight = {
   id: "i1",
   client_name: "Acme",
+  name: "",
   period_type: "week",
   period_start: "2026-01-05",
   period_end: "2026-01-11",
@@ -828,6 +829,54 @@ describe("InsightDetailView", () => {
     expect(screen.getByText("s1")).toBeDefined();
     expect(screen.queryByText("s2")).toBeNull();
     expect(screen.queryByText("s3")).toBeNull();
+  });
+
+  it("displays insight name in header when set", () => {
+    const named = { ...INSIGHT, name: "Leadership Weekly" };
+    render(
+      <InsightDetailView
+        insight={named}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Leadership Weekly")).toBeDefined();
+  });
+
+  it("displays period label in header when name is empty", () => {
+    render(
+      <InsightDetailView
+        insight={INSIGHT}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Jan 5 – Jan 11")).toBeDefined();
+  });
+
+  it("calls onUpdateName when name is edited", () => {
+    const onUpdateName = vi.fn();
+    const named = { ...INSIGHT, name: "Old Name" };
+    render(
+      <InsightDetailView
+        insight={named}
+        meetings={MEETINGS}
+        onDelete={vi.fn()}
+        onRegenerate={vi.fn()}
+        onFinalize={vi.fn()}
+        onUpdateName={onUpdateName}
+      />,
+    );
+    const nameEl = screen.getByText("Old Name");
+    fireEvent.click(nameEl);
+    const input = screen.getByDisplayValue("Old Name") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "New Name" } });
+    fireEvent.blur(input);
+    expect(onUpdateName).toHaveBeenCalledWith("New Name");
   });
 
   it("shows empty state message in edit mode when no source meetings exist", () => {

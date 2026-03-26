@@ -21,6 +21,7 @@ interface InsightDetailViewProps {
   onRegenerate: (checkedMeetingIds: string[]) => void;
   onFinalize: () => void;
   onUpdateSummary?: (summary: string) => void;
+  onUpdateName?: (name: string) => void;
   onShowAllMeetings?: () => void;
   isRegenerating?: boolean;
   notesCount?: number;
@@ -132,6 +133,7 @@ export function InsightDetailView({
   onRegenerate,
   onFinalize,
   onUpdateSummary,
+  onUpdateName,
   onShowAllMeetings,
   isRegenerating,
   notesCount,
@@ -144,6 +146,8 @@ export function InsightDetailView({
   const [editing, setEditing] = useState(!hasSummary && meetings.length > 0);
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryDraft, setSummaryDraft] = useState("");
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(insight.name ?? "");
 
   useEffect(() => {
     if (!hasSummary && meetings.length > 0) {
@@ -213,7 +217,36 @@ export function InsightDetailView({
             data-testid="detail-rag-badge"
             className={cn("w-3.5 h-3.5 rounded-full shrink-0", RAG_COLORS[insight.rag_status])}
           />
-          <h2 className="text-sm font-semibold flex-1">{formatPeriodLabel(insight)}</h2>
+          {editingName ? (
+            <input
+              type="text"
+              className="text-sm font-semibold flex-1 border border-border rounded px-2 py-0.5 bg-background text-foreground"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onBlur={() => {
+                setEditingName(false);
+                if (nameDraft !== (insight.name ?? "")) onUpdateName?.(nameDraft);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setEditingName(false);
+                  if (nameDraft !== (insight.name ?? "")) onUpdateName?.(nameDraft);
+                }
+                if (e.key === "Escape") {
+                  setEditingName(false);
+                  setNameDraft(insight.name ?? "");
+                }
+              }}
+              autoFocus
+            />
+          ) : (
+            <h2
+              className={cn("text-sm font-semibold flex-1", onUpdateName && "cursor-pointer hover:text-foreground/80")}
+              onClick={() => { if (onUpdateName) { setNameDraft(insight.name ?? ""); setEditingName(true); } }}
+            >
+              {insight.name || formatPeriodLabel(insight)}
+            </h2>
+          )}
           <Badge variant="outline" className="text-xs capitalize">{insight.period_type}</Badge>
           <Badge variant={insight.status === "final" ? "default" : "secondary"} className="text-xs capitalize">
             {insight.status === "final" ? "Final" : "Draft"}
