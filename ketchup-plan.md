@@ -100,15 +100,13 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 > Files: `core/labeled-context.ts`, `core/notes.ts`, `electron-ui/electron/channels.ts`, `electron-ui/electron/handlers/meetings.ts`
 
 - [x] Burst 13-14 (E2E): both context builders accept noteIds, append matched note bodies to meeting blocks (49b8c05)
-- [ ] Burst 15: `noteIds` on ConversationChatRequest, handleConversationChat + handleMeetingChat pass through
+- [x] Burst 15: `noteIds` on ConversationChatRequest, handleConversationChat + handleMeetingChat pass through (c4f3497)
 
 ### SECTION 6: API Layer (~3 bursts)
 
 > Files: `api/routes/notes.ts`, `api/routes/meetings.ts`, `electron-ui/ui/src/api-client/meetings.ts`
 
-- [ ] Burst 16: Notes API PATCH/DELETE return 403 for non-user note types
-- [ ] Burst 17: Chat API route passes `noteIds` from request body to handler
-- [ ] Burst 18: `meetingChat` in api-client adds `noteIds` parameter
+- [ ] Burst 16-18 (E2E): Notes API 403 guard, chat API passes noteIds, api-client adds noteIds param
 
 ### SECTION 7: UI — NotesDialog (~4 bursts)
 

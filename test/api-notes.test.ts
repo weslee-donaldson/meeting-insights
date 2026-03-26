@@ -97,16 +97,32 @@ describe("Notes API routes", () => {
     expect(res.status).toBe(404);
   });
 
+  it("PATCH /api/notes/:id returns 403 for non-user notes", async () => {
+    db.prepare("INSERT INTO notes (id, object_type, object_id, title, body, note_type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run("kp-note-1", "meeting", "m1", "Krisp Key Points", "body", "key-points", new Date().toISOString(), new Date().toISOString());
+    const res = await app.request("/api/notes/kp-note-1", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: "modified" }),
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("DELETE /api/notes/:id returns 403 for non-user notes", async () => {
+    const res = await app.request("/api/notes/kp-note-1", { method: "DELETE" });
+    expect(res.status).toBe(403);
+  });
+
   it("DELETE /api/notes/:id removes the note", async () => {
     const listRes = await app.request("/api/notes/meeting/m1");
     const notes = await listRes.json() as Note[];
-    const noteId = notes[0].id;
+    const userNote = notes.find((n) => n.noteType === "user")!;
+    const noteId = userNote.id;
 
     const res = await app.request(`/api/notes/${noteId}`, { method: "DELETE" });
     expect(res.status).toBe(200);
 
-    const countRes = await app.request("/api/notes/meeting/m1/count");
-    const body = await countRes.json() as { count: number };
-    expect(body.count).toBe(0);
+    const afterList = await app.request("/api/notes/meeting/m1");
+    const afterNotes = await afterList.json() as Note[];
+    expect(afterNotes.find((n) => n.id === noteId)).toBeUndefined();
   });
 });

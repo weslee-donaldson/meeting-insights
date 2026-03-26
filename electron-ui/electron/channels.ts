@@ -312,7 +312,7 @@ export interface ElectronAPI {
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
   getMeetingMessages: (meetingId: string) => Promise<import("../../core/meeting-messages.js").MeetingMessage[]>;
-  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean) => Promise<ConversationChatResponse>;
+  meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[], noteIds?: string[]) => Promise<ConversationChatResponse>;
   clearMeetingMessages: (meetingId: string) => Promise<void>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
   deleteMeetings: (ids: string[]) => Promise<void>;

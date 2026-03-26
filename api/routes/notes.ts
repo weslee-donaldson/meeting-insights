@@ -34,6 +34,7 @@ export function registerNoteRoutes(app: Hono, db: Database): void {
     const id = c.req.param("id");
     const existing = getNote(db, id);
     if (!existing) return c.json({ error: "Not found" }, 404);
+    if (existing.noteType !== "user") return c.json({ error: "Cannot modify non-user notes" }, 403);
     const input = await c.req.json<{ title?: string | null; body?: string }>();
     const updated = updateNote(db, id, input);
     return c.json(updated);
@@ -41,6 +42,8 @@ export function registerNoteRoutes(app: Hono, db: Database): void {
 
   app.delete("/api/notes/:id", (c) => {
     const id = c.req.param("id");
+    const existing = getNote(db, id);
+    if (existing && existing.noteType !== "user") return c.json({ error: "Cannot delete non-user notes" }, 403);
     deleteNote(db, id);
     return c.json({ ok: true });
   });
