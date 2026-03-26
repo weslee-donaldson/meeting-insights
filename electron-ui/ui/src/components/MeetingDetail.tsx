@@ -42,6 +42,7 @@ interface MeetingDetailProps {
   rawTranscript?: string;
   notesCount?: number;
   onNotesClick?: () => void;
+  onCopyTranscripts?: () => void;
 }
 
 
@@ -536,7 +537,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -576,6 +577,17 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               <span key={m.id}>{m.title} — {m.date.slice(0, 10)}</span>
             ))}
           </div>
+          {onCopyTranscripts && (
+            <CommandBar
+              className="mt-2"
+              actions={[{
+                label: "Copy Transcripts",
+                icon: <Clipboard className="w-3.5 h-3.5" />,
+                onClick: onCopyTranscripts,
+                variant: "default" as const,
+              }]}
+            />
+          )}
         </div>
         <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (

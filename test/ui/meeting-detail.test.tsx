@@ -954,4 +954,30 @@ describe("MeetingDetail", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy transcript" }));
     expect(writeText).toHaveBeenCalledWith("Speaker 1: Hello");
   });
+
+  it("multi-mode renders Copy Transcripts button when onCopyTranscripts is provided", () => {
+    const onCopyTranscripts = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={null}
+        meetings={[makeMeeting({ id: "m1", title: "Alpha" }), makeMeeting({ id: "m2", title: "Beta" })]}
+        artifact={makeArtifact()}
+        onCopyTranscripts={onCopyTranscripts}
+      />,
+    );
+    const btn = screen.getByText("Copy Transcripts").closest("button")!;
+    fireEvent.click(btn);
+    expect(onCopyTranscripts).toHaveBeenCalledOnce();
+  });
+
+  it("multi-mode does not render Copy Transcripts when onCopyTranscripts is not provided", () => {
+    render(
+      <MeetingDetail
+        meeting={null}
+        meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
+        artifact={makeArtifact()}
+      />,
+    );
+    expect(screen.queryByText("Copy Transcripts")).toBeNull();
+  });
 });
