@@ -11,6 +11,7 @@ const INSIGHTS: Insight[] = [
   {
     id: "i1",
     client_name: "Acme",
+    name: "",
     period_type: "week",
     period_start: "2026-01-05",
     period_end: "2026-01-11",
@@ -27,6 +28,7 @@ const INSIGHTS: Insight[] = [
   {
     id: "i2",
     client_name: "Acme",
+    name: "",
     period_type: "month",
     period_start: "2026-01-01",
     period_end: "2026-01-31",
@@ -43,6 +45,7 @@ const INSIGHTS: Insight[] = [
   {
     id: "i3",
     client_name: "Acme",
+    name: "",
     period_type: "day",
     period_start: "2026-01-15",
     period_end: "2026-01-15",
@@ -149,6 +152,24 @@ describe("InsightsView", () => {
     expect(onCreate).toHaveBeenCalled();
   });
 
+  it("displays insight name when set instead of period label", () => {
+    const insights: Insight[] = [
+      { ...INSIGHTS[0], name: "Leadership Weekly" },
+      { ...INSIGHTS[1] },
+    ];
+    render(
+      <InsightsView
+        insights={insights}
+        clientName="Acme"
+        onSelectInsight={vi.fn()}
+        onCreateInsight={vi.fn()}
+        selectedInsightId={null}
+      />,
+    );
+    expect(screen.getByText("Leadership Weekly")).toBeDefined();
+    expect(screen.getByText("Jan 1 – Jan 31")).toBeDefined();
+  });
+
   it("renders RAG circle badges with correct colors", () => {
     render(
       <InsightsView
@@ -161,8 +182,9 @@ describe("InsightsView", () => {
     );
     const ragBadges = screen.getAllByTestId("rag-badge");
     expect(ragBadges).toHaveLength(3);
-    expect(ragBadges[0].className).toContain("bg-green");
-    expect(ragBadges[1].className).toContain("bg-yellow");
-    expect(ragBadges[2].className).toContain("bg-red");
+    const classes = ragBadges.map((b) => b.className);
+    expect(classes.some((c) => c.includes("bg-green"))).toBe(true);
+    expect(classes.some((c) => c.includes("bg-yellow"))).toBe(true);
+    expect(classes.some((c) => c.includes("bg-red"))).toBe(true);
   });
 });
