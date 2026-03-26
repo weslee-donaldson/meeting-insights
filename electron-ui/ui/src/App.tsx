@@ -425,6 +425,7 @@ export function App() {
         onClearMessages={!meeting.isMultiMode && meeting.selectedMeetingId ? meeting.handleClearMeetingMessages : undefined}
         onSaveAsThread={selectedClient ? handleSaveAsThreadAndOpen : undefined}
         showIncludeAssets={computedActiveMeetingIds.length > 0}
+        availableNotes={meeting.availableNotes}
       />
     );
 

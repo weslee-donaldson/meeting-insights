@@ -518,16 +518,32 @@ export function useMeetingState(
     enabled: !!selectedMeetingId,
   });
 
+  const meetingNotesQuery = useQuery({
+    queryKey: ["meetingNotes", selectedMeetingId],
+    queryFn: () => window.api.notesList("meeting", selectedMeetingId!),
+    enabled: !!selectedMeetingId,
+  });
+
+  const availableNotes = useMemo(() => {
+    const notes = meetingNotesQuery.data;
+    if (!notes || notes.length === 0) return [];
+    return notes.map((n: { id: string; title: string | null; noteType: string; body: string }) => ({
+      id: n.id,
+      title: n.title ?? n.body.slice(0, 40),
+      noteType: n.noteType,
+    }));
+  }, [meetingNotesQuery.data]);
+
   const meetingMessagesQuery = useQuery({
     queryKey: ["meetingMessages", selectedMeetingId],
     queryFn: () => window.api.getMeetingMessages(selectedMeetingId!),
     enabled: !!selectedMeetingId,
   });
 
-  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[]) => {
+  const handleMeetingSendMessage = useCallback(async (message: string, includeTranscripts: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[], noteIds?: string[]) => {
     if (!selectedMeetingId) return;
     try {
-      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts, template, includeAssets, attachments);
+      await window.api.meetingChat(selectedMeetingId, message, includeTranscripts, template, includeAssets, attachments, noteIds);
       queryClient.invalidateQueries({ queryKey: ["meetingMessages", selectedMeetingId] });
     } catch (err) {
       addToast(`Chat failed: ${(err as Error).message}`, "error");
@@ -634,6 +650,7 @@ export function useMeetingState(
     handleCopyMultiTranscripts,
     transcriptQuery,
     meetingMessagesQuery,
+    availableNotes,
     handleMeetingSendMessage,
     handleClearMeetingMessages,
     handleConfirmClearMeetingMessages: meetingClear.confirmClear,
