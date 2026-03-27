@@ -258,3 +258,79 @@ describe("useSearchState search wiring", () => {
     expect(result.current.searchDurationMs! >= 0).toBe(true);
   });
 });
+
+describe("useSearchState deep search wiring", () => {
+  it("calls deepSearch when deepSearchEnabled is toggled on with existing results", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    const deepSearch = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", relevanceSummary: "Relevant to billing", relevanceScore: 85 },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch,
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.searchResults).toHaveLength(1));
+    act(() => result.current.setDeepSearchEnabled(true));
+    await waitFor(() => expect(deepSearch).toHaveBeenCalled());
+    expect(deepSearch).toHaveBeenCalledWith({ meetingIds: ["m1"], query: "billing" });
+    await waitFor(() => expect(result.current.deepSearchResults).toEqual([
+      { meeting_id: "m1", relevanceSummary: "Relevant to billing", relevanceScore: 85 },
+    ]));
+  });
+
+  it("does not call deepSearch when disabled", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    const deepSearch = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch,
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.searchResults).toHaveLength(1));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(deepSearch).not.toHaveBeenCalled();
+    expect(result.current.deepSearchResults).toBe(null);
+  });
+
+  it("exposes isDeepSearchActive when deep results are available", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    const deepSearch = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", relevanceSummary: "Found billing", relevanceScore: 90 },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch,
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setDeepSearchEnabled(true));
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.isDeepSearchActive).toBe(true));
+  });
+});

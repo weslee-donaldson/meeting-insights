@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
 import { useSearch } from "./useSearch.js";
+import { useDeepSearch } from "./useDeepSearch.js";
 
 const ALL_FIELDS = new Set([
   "summary", "decisions", "action_items", "risk_items",
@@ -80,6 +81,18 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     [searchResults],
   );
 
+  const {
+    data: deepSearchResults,
+    isFetching: deepSearchFetching,
+  } = useDeepSearch(
+    hybridMeetingIds,
+    searchQuery,
+    deepSearchEnabled && searchQuery.trim().length >= 2 && !searchFetching,
+    { keyPrefix: "searchView-deep" },
+  );
+
+  const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
+
   useEffect(() => {
     if (searchResults && searchStartRef.current !== null) {
       setSearchDurationMs(Date.now() - searchStartRef.current);
@@ -117,5 +130,8 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     searchResults: searchResults ?? null,
     searchFetching,
     hybridMeetingIds,
+    deepSearchResults: deepSearchResults ?? null,
+    deepSearchFetching,
+    isDeepSearchActive,
   };
 }
