@@ -58,6 +58,41 @@ describe("seedClients", () => {
     writeFileSync(badFile, JSON.stringify([{ name: "X" }]));
     expect(() => seedClients(badDb, badFile)).toThrow();
   });
+
+  it("updates existing client fields when re-seeded with new data", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-upsert-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{
+      name: "UpsertCo",
+      aliases: ["UC"],
+      client_team: [],
+      glossary: [{ term: "OldTerm", variants: ["old"], description: "Old desc" }],
+    }]));
+    seedClients(localDb, file);
+    const before = getGlossaryForClient(localDb, "UpsertCo");
+    expect(before).toEqual([{ term: "OldTerm", variants: ["old"], description: "Old desc" }]);
+    writeFileSync(file, JSON.stringify([{
+      name: "UpsertCo",
+      aliases: ["UC"],
+      client_team: [{ name: "Alice", email: "alice@uc.com", role: "CTO" }],
+      glossary: [
+        { term: "OldTerm", variants: ["old"], description: "Old desc" },
+        { term: "NewTerm", variants: ["new"], description: "New desc" },
+      ],
+    }]));
+    seedClients(localDb, file);
+    const after = getGlossaryForClient(localDb, "UpsertCo");
+    expect(after).toEqual([
+      { term: "OldTerm", variants: ["old"], description: "Old desc" },
+      { term: "NewTerm", variants: ["new"], description: "New desc" },
+    ]);
+    const client = getClientByName(localDb, "UpsertCo");
+    const team = JSON.parse(client!.client_team);
+    expect(team).toEqual([{ name: "Alice", email: "alice@uc.com", role: "CTO" }]);
+  });
 });
 
 describe("seedClients generates client IDs", () => {
