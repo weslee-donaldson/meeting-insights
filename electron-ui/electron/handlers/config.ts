@@ -14,10 +14,12 @@ export const deepSearchPrompt = existsSync(DEEP_SEARCH_PROMPT_PATH) ? readFileSy
 
 const SYSTEM_CONFIG_PATH = join(REPO_ROOT, "config/system.json");
 const systemConfig = existsSync(SYSTEM_CONFIG_PATH)
-  ? JSON.parse(readFileSync(SYSTEM_CONFIG_PATH, "utf8")) as { search?: { maxDistance?: number; limit?: number } }
+  ? JSON.parse(readFileSync(SYSTEM_CONFIG_PATH, "utf8")) as { search?: { maxDistance?: number; limit?: number; displayLimit?: number; chatContextLimit?: number } }
   : {};
 export const SEARCH_MAX_DISTANCE = systemConfig.search?.maxDistance ?? 1.0;
 export const SEARCH_LIMIT = systemConfig.search?.limit ?? 50;
+export const DISPLAY_LIMIT = systemConfig.search?.displayLimit ?? 20;
+export const CHAT_CONTEXT_LIMIT = systemConfig.search?.chatContextLimit ?? 10;
 
 const CHAT_TEMPLATES_DIR = join(REPO_ROOT, "config/chat-templates");
 export const chatTemplates = new Map<string, string>();

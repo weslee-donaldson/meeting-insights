@@ -1,6 +1,8 @@
 {
   "search": {
     "maxDistance": 1.7,
-    "limit": 50
+    "limit": 50,
+    "displayLimit": 20,
+    "chatContextLimit": 10
   }
 }

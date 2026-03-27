@@ -27,7 +27,7 @@ The current search bar in TopBar filters the meeting list in-place. Users need a
 - [x] Burst 1: Extend `buildDistilledContext` with `maxChars` budget — per-meeting allocation scales inversely with count
 - [x] Burst 2: Extend `buildDistilledContext` with `relevanceSummaries` map — prepends relevance line per meeting when provided
 - [x] Burst 3: `contextMode` on `ConversationChatRequest` — wire through channels.ts types + IPC handler + api-client.ts HTTP + API route
-- [ ] Burst 4: Add `displayLimit` (20) and `chatContextLimit` (10) to `config/system.json` + export from `config.ts`
+- [x] Burst 4: Add `displayLimit` (20) and `chatContextLimit` (10) to `config/system.json` + export from `config.ts`
 - [ ] Burst 5: Error handling — skip meetings with missing artifacts, log warning, test with mix of valid and stale meeting IDs
 
 ---
