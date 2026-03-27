@@ -347,7 +347,7 @@ Phase 5 (sequential):
 - [x] Burst 33: WHY block — conditional, amber left border styling
 - [x] Burst 34: Matched artifacts — query-term matching, indented, Owner/Reporter/due inline
 - [x] Burst 35: "+N more" expand/collapse
-- [ ] Burst 36: Checkbox toggle — orange left border on checked
+- [x] Burst 36: Checkbox toggle — orange left border on checked
 - [ ] Burst 37: Empty artifact fallback — "Artifact not available" muted text
 - [ ] Burst 38: **Playwright E2E — Result Cards**: search term, verify cards render, check a card, verify border, expand "+N more"
 

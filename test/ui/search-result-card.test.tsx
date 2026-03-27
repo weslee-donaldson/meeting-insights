@@ -253,3 +253,41 @@ describe("SearchResultCard — WHY block", () => {
     expect(whyBlock.style.borderLeft).toBe("2px solid rgb(230, 165, 74)");
   });
 });
+
+describe("SearchResultCard — checkbox toggle", () => {
+  it("clicking checkbox calls onToggleChecked with meetingId", async () => {
+    const onToggleChecked = vi.fn();
+    const user = (await import("@testing-library/user-event")).default.setup();
+    render(<SearchResultCard {...defaultProps({ onToggleChecked })} />);
+    await user.click(screen.getByTestId("result-checkbox"));
+    expect(onToggleChecked).toHaveBeenCalledWith("m1");
+  });
+
+  it("checked card has orange left border", () => {
+    render(<SearchResultCard {...defaultProps({ checked: true })} />);
+    const card = screen.getByTestId("search-result-card-m1");
+    expect(card.style.borderLeft).toBe("3px solid rgb(230, 126, 34)");
+  });
+
+  it("unchecked card has transparent left border", () => {
+    render(<SearchResultCard {...defaultProps({ checked: false })} />);
+    const card = screen.getByTestId("search-result-card-m1");
+    expect(card.style.borderLeft).toBe("3px solid transparent");
+  });
+
+  it("checked checkbox has orange background and white check mark svg", () => {
+    render(<SearchResultCard {...defaultProps({ checked: true })} />);
+    const checkbox = screen.getByTestId("result-checkbox");
+    expect(checkbox.style.backgroundColor).toBe("rgb(230, 126, 34)");
+    const svg = checkbox.querySelector("svg");
+    expect(svg).not.toBeNull();
+  });
+
+  it("unchecked checkbox has muted border and no svg", () => {
+    render(<SearchResultCard {...defaultProps({ checked: false })} />);
+    const checkbox = screen.getByTestId("result-checkbox");
+    expect(checkbox.style.backgroundColor).toBe("transparent");
+    const svg = checkbox.querySelector("svg");
+    expect(svg).toBeNull();
+  });
+});
