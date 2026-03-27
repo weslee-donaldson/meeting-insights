@@ -47,6 +47,7 @@ interface MeetingDetailProps {
   notesCount?: number;
   onNotesClick?: () => void;
   onCopyTranscripts?: () => void;
+  onOpenInMeetings?: () => void;
 }
 
 
@@ -642,7 +643,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, onUpdateArtifactSection, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, onUpdateArtifactSection, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts, onOpenInMeetings }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -783,10 +784,19 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             )}
           </div>
         </div>
+        {onOpenInMeetings && (
+          <button
+            onClick={onOpenInMeetings}
+            className="text-xs mt-1 bg-transparent border-0 cursor-pointer p-0"
+            style={{ color: "var(--color-accent)", fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
+          >
+            Open in Meetings
+          </button>
+        )}
         <CommandBar
           className="mt-2"
           actions={[
-            ...(onReExtract ? [{
+            ...(!onOpenInMeetings && onReExtract ? [{
               label: "Re-extract",
               icon: <RefreshCw className={cn("w-3.5 h-3.5", reExtractPending && "animate-spin")} />,
               onClick: onReExtract,
@@ -798,13 +808,13 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               onClick: copySummary,
               variant: "default" as const,
             }] : []),
-            ...(rawTranscript ? [{
+            ...(!onOpenInMeetings && rawTranscript ? [{
               label: "Transcript",
               icon: <FileText className="w-3.5 h-3.5" />,
               onClick: () => setTranscriptOpen(true),
               variant: "default" as const,
             }] : []),
-            ...(onReassignClient ? [{
+            ...(!onOpenInMeetings && onReassignClient ? [{
               label: "Reassign",
               icon: <UserPen className="w-3.5 h-3.5" />,
               onClick: () => { setReassignSelection((clients ?? [])[0] ?? ""); setClientPickerOpen(true); },
@@ -816,13 +826,13 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               onClick: onNotesClick,
               variant: "default" as const,
             }] : []),
-            ...(onUpdateArtifactSection && artifact ? [{
+            ...(!onOpenInMeetings && onUpdateArtifactSection && artifact ? [{
               label: editMode ? "Done Editing" : "Edit",
               icon: <Pencil className="w-3.5 h-3.5" />,
               onClick: () => setEditMode((prev) => !prev),
               variant: (editMode ? "primary" : "default") as "primary" | "default",
             }] : []),
-            ...(onIgnore ? [{
+            ...(!onOpenInMeetings && onIgnore ? [{
               label: "Ignore",
               icon: <EyeOff className="w-3.5 h-3.5" />,
               onClick: onIgnore,

@@ -980,4 +980,59 @@ describe("MeetingDetail", () => {
     );
     expect(screen.queryByText("Copy Transcripts")).toBeNull();
   });
+
+  it("renders Open in Meetings link when onOpenInMeetings is provided", () => {
+    const onOpenInMeetings = vi.fn();
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        onOpenInMeetings={onOpenInMeetings}
+      />,
+    );
+    const link = screen.getByText("Open in Meetings");
+    expect(link).toBeDefined();
+    fireEvent.click(link);
+    expect(onOpenInMeetings).toHaveBeenCalledOnce();
+  });
+
+  it("does not render Open in Meetings link when onOpenInMeetings is not provided", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+      />,
+    );
+    expect(screen.queryByText("Open in Meetings")).toBeNull();
+  });
+
+  it("hides Re-extract, Reassign, Edit, and Ignore buttons when onOpenInMeetings is provided", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        onReExtract={vi.fn()}
+        onReassignClient={vi.fn()}
+        onIgnore={vi.fn()}
+        onUpdateArtifactSection={vi.fn()}
+        clients={["Acme"]}
+        onOpenInMeetings={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText("Re-extract")).toBeNull();
+    expect(screen.queryByText("Reassign")).toBeNull();
+    expect(screen.queryByText("Ignore")).toBeNull();
+    expect(screen.queryByText("Edit")).toBeNull();
+  });
+
+  it("still renders Copy button when onOpenInMeetings is provided and artifact exists", () => {
+    render(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact()}
+        onOpenInMeetings={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Copy")).toBeDefined();
+  });
 });
