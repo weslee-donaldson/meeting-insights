@@ -94,6 +94,29 @@ describe("useSearch", () => {
     await waitFor(() => expect(search).toHaveBeenCalled());
     expect(search).toHaveBeenCalledWith({ query: "alpha", date_after: "2026-01-01", date_before: "2026-03-01" });
   });
+
+  it("passes searchFields to search request when provided", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      ...(window as unknown as { api: object }).api,
+      search,
+    };
+    renderHook(() => useSearch("budget", undefined, undefined, undefined, { searchFields: ["summary", "decisions"] }), { wrapper: makeWrapper() });
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({ query: "budget", searchFields: ["summary", "decisions"] });
+  });
+
+  it("uses keyPrefix in queryKey when provided", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      ...(window as unknown as { api: object }).api,
+      search,
+    };
+    const wrapper = makeWrapper();
+    const { result: r1 } = renderHook(() => useSearch("budget", undefined, undefined, undefined, { keyPrefix: "advSearch" }), { wrapper });
+    await waitFor(() => expect(r1.current.isSuccess).toBe(true));
+    expect(search).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("useArtifact", () => {

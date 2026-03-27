@@ -136,6 +136,7 @@ export interface SearchRequest {
   date_after?: string;
   date_before?: string;
   limit?: number;
+  searchFields?: string[];
 }
 
 export interface SearchResultRow {
