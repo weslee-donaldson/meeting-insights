@@ -26,6 +26,8 @@ import { ActionItemsPage } from "./pages/ActionItemsPage.js";
 import { ThreadsPage } from "./pages/ThreadsPage.js";
 import { InsightsPage } from "./pages/InsightsPage.js";
 import { TimelinesPage } from "./pages/TimelinesPage.js";
+import { SearchPage } from "./pages/SearchPage.js";
+import { useSearchState } from "./hooks/useSearchState.js";
 
 export function App() {
   const { theme, setTheme, themes } = useTheme();
@@ -71,6 +73,7 @@ export function App() {
   const thread = useThreadState(selectedClient, currentView, addToast);
   const insight = useInsightState(selectedClient, currentView, addToast);
   const milestone = useMilestoneState(selectedClient, currentView, addToast);
+  const search = useSearchState({ selectedClient });
   const meetingNotes = useNotesState({ objectType: "meeting", objectId: meeting.selectedMeetingId, addToast });
   const threadNotes = useNotesState({ objectType: "thread", objectId: thread.selectedThreadId, addToast });
   const insightNotes = useNotesState({ objectType: "insight", objectId: insight.selectedInsightId, addToast });
@@ -198,7 +201,8 @@ export function App() {
     setSearchViewQuery(query);
     setCurrentView("search");
     meeting.setTypedSearchQuery("");
-  }, [meeting]);
+    search.setTypedSearchQuery(query);
+  }, [meeting, search]);
 
   const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }, meetingIds?: string[]) => {
     return thread.handleCreateThread(data, meetingIds ?? activeMeetingIdsRef.current);
@@ -389,15 +393,42 @@ export function App() {
     meeting.setSelectedMeetingId(meetingId);
   }, [meeting]);
 
-  const searchPanels: React.ReactNode[] = [
-    <div key="search" data-testid="search-view" data-query={searchViewQuery}>
-      {meeting.scopeMeetings.slice(0, 5).map((m) => (
-        <button key={m.id} data-testid={`search-open-${m.id}`} onClick={() => handleOpenSearchResult(m.id)}>
-          {m.title}
-        </button>
-      ))}
-    </div>,
-  ];
+  const searchPanels = SearchPage({
+    typedSearchQuery: search.typedSearchQuery,
+    setTypedSearchQuery: search.setTypedSearchQuery,
+    searchFields: search.searchFields,
+    toggleField: search.toggleField,
+    dateAfter: search.dateAfter,
+    setDateAfter: search.setDateAfter,
+    dateBefore: search.dateBefore,
+    setDateBefore: search.setDateBefore,
+    deepSearchEnabled: search.deepSearchEnabled,
+    setDeepSearchEnabled: search.setDeepSearchEnabled,
+    formVisible: search.formVisible,
+    setFormVisible: search.setFormVisible,
+    groupBy: search.groupBy,
+    setGroupBy: search.setGroupBy,
+    sortBy: search.sortBy,
+    setSortBy: search.setSortBy,
+    collapsedSummary: search.collapsedSummary,
+    searchQuery: search.searchQuery,
+    onSubmit: search.submitSearch,
+    enrichedResults: search.enrichedResults,
+    searchDurationMs: search.searchDurationMs,
+    displayedCount: search.displayedCount,
+    setDisplayedCount: search.setDisplayedCount,
+    checkedResultIds: search.checkedResultIds,
+    onToggleChecked: search.toggleCheckedResultId,
+    onSelectAll: (ids: string[]) => ids.forEach((id) => search.toggleCheckedResultId(id)),
+    onOpen: handleOpenSearchResult,
+    onSaveAsThread: (meetingIds: string[]) => {
+      meeting.handleSaveAsThread("");
+      thread.setCreateThreadOpen(true);
+    },
+    isLoading: search.searchFetching,
+    isError: false,
+    onRetry: search.submitSearch,
+  });
 
   const panels =
     currentView === "meetings" ? meetingsPanels :

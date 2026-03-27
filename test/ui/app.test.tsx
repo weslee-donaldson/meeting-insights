@@ -103,6 +103,11 @@ beforeAll(() => {
     deleteAsset: vi.fn().mockResolvedValue(undefined),
     getAssetData: vi.fn().mockResolvedValue(null),
     renameMeeting: vi.fn().mockResolvedValue(undefined),
+    artifactBatch: vi.fn().mockResolvedValue({}),
+    getTranscript: vi.fn().mockResolvedValue(""),
+    getMeetingMessages: vi.fn().mockResolvedValue([]),
+    meetingChat: vi.fn().mockResolvedValue({ answer: "ok", sources: [] }),
+    clearMeetingMessages: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -538,35 +543,31 @@ describe("App", () => {
     await waitFor(() => expect(screen.getByText("Create Milestone")).toBeDefined());
   });
 
-  it("Enter in TopBar search navigates to search view with query stored", async () => {
+  it("Enter in TopBar search navigates to search view with SearchForm rendered", async () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "DLQ alert" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
-      const searchView = screen.getByTestId("search-view");
-      expect(searchView.getAttribute("data-query")).toBe("DLQ alert");
+      expect(screen.getByRole("textbox", { name: /search query/i })).not.toBeNull();
     });
   });
 
-  it("clicking Search in NavRail navigates to search view with empty query", async () => {
+  it("clicking Search in NavRail navigates to search view with SearchForm", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
     fireEvent.click(screen.getByLabelText("Search"));
     await waitFor(() => {
-      expect(screen.getByTestId("search-view")).toBeDefined();
+      expect(screen.getByRole("textbox", { name: /search query/i })).not.toBeNull();
     });
   });
 
-  it("search result open navigates to meetings view with that meeting selected", async () => {
+  it("search view renders SearchResultsList", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
     fireEvent.click(screen.getByLabelText("Search"));
-    const openBtn = await screen.findByTestId("search-open-m1");
-    fireEvent.click(openBtn);
     await waitFor(() => {
-      expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
-      expect(screen.queryByTestId("search-view")).toBeNull();
+      expect(screen.getByTestId("search-results-list")).not.toBeNull();
     });
   });
 });

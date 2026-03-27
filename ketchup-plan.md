@@ -446,7 +446,7 @@ Phase 5 (sequential):
 > **Files affected/created:** `electron-ui/ui/src/pages/SearchPage.tsx`, `electron-ui/ui/src/App.tsx`, `electron-ui/ui/src/components/ChatPanel.tsx`, `test/ui/search-page.test.tsx`, `test/ui/chat-panel.test.tsx`
 
 - [x] Burst 46: `SearchPage` — returns panel array with SearchForm + SearchResultsList
-- [ ] Burst 47: App.tsx — renders SearchPage, instantiates useSearchState with selectedClient
+- [x] Burst 47: App.tsx — renders SearchPage, instantiates useSearchState with selectedClient
 - [ ] Burst 48: `computedActiveMeetingIds` for search view — multi-result, single-result, empty states (test all 3)
 - [ ] Burst 49: `contextMode` switching — distilled for multi-result, full for single detail
 - [ ] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
