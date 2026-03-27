@@ -569,5 +569,5 @@ Phase 5 (sequential):
 >
 > **Files affected:** `core/client-registry.ts`, `test/client-registry.test.ts`, `test/pipeline.test.ts`
 
-- [x] Burst 1: Slim glossary format — `buildClientContext` renders `term → variants` only, drops descriptions and "(not" prefix
-- [x] Burst 2: Pipeline test update — verify glossary assertion in pipeline test excludes description text
+- [x] Burst 1: Slim glossary format — `buildClientContext` renders `term → variants` only, drops descriptions and "(not" prefix (ed4869c)
+- [x] Burst 2: Pipeline test update — verify glossary assertion in pipeline test excludes description text (ed4869c)
