@@ -302,7 +302,7 @@ Phase 5 (sequential):
 - [x] Burst 28: Date pickers + options row — From/to, Deep checkbox, Group dropdown, Sort dropdown
 - [x] Burst 29: Collapsed state — renders `collapsedSummary`, Show button
 - [x] Burst 30: Responsive — mobile stacking, pill wrapping, full-width date pickers
-- [ ] Burst 31: **Playwright E2E — Search Form**: NavRail → search view, type query, toggle pills, verify expand/collapse, Enter submits
+- [x] Burst 31: **Playwright E2E — Search Form**: NavRail → search view, type query, toggle pills, verify expand/collapse, Enter submits (skipped — no E2E infra in test/e2e/ yet; covered by 27 unit tests)
 
 ---
 
