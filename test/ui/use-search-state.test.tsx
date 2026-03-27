@@ -454,6 +454,91 @@ describe("useSearchState enrichedResults", () => {
   });
 });
 
+describe("useSearchState chatMeetingIds", () => {
+  it("returns empty array when no search results", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    expect(result.current.chatMeetingIds).toEqual([]);
+  });
+
+  it("returns top-N by score when no results are checked", async () => {
+    const results = Array.from({ length: 15 }, (_, i) => ({
+      meeting_id: `m${i}`,
+      score: 1 - i * 0.05,
+      client: "Acme",
+      meeting_type: "sync",
+      date: "2025-06-01",
+      cluster_tags: [],
+      series: "",
+    }));
+    const search = vi.fn().mockResolvedValue(results);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(15));
+    expect(result.current.chatMeetingIds).toEqual(
+      Array.from({ length: 10 }, (_, i) => `m${i}`),
+    );
+  });
+
+  it("returns checked result IDs when some are checked", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2025-06-02", cluster_tags: [], series: "" },
+      { meeting_id: "m3", score: 0.5, client: "Acme", meeting_type: "sync", date: "2025-06-03", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(3));
+    act(() => result.current.toggleCheckedResultId("m2"));
+    act(() => result.current.toggleCheckedResultId("m3"));
+    expect(result.current.chatMeetingIds).toEqual(["m2", "m3"]);
+  });
+
+  it("returns single selected result ID when detail is open", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2025-06-02", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(2));
+    act(() => result.current.setSelectedResultId("m2"));
+    expect(result.current.chatMeetingIds).toEqual(["m2"]);
+  });
+});
+
 describe("useArtifactBatch", () => {
   it("calls artifactBatch with sorted meeting IDs and returns results", async () => {
     const artifactData = {

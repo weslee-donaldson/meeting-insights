@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
+import { DISPLAY_LIMIT, CHAT_CONTEXT_LIMIT } from "../../../electron/handlers/config.js";
 import { useSearch } from "./useSearch.js";
 import { useDeepSearch } from "./useDeepSearch.js";
 import { useArtifactBatch } from "./useArtifactBatch.js";
@@ -194,6 +194,14 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     });
   }, [searchResults, artifactBatchData, deepSearchMap, isDeepSearchActive, searchQuery]);
 
+  const chatMeetingIds = useMemo((): string[] => {
+    if (selectedResultId) return [selectedResultId];
+    if (checkedResultIds.size > 0) return [...checkedResultIds];
+    if (enrichedResults.length === 0) return [];
+    const sorted = [...enrichedResults].sort((a, b) => b.displayScore - a.displayScore);
+    return sorted.slice(0, CHAT_CONTEXT_LIMIT).map((r) => r.meetingId);
+  }, [selectedResultId, checkedResultIds, enrichedResults]);
+
   useEffect(() => {
     if (searchResults && searchStartRef.current !== null) {
       setSearchDurationMs(Date.now() - searchStartRef.current);
@@ -235,5 +243,6 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     deepSearchFetching,
     isDeepSearchActive,
     enrichedResults,
+    chatMeetingIds,
   };
 }
