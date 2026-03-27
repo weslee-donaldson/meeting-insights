@@ -134,7 +134,7 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 - [x] Burst 14: Extend `View` type with `"search"` across all 5 files (214bc79)
 - [x] Burst 15: NavRail search icon + BottomTabBar + BreadcrumbBar entries (b6834a7)
 - [x] Burst 16: TopBar Enter → search view navigation — sets SearchForm query, preserves meetings view typing behavior (8566150)
-- [x] Burst 17: Result "Open" → meetings view navigation
+- [x] Burst 17: Result "Open" → meetings view navigation (6fbf920)
 
 ## Total: ~30 bursts
 
