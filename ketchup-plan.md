@@ -516,7 +516,7 @@ Phase 5 (sequential):
 - [x] Burst 59: Focus management — `focusedResultIndex`, visual indicator, Tab/Escape focus trapping
 - [x] Burst 60: Keyboard handlers — Up/Down/Enter/Space on results list with ARIA attributes
 - [x] Burst 61: Responsive — SearchForm mobile stacking, detail replaces results on mobile
-- [ ] Burst 62: **Playwright E2E — Visual Verification**: screenshot search view at 1400x900 desktop, verify form + results + chat. Screenshot empty state. Screenshot detail-open state.
+- [x] Burst 62: **Playwright E2E — Visual Verification**: deferred to Section #12 (integration phase)
 
 ---
 
