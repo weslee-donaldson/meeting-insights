@@ -80,7 +80,7 @@ export function SearchPage(props: SearchPageProps): React.ReactNode[] {
   }
 
   return [
-    <div key="search-panel" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "auto" }}>
+    <div key="search-panel" data-testid="search-view" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "auto" }}>
       <SearchForm
         typedSearchQuery={props.typedSearchQuery}
         setTypedSearchQuery={props.setTypedSearchQuery}
