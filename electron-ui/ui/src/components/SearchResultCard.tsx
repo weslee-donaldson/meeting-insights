@@ -203,6 +203,9 @@ export function SearchResultCard({
     <div
       data-testid={`search-result-card-${result.meetingId}`}
       data-checked={checked}
+      role="option"
+      aria-selected={checked}
+      aria-label={`${result.title}, ${formatDate(result.date)}, score ${result.displayScore.toFixed(2)}`}
       style={cardStyle}
     >
       <div style={headerStyle}>

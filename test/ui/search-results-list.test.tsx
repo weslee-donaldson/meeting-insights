@@ -489,4 +489,108 @@ describe("SearchResultsList — focus management and ARIA", () => {
       expect(card.style.outline).toBe("");
     }
   });
+
+  it("moves focus to next result on ArrowDown", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" }), makeResult({ meetingId: "m3" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    const secondCard = screen.getByTestId("search-result-card-m2");
+    expect(secondCard.style.outline).toBe("2px solid #e0ddd8");
+    const firstCard = screen.getByTestId("search-result-card-m1");
+    expect(firstCard.style.outline).toBe("");
+  });
+
+  it("moves focus to previous result on ArrowUp", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" }), makeResult({ meetingId: "m3" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    fireEvent.keyDown(listbox, { key: "ArrowUp" });
+    const firstCard = screen.getByTestId("search-result-card-m1");
+    expect(firstCard.style.outline).toBe("2px solid #e0ddd8");
+  });
+
+  it("does not move focus above index 0 on ArrowUp", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "ArrowUp" });
+    const firstCard = screen.getByTestId("search-result-card-m1");
+    expect(firstCard.style.outline).toBe("2px solid #e0ddd8");
+  });
+
+  it("does not move focus below the last result on ArrowDown", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          displayedCount: 2,
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    const secondCard = screen.getByTestId("search-result-card-m2");
+    expect(secondCard.style.outline).toBe("2px solid #e0ddd8");
+  });
+
+  it("opens focused result on Enter", () => {
+    const onOpen = vi.fn();
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+          onOpen,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    fireEvent.keyDown(listbox, { key: "Enter" });
+    expect(onOpen).toHaveBeenCalledWith("m2");
+  });
+
+  it("toggles checked state of focused result on Space", () => {
+    const onToggleChecked = vi.fn();
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+          onToggleChecked,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: " " });
+    expect(onToggleChecked).toHaveBeenCalledWith("m1");
+  });
 });

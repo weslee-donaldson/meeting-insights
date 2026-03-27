@@ -345,12 +345,54 @@ export function SearchResultsList({
     }
   }, [hasResults, focusedResultIndex]);
 
+  const maxIndex = Math.min(displayedCount, enrichedResults.length) - 1;
+
+  const orderedIds = useCallback((): string[] => {
+    const groups = sortWithinGroups(buildGroups(enrichedResults, groupBy));
+    const ids: string[] = [];
+    let count = 0;
+    for (const group of groups) {
+      for (const r of group.results) {
+        if (count >= displayedCount) return ids;
+        ids.push(r.meetingId);
+        count++;
+      }
+    }
+    return ids;
+  }, [enrichedResults, groupBy, displayedCount]);
+
   const handleListKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
       setFocusedResultIndex(-1);
       onEscapeToSearch?.();
+      return;
     }
-  }, [onEscapeToSearch]);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedResultIndex((prev) => Math.min(prev + 1, maxIndex));
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedResultIndex((prev) => Math.max(prev - 1, 0));
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const ids = orderedIds();
+      if (focusedResultIndex >= 0 && focusedResultIndex < ids.length) {
+        onOpen(ids[focusedResultIndex]);
+      }
+      return;
+    }
+    if (e.key === " ") {
+      e.preventDefault();
+      const ids = orderedIds();
+      if (focusedResultIndex >= 0 && focusedResultIndex < ids.length) {
+        onToggleChecked(ids[focusedResultIndex]);
+      }
+    }
+  }, [onEscapeToSearch, maxIndex, orderedIds, focusedResultIndex, onOpen, onToggleChecked]);
 
   function computeSaveAsThreadMeetingIds(): string[] {
     if (checkedResultIds.size > 0) {

@@ -337,3 +337,29 @@ describe("SearchResultCard — checkbox toggle", () => {
     expect(svg).toBeNull();
   });
 });
+
+describe("SearchResultCard — ARIA attributes", () => {
+  it("renders card with role option", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const card = screen.getByRole("option");
+    expect(card.getAttribute("data-testid")).toBe("search-result-card-m1");
+  });
+
+  it("sets aria-selected to true when checked", () => {
+    render(<SearchResultCard {...defaultProps({ checked: true })} />);
+    const card = screen.getByRole("option");
+    expect(card.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("sets aria-selected to false when unchecked", () => {
+    render(<SearchResultCard {...defaultProps({ checked: false })} />);
+    const card = screen.getByRole("option");
+    expect(card.getAttribute("aria-selected")).toBe("false");
+  });
+
+  it("renders aria-label with meeting title, date, and score", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const card = screen.getByRole("option");
+    expect(card.getAttribute("aria-label")).toBe("Sprint Planning, Mar 12, 2026, score 0.92");
+  });
+});
