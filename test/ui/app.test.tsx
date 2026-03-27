@@ -537,4 +537,36 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "New Milestone" }));
     await waitFor(() => expect(screen.getByText("Create Milestone")).toBeDefined());
   });
+
+  it("Enter in TopBar search navigates to search view with query stored", async () => {
+    render(<App />, { wrapper });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "DLQ alert" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => {
+      const searchView = screen.getByTestId("search-view");
+      expect(searchView.getAttribute("data-query")).toBe("DLQ alert");
+    });
+  });
+
+  it("clicking Search in NavRail navigates to search view with empty query", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-view")).toBeDefined();
+    });
+  });
+
+  it("search result open navigates to meetings view with that meeting selected", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    const openBtn = await screen.findByTestId("search-open-m1");
+    fireEvent.click(openBtn);
+    await waitFor(() => {
+      expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
+      expect(screen.queryByTestId("search-view")).toBeNull();
+    });
+  });
 });
