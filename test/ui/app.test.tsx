@@ -582,6 +582,23 @@ describe("App", () => {
     });
   });
 
+  it("search state persists when navigating away and back", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => screen.getByRole("textbox", { name: /search query/i }));
+    const searchInput = screen.getByRole("textbox", { name: /search query/i }) as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: "billing" } });
+    expect(searchInput.value).toBe("billing");
+    fireEvent.click(screen.getByLabelText("Meetings"));
+    await waitFor(() => screen.getByTestId("meeting-row-m1"));
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => {
+      const restored = screen.getByRole("textbox", { name: /search query/i }) as HTMLInputElement;
+      expect(restored.value).toBe("billing");
+    });
+  });
+
   it("search view chat passes contextMode distilled to conversationChat", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
