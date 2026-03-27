@@ -249,4 +249,10 @@ describe("SearchForm responsive classes", () => {
     expect(fromInput.className).toContain("search-form-date-input");
     expect(toInput.className).toContain("search-form-date-input");
   });
+
+  it("options row has search-form-options-row class for mobile stacking", () => {
+    const { container } = render(<SearchForm {...defaultProps()} />);
+    const optionsRow = container.querySelector("[data-testid='search-options-row']");
+    expect(optionsRow!.className).toContain("search-form-options-row");
+  });
 });

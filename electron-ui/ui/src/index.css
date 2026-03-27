@@ -156,6 +156,11 @@ body {
   .search-form-date-input {
     width: 100% !important;
   }
+
+  .search-form-options-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
 }
 
 .chat-markdown h1 {

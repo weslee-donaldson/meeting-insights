@@ -339,7 +339,7 @@ export function SearchForm(props: SearchFormProps) {
         </div>
       </div>
 
-      <div data-testid="search-options-row" className="flex items-center flex-wrap" style={{ gap: "10px" }}>
+      <div data-testid="search-options-row" className="search-form-options-row flex items-center flex-wrap" style={{ gap: "10px" }}>
         <span
           style={{
             fontFamily: "'Inter', sans-serif",
