@@ -600,6 +600,61 @@ describe("useSearchState collapsedSummary", () => {
   });
 });
 
+describe("useSearchState client sync", () => {
+  it("re-triggers search when selectedClient changes", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const wrapper = makeWrapper();
+    const { result, rerender } = renderHook(
+      ({ client }: { client: string | null }) => useSearchState({ selectedClient: client }),
+      { wrapper, initialProps: { client: "Acme" } },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(search).toHaveBeenCalledTimes(1));
+    expect(search).toHaveBeenCalledWith(expect.objectContaining({ client: "Acme" }));
+
+    search.mockClear();
+    search.mockResolvedValue([
+      { meeting_id: "m2", score: 0.9, client: "Beta", meeting_type: "review", date: "2025-07-01", cluster_tags: [], series: "" },
+    ]);
+    rerender({ client: "Beta" });
+    await waitFor(() => expect(search).toHaveBeenCalledTimes(1));
+    expect(search).toHaveBeenCalledWith(expect.objectContaining({ client: "Beta" }));
+    await waitFor(() => expect(result.current.searchResults).toEqual([
+      { meeting_id: "m2", score: 0.9, client: "Beta", meeting_type: "review", date: "2025-07-01", cluster_tags: [], series: "" },
+    ]));
+  });
+
+  it("passes undefined client to search when selectedClient is null", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({
+      query: "billing",
+      searchFields: expect.any(Array),
+    });
+  });
+});
+
 describe("useArtifactBatch", () => {
   it("calls artifactBatch with sorted meeting IDs and returns results", async () => {
     const artifactData = {
