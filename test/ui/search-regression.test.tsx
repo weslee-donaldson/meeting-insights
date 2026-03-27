@@ -138,4 +138,28 @@ describe("Search regression guards", () => {
       );
     });
   });
+
+  it("meetings view multi-select chat passes undefined contextMode (full context)", async () => {
+    render(<App />, { wrapper });
+    await screen.findByRole("textbox", { name: /search meetings/i });
+    await screen.findByTestId("meeting-row-m1");
+    const checkboxes = screen.getAllByRole("checkbox").filter((el) => !el.getAttribute("aria-label")?.includes("Deep"));
+    fireEvent.click(checkboxes[0]);
+    fireEvent.click(checkboxes[1]);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 meetings selected")).not.toBeNull();
+    });
+
+    const chatInput = screen.getByPlaceholderText("Ask a question about these meetings…");
+    fireEvent.change(chatInput, { target: { value: "Summarize both" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+
+    await waitFor(() => {
+      const calls = (window.api.conversationChat as ReturnType<typeof vi.fn>).mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0].contextMode).toBeUndefined();
+    });
+  });
 });
