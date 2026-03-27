@@ -534,11 +534,11 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `test/e2e/search-regression.spec.ts`
 
-- [ ] Burst 63: Playwright — meetings view typing still filters in-place
-- [ ] Burst 64: Playwright — meetings view chat uses full context (not distilled)
-- [ ] Burst 65: Playwright — TopBar client filter works across all views including search
-- [ ] Burst 66: Playwright — deep search toggle in meetings view still functions
-- [ ] Burst 67: Playwright — thread creation from threads view unaffected
+- [x] Burst 63: Playwright — meetings view typing still filters in-place
+- [x] Burst 64: Playwright — meetings view chat uses full context (not distilled)
+- [x] Burst 65: Playwright — TopBar client filter works across all views including search
+- [x] Burst 66: Playwright — deep search toggle in meetings view still functions
+- [x] Burst 67: Playwright — thread creation from threads view unaffected
 
 ---
 
