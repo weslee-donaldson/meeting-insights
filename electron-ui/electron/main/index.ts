@@ -46,7 +46,7 @@ import {
   handleRenameMeeting,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
-import { populateFts } from "../../../core/fts.js";
+import { ensureFtsCurrent } from "../../../core/fts.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
 import { loadModel } from "../../../core/embedder.js";
 
@@ -115,8 +115,7 @@ app.whenReady().then(async () => {
   const db = createDb(DB_PATH);
   migrate(db);
 
-  const ftsCount = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
-  if (ftsCount === 0) populateFts(db);
+  ensureFtsCurrent(db);
 
   const llmConfig =
     PROVIDER === "local"

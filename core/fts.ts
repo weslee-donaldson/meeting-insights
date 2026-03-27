@@ -86,3 +86,16 @@ export function populateFts(db: Database): void {
   }
   log("populated fts for %d meetings", rows.length);
 }
+
+export function ensureFtsCurrent(db: Database): void {
+  const count = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
+  if (count === 0) {
+    populateFts(db);
+    return;
+  }
+  const sample = db.prepare("SELECT content FROM artifact_fts LIMIT 1").get() as { content: string } | undefined;
+  if (sample && !sample.content.startsWith("[summary]")) {
+    log("fts content outdated, rebuilding with field tags");
+    populateFts(db);
+  }
+}

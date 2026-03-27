@@ -28,11 +28,10 @@ if (isMain) {
     : join(APP_ROOT, "db/lancedb");
   const PORT = Number(process.env.PORT ?? 3000);
 
-  const { populateFts } = await import("../core/fts.js");
+  const { ensureFtsCurrent } = await import("../core/fts.js");
   const db = createDb(DB_PATH);
   migrate(db);
-  const ftsCount = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
-  if (ftsCount === 0) populateFts(db);
+  ensureFtsCurrent(db);
   const provider = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as "anthropic" | "local" | "openai" | "stub" | "claudecli" | "local-claudeapi";
   const llmConfig =
     provider === "local"

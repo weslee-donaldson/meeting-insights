@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { storeArtifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { updateFts, populateFts, searchFts, sanitizeFtsQuery } from "../core/fts.js";
+import { updateFts, populateFts, searchFts, sanitizeFtsQuery, ensureFtsCurrent } from "../core/fts.js";
 import type { Database } from "../core/db.js";
 
 let db: Database;
@@ -132,5 +132,30 @@ describe("field-tagged FTS content", () => {
     const recurlyIdx = row.content.indexOf("Recurly");
     expect(summaryIdx).toBeLessThan(decisionsIdx);
     expect(decisionsIdx).toBeLessThan(recurlyIdx);
+  });
+});
+
+describe("ensureFtsCurrent", () => {
+  it("rebuilds FTS when existing content lacks field tags", () => {
+    db.prepare("DELETE FROM artifact_fts").run();
+    db.prepare("INSERT INTO artifact_fts (meeting_id, content) VALUES (?, ?)").run(meetingId, "old untagged content");
+    ensureFtsCurrent(db);
+    const row = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(meetingId) as { content: string };
+    expect(row.content).toContain("[summary]");
+  });
+
+  it("does not rebuild FTS when content already has field tags", () => {
+    updateFts(db, meetingId);
+    const before = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(meetingId) as { content: string };
+    ensureFtsCurrent(db);
+    const after = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(meetingId) as { content: string };
+    expect(after.content).toBe(before.content);
+  });
+
+  it("rebuilds FTS when table is empty", () => {
+    db.prepare("DELETE FROM artifact_fts").run();
+    ensureFtsCurrent(db);
+    const rows = db.prepare("SELECT meeting_id FROM artifact_fts").all() as { meeting_id: string }[];
+    expect(rows.length).toBeGreaterThan(0);
   });
 });
