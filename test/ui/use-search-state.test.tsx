@@ -336,10 +336,138 @@ describe("useSearchState deep search wiring", () => {
   });
 });
 
+const ARTIFACT_M1 = {
+  summary: "Discussed billing migration timeline",
+  decisions: [{ text: "Migrate billing by Q3", decided_by: "Alice" }, { text: "Keep legacy API for now", decided_by: "Bob" }],
+  proposed_features: ["New billing dashboard"],
+  action_items: [
+    { description: "Write billing migration plan", owner: "Alice", requester: "Bob", due_date: null, priority: "normal" as const },
+    { description: "Review API contracts", owner: "Bob", requester: "Alice", due_date: null, priority: "normal" as const },
+  ],
+  open_questions: ["When to deprecate old billing?"],
+  risk_items: [{ category: "engineering" as const, description: "Billing data loss during migration" }],
+  additional_notes: [],
+  milestones: [],
+};
+
+describe("useSearchState enrichedResults", () => {
+  it("produces enriched results with displayScore (min-max normalized) and matched items", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: ["billing"], series: "Weekly" },
+      { meeting_id: "m2", score: 0.4, client: "Acme", meeting_type: "sync", date: "2025-06-02", cluster_tags: [], series: "" },
+    ]);
+    const artifactBatch = vi.fn().mockResolvedValue({
+      m1: ARTIFACT_M1,
+      m2: null,
+    });
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch,
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(2));
+    const r1 = result.current.enrichedResults[0];
+    expect(r1).toEqual({
+      meetingId: "m1",
+      displayScore: 1,
+      date: "2025-06-01",
+      title: "sync",
+      client: "Acme",
+      series: "Weekly",
+      clusterTags: ["billing"],
+      artifact: ARTIFACT_M1,
+      matchedDecisions: ["Migrate billing by Q3"],
+      matchedActionItems: ["Write billing migration plan"],
+      matchedRisks: ["Billing data loss during migration"],
+      totalDecisions: 2,
+      totalActionItems: 2,
+      totalRisks: 1,
+      deepSearchSummary: null,
+    });
+    const r2 = result.current.enrichedResults[1];
+    expect(r2.displayScore).toBe(0);
+    expect(r2.artifact).toBe(null);
+    expect(r2.matchedDecisions).toEqual([]);
+    expect(r2.matchedActionItems).toEqual([]);
+    expect(r2.matchedRisks).toEqual([]);
+  });
+
+  it("uses deep search score when deep search is active", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    const deepSearch = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", relevanceSummary: "Discusses billing directly", relevanceScore: 75 },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch,
+      artifactBatch: vi.fn().mockResolvedValue({ m1: null }),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setDeepSearchEnabled(true));
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.isDeepSearchActive).toBe(true));
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(1));
+    expect(result.current.enrichedResults[0].displayScore).toBe(0.75);
+    expect(result.current.enrichedResults[0].deepSearchSummary).toBe("Discusses billing directly");
+  });
+
+  it("returns empty enrichedResults when no search results", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    expect(result.current.enrichedResults).toEqual([]);
+  });
+
+  it("handles single result with displayScore 1 (min-max edge case)", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.5, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({ m1: null }),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.enrichedResults.length).toBe(1));
+    expect(result.current.enrichedResults[0].displayScore).toBe(1);
+  });
+});
+
 describe("useArtifactBatch", () => {
   it("calls artifactBatch with sorted meeting IDs and returns results", async () => {
+    const artifactData = {
+      summary: "Budget review",
+      decisions: [],
+      proposed_features: [],
+      action_items: [],
+      open_questions: [],
+      risk_items: [],
+      additional_notes: [],
+      milestones: [],
+    };
     const artifactBatch = vi.fn().mockResolvedValue({
-      m1: { meeting_id: "m1", summary: "Budget review", decisions: "[]", proposed_features: "[]", action_items: "[]", open_questions: "[]", risk_items: "[]", additional_notes: "[]", milestones: "[]" },
+      m1: artifactData,
       m2: null,
     });
     (window as unknown as Record<string, unknown>).api = {
@@ -355,7 +483,7 @@ describe("useArtifactBatch", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(artifactBatch).toHaveBeenCalledWith(["m1", "m2"]);
     expect(result.current.data).toEqual({
-      m1: { meeting_id: "m1", summary: "Budget review", decisions: "[]", proposed_features: "[]", action_items: "[]", open_questions: "[]", risk_items: "[]", additional_notes: "[]", milestones: "[]" },
+      m1: artifactData,
       m2: null,
     });
   });

@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
 import { useSearch } from "./useSearch.js";
 import { useDeepSearch } from "./useDeepSearch.js";
+import { useArtifactBatch } from "./useArtifactBatch.js";
 
 const ALL_FIELDS = new Set([
   "summary", "decisions", "action_items", "risk_items",
@@ -10,6 +11,46 @@ const ALL_FIELDS = new Set([
 
 export interface UseSearchStateProps {
   selectedClient: string | null;
+}
+
+export interface EnrichedResult {
+  meetingId: string;
+  displayScore: number;
+  date: string;
+  title: string;
+  client: string;
+  series: string;
+  clusterTags: string[];
+  artifact: Record<string, unknown> | null;
+  matchedDecisions: string[];
+  matchedActionItems: string[];
+  matchedRisks: string[];
+  totalDecisions: number;
+  totalActionItems: number;
+  totalRisks: number;
+  deepSearchSummary: string | null;
+}
+
+function matchItems(items: string[], query: string): string[] {
+  if (!query) return [];
+  const lower = query.toLowerCase();
+  return items.filter((item) => item.toLowerCase().includes(lower));
+}
+
+function minMaxNormalize(scores: number[]): Map<number, number> {
+  const result = new Map<number, number>();
+  if (scores.length === 0) return result;
+  if (scores.length === 1) {
+    result.set(0, 1);
+    return result;
+  }
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const range = max - min;
+  scores.forEach((s, i) => {
+    result.set(i, range === 0 ? 1 : (s - min) / range);
+  });
+  return result;
 }
 
 export function useSearchState({ selectedClient }: UseSearchStateProps) {
@@ -93,6 +134,66 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
 
   const isDeepSearchActive = deepSearchEnabled && !!deepSearchResults && deepSearchResults.length > 0;
 
+  const { data: artifactBatchData } = useArtifactBatch(hybridMeetingIds);
+
+  const deepSearchMap = useMemo(() => {
+    if (!isDeepSearchActive || !deepSearchResults) return new Map<string, { summary: string; score: number }>();
+    return new Map(deepSearchResults.map((r) => [r.meeting_id, { summary: r.relevanceSummary, score: r.relevanceScore }]));
+  }, [isDeepSearchActive, deepSearchResults]);
+
+  const enrichedResults = useMemo((): EnrichedResult[] => {
+    if (!searchResults || searchResults.length === 0) return [];
+    const scores = searchResults.map((r) => r.score);
+    const normalizedScores = minMaxNormalize(scores);
+    return searchResults.map((r, i) => {
+      const artifact = artifactBatchData?.[r.meeting_id] ?? null;
+      const deepInfo = deepSearchMap.get(r.meeting_id);
+      const displayScore = isDeepSearchActive && deepInfo
+        ? deepInfo.score / 100
+        : normalizedScores.get(i) ?? 0;
+
+      let decisions: string[] = [];
+      let actionItems: string[] = [];
+      let risks: string[] = [];
+      let totalDecisions = 0;
+      let totalActionItems = 0;
+      let totalRisks = 0;
+
+      if (artifact) {
+        const a = artifact as Record<string, unknown>;
+        const decArray = (a.decisions ?? []) as Array<{ text: string }>;
+        totalDecisions = decArray.length;
+        decisions = matchItems(decArray.map((d) => d.text), searchQuery);
+
+        const actArray = (a.action_items ?? []) as Array<{ description: string }>;
+        totalActionItems = actArray.length;
+        actionItems = matchItems(actArray.map((item) => item.description), searchQuery);
+
+        const riskArray = (a.risk_items ?? []) as Array<{ description: string }>;
+        totalRisks = riskArray.length;
+        risks = matchItems(riskArray.map((item) => item.description), searchQuery);
+      }
+
+      return {
+        meetingId: r.meeting_id,
+        displayScore,
+        date: r.date,
+        title: r.meeting_type,
+        client: r.client,
+        series: r.series,
+        clusterTags: r.cluster_tags,
+        artifact,
+        matchedDecisions: decisions,
+        matchedActionItems: actionItems,
+        matchedRisks: risks,
+        totalDecisions,
+        totalActionItems,
+        totalRisks,
+        deepSearchSummary: deepInfo?.summary ?? null,
+      };
+    });
+  }, [searchResults, artifactBatchData, deepSearchMap, isDeepSearchActive, searchQuery]);
+
   useEffect(() => {
     if (searchResults && searchStartRef.current !== null) {
       setSearchDurationMs(Date.now() - searchStartRef.current);
@@ -133,5 +234,6 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     deepSearchResults: deepSearchResults ?? null,
     deepSearchFetching,
     isDeepSearchActive,
+    enrichedResults,
   };
 }
