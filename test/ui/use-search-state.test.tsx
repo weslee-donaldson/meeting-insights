@@ -539,6 +539,67 @@ describe("useSearchState chatMeetingIds", () => {
   });
 });
 
+describe("useSearchState collapsedSummary", () => {
+  it("returns 'Enter a search query' when query is empty", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    expect(result.current.collapsedSummary).toBe("Enter a search query");
+  });
+
+  it("returns 'All fields' when all 7 fields are selected", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    expect(result.current.collapsedSummary).toBe("All fields");
+  });
+
+  it("returns 'No fields selected' when 0 fields are selected", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    for (const field of ALL_FIELDS) {
+      act(() => result.current.toggleField(field));
+    }
+    expect(result.current.collapsedSummary).toBe("No fields selected");
+  });
+
+  it("returns truncated list when more than 3 fields selected", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    act(() => result.current.toggleField("risk_items"));
+    act(() => result.current.toggleField("proposed_features"));
+    act(() => result.current.toggleField("open_questions"));
+    expect(result.current.collapsedSummary).toBe("Summary, Decisions, Action Items, +1 more");
+  });
+
+  it("returns comma-separated list when 3 or fewer fields selected", () => {
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    for (const field of ALL_FIELDS) {
+      act(() => result.current.toggleField(field));
+    }
+    act(() => result.current.toggleField("summary"));
+    act(() => result.current.toggleField("decisions"));
+    expect(result.current.collapsedSummary).toBe("Summary, Decisions");
+  });
+});
+
 describe("useArtifactBatch", () => {
   it("calls artifactBatch with sorted meeting IDs and returns results", async () => {
     const artifactData = {

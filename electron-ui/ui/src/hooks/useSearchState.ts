@@ -37,6 +37,25 @@ function matchItems(items: string[], query: string): string[] {
   return items.filter((item) => item.toLowerCase().includes(lower));
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  summary: "Summary",
+  decisions: "Decisions",
+  action_items: "Action Items",
+  risk_items: "Risks",
+  proposed_features: "Features",
+  open_questions: "Questions",
+  milestones: "Milestones",
+};
+
+function buildCollapsedSummary(query: string, fields: Set<string>): string {
+  if (!query) return "Enter a search query";
+  if (fields.size === 0) return "No fields selected";
+  if (fields.size === ALL_FIELDS.size) return "All fields";
+  const labels = [...ALL_FIELDS].filter((f) => fields.has(f)).map((f) => FIELD_LABELS[f]);
+  if (labels.length <= 3) return labels.join(", ");
+  return `${labels.slice(0, 3).join(", ")}, +${labels.length - 3} more`;
+}
+
 function minMaxNormalize(scores: number[]): Map<number, number> {
   const result = new Map<number, number>();
   if (scores.length === 0) return result;
@@ -194,6 +213,11 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     });
   }, [searchResults, artifactBatchData, deepSearchMap, isDeepSearchActive, searchQuery]);
 
+  const collapsedSummary = useMemo(
+    () => buildCollapsedSummary(searchQuery, searchFields),
+    [searchQuery, searchFields],
+  );
+
   const chatMeetingIds = useMemo((): string[] => {
     if (selectedResultId) return [selectedResultId];
     if (checkedResultIds.size > 0) return [...checkedResultIds];
@@ -244,5 +268,6 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     isDeepSearchActive,
     enrichedResults,
     chatMeetingIds,
+    collapsedSummary,
   };
 }
