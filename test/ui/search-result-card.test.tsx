@@ -147,6 +147,75 @@ describe("SearchResultCard — matched artifacts", () => {
   });
 });
 
+describe("SearchResultCard — +N more expand/collapse", () => {
+  const resultWithExtras = makeResult({
+    artifact: {
+      decisions: [
+        { text: "Use billing API v2" },
+        { text: "Deprecate old billing system" },
+        { text: "Set Q3 deadline" },
+      ],
+      action_items: [
+        { description: "Migrate billing endpoint", owner: "Alice", reporter: "Bob", due_date: "2026-03-20" },
+        { description: "Write integration tests", owner: "Charlie", reporter: "Dana", due_date: "2026-03-25" },
+      ],
+      risk_items: [
+        { description: "API rate limits could block launch" },
+        { description: "Vendor contract expires soon" },
+      ],
+    },
+    matchedDecisions: ["Use billing API v2"],
+    matchedActionItems: ["Migrate billing endpoint"],
+    matchedRisks: ["API rate limits could block launch"],
+    totalDecisions: 3,
+    totalActionItems: 2,
+    totalRisks: 2,
+  });
+
+  it("shows +N more when there are non-matched items in a category", () => {
+    render(<SearchResultCard {...defaultProps({ result: resultWithExtras })} />);
+    expect(screen.getByText("+4 more")).not.toBeNull();
+  });
+
+  it("hides non-matched items in collapsed state", () => {
+    render(<SearchResultCard {...defaultProps({ result: resultWithExtras })} />);
+    expect(screen.queryByText("Deprecate old billing system")).toBeNull();
+    expect(screen.queryByText("Write integration tests")).toBeNull();
+    expect(screen.queryByText("Vendor contract expires soon")).toBeNull();
+  });
+
+  it("clicking +N more expands to show all items with section headers", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    render(<SearchResultCard {...defaultProps({ result: resultWithExtras })} />);
+    await user.click(screen.getByText("+4 more"));
+    expect(screen.getByText("DECISIONS")).not.toBeNull();
+    expect(screen.getByText("Deprecate old billing system")).not.toBeNull();
+    expect(screen.getByText("ACTION ITEMS")).not.toBeNull();
+    expect(screen.getByText("Write integration tests")).not.toBeNull();
+    expect(screen.getByText("RISKS")).not.toBeNull();
+    expect(screen.getByText("Vendor contract expires soon")).not.toBeNull();
+  });
+
+  it("clicking expanded toggle collapses back to matched-only view", async () => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    render(<SearchResultCard {...defaultProps({ result: resultWithExtras })} />);
+    await user.click(screen.getByText("+4 more"));
+    expect(screen.getByText("Deprecate old billing system")).not.toBeNull();
+    await user.click(screen.getByText("Show less"));
+    expect(screen.queryByText("Deprecate old billing system")).toBeNull();
+  });
+
+  it("does not show +N more when all items are matched", () => {
+    const allMatched = makeResult({
+      totalDecisions: 1,
+      totalActionItems: 1,
+      totalRisks: 1,
+    });
+    render(<SearchResultCard {...defaultProps({ result: allMatched })} />);
+    expect(screen.queryByText(/\+\d+ more/)).toBeNull();
+  });
+});
+
 describe("SearchResultCard — WHY block", () => {
   it("renders WHY block when deepSearchSummary exists", () => {
     render(
