@@ -1,5 +1,6 @@
 import React from "react";
 import type { EnrichedResult } from "../hooks/useSearchState.js";
+import { searchResultCard, typography } from "../design-tokens.js";
 
 interface SearchResultCardProps {
   result: EnrichedResult;
@@ -9,10 +10,137 @@ interface SearchResultCardProps {
   searchQuery: string;
 }
 
-export function SearchResultCard({ result, checked, onToggleChecked, onOpen, searchQuery }: SearchResultCardProps) {
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function scoreColor(score: number): string {
+  if (score >= 0.9) return searchResultCard.scoreColors.high;
+  if (score >= 0.8) return searchResultCard.scoreColors.medHigh;
+  if (score >= 0.7) return searchResultCard.scoreColors.med;
+  return searchResultCard.scoreColors.low;
+}
+
+export function SearchResultCard({
+  result,
+  checked,
+  onToggleChecked,
+  onOpen,
+  searchQuery,
+}: SearchResultCardProps) {
+  const cardStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    padding: "10px 16px",
+    borderLeft: checked ? searchResultCard.checkedBorderLeft : "3px solid transparent",
+    borderBottom: "1px solid var(--color-line)",
+  };
+
+  const headerStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  };
+
+  const checkboxStyle: React.CSSProperties = {
+    width: searchResultCard.checkboxSize,
+    height: searchResultCard.checkboxSize,
+    borderRadius: searchResultCard.checkboxRadius,
+    border: checked ? "none" : `1.5px solid ${searchResultCard.checkboxUncheckedBorder}`,
+    backgroundColor: checked ? searchResultCard.checkedAccent : "transparent",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    flexShrink: 0,
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontFamily: searchResultCard.titleFont,
+    fontSize: searchResultCard.titleSize,
+    fontWeight: searchResultCard.titleWeight,
+    color: "var(--color-text-primary)",
+    lineHeight: typography.lineHeight.body,
+  };
+
   return (
-    <div data-testid={`search-result-card-${result.meetingId}`} data-checked={checked}>
-      <span>{result.title}</span>
+    <div
+      data-testid={`search-result-card-${result.meetingId}`}
+      data-checked={checked}
+      style={cardStyle}
+    >
+      <div style={headerStyle}>
+        <div
+          data-testid="result-checkbox"
+          data-checked={String(checked)}
+          style={checkboxStyle}
+          onClick={() => onToggleChecked(result.meetingId)}
+        >
+          {checked && (
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </div>
+
+        <span style={titleStyle}>
+          {result.title} &middot; {formatDate(result.date)}
+        </span>
+
+        <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
+          {result.clusterTags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                backgroundColor: searchResultCard.tagBg,
+                color: searchResultCard.tagColor,
+                fontSize: searchResultCard.tagFontSize,
+                fontWeight: searchResultCard.tagFontWeight,
+                borderRadius: searchResultCard.tagRadius,
+                padding: searchResultCard.tagPadding,
+                lineHeight: typography.lineHeight.micro,
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <span
+          data-testid="result-score"
+          style={{
+            fontFamily: searchResultCard.scoreFont,
+            fontSize: searchResultCard.scoreSize,
+            fontWeight: searchResultCard.scoreWeight,
+            color: scoreColor(result.displayScore),
+            flexShrink: 0,
+          }}
+        >
+          {result.displayScore.toFixed(2)}
+        </span>
+
+        <span
+          style={{
+            fontFamily: searchResultCard.openCtaFont,
+            fontSize: searchResultCard.openCtaSize,
+            fontWeight: searchResultCard.openCtaWeight,
+            color: searchResultCard.openCtaColor,
+            cursor: "pointer",
+            flexShrink: 0,
+          }}
+          onClick={() => onOpen(result.meetingId)}
+        >
+          Open
+        </span>
+      </div>
     </div>
   );
 }
