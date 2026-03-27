@@ -18,6 +18,7 @@ interface WorkspaceBannerProps {
   onDeepSearchToggle?: (enabled: boolean) => void;
   onReset: () => void;
   onSearchNavigate?: (query: string) => void;
+  hideDateFilters?: boolean;
   className?: string;
 }
 
@@ -213,7 +214,7 @@ export function WorkspaceBanner(props: WorkspaceBannerProps) {
     return <MobileBanner {...props} />;
   }
 
-  const { clientName, clients, onClientChange, stats, searchQuery, onSearchQueryChange, onSubmitSearch, onSearchNavigate, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, className } = props;
+  const { clientName, clients, onClientChange, stats, searchQuery, onSearchQueryChange, onSubmitSearch, onSearchNavigate, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, hideDateFilters, className } = props;
 
   if (!clientName) {
     return (
@@ -262,7 +263,7 @@ export function WorkspaceBanner(props: WorkspaceBannerProps) {
 
       <div className="flex items-center gap-3 px-5 py-2.5 bg-[var(--color-bg-surface)]">
         <SearchBar searchQuery={searchQuery} onSearchQueryChange={onSearchQueryChange} onSubmitSearch={onSubmitSearch} onSearchNavigate={onSearchNavigate} clientName={clientName} />
-        <DateFilters dateRange={dateRange} onDateChange={onDateChange} deepSearchEnabled={deepSearchEnabled} onDeepSearchToggle={onDeepSearchToggle} />
+        {!hideDateFilters && <DateFilters dateRange={dateRange} onDateChange={onDateChange} deepSearchEnabled={deepSearchEnabled} onDeepSearchToggle={onDeepSearchToggle} />}
       </div>
     </div>
   );

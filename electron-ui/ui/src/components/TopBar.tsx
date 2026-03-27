@@ -20,6 +20,8 @@ interface TopBarProps {
   setTheme: (name: ThemeName) => void;
   themes: Theme[];
   stats?: { meetings: number; actionItems: number; threads: number };
+  hideDateFilters?: boolean;
+  hideDeepToggle?: boolean;
 }
 
 const THEME_ICONS: Record<ThemeName, React.ReactNode> = {
@@ -46,6 +48,8 @@ export function TopBar({
   setTheme,
   themes,
   stats,
+  hideDateFilters,
+  hideDeepToggle,
 }: TopBarProps) {
   function cycleTheme() {
     const idx = themes.findIndex((t) => t.name === theme);
@@ -67,8 +71,9 @@ export function TopBar({
         dateRange={dateRange}
         onDateChange={onDateChange}
         deepSearchEnabled={deepSearchEnabled}
-        onDeepSearchToggle={onDeepSearchToggle}
+        onDeepSearchToggle={hideDeepToggle ? undefined : onDeepSearchToggle}
         onReset={onReset}
+        hideDateFilters={hideDateFilters}
         className="flex-1"
       />
       <div className="flex items-start px-2 py-2.5 bg-[var(--color-bg-surface)] border-b border-[var(--color-line)]">

@@ -552,6 +552,8 @@ export function App() {
             actionItems: (meeting.clientActionItemsQuery.data ?? []).length,
             threads: (thread.threadsQuery.data ?? []).length,
           } : undefined}
+          hideDateFilters={currentView === "search"}
+          hideDeepToggle={currentView === "search"}
         />
       }
       navRail={<NavRail currentView={currentView} onNavigate={meeting.handleNavigate} />}

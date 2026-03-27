@@ -86,4 +86,15 @@ describe("TopBar", () => {
     render(<TopBar {...defaultProps} selectedClient={null} />);
     expect(screen.getByText("Select a workspace")).toBeDefined();
   });
+
+  it("hides date inputs when hideDateFilters is true", () => {
+    render(<TopBar {...defaultProps} hideDateFilters />);
+    expect(screen.queryByLabelText("After date")).toBeNull();
+    expect(screen.queryByLabelText("Before date")).toBeNull();
+  });
+
+  it("hides Deep Search toggle when hideDeepToggle is true", () => {
+    render(<TopBar {...defaultProps} onDeepSearchToggle={vi.fn()} deepSearchEnabled={false} hideDeepToggle />);
+    expect(screen.queryByLabelText("Deep Search")).toBeNull();
+  });
 });
