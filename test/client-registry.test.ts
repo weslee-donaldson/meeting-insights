@@ -251,4 +251,41 @@ describe("buildClientContext", () => {
     expect(ctx).not.toContain("null");
     expect(ctx).not.toContain("undefined");
   });
+
+  it("renders glossary section with canonical terms and variants", () => {
+    const glossary = [
+      { term: "CSTAR", variants: ["C*", "C star", "Cstar"], description: "Project management platform" },
+      { term: "AppDev", variants: ["app dev", "appdev"], description: "Application development team" },
+    ];
+    const ctx = buildClientContext("Acme", [], [], undefined, glossary);
+    expect(ctx).toContain("## Terminology Glossary");
+    expect(ctx).toContain("**CSTAR**");
+    expect(ctx).toContain('"C*"');
+    expect(ctx).toContain('"C star"');
+    expect(ctx).toContain('"Cstar"');
+    expect(ctx).toContain("Project management platform");
+    expect(ctx).toContain("**AppDev**");
+    expect(ctx).toContain('"app dev"');
+    expect(ctx).toContain("Application development team");
+  });
+
+  it("omits glossary section when glossary is undefined", () => {
+    const ctx = buildClientContext("Acme", [], [], undefined);
+    expect(ctx).not.toContain("Glossary");
+  });
+
+  it("omits glossary section when glossary is empty array", () => {
+    const ctx = buildClientContext("Acme", [], [], undefined, []);
+    expect(ctx).not.toContain("Glossary");
+  });
+
+  it("places glossary after authority guidance and before additional prompt", () => {
+    const glossary = [{ term: "CSTAR", variants: ["C*"], description: "Platform" }];
+    const ctx = buildClientContext("Acme", [], [], "Alice is the lead.", glossary);
+    const guidanceIdx = ctx.indexOf("determining whether a request is critical");
+    const glossaryIdx = ctx.indexOf("## Terminology Glossary");
+    const promptIdx = ctx.indexOf("Alice is the lead.");
+    expect(glossaryIdx).toBeGreaterThan(guidanceIdx);
+    expect(promptIdx).toBeGreaterThan(glossaryIdx);
+  });
 });

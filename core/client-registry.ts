@@ -11,6 +11,12 @@ export interface Participant {
   role: string;
 }
 
+export interface GlossaryEntry {
+  term: string;
+  variants: string[];
+  description: string;
+}
+
 export interface ClientRow {
   id: string;
   name: string;
@@ -94,6 +100,7 @@ export function buildClientContext(
   clientTeam: Participant[],
   implTeam: Participant[],
   additionalPrompt: string | undefined,
+  glossary?: GlossaryEntry[],
 ): string {
   const lines: string[] = [];
   lines.push(`## Client Context: ${name}`);
@@ -116,6 +123,17 @@ export function buildClientContext(
   }
 
   lines.push(ROLE_AUTHORITY_GUIDANCE);
+
+  if (glossary && glossary.length > 0) {
+    lines.push("");
+    lines.push("## Terminology Glossary");
+    lines.push("When the transcript contains any of the listed variants, always use the canonical term in your output.");
+    lines.push("");
+    for (const entry of glossary) {
+      const variantList = entry.variants.map(v => `"${v}"`).join(", ");
+      lines.push(`- **${entry.term}** (not ${variantList}): ${entry.description}`);
+    }
+  }
 
   if (additionalPrompt) {
     lines.push("");
