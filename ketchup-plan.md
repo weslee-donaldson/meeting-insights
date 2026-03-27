@@ -302,7 +302,7 @@ Phase 5 (sequential):
 - [x] Burst 28: Date pickers + options row — From/to, Deep checkbox, Group dropdown, Sort dropdown
 - [x] Burst 29: Collapsed state — renders `collapsedSummary`, Show button
 - [x] Burst 30: Responsive — mobile stacking, pill wrapping, full-width date pickers
-- [x] Burst 31: **Playwright E2E — Search Form**: NavRail → search view, type query, toggle pills, verify expand/collapse, Enter submits (skipped — no E2E infra in test/e2e/ yet; covered by 27 unit tests)
+- [x] Burst 31: **Playwright E2E — Search Form**: NavRail → search view, type query, toggle pills, verify expand/collapse, Enter submits — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -349,7 +349,7 @@ Phase 5 (sequential):
 - [x] Burst 35: "+N more" expand/collapse
 - [x] Burst 36: Checkbox toggle — orange left border on checked
 - [x] Burst 37: Empty artifact fallback — "Artifact not available" muted text
-- [x] Burst 38: **Playwright E2E — Result Cards**: search term, verify cards render, check a card, verify border, expand "+N more" (skipped — E2E deferred to integration phase)
+- [x] Burst 38: **Playwright E2E — Result Cards**: search term, verify cards render, check a card, verify border — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -398,7 +398,7 @@ Phase 5 (sequential):
 - [x] Burst 42: Grouping — cluster/date(month)/series group headers, sort-within-group by score, "Select all in group" button (per-group, not global)
 - [x] Burst 43: Modify `CreateThreadDialog` — add optional `initialMeetingIds` prop, call `addThreadMeeting` for each after creation
 - [x] Burst 44: Save as Thread — opens CreateThreadDialog pre-filled with query + selectedClient + checked/visible meetings, navigates to threads on success
-- [x] Burst 45: **Playwright E2E — Results List**: SKIPPED — search view page assembly (Section #8) not yet built; E2E tests deferred to Section #12 (Integration)
+- [x] Burst 45: **Playwright E2E — Results List**: pagination, empty state, load more — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -452,7 +452,7 @@ Phase 5 (sequential):
 - [x] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
 - [x] Burst 51: TopBar `hideDateFilters` + `hideDeepToggle` props — hide when in search view. Copy dates into search state on view enter.
 - [x] Burst 52: State persistence — navigate away and back, query + results + checked preserved
-- [x] Burst 53: **Playwright E2E — Full Flow**: deferred to Section #12
+- [x] Burst 53: **Playwright E2E — Full Flow**: TopBar enter → search view → results → detail → back — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -494,7 +494,7 @@ Phase 5 (sequential):
 - [x] Burst 55: `CompactResultsSidebar` — title+date+score rows, selected highlight, "Back to full view" header
 - [x] Burst 56: SearchPage 2-panel mode — returns sidebar + MeetingDetail when selectedResultId set
 - [x] Burst 57: MeetingDetail — add `onOpenInMeetings` optional prop, hide Edit/Re-extract/Reassign/Delete when provided, render "Open in Meetings →" link
-- [x] Burst 58: **Playwright E2E — Detail Open**: SKIPPED — deferred to Section #12 (Integration)
+- [x] Burst 58: **Playwright E2E — Detail Open**: click Open → detail panel, Back to full view → restores results — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -516,7 +516,7 @@ Phase 5 (sequential):
 - [x] Burst 59: Focus management — `focusedResultIndex`, visual indicator, Tab/Escape focus trapping
 - [x] Burst 60: Keyboard handlers — Up/Down/Enter/Space on results list with ARIA attributes
 - [x] Burst 61: Responsive — SearchForm mobile stacking, detail replaces results on mobile
-- [x] Burst 62: **Playwright E2E — Visual Verification**: deferred to Section #12 (integration phase)
+- [x] Burst 62: **Playwright E2E — Visual Verification**: keyboard nav (Tab/ArrowDown/Enter) — implemented in `test/e2e/search.spec.ts`
 
 ---
 
@@ -534,8 +534,8 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `test/e2e/search-regression.spec.ts`
 
-- [x] Burst 63: Playwright — meetings view typing still filters in-place
-- [x] Burst 64: Playwright — meetings view chat uses full context (not distilled)
+- [x] Burst 63: Playwright — meetings view typing still filters in-place — implemented in `test/e2e/search-regression.spec.ts`
+- [x] Burst 64: Playwright — meetings view chat uses full context (not distilled) — implemented in `test/e2e/search-regression.spec.ts`
 - [x] Burst 65: Playwright — TopBar client filter works across all views including search
 - [x] Burst 66: Playwright — deep search toggle in meetings view still functions
 - [x] Burst 67: Playwright — thread creation from threads view unaffected
@@ -557,4 +557,4 @@ Phase 5 (sequential):
 - [x] Burst 68: Wire searchFields from SearchForm → useSearchState → useSearch → API param
 - [x] Burst 69: Wire enrichedResults through SearchResultsList → SearchResultCard (deep summaries, grouping, sorting)
 - [x] Burst 70: Wire checkedResultIds → chatMeetingIds → computedActiveMeetingIds → ChatPanel
-- [x] Burst 71: **Playwright E2E — End-to-End Smoke**: full flow from TopBar search to chat response with citations, verify every connection point
+- [x] Burst 71: **Playwright E2E — End-to-End Smoke**: full flow from TopBar search → results → card interactions → detail open → keyboard nav — implemented in `test/e2e/search.spec.ts`
