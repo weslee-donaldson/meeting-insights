@@ -11,6 +11,7 @@ Page components are thin composers — they receive state and callbacks as props
 | `ThreadsPage.tsx` | Composes `ThreadsView` (left panel), `ThreadDetailView` (right panel), and an optional `MeetingDetail` preview panel; includes inline artifact merging for thread-linked meetings |
 | `InsightsPage.tsx` | Composes `InsightsView` (left panel), `InsightDetailView` (right panel), and a `MeetingDetail` preview panel |
 | `TimelinesPage.tsx` | Composes `TimelinesView` (left panel) and `TimelineDetailView` (right panel) |
+| `SearchPage.tsx` | Composes `SearchForm` (collapsible), `SearchResultsList` or `CompactResultsSidebar` (left panel), and `MeetingDetail` (right panel) for the selected result; manages search state, field filters, grouping, sorting, and deep search toggle |
 
 ## Key Concepts
 

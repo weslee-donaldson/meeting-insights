@@ -21,6 +21,8 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 | `useDeepSearch.ts` | Fetches LLM-scored deep search results for a list of meeting IDs and a query; enabled only when the hybrid search above it has returned results |
 | `useMeetings.ts` | Fetches meetings with optional `MeetingFilters` (client, after, before) |
 | `useSearch.ts` | Fetches hybrid (vector + FTS) search results for a query string; enabled when query length ≥ 2; 60-second stale time |
+| `useArtifactBatch.ts` | Fetches artifacts for multiple meeting IDs in a single batch call; keyed by sorted ID list; 120-second stale time; used by search results to enrich displayed data |
+| `useSelectedResultData.ts` | Composite query hook that fetches artifact, completions, assets, thread tags, milestone tags, and notes count for a single selected meeting; used by SearchPage detail panel |
 
 ### Stateful feature hooks
 
@@ -30,6 +32,13 @@ Custom hooks that encapsulate data fetching and feature-level state. They fall i
 | `useThreadState.ts` | Manages thread list, selected thread, candidate discovery and evaluation, thread meeting management, thread summary regeneration, and thread chat message history |
 | `useInsightState.ts` | Manages insight list, selected insight, insight generation, RAG/status updates, insight meeting management, and insight chat |
 | `useMilestoneState.ts` | Manages milestone list, selected milestone, mention confirm/reject, milestone merging, action item linking, date slippage queries, and milestone chat |
+| `useNotesState.ts` | Manages notes dialog state (list/compose/edit modes), note CRUD via `window.api.notes*`, delete confirmation, and toast feedback; generic across meeting, insight, milestone, and thread object types |
+| `useSearchState.ts` | Full search view state machine — manages query text, field filters, date range, deep search toggle, grouping, sorting, result enrichment (artifact batch + matched sections), display limit pagination, and chat context assembly |
+| `useDensity.ts` | Reads/writes density preference (`comfortable`/`compact`/`dense`) to localStorage; returns `[mode, setMode]` tuple consumed by App.tsx and passed to all list views |
+| `useDeleteConfirmation.ts` | Generic two-step delete confirmation pattern — `requestDelete(id)` opens the dialog, `confirmDelete()` executes the callback, `cancelDelete()` dismisses; used by threads, insights, milestones |
+| `useClearMessages.ts` | Generic two-step clear confirmation for chat message history — `requestClear()` opens dialog, `confirmClear()` executes the callback; used by thread, insight, milestone, and meeting chat panels |
+| `useMeetingSelection.ts` | Manages meeting selection state — single-select (`selectedMeetingId`), multi-check (`checkedMeetingIds` Set), and preview meeting ID; extracted from `useMeetingState` for reuse across views |
+| `useSearchScope.ts` | Chains `useSearch` (hybrid) and `useDeepSearch` (LLM re-ranking) into a single scope; applies deep search results to filter the visible meeting list; handles error fallback with toast |
 
 ## Key Concepts
 

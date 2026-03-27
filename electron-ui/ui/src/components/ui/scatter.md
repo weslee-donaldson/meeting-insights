@@ -14,6 +14,11 @@ Low-level UI primitives used throughout the component tree. These are unstyled o
 | `toast.tsx` | Toast notification system; exports `ToastContainer`, `useToast` hook, and toast state management |
 | `bottom-sheet.tsx` | Sheet that slides up from the bottom of the screen on mobile; falls back to `Dialog` on desktop viewports |
 | `responsive-dialog.tsx` | Wrapper that renders `BottomSheet` on mobile or `Dialog` on desktop, based on `useBreakpoint()` |
+| `tag.tsx` | Inline tag label with optional milestone accent border; smaller and more compact than `badge.tsx`, used for cluster tags and milestone references |
+| `ds-checkbox.tsx` | Design-system checkbox with three density sizes (`default`, `compact`, `dense`); styled button with `role="checkbox"` and theme-aware accent colors |
+| `progress-bar.tsx` | Linear progress indicator showing `current/total` count with a colored fill bar; turns green on completion |
+| `count-pill.tsx` | Rounded numeric pill for counts and totals; used inline in section headers and list rows |
+| `hash-id.tsx` | Monospaced hash identifier display with click-to-copy; used for action item short IDs |
 
 ## Key Concepts
 

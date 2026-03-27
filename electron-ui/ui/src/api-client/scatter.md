@@ -12,7 +12,8 @@ This directory provides the web-browser implementation of the `ElectronAPI` inte
 | `threads.ts` | Fetch implementations for thread CRUD, candidate discovery, evaluation, meeting linking, summary regeneration, and thread chat |
 | `insights.ts` | Fetch implementations for insight CRUD, period-based meeting discovery, insight generation, and insight chat |
 | `milestones.ts` | Fetch implementations for milestone CRUD, mention confirm/reject, milestone merging, action item linking, date slippage, and milestone chat |
-| `index.ts` | Assembles all domain method objects into a single `apiClient: ElectronAPI` export by spreading `meetingsMethods`, `chatMethods`, `threadsMethods`, `insightsMethods`, and `milestonesMethods` |
+| `notes.ts` | Fetch implementations for note CRUD: list notes by object, create, update (PATCH), delete, and count by object type/ID |
+| `index.ts` | Assembles all domain method objects into a single `apiClient: ElectronAPI` export by spreading `meetingsMethods`, `chatMethods`, `threadsMethods`, `insightsMethods`, `milestonesMethods`, and `notesMethods` |
 
 ## Key Concepts
 

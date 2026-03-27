@@ -6,6 +6,20 @@ For setup instructions, model download, and environment variables, see [SETUP.md
 
 ---
 
+## Capabilities
+
+- **Semantic Search** — Hybrid search combining vector embeddings (384-dim ONNX model) with SQLite FTS5 full-text indexing, merged via Reciprocal Rank Fusion. Optional LLM-powered deep search re-ranks results by relevance.
+- **Multi-Turn Chat** — Stateful AI conversations scoped to a single meeting, a thread, an insight, or a milestone. Supports file attachments, template selection, and transcript inclusion. Citations reference source meetings via `[M1]`-style labels.
+- **Executive Insights** — Generate periodic executive summaries (daily, weekly, monthly) with RAG status indicators. Draft/final workflow with editable rich text summaries and topic breakdowns linked back to source meetings.
+- **Thread Tracking** — Create topic threads with criteria prompts. The system auto-discovers relevant meetings via vector similarity, then LLM-evaluates each candidate for relevance scoring. Conversation history is maintained per thread.
+- **Milestone Timelines** — Track deliverables across meetings with calendar and Gantt chart views. Auto-extracted from meeting artifacts with fuzzy title matching. Date slippage tracking shows how target dates shift over time.
+- **Action Item Management** — Consolidated cross-meeting action items with priority levels, ownership, due dates, and completion tracking. Automatic deduplication via embedding similarity + Jaro-Winkler distance, with optional LLM intent clustering for deep dedup.
+- **Notes** — Universal annotation system attachable to meetings, insights, milestones, or threads.
+- **Multi-Client Support** — Client registry with aliases, glossary terms, and per-client refinement prompts. Auto-detection matches meetings to clients via email domains, aliases, and meeting name patterns.
+- **Webhook Ingestion** — Krisp webhook events flow through Firebase Cloud Functions to Google Drive, synced locally, and auto-processed by a background file watcher service.
+
+---
+
 ## Architecture
 
 ```
@@ -77,33 +91,16 @@ krisp-meeting-insights/
 
 ---
 
-## Directory READMEs
+## Package Documentation
 
-| Directory | Purpose | README |
-|-----------|---------|--------|
-| `api/` | HTTP REST API server | [api/README.md](api/README.md) |
-| `api/routes/` | Domain route handlers | [api/routes/README.md](api/routes/README.md) |
-| `core/` | Business logic | [core/README.md](core/README.md) |
-| `cli/` | Command-line tools | [cli/README.md](cli/README.md) |
-| `electron-ui/` | Desktop + web app | [electron-ui/README.md](electron-ui/README.md) |
-| `electron-ui/electron/` | Main process + IPC | [electron-ui/electron/README.md](electron-ui/electron/README.md) |
-| `electron-ui/electron/handlers/` | Domain IPC handlers | [electron-ui/electron/handlers/README.md](electron-ui/electron/handlers/README.md) |
-| `electron-ui/electron/main/` | App lifecycle | [electron-ui/electron/main/README.md](electron-ui/electron/main/README.md) |
-| `electron-ui/electron/preload/` | Context bridge | [electron-ui/electron/preload/README.md](electron-ui/electron/preload/README.md) |
-| `electron-ui/ui/src/` | React source root | [electron-ui/ui/src/README.md](electron-ui/ui/src/README.md) |
-| `electron-ui/ui/src/components/` | UI components | [electron-ui/ui/src/components/README.md](electron-ui/ui/src/components/README.md) |
-| `electron-ui/ui/src/components/ui/` | Radix/shadcn primitives | [electron-ui/ui/src/components/ui/README.md](electron-ui/ui/src/components/ui/README.md) |
-| `electron-ui/ui/src/hooks/` | React hooks | [electron-ui/ui/src/hooks/README.md](electron-ui/ui/src/hooks/README.md) |
-| `electron-ui/ui/src/pages/` | Feature pages | [electron-ui/ui/src/pages/README.md](electron-ui/ui/src/pages/README.md) |
-| `electron-ui/ui/src/api-client/` | HTTP API client | [electron-ui/ui/src/api-client/README.md](electron-ui/ui/src/api-client/README.md) |
-| `electron-ui/ui/src/lib/` | Utilities | [electron-ui/ui/src/lib/README.md](electron-ui/ui/src/lib/README.md) |
-| `test/` | Test suite | [test/README.md](test/README.md) |
-| `test/ui/` | Component tests | [test/ui/README.md](test/ui/README.md) |
-| `test/e2e/` | End-to-end tests | [test/e2e/README.md](test/e2e/README.md) |
-| `config/` | System config + client registry | [config/README.md](config/README.md) |
-| `config/prompts/` | LLM prompt templates | [config/prompts/README.md](config/prompts/README.md) |
-| `scripts/` | Developer utilities | [scripts/README.md](scripts/README.md) |
-| `docs/` | Operational documentation | [docs/README.md](docs/README.md) |
+| Package | Purpose | README |
+|---------|---------|--------|
+| `core/` | Pure business logic — pipeline, DB, search, LLM, clients | [core/README.md](core/README.md) |
+| `api/` | HTTP REST API server (Hono) — mirrors IPC handlers | [api/README.md](api/README.md) |
+| `electron-ui/` | Desktop + web dual-mode UI (Electron + React) | [electron-ui/README.md](electron-ui/README.md) |
+| `cli/` | Command-line tools for setup, processing, querying | [cli/README.md](cli/README.md) |
+
+Each directory also contains `scatter.md` (file inventory) and optionally `gather.md` (aggregated learnings) for LLM-assisted navigation. See [gather.md](gather.md) for the root-level index.
 
 ---
 

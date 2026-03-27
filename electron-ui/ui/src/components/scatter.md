@@ -50,6 +50,16 @@ All React components that render domain data. Organized into layout, feature-vie
 | `NewMeetingDialog.tsx` | Modal form for manually importing a meeting (client, date, title, transcript format, raw transcript) |
 | `ItemHistoryDialog.tsx` | Modal showing the mention history of a canonical action item or decision across all meetings |
 | `EditActionItemDialog.tsx` | Modal form for editing an action item's description, owner, requester, due date, and priority |
+| `NotesDialog.tsx` | Universal notes dialog for creating, viewing, editing, and deleting annotations; attached to meetings, insights, milestones, or threads via `useNotesState` |
+
+### Search components
+
+| File | Purpose |
+|------|---------|
+| `SearchForm.tsx` | Search query input with field toggles (summary, decisions, action items, etc.), date range pickers, deep search toggle, group-by and sort-by selectors |
+| `SearchResultsList.tsx` | Scrollable list of enriched search results with grouping support (by cluster, date, or series); renders `SearchResultCard` for each result |
+| `SearchResultCard.tsx` | Individual search result card showing meeting title, date, relevance score, matched artifact sections, and client info |
+| `CompactResultsSidebar.tsx` | Condensed results sidebar shown alongside the detail panel when a search result is selected; lists remaining results for quick switching |
 
 ### Utilities
 

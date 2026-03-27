@@ -17,6 +17,9 @@ Layout and interaction patterns used across multiple feature views. Unlike `ui/`
 | `density-toggle.tsx` | Compact/comfortable/spacious density switcher — persists preference to localStorage; affects row height and spacing across all list views |
 | `show-more.tsx` | Text truncation with CSS line-clamp and a Show more/Show less toggle button |
 | `chat-fab.tsx` | Floating action button that opens the chat panel; rendered in the bottom-right corner of the mobile detail view |
+| `mobile-list-header.tsx` | Mobile-specific list header with large title, optional subtitle, filter slot, and a "+ New" action button; replaces TopBar controls on mobile viewports |
+| `status-dot.tsx` | Colored circle indicator for status values; maps semantic names (`green`, `tracked`, `completed`, `missed`, etc.) to theme-aware CSS color variables |
+| `filter-chip-button.tsx` | Toggleable pill button for filter options; shows active/inactive state with accent-colored highlight; used in horizontal filter rows |
 
 ## Key Concepts
 

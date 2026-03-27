@@ -8,6 +8,7 @@ General-purpose utility functions used across the React component tree. These ha
 |------|---------|
 | `utils.ts` | Exports `cn(...inputs)` — combines `clsx` for conditional class logic with `tailwind-merge` to eliminate conflicting Tailwind classes |
 | `merge-artifacts.ts` | Exports `mergeArtifactsDeduped(artifacts)` and `computeActionItemOrigins(artifacts, meetingIds)` for combining artifacts from multiple selected meetings with deduplication by normalized text; also exports `ActionItemOrigin` type |
+| `artifact-edit-helpers.ts` | HTML↔array conversion utilities for artifact list fields: `arrayToHtml(items)` wraps strings in `<ul><li>` tags, `htmlToArray(html)` extracts `<li>` text content back to a string array. Used when editing artifact sections in the rich text editor. |
 
 ## Key Concepts
 

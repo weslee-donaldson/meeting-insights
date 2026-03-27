@@ -12,7 +12,9 @@ This directory contains the entire domain model. It has no imports from `electro
 |------|---------|
 | `logger.ts` | `createLogger(namespace)` returns a `debug`-package logger under `mtninsights:<namespace>`. Also exports `logLlmCall` (structured JSONL logging with truncation for non-debug levels) and `logApiCall`, both of which write to date-rotated `.jsonl` files in the configured log directory. Log level is controlled by `MTNINSIGHTS_LOG_LEVEL` or `setLogLevel()`. |
 | `math.ts` | Pure numeric utilities: `cosineSimilarity`, `l2ToCosineSim`, `isSemanticDuplicate` (L2-distance to cosine threshold), `jaroWinklerSimilarity`, `isStringDuplicate`, `normalizeItemText`. Used by deduplication and tag-drift detection. |
-| `db.ts` | `createDb(path)` opens a SQLite connection via `node:sqlite`. `migrate(db)` applies the full schema idempotently using `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE` guards for additive columns. Tables: `meetings`, `artifacts`, `clients`, `client_detections`, `clusters`, `meeting_clusters`, `action_item_completions`, `item_mentions`, `artifact_fts` (FTS5), `threads`, `thread_meetings`, `thread_messages`, `insights`, `insight_meetings`, `insight_messages`, `milestones`, `milestone_mentions`, `milestone_action_items`, `milestone_messages`. |
+| `db.ts` | `createDb(path)` opens a SQLite connection via `node:sqlite`. `migrate(db)` applies the full schema idempotently using `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE` guards for additive columns. Tables: `meetings`, `artifacts`, `clients`, `client_detections`, `clusters`, `meeting_clusters`, `action_item_completions`, `item_mentions`, `artifact_fts` (FTS5), `threads`, `thread_meetings`, `thread_messages`, `insights`, `insight_meetings`, `insight_messages`, `milestones`, `milestone_mentions`, `milestone_action_items`, `milestone_messages`, `meeting_messages`, `notes`, `assets`. |
+| `errors.ts` | Typed error hierarchy: `AppError` (base with `code` field), `ExtractionError`, `LlmError`, `ValidationError`, `PipelineError`. All extend `AppError` and carry a machine-readable `code` string for error discrimination. |
+| `schemas.ts` | Zod v4 validation schemas for artifact fields: `DecisionSchema` (object or string coercion), `ActionItemSchema` (with priority, short_id, requester defaults), `RiskItemSchema` (with category enum), `MilestoneSchema`, and `ArtifactSchema` (top-level composite). Used by `extractor.ts` for LLM output validation. |
 
 ### Parsing & Ingestion
 
@@ -22,6 +24,8 @@ This directory contains the entire domain model. It has no imports from `electro
 | `chunker.ts` | `chunkTranscript(turns, tokenLimit)` splits `SpeakerTurn[]` into sub-arrays that stay within an estimated token budget (character count / 4), enabling parallel LLM extraction on long transcripts. |
 | `lifecycle.ts` | `moveToProcessed` and `moveToFailed` rename files between `raw-transcripts/`, `processed/`, and `failed-processing/` directories. `processDirectory` does a batch parse-and-move pass without LLM or DB, used for file-system triage. |
 | `ingest.ts` | `ingestMeeting(db, parsed)` inserts a `ParsedMeeting` into the `meetings` table, generating a UUID if no `externalId` is set. `getMeeting(db, id)` retrieves a single `MeetingRow`. |
+| `client-registry.ts` | `seedClients(db, clients)` inserts client records from `config/clients.json` into the `clients` table, skipping already-seeded entries. `getClientByName`, `getClientByAlias`, `getAllClients`, and `getDefaultClient` query the registry. Each client carries aliases, known_participants, meeting_names, client_team, implementation_team, glossary, and an optional refinement_prompt for LLM extraction. |
+| `client-detection.ts` | `detectClient(db, meeting)` auto-detects which client a meeting belongs to via participant email domains, alias matching, and meeting name token matching. `storeDetection(db, meetingId, result)` persists the detection with a confidence score. Also exports `normalizeTokens` and `parseSpeakerNames` for text normalization. |
 
 ### LLM Layer
 
@@ -32,6 +36,7 @@ This directory contains the entire domain model. It has no imports from `electro
 | `llm-provider-openai.ts` | OpenAI SDK adapter. Uses `gpt-4o` by default. Same `withRepair` / logging pattern as the Anthropic adapter. |
 | `llm-provider-local.ts` | Ollama adapter over its `/api/chat` HTTP endpoint. Handles rate-limit (429) and server errors (5xx) with typed error prefixes. |
 | `llm-provider-claudecli.ts` | Claude CLI adapter. Shells out to `claude --print --output-format json` via `execFile`. Maintains an in-process `sessionCache` (prefixHash → session_id) so multi-turn `converse()` calls resume via `--resume` rather than retransmitting full history. Activated via `MTNINSIGHTS_LLM_PROVIDER=claudecli`; no API key required. |
+| `llm-provider-claudeapi.ts` | Claude API HTTP adapter. Posts to a local Claude API proxy server (configurable `baseUrl`). Maintains a `sessionCache` (hash → session_id) for multi-turn `converse()` resumption. Handles rate limits (429) and server errors (5xx). Activated via `MTNINSIGHTS_LLM_PROVIDER=claudeapi`. |
 | `llm-provider-stub.ts` | Deterministic in-memory adapter. `STUB_FIXTURES` maps each `LlmCapability` to a fixed response object used in tests. |
 | `llm-helpers.ts` | `stripCodeFences` removes markdown code fences from LLM output. `parseJsonOrThrow` parses cleaned text or throws a `[json_parse]`-prefixed error. `withRepair(call, content)` retries once with a repair prefix on JSON parse failure, then falls back to `{ __fallback: true, raw_text: ... }`. |
 
@@ -76,6 +81,10 @@ This directory contains the entire domain model. It has no imports from `electro
 | `display-helpers.ts` | `parseCitations(text)` extracts `[M1]`-style citation indices. `replaceCitations(text, meetings)` substitutes them with meeting title and formatted date. `renderNotesGroups` formats the `additional_notes` array as indented plain text. |
 | `task-generation.ts` | `generateTask(llm, curatedContext, taskIntent, sourceMeetingIds)` calls the `generate_task` LLM capability and returns a structured `GeneratedTask` with title, description, and acceptance criteria. |
 | `feedback.ts` | Manual override functions that write directly to the DB: `overrideClient` rewrites a meeting's client detection record; `overrideTag` replaces a cluster's generated tags; `flagExtraction` sets `needs_reextraction = 1` on an artifact. |
+| `notes.ts` | Universal annotation CRUD for meetings, insights, milestones, and threads. `createNote`, `listNotes`, `getNote`, `updateNote`, `deleteNote`, `countNotes`. Notes have `objectType` (meeting/insight/milestone/thread), `objectId`, `title`, `body`, and `noteType` (user vs auto-generated). |
+| `assets.ts` | File upload and storage tied to meetings. `storeAsset` writes a binary file to disk and records metadata (filename, mime_type, file_size, storage_path) in the `assets` table. `deleteAsset` removes both the file and DB record. `getAssetData` retrieves the binary content by asset ID. |
+| `meeting-messages.ts` | Per-meeting stateful chat history. `appendMeetingMessage` inserts a user or assistant message with optional JSON sources. `getMeetingMessages` returns the conversation for a meeting sorted by creation date. `clearMeetingMessages` wipes the history. Used by the meeting detail chat panel. |
+| `format-owner.ts` | `formatOwner(name, mode)` formats a person's name by density mode: `comfortable` returns the full name, `compact` returns first name + last initial, `dense` returns initials only. Used in action item displays across density settings. |
 
 ### Orchestration
 

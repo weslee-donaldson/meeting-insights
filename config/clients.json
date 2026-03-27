@@ -42,7 +42,336 @@
     ],
     "additional_extraction_llm_prompt": "Stace is the CTO and highest authority. Jennifer manages the engineering team. Yoelvis is the principal developer — treat his technical direction with elevated weight. Sam (Architect, xolv.io) has high authority on technical decisions. The implementation team (xolv.io) is the delivery partner — action items directed at us are delivery commitments.",
     "glossary": [
-      { "term": "CSTAR", "variants": ["C*", "C star", "Cstar", "sea star", "see star"], "description": "CSTAR — the internal project/product name" }
+      {
+        "term": "LLSA",
+        "variants": ["llsa", "LLS"],
+        "description": "Abbreviation for LifeLineScreening Associates — the client/company. Also refers to legacy data systems that export entity events via S3."
+      },
+      {
+        "term": "LifeLineScreening",
+        "variants": ["Lifeline Screening", "Life Line Screening", "LLS"],
+        "description": "The client company — a nationwide provider of preventive health screenings. Operates under the product brand 'Thrive'."
+      },
+      {
+        "term": "Thrive",
+        "variants": ["Thrive Event Platform", "thrive-event", "Thr", "drive"],
+        "description": "The product/platform name for LifeLineScreening's event-driven health screening system. This monorepo builds and deploys Thrive. Contains the GraphQL supergraph, Lambda functions, EventStoreDB, Aurora database, connectors, and projections."
+      },
+      {
+        "term": "CSTAR",
+        "variants": ["C*", "C-Star", "Cstar", "C star", "sea star", "see star", "sister", "system"],
+        "description": "Legacy internal order proxy format used by LifeLineScreening. Acts as an intermediate representation for order data before it enters the event-sourced domain. The call center and FSA depend on it. Krisp often transcribes as 'sister' or 'system'."
+      },
+      {
+        "term": "Emmett",
+        "variants": ["emmett", "@event-driven-io/emmett", "emmett-esdb", "EMET"],
+        "description": "Open-source TypeScript event-sourcing library by Event Driven IO. Provides the core CQRS building blocks used in the Supergraph — command handlers, projections, reactors, and EventStoreDB integration."
+      },
+      {
+        "term": "Reactor",
+        "variants": ["reactor", "consumer.reactor"],
+        "description": "An Emmett pattern that subscribes to events and triggers side effects (e.g., sending notifications, updating external systems). Unlike a Projection which builds read models, a Reactor performs actions in response to events."
+      },
+      {
+        "term": "Projection",
+        "variants": ["Projector", "Projections", "projection handler", "read models"],
+        "description": "A CQRS/EventSourcing pattern that subscribes to domain events and materializes denormalized read models (in Aurora or Pongo). Each projection handler in kurrent-connectors listens to EventStoreDB and writes to a query-optimized store."
+      },
+      {
+        "term": "Kurrent",
+        "variants": ["kurrent", "Kurrent Connectors", "kurrent-connectors", "current"],
+        "description": "The company behind EventStoreDB (rebranded from Event Store Ltd). In this codebase, 'kurrent-connectors' is the app containing 17+ Lambda handlers that subscribe to EventStoreDB streams and process domain events. Krisp consistently transcribes EventStoreDB as 'current'."
+      },
+      {
+        "term": "EventStoreDB",
+        "variants": ["ESDB", "esdb", "Event Store", "EventStore", "current", "Current", "current DB"],
+        "description": "Purpose-built database for event sourcing by Kurrent (formerly Event Store Ltd). Stores all domain events as immutable append-only streams. Runs on a 3-node EC2 cluster. Krisp consistently transcribes as 'current'."
+      },
+      {
+        "term": "Persistent Subscription",
+        "variants": ["PersistentSubscription", "persistent sub"],
+        "description": "An EventStoreDB subscription model where the server tracks consumer position. Kurrent connector handlers use persistent subscriptions to reliably process events with at-least-once delivery guarantees."
+      },
+      {
+        "term": "Aggregate",
+        "variants": ["aggregate", "AggregateRoot"],
+        "description": "A DDD/CQRS concept — a cluster of domain objects treated as a single unit for state changes. In this codebase: ParticipantAggregate, ScreeningAggregate, OrderAggregate. Commands target aggregates, which emit events."
+      },
+      {
+        "term": "Read Model",
+        "variants": ["read model", "ReadModel", "query model"],
+        "description": "A denormalized, query-optimized data structure built by Projections from domain events. Stored in Aurora (PostgreSQL) or Pongo (document store). Separates the write side (EventStoreDB) from the read side."
+      },
+      {
+        "term": "Command Handler",
+        "variants": ["CommandHandler", "command handler"],
+        "description": "The write-side entry point in CQRS. Receives a command, loads the aggregate, validates business rules, and emits domain events to EventStoreDB. Not to be confused with Lambda handlers."
+      },
+      {
+        "term": "Decider Pattern",
+        "variants": ["decider"],
+        "description": "An event-sourcing design pattern promoted via Emmett. Pure functions that take a command and current state, then emit events. Replaces the traditional aggregate pattern from DDD. Separates decision logic from state evolution for better testability."
+      },
+      {
+        "term": "Evolver",
+        "variants": ["evolution"],
+        "description": "In the Emmett decider pattern, the pure function that takes an event and current state to produce new state. Only contains what is needed to make decisions — not a full projection of all data."
+      },
+      {
+        "term": "Decision Log",
+        "variants": ["DecisionLog", "decision log"],
+        "description": "Metadata captured from HTTP request context (user, IP, trace ID) that gets attached to commands. Provides audit trail for who/what initiated a state change."
+      },
+      {
+        "term": "Shadow Mode",
+        "variants": ["SHADOW_MODE", "shadow mode", "shadowMode"],
+        "description": "A testing/validation mode for Kurrent connector handlers. When enabled, handlers log what they would do without actually writing to EventStoreDB — used to validate new handler logic against production event streams."
+      },
+      {
+        "term": "Stream Prefix",
+        "variants": ["STREAM_PREFIX", "streamPrefix", "EVENTSTORE_STREAM_PREFIX"],
+        "description": "A namespace prefix applied to EventStoreDB stream names to isolate environments (dev, staging, prod) or tenants within a shared EventStoreDB cluster."
+      },
+      {
+        "term": "Entity Event",
+        "variants": ["EntityEvent", "entity event", "LLSA entity event"],
+        "description": "Domain events originating from the legacy LLSA system, exported as S3 files. Types include ParticipantEntityEvent, ScreeningEntityEvent, OrderEntityEvent, ResultEntityEvent, and SurveyEntityEvent."
+      },
+      {
+        "term": "Pongo",
+        "variants": ["pongo", "@event-driven-io/pongo"],
+        "description": "A document database abstraction by Event Driven IO that runs on top of PostgreSQL. Used alongside Emmett in the Supergraph for storing projection read models with a MongoDB-like API."
+      },
+      {
+        "term": "Supergraph",
+        "variants": ["supergraph", "@lls/supergraph", "super graph"],
+        "description": "The Apollo GraphQL Federation API server. Acts as the unified API gateway, serving both the portal frontend and admin portal. Runs as a Lambda function. Consumes data from Aurora projections."
+      },
+      {
+        "term": "Mandalore",
+        "variants": ["MDL", "MDL-###", "Mandalor"],
+        "description": "Internal project/team codename. Jira tickets are prefixed MDL- (e.g., MDL-728). The primary development team working on the Thrive platform."
+      },
+      {
+        "term": "Endor",
+        "variants": ["indoor", "end or", "Enor", "EDR"],
+        "description": "A separate engineering team/squad at LLSA. Works on the legacy CSTAR system, results processing, admin portal, and the customer-facing results portal. Jira tickets prefixed EDR- for e-commerce/retail features."
+      },
+      {
+        "term": "AppDev",
+        "variants": ["app dev", "appdev", "App Dev"],
+        "description": "Application development team/environment. Referenced in CI/CD deployment workflows as a deployment target."
+      },
+      {
+        "term": "DSU",
+        "variants": ["stand up", "standup", "daily stand-up"],
+        "description": "Daily Stand-Up — the daily synchronization meeting for the team. Follows a standard format of status updates, blockers, and priorities."
+      },
+      {
+        "term": "SLT",
+        "variants": [],
+        "description": "Senior Leadership Team — LLSA's executive group. Referenced in context of escalations, board demos, and business decisions around timelines and priorities."
+      },
+      {
+        "term": "ACL",
+        "variants": ["Anti-Corruption Layer", "acl", "Recurly ACL", "anti crusal", "a CL"],
+        "description": "Anti-Corruption Layer — a DDD pattern that translates between an external system's model and the internal domain model. In this codebase, the Recurly ACL translates Recurly webhook payloads into domain commands."
+      },
+      {
+        "term": "Recurly",
+        "variants": ["recurly", "Recrly", "Reculy", "Recoil", "recurrly", "recordly", "recoi"],
+        "description": "Subscription and billing management platform. Handles membership billing and e-commerce checkout for LifeLineScreening, replacing Shopify. Has its own ACL and hydration layer in this codebase. Krisp produces many mis-transcriptions."
+      },
+      {
+        "term": "Hydration",
+        "variants": ["hydration", "hydrate", "Recurly Hydration", "rehydration", "payload hydration"],
+        "description": "The process of enriching a webhook payload by fetching the full object from an external API. Recurly webhooks contain minimal data; the hydration layer calls the Recurly API to get complete subscription/account details before processing."
+      },
+      {
+        "term": "Shopify",
+        "variants": ["shop if I", "Shopi"],
+        "description": "The legacy e-commerce platform LLSA previously used for online orders. Being replaced by Recurly. Has existing webhook integrations and connectors in the Thrive system. Legacy Shopify data needs reconciliation with new Recurly data for BI."
+      },
+      {
+        "term": "Dunning",
+        "variants": [],
+        "description": "The automated process in Recurly for handling failed payment retries. When a membership renewal payment fails, Recurly automatically retries per configurable rules. A key business reason LLSA chose Recurly — they previously had no automated dunning."
+      },
+      {
+        "term": "One Life Membership",
+        "variants": ["one life", "life membership", "1-life"],
+        "description": "LLSA's premium membership product providing discounts on screening packages. Has monthly and annual subscription options with a 'first year free' discount. Managed through Recurly subscriptions with auto-renewal."
+      },
+      {
+        "term": "IDMI",
+        "variants": ["idmi"],
+        "description": "Third-party data export partner. Receives participant calculation data (BMI, age, smoking status, lab results) in a specific schema. A Kurrent connector handler formats and sends data to IDMI."
+      },
+      {
+        "term": "Iterable",
+        "variants": ["iterable", "interval", "intervals"],
+        "description": "Email marketing and customer engagement platform. A Kurrent connector syncs participant/screening events to Iterable to trigger email campaigns and lifecycle messaging."
+      },
+      {
+        "term": "SPOT",
+        "variants": ["Spot Labs", "SPOT Labs", "spot", "Spot Integration"],
+        "description": "External laboratory partner that processes blood/diagnostic samples. Sends results back via file extracts. The spot-integration-core package handles requisition creation and result ingestion."
+      },
+      {
+        "term": "Participant",
+        "variants": ["participant"],
+        "description": "Business domain term for an individual who registers for and undergoes health screenings. Central aggregate in the domain — has appointments, orders, results, and survey data. Distinct from 'payer' and 'visitor'."
+      },
+      {
+        "term": "Screening",
+        "variants": ["screening", "screening site"],
+        "description": "A health screening event at a specific date, time, and location (site). Participants book appointments at screenings. Central aggregate alongside Participant. Types include heart/stroke risk, chronic disease, men's/women's package, complete preventive care suite."
+      },
+      {
+        "term": "FSA",
+        "variants": ["fsa", "field service application"],
+        "description": "Field Service Application — the application used at physical screening event locations. Reads appointment and order data from CSTAR. When a customer arrives for their screening, FSA needs their order to exist in CSTAR to process them."
+      },
+      {
+        "term": "Diagnostic Interpreter",
+        "variants": ["DiagnosticInterpreter", "interpreter", "Interpreter Registry"],
+        "description": "One of 27+ automated analysis engines that evaluate lab results against medical thresholds to produce diagnostic interpretations. The interpreter registry maps result types to their specific interpreter."
+      },
+      {
+        "term": "Elevated Interpretation",
+        "variants": ["elevated", "ElevatedInterpretation"],
+        "description": "A diagnostic interpretation flagged as high-risk or critical, requiring physician review before the participant can view their results."
+      },
+      {
+        "term": "Physician Review",
+        "variants": ["PhysicianReview", "physician review"],
+        "description": "An approval workflow for elevated diagnostic results. Statuses: Approved, Pending, NoReviewRequired. Results with elevated interpretations require physician sign-off before participant access."
+      },
+      {
+        "term": "Order Ready State",
+        "variants": ["OrderReady", "order ready"],
+        "description": "The condition when all results and diagnostic interpretations for a participant's order are complete and available for viewing. Triggers downstream notifications."
+      },
+      {
+        "term": "Portal",
+        "variants": ["portal-frontend", "Portal Frontend", "participant portal"],
+        "description": "The React-based web application where participants view their screening results, manage appointments, and purchase products. Deployed as a static site via CloudFront."
+      },
+      {
+        "term": "Admin Portal",
+        "variants": ["admin portal", "Acct-Mgmt Widget", "Account Widget", "adding portal"],
+        "description": "Internal administrative interface for managing participant accounts, viewing screening data, and handling support cases."
+      },
+      {
+        "term": "E-comm Store",
+        "variants": ["ecom", "ecomm", "e commerce", "e-commerce store"],
+        "description": "The customer-facing online store where LLSA customers browse screening packages, select appointments, and complete checkout. Being rebuilt with Recurly integration replacing the legacy Shopify-based commerce flow."
+      },
+      {
+        "term": "Cognito",
+        "variants": ["Cognit", "conito", "knito"],
+        "description": "AWS Cognito — used for user authentication and account management. Creates login instances for customers. Separate from Recurly accounts; a mapping is needed between Recurly accounts and Cognito users."
+      },
+      {
+        "term": "Cognito Activity Ingestion",
+        "variants": ["cognito-activity-ingestion"],
+        "description": "A service that captures and processes user authentication events (logins, sign-ups, password resets) from AWS Cognito into the event-sourced domain for tracking user engagement."
+      },
+      {
+        "term": "DLQ",
+        "variants": ["Dead Letter Queue", "SQS DLQ", "dead letter", "DLRQ"],
+        "description": "SQS Dead Letter Queue — where failed event processing messages are sent after exhausting retries. Each Kurrent connector handler has its own DLQ. Also includes S3-based 'parked events' for code-level connector errors."
+      },
+      {
+        "term": "Parked Events",
+        "variants": ["park events", "parked messages"],
+        "description": "Events that failed processing and were stored in S3 buckets for later analysis and replay. The team has a script to replay parked events that downloads them, pushes them to the Lambda, and deletes from S3 on success. Distinct from SQS DLQ messages."
+      },
+      {
+        "term": "Blue-Green Deployment",
+        "variants": ["blue green", "blue-green", "leg switch", "leg swap"],
+        "description": "The deployment strategy for LLSA's AWS infrastructure. Two identical environments (blue and green 'legs') where one is active and one is the preview. Traffic is switched between legs during deployments."
+      },
+      {
+        "term": "Legs",
+        "variants": ["leg", "active leg", "inactive leg"],
+        "description": "Refers to the blue and green deployment environments. 'Switching legs' means changing which environment receives production traffic. Each leg may have different deployed code versions."
+      },
+      {
+        "term": "Ephemeral PR Environment",
+        "variants": ["PR environment", "PR env"],
+        "description": "Temporary AWS environments provisioned for each pull request. Include dedicated Lambdas and EventStoreDB streams prefixed with the branch name. Controlled via slash-deploy command or label to avoid unnecessary infrastructure provisioning."
+      },
+      {
+        "term": "Aurora",
+        "variants": [],
+        "description": "Amazon Aurora (PostgreSQL) — the relational database used for read models/projections in the Thrive architecture. Contains BI data models, participant tables, order tables, and screening data."
+      },
+      {
+        "term": "CDK",
+        "variants": ["CD key"],
+        "description": "AWS Cloud Development Kit — used for infrastructure-as-code to define and deploy all AWS resources (API Gateways, Lambdas, SQS queues, etc.). The team creates CDK stacks for both existing infrastructure and new integration components."
+      },
+      {
+        "term": "Sentry",
+        "variants": ["Century", "sentury", "centr"],
+        "description": "Error monitoring and alerting platform (Sentry.io) used to catch Lambda errors and system issues. Sends email notifications to team members."
+      },
+      {
+        "term": "Microsoft Fabric",
+        "variants": ["Fabric"],
+        "description": "The BI/data analytics platform used by LLSA's BI team for reporting. Builds reports and data pipelines to serve business intelligence needs. Marries historical data with new Recurly data."
+      },
+      {
+        "term": "State of Integration",
+        "variants": ["SOI"],
+        "description": "A methodology for tracking integration progress across complex systems. Uses a visual diagram (in Miro) with color coding: red = not started, blue = in progress, green = in production. Central artifact for tracking Recurly integration progress."
+      },
+      {
+        "term": "Strangler Pattern",
+        "variants": ["strangler"],
+        "description": "A migration pattern used to gradually replace CSTAR/Shopify with the new Thrive/Recurly system. Both old and new systems run simultaneously, with traffic gradually shifting. Creates challenges around duplicate events and data reconciliation."
+      },
+      {
+        "term": "Blacksmith",
+        "variants": ["Blockchain", "Black Magic"],
+        "description": "A third-party GitHub Actions runner provider offering faster and cheaper CI/CD execution than GitHub's default runners. Drop-in replacement changing 'runs-on' in GitHub workflows. Krisp consistently mis-transcribes this."
+      },
+      {
+        "term": "HMAC",
+        "variants": ["hash signature"],
+        "description": "Hash-based Message Authentication Code — the security mechanism used to validate that incoming Recurly webhooks are authentic. Each webhook endpoint has a unique secret key stored in AWS Secrets Manager."
+      },
+      {
+        "term": "SKU",
+        "variants": ["Skewus"],
+        "description": "Stock Keeping Unit — product identifiers used in Recurly for screening packages and tests. Packages are pre-configured in Recurly with SKUs, pricing, and couponing rules."
+      },
+      {
+        "term": "CQRS",
+        "variants": ["cqrs", "Command Query Responsibility Segregation"],
+        "description": "Command Query Responsibility Segregation — the architectural pattern separating write operations (commands → events → EventStoreDB) from read operations (projections → Aurora/Pongo). Core architecture of this platform."
+      },
+      {
+        "term": "@lls",
+        "variants": ["@lls/", "lls scope"],
+        "description": "The npm package scope for all internal shared packages in this monorepo (e.g., @lls/cqrs-es, @lls/common-types, @lls/observability). Short for LifeLineScreening."
+      },
+      {
+        "term": "Xolvio",
+        "variants": ["Xolv", "Zovio", "Soviet", "Solvio"],
+        "description": "External software consultancy/partner company that provides engineering resources to the LLSA project. The Mandalore team is a combination of Xolvio and LLSA engineers."
+      },
+      {
+        "term": "Sandbox",
+        "variants": [],
+        "description": "The pre-production/test environment at test.lifelinescreening.com and next.lifelinescreening.com. Has its own Recurly sandbox with test API keys. Blue-green deployment applies to sandbox as well."
+      },
+      {
+        "term": "Miro",
+        "variants": [],
+        "description": "Online collaborative whiteboard tool used for architectural diagrams, state of integration tracking, and team planning."
+      }
     ]
   },
   {
@@ -64,7 +393,309 @@
       { "name": "Dev Doshi",        "email": "dev.agrawal@xolv.io", "role": "Consultant" },
       { "name": "Wesley Donaldson",                                  "role": "Consultant" }
     ],
-    "additional_extraction_llm_prompt": "Jeff is the head client — his direction has highest weight. Brian, Nicolas, and Dominik also provide directional instruction on tasks."
+    "additional_extraction_llm_prompt": "Jeff is the head client — his direction has highest weight. Brian, Nicolas, and Dominik also provide directional instruction on tasks.",
+    "glossary": [
+      {
+        "term": "TerraQuantum",
+        "variants": ["TQ", "Terra Quantum", "terraquantum"],
+        "description": "The quantum computing client company (terraquantum.swiss). Developing quantum error correction technology and related tooling."
+      },
+      {
+        "term": "QBridge",
+        "variants": ["Q Bridge", "Cubridge", "QE bridge"],
+        "description": "TerraQuantum's platform/product that connects quantum computing capabilities. The overarching product initiative the implementation team is building."
+      },
+      {
+        "term": "QMM",
+        "variants": ["Q M M", "QMN", "Q and M", "Q and them", "Quantum Memory Matrix"],
+        "description": "Quantum Memory Matrix — a novel error correction technique developed by TerraQuantum (specifically by Florian). QMM layers are shallow circuits applied to existing quantum circuits to improve reliability/consistency of outputs."
+      },
+      {
+        "term": "Qiskit",
+        "variants": ["Kiskit", "KISSKIT", "kids kit", "Krisp kit", "kids utilize", "KIDSKIT"],
+        "description": "IBM's open-source quantum computing SDK used for circuit simulation, visualization, and manipulation. Renders circuit diagrams, runs simulations, normalizes circuits, and converts between OpenQASM versions. Heavily mis-transcribed by Krisp."
+      },
+      {
+        "term": "circuit",
+        "variants": ["secret", "squid", "silquid", "sequit", "sequence", "CIRC", "cirqu", "cirs"],
+        "description": "A quantum circuit — the fundamental computational unit in quantum computing. Contains qubits, gates, and parameters. Krisp consistently mis-transcribes as 'secret', 'squid', 'sequence', etc."
+      },
+      {
+        "term": "qubit",
+        "variants": ["cubit", "cubid", "Q bit", "quebits", "qwits", "quads"],
+        "description": "Quantum bit — the basic unit of quantum information, analogous to a classical bit. Circuits operate on one or more qubits."
+      },
+      {
+        "term": "ancillary qubits",
+        "variants": ["ancillary quebits"],
+        "description": "Extra qubits added to a circuit for redundancy purposes, particularly when applying QMM error correction. Must be distinguished from user input qubits."
+      },
+      {
+        "term": "OpenQASM",
+        "variants": ["QASM", "QSM", "QSMA", "Open Quasm"],
+        "description": "Open Quantum Assembly Language — a standard text format for representing quantum circuits. The system works with OpenQASM 2.0 and 3.0. Qiskit converts between versions."
+      },
+      {
+        "term": "variant producer",
+        "variants": ["variant producer node", "bar introducer", "Orient producer", "body producer"],
+        "description": "A pipeline node that takes an input circuit and generates variations by applying different error correction strategies (QMM, stochastic compression, Rep3 symmetry). Uses an LLM to modify circuits according to instruction presets."
+      },
+      {
+        "term": "circuit input",
+        "variants": ["circuit input node", "secret input"],
+        "description": "The first node in the QBridge pipeline. Accepts a quantum circuit definition (in OpenQASM format), normalizes it, and passes it downstream for processing."
+      },
+      {
+        "term": "normalizer",
+        "variants": ["normalizer node"],
+        "description": "A pipeline step (part of circuit input) that normalizes incoming quantum circuits to OpenQASM 3.0 for consistent processing through the pipeline."
+      },
+      {
+        "term": "parameter optimizer",
+        "variants": ["parameterizer node", "parameter optimizer node"],
+        "description": "A pipeline node that runs COBYLA optimization for each QMM-tagged parameter in a circuit variant, tuning parameters to improve circuit performance."
+      },
+      {
+        "term": "COBYLA",
+        "variants": ["cobilla", "Covila"],
+        "description": "Constrained Optimization BY Linear Approximation — a gradient-free optimization algorithm used to tune QMM parameters in quantum circuits."
+      },
+      {
+        "term": "simulator",
+        "variants": ["simulator node", "simulator mode"],
+        "description": "A pipeline node that runs the quantum circuit through Qiskit's simulator, producing measurement results. Used in place of real quantum hardware (IBM QPU) during the POC phase."
+      },
+      {
+        "term": "result viewer",
+        "variants": ["result bureau"],
+        "description": "A pipeline node that displays simulation results, including convergence graphs (noise sweep vs. fidelity) and bit-string probability distributions."
+      },
+      {
+        "term": "circuit viewer",
+        "variants": ["squit viewer", "secret viewer"],
+        "description": "A UI component/node that displays the visual diagram of a quantum circuit. Can be injected at any pipeline stage to inspect the circuit's state."
+      },
+      {
+        "term": "pipeline",
+        "variants": ["pointline"],
+        "description": "The core visual workflow system built with React Flow that chains together processing nodes (circuit input → variant producer → parameter optimizer → simulator → result viewer) to process quantum circuits."
+      },
+      {
+        "term": "stochastic compression",
+        "variants": ["stachastic compression", "stokastic compression", "sto acid compression"],
+        "description": "A technique using randomized rule-based approaches to simplify quantum circuits by removing or combining gates/parameters. One of the error correction strategies alongside QMM."
+      },
+      {
+        "term": "Rep3",
+        "variants": ["repetition 3Q", "reb 3", "prept", "rep scene"],
+        "description": "Repetition code with 3 qubits — a simple quantum error correction code that encodes one logical qubit into three physical qubits. Available in the variant producer alongside QMM."
+      },
+      {
+        "term": "QMM RepSIM",
+        "variants": ["QMM reps symmetry", "QMM RepSIMB2", "QMMCMB2", "QMM rep sim"],
+        "description": "A specific QMM error correction variant combining quantum memory matrix with repetition symmetry encoding. V2 has rules-based placement instructions and IO contracts."
+      },
+      {
+        "term": "instruction preset",
+        "variants": [],
+        "description": "Predefined LLM prompt configurations for the variant producer that specify rules for how to modify circuits. Contains an IO contract specifying what must be preserved from the original circuit."
+      },
+      {
+        "term": "IO contract",
+        "variants": [],
+        "description": "Constraints in the variant producer instruction preset specifying what the LLM must preserve when modifying a circuit: input parameter structure, parameter names, output parameters, and QMM placement rules."
+      },
+      {
+        "term": "RAG",
+        "variants": ["rag", "rack", "rug", "brag"],
+        "description": "Retrieval Augmented Generation — stores circuit embeddings in PGVector and finds similar circuits via nearest-neighbor search. Enables prior lookup of historically processed circuits."
+      },
+      {
+        "term": "QMM prior lookup",
+        "variants": ["prior lookup"],
+        "description": "A pipeline node that searches the vector database for circuits similar to the current input. Uses RAG to find previously processed circuits and their results."
+      },
+      {
+        "term": "QMM ingestion",
+        "variants": [],
+        "description": "A pipeline node that converts a circuit into vector embeddings and stores them in PGVector along with simulation results, building up the historical circuit database."
+      },
+      {
+        "term": "embedding layers",
+        "variants": ["layers"],
+        "description": "Different strategies for converting quantum circuits into vector embeddings for RAG. Four layers implemented: WL structure (Weisfeiler-Lehman), resource profile (qubits/gates/depth/params), and others."
+      },
+      {
+        "term": "WL structure",
+        "variants": ["Weisfeiler-Lehman structure"],
+        "description": "The most complex embedding layer, based on the Weisfeiler-Lehman graph isomorphism algorithm. Captures structural topology of quantum circuits for similarity matching."
+      },
+      {
+        "term": "PGVector",
+        "variants": ["PG vector", "Postgres vector"],
+        "description": "PostgreSQL extension for vector similarity search. Stores circuit embeddings and performs nearest-neighbor lookups for the RAG/prior lookup system."
+      },
+      {
+        "term": "Munich Quantum Toolkit",
+        "variants": ["Munich Quantum Software Stack", "MQT"],
+        "description": "Open-source quantum computing toolkit from the Technical University of Munich. Provides ~2000 benchmark quantum circuits (MIT license) used to populate the RAG database."
+      },
+      {
+        "term": "circuit categorizer",
+        "variants": ["secret categorizer", "squid categorizer"],
+        "description": "A planned capability to classify quantum circuits by type, structure, and complexity. Analyzes connectivity metrics, parameterization, structural fingerprint, and gate counts."
+      },
+      {
+        "term": "knowledge graph",
+        "variants": ["graph-based RAG", "GraphRAG"],
+        "description": "A proposed graph-based approach to model the taxonomy and relationships of quantum circuits, complementing the vector-based RAG system."
+      },
+      {
+        "term": "Shor's algorithm",
+        "variants": ["shore algorithm", "short algorithm", "Schor's algorithm", "Shore's"],
+        "description": "A famous quantum algorithm for integer factorization. Used as a test case (factoring 15, 21) because it is classically verifiable — you can check the factorization result."
+      },
+      {
+        "term": "Grover's algorithm",
+        "variants": ["Grover's"],
+        "description": "A quantum search algorithm providing quadratic speedup over classical search. Used as a test case for demonstrating QMM application."
+      },
+      {
+        "term": "QAOA",
+        "variants": ["QAA", "Q AA"],
+        "description": "Quantum Approximate Optimization Algorithm — a variational quantum algorithm for combinatorial optimization. Handled differently from non-variational algorithms (Shor's/Grover's)."
+      },
+      {
+        "term": "VQE",
+        "variants": ["VQ"],
+        "description": "Variational Quantum Eigensolver — a variational quantum circuit approach for finding ground state energies. One of the simplest examples for demonstrating QMM."
+      },
+      {
+        "term": "QFT",
+        "variants": ["Quantum Fourier Transform"],
+        "description": "A quantum analogue of the classical discrete Fourier transform. Key component in Shor's algorithm involving Hadamard gates and controlled phase gates."
+      },
+      {
+        "term": "noise sweep",
+        "variants": ["noise sleep"],
+        "description": "Running a circuit simulation multiple times with varying noise levels to measure output degradation. The result viewer displays noise sweep vs. fidelity graphs."
+      },
+      {
+        "term": "shot",
+        "variants": ["shots"],
+        "description": "A single execution/measurement of a quantum circuit. Circuits are run many times (e.g., 1000 shots) to get a statistical distribution, since quantum measurement is probabilistic."
+      },
+      {
+        "term": "fidelity",
+        "variants": [],
+        "description": "A measure of how accurately a quantum circuit produces its expected output. Higher fidelity means more consistent/correct results. QMM aims to increase fidelity."
+      },
+      {
+        "term": "bit string",
+        "variants": ["wheat strings"],
+        "description": "The binary measurement outcome from a quantum circuit (e.g., '0000', '0100'). The distribution of bit strings across many shots reveals whether the circuit produces expected results."
+      },
+      {
+        "term": "QPU execution",
+        "variants": ["QP execution", "QP hardware", "IBM hardware"],
+        "description": "Running quantum circuits on actual quantum processing hardware (like IBM's quantum computers) rather than simulators. Not yet implemented in the POC."
+      },
+      {
+        "term": "Florian experiment",
+        "variants": ["Florence experiment", "Florian's experiment"],
+        "description": "A quantum experiment designed by Florian (TQ's lead scientist) to test QMM effectiveness at scale. Involves running a circuit thousands of times, measuring consistency, applying QMM, and checking improvement."
+      },
+      {
+        "term": "Auto Engineer",
+        "variants": ["auto", "auto engineering", "on auto"],
+        "description": "Sam Hatoum's open-source project that includes a pipeline orchestration system based on event sourcing. Being evaluated as the orchestration layer for TQ's quantum experiment infrastructure."
+      },
+      {
+        "term": "Auto Pipeline",
+        "variants": ["auto engineer pipeline", "auto-pipet"],
+        "description": "The pipeline orchestration package from Auto Engineer. Supports scatter-gather patterns, event sourcing, command handlers, and visual pipeline diagrams."
+      },
+      {
+        "term": "scatter-gather",
+        "variants": ["fan out fan in"],
+        "description": "A pipeline orchestration pattern where work is distributed (scattered) to multiple parallel workers and results are collected (gathered) when all complete. Critical for quantum experiments at scale."
+      },
+      {
+        "term": "React Flow",
+        "variants": [],
+        "description": "The JavaScript library used to build the visual pipeline/workflow UI where users drag-and-drop nodes and connect them."
+      },
+      {
+        "term": "event sourcing",
+        "variants": ["event driven", "events sourcing"],
+        "description": "Architectural pattern tracking all system actions as a sequence of events (commands in, events out). Each pipeline action produces logged events for transparency and auditability."
+      },
+      {
+        "term": "CQRS",
+        "variants": ["CRS theory"],
+        "description": "Command Query Responsibility Segregation — separates read and write operations. Nicolas identified it as the theoretical foundation of pipeline orchestration. Auto Pipeline implements CQRS+event sourcing."
+      },
+      {
+        "term": "test harness",
+        "variants": ["test hardness", "test policy"],
+        "description": "The Jest-based testing framework that runs each pipeline module in isolation, sends commands, and asserts expected events are produced in order. Uses given-when-then pattern."
+      },
+      {
+        "term": "Jeff's document",
+        "variants": ["Jeff document", "Chef document", "Chef's specs", "Jeff's specs", "the specification"],
+        "description": "A detailed specification document by Jeff Titus outlining the 13 steps of the quantum processing pipeline. The primary reference for what the system should implement."
+      },
+      {
+        "term": "policy and feasibility gate",
+        "variants": ["policy voice and visibility", "policy and flexibility"],
+        "description": "A planned system behavior that determines whether a circuit meets criteria before proceeding through the pipeline. Defined in Jeff's specification document."
+      },
+      {
+        "term": "POC",
+        "variants": ["PC", "PCs", "proof of concept"],
+        "description": "Proof of Concept — the current phase of the QBridge project. Focused on demonstrating sufficient capability to warrant further investment."
+      },
+      {
+        "term": "Florian",
+        "variants": ["Florrie", "Florrid", "Florida", "Florians"],
+        "description": "TerraQuantum's lead scientist who authored the QMM research paper. Designed the core experiment and provides scientific direction."
+      },
+      {
+        "term": "Reuben",
+        "variants": ["Ruben", "Rinor", "Roen", "Ruin", "Roven"],
+        "description": "Reuben Brasher — a quantum scientist at TerraQuantum providing hands-on technical guidance. Primary bridge between the engineering team and quantum science. Krisp heavily mis-transcribes the name."
+      },
+      {
+        "term": "Jupyter notebook",
+        "variants": ["IAN notebook", "Jupiter notebook", "the notebook"],
+        "description": "The original Jupyter notebook containing the QMM research implementation by Florian. Serves as the reference implementation the pipeline system aims to replicate and extend."
+      },
+      {
+        "term": "Mastra",
+        "variants": ["Mastra dot AI", "master"],
+        "description": "A TypeScript-based AI/agent framework evaluated as an alternative orchestration platform. Uses PGVector under the hood."
+      },
+      {
+        "term": "Google ADK",
+        "variants": ["agent development kit", "2DK"],
+        "description": "Google's Agent Development Kit — another orchestration framework evaluated for running quantum experiments."
+      },
+      {
+        "term": "TQ Chem",
+        "variants": [],
+        "description": "A separate TerraQuantum project/workstream focused on quantum chemistry applications."
+      },
+      {
+        "term": "TML",
+        "variants": [],
+        "description": "A previous TerraQuantum project that used agentic workflows with many agents feeding results to each other. Referenced as precedent for the orchestration being built."
+      },
+      {
+        "term": "xolv.io",
+        "variants": ["Solvio", "Xolv"],
+        "description": "The software consultancy providing the implementation team (Dev Doshi, Wesley Donaldson) for the TerraQuantum QBridge project."
+      }
+    ]
   },
   {
     "name": "Revenium",
