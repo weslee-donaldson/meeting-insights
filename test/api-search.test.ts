@@ -82,7 +82,7 @@ describe("GET /api/search", () => {
         meeting_id: meetingId,
         score: 0.5,
         client: "Acme",
-        meeting_type: "sprint",
+        meeting_type: "Sprint Planning",
         date: "2026-02-24",
         cluster_tags: ["billing", "auth"],
         series: "sprint planning",

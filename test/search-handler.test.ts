@@ -16,7 +16,7 @@ const fakeRawResults = [
 ];
 
 const fakeResults: SearchResultRow[] = [
-  { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "DSU", date: "2026-02-24", cluster_tags: ["sprint"], series: "daily standup" },
+  { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "Daily Standup", date: "2026-02-24", cluster_tags: ["sprint"], series: "daily standup" },
 ];
 
 const hybridSearchMock = vi.fn().mockResolvedValue(fakeRawResults);

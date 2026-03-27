@@ -32,6 +32,7 @@ function enrichSearchResults(db: Database, results: Array<{ meeting_id: string; 
 
   return results.map((r) => ({
     ...r,
+    meeting_type: titleById.get(r.meeting_id) ?? r.meeting_type,
     cluster_tags: tagsByMeeting.get(r.meeting_id) ?? [],
     series: (titleById.get(r.meeting_id) ?? "").toLowerCase().replace(/\s+/g, " ").trim(),
   }));
