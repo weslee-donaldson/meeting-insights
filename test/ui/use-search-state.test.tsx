@@ -4,6 +4,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useSearchState } from "../../electron-ui/ui/src/hooks/useSearchState.js";
+import { useArtifactBatch } from "../../electron-ui/ui/src/hooks/useArtifactBatch.js";
 
 afterEach(cleanup);
 
@@ -332,5 +333,45 @@ describe("useSearchState deep search wiring", () => {
     act(() => result.current.submitSearch());
     const { waitFor } = await import("@testing-library/react");
     await waitFor(() => expect(result.current.isDeepSearchActive).toBe(true));
+  });
+});
+
+describe("useArtifactBatch", () => {
+  it("calls artifactBatch with sorted meeting IDs and returns results", async () => {
+    const artifactBatch = vi.fn().mockResolvedValue({
+      m1: { meeting_id: "m1", summary: "Budget review", decisions: "[]", proposed_features: "[]", action_items: "[]", open_questions: "[]", risk_items: "[]", additional_notes: "[]", milestones: "[]" },
+      m2: null,
+    });
+    (window as unknown as Record<string, unknown>).api = {
+      search: vi.fn().mockResolvedValue([]),
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch,
+    };
+    const { result } = renderHook(
+      () => useArtifactBatch(["m2", "m1"]),
+      { wrapper: makeWrapper() },
+    );
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(artifactBatch).toHaveBeenCalledWith(["m1", "m2"]);
+    expect(result.current.data).toEqual({
+      m1: { meeting_id: "m1", summary: "Budget review", decisions: "[]", proposed_features: "[]", action_items: "[]", open_questions: "[]", risk_items: "[]", additional_notes: "[]", milestones: "[]" },
+      m2: null,
+    });
+  });
+
+  it("does not call artifactBatch when meetingIds is empty", async () => {
+    const artifactBatch = vi.fn().mockResolvedValue({});
+    (window as unknown as Record<string, unknown>).api = {
+      search: vi.fn().mockResolvedValue([]),
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch,
+    };
+    renderHook(
+      () => useArtifactBatch([]),
+      { wrapper: makeWrapper() },
+    );
+    await new Promise((r) => setTimeout(r, 50));
+    expect(artifactBatch).not.toHaveBeenCalled();
   });
 });
