@@ -111,3 +111,26 @@ describe("populateFts", () => {
     expect(rows.length).toBe(2);
   });
 });
+
+describe("field-tagged FTS content", () => {
+  it("tags each section with field labels in FTS content", () => {
+    updateFts(db, meetingId);
+    const row = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(meetingId) as { content: string };
+    expect(row.content).toContain("[summary]");
+    expect(row.content).toContain("[decisions]");
+    expect(row.content).toContain("[action_items]");
+    expect(row.content).toContain("[open_questions]");
+    expect(row.content).toContain("[risk_items]");
+    expect(row.content).toContain("[proposed_features]");
+  });
+
+  it("places field tags before their respective section content", () => {
+    updateFts(db, meetingId);
+    const row = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(meetingId) as { content: string };
+    const summaryIdx = row.content.indexOf("[summary]");
+    const decisionsIdx = row.content.indexOf("[decisions]");
+    const recurlyIdx = row.content.indexOf("Recurly");
+    expect(summaryIdx).toBeLessThan(decisionsIdx);
+    expect(decisionsIdx).toBeLessThan(recurlyIdx);
+  });
+});

@@ -15,28 +15,33 @@ interface ArtifactRow {
 }
 
 function buildFtsContent(row: ArtifactRow): string {
-  const parts: string[] = [row.summary];
+  const parts: string[] = [];
+
+  parts.push("[summary]", row.summary);
 
   const decisions = JSON.parse(row.decisions) as Array<{ text: string }>;
-  parts.push(...decisions.map((d) => d.text));
+  parts.push("[decisions]", ...decisions.map((d) => d.text));
 
   const features = JSON.parse(row.proposed_features) as string[];
-  parts.push(...features);
+  parts.push("[proposed_features]", ...features);
 
   const actions = JSON.parse(row.action_items) as Array<{ description: string }>;
-  parts.push(...actions.map((a) => a.description));
+  parts.push("[action_items]", ...actions.map((a) => a.description));
 
   const questions = JSON.parse(row.open_questions) as string[];
-  parts.push(...questions);
+  parts.push("[open_questions]", ...questions);
 
   const risks = JSON.parse(row.risk_items) as Array<{ description: string } | string>;
-  parts.push(...risks.map((r) => typeof r === "string" ? r : r.description));
+  parts.push("[risk_items]", ...risks.map((r) => typeof r === "string" ? r : r.description));
 
   const notes = JSON.parse(row.additional_notes ?? "[]") as Array<Record<string, unknown>>;
-  for (const note of notes) {
-    for (const val of Object.values(note)) {
-      if (typeof val === "string") parts.push(val);
-      if (Array.isArray(val)) parts.push(...val.filter((v): v is string => typeof v === "string"));
+  if (notes.length > 0) {
+    parts.push("[additional_notes]");
+    for (const note of notes) {
+      for (const val of Object.values(note)) {
+        if (typeof val === "string") parts.push(val);
+        if (Array.isArray(val)) parts.push(...val.filter((v): v is string => typeof v === "string"));
+      }
     }
   }
 
