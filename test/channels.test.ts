@@ -3,10 +3,10 @@ import { CHANNELS } from "../electron-ui/electron/channels.js";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow, CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest, MilestoneChatResponse } from "../electron-ui/electron/channels.js";
 
 describe("CHANNELS", () => {
-  it("should have 77 unique non-empty channel strings", () => {
+  it("should have 78 unique non-empty channel strings", () => {
     const values = Object.values(CHANNELS);
-    expect(values).toHaveLength(77);
-    expect(new Set(values).size).toBe(77);
+    expect(values).toHaveLength(78);
+    expect(new Set(values).size).toBe(78);
     for (const v of values) {
       expect(typeof v).toBe("string");
       expect(v.length).toBeGreaterThan(0);
@@ -318,5 +318,9 @@ describe("CHANNELS", () => {
 
   it("should define ARTIFACT_BATCH channel", () => {
     expect(CHANNELS.ARTIFACT_BATCH).toBe("artifact-batch");
+  });
+
+  it("should define GLOSSARY channel", () => {
+    expect(CHANNELS.GLOSSARY).toBe("glossary");
   });
 });

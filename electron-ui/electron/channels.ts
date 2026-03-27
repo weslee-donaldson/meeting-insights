@@ -76,6 +76,7 @@ export const CHANNELS = {
   NOTES_DELETE: "notes:delete",
   NOTES_COUNT: "notes:count",
   ARTIFACT_BATCH: "artifact-batch",
+  GLOSSARY: "glossary",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -391,4 +392,5 @@ export interface ElectronAPI {
   notesDelete: (id: string) => Promise<void>;
   notesCount: (objectType: string, objectId: string) => Promise<number>;
   artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/extractor.js").Artifact | null>>;
+  getGlossary: (clientName: string) => Promise<import("../../core/client-registry.js").GlossaryEntry[]>;
 }

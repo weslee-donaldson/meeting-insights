@@ -2,6 +2,7 @@ export {
   handleGetTemplates,
   handleGetClients,
   handleGetDefaultClient,
+  handleGetGlossary,
   handleGetMeetings,
   handleGetArtifact,
   handleChat,

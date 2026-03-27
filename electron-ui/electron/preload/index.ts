@@ -33,6 +33,7 @@ const api: ElectronAPI = {
   getItemHistory: (canonicalId: string) => ipcRenderer.invoke(CHANNELS.GET_ITEM_HISTORY, canonicalId),
   getMentionStats: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MENTION_STATS, meetingId),
   getDefaultClient: () => ipcRenderer.invoke(CHANNELS.GET_DEFAULT_CLIENT),
+  getGlossary: (clientName: string) => ipcRenderer.invoke(CHANNELS.GLOSSARY, clientName),
   uncompleteActionItem: (_meetingId: string, _itemIndex: number) => Promise.resolve(),
   getClientActionItems: (clientName: string, filters?: { after?: string; before?: string }) => ipcRenderer.invoke(CHANNELS.GET_CLIENT_ACTION_ITEMS, clientName, filters),
   getTemplates: () => ipcRenderer.invoke(CHANNELS.GET_TEMPLATES),

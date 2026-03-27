@@ -61,6 +61,9 @@ export const meetingsMethods = {
   getDefaultClient: () =>
     fetchJson(`${API_BASE}/api/default-client`),
 
+  getGlossary: (clientName: string) =>
+    fetchJson(`${API_BASE}/api/glossary?client=${encodeURIComponent(clientName)}`),
+
   getClientActionItems: (clientName: string, filters?: { after?: string; before?: string }) => {
     const params = new URLSearchParams();
     if (filters?.after) params.set("after", filters.after);

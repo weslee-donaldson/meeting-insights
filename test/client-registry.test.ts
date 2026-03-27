@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, buildClientContext } from "../core/client-registry.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext } from "../core/client-registry.js";
 import type { Participant, GlossaryEntry } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
@@ -232,6 +232,41 @@ describe("getDefaultClient", () => {
 
   it("returns null when no client has is_default flag", () => {
     expect(getDefaultClient(db)).toBeNull();
+  });
+});
+
+describe("getGlossaryForClient", () => {
+  it("returns parsed glossary entries for client with glossary", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-glossary-lookup-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{
+      name: "TestCo",
+      aliases: ["Test"],
+      client_team: [],
+      glossary: [
+        { term: "CSTAR", variants: ["C*", "C star"], description: "Platform" },
+        { term: "AppDev", variants: ["app dev"], description: "Dev team" },
+      ],
+    }]));
+    seedClients(localDb, file);
+    const result = getGlossaryForClient(localDb, "TestCo");
+    expect(result).toEqual([
+      { term: "CSTAR", variants: ["C*", "C star"], description: "Platform" },
+      { term: "AppDev", variants: ["app dev"], description: "Dev team" },
+    ]);
+  });
+
+  it("returns empty array for unknown client", () => {
+    const result = getGlossaryForClient(db, "NonExistent");
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty array for client without glossary", () => {
+    const result = getGlossaryForClient(db, "Revenium");
+    expect(result).toEqual([]);
   });
 });
 

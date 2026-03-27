@@ -90,6 +90,12 @@ export function getDefaultClient(db: Database): string | null {
   return row?.name ?? null;
 }
 
+export function getGlossaryForClient(db: Database, clientName: string): GlossaryEntry[] {
+  const client = getClientByName(db, clientName);
+  if (!client) return [];
+  return JSON.parse(client.glossary) as GlossaryEntry[];
+}
+
 const ROLE_AUTHORITY_GUIDANCE = `When determining whether a request is critical, consider the role and domain:
 - A CTO or VP has broad authority but may defer to domain experts (PO on product, Architect on technical)
 - An Engineering Manager directing team work has high authority for delivery decisions

@@ -4,7 +4,7 @@ import { storeAsset, getAssets, deleteAsset, getAssetData, deleteAssetsForMeetin
 import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
-import { getClientByName, buildClientContext } from "../../../core/client-registry.js";
+import { getClientByName, getGlossaryForClient, buildClientContext } from "../../../core/client-registry.js";
 import type { Participant, GlossaryEntry } from "../../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
@@ -87,6 +87,10 @@ export function handleGetClients(db: Database): string[] {
 export function handleGetDefaultClient(db: Database): string | null {
   const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
   return row?.name ?? null;
+}
+
+export function handleGetGlossary(db: Database, clientName: string): import("../../../core/client-registry.js").GlossaryEntry[] {
+  return getGlossaryForClient(db, clientName);
 }
 
 export function handleGetMeetings(db: Database, opts: MeetingFilters): MeetingRow[] {

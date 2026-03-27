@@ -4,7 +4,7 @@ import {
   handleGetClients, handleGetMeetings, handleGetArtifact,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleEditActionItem, handleCreateActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
-  handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetClientActionItems,
+  handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetGlossary, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
   handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
   handleRenameMeeting,
@@ -24,6 +24,12 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
 
   app.get("/api/default-client", (c) => {
     return c.json(handleGetDefaultClient(db));
+  });
+
+  app.get("/api/glossary", (c) => {
+    const clientName = c.req.query("client");
+    if (!clientName) return c.json([]);
+    return c.json(handleGetGlossary(db, clientName));
   });
 
   app.get("/api/meetings", (c) => {
