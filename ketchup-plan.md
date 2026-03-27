@@ -490,7 +490,7 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `electron-ui/ui/src/hooks/useSelectedResultData.ts`, `electron-ui/ui/src/components/CompactResultsSidebar.tsx`, `electron-ui/ui/src/pages/SearchPage.tsx`, `test/ui/compact-results-sidebar.test.tsx`, `test/ui/use-selected-result-data.test.tsx`
 
-- [ ] Burst 54: `useSelectedResultData` — fetches artifact, completions, assets, threads, milestones, notes for a meeting ID
+- [x] Burst 54: `useSelectedResultData` — fetches artifact, completions, assets, threads, milestones, notes for a meeting ID
 - [ ] Burst 55: `CompactResultsSidebar` — title+date+score rows, selected highlight, "Back to full view" header
 - [ ] Burst 56: SearchPage 2-panel mode — returns sidebar + MeetingDetail when selectedResultId set
 - [ ] Burst 57: MeetingDetail — add `onOpenInMeetings` optional prop, hide Edit/Re-extract/Reassign/Delete when provided, render "Open in Meetings →" link
