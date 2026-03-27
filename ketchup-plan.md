@@ -394,7 +394,7 @@ Phase 5 (sequential):
 
 - [x] Burst 39: Results header — count, `searchDurationMs` display, Select all (global) outline button, Save as Thread text link
 - [x] Burst 40: Card list + displayLimit pagination — Load more increments `displayedCount`, reset `displayedCount` when query/groupBy/sortBy changes
-- [ ] Burst 41: Empty states — initial, no results, loading, error with retry
+- [x] Burst 41: Empty states — initial, no results, loading, error with retry
 - [ ] Burst 42: Grouping — cluster/date(month)/series group headers, sort-within-group by score, "Select all in group" button (per-group, not global)
 - [ ] Burst 43: Modify `CreateThreadDialog` — add optional `initialMeetingIds` prop, call `addThreadMeeting` for each after creation
 - [ ] Burst 44: Save as Thread — opens CreateThreadDialog pre-filled with query + selectedClient + checked/visible meetings, navigates to threads on success

@@ -22,6 +22,97 @@ interface SearchResultsListProps {
   onRetry: () => void;
 }
 
+function renderEmptyState(
+  searchQuery: string,
+  isLoading: boolean,
+  isError: boolean,
+  onRetry: () => void,
+) {
+  const centerStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "60px 20px",
+    textAlign: "center",
+    gap: "8px",
+  };
+  const headingStyle: React.CSSProperties = {
+    fontFamily: typography.fontFamily.display,
+    fontSize: "14px",
+    fontWeight: typography.fontWeight.heading,
+    color: textTiers.primary.cssVar,
+  };
+  const helperStyle: React.CSSProperties = {
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.caption,
+    color: textTiers.muted.cssVar,
+  };
+
+  if (isError) {
+    return (
+      <div data-testid="empty-state-error" style={centerStyle}>
+        <span style={headingStyle}>Search failed.</span>
+        <button
+          onClick={onRetry}
+          style={{
+            ...helperStyle,
+            color: textTiers.muted.cssVar,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+        >
+          Try again.
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div data-testid="empty-state-loading" style={centerStyle}>
+        <div
+          className="border-2 border-[var(--color-line)] rounded-full animate-spin"
+          style={{
+            width: "24px",
+            height: "24px",
+            borderTopColor: "var(--color-accent)",
+          }}
+        />
+        <span style={helperStyle}>Searching...</span>
+      </div>
+    );
+  }
+
+  if (!searchQuery) {
+    return (
+      <div data-testid="empty-state-initial" style={centerStyle}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span style={headingStyle}>Search across all meetings</span>
+        <span style={helperStyle}>Enter a query above to search decisions, action items, risks, and more.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="empty-state-no-results" style={centerStyle}>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <line x1="8" y1="8" x2="14" y2="14" />
+        <line x1="14" y1="8" x2="8" y2="14" />
+      </svg>
+      <span style={headingStyle}>No meetings match your search</span>
+      <span style={helperStyle}>Try broadening your search, adjusting filters, or searching in more fields.</span>
+    </div>
+  );
+}
+
 function renderPaginationFooter(
   total: number,
   shown: number,
@@ -162,6 +253,7 @@ export function SearchResultsList({
           />
         ))}
       {hasResults && renderPaginationFooter(enrichedResults.length, displayedCount, isLoading, setDisplayedCount)}
+      {!hasResults && renderEmptyState(searchQuery, isLoading, isError, onRetry)}
     </div>
   );
 }

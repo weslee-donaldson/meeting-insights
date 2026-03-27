@@ -214,3 +214,81 @@ describe("SearchResultsList — card list + pagination", () => {
     expect(screen.queryByText("Load more")).toBeNull();
   });
 });
+
+describe("SearchResultsList — empty states", () => {
+  it("renders initial state with search icon and helper text when no query", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({ searchQuery: "", enrichedResults: [] })}
+      />,
+    );
+    expect(screen.getByText("Search across all meetings")).toBeDefined();
+    expect(screen.getByText("Enter a query above to search decisions, action items, risks, and more.")).toBeDefined();
+    expect(screen.getByTestId("empty-state-initial")).toBeDefined();
+  });
+
+  it("renders no-results state when query present but no results", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({ searchQuery: "nonexistent", enrichedResults: [] })}
+      />,
+    );
+    expect(screen.getByText("No meetings match your search")).toBeDefined();
+    expect(screen.getByText("Try broadening your search, adjusting filters, or searching in more fields.")).toBeDefined();
+    expect(screen.getByTestId("empty-state-no-results")).toBeDefined();
+  });
+
+  it("renders loading state with spinner text when isLoading and no results", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({ searchQuery: "billing", enrichedResults: [], isLoading: true })}
+      />,
+    );
+    expect(screen.getByText("Searching...")).toBeDefined();
+    expect(screen.getByTestId("empty-state-loading")).toBeDefined();
+  });
+
+  it("renders error state with retry link when isError", async () => {
+    const onRetry = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          searchQuery: "billing",
+          enrichedResults: [],
+          isError: true,
+          onRetry,
+        })}
+      />,
+    );
+    expect(screen.getByText("Search failed.")).toBeDefined();
+    const retryLink = screen.getByText("Try again.");
+    await user.click(retryLink);
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it("loading state takes priority over no-results when isLoading", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({ searchQuery: "billing", enrichedResults: [], isLoading: true })}
+      />,
+    );
+    expect(screen.queryByText("No meetings match your search")).toBeNull();
+    expect(screen.getByText("Searching...")).toBeDefined();
+  });
+
+  it("error state takes priority over loading when both isError and isLoading", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          searchQuery: "billing",
+          enrichedResults: [],
+          isError: true,
+          isLoading: true,
+        })}
+      />,
+    );
+    expect(screen.getByText("Search failed.")).toBeDefined();
+    expect(screen.queryByText("Searching...")).toBeNull();
+  });
+});
