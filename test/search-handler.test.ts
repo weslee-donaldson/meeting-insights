@@ -11,11 +11,15 @@ const EXPECTED_LIMIT = systemConfig.search?.limit ?? 50;
 const EXPECTED_DISPLAY_LIMIT = systemConfig.search?.displayLimit ?? 20;
 const EXPECTED_CHAT_CONTEXT_LIMIT = systemConfig.search?.chatContextLimit ?? 10;
 
-const fakeResults: SearchResultRow[] = [
+const fakeRawResults = [
   { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "DSU", date: "2026-02-24" },
 ];
 
-const hybridSearchMock = vi.fn().mockResolvedValue(fakeResults);
+const fakeResults: SearchResultRow[] = [
+  { meeting_id: "m1", score: 0.92, client: "Acme", meeting_type: "DSU", date: "2026-02-24", cluster_tags: ["sprint"], series: "daily standup" },
+];
+
+const hybridSearchMock = vi.fn().mockResolvedValue(fakeRawResults);
 
 vi.mock("../core/hybrid-search.js", () => ({
   hybridSearch: hybridSearchMock,
@@ -24,7 +28,19 @@ vi.mock("../core/hybrid-search.js", () => ({
 const { handleSearchMeetings } = await import("../electron-ui/electron/ipc-handlers.js");
 const { DISPLAY_LIMIT, CHAT_CONTEXT_LIMIT } = await import("../electron-ui/electron/handlers/config.js");
 
-const mockDb = {} as Database;
+const mockDb = {
+  prepare: vi.fn().mockImplementation((sql: string) => ({
+    all: (..._args: unknown[]) => {
+      if (sql.includes("meeting_clusters")) {
+        return [{ meeting_id: "m1", generated_tags: JSON.stringify(["sprint"]) }];
+      }
+      if (sql.includes("meetings")) {
+        return [{ id: "m1", title: "Daily Standup" }];
+      }
+      return [];
+    },
+  })),
+} as unknown as Database;
 const mockVdb = {} as VectorDb;
 const mockSession = {} as InferenceSession & { _tokenizer: unknown };
 
