@@ -114,6 +114,7 @@ export interface ConversationChatRequest {
   includeTranscripts?: boolean;
   template?: string;
   noteIds?: string[];
+  contextMode?: "full" | "distilled";
 }
 
 export interface ConversationChatResponse {

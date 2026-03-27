@@ -198,7 +198,8 @@ export async function handleConversationChat(
   let meetings: Array<{ id: string; title: string; date: string }>;
 
   const noteIds = req.noteIds ?? [];
-  if (req.includeTranscripts) {
+  const useFullContext = req.contextMode === "full" || (!req.contextMode && req.includeTranscripts);
+  if (useFullContext) {
     const labeled = buildLabeledContext(db, req.meetingIds, noteIds);
     contextText = labeled.contextText;
     charCount = labeled.charCount;

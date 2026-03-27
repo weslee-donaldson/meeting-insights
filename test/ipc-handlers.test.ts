@@ -406,6 +406,39 @@ describe("IPC handlers", () => {
       });
       expect(capturedAttachments).toEqual([{ name: "screenshot.png", base64: "abc123", mimeType: "image/png" }]);
     });
+
+    it("uses distilled context with contextMode 'distilled' even when includeTranscripts is true", async () => {
+      let capturedSystem = "";
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system) { capturedSystem = system; return "ok"; },
+      };
+      const result = await handleConversationChat(db, spyLlm, {
+        meetingIds: [meetingId2],
+        messages: [{ role: "user", content: "What?" }],
+        includeTranscripts: true,
+        contextMode: "distilled",
+      });
+      expect(capturedSystem).toContain("## Beta Planning");
+      expect(capturedSystem).not.toContain("Transcript:");
+      expect(capturedSystem).not.toContain("[M1] Beta Planning");
+      expect(result.charCount).toBeGreaterThan(0);
+    });
+
+    it("uses full labeled context with contextMode 'full'", async () => {
+      let capturedSystem = "";
+      const spyLlm: LlmAdapter = {
+        async complete() { return { answer: "" }; },
+        async converse(system) { capturedSystem = system; return "ok"; },
+      };
+      await handleConversationChat(db, spyLlm, {
+        meetingIds: [meetingId2],
+        messages: [{ role: "user", content: "What?" }],
+        contextMode: "full",
+      });
+      expect(capturedSystem).toContain("[M1] Beta Planning");
+      expect(capturedSystem).toContain("Transcript:");
+    });
   });
 
   describe("handleDeleteMeetings", () => {
