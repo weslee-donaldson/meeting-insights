@@ -648,6 +648,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -815,6 +816,12 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               onClick: onNotesClick,
               variant: "default" as const,
             }] : []),
+            ...(onUpdateArtifactSection && artifact ? [{
+              label: editMode ? "Done Editing" : "Edit",
+              icon: <Pencil className="w-3.5 h-3.5" />,
+              onClick: () => setEditMode((prev) => !prev),
+              variant: (editMode ? "primary" : "default") as "primary" | "default",
+            }] : []),
             ...(onIgnore ? [{
               label: "Ignore",
               icon: <EyeOff className="w-3.5 h-3.5" />,
@@ -879,7 +886,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
           <AttachmentsSection assets={assets ?? []} onDeleteAsset={onDeleteAsset} onUploadAsset={onUploadAsset} />
         )}
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} onUpdateSection={onUpdateArtifactSection} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} onUpdateSection={editMode ? onUpdateArtifactSection : undefined} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (

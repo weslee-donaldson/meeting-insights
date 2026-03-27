@@ -1,363 +1,340 @@
-# PRD: Advanced Search Results
+# Ketchup Plan: Advanced Search
 
 ## Context
 
-The current search bar in TopBar filters the meeting list in-place. As the system scales to hundreds of meetings across many clients, inline filtering isn't enough. Users need to:
+The current search bar in TopBar filters the meeting list in-place. Users need a dedicated search experience with field scoping, richer result presentation, chat across results, and the ability to save searches as threads.
 
-1. **Triage search results** — see enough per result to decide if it's worth diving into
-2. **Chat across results** — ask questions scoped to the result set, not just one meeting
-3. **Apply advanced filters** — narrow by date range, field scope, enable LLM-powered deep search
-4. **Discover patterns** — group results by semantic cluster to spot themes
-5. **Bridge to tracking** — save a search as a Thread for ongoing monitoring
+**Design artboards:** `Dev Comp: Search Results Components` (component reference), `Search Results — Option D: Form + Results (chat 40%)` (full-page reference)
 
-## Product Model
+---
 
-This is a **search results browser with scoped chat**. It is not a dashboard, not analytics, not a replacement for the meetings view. It's the answer to "what do I know about X?" with enough context to decide what to do next.
+### #1 — Search Context Backend (distilled context for multi-meeting chat)
 
-Two entry points, one destination:
-- **Quick search** — TopBar enter → search view with query pre-filled, searches all fields
-- **Advanced search** — NavRail search icon → search view with empty form, configure field scoping
+> **Spec:**
+> New `buildSearchContext` function + `contextMode` wiring so chat can operate on many search results without blowing token budgets.
+>
+> - New function `buildSearchContext(db, meetingIds, options?)` in `core/labeled-context.ts`:
+>   - Uses distilled format: artifacts only (summary, decisions, action_items, risks, features, questions), NO transcripts, NO mention stats
+>   - Optional `maxChars` param: when provided, allocates per-meeting budget = `maxChars / meetingIds.length`. Truncates each meeting's block to fit.
+>   - Optional `relevanceSummaries: Map<string, string>` param: when provided, prepends `Relevance: <summary>` line to each meeting's labeled block
+>   - Returns `{ contextText: string, charCount: number, meetings: string[] }` — same shape as existing `buildLabeledContext`
+> - New optional field `contextMode?: "full" | "distilled"` on `ConversationChatRequest` in `electron-ui/electron/channels.ts`
+> - Update `handleConversationChat` in IPC handler: when `contextMode === "distilled"`, call `buildSearchContext` instead of `buildLabeledContext`
+> - Add `displayLimit` and `chatContextLimit` to `config/system.json`, export from `electron-ui/electron/handlers/config.ts`
+>
+> **Files affected/created:** `core/labeled-context.ts`, `electron-ui/electron/channels.ts`, `electron-ui/electron/handlers/search.ts`, `config/system.json`, `electron-ui/electron/handlers/config.ts`, `test/labeled-context.test.ts`, `test/search-handler.test.ts`
 
-The search view is a single view with two zones:
-1. **Search form** (top, with Hide/Show toggle) — query input, "Search in" field toggles, date range, deep/cluster/sort options
-2. **Results** (below) — result cards load below the form after searching
+- [ ] Burst 1: `buildSearchContext` — distilled format, accepts meetingIds, returns labeled context without transcripts
+- [ ] Burst 2: `buildSearchContext` maxChars budget — per-meeting allocation scales inversely with count
+- [ ] Burst 3: `buildSearchContext` relevanceSummaries integration — prepends relevance line when map provided
+- [ ] Burst 4: `contextMode` on `ConversationChatRequest` + handler wiring — distilled mode uses `buildSearchContext`
+- [ ] Burst 5: Add `displayLimit` (default 20) and `chatContextLimit` (default 10) to `config/system.json` + export from `config.ts`
 
-## Design Decisions
+---
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Layout | Search form top + full-width result cards + chat panel (~40%) | Form always accessible, maximize scanning area |
-| Card content | WHY + matched artifacts only, NO summary | Search matches specific items (decisions, actions, risks). Summary is a bulleted list that duplicates matched content. WHY from deep search is the primary context. |
-| Card detail | Top-1 matched item per section + "+N more" expanders | Enough to triage without overwhelming |
-| Chat scope | Top-N auto + checkbox override (N from config) | Balances token budget with user control; distilled context (no transcripts) |
-| Deep search UX | Inline WHY (Option A style) — compact single-line label+text | Don't waste space; clear visual indicator of LLM involvement |
-| Field scoping | "Search in" toggles: Summary, Decisions, Action Items, Risks, Features, Questions, Milestones | Power users narrow to specific artifact sections |
-| Search form | Top of view with Hide/Show toggle | Single view, no page flipping. Hide to maximize result space, Show to tweak. |
-| Client scope | Inherited from global client selector — no client filter on search | Search is already client-scoped |
-| Meeting identity | Title + date combined (e.g., "Sprint Planning · Mar 12, 2026") | Most meetings are recurring; title alone is ambiguous |
-| Participants | No generic participant list on cards. Owner/Reporter shown inline on action items where meaningful. | Bare names without roles aren't useful for triage |
-| Open Meeting | CTA on header row. Opens MeetingDetail in center column (30/30/30 split). Chat context switches to single meeting. | Drill into detail without leaving search context |
-| Pagination | "Showing N of M · Load more" | `displayLimit` from config controls page size |
-| Config | `config/system.json` — `displayLimit`, `chatContextLimit` | Tweak without code changes |
-| Search scope | Meetings only (v1) | Threads/insights searchable in future iteration |
-| Cluster grouping | Optional toggle | Visual pattern discovery without forcing structure |
-| Save as Thread | Button on results page | Natural bridge from "what do I know?" to "I need to track this" |
+### #2 — Field-Scoped Search API (search within specific artifact sections)
 
-## Layout — Search Form Visible
+> **Spec:**
+> Extend the search API so users can restrict which artifact fields are searched (e.g., only Decisions, only Action Items). Fix missing date filter passthrough.
+>
+> - Fix `GET /api/search` route in `api/routes/search.ts`: pass `date_after` and `date_before` query params through to `hybridSearch`. Currently ignored.
+> - New `POST /api/artifacts/batch` endpoint in `api/routes/meetings.ts`: accepts `{ meetingIds: string[] }`, returns `Record<string, ArtifactRow>`. Used by UI to fetch artifacts for all visible search results in one call.
+> - Modify FTS indexing in `core/fts.ts`: tag artifact content by field when building the `artifact_fts` index. Format: `[summary] text... [decisions] text... [action_items] text...` so FTS can match within specific sections.
+> - New `searchFields` query param on `GET /api/search`: accepts comma-separated field names (e.g., `summary,decisions`). When provided, post-filter FTS matches to only include results where the match came from a tagged field section.
+>
+> **User interactions:** None directly — this is backend infrastructure consumed by the search form UI.
+>
+> **Files affected/created:** `api/routes/search.ts`, `api/routes/meetings.ts`, `core/fts.ts`, `core/hybrid-search.ts`, `test/fts.test.ts`, `test/search-handler.test.ts`, `test/api-meetings.test.ts`
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│  [L] LLSA ▾              95 meetings · 0 action items · 0 threads   Reset  [⚙]  │
-├────┬──────────────────────────────────────────────────────┬──────────────────────┤
-│    │  Search                                    [Hide ▲]  │                      │
-│ Nav│  Query: [billing migration_________________________]  │  Assistant           │
-│    │                                                      │  10 of 14 | 18K chars│
-│ K  │  SEARCH IN                                           │                      │
-│    │  [Sum ✓] [Dec ✓] [Act] [Risk] [Feat] [Qst] [Mile]   │  ┌────────────────┐  │
-│    │                                                      │  │ User message   │  │
-│ 🔍 │  From [mm/dd/yyyy] to [mm/dd/yyyy]                  │  └────────────────┘  │
-│    │  [✓ Deep]  [Group clusters]  Sort: [Relevance ▾]    │                      │
-│    │──────────────────────────────────────────────────────│  Assistant response  │
-│    │  14 results in 0.3s         Select all | Save as Thrd│  with [M1][M3]       │
-│    │  ┌────────────────────────────────────────────────┐  │  citations           │
-│    │  │ Result card                                    │  │                      │
-│    │  └────────────────────────────────────────────────┘  │                      │
-│    │  ┌────────────────────────────────────────────────┐  │                      │
-│    │  │ Result card                                    │  │  Ask about these...  │
-│    │  └────────────────────────────────────────────────┘  │  [send]              │
-│    │  Showing 2 of 14 · Load more                         │                      │
-├────┴──────────────────────────────────────────────────────┴──────────────────────┤
-```
+- [ ] Burst 6: `date_after`/`date_before` passthrough on `GET /api/search`
+- [ ] Burst 7: `POST /api/artifacts/batch` endpoint — accepts meetingIds array, returns artifact map
+- [ ] Burst 8: Field-tagged FTS — rebuild `artifact_fts` content with `[field]` prefixes per section
+- [ ] Burst 9: `searchFields` param on `GET /api/search` — filter FTS results to matched fields only
 
-## Layout — Detail Open (30/30/30 split)
+---
 
-When user clicks "Open" on a result card:
+### #3 — View Type & Navigation Wiring (add "search" to the app shell)
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│  [L] LLSA ▾              95 meetings · 0 action items · 0 threads   Reset  [⚙]  │
-├────┬────────────────┬─────────────────────────┬──────────────────────────────────┤
-│    │ ← 14 results   │ Sprint Planning         │ Assistant      1 meeting         │
-│ Nav│                 │ 2026-03-12  LLSA        │                                 │
-│    │▶Sprint Planning│ onboarding billing migr │ Context: Sprint Planning (Mar 12)│
-│    │  Mar 12  0.92  │                         │ [Back to search results]          │
-│    │ Weekly Sync    │ SUMMARY                 │                                  │
-│    │  Mar 5   0.87  │ Team reviewed the...    │ ┌──────────────────────────────┐ │
-│    │ Billing Deep   │                         │ │ User message                 │ │
-│    │  Feb 28  0.81  │ DECISIONS (2)           │ └──────────────────────────────┘ │
-│    │ Enterprise...  │ • Phased rollout        │                                  │
-│    │  Feb 20  0.74  │ • Delay billing v2      │ Assistant response               │
-│    │                │                         │                                  │
-│    │                │ ACTION ITEMS (3)        │                                  │
-│    │                │ ☐ Draft migration plan  │                                  │
-│    │                │   Owner: Sarah ...      │                                  │
-├────┴────────────────┴─────────────────────────┴──────────────────────────────────┤
-```
+> **Spec:**
+> Register the search view in the app shell so NavRail, BottomTabBar, BreadcrumbBar, and ResponsiveShell all know about it. Wire TopBar quick search to navigate to the search view.
+>
+> - Add `"search"` to the `View` union type in: `App.tsx` (line ~44), `NavRail.tsx`, `BottomTabBar.tsx`, `ResponsiveShell.tsx`, `BreadcrumbBar.tsx`
+> - NavRail: add `{ view: "search", label: "Search", Icon: Search }` to ITEMS array (lucide `Search` icon). Active state: orange icon + text (matches existing pattern).
+> - BottomTabBar: add Search tab for mobile.
+> - ResponsiveShell VIEW_LABELS: add `search: "Search"`.
+> - BreadcrumbBar: add search label for mobile breadcrumbs.
+> - TopBar search submit (`onSubmitSearch` in App.tsx): when user presses Enter in the TopBar search bar, call `search.setSearchQuery(query)` + `setCurrentView("search")`. This navigates to the search view with the query pre-filled.
+> - Result "Open" click: call `setCurrentView("meetings")` + `meeting.setSelectedMeetingId(id)` — navigates to meetings view with that meeting selected.
+>
+> **User interactions:**
+> - Click Search icon in NavRail → navigates to search view (empty form)
+> - Press Enter in TopBar search bar → navigates to search view with query pre-filled
+> - Click "Open" on a result card → navigates to meetings view with that meeting selected
+>
+> **Design artboard:** `Search Results — Option D` (nav rail with Search icon active)
+> **Files affected/created:** `electron-ui/ui/src/App.tsx`, `electron-ui/ui/src/components/NavRail.tsx`, `electron-ui/ui/src/components/BottomTabBar.tsx`, `electron-ui/ui/src/components/ResponsiveShell.tsx`, `electron-ui/ui/src/components/BreadcrumbBar.tsx`, `test/ui/nav-rail.test.tsx`, `test/ui/app.test.tsx`
 
-## Result Card Design
+- [ ] Burst 10: Extend `View` type with `"search"` across all 5 files — TypeScript compiles
+- [ ] Burst 11: NavRail search icon entry — renders, click calls onNavigate("search")
+- [ ] Burst 12: BottomTabBar + BreadcrumbBar entries — mobile tab + breadcrumb label
+- [ ] Burst 13: TopBar submit → search view navigation — sets query + switches view
+- [ ] Burst 14: Result "Open" click → meetings view navigation — calls setCurrentView + setSelectedMeetingId
 
-**Key principle: No summary block.** Search matches specific artifacts — a decision, an action item, a risk. The artifact summary is a bulleted list that would duplicate matched content. Instead, the card shows the WHY (explains relevance) and the matched artifacts (the evidence).
+---
 
-### Card — Default State
+### #4 — Search State Hook (manages all search view state)
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│ ☐  Sprint Planning · Mar 12, 2026                  0.92   Open  │
-│    onboarding · billing · migration                              │
-│                                                                  │
-│    WHY  Discusses Q2 migration timeline and phased rollout       │
-│         strategy that directly addresses billing concerns.       │
-│                                                                  │
-│       📌 Move to phased rollout approach           +1 more       │
-│       ☐ Draft migration plan · Owner: Sarah · Reporter: Mike     │
-│         · due Mar 20                               +2 more       │
-│       ⚠ Legacy contract migration risk                          │
-└──────────────────────────────────────────────────────────────────┘
-```
+> **Spec:**
+> New `useSearchState` hook that manages query, filters, field scoping, form visibility, checked results, and derived chat meeting IDs. Composes existing `useSearch` + `useDeepSearch` hooks.
+>
+> - New file `electron-ui/ui/src/hooks/useSearchState.ts`
+> - State:
+>   - `searchQuery: string`, `typedSearchQuery: string` — query text (typed = controlled input, searchQuery = submitted)
+>   - `searchFields: Set<string>` — which artifact fields to search in. Defaults to all 7 fields. `toggleField(field)` adds/removes.
+>   - `dateAfter: string`, `dateBefore: string` — date range filters
+>   - `deepSearchEnabled: boolean` — toggle
+>   - `formVisible: boolean` — Hide/Show toggle for search form
+>   - `groupBy: string` — "none" | "cluster" | "date" | "series"
+>   - `sortBy: string` — "relevance" | "date"
+>   - `checkedResultIds: Set<string>` — for chat scope override. `toggleChecked(id)`, `clearChecked()`, `selectAll(ids)`
+> - Data fetching:
+>   - `useSearch(searchQuery, selectedClient, dateAfter, dateBefore)` — existing hook, returns hybrid results
+>   - `useDeepSearch(hybridMeetingIds, searchQuery, deepSearchEnabled)` — existing hook, returns LLM-ranked results
+>   - `useQueries` or new `useArtifactBatch(meetingIds)` — fetch artifacts for visible results (uses `POST /api/artifacts/batch`)
+> - Derived:
+>   - `enrichedResults[]` — merged search results + artifact data (matched decisions, actions, risks per meeting)
+>   - `chatMeetingIds: string[]` — if `checkedResultIds.size > 0`, use checked; else top-N by score (N = `chatContextLimit` from config)
+>   - `deepSearchSummaries: Map<string, string>` — relevance summaries from deep search
+>   - `collapsedSummary: string` — e.g., `"billing migration" in Summary, Decisions · Deep`
+>
+> **User interactions:**
+> - Type in query input → updates `typedSearchQuery`; press Enter → sets `searchQuery`, triggers search
+> - Click SEARCH IN pill → `toggleField()` adds/removes field from set
+> - Change date pickers → updates `dateAfter`/`dateBefore`
+> - Toggle Deep checkbox → sets `deepSearchEnabled`
+> - Click Hide/Show → toggles `formVisible`
+> - Change Group/Sort dropdowns → updates `groupBy`/`sortBy`
+> - Check/uncheck result card → `toggleChecked(id)`
+>
+> **Files affected/created:** `electron-ui/ui/src/hooks/useSearchState.ts`, `electron-ui/ui/src/hooks/useArtifactBatch.ts`, `test/ui/use-search-state.test.tsx`
 
-### Card — Expanded State
+- [ ] Burst 15: Hook skeleton — searchQuery, typedSearchQuery, deepSearchEnabled, formVisible, groupBy, sortBy
+- [ ] Burst 16: Filter state — dateAfter, dateBefore, searchFields Set with toggleField
+- [ ] Burst 17: Wire `useSearch` — query triggers API call, returns searchResults + searchFetching
+- [ ] Burst 18: Wire `useDeepSearch` — deep enabled + hybrid IDs triggers deep search, returns summaries
+- [ ] Burst 19: `useArtifactBatch` hook — fetches artifacts for visible meeting IDs via batch endpoint
+- [ ] Burst 20: `enrichedResults` — merges search results + artifacts into card-ready data (matched items per section)
+- [ ] Burst 21: Checked results — toggleChecked, clearChecked, selectAll
+- [ ] Burst 22: `chatMeetingIds` computation — checked override or top-N from config
+- [ ] Burst 23: `collapsedSummary` derived string for collapsed form state
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│ ☑  Sprint Planning · Mar 12, 2026                  0.92   Open  │
-│    onboarding · billing · migration                              │
-│                                                                  │
-│    WHY  Discusses Q2 migration timeline and phased rollout       │
-│         strategy that directly addresses billing concerns.       │
-│                                                                  │
-│       DECISIONS (2)                                              │
-│       📌 Move to phased rollout approach                         │
-│       📌 Delay billing v2 to post-migration                      │
-│                                                                  │
-│       ACTION ITEMS (3)                            [collapse ▲]  │
-│       ☐ Draft migration plan · Owner: Sarah · Reporter: Mike     │
-│         · due Mar 20                                             │
-│       ☐ Update API rate limits · Owner: Dev team · Reporter:     │
-│         Sarah · due Mar 18                                       │
-│       ☐ Schedule load test · Owner: QA · Reporter: Dev Lead      │
-│         · due Mar 25                                             │
-│                                                                  │
-│       RISKS (1)                                                  │
-│       ⚠ Legacy contract migration — custom billing rules may     │
-│         break during transition                                  │
-└──────────────────────────────────────────────────────────────────┘
-```
+---
 
-**Card anatomy:**
-1. **Header**: Checkbox (chat scope) · Meeting title + date (identity) · Relevance score · "Open" CTA
-2. **Tags**: Cluster tags as pills
-3. **WHY** (deep search only): Inline LLM relevance explanation. Option A style — `WHY` label + italic text on amber background with left border. Deep search prompt can be tuned to pull out more detail.
-4. **Matched artifacts** (indented): Top-1 decision, top-1 action item (with inline Owner/Reporter/due on same line), top-1 risk. Each with "+N more" expander.
-5. **No summary block**: Summary is a bulleted list that duplicates matched artifacts. WHY provides the relevance context instead.
-6. **No participant footer**: Owner/Reporter are shown on action items where meaningful. Generic participant names add no triage value.
+### #5 — Search Form UI (query input, field toggles, filters)
 
-### Field-scoped result priority
+> **Spec:**
+> `SearchForm` component renders the search configuration panel at the top of the search view. Supports expanded and collapsed states.
+>
+> - New file `electron-ui/ui/src/components/SearchForm.tsx`
+> - **Expanded state** (see artboard section 1):
+>   - "Search" title left, "Hide" button right (chevron-up icon)
+>   - Query input: white bg, border, search icon, 13px Inter. Submits on Enter.
+>   - "SEARCH IN" label (10px, uppercase, muted) + row of toggle pills:
+>     - Active: orange bg (#e67e22), white text, 600 weight — matches existing app toggle pill pattern
+>     - Inactive: white bg, border, muted text — matches existing outline button pattern
+>     - Fields: Summary, Decisions, Action Items, Risks, Features, Questions, Milestones
+>   - Bottom row: "From" date picker + "to" date picker + spacer + Deep checkbox (green, matches existing) + `Group: None ▾` dropdown + `Sort: Relevance ▾` dropdown
+>   - Group options: None, Cluster, Date, Series
+>   - Sort options: Relevance, Date (newest), Date (oldest)
+> - **Collapsed state** (see artboard section 2):
+>   - Single row: search icon + `"query"` bold + `in Field1, Field2` muted + `· Deep` amber (if active) + spacer + "Show" button (chevron-down)
+> - Props: all state + setters from `useSearchState`, `onSubmit()` callback
+>
+> **User interactions:**
+> - Type query → controlled input updates `typedSearchQuery`
+> - Press Enter in query input → calls `onSubmit()` which sets `searchQuery`
+> - Click a SEARCH IN pill → toggles that field in `searchFields` Set. Orange = active, outline = inactive.
+> - Click Hide → sets `formVisible: false`, form collapses to one-line summary
+> - Click Show → sets `formVisible: true`, form expands
+> - Change date picker → updates `dateAfter` / `dateBefore`
+> - Toggle Deep checkbox → sets `deepSearchEnabled`
+> - Change Group dropdown → sets `groupBy`
+> - Change Sort dropdown → sets `sortBy`
+>
+> **Design artboard:** `Dev Comp: Search Results Components` sections 1-2
+> **Files affected/created:** `electron-ui/ui/src/components/SearchForm.tsx`, `test/ui/search-form.test.tsx`
 
-When "Search in" fields are selected, matched artifacts from those fields float to the top of the highlights. If you searched "Action Items" only, action items appear first. If you searched "Decisions", decisions float up.
+- [ ] Burst 24: `SearchForm` expanded — renders query input, Hide button, fires onSubmit on Enter
+- [ ] Burst 25: SEARCH IN field toggles — renders 7 pills, click toggles active/inactive state via callback
+- [ ] Burst 26: Date pickers + options row — From/to inputs, Deep checkbox, Group dropdown, Sort dropdown
+- [ ] Burst 27: Collapsed state — renders one-line summary from `collapsedSummary`, Show button toggles back
+- [ ] Burst 28: **Playwright E2E — Search Form**: navigate to search view via NavRail, type query, toggle SEARCH IN pills, verify expanded/collapsed states, confirm Enter submits search
 
-### Cluster Grouping
+---
 
-When "Group by cluster" is toggled:
+### #6 — Result Card UI (WHY + matched artifacts, no summary)
 
-```
-── onboarding · billing · migration (8 results) ─── Select all in group
-  ┌─ Sprint Planning · Mar 12  ────── 0.92 ─┐
-  └─────────────────────────────────────────┘
-  ┌─ Weekly Sync · Mar 5  ────────── 0.87 ─┐
-  └─────────────────────────────────────────┘
+> **Spec:**
+> `SearchResultCard` component renders a single search result. Shows WHY (deep search only) + matched artifact highlights. No summary block, no participant footer.
+>
+> - New file `electron-ui/ui/src/components/SearchResultCard.tsx`
+> - **Props:** `result: EnrichedResult`, `checked: boolean`, `onToggleChecked: (id) => void`, `onOpen: (id) => void`, `deepSearchSummary?: string`
+> - **Header row** (see artboard section 3, card anatomy):
+>   - Left: Checkbox (16px). Checked = orange bg + white check + orange left border on card. Unchecked = gray border.
+>   - Meeting title + date as identity: `"Sprint Planning · Mar 12, 2026"` — Space Grotesk 13px 600
+>   - Cluster tag pills: `f0eeeb` bg, 9px, `6b6660` text
+>   - Right: Relevance score in JetBrains Mono 11px 600 (color: green gradient by value). "Open" in orange 11px 500.
+> - **WHY block** (conditional — only when `deepSearchSummary` prop exists):
+>   - `fdf8f0` bg, 2px amber left border, rounded right corners
+>   - "WHY" label: 10px 700 amber `#c17a1a`, tracking 0.03em
+>   - Summary text: 11px italic `#7a6e5f`
+> - **Matched artifacts** (indented 24px left):
+>   - Decision: amber circle-check icon + text 11px 500 + "+N more" muted
+>   - Action item: gray checkbox icon + description 11px + `Owner: name` + `Reporter: name` + `due date` all muted 10px on same line + "+N more"
+>   - Risk: amber warning triangle icon + text 11px `#9a5c1a`
+>   - "+N more" click → expands to show full list with section headers (DECISIONS, ACTION ITEMS, RISKS)
+> - **No summary block**: search matches specific artifacts, not general summaries
+> - **No participant footer**: Owner/Reporter on action items is sufficient
+>
+> **User interactions:**
+> - Click checkbox → calls `onToggleChecked(result.meetingId)`. Card gains orange left border when checked.
+> - Click "Open" → calls `onOpen(result.meetingId)`
+> - Click "+N more" → toggles expanded state showing full artifact lists
+>
+> **Design artboard:** `Dev Comp: Search Results Components` section 3 (three card variants: checked+WHY, unchecked+WHY, no WHY)
+> **Files affected/created:** `electron-ui/ui/src/components/SearchResultCard.tsx`, `test/ui/search-result-card.test.tsx`
 
-── billing · pricing · contracts (6 results) ─── Select all in group
-  ┌─ Billing Deep Dive · Feb 28  ──── 0.81 ─┐
-  └─────────────────────────────────────────┘
-```
-
-## User Flows
-
-### Quick Search
-1. User types query in TopBar search bar → presses Enter
-2. App navigates to search view, query pre-filled in form, searches all fields
-3. Hybrid search (vector + FTS) fires → results render as cards below form
-4. Chat panel opens, auto-scoped to top-N results (N from config)
-5. User scans cards, can tweak filters in the form
-
-### Advanced Search
-1. User clicks Search icon in NavRail → search view with empty form
-2. Search is scoped to the globally selected client (inherited from TopBar)
-3. User configures: query, "Search in" field toggles, date range, Deep Search, cluster grouping, sort
-4. Pressing Enter fires search → results load below
-5. Form stays visible — tweak and re-search. Or Hide to maximize result space.
-
-### Chat with Results
-1. Chat panel shows "N of M results" in header
-2. Default: top-N by relevance included in chat context (N from `chatContextLimit` config)
-3. User checks/unchecks result cards to override which meetings are in scope
-4. Chat uses distilled context (artifacts only, no transcripts) to fit more meetings
-5. Citations (`[M1]`, `[M2]`) reference specific result meetings
-
-### Open Meeting Detail
-1. User clicks "Open" on a result card header
-2. Layout splits to 30/30/30: compact results sidebar + MeetingDetail + chat
-3. Chat context switches from "N search results" to single meeting
-4. Chat banner shows "Context: [meeting title] · Back to search results"
-5. Click another result in sidebar to switch
-6. Click "Back to full view" to close detail and return to full-width cards
-
-### Save as Thread
-1. User clicks "Save as Thread" button in results header
-2. Creates a new Thread titled from the search query
-3. All result meetings linked to the thread
-4. Navigates to Threads view with the new thread selected
-
-## Configuration
-
-Extend `config/system.json`:
-
-```json
-{
-  "search": {
-    "maxDistance": 1.7,
-    "limit": 50,
-    "displayLimit": 20,
-    "chatContextLimit": 10
-  }
-}
-```
-
-| Setting | Default | Purpose |
-|---|---|---|
-| `limit` | 50 | Max results from backend (existing) |
-| `displayLimit` | 20 | Results shown before "Load more" |
-| `chatContextLimit` | 10 | Default meetings in chat context |
-
-## Architecture
-
-### New View
-- Add `"search"` to `View` union type in `App.tsx`, `NavRail.tsx`, `BottomTabBar.tsx`, `ResponsiveShell.tsx`, `BreadcrumbBar.tsx`
-- `SearchPage()` returns `[<SearchResultsList />]` (single panel, full width)
-
-### State: `useSearchState` hook
-New hook at `electron-ui/ui/src/hooks/useSearchState.ts`:
-- `searchQuery`, `typedSearchQuery` — query text
-- `searchFields: Set<string>` — which artifact fields to search in, defaults to all
-- `dateAfter`, `dateBefore` — date range filters (client inherited from global scope)
-- `deepSearchEnabled` — toggle
-- `formVisible` — Hide/Show toggle state
-- `checkedResultIds: Set<string>` — chat scope overrides
-- `groupByCluster: boolean` — cluster grouping toggle
-- Wires existing `useSearch()` + `useDeepSearch()` hooks with `searchFields` param
-- Computes `chatMeetingIds`: checked IDs if any, else top-N by score (N from config)
-- Fetches artifacts for visible results via `useQueries` (or batch endpoint)
-- Produces `enrichedResults[]` with matched artifacts, counts, tags
-
-### Chat Context
-- New `buildSearchContext(db, meetingIds, options?)` in `core/labeled-context.ts`
-- Distilled format: artifacts only, no transcripts, no mention stats
-- Token budget: `maxChars` scales per-meeting allocation inversely with count
-- Optional `relevanceSummaries` map from deep search
-- Exposed via `contextMode: "distilled"` on `ConversationChatRequest`
-
-### API
-- Fix: pass `date_after`/`date_before` through `GET /api/search` route
-- New: `POST /api/artifacts/batch` for efficient multi-artifact fetch
-- New: `searchFields` param on `GET /api/search` — field-scoped FTS matching
-- New: field-tagged FTS index (split artifact content by field tags for scoped matching)
-
-### Component Tree
-```
-SearchPage.tsx
-  ├─ SearchForm.tsx (top, with Hide/Show toggle)
-  │    ├─ QueryInput
-  │    ├─ FieldToggles ("Search in" pills)
-  │    ├─ DateRange (From/to pickers)
-  │    └─ Options (Deep, Group clusters, Sort)
-  └─ SearchResultsList.tsx (below form)
-       ├─ ResultsHeader (count + Select all + Save as Thread)
-       ├─ [ClusterGroupHeader] (optional)
-       ├─ SearchResultCard.tsx (per result)
-       │    ├─ Header (checkbox, title+date, score, Open CTA)
-       │    ├─ ClusterTags (pills)
-       │    ├─ WHY (deep only, inline Option A style)
-       │    ├─ MatchedArtifacts (indented, top-1 per section + expanders)
-       │    │    ├─ Decision (icon + text + "+N more")
-       │    │    ├─ ActionItem (checkbox + text + Owner/Reporter/due inline + "+N more")
-       │    │    └─ Risk (warning icon + text)
-       │    └─ (no summary, no participants footer)
-       └─ LoadMore ("Showing N of M · Load more")
-```
-
-## Ketchup Plan (46 bursts, 9 bottles)
-
-### Bottle 1: Core Backend — Search Context (3 bursts)
-- [ ] Burst 1: `buildSearchContext` — distilled format, meetingIds + maxChars + relevanceSummaries
-- [ ] Burst 2: Per-meeting budget scaling (inverse of count)
-- [ ] Burst 3: `contextMode` on `ConversationChatRequest` + handler wiring
-
-### Bottle 2: API & Field-Scoped Search (4 bursts)
-- [ ] Burst 4: `date_after`/`date_before` passthrough on `GET /api/search`
-- [ ] Burst 5: Batch artifact endpoint `POST /api/artifacts/batch`
-- [ ] Burst 6: Field-scoped FTS — tag artifact content by field in `artifact_fts`
-- [ ] Burst 7: `searchFields` param on `GET /api/search` — filter FTS matches to specified fields
-
-### Bottle 3: Config & View Wiring (7 bursts)
-- [ ] Burst 8: Add `displayLimit` and `chatContextLimit` to `config/system.json` + `config.ts`
-- [ ] Burst 9: Extend `View` type with `"search"` across all files
-- [ ] Burst 10: NavRail search icon
-- [ ] Burst 11: BottomTabBar + BreadcrumbBar entries
-- [ ] Burst 12: TopBar submit → search view navigation (form pre-filled, all fields)
-- [ ] Burst 13: Result Open → 30/30/30 detail layout with chat context switch
-- [ ] Burst 14: "Back to full view" returns to full-width results, restores multi-result chat
-
-### Bottle 4: Search State Hook (9 bursts)
-- [ ] Burst 15: Hook skeleton — query, typed query, deep toggle
-- [ ] Burst 16: Filter state — dateAfter, dateBefore (client from global scope)
-- [ ] Burst 17: Field scope state — `searchFields: Set<string>`, toggleField(), defaults to all
-- [ ] Burst 18: Form visibility — `formVisible: boolean`, toggle
-- [ ] Burst 19: Wire `useSearch` with `searchFields` param
-- [ ] Burst 20: Wire `useDeepSearch`
-- [ ] Burst 21: Checked results — toggle, clear
-- [ ] Burst 22: `chatMeetingIds` — top-N default (from config), checked override
-- [ ] Burst 23: Enriched results with matched artifact data (no summary, just matched sections)
-
-### Bottle 5: Search Form UI (4 bursts)
-- [ ] Burst 24: `SearchForm` — query input, Hide/Show toggle
-- [ ] Burst 25: Field toggle pills — clickable active/inactive states, "SEARCH IN" label
-- [ ] Burst 26: Date range pickers + options row (Deep, Group clusters, Sort)
-- [ ] Burst 27: Form submit — Enter key triggers search with current state
-
-### Bottle 6: Result Card UI — Paper Design First (8 bursts)
-- [ ] Burst 28: `SearchResultCard` header (checkbox, title+date, score, Open CTA)
-- [ ] Burst 29: Cluster tag pills
-- [ ] Burst 30: Inline WHY (Option A style — amber left border, WHY label + italic text)
+- [ ] Burst 29: `SearchResultCard` header — checkbox, title+date, tags, score, Open CTA
+- [ ] Burst 30: WHY block — conditional render when `deepSearchSummary` present, amber left border style
 - [ ] Burst 31: Matched artifacts — indented decision + action item (Owner/Reporter/due inline) + risk
-- [ ] Burst 32: "+N more" expanders → full section lists on click
-- [ ] Burst 33: Checkbox toggles chat scope
-- [ ] Burst 34: `SearchResultsList` — results header + cards + empty/loading states + Load more
-- [ ] Burst 35: Cluster grouping mode with section headers + "Select all in group"
+- [ ] Burst 32: "+N more" expand/collapse — click reveals full section lists
+- [ ] Burst 33: Checkbox toggles — checked state adds orange left border, fires callback
+- [ ] Burst 34: **Playwright E2E — Result Cards**: search for a term, verify cards render with title+date, check a card, verify orange border appears, click "+N more" if present
 
-### Bottle 7: Page Assembly & Chat Wiring (5 bursts)
-- [ ] Burst 36: `SearchPage` returns form + results as single panel
-- [ ] Burst 37: `App.tsx` renders SearchPage for search view
-- [ ] Burst 38: Chat IDs from search state (multi-result or single-meeting based on detail open)
-- [ ] Burst 39: `contextMode: "distilled"` for search chat
-- [ ] Burst 40: Chat header shows result count + context switch banner when detail open
+---
 
-### Bottle 8: Save as Thread (3 bursts)
-- [ ] Burst 41: "Save as Thread" button in results header
-- [ ] Burst 42: Save handler — create thread from query + link result meetings
-- [ ] Burst 43: Navigate to threads view after save
+### #7 — Results List + Pagination (header, cards, load more, empty states)
 
-### Bottle 9: Polish (3 bursts)
-- [ ] Burst 44: State persists across view switches
-- [ ] Burst 45: Keyboard navigation (arrow keys + enter)
-- [ ] Burst 46: Visual verification — Playwright vs Paper artboards
+> **Spec:**
+> `SearchResultsList` component renders the scrollable results area below the search form. Includes header bar, card list, load more, and empty/loading states.
+>
+> - New file `electron-ui/ui/src/components/SearchResultsList.tsx`
+> - **Results header bar** (see artboard section 3 header):
+>   - Left: `"{count} results"` 12px 600 + `"in {time}s"` 11px muted
+>   - Right: "Select all" outline button (`border: 1px solid #e0ddd8, border-radius: 4px, padding: 2px 10px`) + "Save as Thread" text link 11px muted
+> - **Card list**: maps `enrichedResults` → `SearchResultCard` components. Respects `displayLimit` from config — shows first N, "Load more" fetches next N.
+> - **Load more bar** (see artboard section 4):
+>   - Partial: `"Showing {shown} of {total} · Load more"` (Load more in orange)
+>   - All loaded: `"Showing all {total} results"` (no button)
+>   - Loading: `"Showing {shown} of {total} · Loading..."` (muted)
+> - **Empty states** (see artboard section 5):
+>   - Initial (no query): search icon + "Search across all meetings" + helper text
+>   - No results: X-search icon + "No meetings match your search" + "Try broadening..." text
+>   - Loading: spinner + "Searching..."
+> - **Grouping**: when `groupBy === "cluster"`, groups results under cluster tag headers with "Select all in group" outline button
+> - "Select all" click → `selectAll(visibleMeetingIds)` on search state
+> - "Save as Thread" click → creates thread from query + links result meetings via existing API
+>
+> **User interactions:**
+> - Click "Select all" → checks all visible results for chat scope
+> - Click "Save as Thread" → creates thread, navigates to Threads view
+> - Click "Load more" → shows next `displayLimit` batch of results
+> - Scroll results list — standard scroll behavior
+>
+> **Design artboard:** `Dev Comp: Search Results Components` sections 3-5
+> **Files affected/created:** `electron-ui/ui/src/components/SearchResultsList.tsx`, `test/ui/search-results-list.test.tsx`
 
-## Verification
-1. **Unit tests**: All 46 bursts tested, 100% coverage
-2. **Integration**: TopBar search → results → Open result → detail panel → back to results
-3. **Chat context switch**: Open meeting → chat shows single meeting → Back to search results → chat shows multi-result
-4. **Field scoping**: Select "Action Items" only → results prioritize action item matches
-5. **Deep search**: Toggle → WHY appears on cards + included in chat context
-6. **Cluster grouping**: Toggle → results cluster under tag headers
-7. **Save as Thread**: Save → threads view → meetings linked
-8. **Config**: Change `displayLimit` in system.json → page size changes without code
-9. **Visual**: Playwright screenshots at 2560x1440 vs Paper artboards
+- [ ] Burst 35: Results header — count, time, Select all outline button, Save as Thread text link
+- [ ] Burst 36: Card list rendering — maps enrichedResults to SearchResultCard, respects displayLimit
+- [ ] Burst 37: Load more — shows count, Load more button fetches next batch, all-loaded state
+- [ ] Burst 38: Empty states — initial (no query), no results, loading spinner
+- [ ] Burst 39: Cluster grouping — group results under cluster headers when `groupBy === "cluster"`
+- [ ] Burst 40: Save as Thread — creates thread from query, links meetings, navigates to threads view
+- [ ] Burst 41: **Playwright E2E — Results List**: search a term, verify result count, click Load more, verify more results appear, test Select all, test no-results state with garbage query
+
+---
+
+### #8 — Page Assembly & Chat Wiring (SearchPage + chat context switching)
+
+> **Spec:**
+> `SearchPage` function assembles the search view (form + results). App.tsx wires it into the view switch. Chat panel receives `chatMeetingIds` from search state, switches context when a meeting detail is opened.
+>
+> - New file `electron-ui/ui/src/pages/SearchPage.tsx`
+>   - Returns `React.ReactNode[]` array (follows InsightsPage/ThreadsPage pattern)
+>   - Panel 0: `<div>` containing `<SearchForm />` + `<SearchResultsList />`
+>   - No Panel 1 by default (full-width results). Panel 1 added when detail opens (future burst).
+> - `App.tsx` changes:
+>   - Instantiate `useSearchState(selectedClient)` in App
+>   - In panels switch: when `currentView === "search"`, call `SearchPage(searchState, ...handlers)`
+>   - `computedActiveMeetingIds`: when `currentView === "search"`, use `search.chatMeetingIds`
+>   - Pass `contextMode: "distilled"` to `handleChat` when in search view
+>   - TopBar `onSubmitSearch`: set `search.setSearchQuery(query)` + `setCurrentView("search")`
+> - Chat header: when search view active, show `"{N} of {M} results"` count + char count
+> - Chat context switch (detail open — future section):
+>   - When user clicks "Open" on a card, layout switches to 30/30/30 (compact sidebar + MeetingDetail + chat)
+>   - Chat switches from multi-result to single meeting
+>   - Banner in chat: "Context: {title} · Back to search results"
+>
+> **User interactions:**
+> - Navigate to search view → form + empty state visible, chat panel shows "search results" scope
+> - Search → results load, chat auto-scopes to top-N results
+> - Check/uncheck cards → chat scope updates
+> - Open a meeting → chat switches to single meeting context (detail open state)
+>
+> **Design artboard:** `Search Results — Option D: Form + Results (chat 40%)`
+> **Files affected/created:** `electron-ui/ui/src/pages/SearchPage.tsx`, `electron-ui/ui/src/App.tsx`, `test/ui/search-page.test.tsx`
+
+- [ ] Burst 42: `SearchPage` returns panel array with SearchForm + SearchResultsList
+- [ ] Burst 43: App.tsx renders SearchPage for search view, instantiates useSearchState
+- [ ] Burst 44: Chat IDs from search state — `computedActiveMeetingIds` uses `chatMeetingIds` in search view
+- [ ] Burst 45: `contextMode: "distilled"` passed to chat handler when in search view
+- [ ] Burst 46: Chat header shows result count context when in search view
+- [ ] Burst 47: **Playwright E2E — Full Flow**: TopBar search → results page loads → check 2 results → open chat → verify chat references checked meetings → click Open on a result → verify navigation to meetings view
+
+---
+
+### #9 — Detail Open State (30/30/30 split with chat context switch)
+
+> **Spec:**
+> When user clicks "Open" on a search result, the layout splits into three columns: compact results sidebar (~30%), MeetingDetail center panel (~30%), chat panel (~30%). Chat context switches to the single opened meeting.
+>
+> - SearchPage Panel 1: when `selectedResultId` is set, return `<MeetingDetail />` as second panel
+> - Results panel compresses to compact sidebar: shows title + date + score per row. Selected row highlighted with orange left border + warm bg.
+> - "Back to full view" link in sidebar header → clears `selectedResultId`, restores full-width results, restores multi-result chat
+> - Chat context switch:
+>   - `computedActiveMeetingIds` switches from `chatMeetingIds` (multi) to `[selectedResultId]` (single)
+>   - Chat banner: `"Context: Sprint Planning (Mar 12) · Back to search results"` — click "Back" restores multi-result scope
+>   - `contextMode` switches from `"distilled"` to `"full"` for single meeting (include transcripts)
+> - Click different row in sidebar → switches detail + chat to that meeting
+>
+> **User interactions:**
+> - Click "Open" on card → layout splits, detail loads, chat switches to single meeting
+> - Click different result in sidebar → switches to that meeting
+> - Click "Back to full view" in sidebar → closes detail, restores full-width cards + multi-result chat
+> - Click "Back to search results" in chat banner → same as above
+>
+> **Design artboard:** (to be created — `Dev Comp: Detail Open State`)
+> **Files affected/created:** `electron-ui/ui/src/pages/SearchPage.tsx`, `electron-ui/ui/src/components/CompactResultsSidebar.tsx`, `electron-ui/ui/src/App.tsx`, `test/ui/compact-results-sidebar.test.tsx`
+
+- [ ] Burst 48: `CompactResultsSidebar` — title+date+score rows, selected highlight, "Back to full view" header
+- [ ] Burst 49: SearchPage returns 2 panels when `selectedResultId` set — sidebar + MeetingDetail
+- [ ] Burst 50: Chat context switch — single meeting when detail open, multi-result when closed
+- [ ] Burst 51: Chat banner — "Context: {title} · Back to search results" with click handler
+- [ ] Burst 52: **Playwright E2E — Detail Open**: search → click Open → verify 3-column layout → verify chat shows single meeting context → click Back → verify full-width results restored
+
+---
+
+### #10 — Polish & Visual Verification
+
+> **Spec:**
+> Final polish: state persistence across view switches, keyboard navigation, visual verification against Paper artboards.
+>
+> - Search state persists when switching views: navigate away and back → query, results, checked state preserved
+> - Keyboard navigation: Up/Down arrows move selection through results, Enter opens selected result
+> - Visual verification: Playwright screenshots at 2560x1440 compared against Paper artboard `Dev Comp: Search Results Components`
+>
+> **Files affected/created:** `electron-ui/ui/src/hooks/useSearchState.ts`, `electron-ui/ui/src/components/SearchResultsList.tsx`, `test/e2e/search.spec.ts`
+
+- [ ] Burst 53: State persists across view switches — navigate away and back, query preserved
+- [ ] Burst 54: Keyboard navigation — arrow keys move selection, Enter opens
+- [ ] Burst 55: **Playwright E2E — Visual Verification**: screenshot search view at 2560x1440, compare against artboard. Verify all states: form expanded, form collapsed, results with cards, empty state, no results state.
