@@ -165,24 +165,13 @@ describe("App", () => {
     expect(screen.queryByTestId("chat-panel")).toBeNull();
   });
 
-  it("meeting list shows only search-matching meetings when query has 2+ chars", async () => {
-    (window.api.getMeetings as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      { id: "m1", title: "Alpha Weekly", date: "2026-01-01", client: "Acme", series: "alpha weekly", actionItemCount: 2 },
-      { id: "m2", title: "Beta Daily", date: "2026-01-02", client: "Beta", series: "beta daily", actionItemCount: 0 },
-    ]);
-    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "Alpha Weekly", date: "2026-01-01" },
-    ]);
-    (window.api.deepSearch as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { meeting_id: "m1", relevanceSummary: "Relevant", relevanceScore: 85 },
-    ]);
+  it("pressing Enter in search bar navigates away from meetings view", async () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "al" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
-      expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
-      expect(screen.queryByTestId("meeting-row-m2")).toBeNull();
+      expect(screen.queryByTestId("meeting-row-m1")).toBeNull();
     });
   });
 
@@ -336,31 +325,13 @@ describe("App", () => {
     });
   });
 
-  it("Relevance sort option appears in dropdown when search returns results", async () => {
-    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
-    ]);
+  it("Enter in search navigates to search view and clears input", async () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "deployment issue" } });
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
-      expect(screen.getByText("Relevance")).toBeTruthy();
-    });
-  });
-
-  it("sort resets to Newest when search query is cleared", async () => {
-    (window.api.search as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
-      { meeting_id: "m1", score: 0.3, client: "Acme", meeting_type: "Weekly", date: "2026-01-01" },
-    ]);
-    render(<App />, { wrapper });
-    const input = await screen.findByRole("textbox", { name: /search meetings/i });
-    fireEvent.change(input, { target: { value: "deployment issue" } });
-    fireEvent.keyDown(input, { key: "Enter" });
-    await waitFor(() => expect(screen.getByText("Relevance")).toBeTruthy());
-    fireEvent.click(screen.getByLabelText("Clear search"));
-    await waitFor(() => {
-      expect(screen.queryByText("Relevance")).toBeNull();
+      expect((input as HTMLInputElement).value).toBe("");
     });
   });
 
@@ -382,15 +353,15 @@ describe("App", () => {
     await waitFor(() => expect(screen.getByText("Meeting imported")).toBeDefined());
   });
 
-  it("clicking Meetings nav clears search query", async () => {
+  it("Enter clears typed search query in TopBar input", async () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "DLQ" } });
-    fireEvent.keyDown(input, { key: "Enter" });
     expect((input as HTMLInputElement).value).toBe("DLQ");
-    fireEvent.click(screen.getByRole("button", { name: "Action Items" }));
-    fireEvent.click(screen.getByRole("button", { name: "Meetings" }));
-    expect((input as HTMLInputElement).value).toBe("");
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => {
+      expect((input as HTMLInputElement).value).toBe("");
+    });
   });
 
   it("shows error toast when deep search fails with LLM error", async () => {
@@ -407,8 +378,6 @@ describe("App", () => {
     await waitFor(() => {
       expect(screen.getByText(/Deep search failed/i)).toBeDefined();
     });
-    expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
-    expect(screen.queryByText(/no relevant results/i)).toBeNull();
   });
 
   it("clicking Threads nav renders ThreadsView with client header", async () => {
@@ -567,5 +536,37 @@ describe("App", () => {
     await waitFor(() => screen.getByText("Acme Timelines"));
     fireEvent.click(screen.getByRole("button", { name: "New Milestone" }));
     await waitFor(() => expect(screen.getByText("Create Milestone")).toBeDefined());
+  });
+
+  it("Enter in TopBar search navigates to search view with query stored", async () => {
+    render(<App />, { wrapper });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
+    fireEvent.change(input, { target: { value: "DLQ alert" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => {
+      const searchView = screen.getByTestId("search-view");
+      expect(searchView.getAttribute("data-query")).toBe("DLQ alert");
+    });
+  });
+
+  it("clicking Search in NavRail navigates to search view with empty query", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-view")).toBeDefined();
+    });
+  });
+
+  it("search result open navigates to meetings view with that meeting selected", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    const openBtn = await screen.findByTestId("search-open-m1");
+    fireEvent.click(openBtn);
+    await waitFor(() => {
+      expect(screen.getByTestId("meeting-row-m1")).toBeDefined();
+      expect(screen.queryByTestId("search-view")).toBeNull();
+    });
   });
 });

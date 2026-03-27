@@ -203,10 +203,10 @@ Phase 5 (sequential):
 > **Design artboard:** `Search Results — Option D` (nav rail with Search icon active in orange)
 > **Files affected/created:** `electron-ui/ui/src/App.tsx`, `electron-ui/ui/src/components/NavRail.tsx`, `electron-ui/ui/src/components/BottomTabBar.tsx`, `electron-ui/ui/src/components/ResponsiveShell.tsx`, `electron-ui/ui/src/components/BreadcrumbBar.tsx`, `test/ui/nav-rail.test.tsx`
 
-- [ ] Burst 14: Extend `View` type with `"search"` across all 5 files
-- [ ] Burst 15: NavRail search icon + BottomTabBar + BreadcrumbBar entries
-- [ ] Burst 16: TopBar Enter → search view navigation — sets SearchForm query, preserves meetings view typing behavior
-- [ ] Burst 17: Result "Open" → meetings view navigation
+- [x] Burst 14: Extend `View` type with `"search"` across all 5 files
+- [x] Burst 15: NavRail search icon + BottomTabBar + BreadcrumbBar entries
+- [x] Burst 16: TopBar Enter → search view navigation — sets SearchForm query, preserves meetings view typing behavior
+- [x] Burst 17: Result "Open" → meetings view navigation
 
 ---
 

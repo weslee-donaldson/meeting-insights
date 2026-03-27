@@ -17,6 +17,7 @@ interface WorkspaceBannerProps {
   deepSearchEnabled?: boolean;
   onDeepSearchToggle?: (enabled: boolean) => void;
   onReset: () => void;
+  onSearchNavigate?: (query: string) => void;
   className?: string;
 }
 
@@ -37,7 +38,7 @@ function ClientSelector({ clientName, clients, onClientChange }: Pick<WorkspaceB
   );
 }
 
-function SearchBar({ searchQuery, onSearchQueryChange, onSubmitSearch, clientName }: Pick<WorkspaceBannerProps, "searchQuery" | "onSearchQueryChange" | "onSubmitSearch" | "clientName">) {
+function SearchBar({ searchQuery, onSearchQueryChange, onSubmitSearch, onSearchNavigate, clientName }: Pick<WorkspaceBannerProps, "searchQuery" | "onSearchQueryChange" | "onSubmitSearch" | "onSearchNavigate" | "clientName">) {
   return (
     <div className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-input)]">
       <Search className="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0" strokeWidth={1.75} />
@@ -45,7 +46,7 @@ function SearchBar({ searchQuery, onSearchQueryChange, onSubmitSearch, clientNam
         type="text"
         value={searchQuery}
         onChange={(e) => onSearchQueryChange(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") onSubmitSearch(searchQuery); }}
+        onKeyDown={(e) => { if (e.key === "Enter") { onSubmitSearch(searchQuery); onSearchNavigate?.(searchQuery); } }}
         placeholder={`Search within ${clientName ?? "all"}…`}
         aria-label="Search meetings"
         className="flex-1 bg-transparent border-0 outline-none text-[13px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
@@ -101,7 +102,7 @@ function DateFilters({ dateRange, onDateChange, deepSearchEnabled, onDeepSearchT
 }
 
 function MobileBanner(props: WorkspaceBannerProps) {
-  const { clientName, clients, onClientChange, searchQuery, onSearchQueryChange, onSubmitSearch, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, className } = props;
+  const { clientName, clients, onClientChange, searchQuery, onSearchQueryChange, onSubmitSearch, onSearchNavigate, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, className } = props;
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -143,7 +144,7 @@ function MobileBanner(props: WorkspaceBannerProps) {
             value={searchQuery}
             onChange={(e) => onSearchQueryChange(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onSubmitSearch(searchQuery);
+              if (e.key === "Enter") { onSubmitSearch(searchQuery); onSearchNavigate?.(searchQuery); }
               if (e.key === "Escape") { setSearchExpanded(false); onSearchQueryChange(""); onSubmitSearch(""); }
             }}
             placeholder={`Search ${clientName}…`}
@@ -212,7 +213,7 @@ export function WorkspaceBanner(props: WorkspaceBannerProps) {
     return <MobileBanner {...props} />;
   }
 
-  const { clientName, clients, onClientChange, stats, searchQuery, onSearchQueryChange, onSubmitSearch, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, className } = props;
+  const { clientName, clients, onClientChange, stats, searchQuery, onSearchQueryChange, onSubmitSearch, onSearchNavigate, dateRange, onDateChange, deepSearchEnabled, onDeepSearchToggle, onReset, className } = props;
 
   if (!clientName) {
     return (
@@ -260,7 +261,7 @@ export function WorkspaceBanner(props: WorkspaceBannerProps) {
       </div>
 
       <div className="flex items-center gap-3 px-5 py-2.5 bg-[var(--color-bg-surface)]">
-        <SearchBar searchQuery={searchQuery} onSearchQueryChange={onSearchQueryChange} onSubmitSearch={onSubmitSearch} clientName={clientName} />
+        <SearchBar searchQuery={searchQuery} onSearchQueryChange={onSearchQueryChange} onSubmitSearch={onSubmitSearch} onSearchNavigate={onSearchNavigate} clientName={clientName} />
         <DateFilters dateRange={dateRange} onDateChange={onDateChange} deepSearchEnabled={deepSearchEnabled} onDeepSearchToggle={onDeepSearchToggle} />
       </div>
     </div>

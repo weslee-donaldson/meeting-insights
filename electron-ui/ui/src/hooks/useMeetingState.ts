@@ -17,7 +17,7 @@ export function useMeetingState(
   selectedClient: string | null,
   currentView: string,
   addToast: (message: string, type: "success" | "error") => void,
-  setCurrentView: (view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => void,
+  setCurrentView: (view: "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search" | "search") => void,
 ) {
   const queryClient = useQueryClient();
   const selection = useMeetingSelection();
@@ -482,8 +482,8 @@ export function useMeetingState(
     }
   }, [selectedMeetingId, queryClient, addToast]);
 
-  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights" | "timelines") => {
-    setCurrentView((prev: "meetings" | "action-items" | "threads" | "insights" | "timelines") => {
+  const handleNavigate = useCallback((view: "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search") => {
+    setCurrentView((prev: "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search") => {
       meetingIdPerView.current[prev] = selectedMeetingId;
       return view;
     });

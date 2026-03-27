@@ -7,13 +7,14 @@ import { BottomTabBar } from "../../electron-ui/ui/src/components/BottomTabBar.j
 afterEach(cleanup);
 
 describe("BottomTabBar", () => {
-  it("renders all 5 navigation items", () => {
+  it("renders all 6 navigation items including Search", () => {
     render(<BottomTabBar currentView="meetings" onNavigate={vi.fn()} />);
     expect(screen.getByText("Meetings")).toBeDefined();
     expect(screen.getByText("Items")).toBeDefined();
     expect(screen.getByText("Threads")).toBeDefined();
     expect(screen.getByText("Insights")).toBeDefined();
     expect(screen.getByText("Timelines")).toBeDefined();
+    expect(screen.getByText("Search")).toBeDefined();
   });
 
   it("active item uses accent color", () => {
@@ -56,5 +57,18 @@ describe("BottomTabBar", () => {
     render(<BottomTabBar currentView="meetings" onNavigate={vi.fn()} />);
     const svg = screen.getByRole("button", { name: "Meetings" }).querySelector("svg")!;
     expect(svg.classList.contains("w-[20px]")).toBe(true);
+  });
+
+  it("clicking Search fires onNavigate with search", () => {
+    const onNavigate = vi.fn();
+    render(<BottomTabBar currentView="meetings" onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByText("Search"));
+    expect(onNavigate).toHaveBeenCalledWith("search");
+  });
+
+  it("search tab uses accent color when active", () => {
+    render(<BottomTabBar currentView="search" onNavigate={vi.fn()} />);
+    const btn = screen.getByRole("button", { name: "Search" });
+    expect(btn.className).toContain("text-[var(--color-accent)]");
   });
 });

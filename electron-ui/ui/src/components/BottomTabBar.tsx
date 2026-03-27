@@ -1,8 +1,8 @@
 import React from "react";
-import { CalendarDays, CircleCheck, Link2, Brain, Milestone } from "lucide-react";
+import { CalendarDays, CircleCheck, Link2, Brain, Milestone, Search } from "lucide-react";
 import { cn } from "../lib/utils.js";
 
-type View = "meetings" | "action-items" | "threads" | "insights" | "timelines";
+type View = "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search";
 
 interface BottomTabBarProps {
   currentView: View;
@@ -15,6 +15,7 @@ const ITEMS: { view: View; label: string; Icon: React.ElementType }[] = [
   { view: "threads", label: "Threads", Icon: Link2 },
   { view: "insights", label: "Insights", Icon: Brain },
   { view: "timelines", label: "Timelines", Icon: Milestone },
+  { view: "search", label: "Search", Icon: Search },
 ];
 
 export function BottomTabBar({ currentView, onNavigate }: BottomTabBarProps) {

@@ -41,7 +41,8 @@ export function App() {
       else localStorage.removeItem("mtninsights-client");
     } catch { /* */ }
   }, []);
-  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines" | "search">("meetings");
+  const [searchViewQuery, setSearchViewQuery] = useState("");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -192,6 +193,12 @@ export function App() {
     setCurrentView("timelines");
     milestone.setSelectedMilestoneId(milestoneId);
   }, [milestone]);
+
+  const handleSearchNavigate = useCallback((query: string) => {
+    setSearchViewQuery(query);
+    setCurrentView("search");
+    meeting.setTypedSearchQuery("");
+  }, [meeting]);
 
   const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     return thread.handleCreateThread(data, activeMeetingIdsRef.current);
@@ -377,11 +384,27 @@ export function App() {
     onNotesClick: milestone.selectedMilestoneId ? () => milestoneNotes.setNotesDialogOpen(true) : undefined,
   });
 
+  const handleOpenSearchResult = useCallback((meetingId: string) => {
+    setCurrentView("meetings");
+    meeting.setSelectedMeetingId(meetingId);
+  }, [meeting]);
+
+  const searchPanels: React.ReactNode[] = [
+    <div key="search" data-testid="search-view" data-query={searchViewQuery}>
+      {meeting.scopeMeetings.slice(0, 5).map((m) => (
+        <button key={m.id} data-testid={`search-open-${m.id}`} onClick={() => handleOpenSearchResult(m.id)}>
+          {m.title}
+        </button>
+      ))}
+    </div>,
+  ];
+
   const panels =
     currentView === "meetings" ? meetingsPanels :
     currentView === "action-items" ? actionItemsPanels :
     currentView === "threads" ? threadsPanels :
     currentView === "timelines" ? timelinesPanels :
+    currentView === "search" ? searchPanels :
     insightsPanels;
 
   const chatPanel =
@@ -463,6 +486,7 @@ export function App() {
           onDateChange={meeting.handleDateChange}
           onSearchQueryChange={meeting.setTypedSearchQuery}
           onSubmitSearch={meeting.setSearchQuery}
+          onSearchNavigate={handleSearchNavigate}
           deepSearchEnabled={meeting.deepSearchEnabled}
           onDeepSearchToggle={meeting.setDeepSearchEnabled}
           onReset={handleReset}
