@@ -392,7 +392,7 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `electron-ui/ui/src/components/SearchResultsList.tsx`, `electron-ui/ui/src/components/CreateThreadDialog.tsx`, `test/ui/search-results-list.test.tsx`, `test/ui/create-thread-dialog.test.tsx`
 
-- [ ] Burst 39: Results header — count, `searchDurationMs` display, Select all (global) outline button, Save as Thread text link
+- [x] Burst 39: Results header — count, `searchDurationMs` display, Select all (global) outline button, Save as Thread text link
 - [ ] Burst 40: Card list + displayLimit pagination — Load more increments `displayedCount`, reset `displayedCount` when query/groupBy/sortBy changes
 - [ ] Burst 41: Empty states — initial, no results, loading, error with retry
 - [ ] Burst 42: Grouping — cluster/date(month)/series group headers, sort-within-group by score, "Select all in group" button (per-group, not global)
