@@ -141,6 +141,45 @@ export function SearchResultCard({
           Open
         </span>
       </div>
+
+      {result.deepSearchSummary && (
+        <div
+          data-testid="why-block"
+          style={{
+            backgroundColor: searchResultCard.whyBg,
+            borderLeft: searchResultCard.whyBorderLeft,
+            borderRadius: "0 4px 4px 0",
+            padding: "6px 10px",
+            marginTop: "6px",
+            marginLeft: "24px",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: searchResultCard.whyLabelFont,
+              fontSize: searchResultCard.whyLabelSize,
+              fontWeight: searchResultCard.whyLabelWeight,
+              color: searchResultCard.whyLabelColor,
+              letterSpacing: searchResultCard.whyLabelTracking,
+              display: "block",
+              marginBottom: "2px",
+            }}
+          >
+            WHY
+          </span>
+          <span
+            style={{
+              fontFamily: searchResultCard.whyTextFont,
+              fontSize: searchResultCard.whyTextSize,
+              color: searchResultCard.whyTextColor,
+              fontStyle: "italic",
+              lineHeight: typography.lineHeight.label,
+            }}
+          >
+            {result.deepSearchSummary}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

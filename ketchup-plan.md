@@ -344,7 +344,7 @@ Phase 5 (sequential):
 > **Files affected/created:** `electron-ui/ui/src/components/SearchResultCard.tsx`, `test/ui/search-result-card.test.tsx`
 
 - [x] Burst 32: Header — checkbox, title+date, tags (from `clusterTags`), `displayScore`, Open CTA
-- [ ] Burst 33: WHY block — conditional, amber left border styling
+- [x] Burst 33: WHY block — conditional, amber left border styling
 - [ ] Burst 34: Matched artifacts — query-term matching, indented, Owner/Reporter/due inline
 - [ ] Burst 35: "+N more" expand/collapse
 - [ ] Burst 36: Checkbox toggle — orange left border on checked

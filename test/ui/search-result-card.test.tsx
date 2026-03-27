@@ -102,3 +102,41 @@ describe("SearchResultCard — header", () => {
     expect(scoreEl.style.color).toBe("rgb(154, 170, 62)");
   });
 });
+
+describe("SearchResultCard — WHY block", () => {
+  it("renders WHY block when deepSearchSummary exists", () => {
+    render(
+      <SearchResultCard
+        {...defaultProps({
+          result: makeResult({ deepSearchSummary: "This meeting discussed billing migration timelines." }),
+        })}
+      />,
+    );
+    expect(screen.getByText("WHY")).not.toBeNull();
+    expect(screen.getByText("This meeting discussed billing migration timelines.")).not.toBeNull();
+  });
+
+  it("does not render WHY block when deepSearchSummary is null", () => {
+    render(
+      <SearchResultCard
+        {...defaultProps({
+          result: makeResult({ deepSearchSummary: null }),
+        })}
+      />,
+    );
+    expect(screen.queryByText("WHY")).toBeNull();
+  });
+
+  it("applies amber left border and warm background to WHY block", () => {
+    render(
+      <SearchResultCard
+        {...defaultProps({
+          result: makeResult({ deepSearchSummary: "Relevant because billing was discussed." }),
+        })}
+      />,
+    );
+    const whyBlock = screen.getByTestId("why-block");
+    expect(whyBlock.style.backgroundColor).toBe("rgb(253, 248, 240)");
+    expect(whyBlock.style.borderLeft).toBe("2px solid rgb(230, 165, 74)");
+  });
+});
