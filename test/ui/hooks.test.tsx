@@ -7,6 +7,7 @@ import { useClients } from "../../electron-ui/ui/src/hooks/useClients.js";
 import { useMeetings } from "../../electron-ui/ui/src/hooks/useMeetings.js";
 import { useArtifact } from "../../electron-ui/ui/src/hooks/useArtifact.js";
 import { useSearch } from "../../electron-ui/ui/src/hooks/useSearch.js";
+import { useDeepSearch } from "../../electron-ui/ui/src/hooks/useDeepSearch.js";
 
 afterEach(cleanup);
 
@@ -116,6 +117,48 @@ describe("useSearch", () => {
     const { result: r1 } = renderHook(() => useSearch("budget", undefined, undefined, undefined, { keyPrefix: "advSearch" }), { wrapper });
     await waitFor(() => expect(r1.current.isSuccess).toBe(true));
     expect(search).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("useDeepSearch", () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>).api = {
+      deepSearch: vi.fn().mockResolvedValue([]),
+    };
+  });
+
+  it("calls deepSearch with meetingIds and query when enabled", async () => {
+    const deepSearch = vi.fn().mockResolvedValue([{ meeting_id: "m1", relevanceSummary: "Found", relevanceScore: 80 }]);
+    (window as unknown as Record<string, unknown>).api = { deepSearch };
+    const { result } = renderHook(
+      () => useDeepSearch(["m1"], "auth", true),
+      { wrapper: makeWrapper() },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(deepSearch).toHaveBeenCalledWith({ meetingIds: ["m1"], query: "auth" });
+    expect(result.current.data).toEqual([{ meeting_id: "m1", relevanceSummary: "Found", relevanceScore: 80 }]);
+  });
+
+  it("uses keyPrefix in queryKey when provided", async () => {
+    const deepSearch = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = { deepSearch };
+    const { result } = renderHook(
+      () => useDeepSearch(["m1"], "auth", true, { keyPrefix: "advDeepSearch" }),
+      { wrapper: makeWrapper() },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(deepSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call deepSearch when enabled is false", async () => {
+    const deepSearch = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = { deepSearch };
+    renderHook(
+      () => useDeepSearch(["m1"], "auth", false),
+      { wrapper: makeWrapper() },
+    );
+    await new Promise((r) => setTimeout(r, 50));
+    expect(deepSearch).not.toHaveBeenCalled();
   });
 });
 

@@ -170,7 +170,7 @@ Phase 5 (sequential):
 - [x] Burst 7: `SearchResultRow` enrichment — add `cluster_tags` + `series` fields, populate in handler via DB lookup
 - [x] Burst 8: `POST /api/artifacts/batch` — endpoint + IPC handler + channels.ts type + api-client.ts HTTP method
 - [x] Burst 9: `useSearch` hook — add optional `keyPrefix` + `searchFields` params, backward-compatible (existing callers unaffected)
-- [ ] Burst 10: `useDeepSearch` hook — add optional `keyPrefix` param, backward-compatible
+- [x] Burst 10: `useDeepSearch` hook — add optional `keyPrefix` param, backward-compatible
 - [ ] Burst 11: Field-tagged FTS — modify `populateFts()` to prefix content with `[field]` tags per section
 - [ ] Burst 12: FTS migration — rebuild all FTS entries with field tags, add migration version check
 - [ ] Burst 13: `searchFields` param on `GET /api/search` — post-filter FTS results to matched fields, wire through api-client
