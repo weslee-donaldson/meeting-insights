@@ -183,4 +183,18 @@ describe("Search regression guards", () => {
       );
     });
   });
+
+  it("deep search toggle is present and toggleable in meetings view", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+
+    const deepCheckbox = screen.getByRole("checkbox", { name: "Deep Search" }) as HTMLInputElement;
+    expect(deepCheckbox.checked).toBe(true);
+
+    fireEvent.click(deepCheckbox);
+    expect(deepCheckbox.checked).toBe(false);
+
+    fireEvent.click(deepCheckbox);
+    expect(deepCheckbox.checked).toBe(true);
+  });
 });
