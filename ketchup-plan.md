@@ -254,7 +254,7 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `electron-ui/ui/src/hooks/useSearchState.ts`, `electron-ui/ui/src/hooks/useArtifactBatch.ts`, `test/ui/use-search-state.test.tsx`
 
-- [ ] Burst 18: Hook skeleton — all state variables, setters, toggleField, selectedClient prop, `searchDurationMs` timer (set on submit, computed on results arrival)
+- [x] Burst 18: Hook skeleton — all state variables, setters, toggleField, selectedClient prop, `searchDurationMs` timer (set on submit, computed on results arrival)
 - [ ] Burst 19: Wire `useSearch` with `keyPrefix: "searchView-search"` + pass `searchFields` — distinct from meetings view cache
 - [ ] Burst 20: Wire `useDeepSearch` with `keyPrefix: "searchView-deep"` — deep toggle is live (toggling on immediately starts deep search on current hybrid results, no re-submit required)
 - [ ] Burst 21: `useArtifactBatch` hook — calls batch endpoint, caches by meeting ID set
