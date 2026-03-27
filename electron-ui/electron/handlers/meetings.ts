@@ -507,3 +507,11 @@ export function handleGetTranscript(db: Database, meetingId: string): string | n
   const meeting = getMeeting(db, meetingId);
   return meeting?.raw_transcript ?? null;
 }
+
+export function handleArtifactBatch(db: Database, meetingIds: string[]): Record<string, Artifact | null> {
+  const result: Record<string, Artifact | null> = {};
+  for (const id of meetingIds) {
+    result[id] = handleGetArtifact(db, id);
+  }
+  return result;
+}

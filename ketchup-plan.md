@@ -148,4 +148,4 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 - [x] Burst 6: `HybridSearchOptions` — add `date_after`/`date_before`, pass through to `searchMeetingsByVector`, wire route + api-client
 - [x] Burst 7: `SearchResultRow` enrichment — add `cluster_tags` + `series` fields, populate in handler via DB lookup
-- [ ] Burst 8: `POST /api/artifacts/batch` — endpoint + IPC handler + channels.ts type + api-client.ts HTTP method
+- [x] Burst 8: `POST /api/artifacts/batch` — endpoint + IPC handler + channels.ts type + api-client.ts HTTP method

@@ -114,4 +114,7 @@ export const meetingsMethods = {
 
   updateArtifactSection: (meetingId: string, field: string, value: unknown) =>
     jsonPatch(`${API_BASE}/api/meetings/${meetingId}/artifact`, { field, value }).then(() => undefined),
+
+  artifactBatch: (meetingIds: string[]) =>
+    jsonPost(`${API_BASE}/api/artifacts/batch`, { meetingIds }),
 };

@@ -10,6 +10,7 @@ import {
   handleRenameMeeting,
   handleGetMeetingMessages, handleMeetingChat, handleClearMeetingMessages,
   handleGetTranscript, handleUpdateArtifactSection,
+  handleArtifactBatch,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
@@ -61,6 +62,11 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
       if (msg === "Artifact not found") return c.json({ error: msg }, 404);
       return c.json({ error: msg }, 400);
     }
+  });
+
+  app.post("/api/artifacts/batch", async (c) => {
+    const { meetingIds } = await c.req.json() as { meetingIds: string[] };
+    return c.json(handleArtifactBatch(db, meetingIds));
   });
 
   app.post("/api/meetings", async (c) => {

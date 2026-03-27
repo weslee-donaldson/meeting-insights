@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeDetection } from "../core/client-detection.js";
+import { storeArtifact } from "../core/extractor.js";
+import type { Artifact } from "../core/extractor.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { createApp } from "../api/server.js";
 
@@ -337,5 +339,82 @@ describe("GET /api/templates", () => {
     expect(res.status).toBe(200);
     const body = await res.json() as string[];
     expect(body).toEqual(["jira-epic", "jira-ticket", "team-actions", "thread-discovery"]);
+  });
+});
+
+describe("POST /api/artifacts/batch", () => {
+  let app: ReturnType<typeof createApp>;
+  let meetingId1: string;
+  let meetingId2: string;
+  const baseArtifact: Artifact = {
+    summary: "Test summary",
+    decisions: [{ text: "Use TypeScript", decided_by: "Team" }],
+    proposed_features: ["Feature A"],
+    action_items: [{ description: "Do thing", owner: "Alice", requester: "Bob", due_date: null, priority: "normal" }],
+    open_questions: ["What about X?"],
+    risk_items: [{ category: "engineering", description: "Complexity" }],
+    additional_notes: [],
+    milestones: [],
+  };
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    meetingId1 = ingestMeeting(db, {
+      title: "Meeting Alpha",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "hello",
+      turns: [],
+      sourceFilename: "alpha-1",
+    });
+    storeArtifact(db, meetingId1, { ...baseArtifact, summary: "Alpha summary" });
+
+    meetingId2 = ingestMeeting(db, {
+      title: "Meeting Beta",
+      timestamp: "2026-02-25T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "world",
+      turns: [],
+      sourceFilename: "beta-1",
+    });
+    storeArtifact(db, meetingId2, { ...baseArtifact, summary: "Beta summary" });
+
+    app = createApp(db, ":memory:");
+  });
+
+  it("should return artifacts for valid meeting IDs", async () => {
+    const res = await app.request("/api/artifacts/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meetingIds: [meetingId1, meetingId2] }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body[meetingId1]).toMatchObject({ summary: "Alpha summary" });
+    expect(body[meetingId2]).toMatchObject({ summary: "Beta summary" });
+  });
+
+  it("should return null for stale/deleted meeting IDs", async () => {
+    const res = await app.request("/api/artifacts/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meetingIds: [meetingId1, "nonexistent-id"] }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body[meetingId1]).toMatchObject({ summary: "Alpha summary" });
+    expect(body["nonexistent-id"]).toBe(null);
+  });
+
+  it("should return empty object for empty meetingIds array", async () => {
+    const res = await app.request("/api/artifacts/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meetingIds: [] }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body).toEqual({});
   });
 });
