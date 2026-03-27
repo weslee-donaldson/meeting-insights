@@ -139,3 +139,13 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
    - Selecting notes and chatting includes their content in LLM context
 3. Manually create an "In-Meeting" note via NotesDialog → verify type badge shows
 4. Reprocess same webhook files → no duplicate notes
+
+---
+
+# Ketchup Plan: Advanced Search — Section #2 (Field-Scoped Search API)
+
+### Bursts
+
+- [x] Burst 6: `HybridSearchOptions` — add `date_after`/`date_before`, pass through to `searchMeetingsByVector`, wire route + api-client
+- [ ] Burst 7: `SearchResultRow` enrichment — add `cluster_tags` + `series` fields, populate in handler via DB lookup
+- [ ] Burst 8: `POST /api/artifacts/batch` — endpoint + IPC handler + channels.ts type + api-client.ts HTTP method

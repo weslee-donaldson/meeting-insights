@@ -69,11 +69,15 @@ export function registerSearchRoutes(app: Hono, db: Database, llm?: LlmAdapter, 
     if (q.length < 2) return c.json({ error: "Query too short" }, 400);
     const client = c.req.query("client");
     const limitParam = c.req.query("limit");
+    const dateAfter = c.req.query("date_after");
+    const dateBefore = c.req.query("date_before");
     const { handleSearchMeetings } = await import("../../electron-ui/electron/ipc-handlers.js");
     const results = await handleSearchMeetings(db, searchDeps.vdb, searchDeps.session, {
       query: q,
       ...(client ? { client } : {}),
       ...(limitParam ? { limit: Number(limitParam) } : {}),
+      ...(dateAfter ? { date_after: dateAfter } : {}),
+      ...(dateBefore ? { date_before: dateBefore } : {}),
     });
     return c.json(results);
   });

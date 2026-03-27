@@ -27,6 +27,8 @@ interface HybridSearchOptions {
   limit: number;
   client?: string;
   maxDistance?: number;
+  date_after?: string;
+  date_before?: string;
 }
 
 export function mergeSearchResults(
@@ -90,7 +92,7 @@ export async function hybridVectorSearch(
   const hasItems = tableNames.includes("item_vectors");
 
   const [meetingResults, featureResults, itemResults] = await Promise.all([
-    searchMeetingsByVector(vdb, vec, { limit: options.limit, client: options.client }),
+    searchMeetingsByVector(vdb, vec, { limit: options.limit, client: options.client, date_after: options.date_after, date_before: options.date_before }),
     hasFeatures
       ? searchFeaturesByVector(vdb, vec, { limit: options.limit })
       : Promise.resolve([]),

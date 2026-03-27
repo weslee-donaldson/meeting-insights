@@ -20,6 +20,8 @@ export async function handleSearchMeetings(
     limit: SEARCH_LIMIT,
     client: req.client,
     maxDistance: SEARCH_MAX_DISTANCE,
+    date_after: req.date_after,
+    date_before: req.date_before,
   }) as Promise<SearchResultRow[]>;
 }
 

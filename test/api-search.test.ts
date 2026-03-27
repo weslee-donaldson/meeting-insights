@@ -1,11 +1,13 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 
+const hybridSearchMock = vi.fn().mockResolvedValue([
+  { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },
+]);
+
 vi.mock("../core/hybrid-search.js", () => ({
-  hybridSearch: vi.fn().mockResolvedValue([
-    { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },
-  ]),
+  hybridSearch: (...args: unknown[]) => hybridSearchMock(...args),
 }));
 
 describe("GET /api/search", () => {
@@ -33,6 +35,19 @@ describe("GET /api/search", () => {
   it("should return 400 when query is less than 2 characters", async () => {
     const res = await app.request("/api/search?q=x");
     expect(res.status).toBe(400);
+  });
+
+  beforeEach(() => {
+    hybridSearchMock.mockClear();
+  });
+
+  it("should pass date_after and date_before query params to hybridSearch", async () => {
+    const res = await app.request("/api/search?q=billing&date_after=2026-01-01&date_before=2026-03-01");
+    expect(res.status).toBe(200);
+    const callArgs = hybridSearchMock.mock.calls[0];
+    const options = callArgs[4] as { date_after?: string; date_before?: string };
+    expect(options.date_after).toBe("2026-01-01");
+    expect(options.date_before).toBe("2026-03-01");
   });
 
   it("should return 503 when no searchDeps are configured", async () => {
