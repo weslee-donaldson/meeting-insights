@@ -266,3 +266,162 @@ describe("enrichedResults -> SearchResultsList -> SearchResultCard integration",
     expect(cards[2].getAttribute("aria-label")).toContain("Low Score");
   });
 });
+
+function ChatMeetingIdsWiringHarness({ selectedClient }: { selectedClient: string | null }) {
+  const state = useSearchState({ selectedClient });
+  return (
+    <div>
+      <div data-testid="chat-meeting-count">{state.chatMeetingIds.length}</div>
+      <div data-testid="chat-meeting-ids">{state.chatMeetingIds.join(",")}</div>
+      <input
+        data-testid="query-input"
+        value={state.typedSearchQuery}
+        onChange={(e) => state.setTypedSearchQuery(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") state.submitSearch(); }}
+      />
+      <button data-testid="check-m1" onClick={() => state.toggleCheckedResultId("m1")}>Check m1</button>
+      <button data-testid="check-m3" onClick={() => state.toggleCheckedResultId("m3")}>Check m3</button>
+      <button data-testid="uncheck-m1" onClick={() => state.toggleCheckedResultId("m1")}>Uncheck m1</button>
+      <button data-testid="select-m2" onClick={() => state.setSelectedResultId("m2")}>Select m2</button>
+      <button data-testid="deselect" onClick={() => state.setSelectedResultId(null)}>Deselect</button>
+    </div>
+  );
+}
+
+describe("checkedResultIds -> chatMeetingIds -> computedActiveMeetingIds wiring", () => {
+  it("chatMeetingIds defaults to top-N by score when no results are checked", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2026-01-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2026-01-02", cluster_tags: [], series: "" },
+      { meeting_id: "m3", score: 0.5, client: "Acme", meeting_type: "sync", date: "2026-01-03", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <ChatMeetingIdsWiringHarness selectedClient={null} />
+      </Wrapper>,
+    );
+    const input = screen.getByTestId("query-input");
+    fireEvent.change(input, { target: { value: "billing" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m1,m2,m3"));
+    expect(screen.getByTestId("chat-meeting-count").textContent).toBe("3");
+  });
+
+  it("checking specific results switches chatMeetingIds to checked set", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2026-01-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2026-01-02", cluster_tags: [], series: "" },
+      { meeting_id: "m3", score: 0.5, client: "Acme", meeting_type: "sync", date: "2026-01-03", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <ChatMeetingIdsWiringHarness selectedClient={null} />
+      </Wrapper>,
+    );
+    const qi = screen.getByTestId("query-input");
+    fireEvent.change(qi, { target: { value: "billing" } });
+    fireEvent.keyDown(qi, { key: "Enter" });
+    await waitFor(() => expect(screen.getByTestId("chat-meeting-count").textContent).toBe("3"));
+
+    fireEvent.click(screen.getByTestId("check-m1"));
+    fireEvent.click(screen.getByTestId("check-m3"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m1,m3");
+    expect(screen.getByTestId("chat-meeting-count").textContent).toBe("2");
+  });
+
+  it("unchecking all reverts chatMeetingIds to top-N by score", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2026-01-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2026-01-02", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <ChatMeetingIdsWiringHarness selectedClient={null} />
+      </Wrapper>,
+    );
+    const qi = screen.getByTestId("query-input");
+    fireEvent.change(qi, { target: { value: "billing" } });
+    fireEvent.keyDown(qi, { key: "Enter" });
+    await waitFor(() => expect(screen.getByTestId("chat-meeting-count").textContent).toBe("2"));
+
+    fireEvent.click(screen.getByTestId("check-m1"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m1");
+
+    fireEvent.click(screen.getByTestId("uncheck-m1"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m1,m2");
+  });
+
+  it("selecting a result for detail overrides chatMeetingIds to just that result", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2026-01-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2026-01-02", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <ChatMeetingIdsWiringHarness selectedClient={null} />
+      </Wrapper>,
+    );
+    const qi = screen.getByTestId("query-input");
+    fireEvent.change(qi, { target: { value: "billing" } });
+    fireEvent.keyDown(qi, { key: "Enter" });
+    await waitFor(() => expect(screen.getByTestId("chat-meeting-count").textContent).toBe("2"));
+
+    fireEvent.click(screen.getByTestId("select-m2"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m2");
+    expect(screen.getByTestId("chat-meeting-count").textContent).toBe("1");
+  });
+
+  it("deselecting a result reverts chatMeetingIds to checked set or top-N", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2026-01-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2026-01-02", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <ChatMeetingIdsWiringHarness selectedClient={null} />
+      </Wrapper>,
+    );
+    const qi = screen.getByTestId("query-input");
+    fireEvent.change(qi, { target: { value: "billing" } });
+    fireEvent.keyDown(qi, { key: "Enter" });
+    await waitFor(() => expect(screen.getByTestId("chat-meeting-count").textContent).toBe("2"));
+
+    fireEvent.click(screen.getByTestId("check-m1"));
+    fireEvent.click(screen.getByTestId("select-m2"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m2");
+
+    fireEvent.click(screen.getByTestId("deselect"));
+    expect(screen.getByTestId("chat-meeting-ids").textContent).toBe("m1");
+    expect(screen.getByTestId("chat-meeting-count").textContent).toBe("1");
+  });
+});
