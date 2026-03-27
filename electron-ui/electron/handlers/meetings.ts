@@ -5,7 +5,7 @@ import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
 import { getClientByName, buildClientContext } from "../../../core/client-registry.js";
-import type { Participant } from "../../../core/client-registry.js";
+import type { Participant, GlossaryEntry } from "../../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
 import { deleteNotesByObject } from "../../../core/notes.js";
@@ -64,6 +64,7 @@ function clientContextForName(db: Database, clientName: string): string | undefi
     JSON.parse(clientRow.client_team ?? "[]") as Participant[],
     JSON.parse(clientRow.implementation_team ?? "[]") as Participant[],
     clientRow.additional_extraction_llm_prompt ?? undefined,
+    JSON.parse(clientRow.glossary ?? "[]") as GlossaryEntry[],
   );
 }
 

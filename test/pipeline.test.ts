@@ -129,8 +129,8 @@ Let us discuss the project roadmap and upcoming priorities.`;
     rDb = createDb(":memory:");
     migrate(rDb);
     rDb.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team, additional_extraction_llm_prompt) VALUES (?, ?, ?, ?, ?)",
-    ).run("TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.");
+      "INSERT INTO clients (name, aliases, known_participants, client_team, additional_extraction_llm_prompt, glossary) VALUES (?, ?, ?, ?, ?, ?)",
+    ).run("TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.", JSON.stringify([{ term: "CSTAR", variants: ["C*", "C star"], description: "Project management platform" }]));
 
     rVdbPath = join(tmpdir(), `lancedb-refinement-${Date.now()}`);
     mkdirSync(rVdbPath, { recursive: true });
@@ -164,6 +164,13 @@ Let us discuss the project roadmap and upcoming priorities.`;
   it("injects buildClientContext output as ## Client Context into extraction prompt", () => {
     expect(capturedContent).toContain("## Client Context: TestClientCo");
     expect(capturedContent).toContain("Alice is the lead engineer");
+  });
+
+  it("injects glossary into extraction prompt when client has glossary entries", () => {
+    expect(capturedContent).toContain("## Terminology Glossary");
+    expect(capturedContent).toContain("**CSTAR**");
+    expect(capturedContent).toContain('"C*"');
+    expect(capturedContent).toContain("Project management platform");
   });
 });
 

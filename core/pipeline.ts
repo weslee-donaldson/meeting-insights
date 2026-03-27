@@ -8,7 +8,7 @@ import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { detectClient, storeDetection } from "./client-detection.js";
 import { getClientByName, buildClientContext } from "./client-registry.js";
-import type { Participant } from "./client-registry.js";
+import type { Participant, GlossaryEntry } from "./client-registry.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./item-dedup.js";
@@ -152,11 +152,13 @@ function detectAndExtract(
   const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
   const clientTeam = JSON.parse(clientRow?.client_team ?? "[]") as Participant[];
   const implTeam = JSON.parse(clientRow?.implementation_team ?? "[]") as Participant[];
+  const glossary = JSON.parse(clientRow?.glossary ?? "[]") as GlossaryEntry[];
   const clientContext = clientRow ? buildClientContext(
     clientRow.name,
     clientTeam,
     implTeam,
     clientRow.additional_extraction_llm_prompt ?? undefined,
+    glossary,
   ) : undefined;
   const resolvedTurns = resolveSpeakerNames(parsed.turns.turns, [...clientTeam, ...implTeam]);
   return { topClient, clientContext, extractFn: () => extractSummary(llm, resolvedTurns, tokenLimit, promptTemplate, clientContext) };
