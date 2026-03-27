@@ -345,7 +345,7 @@ Phase 5 (sequential):
 
 - [x] Burst 32: Header — checkbox, title+date, tags (from `clusterTags`), `displayScore`, Open CTA
 - [x] Burst 33: WHY block — conditional, amber left border styling
-- [ ] Burst 34: Matched artifacts — query-term matching, indented, Owner/Reporter/due inline
+- [x] Burst 34: Matched artifacts — query-term matching, indented, Owner/Reporter/due inline
 - [ ] Burst 35: "+N more" expand/collapse
 - [ ] Burst 36: Checkbox toggle — orange left border on checked
 - [ ] Burst 37: Empty artifact fallback — "Artifact not available" muted text

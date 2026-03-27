@@ -103,6 +103,50 @@ describe("SearchResultCard — header", () => {
   });
 });
 
+describe("SearchResultCard — matched artifacts", () => {
+  it("renders matched decisions with amber circle-check icon", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const decisionsArea = screen.getByTestId("matched-decisions");
+    expect(decisionsArea.textContent).toContain("Use billing API v2");
+  });
+
+  it("renders matched action items with description and inline owner/reporter/due", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const actionsArea = screen.getByTestId("matched-action-items");
+    expect(actionsArea.textContent).toContain("Migrate billing endpoint");
+    expect(actionsArea.textContent).toContain("Owner: Alice");
+    expect(actionsArea.textContent).toContain("Reporter: Bob");
+    expect(actionsArea.textContent).toContain("2026-03-20");
+  });
+
+  it("renders matched risks with amber warning icon", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const risksArea = screen.getByTestId("matched-risks");
+    expect(risksArea.textContent).toContain("API rate limits could block launch");
+  });
+
+  it("renders artifact sections indented 24px from left", () => {
+    render(<SearchResultCard {...defaultProps()} />);
+    const artifactArea = screen.getByTestId("artifact-matches");
+    expect(artifactArea.style.paddingLeft).toBe("24px");
+  });
+
+  it("does not render artifact sections when no matched items", () => {
+    render(
+      <SearchResultCard
+        {...defaultProps({
+          result: makeResult({
+            matchedDecisions: [],
+            matchedActionItems: [],
+            matchedRisks: [],
+          }),
+        })}
+      />,
+    );
+    expect(screen.queryByTestId("artifact-matches")).toBeNull();
+  });
+});
+
 describe("SearchResultCard — WHY block", () => {
   it("renders WHY block when deepSearchSummary exists", () => {
     render(

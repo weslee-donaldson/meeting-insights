@@ -20,6 +20,30 @@ function formatDate(iso: string): string {
   });
 }
 
+interface ActionItemRecord {
+  description: string;
+  owner?: string;
+  reporter?: string;
+  due_date?: string;
+}
+
+function findActionItemMeta(
+  artifact: Record<string, unknown> | null,
+  description: string,
+): ActionItemRecord | undefined {
+  if (!artifact) return undefined;
+  const items = (artifact.action_items ?? []) as ActionItemRecord[];
+  return items.find((item) => item.description === description);
+}
+
+function hasAnyMatches(result: EnrichedResult): boolean {
+  return (
+    result.matchedDecisions.length > 0 ||
+    result.matchedActionItems.length > 0 ||
+    result.matchedRisks.length > 0
+  );
+}
+
 function scoreColor(score: number): string {
   if (score >= 0.9) return searchResultCard.scoreColors.high;
   if (score >= 0.8) return searchResultCard.scoreColors.medHigh;
@@ -141,6 +165,73 @@ export function SearchResultCard({
           Open
         </span>
       </div>
+
+      {hasAnyMatches(result) && (
+        <div
+          data-testid="artifact-matches"
+          style={{ paddingLeft: searchResultCard.artifactIndent, marginTop: "6px", display: "flex", flexDirection: "column", gap: "3px" }}
+        >
+          {result.matchedDecisions.length > 0 && (
+            <div data-testid="matched-decisions">
+              {result.matchedDecisions.map((text, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+                    <circle cx="6" cy="6" r="5" stroke={searchResultCard.decisionIconColor} strokeWidth="1.5" />
+                    <path d="M3.5 6L5 7.5L8.5 4" stroke={searchResultCard.decisionIconColor} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{ fontFamily: searchResultCard.artifactItemFont, fontSize: searchResultCard.artifactItemSize, fontWeight: searchResultCard.artifactItemWeight, color: "var(--color-text-body)", lineHeight: typography.lineHeight.label }}>
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {result.matchedActionItems.length > 0 && (
+            <div data-testid="matched-action-items">
+              {result.matchedActionItems.map((desc, i) => {
+                const meta = findActionItemMeta(result.artifact, desc);
+                return (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+                      <rect x="1.5" y="1.5" width="9" height="9" rx="2" stroke="var(--color-text-muted)" strokeWidth="1.2" />
+                    </svg>
+                    <span style={{ fontFamily: searchResultCard.artifactItemFont, fontSize: searchResultCard.artifactItemSize, color: "var(--color-text-body)", lineHeight: typography.lineHeight.label }}>
+                      {desc}
+                    </span>
+                    {meta && (meta.owner || meta.reporter || meta.due_date) && (
+                      <span style={{ fontFamily: searchResultCard.artifactItemFont, fontSize: searchResultCard.artifactMetaSize, color: searchResultCard.artifactMetaColor, lineHeight: typography.lineHeight.micro, whiteSpace: "nowrap" }}>
+                        {meta.owner && `Owner: ${meta.owner}`}
+                        {meta.owner && (meta.reporter || meta.due_date) && "  "}
+                        {meta.reporter && `Reporter: ${meta.reporter}`}
+                        {meta.reporter && meta.due_date && "  "}
+                        {meta.due_date && meta.due_date}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {result.matchedRisks.length > 0 && (
+            <div data-testid="matched-risks">
+              {result.matchedRisks.map((text, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+                    <path d="M6 1L11 10H1L6 1Z" stroke={searchResultCard.riskTextColor} strokeWidth="1.2" strokeLinejoin="round" />
+                    <line x1="6" y1="5" x2="6" y2="7" stroke={searchResultCard.riskTextColor} strokeWidth="1.2" strokeLinecap="round" />
+                    <circle cx="6" cy="8.5" r="0.5" fill={searchResultCard.riskTextColor} />
+                  </svg>
+                  <span style={{ fontFamily: searchResultCard.artifactItemFont, fontSize: searchResultCard.artifactItemSize, color: searchResultCard.riskTextColor, lineHeight: typography.lineHeight.label }}>
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {result.deepSearchSummary && (
         <div
