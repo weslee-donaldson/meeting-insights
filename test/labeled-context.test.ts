@@ -277,6 +277,32 @@ describe("buildDistilledContext", () => {
     expect(result).toContain("Krisp Key Points:");
     expect(result).toContain("- Key point A");
   });
+
+  it("truncates output to maxChars budget when provided", () => {
+    const full = buildDistilledContext(dDb, [dId1, dId2]);
+    const maxChars = 100;
+    const truncated = buildDistilledContext(dDb, [dId1, dId2], [], { maxChars });
+    expect(truncated.length).toBeLessThanOrEqual(maxChars);
+    expect(truncated.length).toBeGreaterThan(0);
+    expect(truncated.length).toBeLessThan(full.length);
+  });
+
+  it("allocates per-meeting budget evenly across meetings", () => {
+    const maxChars = 200;
+    const result = buildDistilledContext(dDb, [dId1, dId2], [], { maxChars });
+    const blocks = result.split("\n\n---\n\n");
+    expect(blocks.length).toBe(2);
+    const perMeetingBudget = Math.floor(maxChars / 2);
+    for (const block of blocks) {
+      expect(block.length).toBeLessThanOrEqual(perMeetingBudget);
+    }
+  });
+
+  it("returns full output when maxChars is omitted", () => {
+    const withoutLimit = buildDistilledContext(dDb, [dId1]);
+    const withLargeLimit = buildDistilledContext(dDb, [dId1], [], { maxChars: 100000 });
+    expect(withoutLimit).toBe(withLargeLimit);
+  });
 });
 
 describe("buildLabeledContext with notes", () => {

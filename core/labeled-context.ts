@@ -108,12 +108,21 @@ function artifactBlock(artifact: Artifact, annotations: AnnotationMap): string {
   return lines.join("\n");
 }
 
+export interface DistilledContextOptions {
+  maxChars?: number;
+  relevanceSummaries?: Map<string, string>;
+}
+
 export function buildDistilledContext(
   db: Database,
   meetingIds: string[],
   noteIds: string[] = [],
+  options: DistilledContextOptions = {},
 ): string {
   const blocks: string[] = [];
+  const perMeetingBudget = options.maxChars
+    ? Math.floor(options.maxChars / Math.max(meetingIds.length, 1))
+    : undefined;
   for (const id of meetingIds) {
     const mtg = getMeeting(db, id);
     const art = getArtifact(db, id);
@@ -147,9 +156,18 @@ export function buildDistilledContext(
     });
     const noteBlock = notesSection(db, meetingNoteIds);
     if (noteBlock) lines.push(noteBlock.trim());
-    blocks.push(lines.join("\n"));
+    let block = lines.join("\n");
+    if (perMeetingBudget && block.length > perMeetingBudget) {
+      block = block.slice(0, perMeetingBudget);
+    }
+    blocks.push(block);
   }
-  return blocks.join("\n\n---\n\n");
+  const separator = "\n\n---\n\n";
+  const joined = blocks.join(separator);
+  if (options.maxChars && joined.length > options.maxChars) {
+    return joined.slice(0, options.maxChars);
+  }
+  return joined;
 }
 
 function notesSection(db: Database, noteIds: string[]): string {
