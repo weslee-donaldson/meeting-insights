@@ -5,6 +5,9 @@ import type { ArtifactRow, Artifact } from "./extractor.js";
 import { getMentionStats } from "./item-dedup.js";
 import { getMeetingMilestones } from "./timelines.js";
 import { getNote } from "./notes.js";
+import { createLogger } from "./logger.js";
+
+const log = createLogger("labeled-context");
 
 interface ContextMeeting {
   id: string;
@@ -126,7 +129,10 @@ export function buildDistilledContext(
   for (const id of meetingIds) {
     const mtg = getMeeting(db, id);
     const art = getArtifact(db, id);
-    if (!mtg || !art) continue;
+    if (!mtg || !art) {
+      log("skipping meeting %s: %s", id, !mtg ? "meeting not found" : "artifact missing");
+      continue;
+    }
     const artifact = parseArtifactRow(art);
     const lines: string[] = [];
     lines.push(`## ${mtg.title} (${mtg.date.slice(0, 10)})`);

@@ -326,6 +326,32 @@ describe("buildDistilledContext", () => {
     const result = buildDistilledContext(dDb, [dId1]);
     expect(result).not.toContain("Relevance:");
   });
+
+  it("skips stale meeting IDs and returns valid meetings in same batch", () => {
+    const result = buildDistilledContext(dDb, ["stale-id-1", dId1, "stale-id-2"]);
+    expect(result).toContain("Alpha summary text.");
+    expect(result).not.toContain("stale-id-1");
+    expect(result).not.toContain("stale-id-2");
+  });
+
+  it("returns empty string when all meeting IDs are stale", () => {
+    const result = buildDistilledContext(dDb, ["stale-1", "stale-2", "stale-3"]);
+    expect(result).toBe("");
+  });
+
+  it("skips meetings with no artifact even when meeting exists", () => {
+    const noArtId = ingestMeeting(dDb, {
+      title: "No Artifact Meeting",
+      timestamp: "2026-03-03T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "Hi.",
+      turns: [],
+      sourceFilename: "no-art",
+    });
+    const result = buildDistilledContext(dDb, [noArtId, dId1]);
+    expect(result).toContain("Alpha summary text.");
+    expect(result).not.toContain("No Artifact Meeting");
+  });
 });
 
 describe("buildLabeledContext with notes", () => {
