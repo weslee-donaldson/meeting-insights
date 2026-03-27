@@ -260,7 +260,7 @@ Phase 5 (sequential):
 - [x] Burst 21: `useArtifactBatch` hook — calls batch endpoint, caches by meeting ID set
 - [x] Burst 22: `enrichedResults` derivation — query-to-item matching (substring match per artifact item), matched items float to top. `displayScore`: deep active → `relevanceScore / 100`; else min-max normalize RRF scores across results to 0–1 range
 - [x] Burst 23: `chatMeetingIds` — checked override, top-N default, single-meeting when detail open, empty when no results
-- [ ] Burst 24: `collapsedSummary` — truncation rules for all-fields, >3 fields, 0 fields, empty query
+- [x] Burst 24: `collapsedSummary` — truncation rules for all-fields, >3 fields, 0 fields, empty query
 - [ ] Burst 25: Client sync — `selectedClient` prop re-triggers search on change
 
 ---
