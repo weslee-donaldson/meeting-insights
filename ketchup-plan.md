@@ -301,7 +301,7 @@ Phase 5 (sequential):
 - [x] Burst 27: SEARCH IN field toggles — 7 pills, click toggles, all-off prevention toast
 - [x] Burst 28: Date pickers + options row — From/to, Deep checkbox, Group dropdown, Sort dropdown
 - [x] Burst 29: Collapsed state — renders `collapsedSummary`, Show button
-- [ ] Burst 30: Responsive — mobile stacking, pill wrapping, full-width date pickers
+- [x] Burst 30: Responsive — mobile stacking, pill wrapping, full-width date pickers
 - [ ] Burst 31: **Playwright E2E — Search Form**: NavRail → search view, type query, toggle pills, verify expand/collapse, Enter submits
 
 ---

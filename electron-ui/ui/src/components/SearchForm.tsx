@@ -296,7 +296,7 @@ export function SearchForm(props: SearchFormProps) {
         >
           SEARCH IN
         </span>
-        <div className="flex flex-wrap" style={{ gap: "6px" }}>
+        <div data-testid="search-field-pills" className="flex flex-wrap" style={{ gap: "6px" }}>
           {FIELD_ORDER.map((field) => {
             const active = props.searchFields.has(field);
             return (
@@ -339,7 +339,7 @@ export function SearchForm(props: SearchFormProps) {
         </div>
       </div>
 
-      <div className="flex items-center flex-wrap" style={{ gap: "10px" }}>
+      <div data-testid="search-options-row" className="flex items-center flex-wrap" style={{ gap: "10px" }}>
         <span
           style={{
             fontFamily: "'Inter', sans-serif",

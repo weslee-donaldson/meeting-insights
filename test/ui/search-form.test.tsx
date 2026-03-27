@@ -226,3 +226,27 @@ describe("SearchForm collapsed state", () => {
     expect(screen.queryByRole("button", { name: /hide/i })).toBeNull();
   });
 });
+
+describe("SearchForm responsive classes", () => {
+  it("field pills container has flex-wrap for mobile pill wrapping", () => {
+    const { container } = render(<SearchForm {...defaultProps()} />);
+    const pillsContainer = container.querySelector("[data-testid='search-field-pills']");
+    expect(pillsContainer).not.toBeNull();
+    expect(pillsContainer!.className).toContain("flex-wrap");
+  });
+
+  it("options row has flex-wrap for mobile stacking", () => {
+    const { container } = render(<SearchForm {...defaultProps()} />);
+    const optionsRow = container.querySelector("[data-testid='search-options-row']");
+    expect(optionsRow).not.toBeNull();
+    expect(optionsRow!.className).toContain("flex-wrap");
+  });
+
+  it("date inputs have search-form-date-input class for responsive width", () => {
+    render(<SearchForm {...defaultProps()} />);
+    const fromInput = screen.getByLabelText("From date");
+    const toInput = screen.getByLabelText("To date");
+    expect(fromInput.className).toContain("search-form-date-input");
+    expect(toInput.className).toContain("search-form-date-input");
+  });
+});

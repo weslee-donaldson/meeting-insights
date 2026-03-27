@@ -152,6 +152,10 @@ body {
     --layout-sidebar-width: 0px;
     --layout-chat-panel-width: 0px;
   }
+
+  .search-form-date-input {
+    width: 100% !important;
+  }
 }
 
 .chat-markdown h1 {
