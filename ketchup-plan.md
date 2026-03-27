@@ -398,7 +398,7 @@ Phase 5 (sequential):
 - [x] Burst 42: Grouping — cluster/date(month)/series group headers, sort-within-group by score, "Select all in group" button (per-group, not global)
 - [x] Burst 43: Modify `CreateThreadDialog` — add optional `initialMeetingIds` prop, call `addThreadMeeting` for each after creation
 - [x] Burst 44: Save as Thread — opens CreateThreadDialog pre-filled with query + selectedClient + checked/visible meetings, navigates to threads on success
-- [ ] Burst 45: **Playwright E2E — Results List**: search term, verify count, Load more, Select all, no-results with bad query, Save as Thread opens dialog
+- [x] Burst 45: **Playwright E2E — Results List**: SKIPPED — search view page assembly (Section #8) not yet built; E2E tests deferred to Section #12 (Integration)
 
 ---
 
