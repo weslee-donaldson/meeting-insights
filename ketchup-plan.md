@@ -37,27 +37,7 @@ Phase 2 (sequential): #3
 
 ## TODO
 
-### Section 3: UI Tooltip Integration
-
-- [x] Burst 4: `useGlossary` hook for client term lookup (CSS-only approach, no Radix dependency)
-  - `useGlossary(clientName)` — React Query hook calling `window.api.getGlossary(clientName)`, caches by clientName
-  - Test: hook returns glossary entries, disabled when null/undefined
-  - Files: `electron-ui/ui/src/hooks/useGlossary.ts`, `test/ui/hooks.test.tsx`
-
-- [x] Burst 5: `highlightGlossaryTerms` utility with CSS tooltip styling
-  - Pure function: wraps first occurrence of each glossary term in `<span class="glossary-term">` with title attribute
-  - Longest-match-first regex, word-boundary, HTML-safe escaping
-  - CSS dotted underline + cursor:help for native tooltip
-  - Test: 10 cases covering matching, variants, escaping, overlap, empty inputs
-  - Files: `electron-ui/ui/src/lib/glossary-highlight.ts`, `electron-ui/ui/src/index.css`, `test/ui/glossary-highlight.test.ts`
-
-- [x] Burst 6: Wire glossary tooltips into MeetingDetail sections
-  - `useGlossary(meeting?.client)` in MeetingDetail, passed to ArtifactView
-  - Applied `highlightGlossaryTerms` to summary (HTML + plain), decisions, action items, open questions, risks, proposed features, additional notes
-  - Updated ItemList to support glossary prop
-  - Fixed meeting-detail and meetings-page tests with QueryClientProvider
-  - Test: glossary-term spans render with data-term and title attributes
-  - Files: `electron-ui/ui/src/components/MeetingDetail.tsx`, `test/ui/meeting-detail.test.tsx`, `test/ui/meetings-page.test.tsx`
+(All bursts complete)
 
 ## DONE
 
@@ -69,3 +49,9 @@ Phase 2 (sequential): #3
 ### Section 2: Glossary Lookup API
 
 - [x] Burst 3: `getGlossary(clientName)` channel end-to-end — core function, IPC, HTTP, api-client (fc8a02f)
+
+### Section 3: UI Tooltip Integration
+
+- [x] Burst 4: `useGlossary` hook for client term lookup (920ae1c)
+- [x] Burst 5: `highlightGlossaryTerms` utility with CSS tooltip styling (c149852)
+- [x] Burst 6: Wire glossary tooltips into MeetingDetail sections (9e1f877)
