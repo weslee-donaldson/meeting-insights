@@ -122,7 +122,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe("Search regression guards", () => {
-  it("meetings view typing updates input and search API is called on Enter", async () => {
+  it("meetings view typing updates input and triggers in-place search via debounce", async () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     await screen.findByTestId("meeting-row-m1");
@@ -130,12 +130,23 @@ describe("Search regression guards", () => {
     fireEvent.change(input, { target: { value: "Alpha" } });
     expect((input as HTMLInputElement).value).toBe("Alpha");
 
-    fireEvent.keyDown(input, { key: "Enter" });
-
     await waitFor(() => {
       expect(window.api.search).toHaveBeenCalledWith(
         expect.objectContaining({ query: "Alpha" }),
       );
+    }, { timeout: 3000 });
+  });
+
+  it("meetings view Enter navigates to search view and clears TopBar input", async () => {
+    render(<App />, { wrapper });
+    const input = await screen.findByRole("textbox", { name: /search meetings/i });
+    await screen.findByTestId("meeting-row-m1");
+
+    fireEvent.change(input, { target: { value: "Alpha" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await waitFor(() => {
+      expect((input as HTMLInputElement).value).toBe("");
     });
   });
 

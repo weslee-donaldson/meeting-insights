@@ -67,7 +67,7 @@ test.describe("Responsive Meetings — Desktop (1400x900)", () => {
 
   test("renders NavRail on desktop (no bottom tab bar)", async ({ page }) => {
     await expect(page.getByTestId("bottom-tab-bar")).not.toBeVisible();
-    await expect(page.getByLabel("Meetings")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Meetings" })).toBeVisible();
   });
 });
 

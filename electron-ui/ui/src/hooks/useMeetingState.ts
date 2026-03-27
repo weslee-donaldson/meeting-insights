@@ -27,6 +27,11 @@ export function useMeetingState(
   const [sortBy, setSortBy] = useState<SortBy>("date-desc");
   const [typedSearchQuery, setTypedSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(typedSearchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [typedSearchQuery]);
   const [historyItem, setHistoryItem] = useState<{ canonicalId: string; itemText: string } | null>(null);
   const meetingIdPerView = useRef<Record<string, string | null>>({});
   const [isReExtracting, setIsReExtracting] = useState(false);

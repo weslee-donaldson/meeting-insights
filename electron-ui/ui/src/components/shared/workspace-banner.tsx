@@ -47,7 +47,7 @@ function SearchBar({ searchQuery, onSearchQueryChange, onSubmitSearch, onSearchN
         type="text"
         value={searchQuery}
         onChange={(e) => onSearchQueryChange(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") { onSubmitSearch(searchQuery); onSearchNavigate?.(searchQuery); } }}
+        onKeyDown={(e) => { if (e.key === "Enter") { if (onSearchNavigate) { onSearchNavigate(searchQuery); onSearchQueryChange(""); onSubmitSearch(""); } else { onSubmitSearch(searchQuery); } } }}
         placeholder={`Search within ${clientName ?? "all"}…`}
         aria-label="Search meetings"
         className="flex-1 bg-transparent border-0 outline-none text-[13px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"

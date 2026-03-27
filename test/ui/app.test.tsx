@@ -379,7 +379,6 @@ describe("App", () => {
     render(<App />, { wrapper });
     const input = await screen.findByRole("textbox", { name: /search meetings/i });
     fireEvent.change(input, { target: { value: "test query" } });
-    fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
       expect(screen.getByText(/Deep search failed/i)).toBeDefined();
     });

@@ -29,7 +29,7 @@ test.describe("Search Regression — Meetings View", () => {
     await selectClient(page, CLIENT);
   });
 
-  test("typing in TopBar filters meetings list in-place", async ({ page }) => {
+  test("typing in TopBar filters meetings list in-place (without Enter)", async ({ page }) => {
     await expect(page.getByLabel("Meetings")).toBeVisible();
 
     const meetingList = page.locator("[data-testid='panel-0']");
@@ -37,10 +37,17 @@ test.describe("Search Regression — Meetings View", () => {
 
     const topBarInput = page.getByLabel("Search meetings");
     await topBarInput.fill("sprint");
-    await topBarInput.press("Enter");
 
     await page.waitForTimeout(1000);
     await expect(meetingList).toBeVisible();
+  });
+
+  test("pressing Enter in TopBar navigates to search view", async ({ page }) => {
+    const topBarInput = page.getByLabel("Search meetings");
+    await topBarInput.fill("sprint");
+    await topBarInput.press("Enter");
+
+    await expect(page.getByTestId("search-view")).toBeVisible({ timeout: 5_000 });
   });
 
   test("selecting a meeting activates chat panel with full context", async ({ page }) => {
