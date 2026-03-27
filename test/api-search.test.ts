@@ -23,12 +23,12 @@ describe("GET /api/search", () => {
     app = createApp(db, ":memory:", llm, { vdb: mockVdb, session: mockSession });
   });
 
-  it("should return search results from hybridVectorSearch for a valid query", async () => {
+  it("should return search results enriched with cluster_tags and series", async () => {
     const res = await app.request("/api/search?q=auth&client=Acme&limit=3");
     expect(res.status).toBe(200);
-    const body = await res.json() as { meeting_id: string; score: number }[];
+    const body = await res.json() as { meeting_id: string; score: number; cluster_tags: string[]; series: string }[];
     expect(body).toEqual([
-      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24", cluster_tags: [], series: "" },
     ]);
   });
 
@@ -48,6 +48,46 @@ describe("GET /api/search", () => {
     const options = callArgs[4] as { date_after?: string; date_before?: string };
     expect(options.date_after).toBe("2026-01-01");
     expect(options.date_before).toBe("2026-03-01");
+  });
+
+  it("should enrich results with cluster_tags from DB when clusters exist", async () => {
+    const enrichDb = createDb(":memory:");
+    migrate(enrichDb);
+    const { ingestMeeting } = await import("../core/ingest.js");
+    const meetingId = ingestMeeting(enrichDb, {
+      title: "Sprint Planning",
+      timestamp: "2026-02-24T10:00:00.000Z",
+      participants: [],
+      rawTranscript: "hello",
+      turns: [],
+      sourceFilename: "sp-1",
+    });
+    enrichDb.prepare("INSERT INTO clusters (cluster_id, generated_tags) VALUES (?, ?)").run("c1", JSON.stringify(["billing", "auth"]));
+    enrichDb.prepare("INSERT INTO meeting_clusters (meeting_id, cluster_id) VALUES (?, ?)").run(meetingId, "c1");
+
+    hybridSearchMock.mockResolvedValueOnce([
+      { meeting_id: meetingId, score: 0.5, client: "Acme", meeting_type: "sprint", date: "2026-02-24" },
+    ]);
+
+    const { createApp: createEnrichApp } = await import("../api/server.js");
+    const llm = createLlmAdapter({ type: "stub" });
+    const mockSession = {} as Parameters<typeof createEnrichApp>[3] extends { session: infer S } ? S : never;
+    const mockVdb = {} as Parameters<typeof createEnrichApp>[3] extends { vdb: infer V } ? V : never;
+    const enrichApp = createEnrichApp(enrichDb, ":memory:", llm, { vdb: mockVdb, session: mockSession });
+    const res = await enrichApp.request("/api/search?q=billing");
+    expect(res.status).toBe(200);
+    const body = await res.json() as { meeting_id: string; cluster_tags: string[]; series: string }[];
+    expect(body).toEqual([
+      {
+        meeting_id: meetingId,
+        score: 0.5,
+        client: "Acme",
+        meeting_type: "sprint",
+        date: "2026-02-24",
+        cluster_tags: ["billing", "auth"],
+        series: "sprint planning",
+      },
+    ]);
   });
 
   it("should return 503 when no searchDeps are configured", async () => {

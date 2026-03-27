@@ -10,19 +10,46 @@ import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResul
 import { SEARCH_MAX_DISTANCE, SEARCH_LIMIT, deepSearchPrompt } from "./config.js";
 import { handleGetArtifact, clientNameForMeeting } from "./meetings.js";
 
+function enrichSearchResults(db: Database, results: Array<{ meeting_id: string; score: number; client: string; meeting_type: string; date: string }>): SearchResultRow[] {
+  const meetingIds = results.map((r) => r.meeting_id);
+  if (meetingIds.length === 0) return [];
+
+  const clusterRows = db.prepare(
+    "SELECT mc.meeting_id, c.generated_tags FROM meeting_clusters mc JOIN clusters c ON mc.cluster_id = c.cluster_id"
+  ).all() as { meeting_id: string; generated_tags: string | null }[];
+  const tagsByMeeting = new Map<string, string[]>();
+  for (const row of clusterRows) {
+    if (!meetingIds.includes(row.meeting_id)) continue;
+    const tags = row.generated_tags ? JSON.parse(row.generated_tags) as string[] : [];
+    tagsByMeeting.set(row.meeting_id, tags);
+  }
+
+  const titleRows = db.prepare(
+    "SELECT id, title FROM meetings WHERE id IN (" + meetingIds.map(() => "?").join(",") + ")"
+  ).all(...meetingIds) as { id: string; title: string }[];
+  const titleById = new Map(titleRows.map((r) => [r.id, r.title]));
+
+  return results.map((r) => ({
+    ...r,
+    cluster_tags: tagsByMeeting.get(r.meeting_id) ?? [],
+    series: (titleById.get(r.meeting_id) ?? "").toLowerCase().replace(/\s+/g, " ").trim(),
+  }));
+}
+
 export async function handleSearchMeetings(
   db: Database,
   vdb: VectorDb,
   session: InferenceSession & { _tokenizer: unknown },
   req: SearchRequest,
 ): Promise<SearchResultRow[]> {
-  return hybridSearch(db, vdb, session, req.query, {
+  const raw = await hybridSearch(db, vdb, session, req.query, {
     limit: SEARCH_LIMIT,
     client: req.client,
     maxDistance: SEARCH_MAX_DISTANCE,
     date_after: req.date_after,
     date_before: req.date_before,
-  }) as Promise<SearchResultRow[]>;
+  });
+  return enrichSearchResults(db, raw);
 }
 
 export async function handleReEmbed(

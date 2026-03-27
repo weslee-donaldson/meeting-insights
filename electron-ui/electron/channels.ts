@@ -143,6 +143,8 @@ export interface SearchResultRow {
   client: string;
   meeting_type: string;
   date: string;
+  cluster_tags: string[];
+  series: string;
 }
 
 export interface ActionItemCompletion {

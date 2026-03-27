@@ -78,9 +78,18 @@ describe("CHANNELS", () => {
       client: "Acme",
       meeting_type: "DSU",
       date: "2026-01-01",
+      cluster_tags: ["billing", "auth"],
+      series: "daily standup",
     };
-    expect(row.meeting_id).toBe("abc");
-    expect(row.score).toBe(0.9);
+    expect(row).toEqual({
+      meeting_id: "abc",
+      score: 0.9,
+      client: "Acme",
+      meeting_type: "DSU",
+      date: "2026-01-01",
+      cluster_tags: ["billing", "auth"],
+      series: "daily standup",
+    });
   });
 
   it("should define GET_CLIENT_ACTION_ITEMS channel", () => {
