@@ -162,4 +162,25 @@ describe("Search regression guards", () => {
       expect(lastCall[0].contextMode).toBeUndefined();
     });
   });
+
+  it("TopBar client filter change re-fetches meetings with new client", async () => {
+    (window.api.getClients as ReturnType<typeof vi.fn>).mockResolvedValue(["Acme", "Globex"]);
+    (window.api.getMeetings as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "m1", title: "Alpha Weekly", date: "2026-01-01", client: "Acme", series: "alpha weekly", actionItemCount: 2 },
+    ]);
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+
+    (window.api.getMeetings as ReturnType<typeof vi.fn>).mockClear();
+    (window.api.getMeetings as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: "m3", title: "Globex Standup", date: "2026-01-03", client: "Globex", series: "standup", actionItemCount: 0 },
+    ]);
+    fireEvent.change(screen.getByRole("combobox", { name: "Client" }), { target: { value: "Globex" } });
+
+    await waitFor(() => {
+      expect(window.api.getMeetings).toHaveBeenCalledWith(
+        expect.objectContaining({ client: "Globex" }),
+      );
+    });
+  });
 });
