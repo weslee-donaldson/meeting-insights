@@ -571,12 +571,14 @@ describe("App", () => {
     });
   });
 
-  it("search view with no results shows 0 meetings in chat panel context bar", async () => {
+  it("search view with no results shows 0 meetings and Search to start chatting banner", async () => {
     render(<App />, { wrapper });
     await screen.findByTestId("meeting-row-m1");
     fireEvent.click(screen.getByLabelText("Search"));
     await waitFor(() => {
       expect(screen.getByText((_, el) => el?.textContent === "0 meetings")).not.toBeNull();
+      expect(screen.getByText("Search to start chatting")).not.toBeNull();
+      expect(screen.getByTestId("context-banner")).not.toBeNull();
     });
   });
 

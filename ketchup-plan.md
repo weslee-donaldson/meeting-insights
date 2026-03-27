@@ -449,7 +449,7 @@ Phase 5 (sequential):
 - [x] Burst 47: App.tsx — renders SearchPage, instantiates useSearchState with selectedClient
 - [x] Burst 48: `computedActiveMeetingIds` for search view — multi-result, single-result, empty states (test all 3)
 - [x] Burst 49: `contextMode` switching — distilled for multi-result, full for single detail
-- [ ] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
+- [x] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
 - [ ] Burst 51: TopBar `hideDateFilters` + `hideDeepToggle` props — hide when in search view. Copy dates into search state on view enter.
 - [ ] Burst 52: State persistence — navigate away and back, query + results + checked preserved
 - [ ] Burst 53: **Playwright E2E — Full Flow**: TopBar Enter → results load → check 2 cards → chat shows multi-result → Open card → chat switches to single meeting → Back → chat restores multi-result

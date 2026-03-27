@@ -480,6 +480,18 @@ export function App() {
         onClearMessages={milestone.handleClearMilestoneMessages}
         onSourceClick={meeting.setSelectedMeetingId}
       />
+    ) : currentView === "search" ? (
+      <ChatPanel
+        activeMeetingIds={computedActiveMeetingIds}
+        charCount={0}
+        onChat={handleChat}
+        disableInput={computedActiveMeetingIds.length === 0}
+        contextBanner={
+          computedActiveMeetingIds.length === 0
+            ? { text: "Search to start chatting" }
+            : { text: `Chatting about ${computedActiveMeetingIds.length} search results` }
+        }
+      />
     ) : (
       <ChatPanel
         activeMeetingIds={computedActiveMeetingIds}

@@ -556,4 +556,48 @@ describe("ChatPanel", () => {
     fireEvent.click(sourceBtn);
     expect(onSourceClick).toHaveBeenCalledWith("m-123");
   });
+
+  it("renders contextBanner with text when provided", () => {
+    render(
+      <ChatPanel
+        activeMeetingIds={["m1", "m2"]}
+        charCount={100}
+        onChat={vi.fn()}
+        contextBanner={{ text: "Chatting about 5 search results" }}
+      />,
+    );
+    expect(screen.getByTestId("context-banner")).not.toBeNull();
+    expect(screen.getByText("Chatting about 5 search results")).not.toBeNull();
+  });
+
+  it("renders contextBanner with action link when onAction provided", () => {
+    const onAction = vi.fn();
+    render(
+      <ChatPanel
+        activeMeetingIds={["m1"]}
+        charCount={100}
+        onChat={vi.fn()}
+        contextBanner={{ text: "Sprint Planning", onAction, actionLabel: "Back to results" }}
+      />,
+    );
+    const link = screen.getByText("Back to results");
+    expect(link).not.toBeNull();
+    fireEvent.click(link);
+    expect(onAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("disables input and shows Search to start chatting when disableInput is true", () => {
+    render(
+      <ChatPanel
+        activeMeetingIds={[]}
+        charCount={0}
+        onChat={vi.fn()}
+        disableInput
+        contextBanner={{ text: "Search to start chatting" }}
+      />,
+    );
+    const textarea = screen.getByRole("textbox");
+    expect((textarea as HTMLTextAreaElement).disabled).toBe(true);
+    expect(screen.getByText("Search to start chatting")).not.toBeNull();
+  });
 });
