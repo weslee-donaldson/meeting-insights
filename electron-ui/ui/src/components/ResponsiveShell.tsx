@@ -6,7 +6,7 @@ import { BottomTabBar } from "./BottomTabBar.js";
 import { BreadcrumbBar, type BreadcrumbSegment } from "./BreadcrumbBar.js";
 import { layout } from "../design-tokens.js";
 
-type View = "meetings" | "action-items" | "threads" | "insights" | "timelines";
+type View = "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search";
 type MobileScreen = "list" | "detail" | "chat";
 
 interface ResponsiveShellProps {
@@ -29,6 +29,7 @@ const VIEW_LABELS: Record<View, string> = {
   threads: "Threads",
   insights: "Insights",
   timelines: "Timelines",
+  search: "Search",
 };
 
 export function ResponsiveShell({

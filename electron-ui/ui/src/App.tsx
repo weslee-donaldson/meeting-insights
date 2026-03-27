@@ -41,7 +41,7 @@ export function App() {
       else localStorage.removeItem("mtninsights-client");
     } catch { /* */ }
   }, []);
-  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines">("meetings");
+  const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines" | "search">("meetings");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],

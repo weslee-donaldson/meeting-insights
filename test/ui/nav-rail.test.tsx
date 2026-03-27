@@ -82,4 +82,18 @@ describe("NavRail", () => {
     fireEvent.click(screen.getByText("Timelines"));
     expect(onNavigate).toHaveBeenCalledWith("timelines");
   });
+
+  it("renders Search item and clicking fires onNavigate with search", () => {
+    const onNavigate = vi.fn();
+    render(<NavRail currentView="meetings" onNavigate={onNavigate} />);
+    expect(screen.getByText("Search")).toBeDefined();
+    fireEvent.click(screen.getByText("Search"));
+    expect(onNavigate).toHaveBeenCalledWith("search");
+  });
+
+  it("search item uses accent color when active", () => {
+    render(<NavRail currentView="search" onNavigate={vi.fn()} />);
+    const btn = screen.getByRole("button", { name: "Search" });
+    expect(btn.className).toContain("text-[var(--color-accent)]");
+  });
 });

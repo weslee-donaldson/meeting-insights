@@ -1,8 +1,8 @@
 import React from "react";
-import { CalendarDays, CircleCheck, Link2, Brain, Milestone } from "lucide-react";
+import { CalendarDays, CircleCheck, Link2, Brain, Milestone, Search } from "lucide-react";
 import { cn } from "../lib/utils.js";
 
-type View = "meetings" | "action-items" | "threads" | "insights" | "timelines";
+type View = "meetings" | "action-items" | "threads" | "insights" | "timelines" | "search";
 
 interface NavRailProps {
   currentView: View;
@@ -15,6 +15,7 @@ const ITEMS: { view: View; label: string; Icon: React.ElementType }[] = [
   { view: "threads", label: "Threads", Icon: Link2 },
   { view: "insights", label: "Insights", Icon: Brain },
   { view: "timelines", label: "Timelines", Icon: Milestone },
+  { view: "search", label: "Search", Icon: Search },
 ];
 
 export function NavRail({ currentView, onNavigate }: NavRailProps) {
@@ -39,7 +40,7 @@ export function NavRail({ currentView, onNavigate }: NavRailProps) {
           className={cn(
             "flex flex-col items-center gap-1 w-full px-1 py-2 rounded-md transition-colors cursor-pointer bg-transparent border-0",
             currentView === view
-              ? "text-[var(--color-text-primary)]"
+              ? view === "search" ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"
               : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
           )}
         >

@@ -127,7 +127,16 @@ Both have `data.raw_meeting` (one-line meeting summary) and `data.raw_content` (
 
 - [ ] Burst 26: Pipeline processes both webhook files → notes created, embedded, selectable in chat context
 
-## Total: ~26 bursts
+### SECTION 10: Advanced Search — View Type & Navigation Wiring (~4 bursts)
+
+> Files: `App.tsx`, `NavRail.tsx`, `BottomTabBar.tsx`, `ResponsiveShell.tsx`, `BreadcrumbBar.tsx`, `TopBar.tsx`, `test/ui/nav-rail.test.tsx`
+
+- [x] Burst 14: Extend `View` type with `"search"` across all 5 files
+- [ ] Burst 15: NavRail search icon + BottomTabBar + BreadcrumbBar entries
+- [ ] Burst 16: TopBar Enter → search view navigation — sets SearchForm query, preserves meetings view typing behavior
+- [ ] Burst 17: Result "Open" → meetings view navigation
+
+## Total: ~30 bursts
 
 ## Verification
 
