@@ -197,4 +197,28 @@ describe("Search regression guards", () => {
     fireEvent.click(deepCheckbox);
     expect(deepCheckbox.checked).toBe(true);
   });
+
+  it("thread creation from threads view calls createThread API", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Threads"));
+    await waitFor(() => expect(screen.getByText("Acme Threads")).not.toBeNull());
+
+    fireEvent.click(screen.getByLabelText("New Thread"));
+    await waitFor(() => expect(screen.getByText("Create Thread")).not.toBeNull());
+
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Billing Thread" } });
+    fireEvent.change(screen.getByLabelText("Shorthand"), { target: { value: "BILL" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+
+    await waitFor(() => {
+      expect(window.api.createThread).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Billing Thread",
+          shorthand: "BILL",
+          client_name: "Acme",
+        }),
+      );
+    });
+  });
 });
