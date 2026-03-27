@@ -8,6 +8,8 @@ import { Button } from "./ui/button.js";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "./ui/dialog.js";
 import { cn } from "../lib/utils.js";
 import { useArtifactSearch } from "../hooks/useArtifactSearch.js";
+import { useGlossary } from "../hooks/useGlossary.js";
+import { highlightGlossaryTerms } from "../lib/glossary-highlight.js";
 import { HighlightText } from "./HighlightText.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";
 import { CommandBar } from "./shared/command-bar.js";
@@ -51,13 +53,17 @@ interface MeetingDetailProps {
 }
 
 
-function ItemList({ items, icon, iconColor, highlightTerms = [] }: { items: string[]; icon: string; iconColor?: string; highlightTerms?: string[] }) {
+function ItemList({ items, icon, iconColor, highlightTerms = [], glossary = [] }: { items: string[]; icon: string; iconColor?: string; highlightTerms?: string[]; glossary?: Array<{ term: string; variants: string[]; description: string }> }) {
   return (
     <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
       {items.map((d, i) => (
         <li key={i} className="flex gap-2.5 items-start">
           <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground" style={iconColor ? { color: iconColor } : undefined}>{icon}</span>
-          <span className="leading-[1.6]">{highlightTerms.length > 0 ? <HighlightText text={d} terms={highlightTerms} /> : d}</span>
+          {glossary.length > 0 ? (
+            <span className="leading-[1.6]" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(d, glossary) }} />
+          ) : (
+            <span className="leading-[1.6]">{highlightTerms.length > 0 ? <HighlightText text={d} terms={highlightTerms} /> : d}</span>
+          )}
         </li>
       ))}
     </ul>
@@ -106,7 +112,7 @@ function SectionEditor({ initialHtml, onSave, onCancel }: { initialHtml: string;
   );
 }
 
-function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery, onEditActionItem, onUpdateSection }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string; onEditActionItem?: (index: number, fields: EditActionItemFields) => void; onUpdateSection?: (field: string, value: unknown) => void }) {
+function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, mentionStats = [], onMentionClick, searchQuery, onEditActionItem, onUpdateSection, glossary = [] }: { artifact: Artifact; completions?: ActionItemCompletion[]; onComplete?: (index: number, note: string) => void; onUncomplete?: (index: number) => void; mentionStats?: MentionStat[]; onMentionClick?: (canonicalId: string, itemText: string) => void; searchQuery?: string; onEditActionItem?: (index: number, fields: EditActionItemFields) => void; onUpdateSection?: (field: string, value: unknown) => void; glossary?: Array<{ term: string; variants: string[]; description: string }> }) {
   const [noteDialog, setNoteDialog] = useState<{ index: number; note: string } | null>(null);
   const [editDialog, setEditDialog] = useState<{ index: number; item: Artifact["action_items"][number] } | null>(null);
   const [bulkDialog, setBulkDialog] = useState(false);
@@ -251,9 +257,13 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           />
         ) : (
           artifact.summary.includes("<") ? (
-            <div className="leading-[1.65] text-secondary-foreground [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_p]:m-0" dangerouslySetInnerHTML={{ __html: artifact.summary }} />
+            <div className="leading-[1.65] text-secondary-foreground [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_p]:m-0" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(artifact.summary, glossary) }} />
           ) : (
-            <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
+            glossary.length > 0 ? (
+              <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(artifact.summary, glossary) }} />
+            ) : (
+              <p className="leading-[1.65] text-secondary-foreground m-0 whitespace-pre-wrap"><HighlightText text={artifact.summary} terms={matchedTerms} /></p>
+            )
           )
         )}
       </SectionHeader>
@@ -299,7 +309,11 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
               <li key={i} className="flex gap-2.5 items-start">
                 <span className="shrink-0 mt-px text-[0.8rem] text-muted-foreground">—</span>
                 <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                  <span className="leading-[1.6]"><HighlightText text={d.text} terms={matchedTerms} /></span>
+                  {glossary.length > 0 ? (
+                    <span className="leading-[1.6]" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(d.text, glossary) }} />
+                  ) : (
+                    <span className="leading-[1.6]"><HighlightText text={d.text} terms={matchedTerms} /></span>
+                  )}
                   {d.decided_by && <Badge variant="secondary">{d.decided_by}</Badge>}
                 </div>
               </li>
@@ -414,12 +428,20 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                       onClick={() => setNoteDialog({ index: i, note: existingNote })}
                       className="text-left leading-[1.5] line-through bg-transparent border-0 cursor-pointer p-0 text-inherit"
                     >
-                      <HighlightText text={a.description} terms={matchedTerms} />
+                      {glossary.length > 0 ? (
+                        <span dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(a.description, glossary) }} />
+                      ) : (
+                        <HighlightText text={a.description} terms={matchedTerms} />
+                      )}
                     </button>
                   ) : (
                     <>
                       {a.priority === "critical" && <Badge variant="destructive" className="inline mr-1 text-[0.65rem]">CRITICAL</Badge>}
-                      <HighlightText text={a.description} terms={matchedTerms} />
+                      {glossary.length > 0 ? (
+                        <span dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(a.description, glossary) }} />
+                      ) : (
+                        <HighlightText text={a.description} terms={matchedTerms} />
+                      )}
                     </>
                   )}
                   {(a.owner || a.requester || a.due_date || mention) && (
@@ -496,7 +518,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             onCancel={() => setEditingSection(null)}
           />
         ) : (
-          <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} />
+          <ItemList items={artifact.open_questions} icon="?" iconColor="var(--color-text-secondary)" highlightTerms={matchedTerms} glossary={glossary} />
         )}
       </SectionHeader>
 
@@ -524,7 +546,11 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             {artifact.risk_items.map((r, i) => (
               <li key={i} className="flex flex-wrap gap-x-1.5 gap-y-0.5 items-baseline">
                 <span className="shrink-0 mt-px text-[0.8rem]" style={{ color: "var(--color-danger)" }}>⚠</span>
-                <span className="leading-[1.6]"><HighlightText text={r.description} terms={matchedTerms} /></span>
+                {glossary.length > 0 ? (
+                  <span className="leading-[1.6]" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(r.description, glossary) }} />
+                ) : (
+                  <span className="leading-[1.6]"><HighlightText text={r.description} terms={matchedTerms} /></span>
+                )}
                 <Badge variant="muted">{r.category}</Badge>
               </li>
             ))}
@@ -547,7 +573,7 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
             onCancel={() => setEditingSection(null)}
           />
         ) : (
-          <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} />
+          <ItemList items={artifact.proposed_features} icon="✦" iconColor="var(--color-accent)" highlightTerms={matchedTerms} glossary={glossary} />
         )}
       </SectionHeader>
 
@@ -560,9 +586,13 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
           return (
             <div key={i} className="flex flex-col gap-1">
               {header && (
-                <div className="font-medium text-secondary-foreground">
-                  <HighlightText text={String(header[1])} terms={matchedTerms} />
-                </div>
+                glossary.length > 0 ? (
+                  <div className="font-medium text-secondary-foreground" dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(String(header[1]), glossary) }} />
+                ) : (
+                  <div className="font-medium text-secondary-foreground">
+                    <HighlightText text={String(header[1])} terms={matchedTerms} />
+                  </div>
+                )
               )}
               {entries
                 .filter(([k]) => k !== header?.[0])
@@ -571,7 +601,11 @@ function ArtifactView({ artifact, completions = [], onComplete, onUncomplete, me
                   return items.map((item, j) => (
                     <div key={`${k}-${j}`} className="flex gap-2.5 pl-2">
                       <span className="text-muted-foreground">•</span>
-                      <span><HighlightText text={String(item)} terms={matchedTerms} /></span>
+                      {glossary.length > 0 ? (
+                        <span dangerouslySetInnerHTML={{ __html: highlightGlossaryTerms(String(item), glossary) }} />
+                      ) : (
+                        <span><HighlightText text={String(item)} terms={matchedTerms} /></span>
+                      )}
                     </div>
                   ));
                 })}
@@ -650,6 +684,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
   const [titleDraft, setTitleDraft] = useState("");
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const { data: glossary = [] } = useGlossary(meeting?.client);
   const isMultiMode = !!(meetings && meetings.length > 1);
   const copySummary = useCallback(() => {
     if (!meeting || !artifact) return;
@@ -698,7 +733,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
         </div>
         <div className="flex-1 overflow-y-auto px-4" data-testid="artifact-scroll">
           {artifact ? (
-            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} searchQuery={searchQuery} onEditActionItem={onEditActionItem} />
+            <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} searchQuery={searchQuery} onEditActionItem={onEditActionItem} glossary={glossary} />
           ) : artifactLoading ? (
             <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
               {[1, 2, 3].map((i) => (
@@ -896,7 +931,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
           <AttachmentsSection assets={assets ?? []} onDeleteAsset={onDeleteAsset} onUploadAsset={onUploadAsset} />
         )}
         {artifact ? (
-          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} onUpdateSection={editMode ? onUpdateArtifactSection : undefined} />
+          <ArtifactView artifact={artifact} completions={completions} onComplete={onComplete} onUncomplete={onUncomplete} mentionStats={mentionStats} onMentionClick={onMentionClick} searchQuery={searchQuery} onEditActionItem={onEditActionItem} onUpdateSection={editMode ? onUpdateArtifactSection : undefined} glossary={glossary} />
         ) : artifactLoading ? (
           <div data-testid="artifact-skeleton" className="flex flex-col gap-3 py-4">
             {[1, 2, 3].map((i) => (

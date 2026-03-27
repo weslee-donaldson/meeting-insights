@@ -1,11 +1,27 @@
 // @vitest-environment jsdom
 import React from "react";
-import { describe, afterEach, it, expect, vi } from "vitest";
-import { render, cleanup, screen, fireEvent } from "@testing-library/react";
+import { describe, afterEach, beforeEach, it, expect, vi } from "vitest";
+import { render, cleanup, screen, fireEvent, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MeetingDetail } from "../../electron-ui/ui/src/components/MeetingDetail.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 
 afterEach(cleanup);
+
+let queryClient: QueryClient;
+
+beforeEach(() => {
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  (window as unknown as Record<string, unknown>).api = {
+    getGlossary: vi.fn().mockResolvedValue([]),
+  };
+});
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+const renderWithQuery: typeof render = (ui, options) => render(ui, { wrapper: Wrapper, ...options });
 
 function makeMeeting(overrides: Partial<MeetingRow> = {}): MeetingRow {
   return {
@@ -34,7 +50,7 @@ function makeArtifact(overrides: Partial<Artifact> = {}): Artifact {
 
 describe("MeetingDetail", () => {
   it("renders action buttons inside a CommandBar toolbar", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -52,7 +68,7 @@ describe("MeetingDetail", () => {
   });
 
   it("section headers show item counts via SectionHeader count prop", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -70,24 +86,24 @@ describe("MeetingDetail", () => {
   });
 
   it("renders placeholder when meeting is null", () => {
-    render(<MeetingDetail meeting={null} artifact={null} />);
+    renderWithQuery(<MeetingDetail meeting={null} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
 
   it("renders meeting title when meeting is set", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={null} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={null} />);
     expect(screen.getByText("Alpha Meeting")).toBeDefined();
   });
 
   it("renders summary content visible by default when artifact is set", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     expect(screen.getByText("We discussed the roadmap.")).toBeDefined();
   });
 
   it("copy summary button writes title + date + summary + decisions as markdown to clipboard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     fireEvent.click(screen.getByText("Copy").closest("button")!);
     expect(writeText).toHaveBeenCalledWith(
       "# Alpha Meeting\nDate: 2026-02-25\n\n## Summary\nWe discussed the roadmap.\n\n## Decisions\n- Ship by March",
@@ -95,7 +111,7 @@ describe("MeetingDetail", () => {
   });
 
   it("reassign client button opens dialog with client select", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={null}
@@ -113,7 +129,7 @@ describe("MeetingDetail", () => {
 
   it("selecting a client in dialog and clicking save calls onReassignClient", () => {
     const onReassignClient = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={null}
@@ -129,13 +145,13 @@ describe("MeetingDetail", () => {
 
   it("ignore button calls onIgnore when clicked", () => {
     const onIgnore = vi.fn();
-    render(<MeetingDetail meeting={makeMeeting()} artifact={null} onIgnore={onIgnore} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={null} onIgnore={onIgnore} />);
     fireEvent.click(screen.getByText("Ignore").closest("button")!);
     expect(onIgnore).toHaveBeenCalledOnce();
   });
 
   it("CommandBar renders all action labels with icons", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -154,20 +170,20 @@ describe("MeetingDetail", () => {
 
   it("re-extract button calls onReExtract when clicked", () => {
     const onReExtract = vi.fn();
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={onReExtract} />);
     fireEvent.click(screen.getByText("Re-extract").closest("button")!);
     expect(onReExtract).toHaveBeenCalledOnce();
   });
 
   it("re-extract button shows spinner when reExtractPending is true", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={vi.fn()} reExtractPending={true} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onReExtract={vi.fn()} reExtractPending={true} />);
     const btn = screen.getByText("Re-extract").closest("button")!;
     expect(btn.querySelector(".animate-spin")).not.toBeNull();
   });
 
   it("clicking action item checkbox calls onComplete with its index and empty note", () => {
     const onComplete = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -188,7 +204,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -212,7 +228,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "done" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -234,7 +250,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "existing note" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
@@ -252,7 +268,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "old note" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
@@ -272,7 +288,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "old note" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({ action_items: [{ description: "Write tests", owner: "Alice", requester: "", due_date: null }] })}
@@ -289,7 +305,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:0", meeting_id: "m1", item_index: 0, completed_at: "2026-03-01T00:00:00Z", note: "" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -310,7 +326,7 @@ describe("MeetingDetail", () => {
 
   it("Mark all complete button calls onComplete for each active item with shared note", () => {
     const onComplete = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -335,7 +351,7 @@ describe("MeetingDetail", () => {
   it("copy action items button writes checklist to clipboard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -354,12 +370,12 @@ describe("MeetingDetail", () => {
   });
 
   it("renders artifact skeleton when artifactLoading is true", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={null} artifactLoading={true} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={null} artifactLoading={true} />);
     expect(screen.getByTestId("artifact-skeleton")).toBeDefined();
   });
 
   it("renders requester badge on action items when requester is present", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -372,7 +388,7 @@ describe("MeetingDetail", () => {
   });
 
   it("renders decided_by as badge in decisions when decided_by is present", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -387,7 +403,7 @@ describe("MeetingDetail", () => {
   });
 
   it("action items person filter dropdown filters by selected person", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -409,7 +425,7 @@ describe("MeetingDetail", () => {
   });
 
   it("decisions person filter dropdown filters by selected person", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -432,14 +448,14 @@ describe("MeetingDetail", () => {
   });
 
   it("section content has left padding for visual hierarchy", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     const summaryText = screen.getByText("We discussed the roadmap.");
     const contentContainer = summaryText.closest("[class*='pl-']");
     expect(contentContainer).not.toBeNull();
   });
 
   it("renders multi-meeting header with count when meetings array has 2+ entries", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={null}
         meetings={[makeMeeting({ id: "m1", title: "Alpha" }), makeMeeting({ id: "m2", title: "Beta" })]}
@@ -452,7 +468,7 @@ describe("MeetingDetail", () => {
   });
 
   it("multi-mode hides single-meeting action buttons", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={null}
         meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
@@ -468,7 +484,7 @@ describe("MeetingDetail", () => {
   });
 
   it("multi-mode renders action item completion checkboxes when onComplete is passed", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={null}
         meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
@@ -481,12 +497,12 @@ describe("MeetingDetail", () => {
   });
 
   it("shows empty state when meeting is null and meetings is empty", () => {
-    render(<MeetingDetail meeting={null} meetings={[]} artifact={null} />);
+    renderWithQuery(<MeetingDetail meeting={null} meetings={[]} artifact={null} />);
     expect(screen.getByText("Select a meeting")).toBeDefined();
   });
 
   it("expand/collapse toggle opens all sections then collapses all", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -503,7 +519,7 @@ describe("MeetingDetail", () => {
   });
 
   it("Collapse all collapses sections even when search matches are present", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -520,7 +536,7 @@ describe("MeetingDetail", () => {
     const mentionStats: MentionStat[] = [
       { canonical_id: "c1", item_type: "action_items", item_index: 0, mention_count: 3, first_mentioned_at: "2026-01-15" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -540,7 +556,7 @@ describe("MeetingDetail", () => {
     const completions: ActionItemCompletion[] = [
       { id: "m1:1", meeting_id: "m1", item_index: 1, completed_at: "2026-03-01T00:00:00Z", note: "" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -564,7 +580,7 @@ describe("MeetingDetail", () => {
   });
 
   it("critical action items render destructive badge", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -582,7 +598,7 @@ describe("MeetingDetail", () => {
   });
 
   it("critical action items sort before normal uncompleted items", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -601,7 +617,7 @@ describe("MeetingDetail", () => {
   });
 
   it("risk items render category badge", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -624,7 +640,7 @@ describe("MeetingDetail", () => {
     const mentionStats: MentionStat[] = [
       { canonical_id: "c1", item_type: "action_items", item_index: 0, mention_count: 3, first_mentioned_at: "2026-01-15" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -639,7 +655,7 @@ describe("MeetingDetail", () => {
   });
 
   it("highlights search terms in summary text with mark elements", () => {
-    const { container } = render(
+    const { container } = renderWithQuery(
       <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ summary: "We discussed the roadmap." })} searchQuery="roadmap" />,
     );
     const marks = container.querySelectorAll("mark");
@@ -648,7 +664,7 @@ describe("MeetingDetail", () => {
   });
 
   it("highlights search terms in action item descriptions", () => {
-    const { container } = render(
+    const { container } = renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({ action_items: [{ description: "Write unit tests for parser", owner: "", requester: "", due_date: null }] })}
@@ -661,21 +677,21 @@ describe("MeetingDetail", () => {
   });
 
   it("does not render mark elements when searchQuery is empty", () => {
-    const { container } = render(
+    const { container } = renderWithQuery(
       <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} searchQuery="" />,
     );
     expect(container.querySelectorAll("mark").length).toBe(0);
   });
 
   it("shows match count badge on section header when search matches", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ summary: "Sprint planning for the roadmap." })} searchQuery="roadmap" />,
     );
     expect(screen.getByText("1 match")).toBeDefined();
   });
 
   it("auto-expands closed section when search matches its content", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail meeting={makeMeeting()} artifact={makeArtifact({ open_questions: ["What about the roadmap?"] })} searchQuery="roadmap" />,
     );
     const items = screen.getAllByRole("listitem");
@@ -693,7 +709,7 @@ describe("MeetingDetail", () => {
       risk_items: [],
       additional_notes: [],
     });
-    render(<MeetingDetail meeting={makeMeeting()} artifact={emptyArtifact} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={emptyArtifact} />);
     expect(screen.getByText("No meeting details were extracted. Try re-extracting or check the transcript format.")).toBeDefined();
   });
 
@@ -703,7 +719,7 @@ describe("MeetingDetail", () => {
       { thread_id: "t1", title: "Deploy issues", shorthand: "DEPLOY" },
       { thread_id: "t2", title: "Auth bugs", shorthand: "AUTH" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -719,7 +735,7 @@ describe("MeetingDetail", () => {
 
   it("renders milestone tags as badges and click fires onMilestoneClick", () => {
     const onMilestoneClick = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -734,7 +750,7 @@ describe("MeetingDetail", () => {
 
   it("edit icon opens EditActionItemDialog and onSave calls onEditActionItem with index and fields", () => {
     const onEditActionItem = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -759,7 +775,7 @@ describe("MeetingDetail", () => {
   });
 
   it("edit icon is hidden when onEditActionItem is not provided", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -771,7 +787,7 @@ describe("MeetingDetail", () => {
   });
 
   it("displays short_id with copy button when present on action item", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact({
@@ -789,7 +805,7 @@ describe("MeetingDetail", () => {
       { id: "a1", meeting_id: "m1", filename: "diagram.png", mime_type: "image/png", file_size: 1024, storage_path: "m1/a1-diagram.png", created_at: "2026-03-13" },
       { id: "a2", meeting_id: "m1", filename: "notes.pdf", mime_type: "application/pdf", file_size: 2048000, storage_path: "m1/a2-notes.pdf", created_at: "2026-03-13" },
     ];
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -807,7 +823,7 @@ describe("MeetingDetail", () => {
   });
 
   it("does not render attachments section when assets is empty and no onUploadAsset", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -818,7 +834,7 @@ describe("MeetingDetail", () => {
   });
 
   it("shows dropzone when onUploadAsset is provided even with empty assets", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -832,7 +848,7 @@ describe("MeetingDetail", () => {
   });
 
   it("renders hidden file input inside dropzone for file browsing", () => {
-    const { container } = render(
+    const { container } = renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -847,7 +863,7 @@ describe("MeetingDetail", () => {
 
   it("calls onUploadAsset when file is pasted", () => {
     const onUploadAsset = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -863,17 +879,17 @@ describe("MeetingDetail", () => {
   });
 
   it("shows rename pencil icon when onRename is provided", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
     expect(screen.getByLabelText("Rename")).toBeDefined();
   });
 
   it("does not show rename pencil icon when onRename is not provided", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     expect(screen.queryByLabelText("Rename")).toBeNull();
   });
 
   it("shows input with current title when pencil clicked", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={vi.fn()} />);
     fireEvent.click(screen.getByLabelText("Rename"));
     const input = screen.getByLabelText("Meeting title") as HTMLInputElement;
     expect(input.value).toBe("Alpha Meeting");
@@ -881,7 +897,7 @@ describe("MeetingDetail", () => {
 
   it("calls onRename with new title when Save clicked", () => {
     const onRename = vi.fn();
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
     fireEvent.click(screen.getByLabelText("Rename"));
     const input = screen.getByLabelText("Meeting title") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "New Title" } });
@@ -891,7 +907,7 @@ describe("MeetingDetail", () => {
 
   it("calls onRename when Enter pressed in rename input", () => {
     const onRename = vi.fn();
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
     fireEvent.click(screen.getByLabelText("Rename"));
     const input = screen.getByLabelText("Meeting title");
     fireEvent.change(input, { target: { value: "Enter Title" } });
@@ -901,7 +917,7 @@ describe("MeetingDetail", () => {
 
   it("cancels rename without calling onRename when Cancel clicked", () => {
     const onRename = vi.fn();
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} onRename={onRename} />);
     fireEvent.click(screen.getByLabelText("Rename"));
     fireEvent.change(screen.getByLabelText("Meeting title"), { target: { value: "Changed" } });
     fireEvent.click(screen.getByLabelText("Cancel"));
@@ -910,7 +926,7 @@ describe("MeetingDetail", () => {
   });
 
   it("shows Transcript command button when rawTranscript is provided", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -922,13 +938,13 @@ describe("MeetingDetail", () => {
   });
 
   it("does not show Transcript button when rawTranscript is not provided", () => {
-    render(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={makeArtifact()} />);
     const toolbar = screen.getByRole("toolbar");
     expect(toolbar.textContent).not.toContain("Transcript");
   });
 
   it("clicking Transcript opens dialog with transcript text", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -943,7 +959,7 @@ describe("MeetingDetail", () => {
   it("transcript dialog has a copy button that writes text to clipboard", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true, writable: true });
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -957,7 +973,7 @@ describe("MeetingDetail", () => {
 
   it("multi-mode renders Copy Transcripts button when onCopyTranscripts is provided", () => {
     const onCopyTranscripts = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={null}
         meetings={[makeMeeting({ id: "m1", title: "Alpha" }), makeMeeting({ id: "m2", title: "Beta" })]}
@@ -971,7 +987,7 @@ describe("MeetingDetail", () => {
   });
 
   it("multi-mode does not render Copy Transcripts when onCopyTranscripts is not provided", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={null}
         meetings={[makeMeeting({ id: "m1" }), makeMeeting({ id: "m2" })]}
@@ -983,7 +999,7 @@ describe("MeetingDetail", () => {
 
   it("renders Open in Meetings link when onOpenInMeetings is provided", () => {
     const onOpenInMeetings = vi.fn();
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -997,7 +1013,7 @@ describe("MeetingDetail", () => {
   });
 
   it("does not render Open in Meetings link when onOpenInMeetings is not provided", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -1007,7 +1023,7 @@ describe("MeetingDetail", () => {
   });
 
   it("hides Re-extract, Reassign, Edit, and Ignore buttons when onOpenInMeetings is provided", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -1026,7 +1042,7 @@ describe("MeetingDetail", () => {
   });
 
   it("still renders Copy button when onOpenInMeetings is provided and artifact exists", () => {
-    render(
+    renderWithQuery(
       <MeetingDetail
         meeting={makeMeeting()}
         artifact={makeArtifact()}
@@ -1034,5 +1050,28 @@ describe("MeetingDetail", () => {
       />,
     );
     expect(screen.getByText("Copy")).toBeDefined();
+  });
+
+  it("renders glossary-term spans when glossary entries match summary text", async () => {
+    const glossary = [
+      { term: "roadmap", variants: [], description: "Product planning document" },
+    ];
+    (window as unknown as Record<string, unknown>).api = {
+      getGlossary: vi.fn().mockResolvedValue(glossary),
+    };
+    renderWithQuery(
+      <MeetingDetail
+        meeting={makeMeeting()}
+        artifact={makeArtifact({ summary: "We discussed the roadmap." })}
+      />,
+    );
+    await waitFor(() => {
+      const term = document.querySelector(".glossary-term");
+      expect(term).not.toBeNull();
+    });
+    const term = document.querySelector(".glossary-term") as HTMLElement;
+    expect(term.getAttribute("data-term")).toBe("roadmap");
+    expect(term.getAttribute("title")).toBe("Product planning document");
+    expect(term.textContent).toBe("roadmap");
   });
 });

@@ -51,11 +51,13 @@ Phase 2 (sequential): #3
   - Test: 10 cases covering matching, variants, escaping, overlap, empty inputs
   - Files: `electron-ui/ui/src/lib/glossary-highlight.ts`, `electron-ui/ui/src/index.css`, `test/ui/glossary-highlight.test.ts`
 
-- [ ] Burst 6: Wire `GlossaryHighlighter` into MeetingDetail sections
-  - Pass `useGlossary(selectedClient)` into MeetingDetail
-  - Wrap summary, decisions, action items, open questions, risk descriptions through highlighter
-  - Test: MeetingDetail with glossary renders tooltip on matched term
-  - Files: `electron-ui/ui/src/components/MeetingDetail.tsx`
+- [x] Burst 6: Wire glossary tooltips into MeetingDetail sections
+  - `useGlossary(meeting?.client)` in MeetingDetail, passed to ArtifactView
+  - Applied `highlightGlossaryTerms` to summary (HTML + plain), decisions, action items, open questions, risks, proposed features, additional notes
+  - Updated ItemList to support glossary prop
+  - Fixed meeting-detail and meetings-page tests with QueryClientProvider
+  - Test: glossary-term spans render with data-term and title attributes
+  - Files: `electron-ui/ui/src/components/MeetingDetail.tsx`, `test/ui/meeting-detail.test.tsx`, `test/ui/meetings-page.test.tsx`
 
 ## DONE
 
