@@ -82,21 +82,40 @@ describe("SearchResultsList — results header", () => {
     expect(onSelectAll).toHaveBeenCalledWith(["m1", "m2"]);
   });
 
-  it("renders Save as Thread text link that calls onSaveAsThread", async () => {
+  it("Save as Thread passes checked meeting IDs when some are checked", async () => {
     const onSaveAsThread = vi.fn();
     const user = userEvent.setup();
     render(
       <SearchResultsList
         {...defaultProps({
-          enrichedResults: [makeResult()],
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" }), makeResult({ meetingId: "m3" })],
           searchDurationMs: 50,
+          checkedResultIds: new Set(["m1", "m3"]),
           onSaveAsThread,
         })}
       />,
     );
-    const link = screen.getByText("Save as Thread");
-    await user.click(link);
-    expect(onSaveAsThread).toHaveBeenCalledOnce();
+    await user.click(screen.getByText("Save as Thread"));
+    expect(onSaveAsThread).toHaveBeenCalledWith(["m1", "m3"]);
+  });
+
+  it("Save as Thread passes top visible meeting IDs when none are checked", async () => {
+    const onSaveAsThread = vi.fn();
+    const user = userEvent.setup();
+    const results = Array.from({ length: 8 }, (_, i) => makeResult({ meetingId: `m${i}` }));
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: results,
+          displayedCount: 3,
+          searchDurationMs: 50,
+          checkedResultIds: new Set(),
+          onSaveAsThread,
+        })}
+      />,
+    );
+    await user.click(screen.getByText("Save as Thread"));
+    expect(onSaveAsThread).toHaveBeenCalledWith(["m0", "m1", "m2"]);
   });
 
   it("does not render header when there are no results and no query", () => {

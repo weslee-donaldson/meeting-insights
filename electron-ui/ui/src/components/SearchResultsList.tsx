@@ -13,7 +13,7 @@ interface SearchResultsListProps {
   onToggleChecked: (id: string) => void;
   onSelectAll: (ids: string[]) => void;
   onOpen: (id: string) => void;
-  onSaveAsThread: () => void;
+  onSaveAsThread: (meetingIds: string[]) => void;
   groupBy: "none" | "cluster" | "date" | "series";
   sortBy: "relevance" | "date-newest" | "date-oldest";
   searchQuery: string;
@@ -333,6 +333,15 @@ export function SearchResultsList({
   const hasResults = enrichedResults.length > 0;
   const showHeader = hasResults;
 
+  function computeSaveAsThreadMeetingIds(): string[] {
+    if (checkedResultIds.size > 0) {
+      return enrichedResults
+        .filter((r) => checkedResultIds.has(r.meetingId))
+        .map((r) => r.meetingId);
+    }
+    return enrichedResults.slice(0, displayedCount).map((r) => r.meetingId);
+  }
+
   return (
     <div data-testid="search-results-list">
       {showHeader && (
@@ -380,7 +389,7 @@ export function SearchResultsList({
             Select all
           </button>
           <button
-            onClick={onSaveAsThread}
+            onClick={() => onSaveAsThread(computeSaveAsThreadMeetingIds())}
             style={{
               fontFamily: typography.fontFamily.body,
               fontSize: typography.fontSize.label,
