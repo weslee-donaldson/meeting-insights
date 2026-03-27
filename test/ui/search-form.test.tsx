@@ -121,3 +121,75 @@ describe("SearchForm field toggles", () => {
     expect(screen.getByRole("button", { name: /toggle action items/i }).getAttribute("aria-pressed")).toBe("false");
   });
 });
+
+describe("SearchForm date pickers and options row", () => {
+  it("renders From and to date inputs", () => {
+    render(<SearchForm {...defaultProps()} />);
+    expect(screen.getByLabelText("From date")).not.toBeNull();
+    expect(screen.getByLabelText("To date")).not.toBeNull();
+  });
+
+  it("changing From date calls setDateAfter", () => {
+    const setDateAfter = vi.fn();
+    render(<SearchForm {...defaultProps({ setDateAfter })} />);
+    fireEvent.change(screen.getByLabelText("From date"), { target: { value: "2026-01-15" } });
+    expect(setDateAfter).toHaveBeenCalledWith("2026-01-15");
+  });
+
+  it("changing To date calls setDateBefore", () => {
+    const setDateBefore = vi.fn();
+    render(<SearchForm {...defaultProps({ setDateBefore })} />);
+    fireEvent.change(screen.getByLabelText("To date"), { target: { value: "2026-03-01" } });
+    expect(setDateBefore).toHaveBeenCalledWith("2026-03-01");
+  });
+
+  it("renders Deep checkbox and clicking it calls setDeepSearchEnabled", () => {
+    const setDeepSearchEnabled = vi.fn();
+    render(<SearchForm {...defaultProps({ setDeepSearchEnabled })} />);
+    const checkbox = screen.getByRole("checkbox", { name: /deep/i });
+    expect(checkbox).not.toBeNull();
+    fireEvent.click(checkbox);
+    expect(setDeepSearchEnabled).toHaveBeenCalledWith(true);
+  });
+
+  it("Deep checkbox reflects deepSearchEnabled prop", () => {
+    render(<SearchForm {...defaultProps({ deepSearchEnabled: true })} />);
+    const checkbox = screen.getByRole("checkbox", { name: /deep/i }) as HTMLInputElement;
+    expect(checkbox.checked).toBe(true);
+  });
+
+  it("renders Group dropdown with current value and options", () => {
+    render(<SearchForm {...defaultProps()} />);
+    const groupBtn = screen.getByRole("button", { name: /group/i });
+    expect(groupBtn.textContent).toContain("None");
+    fireEvent.click(groupBtn);
+    expect(screen.getByRole("option", { name: "Cluster" })).not.toBeNull();
+    expect(screen.getByRole("option", { name: "Date" })).not.toBeNull();
+    expect(screen.getByRole("option", { name: "Series" })).not.toBeNull();
+  });
+
+  it("selecting a Group option calls setGroupBy", () => {
+    const setGroupBy = vi.fn();
+    render(<SearchForm {...defaultProps({ setGroupBy })} />);
+    fireEvent.click(screen.getByRole("button", { name: /group/i }));
+    fireEvent.click(screen.getByRole("option", { name: "Cluster" }));
+    expect(setGroupBy).toHaveBeenCalledWith("cluster");
+  });
+
+  it("renders Sort dropdown with current value and options", () => {
+    render(<SearchForm {...defaultProps()} />);
+    const sortBtn = screen.getByRole("button", { name: /sort/i });
+    expect(sortBtn.textContent).toContain("Relevance");
+    fireEvent.click(sortBtn);
+    expect(screen.getByRole("option", { name: "Date (newest)" })).not.toBeNull();
+    expect(screen.getByRole("option", { name: "Date (oldest)" })).not.toBeNull();
+  });
+
+  it("selecting a Sort option calls setSortBy", () => {
+    const setSortBy = vi.fn();
+    render(<SearchForm {...defaultProps({ setSortBy })} />);
+    fireEvent.click(screen.getByRole("button", { name: /sort/i }));
+    fireEvent.click(screen.getByRole("option", { name: "Date (newest)" }));
+    expect(setSortBy).toHaveBeenCalledWith("date-newest");
+  });
+});

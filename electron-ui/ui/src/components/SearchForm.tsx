@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Search, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "../lib/utils.js";
 
@@ -16,6 +16,102 @@ const FIELD_LABELS: Record<string, string> = {
   open_questions: "Questions",
   milestones: "Milestones",
 };
+
+const GROUP_OPTIONS: { value: "none" | "cluster" | "date" | "series"; label: string }[] = [
+  { value: "none", label: "None" },
+  { value: "cluster", label: "Cluster" },
+  { value: "date", label: "Date" },
+  { value: "series", label: "Series" },
+];
+
+const SORT_OPTIONS: { value: "relevance" | "date-newest" | "date-oldest"; label: string }[] = [
+  { value: "relevance", label: "Relevance" },
+  { value: "date-newest", label: "Date (newest)" },
+  { value: "date-oldest", label: "Date (oldest)" },
+];
+
+function MiniDropdown<T extends string>({
+  prefix,
+  value,
+  options,
+  onChange,
+}: {
+  prefix: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const currentLabel = options.find((o) => o.value === value)?.label ?? value;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label={prefix}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className="flex items-center gap-1 cursor-pointer"
+        style={{
+          borderRadius: "4px",
+          padding: "4px 12px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #E0DDD8",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: "11px",
+          fontWeight: 500,
+          lineHeight: "14px",
+          color: "var(--color-text-secondary)",
+        }}
+      >
+        {prefix}: {currentLabel} <span>&#9662;</span>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute top-full left-0 mt-1 z-50 min-w-[160px] py-1 rounded-md shadow-md"
+          style={{
+            border: "1px solid var(--color-line)",
+            backgroundColor: "var(--color-bg-surface)",
+          }}
+        >
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              role="option"
+              aria-selected={opt.value === value}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              className={cn(
+                "w-full text-left px-3 py-1.5 text-[11px]",
+                opt.value === value
+                  ? "text-[var(--color-accent)] font-semibold"
+                  : "text-[var(--color-text-body)]",
+                "hover:bg-[var(--color-bg-elevated)]",
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface SearchFormProps {
   typedSearchQuery: string;
@@ -241,6 +337,102 @@ export function SearchForm(props: SearchFormProps) {
             );
           })}
         </div>
+      </div>
+
+      <div className="flex items-center flex-wrap" style={{ gap: "10px" }}>
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "11px",
+            fontWeight: 400,
+            lineHeight: "14px",
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          From
+        </span>
+        <input
+          type="date"
+          value={props.dateAfter}
+          onChange={(e) => props.setDateAfter(e.target.value)}
+          aria-label="From date"
+          className="search-form-date-input"
+          style={{
+            width: "140px",
+            borderRadius: "4px",
+            padding: "5px 12px",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E0DDD8",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "11px",
+            fontWeight: 400,
+            lineHeight: "14px",
+            color: "var(--color-text-secondary)",
+          }}
+        />
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "11px",
+            fontWeight: 400,
+            lineHeight: "14px",
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          to
+        </span>
+        <input
+          type="date"
+          value={props.dateBefore}
+          onChange={(e) => props.setDateBefore(e.target.value)}
+          aria-label="To date"
+          className="search-form-date-input"
+          style={{
+            width: "140px",
+            borderRadius: "4px",
+            padding: "5px 12px",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E0DDD8",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "11px",
+            fontWeight: 400,
+            lineHeight: "14px",
+            color: "var(--color-text-secondary)",
+          }}
+        />
+        <div className="flex-1" />
+        <label className="flex items-center cursor-pointer select-none" style={{ gap: "5px" }}>
+          <input
+            type="checkbox"
+            checked={props.deepSearchEnabled}
+            onChange={(e) => props.setDeepSearchEnabled(e.target.checked)}
+            aria-label="Deep search"
+            style={{ accentColor: "#2D8A4E", width: "15px", height: "15px" }}
+          />
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "11px",
+              fontWeight: 500,
+              lineHeight: "14px",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            Deep
+          </span>
+        </label>
+        <MiniDropdown
+          prefix="Group"
+          value={props.groupBy}
+          options={GROUP_OPTIONS}
+          onChange={props.setGroupBy}
+        />
+        <MiniDropdown
+          prefix="Sort"
+          value={props.sortBy}
+          options={SORT_OPTIONS}
+          onChange={props.setSortBy}
+        />
       </div>
     </div>
   );
