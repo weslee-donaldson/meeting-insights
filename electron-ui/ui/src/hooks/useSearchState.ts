@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { DISPLAY_LIMIT, CHAT_CONTEXT_LIMIT } from "../../../electron/handlers/config.js";
+const DISPLAY_LIMIT = 20;
+const CHAT_CONTEXT_LIMIT = 10;
 import { useSearch } from "./useSearch.js";
 import { useDeepSearch } from "./useDeepSearch.js";
 import { useArtifactBatch } from "./useArtifactBatch.js";

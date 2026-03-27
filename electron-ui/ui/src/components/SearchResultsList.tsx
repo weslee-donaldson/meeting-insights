@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from "react";
 import type { EnrichedResult } from "../hooks/useSearchState.js";
 import { SearchResultCard } from "./SearchResultCard.js";
 import { typography, textTiers } from "../design-tokens.js";
-import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
+const DISPLAY_LIMIT = 20;
 
 interface SearchResultsListProps {
   enrichedResults: EnrichedResult[];
