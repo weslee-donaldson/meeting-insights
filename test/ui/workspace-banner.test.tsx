@@ -92,4 +92,18 @@ describe("WorkspaceBanner", () => {
     const avatar = screen.getByText("L").closest("div")!;
     expect(avatar.className).toContain("bg-[var(--color-accent)]");
   });
+
+  it("calls onSearchNavigate with query when Enter pressed", () => {
+    const onSearchNavigate = vi.fn();
+    render(<WorkspaceBanner {...defaultProps} searchQuery="my query" onSearchNavigate={onSearchNavigate} />);
+    fireEvent.keyDown(screen.getByLabelText("Search meetings"), { key: "Enter" });
+    expect(onSearchNavigate).toHaveBeenCalledWith("my query");
+  });
+
+  it("does not call onSearchNavigate when not provided", () => {
+    const onSubmitSearch = vi.fn();
+    render(<WorkspaceBanner {...defaultProps} searchQuery="test" onSubmitSearch={onSubmitSearch} />);
+    fireEvent.keyDown(screen.getByLabelText("Search meetings"), { key: "Enter" });
+    expect(onSubmitSearch).toHaveBeenCalledWith("test");
+  });
 });

@@ -42,6 +42,7 @@ export function App() {
     } catch { /* */ }
   }, []);
   const [currentView, setCurrentView] = useState<"meetings" | "action-items" | "threads" | "insights" | "timelines" | "search">("meetings");
+  const [searchViewQuery, setSearchViewQuery] = useState("");
 
   const clientsQuery = useQuery<string[]>({
     queryKey: ["clients"],
@@ -192,6 +193,12 @@ export function App() {
     setCurrentView("timelines");
     milestone.setSelectedMilestoneId(milestoneId);
   }, [milestone]);
+
+  const handleSearchNavigate = useCallback((query: string) => {
+    setSearchViewQuery(query);
+    setCurrentView("search");
+    meeting.setTypedSearchQuery("");
+  }, [meeting]);
 
   const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
     return thread.handleCreateThread(data, activeMeetingIdsRef.current);
@@ -463,6 +470,7 @@ export function App() {
           onDateChange={meeting.handleDateChange}
           onSearchQueryChange={meeting.setTypedSearchQuery}
           onSubmitSearch={meeting.setSearchQuery}
+          onSearchNavigate={handleSearchNavigate}
           deepSearchEnabled={meeting.deepSearchEnabled}
           onDeepSearchToggle={meeting.setDeepSearchEnabled}
           onReset={handleReset}
