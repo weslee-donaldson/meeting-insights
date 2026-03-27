@@ -579,4 +579,19 @@ describe("App", () => {
       expect(screen.getByText((_, el) => el?.textContent === "0 meetings")).not.toBeNull();
     });
   });
+
+  it("search view chat passes contextMode distilled to conversationChat", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => screen.getByRole("textbox", { name: /search query/i }));
+    const chatInput = screen.getByPlaceholderText("Ask a question about these meetings…");
+    fireEvent.change(chatInput, { target: { value: "test question" } });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => {
+      const calls = (window.api.conversationChat as ReturnType<typeof vi.fn>).mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0].contextMode).toBe("distilled");
+    });
+  });
 });

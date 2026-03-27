@@ -155,6 +155,11 @@ export function App() {
   const activeMeetingIdsRef = useRef(computedActiveMeetingIds);
   activeMeetingIdsRef.current = computedActiveMeetingIds;
 
+  const currentViewRef = useRef(currentView);
+  currentViewRef.current = currentView;
+  const searchSelectedResultIdRef = useRef(search.selectedResultId);
+  searchSelectedResultIdRef.current = search.selectedResultId;
+
   const handleChat = useCallback(
     async (messages: ConversationMessage[], attachments?: { name: string; base64: string; mimeType: string }[], includeTranscripts?: boolean, template?: string, includeAssets?: boolean): Promise<ConversationChatResponse> => {
       let mergedAttachments = attachments;
@@ -171,7 +176,10 @@ export function App() {
         }
         mergedAttachments = [...(attachments ?? []), ...assetAttachments];
       }
-      return window.api.conversationChat({ meetingIds: activeMeetingIdsRef.current, messages, attachments: mergedAttachments, includeTranscripts, template: template || undefined });
+      const contextMode = currentViewRef.current === "search"
+        ? (searchSelectedResultIdRef.current ? "full" as const : "distilled" as const)
+        : undefined;
+      return window.api.conversationChat({ meetingIds: activeMeetingIdsRef.current, messages, attachments: mergedAttachments, includeTranscripts, template: template || undefined, contextMode });
     },
     [],
   );

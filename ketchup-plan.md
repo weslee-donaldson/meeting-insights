@@ -448,7 +448,7 @@ Phase 5 (sequential):
 - [x] Burst 46: `SearchPage` — returns panel array with SearchForm + SearchResultsList
 - [x] Burst 47: App.tsx — renders SearchPage, instantiates useSearchState with selectedClient
 - [x] Burst 48: `computedActiveMeetingIds` for search view — multi-result, single-result, empty states (test all 3)
-- [ ] Burst 49: `contextMode` switching — distilled for multi-result, full for single detail
+- [x] Burst 49: `contextMode` switching — distilled for multi-result, full for single detail
 - [ ] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
 - [ ] Burst 51: TopBar `hideDateFilters` + `hideDeepToggle` props — hide when in search view. Copy dates into search state on view enter.
 - [ ] Burst 52: State persistence — navigate away and back, query + results + checked preserved
