@@ -288,14 +288,13 @@ describe("buildClientContext", () => {
     ];
     const ctx = buildClientContext("Acme", [], [], undefined, glossary);
     expect(ctx).toContain("## Terminology Glossary");
-    expect(ctx).toContain("**CSTAR**");
+    expect(ctx).toContain("**CSTAR** →");
     expect(ctx).toContain('"C*"');
     expect(ctx).toContain('"C star"');
     expect(ctx).toContain('"Cstar"');
-    expect(ctx).toContain("Project management platform");
-    expect(ctx).toContain("**AppDev**");
+    expect(ctx).toContain("**AppDev** →");
     expect(ctx).toContain('"app dev"');
-    expect(ctx).toContain("Application development team");
+    expect(ctx).not.toContain("Project management platform");
   });
 
   it("omits glossary section when glossary is undefined", () => {

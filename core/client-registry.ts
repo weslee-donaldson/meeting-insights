@@ -130,11 +130,11 @@ export function buildClientContext(
   if (glossary && glossary.length > 0) {
     lines.push("");
     lines.push("## Terminology Glossary");
-    lines.push("When the transcript contains any of the listed variants, always use the canonical term in your output.");
+    lines.push("When the transcript contains any of the listed variants, use the canonical term in your output.");
     lines.push("");
     for (const entry of glossary) {
       const variantList = entry.variants.map(v => `"${v}"`).join(", ");
-      lines.push(`- **${entry.term}** (not ${variantList}): ${entry.description}`);
+      lines.push(`- **${entry.term}** → ${variantList}`);
     }
   }
 

@@ -558,3 +558,16 @@ Phase 5 (sequential):
 - [x] Burst 69: Wire enrichedResults through SearchResultsList → SearchResultCard (deep summaries, grouping, sorting)
 - [x] Burst 70: Wire checkedResultIds → chatMeetingIds → computedActiveMeetingIds → ChatPanel
 - [x] Burst 71: **Playwright E2E — End-to-End Smoke**: full flow from TopBar search → results → card interactions → detail open → keyboard nav — implemented in `test/e2e/search.spec.ts`
+
+---
+
+### #13 — Glossary Prompt Optimization
+
+> **Spec:**
+> Slim glossary format in `buildClientContext` drops descriptions for ~75% token savings.
+> Descriptions remain in `clients.json` for UI tooltip use.
+>
+> **Files affected:** `core/client-registry.ts`, `test/client-registry.test.ts`, `test/pipeline.test.ts`
+
+- [x] Burst 1: Slim glossary format — `buildClientContext` renders `term → variants` only, drops descriptions and "(not" prefix
+- [x] Burst 2: Pipeline test update — verify glossary assertion in pipeline test excludes description text

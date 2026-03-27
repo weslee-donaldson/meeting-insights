@@ -170,7 +170,7 @@ Let us discuss the project roadmap and upcoming priorities.`;
     expect(capturedContent).toContain("## Terminology Glossary");
     expect(capturedContent).toContain("**CSTAR**");
     expect(capturedContent).toContain('"C*"');
-    expect(capturedContent).toContain("Project management platform");
+    expect(capturedContent).not.toContain("Project management platform");
   });
 });
 
