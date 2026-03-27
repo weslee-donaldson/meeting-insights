@@ -4,6 +4,8 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SearchForm } from "../../electron-ui/ui/src/components/SearchForm.js";
+import { SearchResultsList } from "../../electron-ui/ui/src/components/SearchResultsList.js";
+import type { EnrichedResult } from "../../electron-ui/ui/src/hooks/useSearchState.js";
 import { useSearchState } from "../../electron-ui/ui/src/hooks/useSearchState.js";
 
 afterEach(cleanup);
@@ -117,5 +119,150 @@ describe("SearchForm -> useSearchState -> useSearch -> API param integration", (
       query: "revenue",
       searchFields: ["summary", "decisions", "action_items"],
     });
+  });
+});
+
+function makeResult(overrides: Partial<EnrichedResult> = {}): EnrichedResult {
+  return {
+    meetingId: "m1",
+    displayScore: 0.92,
+    date: "2026-03-12T10:00:00.000Z",
+    title: "Sprint Planning",
+    client: "Acme",
+    series: "sprint planning",
+    clusterTags: ["onboarding"],
+    artifact: null,
+    matchedDecisions: [],
+    matchedActionItems: [],
+    matchedRisks: [],
+    totalDecisions: 0,
+    totalActionItems: 0,
+    totalRisks: 0,
+    deepSearchSummary: null,
+    ...overrides,
+  };
+}
+
+function defaultListProps(overrides: Partial<Parameters<typeof SearchResultsList>[0]> = {}) {
+  return {
+    enrichedResults: [] as EnrichedResult[],
+    searchDurationMs: null as number | null,
+    displayedCount: 20,
+    setDisplayedCount: vi.fn(),
+    checkedResultIds: new Set<string>(),
+    onToggleChecked: vi.fn(),
+    onSelectAll: vi.fn(),
+    onOpen: vi.fn(),
+    onSaveAsThread: vi.fn(),
+    groupBy: "none" as const,
+    sortBy: "relevance" as const,
+    searchQuery: "billing",
+    isLoading: false,
+    isError: false,
+    onRetry: vi.fn(),
+    ...overrides,
+  };
+}
+
+describe("enrichedResults -> SearchResultsList -> SearchResultCard integration", () => {
+  it("renders WHY block when enrichedResult has deepSearchSummary", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [
+            makeResult({
+              meetingId: "m1",
+              deepSearchSummary: "Discusses billing migration timeline in detail",
+            }),
+          ],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    expect(screen.getByTestId("why-block")).not.toBeNull();
+    expect(screen.getByText("Discusses billing migration timeline in detail")).not.toBeNull();
+    expect(screen.getByText("WHY")).not.toBeNull();
+  });
+
+  it("does not render WHY block when deepSearchSummary is null", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [makeResult({ meetingId: "m1", deepSearchSummary: null })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    expect(screen.queryByTestId("why-block")).toBeNull();
+  });
+
+  it("renders group headers when groupBy is cluster", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [
+            makeResult({ meetingId: "m1", clusterTags: ["billing"] }),
+            makeResult({ meetingId: "m2", clusterTags: ["onboarding"] }),
+          ],
+          groupBy: "cluster",
+          searchDurationMs: 50,
+        })}
+      />,
+    );
+    expect(screen.getByTestId("group-header-billing")).not.toBeNull();
+    expect(screen.getByTestId("group-header-onboarding")).not.toBeNull();
+  });
+
+  it("renders group headers when groupBy is series", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [
+            makeResult({ meetingId: "m1", series: "Sprint Planning" }),
+            makeResult({ meetingId: "m2", series: "Design Review" }),
+          ],
+          groupBy: "series",
+          searchDurationMs: 50,
+        })}
+      />,
+    );
+    expect(screen.getByTestId("group-header-Sprint Planning")).not.toBeNull();
+    expect(screen.getByTestId("group-header-Design Review")).not.toBeNull();
+  });
+
+  it("renders group headers when groupBy is date (month grouping)", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [
+            makeResult({ meetingId: "m1", date: "2026-03-12T10:00:00.000Z" }),
+            makeResult({ meetingId: "m2", date: "2026-02-05T10:00:00.000Z" }),
+          ],
+          groupBy: "date",
+          searchDurationMs: 50,
+        })}
+      />,
+    );
+    expect(screen.getByTestId("group-header-2026-03")).not.toBeNull();
+    expect(screen.getByTestId("group-header-2026-02")).not.toBeNull();
+  });
+
+  it("sorts results by displayScore within groups (highest first)", () => {
+    render(
+      <SearchResultsList
+        {...defaultListProps({
+          enrichedResults: [
+            makeResult({ meetingId: "m-low", displayScore: 0.3, title: "Low Score" }),
+            makeResult({ meetingId: "m-high", displayScore: 0.95, title: "High Score" }),
+            makeResult({ meetingId: "m-mid", displayScore: 0.6, title: "Mid Score" }),
+          ],
+          searchDurationMs: 50,
+        })}
+      />,
+    );
+    const cards = screen.getAllByRole("option");
+    expect(cards[0].getAttribute("aria-label")).toContain("High Score");
+    expect(cards[1].getAttribute("aria-label")).toContain("Mid Score");
+    expect(cards[2].getAttribute("aria-label")).toContain("Low Score");
   });
 });
