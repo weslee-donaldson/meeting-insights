@@ -147,3 +147,114 @@ describe("useSearchState skeleton", () => {
     expect(result.current.displayedCount).toBe(20);
   });
 });
+
+describe("useSearchState search wiring", () => {
+  it("calls window.api.search with searchView prefix and searchFields on submit", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: ["billing"], series: "Weekly" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: "Acme" }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({
+      query: "billing",
+      client: "Acme",
+      searchFields: ["summary", "decisions", "action_items", "risk_items", "proposed_features", "open_questions", "milestones"],
+    });
+    await waitFor(() => expect(result.current.searchResults).toEqual([
+      { meeting_id: "m1", score: 0.8, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: ["billing"], series: "Weekly" },
+    ]));
+    expect(result.current.searchFetching).toBe(false);
+  });
+
+  it("passes subset of searchFields when fields are toggled off", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.toggleField("milestones"));
+    act(() => result.current.toggleField("open_questions"));
+    act(() => result.current.setTypedSearchQuery("budget"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({
+      query: "budget",
+      searchFields: ["summary", "decisions", "action_items", "risk_items", "proposed_features"],
+    });
+  });
+
+  it("does not call search when query is less than 2 characters", async () => {
+    const search = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("b"));
+    act(() => result.current.submitSearch());
+    await new Promise((r) => setTimeout(r, 50));
+    expect(search).not.toHaveBeenCalled();
+  });
+
+  it("exposes hybridMeetingIds from search results", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "sync", date: "2025-06-02", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.hybridMeetingIds).toEqual(["m1", "m2"]));
+  });
+
+  it("computes searchDurationMs when results arrive", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "sync", date: "2025-06-01", cluster_tags: [], series: "" },
+    ]);
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch: vi.fn().mockResolvedValue({}),
+    };
+    const { result } = renderHook(
+      () => useSearchState({ selectedClient: null }),
+      { wrapper: makeWrapper() },
+    );
+    act(() => result.current.setTypedSearchQuery("billing"));
+    act(() => result.current.submitSearch());
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => expect(result.current.searchResults).toHaveLength(1));
+    expect(result.current.searchDurationMs).toEqual(expect.any(Number));
+    expect(result.current.searchDurationMs! >= 0).toBe(true);
+  });
+});

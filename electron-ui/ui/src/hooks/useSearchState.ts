@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
+import { useSearch } from "./useSearch.js";
 
 const ALL_FIELDS = new Set([
   "summary", "decisions", "action_items", "risk_items",
@@ -61,6 +62,31 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     setDisplayedCount(DISPLAY_LIMIT);
   }, []);
 
+  const searchFieldsArray = useMemo(() => [...searchFields], [searchFields]);
+
+  const {
+    data: searchResults,
+    isFetching: searchFetching,
+  } = useSearch(
+    searchQuery,
+    selectedClient ?? undefined,
+    dateAfter || undefined,
+    dateBefore || undefined,
+    { keyPrefix: "searchView-search", searchFields: searchFieldsArray },
+  );
+
+  const hybridMeetingIds = useMemo(
+    () => (searchResults ?? []).map((r) => r.meeting_id),
+    [searchResults],
+  );
+
+  useEffect(() => {
+    if (searchResults && searchStartRef.current !== null) {
+      setSearchDurationMs(Date.now() - searchStartRef.current);
+      searchStartRef.current = null;
+    }
+  }, [searchResults]);
+
   return {
     searchQuery,
     typedSearchQuery,
@@ -88,5 +114,8 @@ export function useSearchState({ selectedClient }: UseSearchStateProps) {
     searchDurationMs,
     submitSearch,
     selectedClient,
+    searchResults: searchResults ?? null,
+    searchFetching,
+    hybridMeetingIds,
   };
 }
