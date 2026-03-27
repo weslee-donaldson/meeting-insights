@@ -7,13 +7,14 @@ import { NavRail } from "../../electron-ui/ui/src/components/NavRail.js";
 afterEach(cleanup);
 
 describe("NavRail", () => {
-  it("renders Meetings, Action Items, Threads, Insights, and Timelines items", () => {
+  it("renders all 6 navigation items including Search", () => {
     render(<NavRail currentView="meetings" onNavigate={vi.fn()} />);
     expect(screen.getByText("Meetings")).toBeDefined();
     expect(screen.getByText("Action Items")).toBeDefined();
     expect(screen.getByText("Threads")).toBeDefined();
     expect(screen.getByText("Insights")).toBeDefined();
     expect(screen.getByText("Timelines")).toBeDefined();
+    expect(screen.getByText("Search")).toBeDefined();
   });
 
   it("clicking Meetings fires onNavigate with meetings", () => {
