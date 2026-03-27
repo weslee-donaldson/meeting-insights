@@ -126,6 +126,16 @@ body {
   --color-search-deep:    #2DD4BF;
 }
 
+/* ── Glossary Tooltips ────────────────────────────────────── */
+
+.glossary-term {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--color-text-muted);
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
 /* ── Responsive Layout ────────────────────────────────────── */
 
 :root {

@@ -44,13 +44,12 @@ Phase 2 (sequential): #3
   - Test: hook returns glossary entries, disabled when null/undefined
   - Files: `electron-ui/ui/src/hooks/useGlossary.ts`, `test/ui/hooks.test.tsx`
 
-- [ ] Burst 5: `GlossaryHighlighter` — regex match + Radix Tooltip inline
-  - Props: `{ text: string; glossary: GlossaryEntry[] }`
-  - Builds a single regex from all terms + variants (case-insensitive, word-boundary)
-  - Splits text on matches, wraps each match in `<Tooltip.Root><Tooltip.Trigger>...<Tooltip.Content>{description}</Tooltip.Content></Tooltip.Root>`
-  - Handles HTML input: strip tags → match → re-render (or operate on text nodes)
-  - Test: plain text with known term → renders Tooltip trigger; variant match → shows canonical term in tooltip; no matches → renders plain text
-  - Files: `electron-ui/ui/src/components/GlossaryHighlighter.tsx`, `test/ui/GlossaryHighlighter.test.tsx`
+- [x] Burst 5: `highlightGlossaryTerms` utility with CSS tooltip styling
+  - Pure function: wraps first occurrence of each glossary term in `<span class="glossary-term">` with title attribute
+  - Longest-match-first regex, word-boundary, HTML-safe escaping
+  - CSS dotted underline + cursor:help for native tooltip
+  - Test: 10 cases covering matching, variants, escaping, overlap, empty inputs
+  - Files: `electron-ui/ui/src/lib/glossary-highlight.ts`, `electron-ui/ui/src/index.css`, `test/ui/glossary-highlight.test.ts`
 
 - [ ] Burst 6: Wire `GlossaryHighlighter` into MeetingDetail sections
   - Pass `useGlossary(selectedClient)` into MeetingDetail
