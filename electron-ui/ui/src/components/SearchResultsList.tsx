@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback, useRef } from "react";
 import type { EnrichedResult } from "../hooks/useSearchState.js";
 import { SearchResultCard } from "./SearchResultCard.js";
 import { typography, textTiers } from "../design-tokens.js";
@@ -20,6 +20,7 @@ interface SearchResultsListProps {
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
+  onEscapeToSearch?: () => void;
 }
 
 function renderEmptyState(
@@ -231,6 +232,7 @@ function renderGroupedCards(
   onSelectAll: (ids: string[]) => void,
   onOpen: (id: string) => void,
   searchQuery: string,
+  focusedResultIndex: number,
 ) {
   const groups = sortWithinGroups(buildGroups(results, groupBy));
   const isGrouped = groupBy !== "none";
@@ -301,6 +303,7 @@ function renderGroupedCards(
           key={r.meetingId}
           result={r}
           checked={checkedResultIds.has(r.meetingId)}
+          focused={rendered === focusedResultIndex}
           onToggleChecked={onToggleChecked}
           onOpen={onOpen}
           searchQuery={searchQuery}
@@ -329,9 +332,25 @@ export function SearchResultsList({
   isLoading,
   isError,
   onRetry,
+  onEscapeToSearch,
 }: SearchResultsListProps) {
   const hasResults = enrichedResults.length > 0;
   const showHeader = hasResults;
+  const [focusedResultIndex, setFocusedResultIndex] = useState(-1);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const handleListFocus = useCallback(() => {
+    if (hasResults && focusedResultIndex < 0) {
+      setFocusedResultIndex(0);
+    }
+  }, [hasResults, focusedResultIndex]);
+
+  const handleListKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setFocusedResultIndex(-1);
+      onEscapeToSearch?.();
+    }
+  }, [onEscapeToSearch]);
 
   function computeSaveAsThreadMeetingIds(): string[] {
     if (checkedResultIds.size > 0) {
@@ -343,7 +362,15 @@ export function SearchResultsList({
   }
 
   return (
-    <div data-testid="search-results-list">
+    <div
+      data-testid="search-results-list"
+      role={hasResults ? "listbox" : undefined}
+      tabIndex={hasResults ? 0 : undefined}
+      ref={listRef}
+      onFocus={handleListFocus}
+      onKeyDown={hasResults ? handleListKeyDown : undefined}
+      onBlur={() => setFocusedResultIndex(-1)}
+    >
       {showHeader && (
         <div
           className="flex items-center gap-2 border-b border-[var(--color-line)]"
@@ -414,6 +441,7 @@ export function SearchResultsList({
         onSelectAll,
         onOpen,
         searchQuery,
+        focusedResultIndex,
       )}
       {hasResults && renderPaginationFooter(enrichedResults.length, displayedCount, isLoading, setDisplayedCount)}
       {!hasResults && renderEmptyState(searchQuery, isLoading, isError, onRetry)}

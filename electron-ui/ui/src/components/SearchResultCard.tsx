@@ -5,6 +5,7 @@ import { searchResultCard, typography } from "../design-tokens.js";
 interface SearchResultCardProps {
   result: EnrichedResult;
   checked: boolean;
+  focused?: boolean;
   onToggleChecked: (id: string) => void;
   onOpen: (id: string) => void;
   searchQuery: string;
@@ -154,6 +155,7 @@ function renderSectionHeader(label: string) {
 export function SearchResultCard({
   result,
   checked,
+  focused,
   onToggleChecked,
   onOpen,
   searchQuery,
@@ -167,6 +169,7 @@ export function SearchResultCard({
     padding: "10px 16px",
     borderLeft: checked ? searchResultCard.checkedBorderLeft : "3px solid transparent",
     borderBottom: "1px solid var(--color-line)",
+    outline: focused ? "2px solid #e0ddd8" : undefined,
   };
 
   const headerStyle: React.CSSProperties = {

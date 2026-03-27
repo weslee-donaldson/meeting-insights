@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchResultsList } from "../../electron-ui/ui/src/components/SearchResultsList.js";
 import type { EnrichedResult } from "../../electron-ui/ui/src/hooks/useSearchState.js";
@@ -426,5 +426,67 @@ describe("SearchResultsList — grouping", () => {
     expect(selectButtons.length).toBe(3);
     await user.click(selectButtons[0]);
     expect(onSelectAll).toHaveBeenCalledWith(["m1", "m2"]);
+  });
+});
+
+describe("SearchResultsList — focus management and ARIA", () => {
+  it("renders results container with role listbox and tabIndex 0", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    expect(listbox.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("renders focused card with #e0ddd8 outline when list receives focus", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    const firstCard = screen.getByTestId("search-result-card-m1");
+    expect(firstCard.style.outline).toBe("2px solid #e0ddd8");
+  });
+
+  it("calls onEscapeToSearch when Escape is pressed on the results list", () => {
+    const onEscapeToSearch = vi.fn();
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" })],
+          searchDurationMs: 100,
+          onEscapeToSearch,
+        })}
+      />,
+    );
+    const listbox = screen.getByRole("listbox");
+    fireEvent.focus(listbox);
+    fireEvent.keyDown(listbox, { key: "Escape" });
+    expect(onEscapeToSearch).toHaveBeenCalledOnce();
+  });
+
+  it("does not show focus outline on any card when list is not focused", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: [makeResult({ meetingId: "m1" }), makeResult({ meetingId: "m2" })],
+          searchDurationMs: 100,
+        })}
+      />,
+    );
+    const cards = screen.getAllByTestId(/^search-result-card-/);
+    for (const card of cards) {
+      expect(card.style.outline).toBe("");
+    }
   });
 });

@@ -513,7 +513,7 @@ Phase 5 (sequential):
 >
 > **Files affected/created:** `electron-ui/ui/src/components/SearchResultsList.tsx`, `electron-ui/ui/src/components/SearchResultCard.tsx`, `test/e2e/search.spec.ts`
 
-- [ ] Burst 59: Focus management — `focusedResultIndex`, visual indicator, Tab/Escape focus trapping
+- [x] Burst 59: Focus management — `focusedResultIndex`, visual indicator, Tab/Escape focus trapping
 - [ ] Burst 60: Keyboard handlers — Up/Down/Enter/Space on results list with ARIA attributes
 - [ ] Burst 61: Responsive — SearchForm mobile stacking, detail replaces results on mobile
 - [ ] Burst 62: **Playwright E2E — Visual Verification**: screenshot search view at 1400x900 desktop, verify form + results + chat. Screenshot empty state. Screenshot detail-open state.
