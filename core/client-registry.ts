@@ -27,6 +27,7 @@ export interface ClientRow {
   implementation_team: string;
   additional_extraction_llm_prompt: string | null;
   meeting_names: string;
+  glossary: string;
 }
 
 interface ClientEntry {
@@ -37,6 +38,7 @@ interface ClientEntry {
   additional_extraction_llm_prompt?: string;
   meeting_names?: string[];
   is_default?: boolean;
+  glossary?: GlossaryEntry[];
 }
 
 export function seedClients(db: Database, filePath: string): void {
@@ -53,7 +55,7 @@ export function seedClients(db: Database, filePath: string): void {
     const existing = db.prepare("SELECT id FROM clients WHERE name = ?").get(entry.name) as { id: string | null } | undefined;
     if (existing) continue;
     db.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
@@ -63,6 +65,7 @@ export function seedClients(db: Database, filePath: string): void {
       entry.additional_extraction_llm_prompt ?? null,
       entry.meeting_names ? JSON.stringify(entry.meeting_names) : "[]",
       entry.is_default ? 1 : 0,
+      entry.glossary ? JSON.stringify(entry.glossary) : "[]",
       randomUUID(),
     );
   }

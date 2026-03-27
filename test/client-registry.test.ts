@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, buildClientContext } from "../core/client-registry.js";
-import type { Participant } from "../core/client-registry.js";
+import type { Participant, GlossaryEntry } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
@@ -183,6 +183,35 @@ describe("meeting_names field", () => {
   it("returns empty array meeting_names when client has none", () => {
     const client = getClientByName(db, "Revenium");
     expect(JSON.parse(client!.meeting_names)).toEqual([]);
+  });
+});
+
+describe("glossary field", () => {
+  it("stores glossary as parseable GlossaryEntry array when client is seeded with one", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const dir = join(tmpdir(), `clients-glossary-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([
+      {
+        name: "TestCo",
+        aliases: ["Test"],
+        client_team: [],
+        glossary: [
+          { term: "CSTAR", variants: ["C*", "C star"], description: "Platform" },
+        ],
+      },
+    ]));
+    seedClients(localDb, file);
+    const client = getClientByName(localDb, "TestCo");
+    const glossary: GlossaryEntry[] = JSON.parse(client!.glossary);
+    expect(glossary).toEqual([{ term: "CSTAR", variants: ["C*", "C star"], description: "Platform" }]);
+  });
+
+  it("returns empty array glossary when client has none", () => {
+    const client = getClientByName(db, "Revenium");
+    expect(JSON.parse(client!.glossary)).toEqual([]);
   });
 });
 

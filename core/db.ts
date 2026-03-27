@@ -283,6 +283,9 @@ export function migrate(db: DatabaseSync): void {
   if (!clientCols.some(c => c.name === "id")) {
     db.exec("ALTER TABLE clients ADD COLUMN id TEXT");
   }
+  if (!clientCols.some(c => c.name === "glossary")) {
+    db.exec("ALTER TABLE clients ADD COLUMN glossary TEXT DEFAULT '[]'");
+  }
 
   if (!meetingCols.some(c => c.name === "client_id")) {
     db.exec("ALTER TABLE meetings ADD COLUMN client_id TEXT");
