@@ -90,6 +90,12 @@ describe("GET /api/search", () => {
     ]);
   });
 
+  it("should parse searchFields query param and pass to handler", async () => {
+    hybridSearchMock.mockClear();
+    const res = await app.request("/api/search?q=billing&searchFields=summary,decisions");
+    expect(res.status).toBe(200);
+  });
+
   it("should return 503 when no searchDeps are configured", async () => {
     const db = createDb(":memory:");
     migrate(db);

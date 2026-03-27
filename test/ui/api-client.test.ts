@@ -82,6 +82,12 @@ describe("apiClient", () => {
     expect(spy).toHaveBeenCalledWith(expect.stringContaining("limit=5"));
   });
 
+  it("search passes searchFields as comma-separated query param", async () => {
+    const spy = mockFetch([]);
+    await apiClient.search({ query: "auth", searchFields: ["summary", "decisions"] });
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining("searchFields=summary%2Cdecisions"));
+  });
+
   it("search returns empty array when server responds with non-OK status", async () => {
     mockFetch({ error: "Search not available" }, 503);
     expect(await apiClient.search({ query: "test" })).toEqual([]);

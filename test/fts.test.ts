@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { storeArtifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { updateFts, populateFts, searchFts, sanitizeFtsQuery, ensureFtsCurrent } from "../core/fts.js";
+import { updateFts, populateFts, searchFts, sanitizeFtsQuery, ensureFtsCurrent, filterBySearchFields } from "../core/fts.js";
 import type { Database } from "../core/db.js";
 
 let db: Database;
@@ -157,5 +157,36 @@ describe("ensureFtsCurrent", () => {
     ensureFtsCurrent(db);
     const rows = db.prepare("SELECT meeting_id FROM artifact_fts").all() as { meeting_id: string }[];
     expect(rows.length).toBeGreaterThan(0);
+  });
+});
+
+describe("filterBySearchFields", () => {
+  it("keeps result when query term appears in the specified field section", () => {
+    updateFts(db, meetingId);
+    const ftsResults = searchFts(db, "DLQ", 10);
+    const filtered = filterBySearchFields(db, ftsResults, "DLQ", ["summary"]);
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].meeting_id).toBe(meetingId);
+  });
+
+  it("removes result when query term only appears outside specified fields", () => {
+    updateFts(db, meetingId);
+    const ftsResults = searchFts(db, "Recurly", 10);
+    const filtered = filterBySearchFields(db, ftsResults, "Recurly", ["summary"]);
+    expect(filtered).toEqual([]);
+  });
+
+  it("returns all results when searchFields is empty", () => {
+    updateFts(db, meetingId);
+    const ftsResults = searchFts(db, "DLQ", 10);
+    const filtered = filterBySearchFields(db, ftsResults, "DLQ", []);
+    expect(filtered.length).toBe(1);
+  });
+
+  it("matches across multiple specified fields", () => {
+    updateFts(db, meetingId);
+    const ftsResults = searchFts(db, "Recurly", 10);
+    const filtered = filterBySearchFields(db, ftsResults, "Recurly", ["summary", "decisions"]);
+    expect(filtered.length).toBe(1);
   });
 });

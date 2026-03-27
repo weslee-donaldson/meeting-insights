@@ -71,6 +71,8 @@ export function registerSearchRoutes(app: Hono, db: Database, llm?: LlmAdapter, 
     const limitParam = c.req.query("limit");
     const dateAfter = c.req.query("date_after");
     const dateBefore = c.req.query("date_before");
+    const searchFieldsParam = c.req.query("searchFields");
+    const searchFields = searchFieldsParam ? searchFieldsParam.split(",") : undefined;
     const { handleSearchMeetings } = await import("../../electron-ui/electron/ipc-handlers.js");
     const results = await handleSearchMeetings(db, searchDeps.vdb, searchDeps.session, {
       query: q,
@@ -78,6 +80,7 @@ export function registerSearchRoutes(app: Hono, db: Database, llm?: LlmAdapter, 
       ...(limitParam ? { limit: Number(limitParam) } : {}),
       ...(dateAfter ? { date_after: dateAfter } : {}),
       ...(dateBefore ? { date_before: dateBefore } : {}),
+      ...(searchFields ? { searchFields } : {}),
     });
     return c.json(results);
   });

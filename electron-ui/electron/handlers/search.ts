@@ -9,6 +9,7 @@ import type { InferenceSession } from "onnxruntime-node";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow } from "../channels.js";
 import { SEARCH_MAX_DISTANCE, SEARCH_LIMIT, deepSearchPrompt } from "./config.js";
 import { handleGetArtifact, clientNameForMeeting } from "./meetings.js";
+import { filterBySearchFields } from "../../../core/fts.js";
 
 function enrichSearchResults(db: Database, results: Array<{ meeting_id: string; score: number; client: string; meeting_type: string; date: string }>): SearchResultRow[] {
   const meetingIds = results.map((r) => r.meeting_id);
@@ -49,7 +50,18 @@ export async function handleSearchMeetings(
     date_after: req.date_after,
     date_before: req.date_before,
   });
-  return enrichSearchResults(db, raw);
+  const enriched = enrichSearchResults(db, raw);
+  if (req.searchFields && req.searchFields.length > 0) {
+    const ftsFiltered = filterBySearchFields(
+      db,
+      enriched.map((r) => ({ meeting_id: r.meeting_id, score: r.score })),
+      req.query,
+      req.searchFields,
+    );
+    const filteredIds = new Set(ftsFiltered.map((r) => r.meeting_id));
+    return enriched.filter((r) => filteredIds.has(r.meeting_id));
+  }
+  return enriched;
 }
 
 export async function handleReEmbed(

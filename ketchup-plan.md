@@ -173,7 +173,7 @@ Phase 5 (sequential):
 - [x] Burst 10: `useDeepSearch` hook — add optional `keyPrefix` param, backward-compatible
 - [x] Burst 11: Field-tagged FTS — modify `populateFts()` to prefix content with `[field]` tags per section
 - [x] Burst 12: FTS migration — rebuild all FTS entries with field tags, add migration version check
-- [ ] Burst 13: `searchFields` param on `GET /api/search` — post-filter FTS results to matched fields, wire through api-client
+- [x] Burst 13: `searchFields` param on `GET /api/search` — post-filter FTS results to matched fields, wire through api-client
 
 ---
 

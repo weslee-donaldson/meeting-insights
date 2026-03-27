@@ -87,6 +87,34 @@ export function populateFts(db: Database): void {
   log("populated fts for %d meetings", rows.length);
 }
 
+function extractFieldContent(content: string, fieldName: string): string {
+  const tag = `[${fieldName}]`;
+  const start = content.indexOf(tag);
+  if (start === -1) return "";
+  const afterTag = start + tag.length;
+  const nextBracket = content.indexOf("[", afterTag);
+  return nextBracket === -1 ? content.slice(afterTag) : content.slice(afterTag, nextBracket);
+}
+
+export function filterBySearchFields(
+  db: Database,
+  results: FtsResult[],
+  query: string,
+  searchFields: string[],
+): FtsResult[] {
+  if (searchFields.length === 0) return results;
+  const sanitized = sanitizeFtsQuery(query);
+  const queryTerms = sanitized.toLowerCase().split(/\s+/).filter(Boolean);
+  return results.filter((r) => {
+    const row = db.prepare("SELECT content FROM artifact_fts WHERE meeting_id = ?").get(r.meeting_id) as { content: string } | undefined;
+    if (!row) return false;
+    return searchFields.some((field) => {
+      const section = extractFieldContent(row.content, field).toLowerCase();
+      return queryTerms.some((term) => section.includes(term));
+    });
+  });
+}
+
 export function ensureFtsCurrent(db: Database): void {
   const count = (db.prepare("SELECT COUNT(*) as n FROM artifact_fts").get() as { n: number }).n;
   if (count === 0) {

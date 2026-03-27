@@ -14,6 +14,7 @@ export const chatMethods = {
     if (req.date_after) params.set("date_after", req.date_after);
     if (req.date_before) params.set("date_before", req.date_before);
     if (req.limit != null) params.set("limit", String(req.limit));
+    if (req.searchFields && req.searchFields.length > 0) params.set("searchFields", req.searchFields.join(","));
     return fetch(`${API_BASE}/api/search?${params}`).then((r) => r.ok ? r.json() : []);
   },
 
