@@ -14,12 +14,14 @@ interface ThreadFormData {
 interface CreateThreadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ThreadFormData) => void;
+  onSubmit: (data: ThreadFormData, meetingIds?: string[]) => void;
   thread?: ThreadFormData;
   initialDescription?: string;
+  initialTitle?: string;
+  initialMeetingIds?: string[];
 }
 
-export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initialDescription }: CreateThreadDialogProps) {
+export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initialDescription, initialTitle, initialMeetingIds }: CreateThreadDialogProps) {
   const [title, setTitle] = useState("");
   const [shorthand, setShorthand] = useState("");
   const [description, setDescription] = useState("");
@@ -34,24 +36,29 @@ export function CreateThreadDialog({ open, onOpenChange, onSubmit, thread, initi
       setCriteriaPrompt(thread.criteria_prompt);
       setKeywords(thread.keywords);
     } else {
-      setTitle("");
+      setTitle(initialTitle ?? "");
       setShorthand("");
       setDescription(initialDescription ?? "");
       setCriteriaPrompt("");
       setKeywords("");
     }
-  }, [thread, open, initialDescription]);
+  }, [thread, open, initialDescription, initialTitle]);
 
   const isEdit = !!thread;
   const canSubmit = title.trim().length > 0 && shorthand.trim().length > 0;
 
   function handleSubmit() {
-    onSubmit({ title, shorthand, description, criteria_prompt: criteriaPrompt, keywords });
+    onSubmit({ title, shorthand, description, criteria_prompt: criteriaPrompt, keywords }, initialMeetingIds);
   }
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange} title={isEdit ? "Edit Thread" : "Create Thread"} sheetHeight={85}>
         <div className="flex flex-col gap-3 mt-2">
+          {initialMeetingIds && initialMeetingIds.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              {initialMeetingIds.length} meetings will be linked
+            </div>
+          )}
           <label className="flex flex-col gap-1 text-sm">
             <span>Title</span>
             <input

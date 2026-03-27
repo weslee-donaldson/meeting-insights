@@ -42,13 +42,16 @@ describe("CreateThreadDialog", () => {
     fireEvent.change(screen.getByLabelText("Criteria Prompt"), { target: { value: "CI failures" } });
     fireEvent.change(screen.getByLabelText("Keywords"), { target: { value: '"ftp bug" deploy' } });
     fireEvent.click(screen.getByRole("button", { name: /create/i }));
-    expect(onSubmit).toHaveBeenCalledWith({
-      title: "Deploy",
-      shorthand: "DEP",
-      description: "Desc",
-      criteria_prompt: "CI failures",
-      keywords: '"ftp bug" deploy',
-    });
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        title: "Deploy",
+        shorthand: "DEP",
+        description: "Desc",
+        criteria_prompt: "CI failures",
+        keywords: '"ftp bug" deploy',
+      },
+      undefined,
+    );
   });
 
   it("cancel button calls onOpenChange", () => {
@@ -76,5 +79,66 @@ describe("CreateThreadDialog", () => {
   it("initialDescription pre-fills description field", () => {
     render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={vi.fn()} initialDescription="LLM insight" />);
     expect((screen.getByLabelText("Description") as HTMLInputElement).value).toBe("LLM insight");
+  });
+
+  it("initialTitle pre-fills title field", () => {
+    render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={vi.fn()} initialTitle="billing migration" />);
+    expect((screen.getByLabelText("Title") as HTMLInputElement).value).toBe("billing migration");
+  });
+
+  it("passes initialMeetingIds as second argument to onSubmit", () => {
+    const onSubmit = vi.fn();
+    const meetingIds = ["m1", "m2", "m3"];
+    render(
+      <CreateThreadDialog
+        open
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+        initialMeetingIds={meetingIds}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Test" } });
+    fireEvent.change(screen.getByLabelText("Shorthand"), { target: { value: "TST" } });
+    fireEvent.click(screen.getByRole("button", { name: /create/i }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        title: "Test",
+        shorthand: "TST",
+        description: "",
+        criteria_prompt: "",
+        keywords: "",
+      },
+      ["m1", "m2", "m3"],
+    );
+  });
+
+  it("shows meeting count when initialMeetingIds provided", () => {
+    render(
+      <CreateThreadDialog
+        open
+        onOpenChange={vi.fn()}
+        onSubmit={vi.fn()}
+        initialMeetingIds={["m1", "m2"]}
+      />,
+    );
+    expect(screen.getByText("2 meetings will be linked")).toBeDefined();
+  });
+
+  it("onSubmit without initialMeetingIds passes undefined as second argument", () => {
+    const onSubmit = vi.fn();
+    render(<CreateThreadDialog open onOpenChange={vi.fn()} onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "No Meetings" } });
+    fireEvent.change(screen.getByLabelText("Shorthand"), { target: { value: "NM" } });
+    fireEvent.click(screen.getByRole("button", { name: /create/i }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        title: "No Meetings",
+        shorthand: "NM",
+        description: "",
+        criteria_prompt: "",
+        keywords: "",
+      },
+      undefined,
+    );
   });
 });

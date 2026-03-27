@@ -200,8 +200,8 @@ export function App() {
     meeting.setTypedSearchQuery("");
   }, [meeting]);
 
-  const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }) => {
-    return thread.handleCreateThread(data, activeMeetingIdsRef.current);
+  const handleCreateThreadWithMeetings = useCallback((data: { title: string; shorthand: string; description: string; criteria_prompt: string; keywords: string }, meetingIds?: string[]) => {
+    return thread.handleCreateThread(data, meetingIds ?? activeMeetingIdsRef.current);
   }, [thread]);
 
   const handleSaveAsThreadAndOpen = useCallback((content: string) => {

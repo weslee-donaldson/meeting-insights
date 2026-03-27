@@ -396,7 +396,7 @@ Phase 5 (sequential):
 - [x] Burst 40: Card list + displayLimit pagination — Load more increments `displayedCount`, reset `displayedCount` when query/groupBy/sortBy changes
 - [x] Burst 41: Empty states — initial, no results, loading, error with retry
 - [x] Burst 42: Grouping — cluster/date(month)/series group headers, sort-within-group by score, "Select all in group" button (per-group, not global)
-- [ ] Burst 43: Modify `CreateThreadDialog` — add optional `initialMeetingIds` prop, call `addThreadMeeting` for each after creation
+- [x] Burst 43: Modify `CreateThreadDialog` — add optional `initialMeetingIds` prop, call `addThreadMeeting` for each after creation
 - [ ] Burst 44: Save as Thread — opens CreateThreadDialog pre-filled with query + selectedClient + checked/visible meetings, navigates to threads on success
 - [ ] Burst 45: **Playwright E2E — Results List**: search term, verify count, Load more, Select all, no-results with bad query, Save as Thread opens dialog
 
