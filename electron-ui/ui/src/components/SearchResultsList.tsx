@@ -113,6 +113,70 @@ function renderEmptyState(
   );
 }
 
+interface ResultGroup {
+  key: string;
+  label: string;
+  results: EnrichedResult[];
+}
+
+function groupByCluster(results: EnrichedResult[]): ResultGroup[] {
+  const map = new Map<string, EnrichedResult[]>();
+  for (const r of results) {
+    const tag = r.clusterTags.length > 0 ? r.clusterTags[0] : "uncategorized";
+    if (!map.has(tag)) map.set(tag, []);
+    map.get(tag)!.push(r);
+  }
+  return [...map.entries()].map(([key, rs]) => ({
+    key,
+    label: key === "uncategorized" ? "Uncategorized" : key,
+    results: rs,
+  }));
+}
+
+function groupByMonth(results: EnrichedResult[]): ResultGroup[] {
+  const map = new Map<string, EnrichedResult[]>();
+  for (const r of results) {
+    const d = new Date(r.date);
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(r);
+  }
+  return [...map.entries()].map(([key, rs]) => {
+    const [year, month] = key.split("-");
+    const d = new Date(Date.UTC(Number(year), Number(month) - 1, 15));
+    const label = d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    return { key, label, results: rs };
+  });
+}
+
+function groupBySeries(results: EnrichedResult[]): ResultGroup[] {
+  const map = new Map<string, EnrichedResult[]>();
+  for (const r of results) {
+    const key = r.series;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(r);
+  }
+  return [...map.entries()].map(([key, rs]) => ({
+    key,
+    label: key,
+    results: rs,
+  }));
+}
+
+function buildGroups(results: EnrichedResult[], groupBy: "none" | "cluster" | "date" | "series"): ResultGroup[] {
+  if (groupBy === "cluster") return groupByCluster(results);
+  if (groupBy === "date") return groupByMonth(results);
+  if (groupBy === "series") return groupBySeries(results);
+  return [{ key: "all", label: "", results }];
+}
+
+function sortWithinGroups(groups: ResultGroup[]): ResultGroup[] {
+  return groups.map((g) => ({
+    ...g,
+    results: [...g.results].sort((a, b) => b.displayScore - a.displayScore),
+  }));
+}
+
 function renderPaginationFooter(
   total: number,
   shown: number,
@@ -156,6 +220,97 @@ function renderPaginationFooter(
       )}
     </div>
   );
+}
+
+function renderGroupedCards(
+  results: EnrichedResult[],
+  displayedCount: number,
+  groupBy: "none" | "cluster" | "date" | "series",
+  checkedResultIds: Set<string>,
+  onToggleChecked: (id: string) => void,
+  onSelectAll: (ids: string[]) => void,
+  onOpen: (id: string) => void,
+  searchQuery: string,
+) {
+  const groups = sortWithinGroups(buildGroups(results, groupBy));
+  const isGrouped = groupBy !== "none";
+
+  const groupHeaderStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 20px",
+    borderTop: "1px solid var(--color-line)",
+    background: "var(--color-bg-elevated)",
+  };
+
+  const groupLabelStyle: React.CSSProperties = {
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.label,
+    fontWeight: typography.fontWeight.heading,
+    textTransform: "uppercase",
+    letterSpacing: typography.letterSpacing.groupLabel,
+    color: textTiers.primary.cssVar,
+  };
+
+  const selectGroupBtnStyle: React.CSSProperties = {
+    borderRadius: "4px",
+    padding: "2px 10px",
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.label,
+    fontWeight: typography.fontWeight.label,
+    lineHeight: typography.lineHeight.micro,
+    color: textTiers.secondary.cssVar,
+    border: "1px solid var(--color-line)",
+    background: "var(--color-bg-surface)",
+    cursor: "pointer",
+  };
+
+  let rendered = 0;
+  const elements: React.ReactNode[] = [];
+
+  for (const group of groups) {
+    if (rendered >= displayedCount) break;
+
+    if (isGrouped) {
+      elements.push(
+        <div
+          key={`header-${group.key}`}
+          data-testid={`group-header-${group.key}`}
+          style={groupHeaderStyle}
+        >
+          <span style={groupLabelStyle}>
+            {group.label} ({group.results.length})
+          </span>
+          <div style={{ flex: 1 }} />
+          <button
+            aria-label={`Select all in group ${group.label}`}
+            style={selectGroupBtnStyle}
+            onClick={() => onSelectAll(group.results.map((r) => r.meetingId))}
+          >
+            Select all in group
+          </button>
+        </div>,
+      );
+    }
+
+    for (const r of group.results) {
+      if (rendered >= displayedCount) break;
+      elements.push(
+        <SearchResultCard
+          key={r.meetingId}
+          result={r}
+          checked={checkedResultIds.has(r.meetingId)}
+          onToggleChecked={onToggleChecked}
+          onOpen={onOpen}
+          searchQuery={searchQuery}
+        />,
+      );
+      rendered++;
+    }
+  }
+
+  return <>{elements}</>;
 }
 
 export function SearchResultsList({
@@ -241,17 +396,16 @@ export function SearchResultsList({
           </button>
         </div>
       )}
-      {hasResults &&
-        enrichedResults.slice(0, displayedCount).map((r) => (
-          <SearchResultCard
-            key={r.meetingId}
-            result={r}
-            checked={checkedResultIds.has(r.meetingId)}
-            onToggleChecked={onToggleChecked}
-            onOpen={onOpen}
-            searchQuery={searchQuery}
-          />
-        ))}
+      {hasResults && renderGroupedCards(
+        enrichedResults,
+        displayedCount,
+        groupBy,
+        checkedResultIds,
+        onToggleChecked,
+        onSelectAll,
+        onOpen,
+        searchQuery,
+      )}
       {hasResults && renderPaginationFooter(enrichedResults.length, displayedCount, isLoading, setDisplayedCount)}
       {!hasResults && renderEmptyState(searchQuery, isLoading, isError, onRetry)}
     </div>

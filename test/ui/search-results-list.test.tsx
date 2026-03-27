@@ -292,3 +292,120 @@ describe("SearchResultsList — empty states", () => {
     expect(screen.queryByText("Searching...")).toBeNull();
   });
 });
+
+describe("SearchResultsList — grouping", () => {
+  const clusterResults = [
+    makeResult({ meetingId: "m1", clusterTags: ["billing"], displayScore: 0.92 }),
+    makeResult({ meetingId: "m2", clusterTags: ["billing"], displayScore: 0.80 }),
+    makeResult({ meetingId: "m3", clusterTags: ["onboarding"], displayScore: 0.95 }),
+    makeResult({ meetingId: "m4", clusterTags: [], displayScore: 0.70 }),
+  ];
+
+  it("renders flat list with no group headers when groupBy is none", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: clusterResults,
+          searchDurationMs: 100,
+          groupBy: "none",
+        })}
+      />,
+    );
+    expect(screen.getAllByTestId(/^search-result-card-/)).toHaveLength(4);
+    expect(screen.queryByTestId(/^group-header-/)).toBeNull();
+  });
+
+  it("groups by cluster tag with group headers and count", () => {
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: clusterResults,
+          searchDurationMs: 100,
+          groupBy: "cluster",
+        })}
+      />,
+    );
+    expect(screen.getByTestId("group-header-billing")).toBeDefined();
+    expect(screen.getByTestId("group-header-onboarding")).toBeDefined();
+    expect(screen.getByTestId("group-header-uncategorized")).toBeDefined();
+    expect(screen.getByText("billing (2)")).toBeDefined();
+    expect(screen.getByText("onboarding (1)")).toBeDefined();
+    expect(screen.getByText("Uncategorized (1)")).toBeDefined();
+  });
+
+  it("groups by date (month) with formatted headers", () => {
+    const dateResults = [
+      makeResult({ meetingId: "m1", date: "2026-03-12T10:00:00.000Z", displayScore: 0.92 }),
+      makeResult({ meetingId: "m2", date: "2026-03-05T10:00:00.000Z", displayScore: 0.80 }),
+      makeResult({ meetingId: "m3", date: "2026-02-28T10:00:00.000Z", displayScore: 0.95 }),
+    ];
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: dateResults,
+          searchDurationMs: 100,
+          groupBy: "date",
+        })}
+      />,
+    );
+    expect(screen.getByText("March 2026 (2)")).toBeDefined();
+    expect(screen.getByText("February 2026 (1)")).toBeDefined();
+  });
+
+  it("groups by series with series name headers", () => {
+    const seriesResults = [
+      makeResult({ meetingId: "m1", series: "sprint planning", displayScore: 0.92 }),
+      makeResult({ meetingId: "m2", series: "sprint planning", displayScore: 0.80 }),
+      makeResult({ meetingId: "m3", series: "weekly sync", displayScore: 0.95 }),
+    ];
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: seriesResults,
+          searchDurationMs: 100,
+          groupBy: "series",
+        })}
+      />,
+    );
+    expect(screen.getByText("sprint planning (2)")).toBeDefined();
+    expect(screen.getByText("weekly sync (1)")).toBeDefined();
+  });
+
+  it("sorts within groups by score descending", () => {
+    const scored = [
+      makeResult({ meetingId: "low", clusterTags: ["billing"], displayScore: 0.50 }),
+      makeResult({ meetingId: "high", clusterTags: ["billing"], displayScore: 0.99 }),
+    ];
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: scored,
+          searchDurationMs: 100,
+          groupBy: "cluster",
+        })}
+      />,
+    );
+    const cards = screen.getAllByTestId(/^search-result-card-/);
+    expect(cards[0].getAttribute("data-testid")).toBe("search-result-card-high");
+    expect(cards[1].getAttribute("data-testid")).toBe("search-result-card-low");
+  });
+
+  it("renders Select all in group button that selects all ids in that group", async () => {
+    const onSelectAll = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <SearchResultsList
+        {...defaultProps({
+          enrichedResults: clusterResults,
+          searchDurationMs: 100,
+          groupBy: "cluster",
+          onSelectAll,
+        })}
+      />,
+    );
+    const selectButtons = screen.getAllByRole("button", { name: /Select all in group/ });
+    expect(selectButtons.length).toBe(3);
+    await user.click(selectButtons[0]);
+    expect(onSelectAll).toHaveBeenCalledWith(["m1", "m2"]);
+  });
+});
