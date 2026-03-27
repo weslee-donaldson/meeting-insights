@@ -351,6 +351,21 @@ export function SearchResultCard({
         </div>
       )}
 
+      {!result.artifact && !hasAnyMatches(result) && (
+        <span
+          style={{
+            fontFamily: searchResultCard.artifactItemFont,
+            fontSize: searchResultCard.artifactItemSize,
+            color: "var(--color-text-muted)",
+            fontStyle: "italic",
+            paddingLeft: searchResultCard.artifactIndent,
+            marginTop: "4px",
+          }}
+        >
+          Artifact not available
+        </span>
+      )}
+
       {result.deepSearchSummary && (
         <div
           data-testid="why-block"

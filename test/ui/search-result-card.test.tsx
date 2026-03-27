@@ -254,6 +254,52 @@ describe("SearchResultCard — WHY block", () => {
   });
 });
 
+describe("SearchResultCard — empty artifact fallback", () => {
+  it("shows 'Artifact not available' when artifact is null", () => {
+    const noArtifact = makeResult({
+      artifact: null,
+      matchedDecisions: [],
+      matchedActionItems: [],
+      matchedRisks: [],
+      totalDecisions: 0,
+      totalActionItems: 0,
+      totalRisks: 0,
+    });
+    render(<SearchResultCard {...defaultProps({ result: noArtifact })} />);
+    expect(screen.getByText("Artifact not available")).not.toBeNull();
+  });
+
+  it("'Artifact not available' uses muted text color", () => {
+    const noArtifact = makeResult({
+      artifact: null,
+      matchedDecisions: [],
+      matchedActionItems: [],
+      matchedRisks: [],
+      totalDecisions: 0,
+      totalActionItems: 0,
+      totalRisks: 0,
+    });
+    render(<SearchResultCard {...defaultProps({ result: noArtifact })} />);
+    const el = screen.getByText("Artifact not available");
+    expect(el.style.color).toBe("var(--color-text-muted)");
+  });
+
+  it("still renders title+date+score when artifact is null", () => {
+    const noArtifact = makeResult({
+      artifact: null,
+      matchedDecisions: [],
+      matchedActionItems: [],
+      matchedRisks: [],
+      totalDecisions: 0,
+      totalActionItems: 0,
+      totalRisks: 0,
+    });
+    render(<SearchResultCard {...defaultProps({ result: noArtifact })} />);
+    expect(screen.getByText(/Sprint Planning/)).not.toBeNull();
+    expect(screen.getByTestId("result-score")).not.toBeNull();
+  });
+});
+
 describe("SearchResultCard — checkbox toggle", () => {
   it("clicking checkbox calls onToggleChecked with meetingId", async () => {
     const onToggleChecked = vi.fn();
