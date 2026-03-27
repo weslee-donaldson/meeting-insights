@@ -40,7 +40,10 @@
       { "name": "Antonio Falcao",   "email": "antonio.falcao@xolv.io",   "role": "Consultant" },
       { "name": "Wesley Donaldson", "email": "wesley.donaldson@llsa.com","role": "Consultant" }
     ],
-    "additional_extraction_llm_prompt": "Stace is the CTO and highest authority. Jennifer manages the engineering team. Yoelvis is the principal developer — treat his technical direction with elevated weight. Sam (Architect, xolv.io) has high authority on technical decisions. The implementation team (xolv.io) is the delivery partner — action items directed at us are delivery commitments."
+    "additional_extraction_llm_prompt": "Stace is the CTO and highest authority. Jennifer manages the engineering team. Yoelvis is the principal developer — treat his technical direction with elevated weight. Sam (Architect, xolv.io) has high authority on technical decisions. The implementation team (xolv.io) is the delivery partner — action items directed at us are delivery commitments.",
+    "glossary": [
+      { "term": "CSTAR", "variants": ["C*", "C star", "Cstar", "sea star", "see star"], "description": "CSTAR — the internal project/product name" }
+    ]
   },
   {
     "name": "TerraQuantum",
