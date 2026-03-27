@@ -2,6 +2,7 @@ import React from "react";
 import type { EnrichedResult } from "../hooks/useSearchState.js";
 import { SearchResultCard } from "./SearchResultCard.js";
 import { typography, textTiers } from "../design-tokens.js";
+import { DISPLAY_LIMIT } from "../../../electron/handlers/config.js";
 
 interface SearchResultsListProps {
   enrichedResults: EnrichedResult[];
@@ -19,6 +20,51 @@ interface SearchResultsListProps {
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
+}
+
+function renderPaginationFooter(
+  total: number,
+  shown: number,
+  loading: boolean,
+  setDisplayedCount: (n: number) => void,
+) {
+  const allLoaded = shown >= total;
+  const footerStyle = {
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.label,
+    lineHeight: typography.lineHeight.micro,
+  };
+
+  if (allLoaded) {
+    return (
+      <div className="flex items-center justify-center" style={{ padding: "12px 20px", gap: "6px" }}>
+        <span style={{ ...footerStyle, color: textTiers.muted.cssVar }}>
+          Showing all {total} results
+        </span>
+      </div>
+    );
+  }
+
+  const displayedShown = Math.min(shown, total);
+
+  return (
+    <div className="flex items-center justify-center" style={{ padding: "12px 20px", gap: "6px" }}>
+      <span style={{ ...footerStyle, color: textTiers.secondary.cssVar }}>
+        Showing {displayedShown} of {total}
+      </span>
+      {loading ? (
+        <span style={{ ...footerStyle, color: textTiers.muted.cssVar }}>Loading...</span>
+      ) : (
+        <button
+          onClick={() => setDisplayedCount(shown + DISPLAY_LIMIT)}
+          className="text-[var(--color-accent)]"
+          style={{ ...footerStyle, fontWeight: typography.fontWeight.label, background: "none", border: "none", cursor: "pointer" }}
+        >
+          Load more
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function SearchResultsList({
@@ -115,6 +161,7 @@ export function SearchResultsList({
             searchQuery={searchQuery}
           />
         ))}
+      {hasResults && renderPaginationFooter(enrichedResults.length, displayedCount, isLoading, setDisplayedCount)}
     </div>
   );
 }
