@@ -25,7 +25,7 @@ The current search bar in TopBar filters the meeting list in-place. Users need a
 > **Files affected/created:** `core/labeled-context.ts`, `electron-ui/electron/channels.ts`, `electron-ui/electron/handlers/search.ts`, `config/system.json`, `electron-ui/electron/handlers/config.ts`, `test/labeled-context.test.ts`, `test/search-handler.test.ts`
 
 - [x] Burst 1: Extend `buildDistilledContext` with `maxChars` budget — per-meeting allocation scales inversely with count
-- [ ] Burst 2: Extend `buildDistilledContext` with `relevanceSummaries` map — prepends relevance line per meeting when provided
+- [x] Burst 2: Extend `buildDistilledContext` with `relevanceSummaries` map — prepends relevance line per meeting when provided
 - [ ] Burst 3: `contextMode` on `ConversationChatRequest` — wire through channels.ts types + IPC handler + api-client.ts HTTP + API route
 - [ ] Burst 4: Add `displayLimit` (20) and `chatContextLimit` (10) to `config/system.json` + export from `config.ts`
 - [ ] Burst 5: Error handling — skip meetings with missing artifacts, log warning, test with mix of valid and stale meeting IDs

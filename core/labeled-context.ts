@@ -130,6 +130,8 @@ export function buildDistilledContext(
     const artifact = parseArtifactRow(art);
     const lines: string[] = [];
     lines.push(`## ${mtg.title} (${mtg.date.slice(0, 10)})`);
+    const relevance = options.relevanceSummaries?.get(id);
+    if (relevance) lines.push(`Relevance: ${relevance}`);
     if (artifact.summary) lines.push(`Summary: ${artifact.summary}`);
     if (artifact.decisions.length > 0) {
       lines.push("Decisions:");

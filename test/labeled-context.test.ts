@@ -303,6 +303,29 @@ describe("buildDistilledContext", () => {
     const withLargeLimit = buildDistilledContext(dDb, [dId1], [], { maxChars: 100000 });
     expect(withoutLimit).toBe(withLargeLimit);
   });
+
+  it("prepends relevance summary when relevanceSummaries map provided", () => {
+    const summaries = new Map<string, string>();
+    summaries.set(dId1, "Discusses Q2 shipping timeline");
+    const result = buildDistilledContext(dDb, [dId1], [], { relevanceSummaries: summaries });
+    const lines = result.split("\n");
+    const headerIdx = lines.findIndex((l) => l.startsWith("## Distilled Alpha"));
+    expect(lines[headerIdx + 1]).toBe("Relevance: Discusses Q2 shipping timeline");
+  });
+
+  it("omits relevance line for meetings not in relevanceSummaries map", () => {
+    const summaries = new Map<string, string>();
+    summaries.set(dId1, "Alpha relevance");
+    const result = buildDistilledContext(dDb, [dId1, dId2], [], { relevanceSummaries: summaries });
+    const blocks = result.split("\n\n---\n\n");
+    expect(blocks[0]).toContain("Relevance: Alpha relevance");
+    expect(blocks[1]).not.toContain("Relevance:");
+  });
+
+  it("does not include relevance line when relevanceSummaries is omitted", () => {
+    const result = buildDistilledContext(dDb, [dId1]);
+    expect(result).not.toContain("Relevance:");
+  });
 });
 
 describe("buildLabeledContext with notes", () => {
