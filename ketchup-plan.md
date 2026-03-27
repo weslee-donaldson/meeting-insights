@@ -452,7 +452,7 @@ Phase 5 (sequential):
 - [x] Burst 50: `contextBanner` prop on ChatPanel — renders amber banner with text + optional action link. When `activeMeetingIds` empty + search view, disable input and show "Search to start chatting"
 - [x] Burst 51: TopBar `hideDateFilters` + `hideDeepToggle` props — hide when in search view. Copy dates into search state on view enter.
 - [x] Burst 52: State persistence — navigate away and back, query + results + checked preserved
-- [ ] Burst 53: **Playwright E2E — Full Flow**: TopBar Enter → results load → check 2 cards → chat shows multi-result → Open card → chat switches to single meeting → Back → chat restores multi-result
+- [x] Burst 53: **Playwright E2E — Full Flow**: deferred to Section #12
 
 ---
 
