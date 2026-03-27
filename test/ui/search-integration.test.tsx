@@ -425,3 +425,117 @@ describe("checkedResultIds -> chatMeetingIds -> computedActiveMeetingIds wiring"
     expect(screen.getByTestId("chat-meeting-count").textContent).toBe("1");
   });
 });
+
+function FullFlowHarness({ selectedClient }: { selectedClient: string | null }) {
+  const state = useSearchState({ selectedClient });
+  return (
+    <div>
+      <SearchForm
+        typedSearchQuery={state.typedSearchQuery}
+        setTypedSearchQuery={state.setTypedSearchQuery}
+        searchFields={state.searchFields}
+        toggleField={state.toggleField}
+        dateAfter={state.dateAfter}
+        setDateAfter={state.setDateAfter}
+        dateBefore={state.dateBefore}
+        setDateBefore={state.setDateBefore}
+        deepSearchEnabled={state.deepSearchEnabled}
+        setDeepSearchEnabled={state.setDeepSearchEnabled}
+        formVisible={state.formVisible}
+        setFormVisible={state.setFormVisible}
+        groupBy={state.groupBy}
+        setGroupBy={state.setGroupBy}
+        sortBy={state.sortBy}
+        setSortBy={state.setSortBy}
+        collapsedSummary={state.collapsedSummary}
+        searchQuery={state.searchQuery}
+        onSubmit={state.submitSearch}
+      />
+      <SearchResultsList
+        enrichedResults={state.enrichedResults}
+        searchDurationMs={state.searchDurationMs}
+        displayedCount={state.displayedCount}
+        setDisplayedCount={state.setDisplayedCount}
+        checkedResultIds={state.checkedResultIds}
+        onToggleChecked={state.toggleCheckedResultId}
+        onSelectAll={(ids: string[]) => ids.forEach((id) => state.toggleCheckedResultId(id))}
+        onOpen={(id: string) => state.setSelectedResultId(id)}
+        onSaveAsThread={vi.fn()}
+        groupBy={state.groupBy}
+        sortBy={state.sortBy}
+        searchQuery={state.searchQuery}
+        isLoading={state.searchFetching}
+        isError={false}
+        onRetry={state.submitSearch}
+      />
+      <div data-testid="flow-chat-ids">{state.chatMeetingIds.join(",")}</div>
+      <div data-testid="flow-chat-count">{state.chatMeetingIds.length}</div>
+      <div data-testid="flow-results-count">{state.enrichedResults.length}</div>
+    </div>
+  );
+}
+
+describe("Full data flow: query → API → results → check → chat → uncheck → revert", () => {
+  it("end-to-end: type query, submit, verify API call, see result cards, check cards, verify chat context, uncheck, verify revert", async () => {
+    const search = vi.fn().mockResolvedValue([
+      { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "Sprint Planning", date: "2026-03-12", cluster_tags: ["billing"], series: "sprint" },
+      { meeting_id: "m2", score: 0.7, client: "Acme", meeting_type: "Design Review", date: "2026-03-11", cluster_tags: ["design"], series: "design" },
+      { meeting_id: "m3", score: 0.5, client: "Acme", meeting_type: "Standup", date: "2026-03-10", cluster_tags: [], series: "standup" },
+    ]);
+    const artifactBatch = vi.fn().mockResolvedValue({
+      m1: {
+        decisions: [{ text: "Use billing API v2" }],
+        action_items: [{ description: "Migrate billing endpoint", owner: "Alice" }],
+        risk_items: [],
+      },
+      m2: null,
+      m3: null,
+    });
+    (window as unknown as Record<string, unknown>).api = {
+      search,
+      deepSearch: vi.fn().mockResolvedValue([]),
+      artifactBatch,
+    };
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <FullFlowHarness selectedClient="Acme" />
+      </Wrapper>,
+    );
+
+    expect(screen.getByTestId("empty-state-initial")).not.toBeNull();
+
+    const input = screen.getByRole("textbox", { name: /search query/i });
+    fireEvent.change(input, { target: { value: "billing" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    expect(search).toHaveBeenCalledWith({
+      query: "billing",
+      client: "Acme",
+      searchFields: expect.any(Array),
+    });
+
+    await waitFor(() => expect(screen.getByTestId("flow-results-count").textContent).toBe("3"));
+
+    expect(screen.getByTestId("search-result-card-m1")).not.toBeNull();
+    expect(screen.getByTestId("search-result-card-m2")).not.toBeNull();
+    expect(screen.getByTestId("search-result-card-m3")).not.toBeNull();
+
+    expect(screen.getByTestId("flow-chat-ids").textContent).toBe("m1,m2,m3");
+
+    const m1Checkbox = screen.getByTestId("search-result-card-m1").querySelector('[data-testid="result-checkbox"]')!;
+    const m3Checkbox = screen.getByTestId("search-result-card-m3").querySelector('[data-testid="result-checkbox"]')!;
+    fireEvent.click(m1Checkbox);
+    fireEvent.click(m3Checkbox);
+
+    expect(screen.getByTestId("flow-chat-ids").textContent).toBe("m1,m3");
+    expect(screen.getByTestId("flow-chat-count").textContent).toBe("2");
+
+    fireEvent.click(m1Checkbox);
+    fireEvent.click(m3Checkbox);
+
+    expect(screen.getByTestId("flow-chat-ids").textContent).toBe("m1,m2,m3");
+    expect(screen.getByTestId("flow-chat-count").textContent).toBe("3");
+  });
+});

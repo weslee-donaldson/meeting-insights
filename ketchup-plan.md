@@ -557,4 +557,4 @@ Phase 5 (sequential):
 - [x] Burst 68: Wire searchFields from SearchForm → useSearchState → useSearch → API param
 - [x] Burst 69: Wire enrichedResults through SearchResultsList → SearchResultCard (deep summaries, grouping, sorting)
 - [x] Burst 70: Wire checkedResultIds → chatMeetingIds → computedActiveMeetingIds → ChatPanel
-- [ ] Burst 71: **Playwright E2E — End-to-End Smoke**: full flow from TopBar search to chat response with citations, verify every connection point
+- [x] Burst 71: **Playwright E2E — End-to-End Smoke**: full flow from TopBar search to chat response with citations, verify every connection point
