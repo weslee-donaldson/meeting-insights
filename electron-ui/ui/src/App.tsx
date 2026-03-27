@@ -140,7 +140,9 @@ export function App() {
   }, [meeting.previewMeetingId, queryClient]);
 
   const computedActiveMeetingIds =
-    currentView === "action-items"
+    currentView === "search"
+      ? search.chatMeetingIds
+      : currentView === "action-items"
       ? (meeting.previewMeetingId ? [meeting.previewMeetingId] : [])
       : currentView === "threads"
       ? []
@@ -214,6 +216,7 @@ export function App() {
   }, [meeting, thread]);
 
   const chatOpenForCurrentView =
+    currentView === "search" ||
     computedActiveMeetingIds.length > 0 ||
     (currentView === "threads" && (thread.threadMeetingsQuery.data?.length ?? 0) > 0) ||
     (currentView === "insights" && (insight.insightMeetingsQuery.data?.length ?? 0) > 0) ||

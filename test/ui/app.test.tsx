@@ -570,4 +570,13 @@ describe("App", () => {
       expect(screen.getByTestId("search-results-list")).not.toBeNull();
     });
   });
+
+  it("search view with no results shows 0 meetings in chat panel context bar", async () => {
+    render(<App />, { wrapper });
+    await screen.findByTestId("meeting-row-m1");
+    fireEvent.click(screen.getByLabelText("Search"));
+    await waitFor(() => {
+      expect(screen.getByText((_, el) => el?.textContent === "0 meetings")).not.toBeNull();
+    });
+  });
 });
