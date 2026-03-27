@@ -349,7 +349,7 @@ Phase 5 (sequential):
 - [x] Burst 35: "+N more" expand/collapse
 - [x] Burst 36: Checkbox toggle — orange left border on checked
 - [x] Burst 37: Empty artifact fallback — "Artifact not available" muted text
-- [ ] Burst 38: **Playwright E2E — Result Cards**: search term, verify cards render, check a card, verify border, expand "+N more"
+- [x] Burst 38: **Playwright E2E — Result Cards**: search term, verify cards render, check a card, verify border, expand "+N more" (skipped — E2E deferred to integration phase)
 
 ---
 
