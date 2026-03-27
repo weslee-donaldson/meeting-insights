@@ -431,7 +431,7 @@ export function App() {
     checkedResultIds: search.checkedResultIds,
     onToggleChecked: search.toggleCheckedResultId,
     onSelectAll: (ids: string[]) => ids.forEach((id) => search.toggleCheckedResultId(id)),
-    onOpen: handleOpenSearchResult,
+    onOpen: (id: string) => search.setSelectedResultId(id),
     onSaveAsThread: (meetingIds: string[]) => {
       meeting.handleSaveAsThread("");
       thread.setCreateThreadOpen(true);
@@ -439,6 +439,10 @@ export function App() {
     isLoading: search.searchFetching,
     isError: false,
     onRetry: search.submitSearch,
+    selectedResultId: search.selectedResultId,
+    onSelectResult: search.setSelectedResultId,
+    onBackToFullView: () => search.setSelectedResultId(null),
+    onOpenInMeetings: handleOpenSearchResult,
   });
 
   const panels =

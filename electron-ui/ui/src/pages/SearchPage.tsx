@@ -1,6 +1,9 @@
 import React from "react";
 import { SearchForm } from "../components/SearchForm.js";
 import { SearchResultsList } from "../components/SearchResultsList.js";
+import { CompactResultsSidebar } from "../components/CompactResultsSidebar.js";
+import { MeetingDetail } from "../components/MeetingDetail.js";
+import { useSelectedResultData } from "../hooks/useSelectedResultData.js";
 import type { EnrichedResult } from "../hooks/useSearchState.js";
 
 interface SearchPageProps {
@@ -35,9 +38,47 @@ interface SearchPageProps {
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
+  selectedResultId: string | null;
+  onSelectResult: (id: string) => void;
+  onBackToFullView: () => void;
+  onOpenInMeetings: (id: string) => void;
+}
+
+function SearchDetailPanel({ selectedResultId, onOpenInMeetings }: { selectedResultId: string; onOpenInMeetings: (id: string) => void }) {
+  const data = useSelectedResultData(selectedResultId);
+  return (
+    <MeetingDetail
+      meeting={data.artifact ? { id: selectedResultId, title: "", date: "", client: "", series: "", thread_tags: data.threadTags, milestone_tags: data.milestoneTags, actionItemCount: 0 } : null}
+      artifact={data.artifact}
+      artifactLoading={data.artifactLoading}
+      completions={data.completions}
+      assets={data.assets}
+      threadTags={data.threadTags}
+      milestoneTags={data.milestoneTags}
+      notesCount={data.notesCount}
+      onOpenInMeetings={() => onOpenInMeetings(selectedResultId)}
+    />
+  );
 }
 
 export function SearchPage(props: SearchPageProps): React.ReactNode[] {
+  if (props.selectedResultId) {
+    return [
+      <CompactResultsSidebar
+        key="compact-sidebar"
+        enrichedResults={props.enrichedResults}
+        selectedResultId={props.selectedResultId}
+        onSelect={props.onSelectResult}
+        onBack={props.onBackToFullView}
+      />,
+      <SearchDetailPanel
+        key="detail-panel"
+        selectedResultId={props.selectedResultId}
+        onOpenInMeetings={props.onOpenInMeetings}
+      />,
+    ];
+  }
+
   return [
     <div key="search-panel" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "auto" }}>
       <SearchForm
