@@ -193,3 +193,36 @@ describe("SearchForm date pickers and options row", () => {
     expect(setSortBy).toHaveBeenCalledWith("date-newest");
   });
 });
+
+describe("SearchForm collapsed state", () => {
+  it("renders collapsed summary with Show button when formVisible is false", () => {
+    render(<SearchForm {...defaultProps({ formVisible: false, searchQuery: "billing migration", collapsedSummary: "Summary, Decisions" })} />);
+    expect(screen.getByText("\"billing migration\"")).not.toBeNull();
+    expect(screen.getByText("in Summary, Decisions")).not.toBeNull();
+    expect(screen.getByRole("button", { name: /show/i })).not.toBeNull();
+  });
+
+  it("clicking Show button calls setFormVisible with true", () => {
+    const setFormVisible = vi.fn();
+    render(<SearchForm {...defaultProps({ formVisible: false, setFormVisible })} />);
+    fireEvent.click(screen.getByRole("button", { name: /show/i }));
+    expect(setFormVisible).toHaveBeenCalledWith(true);
+  });
+
+  it("shows Deep indicator when deepSearchEnabled is true in collapsed state", () => {
+    render(<SearchForm {...defaultProps({ formVisible: false, deepSearchEnabled: true, searchQuery: "test" })} />);
+    expect(screen.getByText("Deep")).not.toBeNull();
+  });
+
+  it("does not show Deep indicator when deepSearchEnabled is false in collapsed state", () => {
+    render(<SearchForm {...defaultProps({ formVisible: false, deepSearchEnabled: false, searchQuery: "test" })} />);
+    expect(screen.queryByText("Deep")).toBeNull();
+  });
+
+  it("does not render expanded form elements when collapsed", () => {
+    render(<SearchForm {...defaultProps({ formVisible: false })} />);
+    expect(screen.queryByText("SEARCH IN")).toBeNull();
+    expect(screen.queryByLabelText("From date")).toBeNull();
+    expect(screen.queryByRole("button", { name: /hide/i })).toBeNull();
+  });
+});
