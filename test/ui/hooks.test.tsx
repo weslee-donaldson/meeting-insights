@@ -8,6 +8,7 @@ import { useMeetings } from "../../electron-ui/ui/src/hooks/useMeetings.js";
 import { useArtifact } from "../../electron-ui/ui/src/hooks/useArtifact.js";
 import { useSearch } from "../../electron-ui/ui/src/hooks/useSearch.js";
 import { useDeepSearch } from "../../electron-ui/ui/src/hooks/useDeepSearch.js";
+import { useGlossary } from "../../electron-ui/ui/src/hooks/useGlossary.js";
 
 afterEach(cleanup);
 
@@ -187,5 +188,39 @@ describe("useArtifact", () => {
     const { result } = renderHook(() => useArtifact("some-id"), { wrapper: makeWrapper() });
     await waitFor(() => result.current.isSuccess);
     expect(getArtifact).toHaveBeenCalledWith("some-id");
+  });
+});
+
+describe("useGlossary", () => {
+  it("returns glossary entries when client name is provided", async () => {
+    const glossary = [
+      { term: "CSTAR", variants: ["C*", "sea star"], description: "Legacy order proxy" },
+      { term: "Recurly", variants: ["recurrly"], description: "Billing platform" },
+    ];
+    const getGlossary = vi.fn().mockResolvedValue(glossary);
+    (window as unknown as Record<string, unknown>).api = { getGlossary };
+    const { result } = renderHook(() => useGlossary("TestCo"), { wrapper: makeWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(getGlossary).toHaveBeenCalledWith("TestCo");
+    expect(result.current.data).toEqual([
+      { term: "CSTAR", variants: ["C*", "sea star"], description: "Legacy order proxy" },
+      { term: "Recurly", variants: ["recurrly"], description: "Billing platform" },
+    ]);
+  });
+
+  it("does not call getGlossary when client name is null", async () => {
+    const getGlossary = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = { getGlossary };
+    renderHook(() => useGlossary(null), { wrapper: makeWrapper() });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(getGlossary).not.toHaveBeenCalled();
+  });
+
+  it("does not call getGlossary when client name is undefined", async () => {
+    const getGlossary = vi.fn().mockResolvedValue([]);
+    (window as unknown as Record<string, unknown>).api = { getGlossary };
+    renderHook(() => useGlossary(undefined), { wrapper: makeWrapper() });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(getGlossary).not.toHaveBeenCalled();
   });
 });

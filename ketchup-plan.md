@@ -39,11 +39,10 @@ Phase 2 (sequential): #3
 
 ### Section 3: UI Tooltip Integration
 
-- [ ] Burst 4: Install `@radix-ui/react-tooltip`, add `useGlossary` hook
-  - `pnpm add @radix-ui/react-tooltip`
+- [x] Burst 4: `useGlossary` hook for client term lookup (CSS-only approach, no Radix dependency)
   - `useGlossary(clientName)` — React Query hook calling `window.api.getGlossary(clientName)`, caches by clientName
-  - Test: hook returns glossary entries
-  - Files: `package.json`, `electron-ui/ui/src/hooks/useGlossary.ts`, `test/ui/useGlossary.test.ts`
+  - Test: hook returns glossary entries, disabled when null/undefined
+  - Files: `electron-ui/ui/src/hooks/useGlossary.ts`, `test/ui/hooks.test.tsx`
 
 - [ ] Burst 5: `GlossaryHighlighter` — regex match + Radix Tooltip inline
   - Props: `{ text: string; glossary: GlossaryEntry[] }`
