@@ -298,7 +298,7 @@ Phase 5 (sequential):
 > **Files affected/created:** `electron-ui/ui/src/components/SearchForm.tsx`, `test/ui/search-form.test.tsx`
 
 - [x] Burst 26: `SearchForm` expanded — query input, Hide button, Enter submits
-- [ ] Burst 27: SEARCH IN field toggles — 7 pills, click toggles, all-off prevention toast
+- [x] Burst 27: SEARCH IN field toggles — 7 pills, click toggles, all-off prevention toast
 - [ ] Burst 28: Date pickers + options row — From/to, Deep checkbox, Group dropdown, Sort dropdown
 - [ ] Burst 29: Collapsed state — renders `collapsedSummary`, Show button
 - [ ] Burst 30: Responsive — mobile stacking, pill wrapping, full-width date pickers

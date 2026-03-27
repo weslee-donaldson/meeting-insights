@@ -185,6 +185,63 @@ export function SearchForm(props: SearchFormProps) {
           placeholder="Search meetings..."
         />
       </div>
+
+      <div className="flex flex-col" style={{ gap: "6px" }}>
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "10px",
+            fontWeight: 600,
+            letterSpacing: "0.05em",
+            lineHeight: "12px",
+            color: "var(--color-text-muted)",
+            textTransform: "uppercase",
+          }}
+        >
+          SEARCH IN
+        </span>
+        <div className="flex flex-wrap" style={{ gap: "6px" }}>
+          {FIELD_ORDER.map((field) => {
+            const active = props.searchFields.has(field);
+            return (
+              <button
+                key={field}
+                aria-label={`Toggle ${FIELD_LABELS[field]}`}
+                aria-pressed={active}
+                onClick={() => {
+                  if (active && props.searchFields.size === 1) {
+                    props.onValidationError?.("Select at least one field");
+                    return;
+                  }
+                  props.toggleField(field);
+                }}
+                className="cursor-pointer border-0"
+                style={{
+                  borderRadius: "4px",
+                  padding: "4px 12px",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "11px",
+                  lineHeight: "14px",
+                  ...(active
+                    ? {
+                        backgroundColor: "#E67E22",
+                        color: "#FFFFFF",
+                        fontWeight: 600,
+                      }
+                    : {
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E0DDD8",
+                        color: "var(--color-text-secondary)",
+                        fontWeight: 500,
+                      }),
+                }}
+              >
+                {FIELD_LABELS[field]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

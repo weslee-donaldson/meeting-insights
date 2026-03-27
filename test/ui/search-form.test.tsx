@@ -74,3 +74,50 @@ describe("SearchForm expanded", () => {
     expect(setFormVisible).toHaveBeenCalledWith(false);
   });
 });
+
+describe("SearchForm field toggles", () => {
+  it("renders SEARCH IN label and all 7 field pills", () => {
+    render(<SearchForm {...defaultProps()} />);
+    expect(screen.getByText("SEARCH IN")).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle summary/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle decisions/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle action items/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle risks/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle features/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle questions/i })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /toggle milestones/i })).not.toBeNull();
+  });
+
+  it("clicking an active pill calls toggleField with that field key", () => {
+    const toggleField = vi.fn();
+    render(<SearchForm {...defaultProps({ toggleField })} />);
+    fireEvent.click(screen.getByRole("button", { name: /toggle decisions/i }));
+    expect(toggleField).toHaveBeenCalledWith("decisions");
+  });
+
+  it("clicking an inactive pill calls toggleField with that field key", () => {
+    const toggleField = vi.fn();
+    const fields = new Set(ALL_FIELDS);
+    fields.delete("risk_items");
+    render(<SearchForm {...defaultProps({ toggleField, searchFields: fields })} />);
+    fireEvent.click(screen.getByRole("button", { name: /toggle risks/i }));
+    expect(toggleField).toHaveBeenCalledWith("risk_items");
+  });
+
+  it("prevents toggling off the last active field and calls onValidationError", () => {
+    const toggleField = vi.fn();
+    const onValidationError = vi.fn();
+    const fields = new Set(["summary"]);
+    render(<SearchForm {...defaultProps({ toggleField, searchFields: fields, onValidationError })} />);
+    fireEvent.click(screen.getByRole("button", { name: /toggle summary/i }));
+    expect(toggleField).not.toHaveBeenCalled();
+    expect(onValidationError).toHaveBeenCalledWith("Select at least one field");
+  });
+
+  it("active pills have aria-pressed true and inactive pills have aria-pressed false", () => {
+    const fields = new Set(["summary", "decisions"]);
+    render(<SearchForm {...defaultProps({ searchFields: fields })} />);
+    expect(screen.getByRole("button", { name: /toggle summary/i }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: /toggle action items/i }).getAttribute("aria-pressed")).toBe("false");
+  });
+});
