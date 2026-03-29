@@ -230,6 +230,69 @@ The Paper MCP server provides access to the design artboards in `Meeting Insight
 | Component doesn't match artboard | Fix before moving to next burst |
 | Skipping artboard check | Not acceptable — check first, code second |
 
+## Plan Review (Pre-flight)
+
+Before executing any ketchup plan, the orchestrator (or solo agent) MUST review the plan and flag gaps. Do not start coding until gaps are resolved.
+
+**Checklist — flag if missing or ambiguous:**
+
+1. **Data shape verification**: For every data contract in the plan (API responses, DB queries, IPC messages, props), read the actual source code that produces it. Verify field names, types, and nesting match. Plans often document simplified shapes that omit nested objects, optional fields, or serialized columns.
+2. **Real fixture mandate**: If the plan provides example data for test fixtures, verify it matches production data by reading the source that produces it (DB schema, parser output types, API handlers, component props). Flag any fixture that uses simplified types.
+3. **UX defaults for data display**: Any feature that renders lists, tables, or collections must specify: default result limit, sort order, and truncation behavior. If unspecified, flag it — "show everything" is a missing decision, not a default.
+4. **Shared file collision map**: If multiple agents will modify the same file (e.g., an entry point, a router, a registry, package.json), the plan must specify the merge strategy and the exact pattern each agent follows.
+5. **Error propagation path**: Trace errors from where they're thrown to where the user sees them. If there's a global error boundary, every code path must use it. Flag inconsistencies where some paths use it and others don't.
+6. **Framework quirks**: Flag any framework behavior that could surprise agents (option inheritance, middleware ordering, lifecycle timing, state management gotchas). Add a note in the plan's context section so agents don't rediscover it independently.
+
+**Output**: A numbered list of gaps with severity (blocking / non-blocking). Blocking gaps must be resolved before Burst 0. Non-blocking gaps become additional bursts or notes in the plan.
+
+## Test Fixture Realism
+
+Test fixtures must reflect production data shapes. Simplified or invented fixtures that pass tests but fail against real data are bugs.
+
+**Rules:**
+
+- Before writing a test fixture, read the actual source code that produces the data (handler, query, component, serializer). Use the real field names, types, and nesting.
+- If a column stores serialized data (JSON string, blob), check what was serialized into it — the deserialized shape is what your fixture must match.
+- If you don't have access to real data, trace the code path from origin to consumer. The type definitions closest to the data source are authoritative.
+- Stub responses must match what the real consumer would receive after deserialization — not a simplified version.
+
+| Violation | Response |
+| --- | --- |
+| Fixture uses a simpler type than production data | Fix fixture to match real shape |
+| Fixture omits fields that exist in production | Add the fields |
+| Test passes with wrong fixture but fails against real system | The test is the bug — fix the fixture first |
+
+## Multi-Agent Orchestration Rules
+
+When a ketchup plan uses parallel agents (worktrees), these rules apply in addition to all other CLAUDE.md rules.
+
+### Consistency contract
+
+Before spawning parallel agents, the orchestrator must define a **shared pattern** for every cross-cutting concern in the phase. Common concerns include:
+
+- **Dependency injection**: How modules receive their dependencies. All agents in the same phase must use the same pattern. Specify the interface in the plan.
+- **Registration/wiring**: The exact function signature for plugging into a shared entry point, router, registry, or composition root. All agents must export the same shape.
+- **Error handling**: One error handling strategy per phase. If there's a global boundary (error handler, middleware, catch block), every code path must flow through it.
+- **Shared state/options**: How global configuration, flags, or context are accessed. Specify the access pattern so agents don't each invent their own.
+
+### Integration test after merge
+
+After merging all agents in a phase, the orchestrator MUST:
+
+1. Run the full test suite
+2. Read every source file produced by every agent (not just spot-check)
+3. Verify cross-agent consistency (naming, patterns, error messages)
+4. Test at least one path **through the real entry point** — not just isolated unit tests. The integration point where agents' code meets is where bugs hide.
+5. Flag and fix any inconsistencies before tagging the phase
+
+### Agent prompt requirements
+
+Every agent prompt must include:
+
+- The shared interfaces and function signatures from the consistency contract (copy-paste the type definitions — don't reference them by description)
+- Any framework quirks identified during pre-flight review
+- Pointers to the actual source files that produce the data the agent will consume (so fixtures match reality)
+
 ## Misc
 
 - No "Generated with Claude Code" in commits

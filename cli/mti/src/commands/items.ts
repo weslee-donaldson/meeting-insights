@@ -199,15 +199,16 @@ export async function listItems(
 }
 
 export function registerItems(program: Command): void {
-  const items = new Command("items").description(
-    "Manage action items across meetings."
-  );
+  const items = new Command("items")
+    .description("Manage action items across meetings.")
+    .enablePositionalOptions();
 
   items
     .command("list <client>")
     .description("List action items across all meetings for a client.")
     .option("--after <date>", "Only items from meetings after this date (YYYY-MM-DD)")
     .option("--before <date>", "Only items from meetings before this date (YYYY-MM-DD)")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -240,6 +241,7 @@ Errors:
     .option("--owner <name>", "Person responsible")
     .option("--due <date>", "Due date (YYYY-MM-DD)")
     .option("--priority <level>", "critical, normal, or low (default: normal)")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -260,6 +262,7 @@ Errors:
     .option("--owner <name>", "Person responsible")
     .option("--due <date>", "Due date (YYYY-MM-DD)")
     .option("--priority <level>", "critical, normal, or low")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -283,6 +286,7 @@ Errors:
     .command("complete <meetingId> <index>")
     .description("Mark an action item as complete.")
     .option("--note <text>", "Completion note (default: empty string)")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -305,6 +309,7 @@ Errors:
   items
     .command("uncomplete <meetingId> <index>")
     .description("Revert an action item's completion status.")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -332,6 +337,7 @@ Errors:
   items
     .command("completions <meetingId>")
     .description("Show completion records for a meeting's action items.")
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
@@ -352,6 +358,7 @@ Errors:
     .description(
       "Show cross-meeting history for an action item by its canonical ID."
     )
+    .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `

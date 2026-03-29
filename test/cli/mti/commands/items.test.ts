@@ -156,6 +156,15 @@ describe("items list", () => {
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
+
+  it("declares --json as a Commander option on the list subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const list = items.commands.find((c) => c.name() === "list")!;
+    const optionNames = list.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
+  });
 });
 
 describe("items create", () => {
@@ -222,6 +231,15 @@ describe("items create", () => {
     expect(help).toContain("Add a new action item to a meeting.");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
+  });
+
+  it("declares --json as a Commander option on the create subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const create = items.commands.find((c) => c.name() === "create")!;
+    const optionNames = create.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
   });
 });
 
@@ -290,6 +308,15 @@ describe("items edit", () => {
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
+
+  it("declares --json as a Commander option on the edit subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const edit = items.commands.find((c) => c.name() === "edit")!;
+    const optionNames = edit.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
+  });
 });
 
 describe("items complete", () => {
@@ -349,6 +376,15 @@ describe("items complete", () => {
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
+
+  it("declares --json as a Commander option on the complete subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const complete = items.commands.find((c) => c.name() === "complete")!;
+    const optionNames = complete.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
+  });
 });
 
 describe("items uncomplete", () => {
@@ -391,6 +427,15 @@ describe("items uncomplete", () => {
     expect(help).toContain("Revert an action item's completion status.");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
+  });
+
+  it("declares --json as a Commander option on the uncomplete subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const uncomplete = items.commands.find((c) => c.name() === "uncomplete")!;
+    const optionNames = uncomplete.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
   });
 });
 
@@ -465,6 +510,17 @@ describe("items completions", () => {
     expect(help).toContain("Output schema (--json):");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
+  });
+
+  it("declares --json as a Commander option on the completions subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const completions = items.commands.find(
+      (c) => c.name() === "completions"
+    )!;
+    const optionNames = completions.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
   });
 });
 
@@ -548,5 +604,14 @@ describe("items history", () => {
     expect(help).toContain("Example:");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
+  });
+
+  it("declares --json as a Commander option on the history subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const history = items.commands.find((c) => c.name() === "history")!;
+    const optionNames = history.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--json");
   });
 });
