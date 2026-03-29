@@ -61,3 +61,10 @@ export function wrapAction(
 }
 
 registerNotes(program, wrapAction);
+
+const isDirectRun =
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/^.*\//, ""));
+if (isDirectRun) {
+  program.parse();
+}
