@@ -30,6 +30,12 @@ const LIST_COLUMNS: ColumnDef[] = [
   { key: "meeting_date", header: "Date", width: 12 },
 ];
 
+const HISTORY_COLUMNS: ColumnDef[] = [
+  { key: "meeting_title", header: "Meeting" },
+  { key: "meeting_date", header: "Date" },
+  { key: "item_text", header: "Description" },
+];
+
 const COMPLETIONS_COLUMNS: ColumnDef[] = [
   { key: "item_index", header: "Item #" },
   { key: "completed_at", header: "Completed At" },
@@ -64,6 +70,21 @@ export async function createItem(
   }
 
   writeln(deps.stream, `Action item added to meeting ${meetingId}.`);
+}
+
+export async function itemHistory(
+  canonicalId: string,
+  options: { json?: boolean },
+  deps: Deps = defaultDeps()
+): Promise<void> {
+  const data = await deps.client.get(`/api/items/${canonicalId}/history`);
+
+  if (options.json) {
+    outputJson(data, deps.stream);
+    return;
+  }
+
+  outputTable(data as Record<string, unknown>[], HISTORY_COLUMNS, deps.stream);
 }
 
 export async function listCompletions(
@@ -324,6 +345,35 @@ Errors:
     .action(async (meetingId: string, opts: Record<string, string>) => {
       const json = opts.json ?? program.opts().json;
       await listCompletions(meetingId, { ...opts, json }, defaultDeps());
+    });
+
+  items
+    .command("history <canonicalId>")
+    .description(
+      "Show cross-meeting history for an action item by its canonical ID."
+    )
+    .addHelpText(
+      "after",
+      `
+Output schema (--json):
+  [{ "canonical_id": "string", "meeting_id": "string",
+     "item_type": "string", "item_index": "number",
+     "item_text": "string", "first_mentioned_at": "string",
+     "meeting_title": "string", "meeting_date": "string" }]
+
+Example:
+  $ mti items history f3a1b2
+  Meeting              Date         Description
+  ──────────────────  ──────────  ─────────────────────
+  Q1 Planning Review  2026-01-15  Draft Q2 roadmap
+  Sprint Retro        2026-02-01  Draft Q2 roadmap (updated scope)
+
+Errors:
+  404  Canonical ID not found`
+    )
+    .action(async (canonicalId: string, opts: Record<string, string>) => {
+      const json = opts.json ?? program.opts().json;
+      await itemHistory(canonicalId, { ...opts, json }, defaultDeps());
     });
 
   program.addCommand(items);

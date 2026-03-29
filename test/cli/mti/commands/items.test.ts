@@ -10,6 +10,7 @@ import {
   completeItem,
   uncompleteItem,
   listCompletions,
+  itemHistory,
 } from "../../../../cli/mti/src/commands/items.ts";
 
 function collectStream(): { stream: Writable; output: () => string } {
@@ -462,6 +463,89 @@ describe("items completions", () => {
 
     expect(help).toContain("Show completion records for a meeting's action items.");
     expect(help).toContain("Output schema (--json):");
+    expect(help).toContain("Errors:");
+    expect(help).toContain("404");
+  });
+});
+
+describe("items history", () => {
+  const sampleHistory = [
+    {
+      canonical_id: "f3a1b2",
+      meeting_id: "m1",
+      item_type: "action_item",
+      item_index: 0,
+      item_text: "Draft Q2 roadmap",
+      first_mentioned_at: "2026-01-15",
+      meeting_title: "Q1 Planning Review",
+      meeting_date: "2026-01-15",
+    },
+    {
+      canonical_id: "f3a1b2",
+      meeting_id: "m2",
+      item_type: "action_item",
+      item_index: 1,
+      item_text: "Draft Q2 roadmap (updated scope)",
+      first_mentioned_at: "2026-01-15",
+      meeting_title: "Sprint Retro",
+      meeting_date: "2026-02-01",
+    },
+  ];
+
+  it("shows cross-meeting history in table format", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(sampleHistory), { status: 200 })
+    );
+    const { stream, output } = collectStream();
+
+    await itemHistory("f3a1b2", {}, { client, stream });
+
+    const text = output();
+    expect(text).toContain("Meeting");
+    expect(text).toContain("Date");
+    expect(text).toContain("Description");
+    expect(text).toContain("Q1 Planning Review");
+    expect(text).toContain("2026-01-15");
+    expect(text).toContain("Draft Q2 roadmap");
+    expect(text).toContain("Sprint Retro");
+    expect(text).toContain("2026-02-01");
+  });
+
+  it("sends GET to the correct endpoint", async () => {
+    let capturedUrl = "";
+    const client = stubClient(async (url) => {
+      capturedUrl = url;
+      return new Response(JSON.stringify([]), { status: 200 });
+    });
+    const { stream } = collectStream();
+
+    await itemHistory("f3a1b2", {}, { client, stream });
+
+    expect(new URL(capturedUrl).pathname).toBe("/api/items/f3a1b2/history");
+  });
+
+  it("outputs raw JSON when --json is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(sampleHistory), { status: 200 })
+    );
+    const { stream, output } = collectStream();
+
+    await itemHistory("f3a1b2", { json: true }, { client, stream });
+
+    expect(JSON.parse(output())).toEqual(sampleHistory);
+  });
+
+  it("shows help with output schema, example, and errors", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const history = items.commands.find((c) => c.name() === "history")!;
+    const help = captureHelp(history);
+
+    expect(help).toContain(
+      "Show cross-meeting history for an action item by its canonical ID."
+    );
+    expect(help).toContain("Output schema (--json):");
+    expect(help).toContain("Example:");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
