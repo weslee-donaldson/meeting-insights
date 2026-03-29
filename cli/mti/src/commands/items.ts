@@ -30,6 +30,12 @@ const LIST_COLUMNS: ColumnDef[] = [
   { key: "meeting_date", header: "Date", width: 12 },
 ];
 
+const COMPLETIONS_COLUMNS: ColumnDef[] = [
+  { key: "item_index", header: "Item #" },
+  { key: "completed_at", header: "Completed At" },
+  { key: "note", header: "Note" },
+];
+
 function writeln(stream: NodeJS.WritableStream, text: string): void {
   stream.write(text + "\n");
 }
@@ -58,6 +64,27 @@ export async function createItem(
   }
 
   writeln(deps.stream, `Action item added to meeting ${meetingId}.`);
+}
+
+export async function listCompletions(
+  meetingId: string,
+  options: { json?: boolean },
+  deps: Deps = defaultDeps()
+): Promise<void> {
+  const data = await deps.client.get(
+    `/api/meetings/${meetingId}/completions`
+  );
+
+  if (options.json) {
+    outputJson(data, deps.stream);
+    return;
+  }
+
+  outputTable(
+    data as Record<string, unknown>[],
+    COMPLETIONS_COLUMNS,
+    deps.stream
+  );
 }
 
 export async function uncompleteItem(
@@ -280,6 +307,24 @@ Errors:
         );
       }
     );
+
+  items
+    .command("completions <meetingId>")
+    .description("Show completion records for a meeting's action items.")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json):
+  [{ "id": "string", "meeting_id": "string", "item_index": "number",
+     "completed_at": "string (ISO 8601)", "note": "string" }]
+
+Errors:
+  404  Meeting not found`
+    )
+    .action(async (meetingId: string, opts: Record<string, string>) => {
+      const json = opts.json ?? program.opts().json;
+      await listCompletions(meetingId, { ...opts, json }, defaultDeps());
+    });
 
   program.addCommand(items);
 }

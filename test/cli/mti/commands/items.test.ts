@@ -9,6 +9,7 @@ import {
   editItem,
   completeItem,
   uncompleteItem,
+  listCompletions,
 } from "../../../../cli/mti/src/commands/items.ts";
 
 function collectStream(): { stream: Writable; output: () => string } {
@@ -387,6 +388,80 @@ describe("items uncomplete", () => {
     const help = captureHelp(uncomplete);
 
     expect(help).toContain("Revert an action item's completion status.");
+    expect(help).toContain("Errors:");
+    expect(help).toContain("404");
+  });
+});
+
+describe("items completions", () => {
+  const sampleCompletions = [
+    {
+      id: "c1",
+      meeting_id: "m1",
+      item_index: 0,
+      completed_at: "2026-01-20T10:00:00Z",
+      note: "Done via PR #42",
+    },
+    {
+      id: "c2",
+      meeting_id: "m1",
+      item_index: 2,
+      completed_at: "2026-01-21T14:30:00Z",
+      note: "",
+    },
+  ];
+
+  it("shows completion records in table format", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(sampleCompletions), { status: 200 })
+    );
+    const { stream, output } = collectStream();
+
+    await listCompletions("m1", {}, { client, stream });
+
+    const text = output();
+    expect(text).toContain("Item #");
+    expect(text).toContain("Completed At");
+    expect(text).toContain("Note");
+    expect(text).toContain("0");
+    expect(text).toContain("2026-01-20T10:00:00Z");
+    expect(text).toContain("Done via PR #42");
+  });
+
+  it("sends GET to the correct endpoint", async () => {
+    let capturedUrl = "";
+    const client = stubClient(async (url) => {
+      capturedUrl = url;
+      return new Response(JSON.stringify([]), { status: 200 });
+    });
+    const { stream } = collectStream();
+
+    await listCompletions("m1", {}, { client, stream });
+
+    expect(new URL(capturedUrl).pathname).toBe("/api/meetings/m1/completions");
+  });
+
+  it("outputs raw JSON when --json is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(sampleCompletions), { status: 200 })
+    );
+    const { stream, output } = collectStream();
+
+    await listCompletions("m1", { json: true }, { client, stream });
+
+    expect(JSON.parse(output())).toEqual(sampleCompletions);
+  });
+
+  it("shows help with output schema, example, and errors", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const completions = items.commands.find(
+      (c) => c.name() === "completions"
+    )!;
+    const help = captureHelp(completions);
+
+    expect(help).toContain("Show completion records for a meeting's action items.");
+    expect(help).toContain("Output schema (--json):");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
