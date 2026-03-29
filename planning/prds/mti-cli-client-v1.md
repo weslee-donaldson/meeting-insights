@@ -165,27 +165,20 @@ cli/
   admin-util/               # Existing admin scripts (moved from cli/)
     shared.ts, setup.ts, run.ts, reset.ts, purge.ts,
     query.ts, eval.ts, assign-client.ts, all-items-dedupe.ts, import-external.ts
-    README.md               # User-facing docs for admin scripts
-    scatter.md              # LLM scatter doc for admin-util/
   mti/
     bin/
       mti.ts                # Entry point, program setup, subcommand registration
     src/
       http-client.ts        # Fetch wrapper: baseUrl, auth header, typed errors
       config.ts             # Load/save ~/.mtirc, env var overrides
-      format.ts             # Table/key-value/section formatter + --json toggle
+      format.ts             # Table formatter + --json toggle
       commands/
         clients.ts          # clients list | default | glossary
         meetings.ts         # meetings list | get | transcript | artifact | rename | reassign | delete | ignore
         items.ts            # items list | create | edit | complete | uncomplete | completions | history
         notes.ts            # notes list | create | update | delete
         config.ts           # config show | set
-    README.md               # User-facing docs for mti CLI
-    scatter.md              # LLM scatter doc for mti/
-
-test/
-  cli/
-    mti/
+    test/
       http-client.test.ts
       config.test.ts
       format.test.ts
@@ -196,8 +189,6 @@ test/
         notes.test.ts
         config.test.ts
 ```
-
-**Test location rationale:** All project tests live under `test/` (matched by vitest.config.ts `include: ["test/**/*.test.ts"]`). CLI tests follow this convention at `test/cli/mti/`.
 
 ## Reference Files
 
@@ -210,13 +201,13 @@ test/
 
 ```
 Phase 1 — Sequential (main branch)
-  Burst 0: reorganize cli/ + docs
-  Burst 1: entry point + commander setup + vitest config
+  Burst 0: reorganize cli/
+  Burst 1: entry point + commander setup
       │
 Phase 2 — 3 parallel agents (worktrees, merge after all complete)
       ├─── Agent A: Bursts 2,3 (config.ts)
       ├─── Agent B: Bursts 4,5 (http-client.ts)
-      └─── Agent C: Bursts 6a,6b,6c (format.ts)
+      └─── Agent C: Burst 6 (format.ts)
       │
 Phase 3 — 4 parallel agents (worktrees, merge after all complete)
       ├─── Agent A: Bursts 7,8,9 (clients commands)
@@ -227,7 +218,6 @@ Phase 3 — 4 parallel agents (worktrees, merge after all complete)
 Phase 4 — Sequential (main branch)
   Burst 29: config commands
   Burst 30: integration + end-to-end verification
-  Burst 31: documentation (README, scatter, gather)
 ```
 
 **Why these boundaries:**
@@ -240,209 +230,17 @@ Phase 4 — Sequential (main branch)
 - The foundation files from prior phases (config, http-client, format)
 - Reference to the specific API routes for their command group
 
-### Multi-Agent Orchestration Protocol
-
-This section defines the exact steps the operator (human or meta-agent) must follow to coordinate parallel agents. It is designed so that each step is unambiguous and mechanically executable.
-
-#### Prerequisites
-
-- All agents run in **git worktrees** (`isolation: "worktree"` in Claude Code Agent tool)
-- Each worktree gets its own branch: `mti-cli/<phase>-<agent>` (e.g., `mti-cli/p2-config`, `mti-cli/p2-http-client`, `mti-cli/p2-format`)
-- The `main` branch is the merge target for all phases
-- TCR in worktrees uses scoped revert: `git checkout -- cli/ test/cli/` (not `git checkout -- .`)
-
-#### Single-Agent Fallback
-
-If running with a single agent (no worktree support), execute all bursts sequentially on `main`:
-1. Phase 1: Bursts 0, 1
-2. Phase 2: Bursts 2, 3, 4, 5, 6a, 6b, 6c (any order within phase)
-3. Phase 3: Bursts 7-28 (any order within phase, but each agent's bursts must be sequential)
-4. Phase 4: Bursts 29, 30, 31
-
-No merging required. Skip the rest of this protocol.
-
-#### Phase 1 Execution (Sequential, on main)
-
-```bash
-# Operator runs on main branch
-1. Execute Burst 0 (reorganize cli/)
-2. Execute Burst 1 (entry point + vitest config)
-3. Verify: `pnpm test --run` passes (existing 274+ tests unaffected)
-4. Verify: `ls cli/admin-util/setup.ts` exists
-5. Verify: `ls cli/mti/bin/mti.ts` exists
-6. Verify: `ls test/cli/mti/` directory exists
-7. Tag checkpoint: `git tag mti-cli-phase1-done`
-```
-
-#### Phase 2 Execution (3 Parallel Agents)
-
-**Step 1 — Spawn all 3 agents simultaneously:**
-
-Each agent is spawned with `isolation: "worktree"`. Provide each agent with:
-- The full `ketchup-plan.md`
-- Instruction: "You are Agent [A/B/C] in Phase 2. Execute ONLY your assigned bursts. Do NOT modify any files outside your scope. Run `pnpm test --run` after each burst to verify no regressions."
-
-| Agent | Branch | Source files (create) | Test files (create) | Bursts |
-|-------|--------|----------------------|---------------------|--------|
-| A | `mti-cli/p2-config` | `cli/mti/src/config.ts` | `test/cli/mti/config.test.ts` | 2, 3 |
-| B | `mti-cli/p2-http-client` | `cli/mti/src/http-client.ts` | `test/cli/mti/http-client.test.ts` | 4, 5 |
-| C | `mti-cli/p2-format` | `cli/mti/src/format.ts` | `test/cli/mti/format.test.ts` | 6a, 6b, 6c |
-
-**Step 2 — Wait for all 3 agents to complete.**
-
-**Step 3 — Merge (operator executes on main):**
-
-```bash
-# Merge order does not matter — files are disjoint
-git merge mti-cli/p2-config --no-ff -m "feat(mti): config.ts — load/save ~/.mtirc with env var overrides"
-git merge mti-cli/p2-http-client --no-ff -m "feat(mti): http-client.ts — typed fetch wrapper with error classes"
-git merge mti-cli/p2-format --no-ff -m "feat(mti): format.ts — table, key-value, and section formatters"
-```
-
-**Step 4 — Post-merge verification:**
-
-```bash
-pnpm test --run                      # ALL tests pass (existing + new)
-ls cli/mti/src/config.ts             # exists
-ls cli/mti/src/http-client.ts        # exists
-ls cli/mti/src/format.ts             # exists
-ls test/cli/mti/config.test.ts       # exists
-ls test/cli/mti/http-client.test.ts  # exists
-ls test/cli/mti/format.test.ts       # exists
-```
-
-**Step 4.5 — `/review` on merged Phase 2 diff:**
-
-Run `/review` against the aggregate diff from all 3 agents. Focus areas:
-- Consistent error handling patterns across config.ts, http-client.ts, format.ts
-- Type safety (no `any`, no `as` casts introduced by independent agents)
-- API contract alignment between http-client.ts and format.ts (do formatters handle all response shapes the client can return?)
-- Scope drift: did any agent touch files outside their assigned scope?
-
-Auto-fix mechanical issues. Resolve findings before tagging.
-
-```bash
-git tag mti-cli-phase2-done
-```
-
-**Step 5 — Cleanup worktree branches:**
-
-```bash
-git branch -d mti-cli/p2-config mti-cli/p2-http-client mti-cli/p2-format
-```
-
-#### Phase 2 Failure Recovery
-
-If an agent fails (tests don't pass, code doesn't compile):
-1. Do NOT merge the failed agent's branch
-2. Merge the successful agents' branches first
-3. If the failure may be caused by a bug in merged foundation code (not the agent's fault), run `/investigate` on main before re-spawning — the root cause may be in the merged code, not the failed agent's work
-4. Create a new agent on a fresh worktree from the updated `main`
-5. Re-assign the failed agent's bursts to the new agent
-6. The new agent has visibility into the merged code from other agents
-
-If a merge produces unexpected conflicts (should not happen with disjoint files):
-1. Abort the merge: `git merge --abort`
-2. Inspect which files conflict — this indicates an agent modified files outside its scope
-3. Re-run the offending agent with stricter scope instructions
-4. If conflicts are in shared files (e.g., `package.json`), resolve manually: both sides' changes are additive
-
-#### Phase 3 Execution (4 Parallel Agents)
-
-Identical protocol to Phase 2, with these agent assignments:
-
-| Agent | Branch | Source files (create) | Test files (create) | Bursts |
-|-------|--------|----------------------|---------------------|--------|
-| A | `mti-cli/p3-clients` | `cli/mti/src/commands/clients.ts` | `test/cli/mti/commands/clients.test.ts` | 7, 8, 9 |
-| B | `mti-cli/p3-meetings` | `cli/mti/src/commands/meetings.ts` | `test/cli/mti/commands/meetings.test.ts` | 10-17 |
-| C | `mti-cli/p3-items` | `cli/mti/src/commands/items.ts` | `test/cli/mti/commands/items.test.ts` | 18-24 |
-| D | `mti-cli/p3-notes` | `cli/mti/src/commands/notes.ts` | `test/cli/mti/commands/notes.test.ts` | 25-28 |
-
-**Each Phase 3 agent imports from Phase 2 foundation files** (already merged to main and available in worktree):
-- `import { HttpClient } from "../http-client.ts"`
-- `import { output, formatTable, formatKeyValue, formatSections } from "../format.ts"`
-- `import { loadConfig } from "../config.ts"`
-
-**Each agent also modifies `cli/mti/bin/mti.ts`** to register its command group. This IS a shared file, but each agent adds a single `program.addCommand(...)` line, which is always additive and position-independent. Merge conflicts here are trivial to resolve (accept both sides).
-
-**Merge order for Phase 3:** Merge in order of fewest commits first (clients → notes → items → meetings) to minimize conflict surface. But any order works since the only shared file (`mti.ts`) has trivially-resolvable additive changes.
-
-```bash
-git merge mti-cli/p3-clients --no-ff -m "feat(mti): clients commands — list, default, glossary"
-git merge mti-cli/p3-notes --no-ff -m "feat(mti): notes commands — list, create, update, delete"
-git merge mti-cli/p3-items --no-ff -m "feat(mti): items commands — list, create, edit, complete, uncomplete, completions, history"
-git merge mti-cli/p3-meetings --no-ff -m "feat(mti): meetings commands — list, get, transcript, artifact, rename, reassign, delete, ignore"
-pnpm test --run
-```
-
-**Post-merge `/review` on Phase 3 diff:**
-
-Run `/review` against the aggregate diff from all 4 agents. This is the most important review checkpoint -- 4 independent agents wrote 22 bursts of command code that must feel like one person wrote it. Focus areas:
-- Consistent error message wording across command groups (clients, meetings, items, notes)
-- Consistent `--help` output structure (description, schema, example, errors per the help text contract)
-- Consistent table column naming and formatting conventions
-- Consistent mutation feedback patterns ("Meeting <id> updated." vs "Note <noteId> updated.")
-- HttpClient usage patterns: are all agents handling 401/403/404/503 the same way?
-- `mti.ts` entry point: do all `program.addCommand(...)` registrations follow the same pattern?
-- Scope drift: files changed outside each agent's assigned scope
-
-Auto-fix mechanical issues. Resolve findings before tagging.
-
-```bash
-git tag mti-cli-phase3-done
-git branch -d mti-cli/p3-clients mti-cli/p3-notes mti-cli/p3-items mti-cli/p3-meetings
-```
-
-#### Phase 4 Execution (Sequential, on main)
-
-```bash
-# Back on main, all foundation + command code merged
-1. Execute Burst 29 (config commands)
-2. Execute Burst 30 (integration: add mti script to package.json, test end-to-end)
-3. Execute Burst 31 (documentation: README.md, scatter.md, gather.md updates)
-4. Final verification: `pnpm test --run` — all tests pass
-5. Run `/review` — final aggregate review of the full CLI diff against this plan
-6. Run `/ship` — creates PR with test results, coverage audit, plan completion summary
-```
-
-#### Agent Prompt Template
-
-Use this template when spawning each agent:
-
-```
-You are executing the mti CLI v1 ketchup plan, Phase {N}, Agent {letter}.
-
-**Your scope:**
-- Source file: `cli/mti/src/{file}.ts`
-- Test file: `test/cli/mti/{file}.test.ts`
-- Bursts: {list}
-- Entry point registration: add `program.addCommand(...)` in `cli/mti/bin/mti.ts` (Phase 3 only)
-
-**Rules:**
-- Follow all CLAUDE.md rules (TDD, TCR, 100% coverage, no comments)
-- Read `ketchup-plan.md` for the full behavioral sketch and API contracts for your command group
-- Read the reference files listed in the plan before writing code
-- Run `pnpm test --run` after each burst — all tests must pass
-- Do NOT modify files outside your scope
-- TCR revert scope: `git checkout -- cli/mti/src/{file}.ts test/cli/mti/{file}.test.ts`
-
-**Foundation imports (Phase 3 only):**
-- `import { HttpClient, AuthError, ForbiddenError, NotFoundError, ServerError, UnavailableError } from "../http-client.ts"`
-- `import { output, formatTable, formatKeyValue, formatSections } from "../format.ts"`
-- `import { loadConfig } from "../config.ts"`
-```
-
 ## TODO
 
 ### Phase 1 — Sequential
-- [ ] Burst 0: Move existing scripts to `cli/admin-util/`, update package.json paths, verify `pnpm` commands work. Update `cli/README.md` and `cli/scatter.md` to reflect new structure. Create `cli/admin-util/README.md` and `cli/admin-util/scatter.md`.
-- [ ] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help + error-to-exit-code wrapper. Add `test/cli/mti/` directory. Update `vitest.config.ts` include to add `"test/cli/**/*.test.ts"` if not already matched by existing glob.
+- [ ] Burst 0: Move existing scripts to `cli/admin-util/`, update package.json paths, verify `pnpm` commands work
+- [ ] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help
 
 ### Phase 2 — Parallel (3 agents)
 
 ---
 
-**Agent A — config.ts** (`cli/mti/src/config.ts` + `test/cli/mti/config.test.ts`)
+**Agent A — config.ts** (`cli/mti/src/config.ts` + `cli/mti/test/config.test.ts`)
 
 Behavior: User configures CLI connection to the API server.
 - `~/.mtirc` is a JSON file: `{ "baseUrl": "http://localhost:3000", "token": "..." }`
@@ -457,7 +255,7 @@ Bursts:
 
 ---
 
-**Agent B — http-client.ts** (`cli/mti/src/http-client.ts` + `test/cli/mti/http-client.test.ts`)
+**Agent B — http-client.ts** (`cli/mti/src/http-client.ts` + `cli/mti/test/http-client.test.ts`)
 
 Behavior: Typed HTTP client that all commands use to talk to the API.
 - Constructor: `new HttpClient({ baseUrl: string; token: string | null })`
@@ -473,39 +271,25 @@ Behavior: Typed HTTP client that all commands use to talk to the API.
 - For 204 No Content, return `null` (no body to parse)
 - Base URL joining: `new URL(path, baseUrl)` with query params appended
 
-Exit code contract (wired in entry point, Burst 1, using error classes from Burst 5):
-- `AuthError` / `ForbiddenError` / `NotFoundError` → `process.exit(1)` (user error / 4xx)
-- `ServerError` / `UnavailableError` → `process.exit(2)` (server error / 5xx)
-- Commander validation errors (missing args, bad options) → Commander's default exit(1)
-- The entry point wraps each command's `.action()` in a try/catch that maps error class → exit code and prints the error message to stderr.
-
 Bursts:
 - [ ] Burst 4: `http-client.ts` — fetch wrapper with auth header, base URL joining
-- [ ] Burst 5: `http-client.ts` — typed error handling (401, 403, 404, 500, 503) + exit code mapping helper (`exitCodeForError(err): 1 | 2`)
+- [ ] Burst 5: `http-client.ts` — typed error handling (401, 403, 404, 500, 503)
 
 ---
 
-**Agent C — format.ts** (`cli/mti/src/format.ts` + `test/cli/mti/format.test.ts`)
+**Agent C — format.ts** (`cli/mti/src/format.ts` + `cli/mti/test/format.test.ts`)
 
-Behavior: Formats API responses for terminal output. Three display modes: table, key-value, and sectioned.
+Behavior: Formats API responses for terminal output.
 - `formatTable(rows: Record<string, unknown>[], columns: ColumnDef[])` — renders aligned columns with headers
   - `ColumnDef: { key: string; header: string; width?: number }`
   - Left-align text, truncate to width if specified
   - Header row + separator line + data rows
-- `formatKeyValue(entries: Array<{ label: string; value: string }>)` — renders label-value pairs for detail views
-  - Label right-padded, colon, value. Used by `meetings get` and `clients default`.
-  - Example: `Title:   Q1 Planning Review\nDate:    2026-01-15\nClient:  Acme`
-- `formatSections(sections: Array<{ heading: string; items: string[] }>)` — renders sectioned bullet lists
-  - Heading in bold/caps, then indented bullet items. Used by `meetings artifact`.
-  - Example: `SUMMARY\n  Full summary text...\n\nDECISIONS\n  • Decision one (decided by Alice)\n  • Decision two`
 - `formatJson(data: unknown)` — `JSON.stringify(data, null, 2)`
-- `output(data: unknown, options: { json: boolean; columns?: ColumnDef[]; mode?: "table" | "kv" | "sections" })` — dispatches to appropriate formatter or JSON
+- `output(data: unknown, options: { json: boolean; columns?: ColumnDef[] })` — dispatches to table or JSON
 - Writes to stdout via a writable stream (injectable for testing, defaults to `process.stdout`)
 
 Bursts:
-- [ ] Burst 6a: `format.ts` — table formatter + `--json` toggle
-- [ ] Burst 6b: `format.ts` — key-value formatter (`formatKeyValue`) for detail views
-- [ ] Burst 6c: `format.ts` — sectioned formatter (`formatSections`) for artifact display
+- [ ] Burst 6: `format.ts` — table formatter + `--json` toggle
 
 ---
 
@@ -517,7 +301,7 @@ Each agent imports from the Phase 2 foundation: `HttpClient` from `../http-clien
 
 ---
 
-**Agent A — clients commands** (`cli/mti/src/commands/clients.ts` + `test/cli/mti/commands/clients.test.ts`)
+**Agent A — clients commands** (`cli/mti/src/commands/clients.ts` + `cli/mti/test/commands/clients.test.ts`)
 
 Behavior:
 - User lists their assigned clients (scoped by auth token, not all system clients)
@@ -528,7 +312,7 @@ API contracts:
 ```
 GET /api/clients → string[]
 GET /api/default-client → string | null
-GET /api/glossary?client=<name> → Array<{ term: string; variants: string[]; description: string }>
+GET /api/glossary?client=<name> → Array<{ term: string; definition: string }>
 ```
 
 Commands + help output schemas:
@@ -552,19 +336,19 @@ mti clients default
 
 mti clients glossary <name> [--json]
   Description: Show glossary terms for a client.
-  Output schema (--json): [{ "term": "string", "variants": ["string"], "description": "string" }]
+  Output schema (--json): [{ "term": "string", "definition": "string" }]
   Example:
     $ mti clients glossary "Acme Corp"
-    Term                          Variants              Description
-    ────                          ────────              ───────────
-    OKR                           OKRs                  Objectives and Key Results
-    RACI                          RACI matrix           Responsible, Accountable, Consulted, Informed
+    Term                          Definition
+    ────                          ──────────
+    OKR                           Objectives and Key Results
+    RACI                          Responsible, Accountable, Consulted, Informed
   Errors: 404 Client not found
 ```
 
 Table formats:
 - `clients list`: columns `[{ key: "name", header: "Name" }]` — transform string[] to `[{ name }]`
-- `clients glossary`: columns `[{ key: "term", header: "Term", width: 30 }, { key: "variants", header: "Variants", width: 22 }, { key: "description", header: "Description" }]` — join `variants[]` with ", " for display
+- `clients glossary`: columns `[{ key: "term", header: "Term", width: 30 }, { key: "definition", header: "Definition" }]`
 
 Bursts:
 - [ ] Burst 7: `clients list` — lists the user's assigned clients (with help text + schema)
@@ -573,7 +357,7 @@ Bursts:
 
 ---
 
-**Agent B — meetings commands** (`cli/mti/src/commands/meetings.ts` + `test/cli/mti/commands/meetings.test.ts`)
+**Agent B — meetings commands** (`cli/mti/src/commands/meetings.ts` + `cli/mti/test/commands/meetings.test.ts`)
 
 Behavior:
 - User lists meetings filtered by client and/or date range
@@ -588,12 +372,7 @@ GET /api/meetings?client=<name>&after=<date>&before=<date>
   → Array<{
       id: string; title: string; date: string; client: string;
       series: string; actionItemCount: number;
-      thread_tags?: Array<{ thread_id: string; title: string; shorthand: string }>;
-      milestone_tags?: Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>;
     }>
-  Note: `series` is a normalized title (lowercase, whitespace trimmed).
-  `actionItemCount` is camelCase (not snake_case). `thread_tags` and
-  `milestone_tags` are present but V1 CLI ignores them — they are V2 scope.
 
 GET /api/meetings/:id
   → { id, title, meeting_type, date, participants (JSON string), raw_transcript, source_filename, created_at }
@@ -638,12 +417,8 @@ mti meetings get <id> [--json]
   Description: Show full details for a single meeting.
   Output schema (--json):
     { "id": "string", "title": "string", "meeting_type": "string|null",
-      "date": "string (ISO 8601)", "participants": "string (JSON-encoded array)",
-      "raw_transcript": "string", "source_filename": "string",
-      "created_at": "string (ISO 8601)" }
-  Note: `participants` is a JSON string in the API response, not a parsed array.
-    For table display, parse it with JSON.parse() and join names with ", ".
-    For --json output, pass the raw API response through unmodified.
+      "date": "string (ISO 8601)", "participants": "string (JSON array)",
+      "source_filename": "string", "created_at": "string (ISO 8601)" }
   Errors: 404 Meeting not found
 
 mti meetings transcript <id>
@@ -688,11 +463,11 @@ mti meetings ignore <id> [--undo]
   Errors: 404 Meeting not found
 ```
 
-Display formats:
-- `meetings list`: table — columns `ID | Title | Date | Client | Action Items`
-- `meetings get`: key-value (`formatKeyValue`) — Title, Date, Type, Participants (JSON.parse → join with ", "), Source. Note: `raw_transcript` is included in `--json` output but NOT shown in key-value display (use `meetings transcript` for that).
-- `meetings artifact`: sectioned (`formatSections`) — Summary paragraph, then Decisions / Action Items / Open Questions / Risks as bullet lists. Each decision shows `(decided by X)`. Each action item shows `[priority] description (owner, due: date)`.
-- `meetings transcript`: raw text output via `process.stdout.write()`, no formatting
+Table formats:
+- `meetings list`: columns `ID | Title | Date | Client | Action Items`
+- `meetings get`: key-value display (not table) — Title, Date, Type, Client, Participants, Source
+- `meetings artifact`: sectioned display — Summary paragraph, then Decisions / Action Items / Open Questions / Risks as bullet lists
+- `meetings transcript`: raw text output, no formatting
 
 Mutation feedback:
 - rename/reassign: `"Meeting <id> updated."`
@@ -711,7 +486,7 @@ Bursts:
 
 ---
 
-**Agent C — items commands** (`cli/mti/src/commands/items.ts` + `test/cli/mti/commands/items.test.ts`)
+**Agent C — items commands** (`cli/mti/src/commands/items.ts` + `cli/mti/test/commands/items.test.ts`)
 
 Behavior:
 - User lists action items across a client's meetings, filterable by date range
@@ -850,7 +625,7 @@ Bursts:
 
 ---
 
-**Agent D — notes commands** (`cli/mti/src/commands/notes.ts` + `test/cli/mti/commands/notes.test.ts`)
+**Agent D — notes commands** (`cli/mti/src/commands/notes.ts` + `cli/mti/test/commands/notes.test.ts`)
 
 Behavior:
 - User lists notes attached to a meeting
@@ -859,19 +634,14 @@ Behavior:
 
 API contracts:
 ```
-GET /api/notes/:objectType/:objectId
+GET /api/notes/meeting/:meetingId
   → Array<{
       id, objectType: "meeting", objectId, title: string|null,
       body: string, noteType: string, createdAt, updatedAt
     }>
-  Note: API uses generic `:objectType/:objectId` pattern (supports "meeting",
-  "insight", "milestone", "thread"). For V1 CLI, always pass "meeting" as objectType.
-  There is also GET /api/notes/:objectType/:objectId/count → { count: number }
-  which V1 does not use.
 
-POST /api/notes/:objectType/:objectId
+POST /api/notes/meeting/:meetingId
   body: { title?: string; body: string }  → Note (201)
-  Note: For V1 CLI, objectType is always "meeting", objectId is the meetingId.
 
 PATCH /api/notes/:id
   body: { title?: string|null; body?: string }  → Note
@@ -940,8 +710,7 @@ Bursts:
 - [ ] Burst 28: `notes delete <noteId>` — with help text
 
 ### Phase 4 — Sequential
-- [ ] Burst 29: `config` show + `config set` commands (test at `test/cli/mti/commands/config.test.ts`)
+- [ ] Burst 29: `config` show + `config set` commands
 - [ ] Burst 30: Add `mti` script to package.json, verify end-to-end with running API
-- [ ] Burst 31: Documentation — create `cli/mti/README.md` (user-facing: install, usage, examples for each command group) + `cli/mti/scatter.md` (LLM scatter doc listing all files and their purposes). Update root `cli/README.md` and `cli/scatter.md` to reference both `admin-util/` and `mti/`. Update root `gather.md` to include `cli/mti/` learnings.
 
 ## DONE
