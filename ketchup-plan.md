@@ -454,8 +454,8 @@ Behavior: User configures CLI connection to the API server.
 - `saveConfig(partial)` merges into existing file (don't clobber unrelated keys)
 
 Bursts:
-- [ ] Burst 2: `config.ts` — load/save `~/.mtirc` JSON (baseUrl, token)
-- [ ] Burst 3: `config.ts` — env var overrides (`MTI_BASE_URL`, `MTI_TOKEN`)
+- [x] Burst 2: `config.ts` — load/save `~/.mtirc` JSON (baseUrl, token)
+- [x] Burst 3: `config.ts` — env var overrides (`MTI_BASE_URL`, `MTI_TOKEN`)
 
 ---
 
