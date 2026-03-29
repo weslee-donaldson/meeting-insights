@@ -58,12 +58,51 @@ export function formatTable(
   return [headerLine, separatorLine, ...dataLines].join("\n");
 }
 
+export function formatKeyValue(
+  entries: Array<{ label: string; value: string }>
+): string {
+  if (entries.length === 0) {
+    return "";
+  }
+  const maxLabel = Math.max(...entries.map((e) => e.label.length));
+  const padTo = maxLabel + 4;
+  return entries
+    .map((e) => `${(e.label + ":").padEnd(padTo)}${e.value}`)
+    .join("\n");
+}
+
 export function formatJson(data: unknown): string {
   return JSON.stringify(data, null, 2);
 }
 
+function writeln(stream: NodeJS.WritableStream, text: string): void {
+  stream.write(text + "\n");
+}
+
+export function outputJson(
+  data: unknown,
+  stream: NodeJS.WritableStream = process.stdout
+): void {
+  writeln(stream, formatJson(data));
+}
+
+export function outputTable(
+  rows: Record<string, unknown>[],
+  columns: ColumnDef[],
+  stream: NodeJS.WritableStream = process.stdout
+): void {
+  writeln(stream, formatTable(rows, columns));
+}
+
+export function outputKv(
+  entries: Array<{ label: string; value: string }>,
+  stream: NodeJS.WritableStream = process.stdout
+): void {
+  writeln(stream, formatKeyValue(entries));
+}
+
 export function output(
-  data: Record<string, unknown>[] | Record<string, unknown>,
+  data: unknown,
   options: {
     json: boolean;
     columns?: ColumnDef[];
@@ -72,12 +111,17 @@ export function output(
   stream: NodeJS.WritableStream = process.stdout
 ): void {
   if (options.json) {
-    stream.write(formatJson(data) + "\n");
+    outputJson(data, stream);
     return;
   }
 
   if (options.mode === "table" && options.columns && Array.isArray(data)) {
-    stream.write(formatTable(data, options.columns) + "\n");
+    outputTable(data, options.columns, stream);
+    return;
+  }
+
+  if (options.mode === "kv" && Array.isArray(data)) {
+    outputKv(data, stream);
     return;
   }
 }

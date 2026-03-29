@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   formatTable,
   formatJson,
+  formatKeyValue,
   output,
 } from "../../../cli/mti/src/format.ts";
 
@@ -66,6 +67,40 @@ describe("formatTable", () => {
   });
 });
 
+describe("formatKeyValue", () => {
+  it("renders label-value pairs with labels right-padded to longest label", () => {
+    const entries = [
+      { label: "Title", value: "Q1 Planning Review" },
+      { label: "Date", value: "2026-01-15" },
+      { label: "Client", value: "Acme" },
+    ];
+
+    const result = formatKeyValue(entries);
+
+    expect(result).toBe(
+      [
+        "Title:    Q1 Planning Review",
+        "Date:     2026-01-15",
+        "Client:   Acme",
+      ].join("\n")
+    );
+  });
+
+  it("handles a single entry without extra padding", () => {
+    const entries = [{ label: "Name", value: "Alice" }];
+
+    const result = formatKeyValue(entries);
+
+    expect(result).toBe("Name:   Alice");
+  });
+
+  it("renders an empty string for no entries", () => {
+    const result = formatKeyValue([]);
+
+    expect(result).toBe("");
+  });
+});
+
 describe("formatJson", () => {
   it("pretty-prints data as indented JSON", () => {
     const data = { id: "abc", count: 3 };
@@ -99,6 +134,16 @@ describe("output", () => {
     output(data, { json: false, columns, mode: "table" }, stream as NodeJS.WritableStream);
 
     expect(written).toBe("ID   Name\n──   ────\na1   Test\n");
+  });
+
+  it("writes key-value pairs when mode is kv", () => {
+    let written = "";
+    const stream = { write: (s: string) => { written += s; return true; } };
+    const entries = [{ label: "ID", value: "abc" }];
+
+    output(entries, { json: false, mode: "kv" }, stream as NodeJS.WritableStream);
+
+    expect(written).toBe("ID:   abc\n");
   });
 
   it("defaults to process.stdout when no stream is provided", () => {
