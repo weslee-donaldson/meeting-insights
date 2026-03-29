@@ -483,7 +483,7 @@ Exit code contract (wired in entry point, Burst 1, using error classes from Burs
 
 Bursts:
 - [x] Burst 4: `http-client.ts` — fetch wrapper with auth header, base URL joining (faee7fd)
-- [x] Burst 5: `http-client.ts` — typed error handling (401, 403, 404, 500, 503) + exit code mapping helper (`exitCodeForError(err): 1 | 2`)
+- [x] Burst 5: `http-client.ts` — typed error handling (401, 403, 404, 500, 503) + exit code mapping helper (`exitCodeForError(err): 1 | 2`) (62a0041)
 
 ---
 
