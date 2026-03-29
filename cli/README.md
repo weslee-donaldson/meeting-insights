@@ -10,5 +10,5 @@ Two toolsets live under `cli/`:
 ## Quick Links
 
 - Admin scripts: [admin-util/README.md](admin-util/README.md)
-- mti CLI client: `mti/README.md` (coming soon)
+- mti CLI client: [mti/README.md](mti/README.md)
 - Business logic: [../core/README.md](../core/README.md)

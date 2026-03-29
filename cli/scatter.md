@@ -7,7 +7,7 @@ Contains two subdirectories serving different audiences.
 | Directory | Purpose |
 |-----------|---------|
 | `admin-util/` | Operator and developer scripts that drive `core/` directly. Standalone Node scripts for bootstrapping, processing, querying, and maintaining the pipeline. See `admin-util/scatter.md` for file details. |
-| `mti/` | Customer-facing CLI client that talks to the API server over HTTP. See `mti/scatter.md` for file details (coming soon). |
+| `mti/` | Customer-facing CLI client that talks to the API server over HTTP. See [mti/scatter.md](mti/scatter.md) for file details. |
 
 ## Related
 
