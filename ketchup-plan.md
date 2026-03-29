@@ -438,7 +438,7 @@ You are executing the mti CLI v1 ketchup plan, Phase {N}, Agent {letter}.
 
 ### Phase 1 — Sequential
 - [x] Burst 0: Move existing scripts (including `test-ollama.ts`) to `cli/admin-util/`, update package.json paths, verify `pnpm` commands work. Update `local-service/main.ts` import of `loadCliConfig` to point to `../cli/admin-util/shared.js`. Update `cli/README.md` and `cli/scatter.md` to reflect new structure. Create `cli/admin-util/README.md` and `cli/admin-util/scatter.md`.
-- [ ] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help + error-to-exit-code wrapper. Add `test/cli/mti/` directory. (No vitest.config.ts change needed — existing `test/**/*.test.ts` glob already matches `test/cli/`)
+- [x] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help + error-to-exit-code wrapper. Add `test/cli/mti/` directory. (No vitest.config.ts change needed — existing `test/**/*.test.ts` glob already matches `test/cli/`) (12e5f52)
 
 ### Phase 2 — Parallel (3 agents)
 
