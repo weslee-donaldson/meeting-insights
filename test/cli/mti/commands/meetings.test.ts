@@ -344,3 +344,56 @@ describe("meetings artifact", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings rename", () => {
+  it("renames a meeting and confirms with a message", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "rename", "m1", "New Title"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(capturedBody)).toEqual({ title: "New Title" });
+    expect(out.text()).toContain("Meeting m1 updated.");
+  });
+
+  it("outputs JSON confirmation with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "rename", "m1", "New Title", "--json"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(out.text())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const renameCmd = meetingsCmd.commands.find((c) => c.name() === "rename")!;
+    const help = renameCmd.helpInformation();
+
+    expect(help).toContain("Rename a meeting");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

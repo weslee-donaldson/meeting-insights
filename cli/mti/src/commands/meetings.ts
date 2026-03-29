@@ -246,5 +246,33 @@ Errors:
       outputSections(sections, stream);
     });
 
+  const RENAME_DESCRIPTION = `Rename a meeting.
+
+Output schema (--json): { "ok": true }
+
+Example:
+  $ mti meetings rename a1b2c3d4 "New Meeting Title"
+  Meeting a1b2c3d4 updated.
+
+Errors:
+  404  Meeting not found`;
+
+  meetings
+    .command("rename")
+    .description(RENAME_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .argument("<title>", "New title")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, title: string, opts: { json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      await client.patch(`/api/meetings/${id}/title`, { title });
+      if (opts.json) {
+        outputJson({ ok: true }, stream);
+        return;
+      }
+      stream.write(`Meeting ${id} updated.\n`);
+    });
+
   program.addCommand(meetings);
 }
