@@ -126,7 +126,8 @@ describe("meetings get", () => {
     title: "Sprint Review",
     meeting_type: "standup",
     date: "2026-01-15",
-    participants: '["Alice","Bob"]',
+    participants:
+      '[{"last_name":"Smith","id":"p1","first_name":"Alice","email":"alice@example.com"},{"last_name":"Jones","id":"p2","first_name":"Bob","email":"bob@example.com"}]',
     raw_transcript: "full transcript text here",
     source_filename: "2026-01-15_sprint-review.txt",
     created_at: "2026-01-15T10:00:00Z",
@@ -150,10 +151,25 @@ describe("meetings get", () => {
     expect(text).toContain("Type:");
     expect(text).toContain("standup");
     expect(text).toContain("Participants:");
-    expect(text).toContain("Alice, Bob");
+    expect(text).toContain("Alice Smith, Bob Jones");
     expect(text).toContain("Source:");
     expect(text).toContain("2026-01-15_sprint-review.txt");
     expect(text).not.toContain("full transcript text here");
+  });
+
+  it("outputs JSON when parent program also declares --json", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(meetingDetail))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    program.option("--json", "Output as JSON").enablePositionalOptions();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "get", "m1", "--json"], { from: "user" });
+
+    const parsed = JSON.parse(out.text());
+    expect(parsed.id).toBe("m1");
   });
 
   it("strips raw_transcript from --json output by default", async () => {
@@ -172,7 +188,8 @@ describe("meetings get", () => {
       title: "Sprint Review",
       meeting_type: "standup",
       date: "2026-01-15",
-      participants: '["Alice","Bob"]',
+      participants:
+        '[{"last_name":"Smith","id":"p1","first_name":"Alice","email":"alice@example.com"},{"last_name":"Jones","id":"p2","first_name":"Bob","email":"bob@example.com"}]',
       source_filename: "2026-01-15_sprint-review.txt",
       created_at: "2026-01-15T10:00:00Z",
     });

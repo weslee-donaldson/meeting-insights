@@ -23,7 +23,8 @@ program
   .name("mti")
   .version(pkg.version)
   .description("Meeting Insights CLI — query meetings, clients, and action items")
-  .option("--json", "Output as JSON");
+  .option("--json", "Output as JSON")
+  .enablePositionalOptions();
 
 registerClients(program);
 registerConfig(program);

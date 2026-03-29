@@ -75,9 +75,11 @@ export function registerMeetings(
   program: Command,
   deps?: MeetingsDeps
 ): void {
-  const meetings = new Command("meetings").description(
-    "Manage meetings — list, view, rename, reassign, delete, and ignore."
-  );
+  const meetings = new Command("meetings")
+    .description(
+      "Manage meetings — list, view, rename, reassign, delete, and ignore."
+    )
+    .enablePositionalOptions();
 
   meetings
     .command("list")
@@ -124,7 +126,13 @@ export function registerMeetings(
       try {
         const parsed = JSON.parse(participants);
         if (Array.isArray(parsed)) {
-          participants = parsed.join(", ");
+          participants = parsed
+            .map((p: unknown) => {
+              if (typeof p === "string") return p;
+              const obj = p as { first_name?: string; last_name?: string };
+              return `${obj.first_name ?? ""} ${obj.last_name ?? ""}`.trim();
+            })
+            .join(", ");
         }
       } catch {
         /* keep original string */
