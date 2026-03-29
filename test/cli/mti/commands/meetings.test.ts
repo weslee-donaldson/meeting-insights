@@ -248,3 +248,99 @@ describe("meetings transcript", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings artifact", () => {
+  const artifactPayload = {
+    summary: "Team discussed Q1 objectives.",
+    decisions: [
+      { text: "Use TypeScript for new services", decided_by: "Alice" },
+    ],
+    proposed_features: ["Dashboard redesign"],
+    action_items: [
+      {
+        description: "Draft Q2 roadmap",
+        owner: "Bob",
+        requester: "Alice",
+        due_date: "2026-04-01",
+        priority: "critical",
+        short_id: "f3a1b2",
+      },
+    ],
+    open_questions: ["What is the Q2 budget?"],
+    risk_items: [
+      { category: "engineering", description: "Tight timeline for migration" },
+    ],
+    additional_notes: [],
+    milestones: [],
+  };
+
+  it("displays artifact with formatted sections", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(artifactPayload))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "artifact", "m1"], { from: "user" });
+
+    const text = out.text();
+    expect(text).toContain("SUMMARY");
+    expect(text).toContain("Team discussed Q1 objectives.");
+    expect(text).toContain("DECISIONS");
+    expect(text).toContain("Use TypeScript for new services (decided by Alice)");
+    expect(text).toContain("ACTION ITEMS");
+    expect(text).toContain("[critical] Draft Q2 roadmap (Bob, due: 2026-04-01)");
+    expect(text).toContain("OPEN QUESTIONS");
+    expect(text).toContain("What is the Q2 budget?");
+    expect(text).toContain("RISKS");
+    expect(text).toContain("Tight timeline for migration");
+  });
+
+  it("outputs raw JSON with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(artifactPayload))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "artifact", "m1", "--json"], { from: "user" });
+
+    expect(JSON.parse(out.text())).toEqual(artifactPayload);
+  });
+
+  it("displays message when no artifact has been extracted", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(null))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "artifact", "m1"], { from: "user" });
+
+    expect(out.text()).toContain("No artifact extracted yet.");
+  });
+
+  it("shows help with description, output schema, example, and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const artifactCmd = meetingsCmd.commands.find((c) => c.name() === "artifact")!;
+    const help = artifactCmd.helpInformation();
+
+    expect(help).toContain("extracted summary");
+    expect(help).toContain("Output schema");
+    expect(help).toContain("decisions");
+    expect(help).toContain("action_items");
+    expect(help).toContain("Example");
+    expect(help).toContain("mti meetings artifact");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

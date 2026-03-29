@@ -711,7 +711,7 @@ Mutation feedback:
 Bursts:
 - [x] Burst 10: `meetings list` — with filters and help text + schema (8675b69)
 - [x] Burst 11: `meetings get <id>` — full detail with help text + schema (d172940)
-- [ ] Burst 12: `meetings transcript <id>` — raw transcript with help text
+- [x] Burst 12: `meetings transcript <id>` — raw transcript with help text (3d28666)
 - [ ] Burst 13: `meetings artifact <id>` — formatted artifact with help text + schema
 - [ ] Burst 14: `meetings rename <id> <title>` — with help text
 - [ ] Burst 15: `meetings reassign <id> <client>` — with help text

@@ -157,5 +157,94 @@ Errors:
       stream.write(data.transcript);
     });
 
+  const ARTIFACT_DESCRIPTION = `Show the extracted summary, decisions, action items, and risks.
+
+Output schema (--json):
+  { "summary": "string",
+    "decisions": [{ "text": "string", "decided_by": "string" }],
+    "proposed_features": ["string"],
+    "action_items": [{ "description": "string", "owner": "string",
+      "requester": "string", "due_date": "string|null",
+      "priority": "critical|normal|low", "short_id": "string?" }],
+    "open_questions": ["string"],
+    "risk_items": [{ "category": "relationship|architecture|engineering",
+      "description": "string" }],
+    "milestones": [{ "title": "string", "target_date": "string|null",
+      "status_signal": "string", "excerpt": "string" }]? }
+
+Example:
+  $ mti meetings artifact a1b2c3d4
+  SUMMARY
+    Team discussed Q1 objectives and assigned follow-ups.
+
+  DECISIONS
+    • Use TypeScript for new services (decided by Alice)
+
+Errors:
+  404  Meeting not found`;
+
+  meetings
+    .command("artifact")
+    .description(ARTIFACT_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, opts: { json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      const data = await client.get(`/api/meetings/${id}/artifact`);
+      if (data === null) {
+        stream.write("No artifact extracted yet.\n");
+        return;
+      }
+      if (opts.json) {
+        outputJson(data, stream);
+        return;
+      }
+      const artifact = data as {
+        summary: string;
+        decisions: Array<{ text: string; decided_by: string }>;
+        action_items: Array<{
+          description: string;
+          owner: string;
+          due_date: string | null;
+          priority: string;
+        }>;
+        open_questions: string[];
+        risk_items: Array<{ category: string; description: string }>;
+      };
+      const sections: Array<{ heading: string; items: string[] }> = [];
+      sections.push({ heading: "Summary", items: [artifact.summary] });
+      if (artifact.decisions.length > 0) {
+        sections.push({
+          heading: "Decisions",
+          items: artifact.decisions.map(
+            (d) => `${d.text} (decided by ${d.decided_by})`
+          ),
+        });
+      }
+      if (artifact.action_items.length > 0) {
+        sections.push({
+          heading: "Action Items",
+          items: artifact.action_items.map((item) => {
+            const due = item.due_date ? `, due: ${item.due_date}` : "";
+            return `[${item.priority}] ${item.description} (${item.owner}${due})`;
+          }),
+        });
+      }
+      if (artifact.open_questions.length > 0) {
+        sections.push({
+          heading: "Open Questions",
+          items: artifact.open_questions,
+        });
+      }
+      if (artifact.risk_items.length > 0) {
+        sections.push({
+          heading: "Risks",
+          items: artifact.risk_items.map((r) => r.description),
+        });
+      }
+      outputSections(sections, stream);
+    });
+
   program.addCommand(meetings);
 }
