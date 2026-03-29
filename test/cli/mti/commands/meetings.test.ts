@@ -119,3 +119,100 @@ describe("meetings list", () => {
     expect(help).toContain("401");
   });
 });
+
+describe("meetings get", () => {
+  const meetingDetail = {
+    id: "m1",
+    title: "Sprint Review",
+    meeting_type: "standup",
+    date: "2026-01-15",
+    participants: '["Alice","Bob"]',
+    raw_transcript: "full transcript text here",
+    source_filename: "2026-01-15_sprint-review.txt",
+    created_at: "2026-01-15T10:00:00Z",
+  };
+
+  it("displays meeting detail as key-value pairs with parsed participants", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(meetingDetail))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "get", "m1"], { from: "user" });
+
+    const text = out.text();
+    expect(text).toContain("Title:");
+    expect(text).toContain("Sprint Review");
+    expect(text).toContain("Date:");
+    expect(text).toContain("2026-01-15");
+    expect(text).toContain("Type:");
+    expect(text).toContain("standup");
+    expect(text).toContain("Participants:");
+    expect(text).toContain("Alice, Bob");
+    expect(text).toContain("Source:");
+    expect(text).toContain("2026-01-15_sprint-review.txt");
+    expect(text).not.toContain("full transcript text here");
+  });
+
+  it("strips raw_transcript from --json output by default", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(meetingDetail))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "get", "m1", "--json"], { from: "user" });
+
+    const parsed = JSON.parse(out.text());
+    expect(parsed).toEqual({
+      id: "m1",
+      title: "Sprint Review",
+      meeting_type: "standup",
+      date: "2026-01-15",
+      participants: '["Alice","Bob"]',
+      source_filename: "2026-01-15_sprint-review.txt",
+      created_at: "2026-01-15T10:00:00Z",
+    });
+  });
+
+  it("includes raw_transcript in --json output when --include-transcript is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(meetingDetail))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "get", "m1", "--json", "--include-transcript"],
+      { from: "user" }
+    );
+
+    const parsed = JSON.parse(out.text());
+    expect(parsed.raw_transcript).toBe("full transcript text here");
+  });
+
+  it("shows help with description, output schema, example, and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const getCmd = meetingsCmd.commands.find((c) => c.name() === "get")!;
+    const help = getCmd.helpInformation();
+
+    expect(help).toContain("Show full details");
+    expect(help).toContain("--include-transcript");
+    expect(help).toContain("Output schema");
+    expect(help).toContain("meeting_type");
+    expect(help).toContain("Example");
+    expect(help).toContain("mti meetings get");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

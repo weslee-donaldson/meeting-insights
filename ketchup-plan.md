@@ -709,7 +709,7 @@ Mutation feedback:
 - ignore: `"Meeting <id> ignored."` / `"Meeting <id> restored."`
 
 Bursts:
-- [ ] Burst 10: `meetings list` — with filters and help text + schema
+- [x] Burst 10: `meetings list` — with filters and help text + schema (8675b69)
 - [ ] Burst 11: `meetings get <id>` — full detail with help text + schema
 - [ ] Burst 12: `meetings transcript <id>` — raw transcript with help text
 - [ ] Burst 13: `meetings artifact <id>` — formatted artifact with help text + schema
