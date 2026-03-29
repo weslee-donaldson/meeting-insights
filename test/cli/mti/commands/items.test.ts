@@ -165,6 +165,150 @@ describe("items list", () => {
 
     expect(optionNames).toContain("--json");
   });
+
+  function generateItems(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+      meeting_id: `m${i}`,
+      meeting_title: `Meeting ${i}`,
+      meeting_date: "2026-01-15",
+      item_index: i,
+      description: `Item ${i}`,
+      owner: "Alice",
+      requester: "Bob",
+      due_date: null,
+      priority: "normal",
+      canonical_id: `c${i}`,
+      total_mentions: 1,
+      short_id: `sid${i}`,
+    }));
+  }
+
+  it("defaults to showing first 25 items with truncation footer on stderr", async () => {
+    const payload = generateItems(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+    const err = collectStream();
+
+    await listItems("Acme", {}, { client, stream: out.stream, stderr: err.stream });
+
+    const lines = out.output().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(25);
+    expect(err.output()).toBe(
+      "Showing 25 of 30 items. Use --limit 0 to show all.\n"
+    );
+  });
+
+  it("respects limit option to cap displayed items", async () => {
+    const payload = generateItems(20);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+    const err = collectStream();
+
+    await listItems("Acme", { limit: "10" }, { client, stream: out.stream, stderr: err.stream });
+
+    const lines = out.output().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(10);
+    expect(err.output()).toBe(
+      "Showing 10 of 20 items. Use --limit 0 to show all.\n"
+    );
+  });
+
+  it("shows all items with limit 0 and no footer", async () => {
+    const payload = generateItems(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+    const err = collectStream();
+
+    await listItems("Acme", { limit: "0" }, { client, stream: out.stream, stderr: err.stream });
+
+    const lines = out.output().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(30);
+    expect(err.output()).toBe("");
+  });
+
+  it("does not show footer when total is within default limit", async () => {
+    const payload = generateItems(5);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+    const err = collectStream();
+
+    await listItems("Acme", {}, { client, stream: out.stream, stderr: err.stream });
+
+    const lines = out.output().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(5);
+    expect(err.output()).toBe("");
+  });
+
+  it("truncates long column values by default", async () => {
+    const longDesc = "A".repeat(50);
+    const payload = [
+      { ...sampleItems[0], description: longDesc },
+    ];
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+
+    await listItems("Acme", {}, { client, stream: out.stream });
+
+    const dataLine = out.output().split("\n")[2];
+    expect(dataLine).not.toContain(longDesc);
+    expect(dataLine).toContain("\u2026");
+  });
+
+  it("renders full values without truncation when truncate is false", async () => {
+    const longDesc = "A".repeat(50);
+    const payload = [
+      { ...sampleItems[0], description: longDesc },
+    ];
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+
+    await listItems("Acme", { truncate: false }, { client, stream: out.stream });
+
+    const dataLine = out.output().split("\n")[2];
+    expect(dataLine).toContain(longDesc);
+    expect(dataLine).not.toContain("\u2026");
+  });
+
+  it("applies limit in json mode", async () => {
+    const payload = generateItems(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload), { status: 200 })
+    );
+    const out = collectStream();
+
+    await listItems("Acme", { json: true, limit: "5" }, { client, stream: out.stream });
+
+    const parsed = JSON.parse(out.output());
+    expect(parsed).toHaveLength(5);
+    expect(parsed[0].short_id).toBe("sid0");
+    expect(parsed[4].short_id).toBe("sid4");
+  });
+
+  it("declares --limit and --no-truncate options on list subcommand", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const list = items.commands.find((c) => c.name() === "list")!;
+    const optionNames = list.options.map((o) => o.long);
+
+    expect(optionNames).toContain("--limit");
+    expect(optionNames).toContain("--no-truncate");
+  });
 });
 
 describe("items create", () => {

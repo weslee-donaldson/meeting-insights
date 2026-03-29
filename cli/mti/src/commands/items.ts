@@ -6,6 +6,7 @@ import { ColumnDef, outputTable, outputJson } from "../format.ts";
 interface Deps {
   client: HttpClient;
   stream: NodeJS.WritableStream;
+  stderr?: NodeJS.WritableStream;
 }
 
 function defaultDeps(): Deps {
@@ -178,24 +179,44 @@ export async function editItem(
 
 export async function listItems(
   clientName: string,
-  options: { after?: string; before?: string; json?: boolean },
+  options: {
+    after?: string;
+    before?: string;
+    json?: boolean;
+    limit?: string;
+    truncate?: boolean;
+  },
   deps: Deps = defaultDeps()
 ): Promise<void> {
   const params: Record<string, string> = {};
   if (options.after) params.after = options.after;
   if (options.before) params.before = options.before;
 
-  const data = await deps.client.get(
+  const allData = (await deps.client.get(
     `/api/clients/${encodeURIComponent(clientName)}/action-items`,
     params
-  );
+  )) as Record<string, unknown>[];
+
+  const limit = parseInt(options.limit ?? "25", 10);
+  const total = allData.length;
+  const truncated = limit > 0 && total > limit;
+  const displayed = truncated ? allData.slice(0, limit) : allData;
 
   if (options.json) {
-    outputJson(data, deps.stream);
+    outputJson(displayed, deps.stream);
     return;
   }
 
-  outputTable(data as Record<string, unknown>[], LIST_COLUMNS, deps.stream);
+  const columns =
+    options.truncate === false
+      ? LIST_COLUMNS.map(({ width, ...rest }) => rest)
+      : LIST_COLUMNS;
+  outputTable(displayed, columns, deps.stream);
+
+  if (truncated) {
+    const stderr = deps.stderr ?? process.stderr;
+    stderr.write(`Showing ${limit} of ${total} items. Use --limit 0 to show all.\n`);
+  }
 }
 
 export function registerItems(program: Command): void {
@@ -209,6 +230,8 @@ export function registerItems(program: Command): void {
     .option("--after <date>", "Only items from meetings after this date (YYYY-MM-DD)")
     .option("--before <date>", "Only items from meetings before this date (YYYY-MM-DD)")
     .option("--json", "Output as JSON")
+    .option("--limit <n>", "Max items to display (0 = all)", "25")
+    .option("--no-truncate", "Disable column width truncation")
     .addHelpText(
       "after",
       `
