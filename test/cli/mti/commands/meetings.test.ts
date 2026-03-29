@@ -397,3 +397,56 @@ describe("meetings rename", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings reassign", () => {
+  it("reassigns a meeting to a different client", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "reassign", "m1", "Initech"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(capturedBody)).toEqual({ clientName: "Initech" });
+    expect(out.text()).toContain("Meeting m1 updated.");
+  });
+
+  it("outputs JSON confirmation with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "reassign", "m1", "Initech", "--json"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(out.text())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const reassignCmd = meetingsCmd.commands.find((c) => c.name() === "reassign")!;
+    const help = reassignCmd.helpInformation();
+
+    expect(help).toContain("Reassign a meeting");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

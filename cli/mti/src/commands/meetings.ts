@@ -274,5 +274,33 @@ Errors:
       stream.write(`Meeting ${id} updated.\n`);
     });
 
+  const REASSIGN_DESCRIPTION = `Reassign a meeting to a different client.
+
+Output schema (--json): { "ok": true }
+
+Example:
+  $ mti meetings reassign a1b2c3d4 Initech
+  Meeting a1b2c3d4 updated.
+
+Errors:
+  404  Meeting not found`;
+
+  meetings
+    .command("reassign")
+    .description(REASSIGN_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .argument("<client>", "New client name")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, clientName: string, opts: { json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      await client.post(`/api/meetings/${id}/client`, { clientName });
+      if (opts.json) {
+        outputJson({ ok: true }, stream);
+        return;
+      }
+      stream.write(`Meeting ${id} updated.\n`);
+    });
+
   program.addCommand(meetings);
 }
