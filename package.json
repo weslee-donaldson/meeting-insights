@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "electron-ui/out/main/index.js",
+  "bin": {
+    "mti": "cli/mti/bin/mti.ts"
+  },
   "scripts": {
     "test": "vitest run",
     "test:e2e": "playwright test",
