@@ -955,8 +955,8 @@ Bursts:
 - [x] Burst 28: `notes delete <noteId>` — with help text (86cf624)
 
 ### Phase 4 — Sequential
-- [ ] Burst 29: `config` show + `config set` commands (test at `test/cli/mti/commands/config.test.ts`)
-- [ ] Burst 30: Add `"mti": "tsx cli/mti/bin/mti.ts"` script to package.json. Infrastructure commit — manual smoke test against running API (`pnpm mti clients list`, `pnpm mti meetings list`), no automated test file.
-- [ ] Burst 31: Documentation — create `cli/mti/README.md` (user-facing: install, usage, examples for each command group) + `cli/mti/scatter.md` (LLM scatter doc listing all files and their purposes). Update root `cli/README.md` and `cli/scatter.md` to reference both `admin-util/` and `mti/`. Update root `gather.md` to include `cli/mti/` learnings.
+- [x] Burst 29: `config` show + `config set` commands (test at `test/cli/mti/commands/config.test.ts`) (c040db8)
+- [x] Burst 30: Add `"mti": "tsx cli/mti/bin/mti.ts"` script to package.json. Infrastructure commit — manual smoke test against running API (`pnpm mti clients list`, `pnpm mti meetings list`), no automated test file. (17edd53)
+- [x] Burst 31: Documentation — create `cli/mti/README.md` (user-facing: install, usage, examples for each command group) + `cli/mti/scatter.md` (LLM scatter doc listing all files and their purposes). Update root `cli/README.md` and `cli/scatter.md` to reference both `admin-util/` and `mti/`. Update root `gather.md` to include `cli/mti/` learnings. (b70bddf)
 
 ## DONE
