@@ -30,6 +30,36 @@ const LIST_COLUMNS: ColumnDef[] = [
   { key: "meeting_date", header: "Date", width: 12 },
 ];
 
+function writeln(stream: NodeJS.WritableStream, text: string): void {
+  stream.write(text + "\n");
+}
+
+export async function createItem(
+  meetingId: string,
+  options: {
+    desc: string;
+    owner?: string;
+    due?: string;
+    priority?: string;
+    json?: boolean;
+  },
+  deps: Deps = defaultDeps()
+): Promise<void> {
+  const body: Record<string, string> = { description: options.desc };
+  if (options.owner) body.owner = options.owner;
+  if (options.due) body.due_date = options.due;
+  if (options.priority) body.priority = options.priority;
+
+  await deps.client.post(`/api/meetings/${meetingId}/action-items`, body);
+
+  if (options.json) {
+    outputJson({ ok: true }, deps.stream);
+    return;
+  }
+
+  writeln(deps.stream, `Action item added to meeting ${meetingId}.`);
+}
+
 export async function listItems(
   clientName: string,
   options: { after?: string; before?: string; json?: boolean },
@@ -85,6 +115,26 @@ Errors:
     .action(async (clientName: string, opts: Record<string, string>) => {
       const json = opts.json ?? program.opts().json;
       await listItems(clientName, { ...opts, json }, defaultDeps());
+    });
+
+  items
+    .command("create <meetingId>")
+    .description("Add a new action item to a meeting.")
+    .requiredOption("--desc <text>", "Item description (required)")
+    .option("--owner <name>", "Person responsible")
+    .option("--due <date>", "Due date (YYYY-MM-DD)")
+    .option("--priority <level>", "critical, normal, or low (default: normal)")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json): { "ok": true }
+
+Errors:
+  404  Meeting not found`
+    )
+    .action(async (meetingId: string, opts: Record<string, string>) => {
+      const json = opts.json ?? program.opts().json;
+      await createItem(meetingId, { ...opts, json }, defaultDeps());
     });
 
   program.addCommand(items);

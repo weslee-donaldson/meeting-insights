@@ -854,7 +854,7 @@ Mutation feedback:
 
 Bursts:
 - [x] Burst 18: `items list <client>` — with filters, help text + schema
-- [ ] Burst 19: `items create <meetingId>` — with help text
+- [x] Burst 19: `items create <meetingId>` — with help text
 - [ ] Burst 20: `items edit <meetingId> <index>` — with help text
 - [ ] Burst 21: `items complete <meetingId> <index>` — with help text
 - [ ] Burst 22: `items uncomplete <meetingId> <index>` — with help text

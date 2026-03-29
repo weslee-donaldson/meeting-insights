@@ -5,6 +5,7 @@ import { HttpClient } from "../../../../cli/mti/src/http-client.ts";
 import {
   registerItems,
   listItems,
+  createItem,
 } from "../../../../cli/mti/src/commands/items.ts";
 
 function collectStream(): { stream: Writable; output: () => string } {
@@ -147,6 +148,73 @@ describe("items list", () => {
     expect(help).toContain("List action items across all meetings for a client.");
     expect(help).toContain("Output schema (--json):");
     expect(help).toContain("Example:");
+    expect(help).toContain("Errors:");
+    expect(help).toContain("404");
+  });
+});
+
+describe("items create", () => {
+  it("adds a new action item to a meeting", async () => {
+    let capturedUrl = "";
+    let capturedBody = "";
+    const client = stubClient(async (url, init) => {
+      capturedUrl = url;
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const { stream, output } = collectStream();
+
+    await createItem(
+      "m1",
+      { desc: "Draft Q2 roadmap", owner: "Alice", due: "2026-04-01", priority: "critical" },
+      { client, stream }
+    );
+
+    expect(new URL(capturedUrl).pathname).toBe("/api/meetings/m1/action-items");
+    expect(JSON.parse(capturedBody)).toEqual({
+      description: "Draft Q2 roadmap",
+      owner: "Alice",
+      due_date: "2026-04-01",
+      priority: "critical",
+    });
+    expect(output()).toContain("Action item added to meeting m1.");
+  });
+
+  it("sends only description when optional fields omitted", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const { stream } = collectStream();
+
+    await createItem("m1", { desc: "Do the thing" }, { client, stream });
+
+    expect(JSON.parse(capturedBody)).toEqual({ description: "Do the thing" });
+  });
+
+  it("outputs JSON confirmation when --json is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const { stream, output } = collectStream();
+
+    await createItem(
+      "m1",
+      { desc: "Do the thing", json: true },
+      { client, stream }
+    );
+
+    expect(JSON.parse(output())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and errors", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const create = items.commands.find((c) => c.name() === "create")!;
+    const help = captureHelp(create);
+
+    expect(help).toContain("Add a new action item to a meeting.");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
