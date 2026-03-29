@@ -6,6 +6,7 @@ import {
   notesList,
   notesCreate,
   notesUpdate,
+  notesDelete,
 } from "../../../../cli/mti/src/commands/notes.ts";
 import { ForbiddenError } from "../../../../cli/mti/src/errors.ts";
 
@@ -410,6 +411,77 @@ describe("notes update", () => {
     const help = getHelpText(updateCmd);
 
     expect(help).toContain("Update a user-created note");
+    expect(help).toContain("Output schema");
+    expect(help).toContain("Example");
+    expect(help).toContain("Errors");
+  });
+});
+
+describe("notes delete", () => {
+  it("deletes a note and shows confirmation", async () => {
+    const client = createStubClient(async () =>
+      new Response(JSON.stringify({ ok: true }), { status: 200 })
+    );
+
+    const { chunks, stream } = collectOutput();
+
+    await notesDelete("n1", { json: false }, { client, stream });
+
+    expect(chunks.join("")).toContain("Note n1 deleted.");
+  });
+
+  it("sends DELETE to /api/notes/<noteId>", async () => {
+    let capturedUrl = "";
+    let capturedMethod = "";
+
+    const client = createStubClient(async (url, init) => {
+      capturedUrl = String(url);
+      capturedMethod = init?.method ?? "";
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    });
+
+    const { stream } = collectOutput();
+
+    await notesDelete("n1", { json: false }, { client, stream });
+
+    expect(capturedUrl).toBe("http://localhost:3000/api/notes/n1");
+    expect(capturedMethod).toBe("DELETE");
+  });
+
+  it("outputs JSON response with --json flag", async () => {
+    const client = createStubClient(async () =>
+      new Response(JSON.stringify({ ok: true }), { status: 200 })
+    );
+
+    const { chunks, stream } = collectOutput();
+
+    await notesDelete("n1", { json: true }, { client, stream });
+
+    const parsed = JSON.parse(chunks.join(""));
+    expect(parsed).toEqual({ ok: true });
+  });
+
+  it("surfaces 403 as a note-specific ownership error", async () => {
+    const client = createStubClient(async () =>
+      new Response(JSON.stringify({ error: "Cannot delete non-user notes" }), { status: 403 })
+    );
+
+    const { stream } = collectOutput();
+
+    await expect(
+      notesDelete("n1", { json: false }, { client, stream })
+    ).rejects.toThrow("Cannot modify this note \u2014 it was not created by you.");
+  });
+
+  it("includes help text with description, example, and errors", () => {
+    const program = new Command();
+    registerNotes(program);
+
+    const notesCmd = program.commands.find((c) => c.name() === "notes")!;
+    const deleteCmd = notesCmd.commands.find((c) => c.name() === "delete")!;
+    const help = getHelpText(deleteCmd);
+
+    expect(help).toContain("Delete a user-created note");
     expect(help).toContain("Output schema");
     expect(help).toContain("Example");
     expect(help).toContain("Errors");

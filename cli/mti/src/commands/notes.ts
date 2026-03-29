@@ -90,6 +90,29 @@ export async function notesUpdate(
   writeln(deps.stream, `Note ${noteId} updated.`);
 }
 
+export async function notesDelete(
+  noteId: string,
+  opts: { json: boolean },
+  deps: { client: HttpClient; stream: NodeJS.WritableStream }
+): Promise<void> {
+  let data: unknown;
+  try {
+    data = await deps.client.delete(`/api/notes/${noteId}`);
+  } catch (err) {
+    if (err instanceof ForbiddenError) {
+      throw new Error("Cannot modify this note \u2014 it was not created by you.");
+    }
+    throw err;
+  }
+
+  if (opts.json) {
+    outputJson(data, deps.stream);
+    return;
+  }
+
+  writeln(deps.stream, `Note ${noteId} deleted.`);
+}
+
 export function registerNotes(program: Command, wrap?: ActionWrapper): void {
   const wrapFn: ActionWrapper = wrap ?? ((fn) => fn as (...args: unknown[]) => Promise<void>);
   const notes = new Command("notes").description("Manage meeting notes");
@@ -202,6 +225,37 @@ Errors:
           { json: cmdOpts.json ?? false, title: cmdOpts.title, body: cmdOpts.body },
           { client, stream: process.stdout }
         );
+      })
+    );
+
+  notes
+    .command("delete")
+    .description("Delete a user-created note.")
+    .argument("<noteId>", "Note ID")
+    .option("--json", "Output as JSON")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json):
+  { "ok": true }
+
+Example:
+  $ mti notes delete n1x2y3
+  Note n1x2y3 deleted.
+
+Errors:
+  403  Cannot modify notes not created by you
+  404  Note not found`
+    )
+    .action(
+      wrapFn(async (noteId: string, cmdOpts: { json?: boolean }) => {
+        const config = loadConfig();
+        const client = new HttpClient({
+          baseUrl: config.baseUrl,
+          token: config.token,
+          fetch: globalThis.fetch,
+        });
+        await notesDelete(noteId, { json: cmdOpts.json ?? false }, { client, stream: process.stdout });
       })
     );
 
