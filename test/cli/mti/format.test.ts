@@ -3,6 +3,7 @@ import {
   formatTable,
   formatJson,
   formatKeyValue,
+  formatSections,
   output,
 } from "../../../cli/mti/src/format.ts";
 
@@ -101,6 +102,53 @@ describe("formatKeyValue", () => {
   });
 });
 
+describe("formatSections", () => {
+  it("renders sectioned bullet lists with uppercase headings", () => {
+    const sections = [
+      {
+        heading: "Summary",
+        items: ["Full summary text..."],
+      },
+      {
+        heading: "Decisions",
+        items: [
+          "Decision one (decided by Alice)",
+          "Decision two",
+        ],
+      },
+    ];
+
+    const result = formatSections(sections);
+
+    expect(result).toBe(
+      [
+        "SUMMARY",
+        "  Full summary text...",
+        "",
+        "DECISIONS",
+        "  \u2022 Decision one (decided by Alice)",
+        "  \u2022 Decision two",
+      ].join("\n")
+    );
+  });
+
+  it("renders a single item without bullet prefix", () => {
+    const sections = [
+      { heading: "Overview", items: ["The only item"] },
+    ];
+
+    const result = formatSections(sections);
+
+    expect(result).toBe("OVERVIEW\n  The only item");
+  });
+
+  it("renders an empty string for no sections", () => {
+    const result = formatSections([]);
+
+    expect(result).toBe("");
+  });
+});
+
 describe("formatJson", () => {
   it("pretty-prints data as indented JSON", () => {
     const data = { id: "abc", count: 3 };
@@ -144,6 +192,18 @@ describe("output", () => {
     output(entries, { json: false, mode: "kv" }, stream as NodeJS.WritableStream);
 
     expect(written).toBe("ID:   abc\n");
+  });
+
+  it("writes sections when mode is sections", () => {
+    let written = "";
+    const stream = { write: (s: string) => { written += s; return true; } };
+    const sections = [
+      { heading: "Notes", items: ["Item A"] },
+    ];
+
+    output(sections, { json: false, mode: "sections" }, stream as NodeJS.WritableStream);
+
+    expect(written).toBe("NOTES\n  Item A\n");
   });
 
   it("defaults to process.stdout when no stream is provided", () => {

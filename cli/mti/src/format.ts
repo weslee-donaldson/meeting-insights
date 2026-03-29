@@ -71,6 +71,25 @@ export function formatKeyValue(
     .join("\n");
 }
 
+export function formatSections(
+  sections: Array<{ heading: string; items: string[] }>
+): string {
+  if (sections.length === 0) {
+    return "";
+  }
+  return sections
+    .map((section) => {
+      const heading = section.heading.toUpperCase();
+      const items = section.items.map((item) =>
+        section.items.length === 1
+          ? `  ${item}`
+          : `  \u2022 ${item}`
+      );
+      return [heading, ...items].join("\n");
+    })
+    .join("\n\n");
+}
+
 export function formatJson(data: unknown): string {
   return JSON.stringify(data, null, 2);
 }
@@ -101,6 +120,13 @@ export function outputKv(
   writeln(stream, formatKeyValue(entries));
 }
 
+export function outputSections(
+  sections: Array<{ heading: string; items: string[] }>,
+  stream: NodeJS.WritableStream = process.stdout
+): void {
+  writeln(stream, formatSections(sections));
+}
+
 export function output(
   data: unknown,
   options: {
@@ -122,6 +148,11 @@ export function output(
 
   if (options.mode === "kv" && Array.isArray(data)) {
     outputKv(data, stream);
+    return;
+  }
+
+  if (options.mode === "sections" && Array.isArray(data)) {
+    outputSections(data, stream);
     return;
   }
 }
