@@ -56,9 +56,9 @@ export interface MeetingRow {
 }
 
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getMeeting } from "../core/ingest.js";
-import { getArtifact } from "../core/extractor.js";
-import { renderNotesGroups } from "../core/display-helpers.js";
+import { getMeeting } from "../../core/ingest.js";
+import { getArtifact } from "../../core/extractor.js";
+import { renderNotesGroups } from "../../core/display-helpers.js";
 
 export function buildSearchContext(db: Database, results: SearchResult[]): string {
   return results.map((r, i) => {

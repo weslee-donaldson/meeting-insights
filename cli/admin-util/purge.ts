@@ -7,7 +7,7 @@ const { dbPath: DB_PATH, vectorPath: VECTOR_PATH } = loadCliConfig();
 const meetingId = process.argv[2];
 
 if (meetingId) {
-  const { createDb, migrate } = await import("../core/db.js");
+  const { createDb, migrate } = await import("../../core/db.js");
   const db = createDb(resolve(DB_PATH));
   migrate(db);
 
@@ -20,7 +20,7 @@ if (meetingId) {
   console.log(`✓ Deleted SQL records for meeting ${meetingId}`);
 
   if (existsSync(VECTOR_PATH)) {
-    const { connectVectorDb } = await import("../core/vector-db.js");
+    const { connectVectorDb } = await import("../../core/vector-db.js");
     const vdb = await connectVectorDb(resolve(VECTOR_PATH));
     const filter = `meeting_id = '${meetingId.replace(/'/g, "''")}'`;
     const names = await vdb.tableNames();

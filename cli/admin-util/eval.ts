@@ -1,10 +1,10 @@
 import { readFileSync, mkdirSync, appendFileSync } from "node:fs";
-import { createDb } from "../core/db.js";
-import { connectVectorDb } from "../core/vector-db.js";
-import { loadModel } from "../core/embedder.js";
-import { searchMeetings } from "../core/vector-search.js";
-import { parseCitations } from "../core/display-helpers.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createDb } from "../../core/db.js";
+import { connectVectorDb } from "../../core/vector-db.js";
+import { loadModel } from "../../core/embedder.js";
+import { searchMeetings } from "../../core/vector-search.js";
+import { parseCitations } from "../../core/display-helpers.js";
+import { createLlmAdapter } from "../../core/llm-adapter.js";
 import { loadCliConfig, buildSearchContext, type SearchResult } from "./shared.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, apiKey: API_KEY, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();

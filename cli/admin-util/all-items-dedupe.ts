@@ -40,7 +40,7 @@ if (deepScan) {
   console.log(`Thresholds: semantic=${semanticThreshold}  string=${stringThreshold}${dryTag}\n`);
 }
 
-const { createDb, migrate } = await import("../core/db.js");
+const { createDb, migrate } = await import("../../core/db.js");
 const db = createDb(resolve(DB_PATH));
 migrate(db);
 
@@ -55,7 +55,7 @@ if (command === "clear") {
     console.log(`Would delete: ${autoCompCount} auto-dedup completions`);
 
     if (existsSync(VECTOR_PATH)) {
-      const { connectVectorDb } = await import("../core/vector-db.js");
+      const { connectVectorDb } = await import("../../core/vector-db.js");
       const vdb = await connectVectorDb(resolve(VECTOR_PATH));
       const names = await vdb.tableNames();
       if (names.includes("item_vectors")) {
@@ -77,7 +77,7 @@ if (command === "clear") {
   console.log(`\u2713 Deleted ${autoCompCount} auto-dedup completions`);
 
   if (existsSync(VECTOR_PATH)) {
-    const { connectVectorDb, createItemTable } = await import("../core/vector-db.js");
+    const { connectVectorDb, createItemTable } = await import("../../core/vector-db.js");
     const vdb = await connectVectorDb(resolve(VECTOR_PATH));
     const names = await vdb.tableNames();
     if (names.includes("item_vectors")) {
@@ -143,11 +143,11 @@ if (pending.length === 0) {
 }
 
 console.log("Loading embedding model...");
-const { loadModel } = await import("../core/embedder.js");
+const { loadModel } = await import("../../core/embedder.js");
 const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
 console.log("Model loaded.\n");
 
-const { connectVectorDb, createItemTable } = await import("../core/vector-db.js");
+const { connectVectorDb, createItemTable } = await import("../../core/vector-db.js");
 const vdb = await connectVectorDb(resolve(VECTOR_PATH));
 const itemTable = await createItemTable(vdb);
 
@@ -199,7 +199,7 @@ if (deepScan) {
   const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "deepseek-r1:8b";
   const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
 
-  const { createLlmAdapter } = await import("../core/llm-adapter.js");
+  const { createLlmAdapter } = await import("../../core/llm-adapter.js");
   const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
     : PROVIDER === "claudecli"
@@ -225,7 +225,7 @@ if (deepScan) {
   console.log(`Clients: ${clientMap.size}\n`);
 
   if (dryRun) {
-    const { filterAndCapItems, buildBatchDedupPrompt, parseBatchDedupResponse } = await import("../core/deep-dedup.js");
+    const { filterAndCapItems, buildBatchDedupPrompt, parseBatchDedupResponse } = await import("../../core/deep-dedup.js");
     type BatchDedupItem = { description: string; priority: "critical" | "normal" | "low"; meetingTitle: string; date: string };
 
     for (const [client, meetings] of clientMap) {
@@ -272,7 +272,7 @@ if (deepScan) {
     console.log(`\nDry run: ${pending.length} meetings  ${totalMentions} eligible items  ${totalDupes} would be grouped`);
     console.log("No changes made.");
   } else {
-    const { deepScanClient } = await import("../core/deep-dedup.js");
+    const { deepScanClient } = await import("../../core/deep-dedup.js");
 
     for (const [client, meetings] of clientMap) {
       const label = client === "__no_client__" ? "(no client)" : client;
@@ -289,8 +289,8 @@ if (deepScan) {
 } else if (dryRun) {
   // ─── embedding-only dry run ────────────────────────────────────────────────
 
-  const { searchSimilarItems } = await import("../core/item-dedup.js");
-  const { isSemanticDuplicate, isStringDuplicate } = await import("../core/math.js");
+  const { searchSimilarItems } = await import("../../core/item-dedup.js");
+  const { isSemanticDuplicate, isStringDuplicate } = await import("../../core/math.js");
 
   for (const meeting of pending) {
     const row = db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meeting.id) as ArtifactRow | undefined;
@@ -331,7 +331,7 @@ if (deepScan) {
 } else {
   // ─── embedding-only run ────────────────────────────────────────────────────
 
-  const { deduplicateItems } = await import("../core/item-dedup.js");
+  const { deduplicateItems } = await import("../../core/item-dedup.js");
 
   for (let i = 0; i < pending.length; i++) {
     const meeting = pending[i];

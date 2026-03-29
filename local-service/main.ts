@@ -8,7 +8,7 @@ import { seedClients } from "../core/client-registry.js";
 import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
 import { createWatcher } from "./watcher.js";
 import { createLogger, setLogDir } from "../core/logger.js";
-import { loadCliConfig } from "../cli/shared.js";
+import { loadCliConfig } from "../cli/admin-util/shared.js";
 
 const log = createLogger("service");
 

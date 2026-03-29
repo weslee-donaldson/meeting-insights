@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
-import { createDb, migrate } from "../core/db.js";
-import { connectVectorDb, createMeetingTable, createFeatureTable } from "../core/vector-db.js";
-import { seedClients, getAllClients } from "../core/client-registry.js";
+import { createDb, migrate } from "../../core/db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable } from "../../core/vector-db.js";
+import { seedClients, getAllClients } from "../../core/client-registry.js";
 import { loadCliConfig } from "./shared.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();

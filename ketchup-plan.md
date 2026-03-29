@@ -88,6 +88,7 @@ Errors:
 ### Global `--json` behavior
 
 - All list/get commands support `--json`
+- Mutation commands also support `--json` — returns `{ "ok": true }` (or the created object for POST 201 responses) so agents can confirm success programmatically without parsing human-readable strings
 - JSON output is always the full API response (no transformation or truncation)
 - Agents should default to `--json` for reliable parsing
 - Table output is the human default — formatted for readability, may truncate fields
@@ -155,8 +156,9 @@ Top-level `mti --help` lists all command groups with one-line descriptions, so a
 ## Pre-work: Reorganize cli/
 
 Move existing admin scripts to `cli/admin-util/`:
-- `setup.ts`, `run.ts`, `reset.ts`, `purge.ts`, `query.ts`, `eval.ts`, `assign-client.ts`, `all-items-dedupe.ts`, `import-external.ts`, `shared.ts`
+- `setup.ts`, `run.ts`, `reset.ts`, `purge.ts`, `query.ts`, `eval.ts`, `assign-client.ts`, `all-items-dedupe.ts`, `import-external.ts`, `shared.ts`, `test-ollama.ts`
 - Update `package.json` script paths (e.g., `"setup": "tsx cli/admin-util/setup.ts"`)
+- Update `local-service/main.ts` import: `loadCliConfig` from `"../cli/admin-util/shared.js"`
 
 ## File Structure
 
@@ -164,7 +166,7 @@ Move existing admin scripts to `cli/admin-util/`:
 cli/
   admin-util/               # Existing admin scripts (moved from cli/)
     shared.ts, setup.ts, run.ts, reset.ts, purge.ts,
-    query.ts, eval.ts, assign-client.ts, all-items-dedupe.ts, import-external.ts
+    query.ts, eval.ts, assign-client.ts, all-items-dedupe.ts, import-external.ts, test-ollama.ts
     README.md               # User-facing docs for admin scripts
     scatter.md              # LLM scatter doc for admin-util/
   mti/
@@ -363,7 +365,7 @@ Identical protocol to Phase 2, with these agent assignments:
 - `import { output, formatTable, formatKeyValue, formatSections } from "../format.ts"`
 - `import { loadConfig } from "../config.ts"`
 
-**Each agent also modifies `cli/mti/bin/mti.ts`** to register its command group. This IS a shared file, but each agent adds a single `program.addCommand(...)` line, which is always additive and position-independent. Merge conflicts here are trivial to resolve (accept both sides).
+**Each agent also modifies `cli/mti/bin/mti.ts`** to register its command group. This IS a shared file. To minimize merge conflicts across 4 agents, each command file must export a `register(program: Command): void` function. The entry point imports and calls each. Agents add both the import line and the `register*(program)` call. Imports should be added alphabetically and register calls should be added alphabetically — this reduces positional conflicts. If merge conflicts still occur in this file, accept both sides (all changes are additive).
 
 **Merge order for Phase 3:** Merge in order of fewest commits first (clients → notes → items → meetings) to minimize conflict surface. But any order works since the only shared file (`mti.ts`) has trivially-resolvable additive changes.
 
@@ -435,8 +437,8 @@ You are executing the mti CLI v1 ketchup plan, Phase {N}, Agent {letter}.
 ## TODO
 
 ### Phase 1 — Sequential
-- [ ] Burst 0: Move existing scripts to `cli/admin-util/`, update package.json paths, verify `pnpm` commands work. Update `cli/README.md` and `cli/scatter.md` to reflect new structure. Create `cli/admin-util/README.md` and `cli/admin-util/scatter.md`.
-- [ ] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help + error-to-exit-code wrapper. Add `test/cli/mti/` directory. Update `vitest.config.ts` include to add `"test/cli/**/*.test.ts"` if not already matched by existing glob.
+- [x] Burst 0: Move existing scripts (including `test-ollama.ts`) to `cli/admin-util/`, update package.json paths, verify `pnpm` commands work. Update `local-service/main.ts` import of `loadCliConfig` to point to `../cli/admin-util/shared.js`. Update `cli/README.md` and `cli/scatter.md` to reflect new structure. Create `cli/admin-util/README.md` and `cli/admin-util/scatter.md`.
+- [ ] Burst 1: Add commander dep, create `cli/mti/bin/mti.ts` entry point with version + help + error-to-exit-code wrapper. Add `test/cli/mti/` directory. (No vitest.config.ts change needed — existing `test/**/*.test.ts` glob already matches `test/cli/`)
 
 ### Phase 2 — Parallel (3 agents)
 
@@ -513,7 +515,7 @@ Bursts:
 
 Each agent imports from the Phase 2 foundation: `HttpClient` from `../http-client.ts`, `output`/`formatTable` from `../format.ts`, `loadConfig` from `../config.ts`. Each command file exports a function that registers subcommands on a Commander `Command` instance.
 
-**Help text contract**: Every command registered by an agent must include rich `--help` output designed for both humans and LLM agents. Each command's help includes: description, all arguments/options with types and defaults, output schema (JSON shape for `--json`), at least one example with sample output, and relevant error codes. See "Dual Audience" section above for the full template. Help text is tested — each agent section includes a burst for verifying help output.
+**Help text contract**: Every command registered by an agent must include rich `--help` output designed for both humans and LLM agents. Each command's help includes: description, all arguments/options with types and defaults, output schema (JSON shape for `--json`), at least one example with sample output, and relevant error codes. See "Dual Audience" section above for the full template. Help text is tested — each command burst includes a test asserting `--help` output contains: description, output schema (if applicable), example, and error section.
 
 ---
 
@@ -597,6 +599,7 @@ GET /api/meetings?client=<name>&after=<date>&before=<date>
 
 GET /api/meetings/:id
   → { id, title, meeting_type, date, participants (JSON string), raw_transcript, source_filename, created_at }
+  Note: API always returns raw_transcript. CLI strips it unless --include-transcript is passed.
 
 GET /api/meetings/:id/transcript → { transcript: string }
 
@@ -634,16 +637,18 @@ mti meetings list [--client <name>] [--after <date>] [--before <date>] [--json]
     a1b2c3d4   Q1 Planning Review       2026-01-15   Acme    3
   Errors: 401 Invalid token, 503 Service unavailable
 
-mti meetings get <id> [--json]
+mti meetings get <id> [--include-transcript] [--json]
   Description: Show full details for a single meeting.
+  Options:
+    --include-transcript   Include raw transcript in output (omitted by default; use `meetings transcript` for standalone access)
   Output schema (--json):
     { "id": "string", "title": "string", "meeting_type": "string|null",
       "date": "string (ISO 8601)", "participants": "string (JSON-encoded array)",
-      "raw_transcript": "string", "source_filename": "string",
-      "created_at": "string (ISO 8601)" }
+      "source_filename": "string", "created_at": "string (ISO 8601)" }
+    With --include-transcript: adds "raw_transcript": "string"
   Note: `participants` is a JSON string in the API response, not a parsed array.
     For table display, parse it with JSON.parse() and join names with ", ".
-    For --json output, pass the raw API response through unmodified.
+    For --json output, strip `raw_transcript` from response unless --include-transcript is passed.
   Errors: 404 Meeting not found
 
 mti meetings transcript <id>
@@ -667,30 +672,34 @@ mti meetings artifact <id> [--json]
         "status_signal": "string", "excerpt": "string" }]? }
   Errors: 404 Meeting not found, null if no artifact extracted yet
 
-mti meetings rename <id> <title>
+mti meetings rename <id> <title> [--json]
   Description: Rename a meeting.
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting not found
 
-mti meetings reassign <id> <client>
+mti meetings reassign <id> <client> [--json]
   Description: Reassign a meeting to a different client.
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting not found
 
-mti meetings delete <id...> --confirm
+mti meetings delete <id...> --confirm [--json]
   Description: Delete one or more meetings. Requires --confirm flag.
   Options:
     --confirm   Required. Confirms deletion.
+  Output schema (--json): { "ok": true, "count": "number" }
   Errors: Aborts with message if --confirm not provided
 
-mti meetings ignore <id> [--undo]
+mti meetings ignore <id> [--undo] [--json]
   Description: Mark a meeting as ignored (hidden from default views).
   Options:
     --undo   Restore a previously ignored meeting
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting not found
 ```
 
 Display formats:
 - `meetings list`: table — columns `ID | Title | Date | Client | Action Items`
-- `meetings get`: key-value (`formatKeyValue`) — Title, Date, Type, Participants (JSON.parse → join with ", "), Source. Note: `raw_transcript` is included in `--json` output but NOT shown in key-value display (use `meetings transcript` for that).
+- `meetings get`: key-value (`formatKeyValue`) — Title, Date, Type, Participants (JSON.parse → join with ", "), Source. `raw_transcript` is stripped from both table and `--json` output unless `--include-transcript` is passed. Use `meetings transcript` for standalone transcript access.
 - `meetings artifact`: sectioned (`formatSections`) — Summary paragraph, then Decisions / Action Items / Open Questions / Risks as bullet lists. Each decision shows `(decided by X)`. Each action item shows `[priority] description (owner, due: date)`.
 - `meetings transcript`: raw text output via `process.stdout.write()`, no formatting
 
@@ -727,7 +736,7 @@ GET /api/clients/:name/action-items?after=<date>&before=<date>
   → Array<{
       meeting_id, meeting_title, meeting_date, item_index: number,
       description, owner, requester, due_date: string|null,
-      priority: "critical"|"normal", canonical_id?, total_mentions?, short_id?
+      priority: "critical"|"normal"|"low", canonical_id?, total_mentions?, short_id?
     }>
 
 POST /api/meetings/:id/action-items
@@ -774,7 +783,7 @@ mti items list <client> [--after <date>] [--before <date>] [--json]
     f3a1b2    Draft Q2 roadmap       Alice    2026-04-01  critical  Q1 Planning Review  2026-01-15
   Errors: 404 Client not found
 
-mti items create <meetingId> --desc <text> [--owner <name>] [--due <date>] [--priority critical|normal|low]
+mti items create <meetingId> --desc <text> [--owner <name>] [--due <date>] [--priority critical|normal|low] [--json]
   Description: Add a new action item to a meeting.
   Arguments:
     meetingId           Meeting ID (required)
@@ -783,26 +792,30 @@ mti items create <meetingId> --desc <text> [--owner <name>] [--due <date>] [--pr
     --owner <name>      Person responsible
     --due <date>        Due date (YYYY-MM-DD)
     --priority <level>  critical, normal, or low (default: normal)
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting not found
 
-mti items edit <meetingId> <index> [--desc <text>] [--owner <name>] [--due <date>] [--priority critical|normal|low]
+mti items edit <meetingId> <index> [--desc <text>] [--owner <name>] [--due <date>] [--priority critical|normal|low] [--json]
   Description: Edit an existing action item's fields. Only specified fields are updated.
   Arguments:
     meetingId           Meeting ID (required)
     index               Action item index (required, 0-based)
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting or item not found
 
-mti items complete <meetingId> <index> [--note <text>]
+mti items complete <meetingId> <index> [--note <text>] [--json]
   Description: Mark an action item as complete.
   Arguments:
     meetingId           Meeting ID (required)
     index               Action item index (required, 0-based)
   Options:
     --note <text>       Completion note (default: empty string)
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting or item not found
 
-mti items uncomplete <meetingId> <index>
+mti items uncomplete <meetingId> <index> [--json]
   Description: Revert an action item's completion status.
+  Output schema (--json): { "ok": true }
   Errors: 404 Meeting or item not found
 
 mti items completions <meetingId> [--json]
@@ -908,19 +921,21 @@ mti notes create <meetingId> --body <text> [--title <text>]
   Output schema (--json): (the created Note object, same shape as list items)
   Errors: 404 Meeting not found
 
-mti notes update <noteId> [--title <text>] [--body <text>]
+mti notes update <noteId> [--title <text>] [--body <text>] [--json]
   Description: Update a user-created note. Only specified fields are changed.
   Arguments:
     noteId              Note ID (required)
   Options:
     --title <text>      New title (pass empty string to clear)
     --body <text>       New body
+  Output schema (--json): (the updated Note object, same shape as list items)
   Errors: 403 Cannot modify notes not created by you, 404 Note not found
 
-mti notes delete <noteId>
+mti notes delete <noteId> [--json]
   Description: Delete a user-created note.
   Arguments:
     noteId              Note ID (required)
+  Output schema (--json): { "ok": true }
   Errors: 403 Cannot modify notes not created by you, 404 Note not found
 ```
 
@@ -941,7 +956,7 @@ Bursts:
 
 ### Phase 4 — Sequential
 - [ ] Burst 29: `config` show + `config set` commands (test at `test/cli/mti/commands/config.test.ts`)
-- [ ] Burst 30: Add `mti` script to package.json, verify end-to-end with running API
+- [ ] Burst 30: Add `"mti": "tsx cli/mti/bin/mti.ts"` script to package.json. Infrastructure commit — manual smoke test against running API (`pnpm mti clients list`, `pnpm mti meetings list`), no automated test file.
 - [ ] Burst 31: Documentation — create `cli/mti/README.md` (user-facing: install, usage, examples for each command group) + `cli/mti/scatter.md` (LLM scatter doc listing all files and their purposes). Update root `cli/README.md` and `cli/scatter.md` to reference both `admin-util/` and `mti/`. Update root `gather.md` to include `cli/mti/` learnings.
 
 ## DONE

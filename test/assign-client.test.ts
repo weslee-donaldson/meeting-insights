@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { seedClients } from "../core/client-registry.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { assignClient } from "../cli/assign-client.js";
+import { assignClient } from "../cli/admin-util/assign-client.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
