@@ -857,7 +857,7 @@ Bursts:
 - [x] Burst 19: `items create <meetingId>` — with help text
 - [x] Burst 20: `items edit <meetingId> <index>` — with help text
 - [x] Burst 21: `items complete <meetingId> <index>` — with help text
-- [ ] Burst 22: `items uncomplete <meetingId> <index>` — with help text
+- [x] Burst 22: `items uncomplete <meetingId> <index>` — with help text
 - [ ] Burst 23: `items completions <meetingId>` — with help text + schema
 - [ ] Burst 24: `items history <canonicalId>` — with help text + schema
 

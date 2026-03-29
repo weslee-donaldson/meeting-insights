@@ -8,6 +8,7 @@ import {
   createItem,
   editItem,
   completeItem,
+  uncompleteItem,
 } from "../../../../cli/mti/src/commands/items.ts";
 
 function collectStream(): { stream: Writable; output: () => string } {
@@ -343,6 +344,49 @@ describe("items complete", () => {
     const help = captureHelp(complete);
 
     expect(help).toContain("Mark an action item as complete.");
+    expect(help).toContain("Errors:");
+    expect(help).toContain("404");
+  });
+});
+
+describe("items uncomplete", () => {
+  it("reverts an action item completion", async () => {
+    let capturedUrl = "";
+    let capturedMethod = "";
+    const client = stubClient(async (url, init) => {
+      capturedUrl = url;
+      capturedMethod = init?.method as string;
+      return new Response(null, { status: 204 });
+    });
+    const { stream, output } = collectStream();
+
+    await uncompleteItem("m1", "3", {}, { client, stream });
+
+    expect(capturedMethod).toBe("DELETE");
+    expect(new URL(capturedUrl).pathname).toBe(
+      "/api/meetings/m1/action-items/3/complete"
+    );
+    expect(output()).toContain("Action item 3 completion reverted.");
+  });
+
+  it("outputs JSON confirmation when --json is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const { stream, output } = collectStream();
+
+    await uncompleteItem("m1", "0", { json: true }, { client, stream });
+
+    expect(JSON.parse(output())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and errors", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const uncomplete = items.commands.find((c) => c.name() === "uncomplete")!;
+    const help = captureHelp(uncomplete);
+
+    expect(help).toContain("Revert an action item's completion status.");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });

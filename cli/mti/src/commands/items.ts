@@ -60,6 +60,24 @@ export async function createItem(
   writeln(deps.stream, `Action item added to meeting ${meetingId}.`);
 }
 
+export async function uncompleteItem(
+  meetingId: string,
+  index: string,
+  options: { json?: boolean },
+  deps: Deps = defaultDeps()
+): Promise<void> {
+  await deps.client.delete(
+    `/api/meetings/${meetingId}/action-items/${index}/complete`
+  );
+
+  if (options.json) {
+    outputJson({ ok: true }, deps.stream);
+    return;
+  }
+
+  writeln(deps.stream, `Action item ${index} completion reverted.`);
+}
+
 export async function completeItem(
   meetingId: string,
   index: string,
@@ -233,6 +251,33 @@ Errors:
       ) => {
         const json = opts.json ?? program.opts().json;
         await completeItem(meetingId, index, { ...opts, json }, defaultDeps());
+      }
+    );
+
+  items
+    .command("uncomplete <meetingId> <index>")
+    .description("Revert an action item's completion status.")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json): { "ok": true }
+
+Errors:
+  404  Meeting or item not found`
+    )
+    .action(
+      async (
+        meetingId: string,
+        index: string,
+        opts: Record<string, string>
+      ) => {
+        const json = opts.json ?? program.opts().json;
+        await uncompleteItem(
+          meetingId,
+          index,
+          { ...opts, json },
+          defaultDeps()
+        );
       }
     );
 
