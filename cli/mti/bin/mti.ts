@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { createRequire } from "node:module";
 import { registerClients } from "../src/commands/clients.ts";
+import { registerItems } from "../src/commands/items.ts";
 import {
   AuthError,
   ForbiddenError,
@@ -23,6 +24,7 @@ program
   .option("--json", "Output as JSON");
 
 registerClients(program);
+registerItems(program);
 
 export function wrapAction(
   fn: (...args: unknown[]) => Promise<unknown>
