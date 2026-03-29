@@ -715,7 +715,7 @@ Bursts:
 - [x] Burst 13: `meetings artifact <id>` — formatted artifact with help text + schema (2eb5bc1)
 - [x] Burst 14: `meetings rename <id> <title>` — with help text (df0c5b9)
 - [x] Burst 15: `meetings reassign <id> <client>` — with help text (01d137e)
-- [ ] Burst 16: `meetings delete <id...>` — with confirmation + help text
+- [x] Burst 16: `meetings delete <id...>` — with confirmation + help text (e77097d)
 - [ ] Burst 17: `meetings ignore <id> [--undo]` — with help text
 
 ---

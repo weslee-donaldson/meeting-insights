@@ -520,3 +520,73 @@ describe("meetings delete", () => {
     expect(help).toContain("--confirm");
   });
 });
+
+describe("meetings ignore", () => {
+  it("marks a meeting as ignored", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "ignore", "m1"], { from: "user" });
+
+    expect(JSON.parse(capturedBody)).toEqual({ ignored: true });
+    expect(out.text()).toContain("Meeting m1 ignored.");
+  });
+
+  it("restores a meeting with --undo", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "ignore", "m1", "--undo"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(capturedBody)).toEqual({ ignored: false });
+    expect(out.text()).toContain("Meeting m1 restored.");
+  });
+
+  it("outputs JSON confirmation with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "ignore", "m1", "--json"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(out.text())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and undo option", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const ignoreCmd = meetingsCmd.commands.find((c) => c.name() === "ignore")!;
+    const help = ignoreCmd.helpInformation();
+
+    expect(help).toContain("Mark a meeting as ignored");
+    expect(help).toContain("--undo");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

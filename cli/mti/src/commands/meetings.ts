@@ -340,5 +340,38 @@ Errors:
       stream.write(`Deleted ${ids.length} meeting(s).\n`);
     });
 
+  const IGNORE_DESCRIPTION = `Mark a meeting as ignored (hidden from default views).
+
+Output schema (--json): { "ok": true }
+
+Example:
+  $ mti meetings ignore a1b2c3d4
+  Meeting a1b2c3d4 ignored.
+
+  $ mti meetings ignore a1b2c3d4 --undo
+  Meeting a1b2c3d4 restored.
+
+Errors:
+  404  Meeting not found`;
+
+  meetings
+    .command("ignore")
+    .description(IGNORE_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .option("--undo", "Restore a previously ignored meeting")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, opts: { undo?: boolean; json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      const ignored = !opts.undo;
+      await client.post(`/api/meetings/${id}/ignored`, { ignored });
+      if (opts.json) {
+        outputJson({ ok: true }, stream);
+        return;
+      }
+      const verb = ignored ? "ignored" : "restored";
+      stream.write(`Meeting ${id} ${verb}.\n`);
+    });
+
   program.addCommand(meetings);
 }
