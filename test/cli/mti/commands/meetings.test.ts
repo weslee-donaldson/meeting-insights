@@ -450,3 +450,73 @@ describe("meetings reassign", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings delete", () => {
+  it("aborts without --confirm flag", async () => {
+    let fetchCalled = false;
+    const client = stubClient(async () => {
+      fetchCalled = true;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    program.configureOutput({ writeErr: (str: string) => err.stream.write(str) });
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "delete", "m1"], { from: "user" });
+
+    expect(fetchCalled).toBe(false);
+    expect(out.text() + err.text()).toContain("Aborted. Use --confirm to delete.");
+  });
+
+  it("deletes multiple meetings with --confirm", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "delete", "m1", "m2", "m3", "--confirm"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(capturedBody)).toEqual({ ids: ["m1", "m2", "m3"] });
+    expect(out.text()).toContain("Deleted 3 meeting(s).");
+  });
+
+  it("outputs JSON confirmation with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "delete", "m1", "m2", "--confirm", "--json"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(out.text())).toEqual({ ok: true, count: 2 });
+  });
+
+  it("shows help with description and confirm requirement", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const deleteCmd = meetingsCmd.commands.find((c) => c.name() === "delete")!;
+    const help = deleteCmd.helpInformation();
+
+    expect(help).toContain("Delete one or more meetings");
+    expect(help).toContain("--confirm");
+  });
+});

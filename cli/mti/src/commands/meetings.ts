@@ -12,6 +12,7 @@ import {
 interface MeetingsDeps {
   client?: HttpClient;
   stream?: NodeJS.WritableStream;
+  stderr?: NodeJS.WritableStream;
 }
 
 function resolveClient(deps?: MeetingsDeps): HttpClient {
@@ -22,6 +23,10 @@ function resolveClient(deps?: MeetingsDeps): HttpClient {
 
 function resolveStream(deps?: MeetingsDeps): NodeJS.WritableStream {
   return deps?.stream ?? process.stdout;
+}
+
+function resolveStderr(deps?: MeetingsDeps): NodeJS.WritableStream {
+  return deps?.stderr ?? process.stderr;
 }
 
 const LIST_COLUMNS: ColumnDef[] = [
@@ -300,6 +305,39 @@ Errors:
         return;
       }
       stream.write(`Meeting ${id} updated.\n`);
+    });
+
+  const DELETE_DESCRIPTION = `Delete one or more meetings. Requires --confirm flag.
+
+Output schema (--json): { "ok": true, "count": "number" }
+
+Example:
+  $ mti meetings delete a1b2c3d4 e5f6g7h8 --confirm
+  Deleted 2 meeting(s).
+
+Errors:
+  Aborts with message if --confirm not provided`;
+
+  meetings
+    .command("delete")
+    .description(DELETE_DESCRIPTION)
+    .argument("<id...>", "Meeting ID(s) to delete")
+    .option("--confirm", "Confirm deletion")
+    .option("--json", "Output as JSON")
+    .action(async (ids: string[], opts: { confirm?: boolean; json?: boolean }) => {
+      const stream = resolveStream(deps);
+      if (!opts.confirm) {
+        const errStream = resolveStderr(deps);
+        errStream.write("Aborted. Use --confirm to delete.\n");
+        return;
+      }
+      const client = resolveClient(deps);
+      await client.delete("/api/meetings", { ids });
+      if (opts.json) {
+        outputJson({ ok: true, count: ids.length }, stream);
+        return;
+      }
+      stream.write(`Deleted ${ids.length} meeting(s).\n`);
     });
 
   program.addCommand(meetings);
