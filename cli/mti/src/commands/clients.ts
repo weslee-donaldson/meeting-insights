@@ -1,9 +1,19 @@
 import { Command } from "commander";
 import { HttpClient } from "../http-client.ts";
 import { loadConfig } from "../config.ts";
-import { outputTable, outputJson, ColumnDef } from "../format.ts";
+import { outputTable, outputJson, outputKv, ColumnDef } from "../format.ts";
+import { NotFoundError } from "../errors.ts";
 
-const CLIENT_COLUMNS: ColumnDef[] = [{ key: "name", header: "Name" }];
+const CLIENT_COLUMNS: ColumnDef[] = [
+  { key: "id", header: "ID" },
+  { key: "name", header: "Name" },
+];
+
+const TEAM_COLUMNS: ColumnDef[] = [
+  { key: "name", header: "Name" },
+  { key: "role", header: "Role" },
+  { key: "email", header: "Email" },
+];
 
 const GLOSSARY_COLUMNS: ColumnDef[] = [
   { key: "term", header: "Term", width: 30 },
@@ -35,14 +45,14 @@ export function registerClients(
       "after",
       `
 Output schema (--json):
-  ["string"]
+  [{ "id": "string", "name": "string" }]
 
 Example:
   $ mti clients list
-  Name
-  ────
-  Acme Corp
-  Initech
+  ID         Name
+  ──         ────
+  aaaa1111   Acme Corp
+  bbbb1111   Initech
 
 Errors:
   401  Token invalid or expired
@@ -53,12 +63,12 @@ Errors:
       const parentOpts = program.opts();
       const json = opts.json || parentOpts.json;
       const http = makeClient(deps?.client);
-      const data = (await http.get("/api/clients")) as string[];
+      const data = (await http.get("/api/clients/list")) as Array<{ id: string; name: string }>;
       if (json) {
         outputJson(data, deps?.stream);
         return;
       }
-      const rows = data.map((name) => ({ name }));
+      const rows = data.map((d) => ({ id: d.id.slice(0, 8), name: d.name }));
       outputTable(rows, CLIENT_COLUMNS, deps?.stream);
     });
 
@@ -129,8 +139,60 @@ Errors:
       outputTable(rows, GLOSSARY_COLUMNS, deps?.stream);
     });
 
+  const info = new Command("info")
+    .description("Show details for a client.")
+    .argument("<id>", "Client ID")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, opts) => {
+      const parentOpts = program.opts();
+      const json = opts.json || parentOpts.json;
+      const http = makeClient(deps?.client);
+      const stream = deps?.stream ?? process.stdout;
+      let data: Record<string, unknown>;
+      try {
+        data = (await http.get(`/api/clients/${id}`)) as Record<string, unknown>;
+      } catch (err) {
+        if (err instanceof NotFoundError) {
+          stream.write("Client not found.\n");
+          return;
+        }
+        throw err;
+      }
+      if (json) {
+        outputJson(data, stream);
+        return;
+      }
+      outputKv([
+        { label: "Name", value: String(data.name) },
+        { label: "Aliases", value: (data.aliases as string[]).join(", ") },
+      ], stream);
+      stream.write("\n");
+      const clientTeam = data.client_team as Array<{ name: string; role: string; email: string }>;
+      if (clientTeam.length > 0) {
+        stream.write("CLIENT TEAM\n");
+        outputTable(clientTeam, TEAM_COLUMNS, stream);
+        stream.write("\n");
+      }
+      const implTeam = data.implementation_team as Array<{ name: string; role: string; email: string }>;
+      if (implTeam.length > 0) {
+        stream.write("IMPLEMENTATION TEAM\n");
+        outputTable(implTeam, TEAM_COLUMNS, stream);
+        stream.write("\n");
+      }
+      const meetingNames = data.meeting_names as string[];
+      if (meetingNames.length > 0) {
+        stream.write("MEETING NAMES\n");
+        for (const name of meetingNames) {
+          stream.write(`  ${name}\n`);
+        }
+        stream.write("\n");
+      }
+      stream.write(`Glossary Terms:    ${data.glossary_count}\n`);
+    });
+
   clients.addCommand(list);
   clients.addCommand(defaultCmd);
   clients.addCommand(glossary);
+  clients.addCommand(info);
   program.addCommand(clients);
 }

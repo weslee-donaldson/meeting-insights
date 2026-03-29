@@ -37,9 +37,14 @@ function captureOutput(): { chunks: string[]; stream: NodeJS.WritableStream } {
 }
 
 describe("clients list", () => {
-  it("displays assigned clients as a table", async () => {
+  const listData = [
+    { id: "aaaa1111-2222-3333-4444-555566667777", name: "Acme Corp" },
+    { id: "bbbb1111-2222-3333-4444-555566667777", name: "Initech" },
+  ];
+
+  it("displays assigned clients as a table with truncated IDs", async () => {
     const client = stubClient({
-      "/api/clients": ["Acme Corp", "Initech"],
+      "/api/clients/list": listData,
     });
     const { chunks, stream } = captureOutput();
 
@@ -48,14 +53,17 @@ describe("clients list", () => {
     await program.parseAsync(["clients", "list"], { from: "user" });
 
     const output = chunks.join("");
+    expect(output).toContain("ID");
     expect(output).toContain("Name");
+    expect(output).toContain("aaaa1111");
     expect(output).toContain("Acme Corp");
+    expect(output).toContain("bbbb1111");
     expect(output).toContain("Initech");
   });
 
-  it("outputs raw JSON when --json is passed", async () => {
+  it("outputs raw JSON with full UUIDs when --json is passed", async () => {
     const client = stubClient({
-      "/api/clients": ["Acme Corp", "Initech"],
+      "/api/clients/list": listData,
     });
     const { chunks, stream } = captureOutput();
 
@@ -65,7 +73,7 @@ describe("clients list", () => {
     await program.parseAsync(["clients", "list", "--json"], { from: "user" });
 
     const parsed = JSON.parse(chunks.join(""));
-    expect(parsed).toEqual(["Acme Corp", "Initech"]);
+    expect(parsed).toEqual(listData);
   });
 
   it("shows help with description, output schema, and example", () => {
@@ -77,7 +85,8 @@ describe("clients list", () => {
     listCmd!.configureOutput({ writeOut: (s) => (helpText += s) });
     listCmd!.outputHelp();
     expect(helpText).toContain("List your assigned clients");
-    expect(helpText).toContain('["string"]');
+    expect(helpText).toContain('"id"');
+    expect(helpText).toContain('"name"');
     expect(helpText).toContain("mti clients list");
   });
 });
@@ -203,5 +212,84 @@ describe("clients glossary", () => {
     expect(helpText).toContain('"variants"');
     expect(helpText).toContain("mti clients glossary");
     expect(helpText).toContain("404");
+  });
+});
+
+describe("clients info", () => {
+  const detailData = {
+    id: "aaaa1111-2222-3333-4444-555566667777",
+    name: "Acme Corp",
+    aliases: ["Acme", "ACME Inc"],
+    client_team: [
+      { name: "Alice", email: "alice@acme.com", role: "CTO" },
+      { name: "Bob", email: "bob@acme.com", role: "PO" },
+    ],
+    implementation_team: [
+      { name: "Charlie", email: "charlie@impl.io", role: "Architect" },
+    ],
+    meeting_names: ["Acme DSU", "Acme Retro"],
+    glossary_count: 5,
+  };
+
+  it("displays client detail with header and team tables", async () => {
+    const client = stubClient({
+      "/api/clients/aaaa1111-2222-3333-4444-555566667777": detailData,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(
+      ["clients", "info", "aaaa1111-2222-3333-4444-555566667777"],
+      { from: "user" }
+    );
+
+    const output = chunks.join("");
+    expect(output).toContain("Acme Corp");
+    expect(output).toContain("Acme, ACME Inc");
+    expect(output).toContain("CLIENT TEAM");
+    expect(output).toContain("Alice");
+    expect(output).toContain("CTO");
+    expect(output).toContain("alice@acme.com");
+    expect(output).toContain("IMPLEMENTATION TEAM");
+    expect(output).toContain("Charlie");
+    expect(output).toContain("Architect");
+    expect(output).toContain("MEETING NAMES");
+    expect(output).toContain("Acme DSU");
+    expect(output).toContain("Acme Retro");
+    expect(output).toContain("Glossary Terms:");
+    expect(output).toContain("5");
+  });
+
+  it("outputs raw JSON when --json is passed", async () => {
+    const client = stubClient({
+      "/api/clients/aaaa1111-2222-3333-4444-555566667777": detailData,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    program.option("--json", "Output as JSON");
+    registerClients(program, { client, stream });
+    await program.parseAsync(
+      ["clients", "info", "aaaa1111-2222-3333-4444-555566667777", "--json"],
+      { from: "user" }
+    );
+
+    const parsed = JSON.parse(chunks.join(""));
+    expect(parsed).toEqual(detailData);
+  });
+
+  it("displays not found message for unknown client id", async () => {
+    const client = stubClient({});
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "info", "nonexistent"], {
+      from: "user",
+    });
+
+    const output = chunks.join("");
+    expect(output.trim()).toBe("Client not found.");
   });
 });
