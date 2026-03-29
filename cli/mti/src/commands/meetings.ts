@@ -30,10 +30,10 @@ function resolveStderr(deps?: MeetingsDeps): NodeJS.WritableStream {
 }
 
 const LIST_COLUMNS: ColumnDef[] = [
-  { key: "id", header: "ID" },
-  { key: "title", header: "Title" },
-  { key: "date", header: "Date" },
-  { key: "client", header: "Client" },
+  { key: "id", header: "ID", width: 10 },
+  { key: "title", header: "Title", width: 40 },
+  { key: "date", header: "Date", width: 12 },
+  { key: "client", header: "Client", width: 20 },
   { key: "actionItemCount", header: "Items" },
 ];
 
@@ -89,7 +89,8 @@ export function registerMeetings(
     .option("--before <date>", "Only meetings before this date (YYYY-MM-DD)")
     .option("--json", "Output as JSON array")
     .option("--limit <n>", "Max meetings to display (0 = all)", "25")
-    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean; limit?: string }) => {
+    .option("--no-truncate", "Disable column width truncation")
+    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean; limit?: string; truncate?: boolean }) => {
       const client = resolveClient(deps);
       const stream = resolveStream(deps);
       const stderr = resolveStderr(deps);
@@ -106,7 +107,10 @@ export function registerMeetings(
         outputJson(displayed, stream);
         return;
       }
-      outputTable(displayed, LIST_COLUMNS, stream);
+      const columns = opts.truncate === false
+        ? LIST_COLUMNS.map(({ width, ...rest }) => rest)
+        : LIST_COLUMNS;
+      outputTable(displayed, columns, stream);
       if (truncated) {
         stderr.write(`Showing ${limit} of ${total} meetings. Use --limit 0 to show all.\n`);
       }

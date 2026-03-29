@@ -232,6 +232,60 @@ describe("meetings list", () => {
 
     expect(help).toContain("--limit <n>");
   });
+
+  it("truncates long values by default when columns have widths", async () => {
+    const longTitle = "A".repeat(50);
+    const payload = [
+      { id: "m1", title: longTitle, date: "2026-01-15", client: "Acme", series: "standup", actionItemCount: 0 },
+    ];
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list"], { from: "user" });
+
+    const dataLine = out.text().split("\n")[2];
+    expect(dataLine).not.toContain(longTitle);
+    expect(dataLine).toContain("\u2026");
+  });
+
+  it("renders full values without truncation when --no-truncate is passed", async () => {
+    const longTitle = "A".repeat(50);
+    const payload = [
+      { id: "m1", title: longTitle, date: "2026-01-15", client: "Acme", series: "standup", actionItemCount: 0 },
+    ];
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list", "--no-truncate"], { from: "user" });
+
+    const dataLine = out.text().split("\n")[2];
+    expect(dataLine).toContain(longTitle);
+    expect(dataLine).not.toContain("\u2026");
+  });
+
+  it("shows --no-truncate in help text", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const listCmd = meetingsCmd.commands.find((c) => c.name() === "list")!;
+    const help = listCmd.helpInformation();
+
+    expect(help).toContain("--no-truncate");
+  });
 });
 
 describe("meetings get", () => {
