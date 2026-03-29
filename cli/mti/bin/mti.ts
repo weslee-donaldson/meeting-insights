@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { createRequire } from "node:module";
 import { registerClients } from "../src/commands/clients.ts";
 import { registerItems } from "../src/commands/items.ts";
+import { registerMeetings } from "../src/commands/meetings.ts";
 import {
   AuthError,
   ForbiddenError,
@@ -25,6 +26,7 @@ program
 
 registerClients(program);
 registerItems(program);
+registerMeetings(program);
 
 export function wrapAction(
   fn: (...args: unknown[]) => Promise<unknown>
