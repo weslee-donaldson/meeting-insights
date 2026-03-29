@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { createRequire } from "node:module";
 import { registerClients } from "../src/commands/clients.ts";
+import { registerConfig } from "../src/commands/config.ts";
 import { registerItems } from "../src/commands/items.ts";
 import { registerMeetings } from "../src/commands/meetings.ts";
 import {
@@ -25,6 +26,7 @@ program
   .option("--json", "Output as JSON");
 
 registerClients(program);
+registerConfig(program);
 registerItems(program);
 registerMeetings(program);
 
