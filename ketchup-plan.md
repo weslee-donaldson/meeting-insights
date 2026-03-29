@@ -949,7 +949,7 @@ Mutation feedback:
 - delete: `"Note <noteId> deleted."`
 
 Bursts:
-- [ ] Burst 25: `notes list <meetingId>` — with help text + schema
+- [x] Burst 25: `notes list <meetingId>` — with help text + schema (6a34c26)
 - [ ] Burst 26: `notes create <meetingId>` — with help text + schema
 - [ ] Burst 27: `notes update <noteId>` — with help text
 - [ ] Burst 28: `notes delete <noteId>` — with help text

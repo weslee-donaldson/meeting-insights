@@ -4,6 +4,7 @@ import { HttpClient } from "../../../../cli/mti/src/http-client.ts";
 import {
   registerNotes,
   notesList,
+  notesCreate,
 } from "../../../../cli/mti/src/commands/notes.ts";
 
 function createStubClient(
@@ -154,6 +155,124 @@ describe("notes list", () => {
     const help = getHelpText(listCmd);
 
     expect(help).toContain("List notes attached to a meeting");
+    expect(help).toContain("Output schema");
+    expect(help).toContain("Example");
+    expect(help).toContain("Errors");
+  });
+});
+
+describe("notes create", () => {
+  it("creates a note on a meeting and shows confirmation", async () => {
+    const createdNote = {
+      id: "n-new-1",
+      objectType: "meeting",
+      objectId: "m1",
+      title: "My Note",
+      body: "Some content here",
+      noteType: "user",
+      createdAt: "2026-01-15T10:00:00Z",
+      updatedAt: "2026-01-15T10:00:00Z",
+    };
+
+    const client = createStubClient(async () =>
+      new Response(JSON.stringify(createdNote), { status: 201 })
+    );
+
+    const { chunks, stream } = collectOutput();
+
+    await notesCreate(
+      "m1",
+      { json: false, body: "Some content here", title: "My Note" },
+      { client, stream }
+    );
+
+    expect(chunks.join("")).toContain("Note created on meeting m1.");
+  });
+
+  it("sends POST to /api/notes/meeting/<meetingId> with body and title", async () => {
+    let capturedUrl = "";
+    let capturedBody = "";
+
+    const client = createStubClient(async (url, init) => {
+      capturedUrl = String(url);
+      capturedBody = init?.body as string;
+      return new Response(
+        JSON.stringify({ id: "n1", objectType: "meeting", objectId: "m1", title: "T", body: "B", noteType: "user", createdAt: "", updatedAt: "" }),
+        { status: 201 }
+      );
+    });
+
+    const { stream } = collectOutput();
+
+    await notesCreate(
+      "m1",
+      { json: false, body: "B", title: "T" },
+      { client, stream }
+    );
+
+    expect(capturedUrl).toBe("http://localhost:3000/api/notes/meeting/m1");
+    expect(JSON.parse(capturedBody)).toEqual({ title: "T", body: "B" });
+  });
+
+  it("sends POST without title when title is not provided", async () => {
+    let capturedBody = "";
+
+    const client = createStubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(
+        JSON.stringify({ id: "n1", objectType: "meeting", objectId: "m1", title: null, body: "B", noteType: "user", createdAt: "", updatedAt: "" }),
+        { status: 201 }
+      );
+    });
+
+    const { stream } = collectOutput();
+
+    await notesCreate(
+      "m1",
+      { json: false, body: "B" },
+      { client, stream }
+    );
+
+    expect(JSON.parse(capturedBody)).toEqual({ body: "B" });
+  });
+
+  it("outputs the created note as JSON with --json flag", async () => {
+    const createdNote = {
+      id: "n-new-1",
+      objectType: "meeting",
+      objectId: "m1",
+      title: null,
+      body: "Content",
+      noteType: "user",
+      createdAt: "2026-01-15T10:00:00Z",
+      updatedAt: "2026-01-15T10:00:00Z",
+    };
+
+    const client = createStubClient(async () =>
+      new Response(JSON.stringify(createdNote), { status: 201 })
+    );
+
+    const { chunks, stream } = collectOutput();
+
+    await notesCreate(
+      "m1",
+      { json: true, body: "Content" },
+      { client, stream }
+    );
+
+    const parsed = JSON.parse(chunks.join(""));
+    expect(parsed).toEqual(createdNote);
+  });
+
+  it("includes help text with description, schema, example, and errors", () => {
+    const program = new Command();
+    registerNotes(program);
+
+    const notesCmd = program.commands.find((c) => c.name() === "notes")!;
+    const createCmd = notesCmd.commands.find((c) => c.name() === "create")!;
+    const help = getHelpText(createCmd);
+
+    expect(help).toContain("Create a note on a meeting");
     expect(help).toContain("Output schema");
     expect(help).toContain("Example");
     expect(help).toContain("Errors");
