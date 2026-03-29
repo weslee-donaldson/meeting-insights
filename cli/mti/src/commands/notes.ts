@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { HttpClient } from "../http-client.ts";
+import { ForbiddenError } from "../errors.ts";
 import { loadConfig } from "../config.ts";
 import { outputTable, outputJson, ColumnDef } from "../format.ts";
 
@@ -56,6 +57,37 @@ export async function notesCreate(
   }
 
   writeln(deps.stream, `Note created on meeting ${meetingId}.`);
+}
+
+export async function notesUpdate(
+  noteId: string,
+  opts: { json: boolean; title?: string; body?: string },
+  deps: { client: HttpClient; stream: NodeJS.WritableStream }
+): Promise<void> {
+  const payload: Record<string, string> = {};
+  if (opts.title !== undefined) {
+    payload.title = opts.title;
+  }
+  if (opts.body !== undefined) {
+    payload.body = opts.body;
+  }
+
+  let data: unknown;
+  try {
+    data = await deps.client.patch(`/api/notes/${noteId}`, payload);
+  } catch (err) {
+    if (err instanceof ForbiddenError) {
+      throw new Error("Cannot modify this note \u2014 it was not created by you.");
+    }
+    throw err;
+  }
+
+  if (opts.json) {
+    outputJson(data, deps.stream);
+    return;
+  }
+
+  writeln(deps.stream, `Note ${noteId} updated.`);
 }
 
 export function registerNotes(program: Command, wrap?: ActionWrapper): void {
@@ -129,6 +161,45 @@ Errors:
         await notesCreate(
           meetingId,
           { json: cmdOpts.json ?? false, body: cmdOpts.body, title: cmdOpts.title },
+          { client, stream: process.stdout }
+        );
+      })
+    );
+
+  notes
+    .command("update")
+    .description("Update a user-created note. Only specified fields are changed.")
+    .argument("<noteId>", "Note ID")
+    .option("--title <text>", "New title (pass empty string to clear)")
+    .option("--body <text>", "New body")
+    .option("--json", "Output as JSON")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json):
+  { "id": "string", "objectType": "meeting", "objectId": "string",
+    "title": "string|null", "body": "string", "noteType": "string",
+    "createdAt": "string (ISO 8601)", "updatedAt": "string (ISO 8601)" }
+
+Example:
+  $ mti notes update n1x2y3 --title "Revised follow-up"
+  Note n1x2y3 updated.
+
+Errors:
+  403  Cannot modify notes not created by you
+  404  Note not found`
+    )
+    .action(
+      wrapFn(async (noteId: string, cmdOpts: { json?: boolean; title?: string; body?: string }) => {
+        const config = loadConfig();
+        const client = new HttpClient({
+          baseUrl: config.baseUrl,
+          token: config.token,
+          fetch: globalThis.fetch,
+        });
+        await notesUpdate(
+          noteId,
+          { json: cmdOpts.json ?? false, title: cmdOpts.title, body: cmdOpts.body },
           { client, stream: process.stdout }
         );
       })
