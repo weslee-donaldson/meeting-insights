@@ -8,6 +8,7 @@ import {
   ServerError,
   UnavailableError,
 } from "../src/errors.ts";
+import { registerItems } from "../src/commands/items.ts";
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../../package.json");
@@ -19,6 +20,8 @@ program
   .version(pkg.version)
   .description("Meeting Insights CLI — query meetings, clients, and action items")
   .option("--json", "Output as JSON");
+
+registerItems(program);
 
 export function wrapAction(
   fn: (...args: unknown[]) => Promise<unknown>
