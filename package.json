@@ -72,6 +72,7 @@
     "apache-arrow": "^21.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "commander": "^14.0.3",
     "debug": "^4.4.3",
     "electron-vite": "^5.0.0",
     "hono": "^4.12.3",
