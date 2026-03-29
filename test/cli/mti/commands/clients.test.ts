@@ -123,3 +123,85 @@ describe("clients default", () => {
     expect(helpText).toContain("mti clients default");
   });
 });
+
+describe("clients glossary", () => {
+  const glossaryData = [
+    {
+      term: "OKR",
+      variants: ["OKRs"],
+      description: "Objectives and Key Results",
+    },
+    {
+      term: "RACI",
+      variants: ["RACI matrix", "RACI chart"],
+      description: "Responsible, Accountable, Consulted, Informed",
+    },
+  ];
+
+  it("displays glossary terms as a table", async () => {
+    const client = stubClient({
+      "/api/glossary": glossaryData,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "glossary", "Acme Corp"], {
+      from: "user",
+    });
+
+    const output = chunks.join("");
+    expect(output).toContain("Term");
+    expect(output).toContain("Variants");
+    expect(output).toContain("Description");
+    expect(output).toContain("OKR");
+    expect(output).toContain("OKRs");
+    expect(output).toContain("RACI matrix, RACI cha");
+  });
+
+  it("outputs raw JSON when --json is passed", async () => {
+    const client = stubClient({
+      "/api/glossary": glossaryData,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    program.option("--json", "Output as JSON");
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "glossary", "Acme Corp", "--json"], {
+      from: "user",
+    });
+
+    const parsed = JSON.parse(chunks.join(""));
+    expect(parsed).toEqual(glossaryData);
+  });
+
+  it("propagates NotFoundError for unknown client", async () => {
+    const client = stubClient({});
+    const { stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+
+    await expect(
+      program.parseAsync(["clients", "glossary", "Unknown"], { from: "user" })
+    ).rejects.toThrow("Resource not found.");
+  });
+
+  it("shows help with description, output schema, and example", () => {
+    const program = new Command();
+    registerClients(program);
+    const clientsCmd = program.commands.find((c) => c.name() === "clients");
+    const glossaryCmd = clientsCmd!.commands.find(
+      (c) => c.name() === "glossary"
+    );
+    let helpText = "";
+    glossaryCmd!.configureOutput({ writeOut: (s) => (helpText += s) });
+    glossaryCmd!.outputHelp();
+    expect(helpText).toContain("Show glossary terms for a client");
+    expect(helpText).toContain('"term"');
+    expect(helpText).toContain('"variants"');
+    expect(helpText).toContain("mti clients glossary");
+    expect(helpText).toContain("404");
+  });
+});
