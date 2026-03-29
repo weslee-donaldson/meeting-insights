@@ -56,6 +56,31 @@ Errors:
       outputTable(rows, CLIENT_COLUMNS, deps?.stream);
     });
 
+  const defaultCmd = new Command("default")
+    .description("Show your default client.")
+    .addHelpText(
+      "after",
+      `
+Example:
+  $ mti clients default
+  Acme Corp
+
+Errors:
+  401  Token invalid or expired
+  503  Service temporarily unavailable`
+    )
+    .action(async () => {
+      const http = makeClient(deps?.client);
+      const data = await http.get("/api/default-client");
+      const stream = deps?.stream ?? process.stdout;
+      if (data === null) {
+        stream.write("No default client set.\n");
+        return;
+      }
+      stream.write(String(data) + "\n");
+    });
+
   clients.addCommand(list);
+  clients.addCommand(defaultCmd);
   program.addCommand(clients);
 }

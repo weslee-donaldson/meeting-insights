@@ -81,3 +81,45 @@ describe("clients list", () => {
     expect(helpText).toContain("mti clients list");
   });
 });
+
+describe("clients default", () => {
+  it("displays the default client name", async () => {
+    const client = stubClient({
+      "/api/default-client": "Acme Corp",
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "default"], { from: "user" });
+
+    const output = chunks.join("");
+    expect(output.trim()).toBe("Acme Corp");
+  });
+
+  it("displays message when no default client is set", async () => {
+    const client = stubClient({
+      "/api/default-client": null,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "default"], { from: "user" });
+
+    const output = chunks.join("");
+    expect(output.trim()).toBe("No default client set.");
+  });
+
+  it("shows help with description and example", () => {
+    const program = new Command();
+    registerClients(program);
+    const clientsCmd = program.commands.find((c) => c.name() === "clients");
+    const defaultCmd = clientsCmd!.commands.find((c) => c.name() === "default");
+    let helpText = "";
+    defaultCmd!.configureOutput({ writeOut: (s) => (helpText += s) });
+    defaultCmd!.outputHelp();
+    expect(helpText).toContain("Show your default client");
+    expect(helpText).toContain("mti clients default");
+  });
+});

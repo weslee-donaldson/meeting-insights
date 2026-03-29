@@ -569,7 +569,7 @@ Table formats:
 - `clients glossary`: columns `[{ key: "term", header: "Term", width: 30 }, { key: "variants", header: "Variants", width: 22 }, { key: "description", header: "Description" }]` — join `variants[]` with ", " for display
 
 Bursts:
-- [ ] Burst 7: `clients list` — lists the user's assigned clients (with help text + schema)
+- [x] Burst 7: `clients list` — lists the user's assigned clients (with help text + schema) (6ba1f85)
 - [ ] Burst 8: `clients default` — shows the user's default client (with help text)
 - [ ] Burst 9: `clients glossary <name>` — shows glossary terms for a client (with help text + schema)
 
