@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { HttpClient } from "../../../cli/mti/src/http-client.ts";
+import { HttpClient, exitCodeForError } from "../../../cli/mti/src/http-client.ts";
+import {
+  AuthError,
+  ForbiddenError,
+  NotFoundError,
+  ServerError,
+  UnavailableError,
+} from "../../../cli/mti/src/errors.ts";
 
 function stubFetch(status: number, body: unknown, headers?: Record<string, string>) {
   return async (_url: string | URL | Request, _init?: RequestInit) => {
@@ -220,6 +227,108 @@ describe("HttpClient", () => {
       const result = await client.delete("/api/meetings/m1");
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("error handling", () => {
+    it("throws AuthError when server responds with 401", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: "expired-token",
+        fetch: stubFetch(401, { error: "Unauthorized" }),
+      });
+
+      await expect(client.get("/api/meetings")).rejects.toThrow(AuthError);
+      await expect(client.get("/api/meetings")).rejects.toThrow(
+        "Token invalid or expired. Run `mti config set token <token>` to update."
+      );
+    });
+
+    it("throws ForbiddenError when server responds with 403", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: "valid-token",
+        fetch: stubFetch(403, { error: "Forbidden" }),
+      });
+
+      await expect(client.get("/api/meetings/m1")).rejects.toThrow(ForbiddenError);
+      await expect(client.get("/api/meetings/m1")).rejects.toThrow(
+        "You don't have access to this resource."
+      );
+    });
+
+    it("throws NotFoundError when server responds with 404", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: null,
+        fetch: stubFetch(404, { error: "Not found" }),
+      });
+
+      await expect(client.get("/api/meetings/nonexistent")).rejects.toThrow(
+        NotFoundError
+      );
+      await expect(client.get("/api/meetings/nonexistent")).rejects.toThrow(
+        "Resource not found."
+      );
+    });
+
+    it("throws ServerError with server message when server responds with 500", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: null,
+        fetch: stubFetch(500, { error: "Database connection failed" }),
+      });
+
+      await expect(client.get("/api/meetings")).rejects.toThrow(ServerError);
+      await expect(client.get("/api/meetings")).rejects.toThrow(
+        "Database connection failed"
+      );
+    });
+
+    it("throws UnavailableError when server responds with 503", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: null,
+        fetch: stubFetch(503, { error: "Service unavailable" }),
+      });
+
+      await expect(client.get("/api/meetings")).rejects.toThrow(UnavailableError);
+      await expect(client.get("/api/meetings")).rejects.toThrow(
+        "This feature is temporarily unavailable."
+      );
+    });
+
+    it("throws ServerError for unexpected non-2xx status codes", async () => {
+      const client = new HttpClient({
+        baseUrl: "http://localhost:3000",
+        token: null,
+        fetch: stubFetch(502, { error: "Bad gateway" }),
+      });
+
+      await expect(client.get("/api/meetings")).rejects.toThrow(ServerError);
+      await expect(client.get("/api/meetings")).rejects.toThrow("Bad gateway");
+    });
+  });
+
+  describe("exitCodeForError", () => {
+    it("returns 1 for AuthError", () => {
+      expect(exitCodeForError(new AuthError())).toBe(1);
+    });
+
+    it("returns 1 for ForbiddenError", () => {
+      expect(exitCodeForError(new ForbiddenError())).toBe(1);
+    });
+
+    it("returns 1 for NotFoundError", () => {
+      expect(exitCodeForError(new NotFoundError())).toBe(1);
+    });
+
+    it("returns 2 for ServerError", () => {
+      expect(exitCodeForError(new ServerError("oops"))).toBe(2);
+    });
+
+    it("returns 2 for UnavailableError", () => {
+      expect(exitCodeForError(new UnavailableError())).toBe(2);
     });
   });
 });

@@ -1,3 +1,11 @@
+import {
+  AuthError,
+  ForbiddenError,
+  NotFoundError,
+  ServerError,
+  UnavailableError,
+} from "./errors.ts";
+
 type FetchFn = (url: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
 export class HttpClient {
@@ -32,6 +40,17 @@ export class HttpClient {
     return headers;
   }
 
+  private async handleError(response: Response): Promise<never> {
+    const body = await response.json().catch(() => ({}));
+    const message = body.error ?? response.statusText;
+
+    if (response.status === 401) throw new AuthError();
+    if (response.status === 403) throw new ForbiddenError();
+    if (response.status === 404) throw new NotFoundError();
+    if (response.status === 503) throw new UnavailableError();
+    throw new ServerError(message);
+  }
+
   private async request(
     method: string,
     path: string,
@@ -56,6 +75,10 @@ export class HttpClient {
       return null;
     }
 
+    if (!response.ok) {
+      return this.handleError(response);
+    }
+
     return response.json();
   }
 
@@ -78,4 +101,15 @@ export class HttpClient {
   async delete(path: string, body?: unknown): Promise<unknown> {
     return this.request("DELETE", path, { body });
   }
+}
+
+export function exitCodeForError(err: Error): 1 | 2 {
+  if (
+    err instanceof AuthError ||
+    err instanceof ForbiddenError ||
+    err instanceof NotFoundError
+  ) {
+    return 1;
+  }
+  return 2;
 }
