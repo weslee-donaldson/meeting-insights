@@ -505,9 +505,9 @@ Behavior: Formats API responses for terminal output. Three display modes: table,
 - Writes to stdout via a writable stream (injectable for testing, defaults to `process.stdout`)
 
 Bursts:
-- [ ] Burst 6a: `format.ts` — table formatter + `--json` toggle
-- [ ] Burst 6b: `format.ts` — key-value formatter (`formatKeyValue`) for detail views
-- [ ] Burst 6c: `format.ts` — sectioned formatter (`formatSections`) for artifact display
+- [x] Burst 6a: `format.ts` — table formatter + `--json` toggle (3fb9a73)
+- [x] Burst 6b: `format.ts` — key-value formatter (`formatKeyValue`) for detail views (7451c1d)
+- [x] Burst 6c: `format.ts` — sectioned formatter (`formatSections`) for artifact display (55b4771)
 
 ---
 
