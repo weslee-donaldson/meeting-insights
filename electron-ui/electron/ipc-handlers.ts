@@ -1,6 +1,8 @@
 export {
   handleGetTemplates,
   handleGetClients,
+  handleGetClientList,
+  handleGetClientDetail,
   handleGetDefaultClient,
   handleGetGlossary,
   handleGetMeetings,

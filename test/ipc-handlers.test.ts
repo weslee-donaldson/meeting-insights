@@ -8,6 +8,8 @@ import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages 
 import { listMilestonesByClient, createMilestone, addMilestoneMention } from "../core/timelines.js";
 import {
   handleGetClients,
+  handleGetClientList,
+  handleGetClientDetail,
   handleGetMeetings,
   handleGetArtifact,
   handleChat,
@@ -109,6 +111,36 @@ describe("IPC handlers", () => {
     it("should return sorted list of client names", () => {
       const clients = handleGetClients(db);
       expect(clients).toEqual(["Acme", "Beta Co"]);
+    });
+  });
+
+  describe("handleGetClientList", () => {
+    it("should return sorted list of {id, name} objects", () => {
+      const list = handleGetClientList(db);
+      expect(list).toEqual([
+        { id: "client-acme", name: "Acme" },
+        { id: "client-beta", name: "Beta Co" },
+      ]);
+    });
+  });
+
+  describe("handleGetClientDetail", () => {
+    it("should return parsed client detail for a valid id", () => {
+      const detail = handleGetClientDetail(db, "client-acme");
+      expect(detail).toEqual({
+        id: "client-acme",
+        name: "Acme",
+        aliases: ["Acme Corp"],
+        client_team: [],
+        implementation_team: [],
+        meeting_names: [],
+        glossary_count: 0,
+      });
+    });
+
+    it("should return null for an unknown id", () => {
+      const detail = handleGetClientDetail(db, "nonexistent");
+      expect(detail).toBeNull();
     });
   });
 

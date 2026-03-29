@@ -1,7 +1,8 @@
 import type { Hono } from "hono";
 import type { DatabaseSync as Database } from "node:sqlite";
 import {
-  handleGetClients, handleGetMeetings, handleGetArtifact,
+  handleGetClients, handleGetClientList, handleGetClientDetail,
+  handleGetMeetings, handleGetArtifact,
   handleDeleteMeetings, handleReExtract, handleReassignClient,
   handleSetIgnored, handleEditActionItem, handleCreateActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetGlossary, handleGetClientActionItems,
@@ -20,6 +21,17 @@ import type { SearchDeps } from "../server.js";
 export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): void {
   app.get("/api/clients", (c) => {
     return c.json(handleGetClients(db));
+  });
+
+  app.get("/api/clients/list", (c) => {
+    return c.json(handleGetClientList(db));
+  });
+
+  app.get("/api/clients/:id", (c) => {
+    const id = c.req.param("id");
+    const detail = handleGetClientDetail(db, id);
+    if (!detail) return c.json({ error: "Not found" }, 404);
+    return c.json(detail);
   });
 
   app.get("/api/default-client", (c) => {

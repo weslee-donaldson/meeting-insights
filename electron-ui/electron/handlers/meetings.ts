@@ -84,6 +84,32 @@ export function handleGetClients(db: Database): string[] {
   return rows.map((r) => r.name);
 }
 
+export function handleGetClientList(db: Database): Array<{ id: string; name: string }> {
+  return db.prepare("SELECT id, name FROM clients ORDER BY name").all() as Array<{ id: string; name: string }>;
+}
+
+export function handleGetClientDetail(db: Database, clientId: string): {
+  id: string;
+  name: string;
+  aliases: string[];
+  client_team: unknown[];
+  implementation_team: unknown[];
+  meeting_names: string[];
+  glossary_count: number;
+} | null {
+  const row = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId) as import("../../../core/client-registry.js").ClientRow | undefined;
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    aliases: JSON.parse(row.aliases),
+    client_team: JSON.parse(row.client_team),
+    implementation_team: JSON.parse(row.implementation_team),
+    meeting_names: JSON.parse(row.meeting_names),
+    glossary_count: JSON.parse(row.glossary).length,
+  };
+}
+
 export function handleGetDefaultClient(db: Database): string | null {
   const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
   return row?.name ?? null;
