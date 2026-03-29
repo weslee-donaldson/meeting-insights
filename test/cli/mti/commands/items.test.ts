@@ -6,6 +6,7 @@ import {
   registerItems,
   listItems,
   createItem,
+  editItem,
 } from "../../../../cli/mti/src/commands/items.ts";
 
 function collectStream(): { stream: Writable; output: () => string } {
@@ -215,6 +216,73 @@ describe("items create", () => {
     const help = captureHelp(create);
 
     expect(help).toContain("Add a new action item to a meeting.");
+    expect(help).toContain("Errors:");
+    expect(help).toContain("404");
+  });
+});
+
+describe("items edit", () => {
+  it("updates an action item with specified fields", async () => {
+    let capturedUrl = "";
+    let capturedBody = "";
+    let capturedMethod = "";
+    const client = stubClient(async (url, init) => {
+      capturedUrl = url;
+      capturedBody = init?.body as string;
+      capturedMethod = init?.method as string;
+      return new Response(null, { status: 204 });
+    });
+    const { stream, output } = collectStream();
+
+    await editItem(
+      "m1",
+      "2",
+      { desc: "Updated roadmap", owner: "Bob", due: "2026-05-01", priority: "low" },
+      { client, stream }
+    );
+
+    expect(capturedMethod).toBe("PUT");
+    expect(new URL(capturedUrl).pathname).toBe("/api/meetings/m1/action-items/2");
+    expect(JSON.parse(capturedBody)).toEqual({
+      description: "Updated roadmap",
+      owner: "Bob",
+      due_date: "2026-05-01",
+      priority: "low",
+    });
+    expect(output()).toContain("Action item 2 updated.");
+  });
+
+  it("sends only the fields that are provided", async () => {
+    let capturedBody = "";
+    const client = stubClient(async (_url, init) => {
+      capturedBody = init?.body as string;
+      return new Response(null, { status: 204 });
+    });
+    const { stream } = collectStream();
+
+    await editItem("m1", "0", { owner: "Charlie" }, { client, stream });
+
+    expect(JSON.parse(capturedBody)).toEqual({ owner: "Charlie" });
+  });
+
+  it("outputs JSON confirmation when --json is passed", async () => {
+    const client = stubClient(async () =>
+      new Response(null, { status: 204 })
+    );
+    const { stream, output } = collectStream();
+
+    await editItem("m1", "0", { desc: "New desc", json: true }, { client, stream });
+
+    expect(JSON.parse(output())).toEqual({ ok: true });
+  });
+
+  it("shows help with description and errors", () => {
+    const program = buildProgram();
+    const items = program.commands.find((c) => c.name() === "items")!;
+    const edit = items.commands.find((c) => c.name() === "edit")!;
+    const help = captureHelp(edit);
+
+    expect(help).toContain("Edit an existing action item's fields.");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });

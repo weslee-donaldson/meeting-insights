@@ -60,6 +60,37 @@ export async function createItem(
   writeln(deps.stream, `Action item added to meeting ${meetingId}.`);
 }
 
+export async function editItem(
+  meetingId: string,
+  index: string,
+  options: {
+    desc?: string;
+    owner?: string;
+    due?: string;
+    priority?: string;
+    json?: boolean;
+  },
+  deps: Deps = defaultDeps()
+): Promise<void> {
+  const body: Record<string, string> = {};
+  if (options.desc) body.description = options.desc;
+  if (options.owner) body.owner = options.owner;
+  if (options.due) body.due_date = options.due;
+  if (options.priority) body.priority = options.priority;
+
+  await deps.client.put(
+    `/api/meetings/${meetingId}/action-items/${index}`,
+    body
+  );
+
+  if (options.json) {
+    outputJson({ ok: true }, deps.stream);
+    return;
+  }
+
+  writeln(deps.stream, `Action item ${index} updated.`);
+}
+
 export async function listItems(
   clientName: string,
   options: { after?: string; before?: string; json?: boolean },
@@ -136,6 +167,32 @@ Errors:
       const json = opts.json ?? program.opts().json;
       await createItem(meetingId, { ...opts, json }, defaultDeps());
     });
+
+  items
+    .command("edit <meetingId> <index>")
+    .description("Edit an existing action item's fields. Only specified fields are updated.")
+    .option("--desc <text>", "Item description")
+    .option("--owner <name>", "Person responsible")
+    .option("--due <date>", "Due date (YYYY-MM-DD)")
+    .option("--priority <level>", "critical, normal, or low")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json): { "ok": true }
+
+Errors:
+  404  Meeting or item not found`
+    )
+    .action(
+      async (
+        meetingId: string,
+        index: string,
+        opts: Record<string, string>
+      ) => {
+        const json = opts.json ?? program.opts().json;
+        await editItem(meetingId, index, { ...opts, json }, defaultDeps());
+      }
+    );
 
   program.addCommand(items);
 }
