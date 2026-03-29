@@ -949,10 +949,10 @@ Mutation feedback:
 - delete: `"Note <noteId> deleted."`
 
 Bursts:
-- [ ] Burst 25: `notes list <meetingId>` — with help text + schema
-- [ ] Burst 26: `notes create <meetingId>` — with help text + schema
-- [ ] Burst 27: `notes update <noteId>` — with help text
-- [ ] Burst 28: `notes delete <noteId>` — with help text
+- [x] Burst 25: `notes list <meetingId>` — with help text + schema (6a34c26)
+- [x] Burst 26: `notes create <meetingId>` — with help text + schema (d0b27bd)
+- [x] Burst 27: `notes update <noteId>` — with help text (b08f8ef)
+- [x] Burst 28: `notes delete <noteId>` — with help text (86cf624)
 
 ### Phase 4 — Sequential
 - [ ] Burst 29: `config` show + `config set` commands (test at `test/cli/mti/commands/config.test.ts`)

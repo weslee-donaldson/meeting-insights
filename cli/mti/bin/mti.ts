@@ -9,6 +9,7 @@ import {
   ServerError,
   UnavailableError,
 } from "../src/errors.ts";
+import { registerNotes } from "../src/commands/notes.ts";
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../../package.json");
@@ -52,3 +53,5 @@ export function wrapAction(
     }
   };
 }
+
+registerNotes(program, wrapAction);
