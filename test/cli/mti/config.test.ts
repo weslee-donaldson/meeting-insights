@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -88,6 +88,95 @@ describe("config load/save", () => {
     expect(raw).toEqual({
       baseUrl: "http://localhost:3000",
       token: "first",
+    });
+  });
+});
+
+describe("config env var overrides", () => {
+  let tempDir: string;
+  let configPath: string;
+
+  beforeEach(() => {
+    tempDir = mkdtempSync(join(tmpdir(), "mti-config-env-"));
+    configPath = join(tempDir, ".mtirc");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it("overrides baseUrl from MTI_BASE_URL env var", () => {
+    writeFileSync(
+      configPath,
+      JSON.stringify({ baseUrl: "http://localhost:3000", token: "filetoken" })
+    );
+    vi.stubEnv("MTI_BASE_URL", "https://env.example.com");
+
+    const result = loadConfig(configPath);
+
+    expect(result).toEqual({
+      baseUrl: "https://env.example.com",
+      token: "filetoken",
+    });
+  });
+
+  it("overrides token from MTI_TOKEN env var", () => {
+    writeFileSync(
+      configPath,
+      JSON.stringify({ baseUrl: "http://localhost:3000", token: "filetoken" })
+    );
+    vi.stubEnv("MTI_TOKEN", "envtoken");
+
+    const result = loadConfig(configPath);
+
+    expect(result).toEqual({
+      baseUrl: "http://localhost:3000",
+      token: "envtoken",
+    });
+  });
+
+  it("overrides both baseUrl and token from env vars", () => {
+    writeFileSync(
+      configPath,
+      JSON.stringify({ baseUrl: "http://localhost:3000", token: "filetoken" })
+    );
+    vi.stubEnv("MTI_BASE_URL", "https://env.api");
+    vi.stubEnv("MTI_TOKEN", "envtoken");
+
+    const result = loadConfig(configPath);
+
+    expect(result).toEqual({
+      baseUrl: "https://env.api",
+      token: "envtoken",
+    });
+  });
+
+  it("env vars override defaults when config file does not exist", () => {
+    vi.stubEnv("MTI_BASE_URL", "https://env-only.api");
+    vi.stubEnv("MTI_TOKEN", "env-only-token");
+
+    const result = loadConfig(configPath);
+
+    expect(result).toEqual({
+      baseUrl: "https://env-only.api",
+      token: "env-only-token",
+    });
+  });
+
+  it("does not override when env vars are not set", () => {
+    vi.stubEnv("MTI_BASE_URL", "");
+    vi.stubEnv("MTI_TOKEN", "");
+    writeFileSync(
+      configPath,
+      JSON.stringify({ baseUrl: "https://file.api", token: "filetoken" })
+    );
+
+    const result = loadConfig(configPath);
+
+    expect(result).toEqual({
+      baseUrl: "https://file.api",
+      token: "filetoken",
     });
   });
 });

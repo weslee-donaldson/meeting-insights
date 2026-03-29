@@ -12,13 +12,21 @@ const DEFAULTS = {
 export function loadConfig(
   configPath: string = DEFAULT_CONFIG_PATH
 ): { baseUrl: string; token: string | null } {
+  let fileConfig: { baseUrl: string; token: string | null };
   if (!existsSync(configPath)) {
-    return { ...DEFAULTS };
+    fileConfig = { ...DEFAULTS };
+  } else {
+    const raw = JSON.parse(readFileSync(configPath, "utf-8"));
+    fileConfig = {
+      baseUrl: raw.baseUrl ?? DEFAULTS.baseUrl,
+      token: raw.token ?? DEFAULTS.token,
+    };
   }
-  const raw = JSON.parse(readFileSync(configPath, "utf-8"));
+  const envBaseUrl = process.env.MTI_BASE_URL;
+  const envToken = process.env.MTI_TOKEN;
   return {
-    baseUrl: raw.baseUrl ?? DEFAULTS.baseUrl,
-    token: raw.token ?? DEFAULTS.token,
+    baseUrl: envBaseUrl ? envBaseUrl : fileConfig.baseUrl,
+    token: envToken ? envToken : fileConfig.token,
   };
 }
 
