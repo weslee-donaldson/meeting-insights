@@ -11,3 +11,11 @@ logs/
 # Claude worktrees
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+
+# Ephemeral test/CI artifacts
+test-results/
+test/screenshots/
+.playwright-mcp/
+
+# Processed webhook data (runtime, not source)
+data/webhook-processed/

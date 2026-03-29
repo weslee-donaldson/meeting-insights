@@ -64,7 +64,7 @@
       },
       {
         "term": "Emmett",
-        "variants": ["emmett", "@event-driven-io/emmett", "emmett-esdb", "EMET"],
+        "variants": ["emmett", "@event-driven-io/emmett", "emmett-esdb", "EMET", "EMT"],
         "description": "Open-source TypeScript event-sourcing library by Event Driven IO. Provides the core CQRS building blocks used in the Supergraph — command handlers, projections, reactors, and EventStoreDB integration."
       },
       {

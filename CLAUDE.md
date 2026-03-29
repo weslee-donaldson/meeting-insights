@@ -56,6 +56,7 @@ After a revert, do not immediately retry the same approach. Ask:
 1. Was the burst too big? → Split it smaller
 2. Was the design flawed? → Try a different approach
 3. Was the test wrong? → Clarify the requirement first
+4. Is the root cause unclear? → Run `/investigate` (trace code, form hypotheses, 3-strike rule, scope-lock edits)
 
 Only then write the next failing test.
 
