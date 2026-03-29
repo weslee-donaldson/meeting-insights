@@ -216,3 +216,35 @@ describe("meetings get", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings transcript", () => {
+  it("outputs raw transcript text with no formatting", async () => {
+    const transcriptResponse = { transcript: "Speaker A: Hello\nSpeaker B: Hi there" };
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(transcriptResponse))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "transcript", "m1"], { from: "user" });
+
+    expect(out.text()).toBe("Speaker A: Hello\nSpeaker B: Hi there");
+  });
+
+  it("shows help with description and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const transcriptCmd = meetingsCmd.commands.find((c) => c.name() === "transcript")!;
+    const help = transcriptCmd.helpInformation();
+
+    expect(help).toContain("raw transcript");
+    expect(help).toContain("Errors");
+    expect(help).toContain("404");
+  });
+});

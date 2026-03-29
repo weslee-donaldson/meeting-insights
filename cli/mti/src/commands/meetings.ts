@@ -136,5 +136,26 @@ export function registerMeetings(
       );
     });
 
+  const TRANSCRIPT_DESCRIPTION = `Output the raw transcript text for a meeting.
+
+Output: Plain text (no JSON mode — transcripts are unstructured)
+
+Example:
+  $ mti meetings transcript a1b2c3d4
+
+Errors:
+  404  Meeting not found`;
+
+  meetings
+    .command("transcript")
+    .description(TRANSCRIPT_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .action(async (id: string) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      const data = (await client.get(`/api/meetings/${id}/transcript`)) as { transcript: string };
+      stream.write(data.transcript);
+    });
+
   program.addCommand(meetings);
 }
