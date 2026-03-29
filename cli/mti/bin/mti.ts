@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import { Command } from "commander";
 import { createRequire } from "node:module";
+import { registerClients } from "../src/commands/clients.ts";
 import {
   AuthError,
   ForbiddenError,
@@ -19,6 +20,8 @@ program
   .version(pkg.version)
   .description("Meeting Insights CLI — query meetings, clients, and action items")
   .option("--json", "Output as JSON");
+
+registerClients(program);
 
 export function wrapAction(
   fn: (...args: unknown[]) => Promise<unknown>
