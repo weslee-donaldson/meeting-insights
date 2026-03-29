@@ -118,6 +118,120 @@ describe("meetings list", () => {
     expect(help).toContain("Errors");
     expect(help).toContain("401");
   });
+
+  function generateMeetings(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `m${i + 1}`,
+      title: `Meeting ${i + 1}`,
+      date: "2026-01-15",
+      client: "Acme",
+      series: "standup",
+      actionItemCount: 0,
+    }));
+  }
+
+  it("defaults to showing first 25 meetings with truncation footer", async () => {
+    const payload = generateMeetings(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list"], { from: "user" });
+
+    const lines = out.text().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(25);
+    expect(err.text()).toBe("Showing 25 of 30 meetings. Use --limit 0 to show all.\n");
+  });
+
+  it("respects --limit to cap displayed meetings", async () => {
+    const payload = generateMeetings(20);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list", "--limit", "10"], { from: "user" });
+
+    const lines = out.text().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(10);
+    expect(err.text()).toBe("Showing 10 of 20 meetings. Use --limit 0 to show all.\n");
+  });
+
+  it("shows all meetings with --limit 0 and no footer", async () => {
+    const payload = generateMeetings(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list", "--limit", "0"], { from: "user" });
+
+    const lines = out.text().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(30);
+    expect(err.text()).toBe("");
+  });
+
+  it("does not show footer when total is within default limit", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(meetingsPayload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list"], { from: "user" });
+
+    const lines = out.text().split("\n");
+    const dataLines = lines.slice(2).filter((l) => l.trim() !== "");
+    expect(dataLines.length).toBe(2);
+    expect(err.text()).toBe("");
+  });
+
+  it("truncates JSON array with --limit in --json mode", async () => {
+    const payload = generateMeetings(30);
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(payload))
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(["meetings", "list", "--json", "--limit", "5"], { from: "user" });
+
+    const parsed = JSON.parse(out.text());
+    expect(parsed).toHaveLength(5);
+    expect(parsed[0].id).toBe("m1");
+    expect(parsed[4].id).toBe("m5");
+  });
+
+  it("shows --limit in help text", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const listCmd = meetingsCmd.commands.find((c) => c.name() === "list")!;
+    const help = listCmd.helpInformation();
+
+    expect(help).toContain("--limit <n>");
+  });
 });
 
 describe("meetings get", () => {

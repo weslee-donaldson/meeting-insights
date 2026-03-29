@@ -88,19 +88,28 @@ export function registerMeetings(
     .option("--after <date>", "Only meetings after this date (YYYY-MM-DD)")
     .option("--before <date>", "Only meetings before this date (YYYY-MM-DD)")
     .option("--json", "Output as JSON array")
-    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean }) => {
+    .option("--limit <n>", "Max meetings to display (0 = all)", "25")
+    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean; limit?: string }) => {
       const client = resolveClient(deps);
       const stream = resolveStream(deps);
+      const stderr = resolveStderr(deps);
       const params: Record<string, string> = {};
       if (opts.client) params.client = opts.client;
       if (opts.after) params.after = opts.after;
       if (opts.before) params.before = opts.before;
-      const data = await client.get("/api/meetings", params);
+      const data = await client.get("/api/meetings", params) as Record<string, unknown>[];
+      const limit = parseInt(opts.limit ?? "25", 10);
+      const total = data.length;
+      const truncated = limit > 0 && total > limit;
+      const displayed = truncated ? data.slice(0, limit) : data;
       if (opts.json) {
-        outputJson(data, stream);
+        outputJson(displayed, stream);
         return;
       }
-      outputTable(data as Record<string, unknown>[], LIST_COLUMNS, stream);
+      outputTable(displayed, LIST_COLUMNS, stream);
+      if (truncated) {
+        stderr.write(`Showing ${limit} of ${total} meetings. Use --limit 0 to show all.\n`);
+      }
     });
 
   meetings
