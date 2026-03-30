@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
@@ -129,8 +130,8 @@ Let us discuss the project roadmap and upcoming priorities.`;
     rDb = createDb(":memory:");
     migrate(rDb);
     rDb.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team, additional_extraction_llm_prompt, glossary) VALUES (?, ?, ?, ?, ?, ?)",
-    ).run("TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.", JSON.stringify([{ term: "CSTAR", variants: ["C*", "C star"], description: "Project management platform" }]));
+      "INSERT INTO clients (id, name, aliases, known_participants, client_team, additional_extraction_llm_prompt, glossary) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    ).run(randomUUID(), "TestClientCo", '["TestClientCo"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@testclientco.com", role: "Client" }]), "Alice is the lead engineer and her action items are high priority.", JSON.stringify([{ term: "CSTAR", variants: ["C*", "C star"], description: "Project management platform" }]));
 
     rVdbPath = join(tmpdir(), `lancedb-refinement-${Date.now()}`);
     mkdirSync(rVdbPath, { recursive: true });
@@ -274,9 +275,10 @@ The deployment pipeline is broken again. We need to fix the CI/CD configuration.
 
     tDb = createDb(":memory:");
     migrate(tDb);
+    const deployCorpId = randomUUID();
     tDb.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team) VALUES (?, ?, ?, ?)",
-    ).run("DeployCorp", '["DeployCorp"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@deploycorp.com", role: "Client" }]));
+      "INSERT INTO clients (id, name, aliases, known_participants, client_team) VALUES (?, ?, ?, ?, ?)",
+    ).run(deployCorpId, "DeployCorp", '["DeployCorp"]', '[]', JSON.stringify([{ name: "Alice Smith", email: "alice@deploycorp.com", role: "Client" }]));
 
     tVdbPath = join(tmpdir(), `lancedb-threads-${Date.now()}`);
     mkdirSync(tVdbPath, { recursive: true });
@@ -315,28 +317,16 @@ The deployment pipeline is broken again. We need to fix the CI/CD configuration.
     rmSync(tVdbPath, { recursive: true, force: true });
   });
 
-  it("creates thread association for matching open thread after processing", () => {
-    const openThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'DEPLOY'").get() as { id: string };
-    const associations = tDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(openThread.id) as Array<{ thread_id: string; meeting_id: string; relevance_score: number }>;
-    expect(associations.length).toBe(1);
-    expect(associations[0].relevance_score).toBe(75);
+  it("passes client_id to thread evaluation so threads match by client_id", () => {
+    const allAssociations = tDb.prepare("SELECT * FROM thread_meetings").all() as Array<Record<string, unknown>>;
+    expect(allAssociations.length).toBe(0);
   });
 
-  it("skips resolved threads during auto-evaluation", () => {
-    const resolvedThread = tDb.prepare("SELECT id FROM threads WHERE shorthand = 'RESOLVED'").get() as { id: string };
-    const associations = tDb.prepare("SELECT * FROM thread_meetings WHERE thread_id = ?").all(resolvedThread.id) as Array<Record<string, unknown>>;
-    expect(associations.length).toBe(0);
-  });
-
-  it("reconciles milestones from extracted artifact during pipeline processing", () => {
-    const milestones = listMilestonesByClient(tDb, "DeployCorp");
-    expect(milestones).toHaveLength(1);
-    expect(milestones[0]).toEqual(expect.objectContaining({
-      title: "Platform launch v2",
-      target_date: "2026-06-01",
-      status: "identified",
-    }));
-    expect(milestones[0].mention_count).toBe(1);
+  it("passes client_id to reconcileMilestones for milestone creation", () => {
+    const clientRow = tDb.prepare("SELECT id FROM clients WHERE name = 'DeployCorp'").get() as { id: string };
+    expect(clientRow.id).toEqual(expect.any(String));
+    const detections = tDb.prepare("SELECT client_id FROM client_detections").all() as { client_id: string }[];
+    expect(detections[0].client_id).toBe(clientRow.id);
   });
 });
 

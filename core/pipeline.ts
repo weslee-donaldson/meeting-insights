@@ -7,7 +7,7 @@ import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { detectClient, storeDetection } from "./client-detection.js";
-import { getClientByName, buildClientContext } from "./client-registry.js";
+import { getClientById, buildClientContext } from "./client-registry.js";
 import type { Participant, GlossaryEntry } from "./client-registry.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
@@ -149,7 +149,7 @@ function detectAndExtract(
   const detections = detectClient(db, parsed.meetingId);
   storeDetection(db, parsed.meetingId, detections);
   const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
-  const clientRow = topClient ? getClientByName(db, topClient.client_name) : null;
+  const clientRow = topClient ? getClientById(db, topClient.client_id) : null;
   const clientTeam = JSON.parse(clientRow?.client_team ?? "[]") as Participant[];
   const implTeam = JSON.parse(clientRow?.implementation_team ?? "[]") as Participant[];
   const glossary = JSON.parse(clientRow?.glossary ?? "[]") as GlossaryEntry[];
@@ -247,10 +247,10 @@ async function processEntry(
     const { topClient, extractFn } = detectAndExtract(db, llm, meeting, tokenLimit, promptTemplate);
     const artifact = await extractFn();
     storeArtifact(db, meetingId, artifact);
-    if (topClient?.client_name && artifact.milestones.length > 0) {
-      reconcileMilestones(db, topClient.client_name, meetingId, parsed.timestamp, artifact.milestones);
+    if (topClient?.client_id && artifact.milestones.length > 0) {
+      reconcileMilestones(db, topClient.client_id, meetingId, parsed.timestamp, artifact.milestones);
     }
-    const client = topClient?.client_name ?? "";
+    const client = topClient?.client_id ?? "";
     await indexAndDedup(db, itemTable, session, llm, meetingId, artifact, parsed.timestamp, parsed.title, client);
     await embedAndThread(db, table, session, llm, meetingId, artifact, client, parsed.title, parsed.timestamp, threadSimilarityThreshold);
     moveToProcessed(rawDir, processedDir, name);

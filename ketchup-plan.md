@@ -236,7 +236,7 @@ Section 5 — Sequential
 
 **Agent A** — `core/client-detection.ts`, `core/pipeline.ts`, `core/feedback.ts`:
 - [x] Burst 9: `client-detection.ts` — `DetectionResult` gains `client_id`. `storeDetection` writes `client_id`. `detectClient` returns `client_id`.
-- [ ] Burst 14: `pipeline.ts` — pass `client_id` through pipeline. Use `reconcileMilestones(db, clientId, ...)` (new signature from Agent C).
+- [x] Burst 14: `pipeline.ts` — pass `client_id` through pipeline. Use `reconcileMilestones(db, clientId, ...)` (new signature from Agent C).
 - [ ] Burst 15b: `feedback.ts` — `overrideClient` writes `client_id` alongside `client_name`
 
 **Agent B** — `core/threads.ts`, `core/insights.ts`:
