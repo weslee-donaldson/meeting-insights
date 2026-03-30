@@ -23,6 +23,7 @@
     "web:dev": "vite --config vite.web.config.ts",
     "llm:check": "tsx scripts/llm-check.ts",
     "import-external": "tsx cli/admin-util/import-external.ts",
+    "manage-auth": "tsx cli/manage-auth.ts",
     "mti": "tsx cli/mti/bin/mti.ts",
     "service:start": "pm2 start ecosystem.config.cjs",
     "service:stop": "pm2 stop webhook-watcher",

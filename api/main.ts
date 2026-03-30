@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import { createApp } from "./server.js";
-import type { SearchDeps } from "./server.js";
+import type { SearchDeps, AuthConfig } from "./server.js";
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
@@ -60,8 +60,17 @@ if (isMain) {
     console.warn("[api] Search unavailable:", (err as Error).message);
   }
 
+  let authConfig: AuthConfig | undefined;
+  if (process.env.MTNINSIGHTS_AUTH_ENABLED === "1") {
+    const { loadOrCreateKeys } = await import("../core/auth/jwt.js");
+    const keysDir = join(APP_ROOT, ".keys");
+    const keys = await loadOrCreateKeys(keysDir);
+    authConfig = { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true };
+    console.log("[api] Auth enabled");
+  }
+
   const ASSETS_DIR = join(APP_ROOT, "data/assets");
-  const app = createApp(db, DB_PATH, llm, searchDeps, ASSETS_DIR);
+  const app = createApp(db, DB_PATH, llm, searchDeps, ASSETS_DIR, authConfig);
   serve({ fetch: app.fetch, port: PORT });
   console.log(`[api] Listening on http://localhost:${PORT}`);
 }
