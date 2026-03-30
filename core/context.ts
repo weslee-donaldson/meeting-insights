@@ -13,6 +13,7 @@ interface ContextOptions {
   limit: number;
   token_budget: number;
   client_filter?: string;
+  client_id_filter?: string;
   meeting_type_filter?: string;
   date_after?: string;
   date_before?: string;
@@ -34,13 +35,25 @@ export async function buildContext(
   const vec = await embed(session as Parameters<typeof embed>[0], query);
   const table = await vdb.openTable("meeting_vectors");
 
-  const filters: VectorSearchFilter[] = [];
-  if (options.client_filter) filters.push({ field: "client", op: "=", value: options.client_filter });
-  if (options.meeting_type_filter) filters.push({ field: "meeting_type", op: "=", value: options.meeting_type_filter });
-  if (options.date_after) filters.push({ field: "date", op: ">=", value: options.date_after });
-  if (options.date_before) filters.push({ field: "date", op: "<=", value: options.date_before });
+  const baseFilters: VectorSearchFilter[] = [];
+  if (options.meeting_type_filter) baseFilters.push({ field: "meeting_type", op: "=", value: options.meeting_type_filter });
+  if (options.date_after) baseFilters.push({ field: "date", op: ">=", value: options.date_after });
+  if (options.date_before) baseFilters.push({ field: "date", op: "<=", value: options.date_before });
 
-  const rows = await searchWithFilters(table, vec, filters, options.limit);
+  let rows: Record<string, unknown>[];
+  if (options.client_id_filter) {
+    const idFilters = [...baseFilters, { field: "client_id", op: "=" as const, value: options.client_id_filter }];
+    rows = await searchWithFilters(table, vec, idFilters, options.limit);
+    if (rows.length === 0 && options.client_filter) {
+      const nameFilters = [...baseFilters, { field: "client", op: "=" as const, value: options.client_filter }];
+      rows = await searchWithFilters(table, vec, nameFilters, options.limit);
+    }
+  } else {
+    const filters = options.client_filter
+      ? [...baseFilters, { field: "client", op: "=" as const, value: options.client_filter }]
+      : baseFilters;
+    rows = await searchWithFilters(table, vec, filters, options.limit);
+  }
 
   const charBudget = options.token_budget * APPROX_CHARS_PER_TOKEN;
   const seenClusters = new Set<string>();

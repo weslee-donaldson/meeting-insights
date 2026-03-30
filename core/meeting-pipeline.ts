@@ -8,6 +8,7 @@ const log = createLogger("embed:meeting");
 
 interface MeetingVectorMetadata {
   client: string;
+  client_id?: string;
   meeting_type: string;
   date: string;
 }
@@ -55,14 +56,16 @@ export async function storeMeetingVector(
   vec: Float32Array,
   meta: MeetingVectorMetadata,
 ): Promise<void> {
-  await table.add([
-    {
-      meeting_id: meetingId,
-      vector: Array.from(vec),
-      client: meta.client,
-      meeting_type: meta.meeting_type,
-      date: meta.date,
-    },
-  ]);
+  const record: Record<string, unknown> = {
+    meeting_id: meetingId,
+    vector: Array.from(vec),
+    client: meta.client,
+    meeting_type: meta.meeting_type,
+    date: meta.date,
+  };
+  if (meta.client_id) {
+    record.client_id = meta.client_id;
+  }
+  await table.add([record]);
   log("stored vector for meeting %s client=%s", meetingId, meta.client);
 }

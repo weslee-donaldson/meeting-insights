@@ -9,6 +9,7 @@ import type { VectorDb } from "./vector-db.js";
 export interface Milestone {
   id: string;
   client_name: string;
+  client_id: string;
   title: string;
   description: string;
   target_date: string | null;
@@ -23,14 +24,16 @@ type MilestoneRow = Milestone;
 
 export function createMilestone(
   db: DatabaseSync,
-  input: { clientName: string; title: string; description?: string; targetDate?: string },
+  input: { clientId: string; title: string; description?: string; targetDate?: string },
 ): MilestoneRow {
   const id = randomUUID();
   const now = new Date().toISOString();
+  const clientRow = db.prepare("SELECT name FROM clients WHERE id = ?").get(input.clientId) as { name: string } | undefined;
+  const clientName = clientRow?.name ?? "";
   db.prepare(
-    `INSERT INTO milestones (id, client_name, title, description, target_date, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, 'identified', ?, ?)`,
-  ).run(id, input.clientName, input.title, input.description ?? "", input.targetDate ?? null, now, now);
+    `INSERT INTO milestones (id, client_name, client_id, title, description, target_date, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, 'identified', ?, ?)`,
+  ).run(id, clientName, input.clientId, input.title, input.description ?? "", input.targetDate ?? null, now, now);
 
   return db.prepare("SELECT * FROM milestones WHERE id = ?").get(id) as MilestoneRow;
 }
@@ -234,12 +237,12 @@ function applyStatusTransition(db: DatabaseSync, milestoneId: string, statusSign
 
 export function reconcileMilestones(
   db: DatabaseSync,
-  clientName: string,
+  clientId: string,
   meetingId: string,
   meetingDate: string,
   extracted: ExtractedMilestone[],
 ): void {
-  const existing = db.prepare("SELECT id, title FROM milestones WHERE client_name = ? AND ignored = 0").all(clientName) as { id: string; title: string }[];
+  const existing = db.prepare("SELECT id, title FROM milestones WHERE client_id = ? AND ignored = 0").all(clientId) as { id: string; title: string }[];
   const titleMap = new Map(existing.map((m) => [normalizeTitle(m.title), m.id]));
 
   for (const em of extracted) {
@@ -277,7 +280,7 @@ export function reconcileMilestones(
         });
       } else {
         const created = createMilestone(db, {
-          clientName,
+          clientId,
           title: em.title,
           targetDate: em.target_date ?? undefined,
         });
@@ -299,12 +302,12 @@ export function confirmMilestoneMention(db: DatabaseSync, milestoneId: string, m
   db.prepare("UPDATE milestone_mentions SET pending_review = 0 WHERE milestone_id = ? AND meeting_id = ?").run(milestoneId, meetingId);
 }
 
-export function rejectMilestoneMention(db: DatabaseSync, milestoneId: string, meetingId: string, clientName: string): MilestoneRow {
+export function rejectMilestoneMention(db: DatabaseSync, milestoneId: string, meetingId: string, clientId: string): MilestoneRow {
   const mention = db.prepare("SELECT * FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = ?").get(milestoneId, meetingId) as MilestoneMentionRow;
   db.prepare("DELETE FROM milestone_mentions WHERE milestone_id = ? AND meeting_id = ?").run(milestoneId, meetingId);
 
   const newMs = createMilestone(db, {
-    clientName,
+    clientId,
     title: mention.excerpt,
     targetDate: mention.target_date_at_mention ?? undefined,
   });
@@ -328,7 +331,7 @@ export function mergeMilestones(db: DatabaseSync, sourceId: string, targetId: st
   db.prepare("UPDATE milestones SET ignored = 1, updated_at = ? WHERE id = ?").run(new Date().toISOString(), sourceId);
 }
 
-export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
+export function listMilestonesByClient(db: DatabaseSync, clientId: string) {
   return db.prepare(
     `SELECT m.*,
        COUNT(mm.meeting_id) AS mention_count,
@@ -336,10 +339,10 @@ export function listMilestonesByClient(db: DatabaseSync, clientName: string) {
        SUM(CASE WHEN mm.pending_review = 1 THEN 1 ELSE 0 END) AS pending_review_count
      FROM milestones m
      LEFT JOIN milestone_mentions mm ON mm.milestone_id = m.id
-     WHERE m.client_name = ? AND m.ignored = 0
+     WHERE m.client_id = ? AND m.ignored = 0
      GROUP BY m.id
      ORDER BY m.target_date ASC NULLS LAST`,
-  ).all(clientName) as (MilestoneRow & { mention_count: number; first_mentioned_at: string | null; pending_review_count: number })[];
+  ).all(clientId) as (MilestoneRow & { mention_count: number; first_mentioned_at: string | null; pending_review_count: number })[];
 }
 
 interface MilestoneMessageRow {

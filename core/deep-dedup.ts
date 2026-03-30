@@ -126,7 +126,7 @@ export async function deepScanClient(
   itemTable: VectorTable,
   session: InferenceSession & { _tokenizer: unknown },
   llm: LlmAdapter,
-  clientName: string,
+  clientId: string,
   meetings: Array<{ id: string; date: string; title: string }>,
   promptTemplate: string,
 ): Promise<DeepScanResult> {
@@ -163,7 +163,7 @@ export async function deepScanClient(
     const prompt = buildBatchDedupPrompt(promptTemplate, filtered);
     const response = await llm.complete("dedup_intent", prompt);
     groups = parseBatchDedupResponse(response, filtered.length);
-    log("client=%s items=%d groups=%d", clientName, filtered.length, groups.length);
+    log("client=%s items=%d groups=%d", clientId, filtered.length, groups.length);
   }
 
   const assignments = assignCanonicalGroups(groups, filtered);
@@ -178,7 +178,7 @@ export async function deepScanClient(
     const item = allActionItems[i];
     const assignment = groupedOriginals.get(i) ?? { canonicalId: randomUUID(), firstMentionedAt: item.date };
     const vec = await embedItem(session, item.description);
-    await storeItemVector(itemTable, assignment.canonicalId, item.description, "action_items", item.meetingId, item.date, clientName, vec);
+    await storeItemVector(itemTable, assignment.canonicalId, item.description, "action_items", item.meetingId, item.date, clientId, vec);
     recordMention(db, assignment.canonicalId, item.meetingId, "action_items", item.itemIndex, item.description, assignment.firstMentionedAt);
     mentionsCreated++;
 
@@ -216,13 +216,13 @@ export async function deepScanClient(
         if (!text) continue;
         const canonicalId = randomUUID();
         const vec = await embedItem(session, text);
-        await storeItemVector(itemTable, canonicalId, text, field, meeting.id, meeting.date, clientName, vec);
+        await storeItemVector(itemTable, canonicalId, text, field, meeting.id, meeting.date, clientId, vec);
         recordMention(db, canonicalId, meeting.id, field, i, text, meeting.date);
         mentionsCreated++;
       }
     }
   }
 
-  log("client=%s mentions=%d dupes_completed=%d", clientName, mentionsCreated, duplicatesAutoCompleted);
+  log("client=%s mentions=%d dupes_completed=%d", clientId, mentionsCreated, duplicatesAutoCompleted);
   return { mentionsCreated, duplicatesAutoCompleted };
 }

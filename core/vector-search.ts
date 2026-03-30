@@ -9,6 +9,7 @@ const log = createLogger("vector:search");
 interface SearchOptions {
   limit: number;
   client?: string;
+  client_id?: string;
   meeting_type?: string;
   date_after?: string;
   date_before?: string;
@@ -30,13 +31,25 @@ export async function searchMeetingsByVector(
 ): Promise<SearchResult[]> {
   const table = await db.openTable("meeting_vectors");
 
-  const filters: VectorSearchFilter[] = [];
-  if (options.client) filters.push({ field: "client", op: "=", value: options.client });
-  if (options.meeting_type) filters.push({ field: "meeting_type", op: "=", value: options.meeting_type });
-  if (options.date_after) filters.push({ field: "date", op: ">=", value: options.date_after });
-  if (options.date_before) filters.push({ field: "date", op: "<=", value: options.date_before });
+  const baseFilters: VectorSearchFilter[] = [];
+  if (options.meeting_type) baseFilters.push({ field: "meeting_type", op: "=", value: options.meeting_type });
+  if (options.date_after) baseFilters.push({ field: "date", op: ">=", value: options.date_after });
+  if (options.date_before) baseFilters.push({ field: "date", op: "<=", value: options.date_before });
 
-  const rows = await searchWithFilters(table, vec, filters, options.limit);
+  let rows: Record<string, unknown>[];
+  if (options.client_id) {
+    const idFilters = [...baseFilters, { field: "client_id", op: "=" as const, value: options.client_id }];
+    rows = await searchWithFilters(table, vec, idFilters, options.limit);
+    if (rows.length === 0 && options.client) {
+      const nameFilters = [...baseFilters, { field: "client", op: "=" as const, value: options.client }];
+      rows = await searchWithFilters(table, vec, nameFilters, options.limit);
+    }
+  } else {
+    const filters = options.client
+      ? [...baseFilters, { field: "client", op: "=" as const, value: options.client }]
+      : baseFilters;
+    rows = await searchWithFilters(table, vec, filters, options.limit);
+  }
   const results: SearchResult[] = rows.map((r: Record<string, unknown>) => ({
     meeting_id: r.meeting_id as string,
     score: r._distance as number,
