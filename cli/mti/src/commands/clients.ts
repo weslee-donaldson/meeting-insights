@@ -35,9 +35,9 @@ export function registerClients(
   program: Command,
   deps?: { client?: HttpClient; stream?: NodeJS.WritableStream }
 ): void {
-  const clients = new Command("clients").description(
-    "Manage clients and glossary terms."
-  );
+  const clients = new Command("clients")
+    .description("Manage clients and glossary terms.")
+    .enablePositionalOptions();
 
   const list = new Command("list")
     .description("List your assigned clients.")

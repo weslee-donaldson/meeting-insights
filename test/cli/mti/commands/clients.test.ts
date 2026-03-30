@@ -61,7 +61,7 @@ describe("clients list", () => {
     expect(output).toContain("Initech");
   });
 
-  it("outputs raw JSON with full UUIDs when --json is passed", async () => {
+  it("outputs raw JSON with full UUIDs when --json is passed at program level", async () => {
     const client = stubClient({
       "/api/clients/list": listData,
     });
@@ -69,6 +69,21 @@ describe("clients list", () => {
 
     const program = new Command();
     program.option("--json", "Output as JSON");
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "list", "--json"], { from: "user" });
+
+    const parsed = JSON.parse(chunks.join(""));
+    expect(parsed).toEqual(listData);
+  });
+
+  it("outputs raw JSON when --json is passed as subcommand option with positional options enabled", async () => {
+    const client = stubClient({
+      "/api/clients/list": listData,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    program.option("--json", "Output as JSON").enablePositionalOptions();
     registerClients(program, { client, stream });
     await program.parseAsync(["clients", "list", "--json"], { from: "user" });
 
