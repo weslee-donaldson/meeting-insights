@@ -41,15 +41,23 @@ All commands follow the pattern `mti <noun> <verb> [options]`. Human-readable ta
 ### Clients
 
 ```bash
-mti clients list [--json]              # List your assigned clients
+mti clients list [--json]              # List clients with IDs
+mti clients info <id|name> [--json]    # Show client detail (team, aliases, glossary count)
 mti clients default                     # Show your default client
 mti clients glossary <name> [--json]   # Show glossary terms for a client
+```
+
+`clients info` accepts either a UUID or a client name (case-insensitive):
+
+```bash
+mti clients info LLSA                   # by name
+mti clients info a1b2c3d4-...          # by UUID
 ```
 
 ### Meetings
 
 ```bash
-mti meetings list [--client <name>] [--after <date>] [--before <date>] [--json]
+mti meetings list [--client <name>] [--after <date>] [--before <date>] [--limit <n>] [--no-truncate] [--json]
 mti meetings get <id> [--include-transcript] [--json]
 mti meetings transcript <id>
 mti meetings artifact <id> [--json]
@@ -62,7 +70,7 @@ mti meetings ignore <id> [--undo] [--json]
 ### Action Items
 
 ```bash
-mti items list <client> [--after <date>] [--before <date>] [--json]
+mti items list <client> [--after <date>] [--before <date>] [--limit <n>] [--no-truncate] [--json]
 mti items create <meetingId> [--description <text>] [--owner <name>] [--priority <level>] [--json]
 mti items edit <meetingId> <index> [--description <text>] [--owner <name>] [--due-date <date>] [--priority <level>] [--json]
 mti items complete <meetingId> <index> [--note <text>] [--json]

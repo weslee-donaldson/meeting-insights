@@ -141,6 +141,31 @@ Errors:
   const info = new Command("info")
     .description("Show details for a client.")
     .argument("<id>", "Client ID or name")
+    .addHelpText(
+      "after",
+      `
+Output schema (--json):
+  { "id": "string", "name": "string", "aliases": ["string"],
+    "client_team": [{ "name": "string", "role": "string", "email": "string" }],
+    "implementation_team": [{ "name": "string", "role": "string", "email": "string" }],
+    "meeting_names": ["string"], "glossary_count": "number" }
+
+Example:
+  $ mti clients info LLSA
+  Name:      LLSA
+  Aliases:   LLSA, LS&A
+
+  CLIENT TEAM
+  Name              Role                   Email
+  ────              ────                   ─────
+  Stace Baal        CTO                    stace.baal@llsa.com
+  Jennifer Karavakis Engineering Manager   jennifer.karavakis@llsa.com
+
+  $ mti clients info a1b2c3d4-e5f6-...    # also accepts UUID
+
+Errors:
+  404  Client not found`
+    )
     .option("--json", "Output as JSON")
     .action(async (idOrName: string, opts) => {
       const parentOpts = program.opts();
