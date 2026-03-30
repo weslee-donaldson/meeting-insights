@@ -127,3 +127,18 @@ export async function refreshTokens(
     scope: string;
   }>;
 }
+
+export function revokeToken(db: Database, jti: string): boolean {
+  const result = db
+    .prepare("UPDATE oauth_tokens SET revoked = 1 WHERE jti = ? AND revoked = 0")
+    .run(jti);
+  return result.changes > 0;
+}
+
+export function isTokenRevoked(db: Database, jti: string): boolean {
+  const row = db
+    .prepare("SELECT revoked FROM oauth_tokens WHERE jti = ?")
+    .get(jti) as { revoked: number } | undefined;
+  if (!row) return true;
+  return row.revoked === 1;
+}

@@ -4,8 +4,7 @@ import { migrate } from "../core/db.js";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
 import { generateKeyPair, verifyAccessToken, verifyRefreshToken } from "../core/auth/jwt.js";
 import { registerOAuthClient } from "../core/auth/oauth-clients.js";
-import { issueTokenPair, refreshTokens } from "../core/auth/token-service.js";
-import { AppError } from "../core/errors.js";
+import { issueTokenPair, refreshTokens, revokeToken, isTokenRevoked } from "../core/auth/token-service.js";
 
 describe("issueTokenPair", () => {
   let db: DatabaseSync;
@@ -334,5 +333,112 @@ describe("refreshTokens", () => {
     const payload = await verifyAccessToken(keys.publicKey, result.access_token);
     expect(payload.sub).toBe(userId);
     expect(payload.tid).toBe(tenantId);
+  });
+});
+
+describe("revokeToken", () => {
+  let db: DatabaseSync;
+  let tenantId: string;
+  let keys: { publicKey: CryptoKey; privateKey: CryptoKey };
+  let oauthClientId: string;
+
+  beforeAll(async () => {
+    keys = await generateKeyPair();
+  });
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    ({ tenantId } = seedTestTenant(db));
+    ({ clientId: oauthClientId } = registerOAuthClient(db, {
+      tenantId,
+      name: "Test Service",
+      grantTypes: ["client_credentials"],
+      scopes: ["meetings:read"],
+    }));
+  });
+
+  it("returns true and marks the token as revoked", async () => {
+    const result = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["meetings:read"],
+    }, keys);
+
+    const payload = await verifyAccessToken(keys.publicKey, result.access_token);
+    const revoked = revokeToken(db, payload.jti);
+
+    expect(revoked).toBe(true);
+
+    const row = db.prepare("SELECT revoked FROM oauth_tokens WHERE jti = ?").get(payload.jti) as { revoked: number };
+    expect(row.revoked).toBe(1);
+  });
+
+  it("returns false when the jti does not exist", () => {
+    expect(revokeToken(db, "nonexistent-jti")).toBe(false);
+  });
+
+  it("returns false when the token is already revoked", async () => {
+    const result = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["meetings:read"],
+    }, keys);
+
+    const payload = await verifyAccessToken(keys.publicKey, result.access_token);
+    revokeToken(db, payload.jti);
+
+    expect(revokeToken(db, payload.jti)).toBe(false);
+  });
+});
+
+describe("isTokenRevoked", () => {
+  let db: DatabaseSync;
+  let tenantId: string;
+  let keys: { publicKey: CryptoKey; privateKey: CryptoKey };
+  let oauthClientId: string;
+
+  beforeAll(async () => {
+    keys = await generateKeyPair();
+  });
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    ({ tenantId } = seedTestTenant(db));
+    ({ clientId: oauthClientId } = registerOAuthClient(db, {
+      tenantId,
+      name: "Test Service",
+      grantTypes: ["client_credentials"],
+      scopes: ["meetings:read"],
+    }));
+  });
+
+  it("returns false for a non-revoked token", async () => {
+    const result = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["meetings:read"],
+    }, keys);
+
+    const payload = await verifyAccessToken(keys.publicKey, result.access_token);
+    expect(isTokenRevoked(db, payload.jti)).toBe(false);
+  });
+
+  it("returns true for a revoked token", async () => {
+    const result = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["meetings:read"],
+    }, keys);
+
+    const payload = await verifyAccessToken(keys.publicKey, result.access_token);
+    revokeToken(db, payload.jti);
+
+    expect(isTokenRevoked(db, payload.jti)).toBe(true);
+  });
+
+  it("returns true when the jti does not exist in the database", () => {
+    expect(isTokenRevoked(db, "nonexistent-jti")).toBe(true);
   });
 });
