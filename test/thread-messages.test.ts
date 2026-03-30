@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createThread, appendThreadMessage, getThreadMessages, clearThreadMessages, markThreadMessagesStale } from "../core/threads.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
 let threadId: string;
@@ -9,8 +10,9 @@ let threadId: string;
 beforeEach(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
-  const thread = createThread(db, { client_name: "Acme", title: "Thread", shorthand: "T", description: "", criteria_prompt: "" });
+  const { tenantId } = seedTestTenant(db);
+  const acmeClientId = seedTestClient(db, tenantId, "Acme").id;
+  const thread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "Thread", shorthand: "T", description: "", criteria_prompt: "" });
   threadId = thread.id;
 });
 

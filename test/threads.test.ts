@@ -21,6 +21,7 @@ describe("migrate - threads tables", () => {
     const names = cols.map((c) => c.name);
     expect(names).toContain("id");
     expect(names).toContain("client_name");
+    expect(names).toContain("client_id");
     expect(names).toContain("title");
     expect(names).toContain("shorthand");
     expect(names).toContain("description");
@@ -72,6 +73,7 @@ describe("Thread type shape", () => {
     const t: Thread = {
       id: "t1",
       client_name: "Acme",
+      client_id: "client-uuid-123",
       title: "PR Deployments broken",
       shorthand: "PR-DEPLOY",
       description: "Track broken deployments",
@@ -86,6 +88,7 @@ describe("Thread type shape", () => {
     expect(t.id).toBe("t1");
     expect(t.status).toBe("open");
     expect(t.shorthand).toBe("PR-DEPLOY");
+    expect(t.client_id).toBe("client-uuid-123");
   });
 
   it("ThreadMeeting interface has correct shape", () => {

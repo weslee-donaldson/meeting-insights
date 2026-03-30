@@ -4,15 +4,18 @@ import type { Database } from "../core/db.js";
 import { createThread, evaluateMeetingAgainstThread } from "../core/threads.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { storeArtifact } from "../core/extractor.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
 let threadId: string;
+let acmeClientId: string;
 const llm = createLlmAdapter({ type: "stub" });
 
 beforeEach(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+  const { tenantId } = seedTestTenant(db);
+  acmeClientId = seedTestClient(db, tenantId, "Acme").id;
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m1', 'Sprint Planning', '2026-03-01')").run();
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m2', 'No artifact meeting', '2026-03-02')").run();
   storeArtifact(db, "m1", {
@@ -26,6 +29,7 @@ beforeEach(() => {
   });
   const thread = createThread(db, {
     client_name: "Acme",
+    client_id: acmeClientId,
     title: "Deployment issues",
     shorthand: "DEPLOY",
     description: "Track deployment failures",
@@ -48,6 +52,7 @@ describe("evaluateMeetingAgainstThread", () => {
   it("injects keywords into the evaluation prompt", async () => {
     const thread = createThread(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       title: "FTP issues",
       shorthand: "FTP",
       description: "FTP failures",

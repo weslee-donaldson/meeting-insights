@@ -11,6 +11,7 @@ export function parseKeywords(input: string): string[] {
 export interface Thread {
   id: string;
   client_name: string;
+  client_id: string;
   title: string;
   shorthand: string;
   description: string;
@@ -47,6 +48,7 @@ export interface ThreadMessage {
 
 export interface CreateThreadInput {
   client_name: string;
+  client_id: string;
   title: string;
   shorthand: string;
   description: string;
@@ -66,6 +68,7 @@ import type { VectorDb } from "./vector-db.js";
 interface ThreadRow {
   id: string;
   client_name: string;
+  client_id: string;
   title: string;
   shorthand: string;
   description: string;
@@ -83,6 +86,7 @@ function rowToThread(row: ThreadRow): Thread {
   return {
     id: row.id,
     client_name: row.client_name,
+    client_id: row.client_id,
     title: row.title,
     shorthand: row.shorthand,
     description: row.description,
@@ -101,9 +105,9 @@ export function createThread(db: Database, input: CreateThreadInput): Thread {
   const id = randomUUID();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO threads (id, client_name, title, shorthand, description, status, summary, criteria_prompt, keywords, criteria_changed_at, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?, ?)
-  `).run(id, input.client_name, input.title, input.shorthand, input.description, input.criteria_prompt, input.keywords ?? "", now, now, now);
+    INSERT INTO threads (id, client_name, client_id, title, shorthand, description, status, summary, criteria_prompt, keywords, criteria_changed_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?, ?)
+  `).run(id, input.client_name, input.client_id, input.title, input.shorthand, input.description, input.criteria_prompt, input.keywords ?? "", now, now, now);
   return rowToThread(db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow);
 }
 
@@ -324,15 +328,15 @@ export async function evaluateMeetingAgainstThread(
   };
 }
 
-export function listThreadsByClient(db: Database, clientName: string): Thread[] {
+export function listThreadsByClient(db: Database, clientId: string): Thread[] {
   const rows = db.prepare(`
     SELECT t.*, COUNT(tm.meeting_id) AS meeting_count
     FROM threads t
     LEFT JOIN thread_meetings tm ON t.id = tm.thread_id
-    WHERE t.client_name = ?
+    WHERE t.client_id = ?
     GROUP BY t.id
     ORDER BY t.created_at DESC
-  `).all(clientName) as ThreadRow[];
+  `).all(clientId) as ThreadRow[];
   return rows.map(rowToThread);
 }
 

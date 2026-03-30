@@ -240,7 +240,7 @@ Section 5 — Sequential
 - [ ] Burst 15b: `feedback.ts` — `overrideClient` writes `client_id` alongside `client_name`
 
 **Agent B** — `core/threads.ts`, `core/insights.ts`:
-- [ ] Burst 10: `threads.ts` — `createThread` writes `client_id`. `listThreadsByClient(db, clientId)` queries by `client_id`. `Thread` and `CreateThreadInput` gain `client_id`.
+- [x] Burst 10: `threads.ts` — `createThread` writes `client_id`. `listThreadsByClient(db, clientId)` queries by `client_id`. `Thread` and `CreateThreadInput` gain `client_id`.
 - [ ] Burst 11: `insights.ts` — same pattern. Plus: `generateInsight` resolves client name from `client_id` for `{{client_name}}` template substitution.
 
 **Agent C** — `core/timelines.ts`, `core/deep-dedup.ts`, vector dual-write:
