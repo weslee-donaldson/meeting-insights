@@ -12,6 +12,7 @@ import { createLlmAdapter } from "../core/llm-adapter.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 describe("buildBatchDedupPrompt", () => {
   const template = "Analyze these items:\n\n{{items}}";
@@ -170,9 +171,14 @@ describe("deepScanClient", () => {
     session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
   }, 30000);
 
+  let clientId: string;
+
   const setupDb = async () => {
     db = createDb(":memory:");
     migrate(db);
+    const { tenantId } = seedTestTenant(db);
+    const client = seedTestClient(db, tenantId, "acme");
+    clientId = client.id;
     vdbPath = join(tmpdir(), `lancedb-deep-dedup-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(vdbPath, { recursive: true });
     const vdb = await connectVectorDb(vdbPath);
@@ -206,7 +212,7 @@ describe("deepScanClient", () => {
       { id: m2Id, date: "2026-01-12", title: "Review" },
     ];
 
-    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    const result = await deepScanClient(db, table, session, llm, clientId, meetings, template);
     expect(result.mentionsCreated).toBeGreaterThanOrEqual(2);
     expect(result.duplicatesAutoCompleted).toBe(1);
 
@@ -228,7 +234,7 @@ describe("deepScanClient", () => {
     });
 
     const meetings = [{ id: m1Id, date: "2026-01-10", title: "Standup" }];
-    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    const result = await deepScanClient(db, table, session, llm, clientId, meetings, template);
     expect(result.duplicatesAutoCompleted).toBe(0);
 
     const mentions = db.prepare("SELECT * FROM item_mentions WHERE meeting_id = ? AND item_type = 'action_items'").all(m1Id) as Array<{ canonical_id: string }>;
@@ -247,7 +253,7 @@ describe("deepScanClient", () => {
     });
 
     const meetings = [{ id: m1Id, date: "2026-01-10", title: "Standup" }];
-    const result = await deepScanClient(db, table, session, llm, "acme", meetings, template);
+    const result = await deepScanClient(db, table, session, llm, clientId, meetings, template);
     const oqMentions = db.prepare("SELECT * FROM item_mentions WHERE meeting_id = ? AND item_type = 'open_questions'").all(m1Id);
     expect(oqMentions.length).toBe(2);
     expect(result.mentionsCreated).toBe(3);
