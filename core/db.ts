@@ -435,8 +435,10 @@ export function migrate(db: DatabaseSync): void {
       db.exec("UPDATE client_detections SET client_id = (SELECT id FROM clients_v2 WHERE name = client_detections.client_name) WHERE client_id IS NULL");
     }
 
+    db.exec("PRAGMA foreign_keys = OFF");
     db.exec("DROP TABLE clients");
     db.exec("ALTER TABLE clients_v2 RENAME TO clients");
+    db.exec("PRAGMA foreign_keys = ON");
 
     const tenantCount = db.prepare("SELECT count(*) as cnt FROM tenants").get() as { cnt: number };
     const clientCount = db.prepare("SELECT count(*) as cnt FROM clients").get() as { cnt: number };
