@@ -259,7 +259,7 @@ Section 5 — Sequential
 
 #### Section 5: Documentation
 
-- [x] Burst 21: Update `core/scatter.md`, `api/scatter.md`, `api/routes/scatter.md` — tenant model, client PK change, `client_id` columns
+- [x] Burst 21: Update `core/scatter.md`, `api/scatter.md`, `api/routes/scatter.md` — tenant model, client PK change, `client_id` columns (9a27e7d)
 
 ---
 
