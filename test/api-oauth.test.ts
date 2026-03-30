@@ -496,3 +496,36 @@ describe("GET /.well-known/oauth-authorization-server", () => {
     });
   });
 });
+
+describe("GET /oauth/jwks", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    seedTestTenant(db);
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("returns JSON Web Key Set with public key", async () => {
+    const res = await app.request("/oauth/jwks");
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.keys).toHaveLength(1);
+    expect(body.keys[0]).toEqual(
+      expect.objectContaining({
+        kty: "RSA",
+        alg: "RS256",
+        use: "sig",
+        n: expect.any(String),
+        e: expect.any(String),
+      }),
+    );
+  });
+});

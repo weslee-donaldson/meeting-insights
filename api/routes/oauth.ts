@@ -3,7 +3,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import { timingSafeEqual } from "node:crypto";
 import { authenticateOAuthClient, getOAuthClient } from "../../core/auth/oauth-clients.js";
 import { issueTokenPair, refreshTokens, revokeToken } from "../../core/auth/token-service.js";
-import { decodeJwt } from "jose";
+import { decodeJwt, exportJWK } from "jose";
 import { createAuthorizationCode, exchangeAuthorizationCode } from "../../core/auth/auth-codes.js";
 import { isValidScope, VALID_SCOPES } from "../../core/auth/scopes.js";
 import type { Scope } from "../../core/auth/scopes.js";
@@ -81,6 +81,11 @@ export function registerOAuthRoutes(app: Hono, db: Database, deps?: OAuthDeps): 
       code_challenge_methods_supported: ["S256"],
       token_endpoint_auth_methods_supported: ["client_secret_post", "none"],
     });
+  });
+
+  app.get("/oauth/jwks", async (c) => {
+    const jwk = await exportJWK(deps.publicKey);
+    return c.json({ keys: [{ ...jwk, alg: "RS256", use: "sig" }] });
   });
 
   app.post("/oauth/revoke", async (c) => {
