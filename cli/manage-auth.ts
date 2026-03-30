@@ -1,8 +1,8 @@
 #!/usr/bin/env tsx
 import { Command } from "commander";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { registerOAuthClient } from "../core/auth/oauth-clients.js";
-import { createApiKey } from "../core/auth/api-keys.js";
+import { registerOAuthClient, listOAuthClients, revokeOAuthClient } from "../core/auth/oauth-clients.js";
+import { createApiKey, listApiKeys, revokeApiKey } from "../core/auth/api-keys.js";
 import type { Scope } from "../core/auth/scopes.js";
 
 export function buildProgram(
@@ -48,6 +48,45 @@ export function buildProgram(
       const scopes = opts.scopes.split(",") as Scope[];
       const result = createApiKey(db, { tenantId, userId, name: opts.name, scopes });
       print(JSON.stringify({ key: result.key, prefix: result.prefix }));
+    });
+
+  program
+    .command("list-clients")
+    .action(() => {
+      const clients = listOAuthClients(db, tenantId);
+      print(JSON.stringify(clients));
+    });
+
+  program
+    .command("list-api-keys")
+    .action(() => {
+      const keys = listApiKeys(db, tenantId);
+      print(JSON.stringify(keys));
+    });
+
+  program
+    .command("revoke-client")
+    .argument("<client_id>", "OAuth client ID to revoke")
+    .action((clientId: string) => {
+      const result = revokeOAuthClient(db, clientId);
+      print(JSON.stringify({ revoked: result }));
+    });
+
+  program
+    .command("revoke-api-key")
+    .argument("<prefix>", "API key prefix to revoke")
+    .action((prefix: string) => {
+      const row = db
+        .prepare("SELECT key_hash FROM api_keys WHERE prefix = ?")
+        .get(prefix) as { key_hash: string } | undefined;
+
+      if (!row) {
+        print(JSON.stringify({ revoked: false }));
+        return;
+      }
+
+      const result = revokeApiKey(db, row.key_hash);
+      print(JSON.stringify({ revoked: result }));
     });
 
   return program;

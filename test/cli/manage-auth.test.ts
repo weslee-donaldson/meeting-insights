@@ -101,3 +101,128 @@ describe("create-api-key subcommand", () => {
     ]);
   });
 });
+
+describe("list-clients subcommand", () => {
+  it("lists all registered OAuth clients for the tenant", () => {
+    const output: string[] = [];
+    const program = buildProgram(db, tenantId, userId, (msg: string) => output.push(msg));
+
+    program.parse([
+      "node", "manage-auth",
+      "create-client",
+      "--name", "App One",
+      "--grant-types", "client_credentials",
+      "--scopes", "meetings:read",
+    ]);
+
+    const listOutput: string[] = [];
+    const listProgram = buildProgram(db, tenantId, userId, (msg: string) => listOutput.push(msg));
+    listProgram.parse(["node", "manage-auth", "list-clients"]);
+
+    const parsed = JSON.parse(listOutput[0]);
+    expect(parsed).toEqual([
+      {
+        client_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
+        name: "App One",
+        grant_types: JSON.stringify(["client_credentials"]),
+        scopes: JSON.stringify(["meetings:read"]),
+        redirect_uris: null,
+        created_at: expect.any(String),
+        revoked: 0,
+        tenant_id: tenantId,
+      },
+    ]);
+  });
+});
+
+describe("list-api-keys subcommand", () => {
+  it("lists all API keys for the tenant", () => {
+    const output: string[] = [];
+    const program = buildProgram(db, tenantId, userId, (msg: string) => output.push(msg));
+
+    program.parse([
+      "node", "manage-auth",
+      "create-api-key",
+      "--name", "Key One",
+      "--scopes", "meetings:read",
+    ]);
+
+    const listOutput: string[] = [];
+    const listProgram = buildProgram(db, tenantId, userId, (msg: string) => listOutput.push(msg));
+    listProgram.parse(["node", "manage-auth", "list-api-keys"]);
+
+    const parsed = JSON.parse(listOutput[0]);
+    expect(parsed).toEqual([
+      {
+        prefix: expect.stringMatching(/^mki_[0-9a-f]{4}$/),
+        name: "Key One",
+        scopes: JSON.stringify(["meetings:read"]),
+        created_at: expect.any(String),
+        last_used_at: null,
+        revoked: 0,
+      },
+    ]);
+  });
+});
+
+describe("revoke-client subcommand", () => {
+  it("revokes an OAuth client by client_id", () => {
+    const createOutput: string[] = [];
+    const createProgram = buildProgram(db, tenantId, userId, (msg: string) => createOutput.push(msg));
+    createProgram.parse([
+      "node", "manage-auth",
+      "create-client",
+      "--name", "Revokable",
+      "--grant-types", "client_credentials",
+      "--scopes", "meetings:read",
+    ]);
+    const { client_id } = JSON.parse(createOutput[0]);
+
+    const revokeOutput: string[] = [];
+    const revokeProgram = buildProgram(db, tenantId, userId, (msg: string) => revokeOutput.push(msg));
+    revokeProgram.parse(["node", "manage-auth", "revoke-client", client_id]);
+
+    const parsed = JSON.parse(revokeOutput[0]);
+    expect(parsed).toEqual({ revoked: true });
+
+    const row = db
+      .prepare("SELECT revoked FROM oauth_clients WHERE client_id = ?")
+      .get(client_id) as { revoked: number };
+    expect(row.revoked).toBe(1);
+  });
+});
+
+describe("revoke-api-key subcommand", () => {
+  it("revokes an API key by prefix lookup", () => {
+    const createOutput: string[] = [];
+    const createProgram = buildProgram(db, tenantId, userId, (msg: string) => createOutput.push(msg));
+    createProgram.parse([
+      "node", "manage-auth",
+      "create-api-key",
+      "--name", "Revoke Me",
+      "--scopes", "meetings:read",
+    ]);
+    const { prefix } = JSON.parse(createOutput[0]);
+
+    const revokeOutput: string[] = [];
+    const revokeProgram = buildProgram(db, tenantId, userId, (msg: string) => revokeOutput.push(msg));
+    revokeProgram.parse(["node", "manage-auth", "revoke-api-key", prefix]);
+
+    const parsed = JSON.parse(revokeOutput[0]);
+    expect(parsed).toEqual({ revoked: true });
+
+    const row = db
+      .prepare("SELECT revoked FROM api_keys WHERE prefix = ?")
+      .get(prefix) as { revoked: number };
+    expect(row.revoked).toBe(1);
+  });
+
+  it("returns revoked false for an unknown prefix", () => {
+    const revokeOutput: string[] = [];
+    const revokeProgram = buildProgram(db, tenantId, userId, (msg: string) => revokeOutput.push(msg));
+    revokeProgram.parse(["node", "manage-auth", "revoke-api-key", "mki_xxxx"]);
+
+    const parsed = JSON.parse(revokeOutput[0]);
+    expect(parsed).toEqual({ revoked: false });
+  });
+});
