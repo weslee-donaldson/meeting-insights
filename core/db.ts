@@ -359,5 +359,29 @@ export function migrate(db: DatabaseSync): void {
       SELECT id, name, aliases, known_participants, refinement_prompt, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary
       FROM clients
     `);
+
+    const refThreadCols = db.prepare("PRAGMA table_info(threads)").all() as { name: string }[];
+    if (refThreadCols.length > 0 && !refThreadCols.some(c => c.name === "client_id")) {
+      db.exec("ALTER TABLE threads ADD COLUMN client_id TEXT");
+      db.exec("UPDATE threads SET client_id = (SELECT id FROM clients_v2 WHERE name = threads.client_name) WHERE client_id IS NULL");
+    }
+
+    const refInsightCols = db.prepare("PRAGMA table_info(insights)").all() as { name: string }[];
+    if (refInsightCols.length > 0 && !refInsightCols.some(c => c.name === "client_id")) {
+      db.exec("ALTER TABLE insights ADD COLUMN client_id TEXT");
+      db.exec("UPDATE insights SET client_id = (SELECT id FROM clients_v2 WHERE name = insights.client_name) WHERE client_id IS NULL");
+    }
+
+    const refMilestoneCols = db.prepare("PRAGMA table_info(milestones)").all() as { name: string }[];
+    if (refMilestoneCols.length > 0 && !refMilestoneCols.some(c => c.name === "client_id")) {
+      db.exec("ALTER TABLE milestones ADD COLUMN client_id TEXT");
+      db.exec("UPDATE milestones SET client_id = (SELECT id FROM clients_v2 WHERE name = milestones.client_name) WHERE client_id IS NULL");
+    }
+
+    const refDetectionCols = db.prepare("PRAGMA table_info(client_detections)").all() as { name: string }[];
+    if (refDetectionCols.length > 0 && !refDetectionCols.some(c => c.name === "client_id")) {
+      db.exec("ALTER TABLE client_detections ADD COLUMN client_id TEXT");
+      db.exec("UPDATE client_detections SET client_id = (SELECT id FROM clients_v2 WHERE name = client_detections.client_name) WHERE client_id IS NULL");
+    }
   }
 }

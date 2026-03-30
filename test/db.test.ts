@@ -240,4 +240,76 @@ describe("client PK migration", () => {
     const tableNames = tables.map(t => t.name);
     expect(tableNames).toContain("clients");
   });
+
+  it("adds client_id columns to threads, insights, milestones, client_detections and populates from JOIN", () => {
+    const mdb = createDb(":memory:");
+    mdb.exec(`
+      CREATE TABLE IF NOT EXISTS meetings (id TEXT PRIMARY KEY, title TEXT, date TEXT);
+      CREATE TABLE IF NOT EXISTS clients (
+        name TEXT PRIMARY KEY, aliases TEXT, known_participants TEXT
+      );
+      CREATE TABLE IF NOT EXISTS threads (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, title TEXT NOT NULL,
+        shorthand TEXT DEFAULT '', description TEXT DEFAULT '', status TEXT DEFAULT 'open',
+        summary TEXT DEFAULT '', criteria_prompt TEXT DEFAULT '', keywords TEXT DEFAULT '',
+        criteria_changed_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS insights (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, name TEXT DEFAULT '',
+        period_type TEXT NOT NULL, period_start TEXT NOT NULL, period_end TEXT NOT NULL,
+        status TEXT DEFAULT 'draft', rag_status TEXT DEFAULT 'green', rag_rationale TEXT DEFAULT '',
+        executive_summary TEXT DEFAULT '', topic_details TEXT DEFAULT '[]',
+        generated_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS milestones (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, title TEXT NOT NULL,
+        description TEXT DEFAULT '', target_date TEXT, status TEXT DEFAULT 'identified',
+        completed_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS client_detections (
+        meeting_id TEXT, client_name TEXT, confidence REAL, method TEXT
+      );
+    `);
+
+    mdb.exec("ALTER TABLE clients ADD COLUMN id TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN is_default INTEGER DEFAULT 0");
+    mdb.exec("ALTER TABLE clients ADD COLUMN client_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN implementation_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN additional_extraction_llm_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN glossary TEXT DEFAULT '[]'");
+
+    mdb.prepare("INSERT INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+      "Acme", "[]", "[]", "acme-uuid",
+    );
+
+    const now = "2026-01-01T00:00:00Z";
+    mdb.prepare("INSERT INTO threads (id, client_name, title, criteria_changed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)").run(
+      "t1", "Acme", "Thread 1", now, now, now,
+    );
+    mdb.prepare("INSERT INTO insights (id, client_name, period_type, period_start, period_end, generated_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").run(
+      "i1", "Acme", "weekly", "2026-01-01", "2026-01-07", now, now, now,
+    );
+    mdb.prepare("INSERT INTO milestones (id, client_name, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?)").run(
+      "ms1", "Acme", "Milestone 1", now, now,
+    );
+    mdb.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, ?, ?)").run(
+      "m1", "Acme", 0.9, "alias",
+    );
+
+    migrate(mdb);
+
+    const threadRow = mdb.prepare("SELECT client_id FROM threads WHERE id = 't1'").get() as { client_id: string };
+    expect(threadRow).toEqual({ client_id: "acme-uuid" });
+
+    const insightRow = mdb.prepare("SELECT client_id FROM insights WHERE id = 'i1'").get() as { client_id: string };
+    expect(insightRow).toEqual({ client_id: "acme-uuid" });
+
+    const milestoneRow = mdb.prepare("SELECT client_id FROM milestones WHERE id = 'ms1'").get() as { client_id: string };
+    expect(milestoneRow).toEqual({ client_id: "acme-uuid" });
+
+    const detectionRow = mdb.prepare("SELECT client_id FROM client_detections WHERE meeting_id = 'm1'").get() as { client_id: string };
+    expect(detectionRow).toEqual({ client_id: "acme-uuid" });
+  });
 });
