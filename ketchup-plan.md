@@ -230,7 +230,7 @@ Section 5 — Sequential
 - [x] Burst 5: `seedClients(db, filePath, tenantId?)` — optional `tenantId` defaults to bootstrap tenant. Backwards-compatible for `local-service/main.ts`, `cli/admin-util/run.ts`, `cli/admin-util/setup.ts`. (a4fabc2)
 - [x] Burst 6: `getClientByName(db, name, tenantId?)`, `getAllClients(db, tenantId?)` — tenant-scoped when provided
 - [x] Burst 7: `getClientByAlias`, `getDefaultClient`, `getGlossaryForClient` — tenant-scoped
-- [ ] Burst 8: `buildClientContext` — callers look up client by ID, pass resolved data
+- [x] Burst 8: `buildClientContext` — callers look up client by ID, pass resolved data
 
 #### Section 3: Core Functions — Domain Features (3 parallel agents)
 

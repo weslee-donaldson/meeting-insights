@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext } from "../core/client-registry.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext, getClientById } from "../core/client-registry.js";
 import type { Participant, GlossaryEntry, ClientRow } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
@@ -459,6 +459,29 @@ describe("getGlossaryForClient", () => {
     expect(result).toEqual([{ term: "FooBar", variants: ["FB"], description: "A thing" }]);
     const wrongTenant = getGlossaryForClient(localDb, "GlossaryCo", t2);
     expect(wrongTenant).toEqual([]);
+  });
+});
+
+describe("getClientById", () => {
+  it("returns client row by UUID", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId } = seedTestTenant(localDb);
+    const dir = join(tmpdir(), `clients-byid-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "IdLookupCo", aliases: ["ILC"], client_team: [] }]));
+    seedClients(localDb, file, tenantId);
+    const byName = getClientByName(localDb, "IdLookupCo");
+    const byId = getClientById(localDb, byName!.id);
+    expect(byId).toEqual(byName);
+  });
+
+  it("returns null for unknown UUID", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const result = getClientById(localDb, "00000000-0000-0000-0000-999999999999");
+    expect(result).toBeNull();
   });
 });
 

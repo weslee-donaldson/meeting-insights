@@ -109,6 +109,10 @@ export function getClientByAlias(db: Database, alias: string, tenantId?: string)
   return all.find((c) => (JSON.parse(c.aliases) as string[]).includes(alias)) ?? null;
 }
 
+export function getClientById(db: Database, id: string): ClientRow | null {
+  return (db.prepare("SELECT * FROM clients WHERE id = ?").get(id) as ClientRow) ?? null;
+}
+
 export function getAllClients(db: Database, tenantId?: string): ClientRow[] {
   if (tenantId) {
     return db.prepare("SELECT * FROM clients WHERE tenant_id = ?").all(tenantId) as ClientRow[];
