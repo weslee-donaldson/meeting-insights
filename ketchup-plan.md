@@ -220,7 +220,7 @@ Section 5 — Sequential
 #### Section 1: Schema + Migration
 
 - [x] Burst 1: Add `tenants`, `users`, `tenant_memberships` tables to `core/db.ts` `migrate()`
-- [ ] Burst 1b: Create `test/helpers/seed-test-tenant.ts` — `seedTestTenant(db)` returns `{ tenantId, userId }`, `seedTestClient(db, tenantId, name)` creates client with UUID
+- [x] Burst 1b: Create `test/helpers/seed-test-tenant.ts` — `seedTestTenant(db)` returns `{ tenantId, userId }`, `seedTestClient(db, tenantId, name)` creates client with UUID
 - [ ] Burst 2: Client PK migration — backfill NULL ids, create `clients_v2`, copy data. Wrapped in idempotency guard.
 - [ ] Burst 3: Add `client_id TEXT` columns to `threads`, `insights`, `milestones`, `client_detections` + populate from JOIN
 - [ ] Burst 4: Drop old `clients`, rename `clients_v2` → `clients`, auto-bootstrap default tenant + owner user
