@@ -465,7 +465,7 @@ Section 14 — Sequential (integration)
 #### Section 13: Management CLI
 
 - [x] Burst 43: `cli/manage-auth.ts` — `create-client`, `create-api-key` subcommands. Test: `test/cli/manage-auth.test.ts` (7f2ddb8)
-- [ ] Burst 44: `cli/manage-auth.ts` — `list-clients`, `list-api-keys`, `revoke`. Test: `test/cli/manage-auth.test.ts`
+- [x] Burst 44: `cli/manage-auth.ts` — `list-clients`, `list-api-keys`, `revoke`. Test: `test/cli/manage-auth.test.ts` (c89f343)
 
 #### Section 14: Integration
 
