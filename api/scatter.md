@@ -25,6 +25,8 @@ This layer wraps the same IPC handlers used by the Electron main process and exp
 | `MTNINSIGHTS_LOCAL_BASE_URL` / `MTNINSIGHTS_LOCAL_MODEL` | `http://localhost:11434` / `llama3.1:8b` | Ollama endpoint |
 | `MTNINSIGHTS_LOG_LEVEL` | `info` | `error` / `warn` / `info` / `debug` |
 
+**Client resolution:** all routes that accept a `?client=` query parameter resolve it by name or UUID via `resolveClient` from `core/resolve-client.ts`, enabling callers to pass either the client name or its UUID primary key.
+
 **Degraded mode:** if the ONNX model files are absent or LanceDB fails to connect, the server starts without `searchDeps`. All search and re-embed endpoints return `503` rather than crashing.
 
 ## Related
