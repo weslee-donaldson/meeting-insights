@@ -331,4 +331,33 @@ export function migrate(db: DatabaseSync): void {
   if (threadCols.length > 0 && !threadCols.some(c => c.name === "keywords")) {
     db.exec("ALTER TABLE threads ADD COLUMN keywords TEXT DEFAULT ''");
   }
+
+  const clientPkInfo = db.prepare("PRAGMA table_info(clients)").all() as { name: string; pk: number }[];
+  const needsMigration = clientPkInfo.some(c => c.name === "name" && c.pk === 1);
+  if (needsMigration) {
+    db.exec(`UPDATE clients SET id = lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6))) WHERE id IS NULL`);
+
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS clients_v2 (
+        id TEXT PRIMARY KEY,
+        tenant_id TEXT,
+        name TEXT NOT NULL,
+        aliases TEXT,
+        known_participants TEXT,
+        refinement_prompt TEXT,
+        client_team TEXT DEFAULT '[]',
+        implementation_team TEXT DEFAULT '[]',
+        additional_extraction_llm_prompt TEXT,
+        meeting_names TEXT DEFAULT '[]',
+        is_default INTEGER DEFAULT 0,
+        glossary TEXT DEFAULT '[]'
+      )
+    `);
+
+    db.exec(`
+      INSERT OR IGNORE INTO clients_v2 (id, name, aliases, known_participants, refinement_prompt, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary)
+      SELECT id, name, aliases, known_participants, refinement_prompt, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary
+      FROM clients
+    `);
+  }
 }

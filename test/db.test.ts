@@ -186,3 +186,58 @@ describe("migrate", () => {
     expect(() => migrate(db)).not.toThrow();
   });
 });
+
+describe("client PK migration", () => {
+  it("creates clients_v2 with id as primary key and copies data from old clients", () => {
+    const mdb = createDb(":memory:");
+    mdb.exec(`
+      CREATE TABLE IF NOT EXISTS clients (
+        name TEXT PRIMARY KEY,
+        aliases TEXT,
+        known_participants TEXT
+      );
+    `);
+    mdb.exec("ALTER TABLE clients ADD COLUMN id TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN is_default INTEGER DEFAULT 0");
+    mdb.exec("ALTER TABLE clients ADD COLUMN client_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN implementation_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN additional_extraction_llm_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN glossary TEXT DEFAULT '[]'");
+
+    mdb.prepare("INSERT INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+      "Acme", '["acme-inc"]', '["alice@acme.com"]', "existing-uuid",
+    );
+    mdb.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run(
+      "NullId Corp", '["nullid"]', '[]',
+    );
+
+    migrate(mdb);
+
+    const v2Exists = mdb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='clients_v2'").get();
+    expect(v2Exists).toEqual({ name: "clients_v2" });
+
+    const v2Cols = mdb.prepare("PRAGMA table_info(clients_v2)").all() as { name: string; pk: number }[];
+    const idCol = v2Cols.find(c => c.name === "id");
+    expect(idCol).toEqual(expect.objectContaining({ name: "id", pk: 1 }));
+    expect(v2Cols.some(c => c.name === "tenant_id")).toBe(true);
+
+    const acme = mdb.prepare("SELECT id, name, aliases FROM clients_v2 WHERE name = 'Acme'").get() as { id: string; name: string; aliases: string };
+    expect(acme).toEqual({ id: "existing-uuid", name: "Acme", aliases: '["acme-inc"]' });
+
+    const nullCorp = mdb.prepare("SELECT id, name FROM clients_v2 WHERE name = 'NullId Corp'").get() as { id: string; name: string };
+    expect(nullCorp.name).toBe("NullId Corp");
+    expect(nullCorp.id).toEqual(expect.any(String));
+    expect(nullCorp.id.length).toBeGreaterThan(0);
+  });
+
+  it("skips migration when clients already has id as primary key", () => {
+    const mdb = createDb(":memory:");
+    migrate(mdb);
+    migrate(mdb);
+    const tables = mdb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'clients%'").all() as { name: string }[];
+    const tableNames = tables.map(t => t.name);
+    expect(tableNames).toContain("clients");
+  });
+});
