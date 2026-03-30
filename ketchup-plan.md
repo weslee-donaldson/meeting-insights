@@ -444,8 +444,8 @@ Section 14 — Sequential (integration)
 
 #### Section 10: PKCE + Authorization Codes (parallel Agent B)
 
-- [ ] Burst 33: `core/auth/pkce.ts` — `generateCodeVerifier`, `computeCodeChallenge`, `verifyCodeChallenge`. Test: `test/auth-pkce.test.ts`
-- [ ] Burst 34: `core/auth/auth-codes.ts` — `createAuthorizationCode`, `exchangeAuthorizationCode`. Test: `test/auth-codes.test.ts`
+- [x] Burst 33: `core/auth/pkce.ts` — `generateCodeVerifier`, `computeCodeChallenge`, `verifyCodeChallenge`. Test: `test/auth-pkce.test.ts` (870bd16)
+- [x] Burst 34: `core/auth/auth-codes.ts` — `createAuthorizationCode`, `exchangeAuthorizationCode`. Test: `test/auth-codes.test.ts` (73f44dd)
 
 #### Section 11: Auth Middleware
 
