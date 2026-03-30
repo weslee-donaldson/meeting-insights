@@ -251,7 +251,7 @@ Section 5 — Sequential
 #### Section 4: API + Handlers
 
 - [x] Burst 16: New `core/resolve-client.ts` — `resolveClient(db, clientParam, tenantId?)` accepts name or UUID, returns `ClientRow | null`
-- [ ] Burst 17: Update meeting routes — `?client=` resolves via `resolveClient`. `GET /api/clients` returns objects with `id` field.
+- [x] Burst 17: Update meeting routes — `?client=` resolves via `resolveClient`. `GET /api/clients` returns objects with `id` field.
 - [ ] Burst 18: Update thread, insight, milestone routes — same `resolveClient` pattern
 - [ ] Burst 19: Update `ElectronAPI` interface (`channels.ts`), IPC handlers (4 handler files in `electron-ui/electron/handlers/`), and UI hooks (`useThreadState.ts`, `useInsightState.ts`) — add `clientId` fields
 - [ ] Burst 20: Update `api-client/` modules — pass client IDs

@@ -17,10 +17,11 @@ import { getMeeting } from "../../core/ingest.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
+import { resolveClient } from "../../core/resolve-client.js";
 
 export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): void {
   app.get("/api/clients", (c) => {
-    return c.json(handleGetClients(db));
+    return c.json(handleGetClientList(db));
   });
 
   app.get("/api/clients/list", (c) => {
@@ -45,11 +46,17 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
   });
 
   app.get("/api/meetings", (c) => {
-    const client = c.req.query("client");
+    const clientParam = c.req.query("client");
     const after = c.req.query("after");
     const before = c.req.query("before");
+    let clientName: string | undefined;
+    if (clientParam) {
+      const resolved = resolveClient(db, clientParam);
+      clientName = resolved?.name;
+      if (!clientName) return c.json([]);
+    }
     const filters = {
-      ...(client ? { client } : {}),
+      ...(clientName ? { client: clientName } : {}),
       ...(after ? { after } : {}),
       ...(before ? { before } : {}),
     };
