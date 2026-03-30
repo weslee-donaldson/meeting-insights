@@ -42,7 +42,7 @@ describe("clients list", () => {
     { id: "bbbb1111-2222-3333-4444-555566667777", name: "Initech" },
   ];
 
-  it("displays assigned clients as a table with truncated IDs", async () => {
+  it("displays assigned clients as a table with full UUIDs", async () => {
     const client = stubClient({
       "/api/clients/list": listData,
     });
@@ -55,9 +55,9 @@ describe("clients list", () => {
     const output = chunks.join("");
     expect(output).toContain("ID");
     expect(output).toContain("Name");
-    expect(output).toContain("aaaa1111");
+    expect(output).toContain("aaaa1111-2222-3333-4444-555566667777");
     expect(output).toContain("Acme Corp");
-    expect(output).toContain("bbbb1111");
+    expect(output).toContain("bbbb1111-2222-3333-4444-555566667777");
     expect(output).toContain("Initech");
   });
 
@@ -294,13 +294,110 @@ describe("clients info", () => {
     expect(parsed).toEqual(detailData);
   });
 
-  it("displays not found message for unknown client id", async () => {
-    const client = stubClient({});
+  it("resolves client by name when ID lookup returns 404", async () => {
+    const listData = [
+      { id: "aaaa1111-2222-3333-4444-555566667777", name: "Acme Corp" },
+      { id: "bbbb1111-2222-3333-4444-555566667777", name: "Initech" },
+    ];
+    const stubFetch = async (url: string | URL | Request) => {
+      const urlStr = typeof url === "string" ? url : url.toString();
+      if (urlStr.includes("/api/clients/Acme%20Corp") || urlStr.includes("/api/clients/Acme Corp")) {
+        return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+      }
+      if (urlStr.includes("/api/clients/aaaa1111-2222-3333-4444-555566667777")) {
+        return new Response(JSON.stringify(detailData), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      if (urlStr.includes("/api/clients/list")) {
+        return new Response(JSON.stringify(listData), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    };
+    const client = new HttpClient({
+      baseUrl: "http://localhost:3000",
+      token: null,
+      fetch: stubFetch,
+    });
     const { chunks, stream } = captureOutput();
 
     const program = new Command();
     registerClients(program, { client, stream });
-    await program.parseAsync(["clients", "info", "nonexistent"], {
+    await program.parseAsync(["clients", "info", "Acme Corp"], { from: "user" });
+
+    const output = chunks.join("");
+    expect(output).toContain("Acme Corp");
+    expect(output).toContain("CLIENT TEAM");
+    expect(output).toContain("Alice");
+  });
+
+  it("resolves client by name case-insensitively", async () => {
+    const listData = [
+      { id: "aaaa1111-2222-3333-4444-555566667777", name: "Acme Corp" },
+    ];
+    const stubFetch = async (url: string | URL | Request) => {
+      const urlStr = typeof url === "string" ? url : url.toString();
+      if (urlStr.includes("/api/clients/acme%20corp") || urlStr.includes("/api/clients/acme corp")) {
+        return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+      }
+      if (urlStr.includes("/api/clients/aaaa1111-2222-3333-4444-555566667777")) {
+        return new Response(JSON.stringify(detailData), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      if (urlStr.includes("/api/clients/list")) {
+        return new Response(JSON.stringify(listData), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    };
+    const client = new HttpClient({
+      baseUrl: "http://localhost:3000",
+      token: null,
+      fetch: stubFetch,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "info", "acme corp"], { from: "user" });
+
+    const output = chunks.join("");
+    expect(output).toContain("Acme Corp");
+    expect(output).toContain("CLIENT TEAM");
+  });
+
+  it("displays not found message for unknown client name and id", async () => {
+    const listData = [
+      { id: "aaaa1111-2222-3333-4444-555566667777", name: "Acme Corp" },
+    ];
+    const stubFetch = async (url: string | URL | Request) => {
+      const urlStr = typeof url === "string" ? url : url.toString();
+      if (urlStr.includes("/api/clients/list")) {
+        return new Response(JSON.stringify(listData), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    };
+    const client = new HttpClient({
+      baseUrl: "http://localhost:3000",
+      token: null,
+      fetch: stubFetch,
+    });
+    const { chunks, stream } = captureOutput();
+
+    const program = new Command();
+    registerClients(program, { client, stream });
+    await program.parseAsync(["clients", "info", "Unknown Corp"], {
       from: "user",
     });
 

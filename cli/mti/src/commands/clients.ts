@@ -68,8 +68,7 @@ Errors:
         outputJson(data, deps?.stream);
         return;
       }
-      const rows = data.map((d) => ({ id: d.id.slice(0, 8), name: d.name }));
-      outputTable(rows, CLIENT_COLUMNS, deps?.stream);
+      outputTable(data, CLIENT_COLUMNS, deps?.stream);
     });
 
   const defaultCmd = new Command("default")
@@ -141,22 +140,27 @@ Errors:
 
   const info = new Command("info")
     .description("Show details for a client.")
-    .argument("<id>", "Client ID")
+    .argument("<id>", "Client ID or name")
     .option("--json", "Output as JSON")
-    .action(async (id: string, opts) => {
+    .action(async (idOrName: string, opts) => {
       const parentOpts = program.opts();
       const json = opts.json || parentOpts.json;
       const http = makeClient(deps?.client);
       const stream = deps?.stream ?? process.stdout;
       let data: Record<string, unknown>;
       try {
-        data = (await http.get(`/api/clients/${id}`)) as Record<string, unknown>;
+        data = (await http.get(`/api/clients/${idOrName}`)) as Record<string, unknown>;
       } catch (err) {
-        if (err instanceof NotFoundError) {
+        if (!(err instanceof NotFoundError)) throw err;
+        const clients = (await http.get("/api/clients/list")) as Array<{ id: string; name: string }>;
+        const match = clients.find(
+          (c) => c.name.toLowerCase() === idOrName.toLowerCase()
+        );
+        if (!match) {
           stream.write("Client not found.\n");
           return;
         }
-        throw err;
+        data = (await http.get(`/api/clients/${match.id}`)) as Record<string, unknown>;
       }
       if (json) {
         outputJson(data, stream);
