@@ -95,7 +95,10 @@ export function seedClients(db: Database, filePath: string, tenantId?: string): 
   log("loaded %d clients", entries.length);
 }
 
-export function getClientByName(db: Database, name: string): ClientRow | null {
+export function getClientByName(db: Database, name: string, tenantId?: string): ClientRow | null {
+  if (tenantId) {
+    return (db.prepare("SELECT * FROM clients WHERE name = ? AND tenant_id = ?").get(name, tenantId) as ClientRow) ?? null;
+  }
   return (db.prepare("SELECT * FROM clients WHERE name = ?").get(name) as ClientRow) ?? null;
 }
 
@@ -104,7 +107,10 @@ export function getClientByAlias(db: Database, alias: string): ClientRow | null 
   return all.find((c) => (JSON.parse(c.aliases) as string[]).includes(alias)) ?? null;
 }
 
-export function getAllClients(db: Database): ClientRow[] {
+export function getAllClients(db: Database, tenantId?: string): ClientRow[] {
+  if (tenantId) {
+    return db.prepare("SELECT * FROM clients WHERE tenant_id = ?").all(tenantId) as ClientRow[];
+  }
   return db.prepare("SELECT * FROM clients").all() as ClientRow[];
 }
 

@@ -165,6 +165,34 @@ describe("getClientByName", () => {
     expect(client!.name).toBe("Revenium");
     expect(client!.id).toEqual(expect.any(String));
   });
+
+  it("returns client when name matches within tenant", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId } = seedTestTenant(localDb);
+    const dir = join(tmpdir(), `clients-byname-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "ScopedCo", aliases: ["SC"], client_team: [] }]));
+    seedClients(localDb, file, tenantId);
+    const client = getClientByName(localDb, "ScopedCo", tenantId);
+    expect(client).toEqual(expect.objectContaining({ name: "ScopedCo", tenant_id: tenantId }));
+  });
+
+  it("returns null when name exists but tenant does not match", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId: t1 } = seedTestTenant(localDb);
+    const t2 = "00000000-0000-0000-0000-ffffffffffff";
+    localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(t2, "Other", "other");
+    const dir = join(tmpdir(), `clients-byname-wrong-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "WrongTenantCo", aliases: ["WTC"], client_team: [] }]));
+    seedClients(localDb, file, t1);
+    const client = getClientByName(localDb, "WrongTenantCo", t2);
+    expect(client).toBeNull();
+  });
 });
 
 describe("getClientByAlias", () => {
@@ -179,6 +207,28 @@ describe("getAllClients", () => {
   it("returns all client rows", () => {
     const all = getAllClients(db);
     expect(all.map((c) => c.name)).toEqual(["Revenium", "Mandalore"]);
+  });
+
+  it("returns only clients for specified tenant", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId: t1 } = seedTestTenant(localDb);
+    const t2 = "00000000-0000-0000-0000-aaaaaaaaaaaa";
+    localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(t2, "Second", "second");
+    const dir = join(tmpdir(), `clients-all-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file1 = join(dir, "clients1.json");
+    writeFileSync(file1, JSON.stringify([{ name: "AlphaCo", aliases: ["A"], client_team: [] }]));
+    seedClients(localDb, file1, t1);
+    const file2 = join(dir, "clients2.json");
+    writeFileSync(file2, JSON.stringify([{ name: "BetaCo", aliases: ["B"], client_team: [] }]));
+    seedClients(localDb, file2, t2);
+    const t1Clients = getAllClients(localDb, t1);
+    expect(t1Clients.map(c => c.name)).toEqual(["AlphaCo"]);
+    const t2Clients = getAllClients(localDb, t2);
+    expect(t2Clients.map(c => c.name)).toEqual(["BetaCo"]);
+    const allClients = getAllClients(localDb);
+    expect(allClients.map(c => c.name)).toEqual(["AlphaCo", "BetaCo"]);
   });
 });
 
