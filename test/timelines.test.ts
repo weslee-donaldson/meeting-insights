@@ -23,6 +23,7 @@ describe("createMilestone", () => {
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
+      client_id: null,
       title: "Launch commerce platform",
       description: "Phase 1 go-live",
       target_date: "2026-06-01",
@@ -43,6 +44,7 @@ describe("createMilestone", () => {
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
+      client_id: null,
       title: "Migration complete",
       description: "",
       target_date: null,

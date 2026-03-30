@@ -22,14 +22,14 @@ export function seedTestTenant(db: Database): { tenantId: string; userId: string
 
 export function seedTestClient(
   db: Database,
-  _tenantId: string,
+  tenantId: string,
   name: string,
-): { id: string; name: string } {
+): { id: string; tenant_id: string; name: string } {
   const id = randomUUID();
 
   db.prepare(
-    "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, meeting_names, is_default, glossary, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  ).run(name, "[]", "[]", "[]", "[]", "[]", 0, "[]", id);
+    "INSERT INTO clients (id, tenant_id, name, aliases, known_participants, client_team, implementation_team, meeting_names, is_default, glossary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  ).run(id, tenantId, name, "[]", "[]", "[]", "[]", "[]", 0, "[]");
 
-  return { id, name };
+  return { id, tenant_id: tenantId, name };
 }

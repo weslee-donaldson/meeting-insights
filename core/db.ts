@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { randomUUID } from "node:crypto";
 
 export type { DatabaseSync as Database };
 
@@ -341,7 +342,7 @@ export function migrate(db: DatabaseSync): void {
       CREATE TABLE IF NOT EXISTS clients_v2 (
         id TEXT PRIMARY KEY,
         tenant_id TEXT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         aliases TEXT,
         known_participants TEXT,
         refinement_prompt TEXT,
@@ -382,6 +383,20 @@ export function migrate(db: DatabaseSync): void {
     if (refDetectionCols.length > 0 && !refDetectionCols.some(c => c.name === "client_id")) {
       db.exec("ALTER TABLE client_detections ADD COLUMN client_id TEXT");
       db.exec("UPDATE client_detections SET client_id = (SELECT id FROM clients_v2 WHERE name = client_detections.client_name) WHERE client_id IS NULL");
+    }
+
+    db.exec("DROP TABLE clients");
+    db.exec("ALTER TABLE clients_v2 RENAME TO clients");
+
+    const tenantCount = db.prepare("SELECT count(*) as cnt FROM tenants").get() as { cnt: number };
+    const clientCount = db.prepare("SELECT count(*) as cnt FROM clients").get() as { cnt: number };
+    if (tenantCount.cnt === 0 && clientCount.cnt > 0) {
+      const tenantId = randomUUID();
+      const userId = randomUUID();
+      db.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(tenantId, "Default", "default");
+      db.prepare("INSERT INTO users (id, email, display_name) VALUES (?, ?, ?)").run(userId, "owner@localhost", "Owner");
+      db.prepare("INSERT INTO tenant_memberships (tenant_id, user_id, role) VALUES (?, ?, ?)").run(tenantId, userId, "owner");
+      db.prepare("UPDATE clients SET tenant_id = ? WHERE tenant_id IS NULL").run(tenantId);
     }
   }
 }

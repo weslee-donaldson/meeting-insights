@@ -65,21 +65,26 @@ describe("seedTestClient", () => {
     const { tenantId } = seedTestTenant(db2);
     const client = seedTestClient(db2, tenantId, "Acme Corp");
 
-    expect(client.id).toEqual(expect.any(String));
-    expect(client.name).toBe("Acme Corp");
+    expect(client).toEqual({
+      id: expect.any(String),
+      tenant_id: tenantId,
+      name: "Acme Corp",
+    });
 
-    const row = db2.prepare("SELECT id, name FROM clients WHERE name = ?").get("Acme Corp") as { id: string; name: string };
-    expect(row).toEqual({ id: client.id, name: "Acme Corp" });
+    const row = db2.prepare("SELECT id, tenant_id, name FROM clients WHERE id = ?").get(client.id) as {
+      id: string; tenant_id: string; name: string;
+    };
+    expect(row).toEqual({ id: client.id, tenant_id: tenantId, name: "Acme Corp" });
   });
 
-  it("creates multiple clients with distinct ids", () => {
+  it("creates multiple clients with distinct ids under same tenant", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
     const { tenantId } = seedTestTenant(db2);
     const c1 = seedTestClient(db2, tenantId, "Client A");
     const c2 = seedTestClient(db2, tenantId, "Client B");
     expect(c1.id).not.toBe(c2.id);
-    expect(c1.name).toBe("Client A");
-    expect(c2.name).toBe("Client B");
+    expect(c1.tenant_id).toBe(tenantId);
+    expect(c2.tenant_id).toBe(tenantId);
   });
 });

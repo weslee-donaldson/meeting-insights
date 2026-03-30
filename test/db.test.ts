@@ -188,7 +188,7 @@ describe("migrate", () => {
 });
 
 describe("client PK migration", () => {
-  it("creates clients_v2 with id as primary key and copies data from old clients", () => {
+  it("migrates clients table to use id as primary key and preserves data", () => {
     const mdb = createDb(":memory:");
     mdb.exec(`
       CREATE TABLE IF NOT EXISTS clients (
@@ -215,18 +215,15 @@ describe("client PK migration", () => {
 
     migrate(mdb);
 
-    const v2Exists = mdb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='clients_v2'").get();
-    expect(v2Exists).toEqual({ name: "clients_v2" });
-
-    const v2Cols = mdb.prepare("PRAGMA table_info(clients_v2)").all() as { name: string; pk: number }[];
-    const idCol = v2Cols.find(c => c.name === "id");
+    const clientCols = mdb.prepare("PRAGMA table_info(clients)").all() as { name: string; pk: number }[];
+    const idCol = clientCols.find(c => c.name === "id");
     expect(idCol).toEqual(expect.objectContaining({ name: "id", pk: 1 }));
-    expect(v2Cols.some(c => c.name === "tenant_id")).toBe(true);
+    expect(clientCols.some(c => c.name === "tenant_id")).toBe(true);
 
-    const acme = mdb.prepare("SELECT id, name, aliases FROM clients_v2 WHERE name = 'Acme'").get() as { id: string; name: string; aliases: string };
+    const acme = mdb.prepare("SELECT id, name, aliases FROM clients WHERE name = 'Acme'").get() as { id: string; name: string; aliases: string };
     expect(acme).toEqual({ id: "existing-uuid", name: "Acme", aliases: '["acme-inc"]' });
 
-    const nullCorp = mdb.prepare("SELECT id, name FROM clients_v2 WHERE name = 'NullId Corp'").get() as { id: string; name: string };
+    const nullCorp = mdb.prepare("SELECT id, name FROM clients WHERE name = 'NullId Corp'").get() as { id: string; name: string };
     expect(nullCorp.name).toBe("NullId Corp");
     expect(nullCorp.id).toEqual(expect.any(String));
     expect(nullCorp.id.length).toBeGreaterThan(0);
@@ -311,5 +308,107 @@ describe("client PK migration", () => {
 
     const detectionRow = mdb.prepare("SELECT client_id FROM client_detections WHERE meeting_id = 'm1'").get() as { client_id: string };
     expect(detectionRow).toEqual({ client_id: "acme-uuid" });
+  });
+
+  it("drops old clients, renames clients_v2 to clients, and auto-bootstraps default tenant", () => {
+    const mdb = createDb(":memory:");
+    mdb.exec(`
+      CREATE TABLE IF NOT EXISTS meetings (id TEXT PRIMARY KEY, title TEXT, date TEXT);
+      CREATE TABLE IF NOT EXISTS clients (
+        name TEXT PRIMARY KEY, aliases TEXT, known_participants TEXT
+      );
+      CREATE TABLE IF NOT EXISTS threads (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, title TEXT NOT NULL,
+        shorthand TEXT DEFAULT '', description TEXT DEFAULT '', status TEXT DEFAULT 'open',
+        summary TEXT DEFAULT '', criteria_prompt TEXT DEFAULT '', keywords TEXT DEFAULT '',
+        criteria_changed_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS insights (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, name TEXT DEFAULT '',
+        period_type TEXT NOT NULL, period_start TEXT NOT NULL, period_end TEXT NOT NULL,
+        status TEXT DEFAULT 'draft', rag_status TEXT DEFAULT 'green', rag_rationale TEXT DEFAULT '',
+        executive_summary TEXT DEFAULT '', topic_details TEXT DEFAULT '[]',
+        generated_at TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS milestones (
+        id TEXT PRIMARY KEY, client_name TEXT NOT NULL, title TEXT NOT NULL,
+        description TEXT DEFAULT '', target_date TEXT, status TEXT DEFAULT 'identified',
+        completed_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS client_detections (
+        meeting_id TEXT, client_name TEXT, confidence REAL, method TEXT
+      );
+    `);
+
+    mdb.exec("ALTER TABLE clients ADD COLUMN id TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN refinement_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN meeting_names TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN is_default INTEGER DEFAULT 0");
+    mdb.exec("ALTER TABLE clients ADD COLUMN client_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN implementation_team TEXT DEFAULT '[]'");
+    mdb.exec("ALTER TABLE clients ADD COLUMN additional_extraction_llm_prompt TEXT");
+    mdb.exec("ALTER TABLE clients ADD COLUMN glossary TEXT DEFAULT '[]'");
+
+    mdb.prepare("INSERT INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+      "Acme", "[]", "[]", "acme-uuid",
+    );
+
+    migrate(mdb);
+
+    const v2Gone = mdb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='clients_v2'").get();
+    expect(v2Gone).toBeUndefined();
+
+    const clientsExists = mdb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='clients'").get();
+    expect(clientsExists).toEqual({ name: "clients" });
+
+    const clientPk = mdb.prepare("PRAGMA table_info(clients)").all() as { name: string; pk: number }[];
+    const idCol = clientPk.find(c => c.name === "id");
+    expect(idCol).toEqual(expect.objectContaining({ name: "id", pk: 1 }));
+
+    const acme = mdb.prepare("SELECT id, name, tenant_id FROM clients WHERE id = 'acme-uuid'").get() as { id: string; name: string; tenant_id: string };
+    expect(acme.id).toBe("acme-uuid");
+    expect(acme.name).toBe("Acme");
+    expect(acme.tenant_id).toEqual(expect.any(String));
+
+    const tenant = mdb.prepare("SELECT * FROM tenants WHERE id = ?").get(acme.tenant_id) as {
+      id: string; name: string; slug: string; created_at: string;
+    };
+    expect(tenant).toEqual({
+      id: acme.tenant_id,
+      name: "Default",
+      slug: "default",
+      created_at: expect.any(String),
+    });
+
+    const user = mdb.prepare("SELECT * FROM users LIMIT 1").get() as {
+      id: string; email: string; display_name: string; password_hash: string | null; created_at: string;
+    };
+    expect(user).toEqual({
+      id: expect.any(String),
+      email: "owner@localhost",
+      display_name: "Owner",
+      password_hash: null,
+      created_at: expect.any(String),
+    });
+
+    const membership = mdb.prepare("SELECT * FROM tenant_memberships LIMIT 1").get() as {
+      tenant_id: string; user_id: string; role: string; created_at: string;
+    };
+    expect(membership).toEqual({
+      tenant_id: acme.tenant_id,
+      user_id: user.id,
+      role: "owner",
+      created_at: expect.any(String),
+    });
+  });
+
+  it("does not bootstrap tenant when tenants table already has rows", () => {
+    const mdb = createDb(":memory:");
+    migrate(mdb);
+    mdb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run("existing-tenant", "Existing", "existing");
+    mdb.prepare("INSERT INTO clients (id, name, aliases) VALUES (?, ?, ?)").run("c1", "SomeCo", "[]");
+    migrate(mdb);
+    const tenantCount = mdb.prepare("SELECT count(*) as cnt FROM tenants").get() as { cnt: number };
+    expect(tenantCount).toEqual({ cnt: 1 });
   });
 });

@@ -223,7 +223,7 @@ Section 5 — Sequential
 - [x] Burst 1b: Create `test/helpers/seed-test-tenant.ts` — `seedTestTenant(db)` returns `{ tenantId, userId }`, `seedTestClient(db, tenantId, name)` creates client with UUID
 - [x] Burst 2: Client PK migration — backfill NULL ids, create `clients_v2`, copy data. Wrapped in idempotency guard.
 - [x] Burst 3: Add `client_id TEXT` columns to `threads`, `insights`, `milestones`, `client_detections` + populate from JOIN
-- [ ] Burst 4: Drop old `clients`, rename `clients_v2` → `clients`, auto-bootstrap default tenant + owner user
+- [x] Burst 4: Drop old `clients`, rename `clients_v2` → `clients`, auto-bootstrap default tenant + owner user
 
 #### Section 2: Core Functions — Client Registry
 
