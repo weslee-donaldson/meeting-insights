@@ -428,7 +428,7 @@ Section 14 — Sequential (integration)
 
 #### Section 7: API Key Support (parallel Agent A)
 
-- [ ] Burst 26: `core/auth/api-keys.ts` — `generateApiKey`, `hashApiKey`, `createApiKey`, `validateApiKey`. Test: `test/auth-api-keys.test.ts`
+- [x] Burst 26: `core/auth/api-keys.ts` — `generateApiKey`, `hashApiKey`, `createApiKey`, `validateApiKey`. Test: `test/auth-api-keys.test.ts`
 - [ ] Burst 27: `core/auth/api-keys.ts` — `revokeApiKey`, `listApiKeys`. Test: `test/auth-api-keys.test.ts`
 
 #### Section 8: OAuth Client Management (parallel Agent B)
