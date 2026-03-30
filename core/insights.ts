@@ -31,6 +31,7 @@ export function stripHtml(html: string): string {
 export interface Insight {
   id: string;
   client_name: string;
+  client_id: string;
   name: string;
   period_type: "day" | "week" | "month";
   period_start: string;
@@ -49,6 +50,7 @@ export interface Insight {
 interface InsightRow {
   id: string;
   client_name: string;
+  client_id: string;
   name: string;
   period_type: string;
   period_start: string;
@@ -68,6 +70,7 @@ function rowToInsight(row: InsightRow): Insight {
   return {
     id: row.id,
     client_name: row.client_name,
+    client_id: row.client_id,
     name: row.name ?? "",
     period_type: row.period_type as Insight["period_type"],
     period_start: row.period_start,
@@ -86,6 +89,7 @@ function rowToInsight(row: InsightRow): Insight {
 
 export interface CreateInsightInput {
   client_name: string;
+  client_id: string;
   name?: string;
   period_type: "day" | "week" | "month";
   period_start: string;
@@ -96,9 +100,9 @@ export function createInsight(db: Database, input: CreateInsightInput): Insight 
   const id = randomUUID();
   const now = new Date().toISOString();
   db.prepare(`
-    INSERT INTO insights (id, client_name, name, period_type, period_start, period_end, status, rag_status, rag_rationale, executive_summary, topic_details, generated_at, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, 'draft', 'green', '', '', '[]', ?, ?, ?)
-  `).run(id, input.client_name, input.name ?? "", input.period_type, input.period_start, input.period_end, now, now, now);
+    INSERT INTO insights (id, client_name, client_id, name, period_type, period_start, period_end, status, rag_status, rag_rationale, executive_summary, topic_details, generated_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'draft', 'green', '', '', '[]', ?, ?, ?)
+  `).run(id, input.client_name, input.client_id, input.name ?? "", input.period_type, input.period_start, input.period_end, now, now, now);
   return rowToInsight(db.prepare("SELECT * FROM insights WHERE id = ?").get(id) as InsightRow);
 }
 
@@ -107,15 +111,15 @@ export function getInsight(db: Database, id: string): Insight | null {
   return row ? rowToInsight(row) : null;
 }
 
-export function listInsightsByClient(db: Database, clientName: string): Insight[] {
+export function listInsightsByClient(db: Database, clientId: string): Insight[] {
   const rows = db.prepare(`
     SELECT i.*, COUNT(im.meeting_id) AS meeting_count
     FROM insights i
     LEFT JOIN insight_meetings im ON i.id = im.insight_id
-    WHERE i.client_name = ?
+    WHERE i.client_id = ?
     GROUP BY i.id
     ORDER BY i.created_at DESC
-  `).all(clientName) as InsightRow[];
+  `).all(clientId) as InsightRow[];
   return rows.map(rowToInsight);
 }
 
@@ -214,14 +218,13 @@ export function removeInsightMeeting(db: Database, insightId: string, meetingId:
   db.prepare("DELETE FROM insight_meetings WHERE insight_id = ? AND meeting_id = ?").run(insightId, meetingId);
 }
 
-export function discoverMeetingsForPeriod(db: Database, clientName: string, periodStart: string, periodEnd: string): string[] {
+export function discoverMeetingsForPeriod(db: Database, clientId: string, periodStart: string, periodEnd: string): string[] {
   const endBound = periodEnd.includes("T") ? periodEnd : periodEnd + "T23:59:59.999Z";
   const rows = db.prepare(`
     SELECT m.id FROM meetings m
-    JOIN clients c ON m.client_id = c.id
-    WHERE m.date >= ? AND m.date <= ? AND m.ignored = 0 AND c.name = ?
+    WHERE m.date >= ? AND m.date <= ? AND m.ignored = 0 AND m.client_id = ?
     ORDER BY m.date ASC
-  `).all(periodStart, endBound, clientName) as { id: string }[];
+  `).all(periodStart, endBound, clientId) as { id: string }[];
   return rows.map((r) => r.id);
 }
 
@@ -345,8 +348,10 @@ export async function generateInsight(db: Database, llm: LlmAdapter, insightId: 
     const art = getArtifact(db, m.meeting_id);
     if (art) contextParts.push(buildMeetingArtifactContext(m.meeting_id, m.meeting_title, art));
   }
+  const clientRow = db.prepare("SELECT name FROM clients WHERE id = ?").get(insight.client_id) as { name: string } | undefined;
+  const clientName = clientRow?.name ?? insight.client_name;
   const prompt = loadInsightTemplate()
-    .replace("{{client_name}}", insight.client_name)
+    .replace("{{client_name}}", clientName)
     .replace("{{period_type}}", insight.period_type)
     .replace("{{period_start}}", insight.period_start)
     .replace("{{period_end}}", insight.period_end)

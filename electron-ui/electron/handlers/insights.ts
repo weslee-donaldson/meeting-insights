@@ -29,7 +29,7 @@ export function handleGetInsightMeetings(db: Database, insightId: string): Insig
 
 export function handleDiscoverInsightMeetings(db: Database, insightId: string): string[] {
   const insight = getInsight(db, insightId)!;
-  const meetingIds = discoverMeetingsForPeriod(db, insight.client_name, insight.period_start, insight.period_end);
+  const meetingIds = discoverMeetingsForPeriod(db, insight.client_id, insight.period_start, insight.period_end);
   for (const meetingId of meetingIds) {
     addInsightMeeting(db, { insight_id: insightId, meeting_id: meetingId, contribution_summary: "" });
   }

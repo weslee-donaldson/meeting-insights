@@ -4,13 +4,16 @@ import type { Database } from "../core/db.js";
 import { createStubAdapter, STUB_FIXTURES } from "../core/llm-provider-stub.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 import { createInsight, addInsightMeeting, getInsight, generateInsight } from "../core/insights.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
+let acmeClientId: string;
 
 beforeAll(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
+  const { tenantId } = seedTestTenant(db);
+  acmeClientId = seedTestClient(db, tenantId, "Acme").id;
   db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m1', 'Sprint Review', '2026-03-01')").run();
   db.prepare("INSERT INTO meetings (id, title, date) VALUES ('m2', 'Client Sync', '2026-03-02')").run();
   db.prepare(`
@@ -26,7 +29,7 @@ beforeAll(() => {
 describe("generateInsight", () => {
   it("calls LLM and stores structured result on the insight", async () => {
     const llm = createStubAdapter();
-    const insight = createInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
+    const insight = createInsight(db, { client_name: "Acme", client_id: acmeClientId, period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
     addInsightMeeting(db, { insight_id: insight.id, meeting_id: "m1", contribution_summary: "" });
     addInsightMeeting(db, { insight_id: insight.id, meeting_id: "m2", contribution_summary: "" });
 
@@ -43,7 +46,7 @@ describe("generateInsight", () => {
 
   it("persists the generated result to the database", async () => {
     const llm = createStubAdapter();
-    const insight = createInsight(db, { client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
+    const insight = createInsight(db, { client_name: "Acme", client_id: acmeClientId, period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
     addInsightMeeting(db, { insight_id: insight.id, meeting_id: "m1", contribution_summary: "" });
 
     await generateInsight(db, llm, insight.id);
@@ -56,7 +59,7 @@ describe("generateInsight", () => {
 
   it("returns the insight unchanged when no meetings are linked", async () => {
     const llm = createStubAdapter();
-    const insight = createInsight(db, { client_name: "Acme", period_type: "day", period_start: "2026-03-05", period_end: "2026-03-05" });
+    const insight = createInsight(db, { client_name: "Acme", client_id: acmeClientId, period_type: "day", period_start: "2026-03-05", period_end: "2026-03-05" });
 
     const result = await generateInsight(db, llm, insight.id);
 
@@ -74,7 +77,7 @@ describe("generateInsight", () => {
       },
       async converse() { return ""; },
     };
-    const insight = createInsight(db, { client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
+    const insight = createInsight(db, { client_name: "Acme", client_id: acmeClientId, period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" });
     addInsightMeeting(db, { insight_id: insight.id, meeting_id: "m1", contribution_summary: "" });
 
     await generateInsight(db, spyLlm, insight.id);

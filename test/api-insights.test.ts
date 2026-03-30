@@ -15,8 +15,8 @@ beforeAll(() => {
   db.prepare("INSERT INTO clients (name, id) VALUES ('Acme', 'client-acme')").run();
   db.prepare("INSERT INTO meetings (id, title, date, ignored, client_id) VALUES ('m1', 'Sprint Review', '2026-03-01', 0, 'client-acme')").run();
   db.prepare("INSERT INTO meetings (id, title, date, ignored, client_id) VALUES ('m2', 'Client Sync', '2026-03-02', 0, 'client-acme')").run();
-  storeDetection(db, "m1", [{ client_name: "Acme", confidence: 0.9, method: "auto" }]);
-  storeDetection(db, "m2", [{ client_name: "Acme", confidence: 0.9, method: "auto" }]);
+  storeDetection(db, "m1", [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "auto" }]);
+  storeDetection(db, "m2", [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "auto" }]);
   storeArtifact(db, "m1", { summary: "Sprint review.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
   storeArtifact(db, "m2", { summary: "Client sync.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
   const llm = createLlmAdapter({ type: "stub" });
@@ -28,7 +28,7 @@ describe("Insight API routes", () => {
     const res = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
     });
     expect(res.status).toBe(201);
     const body = await res.json() as Insight;
@@ -37,7 +37,7 @@ describe("Insight API routes", () => {
   });
 
   it("GET /api/insights?client=Acme returns insights", async () => {
-    const res = await app.request("/api/insights?client=Acme");
+    const res = await app.request("/api/insights?client=client-acme");
     expect(res.status).toBe(200);
     const body = await res.json() as Insight[];
     expect(body.length).toBeGreaterThanOrEqual(1);
@@ -47,7 +47,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
     });
     const created = await createRes.json() as Insight;
     const res = await app.request(`/api/insights/${created.id}`, {
@@ -64,7 +64,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "day", period_start: "2026-03-05", period_end: "2026-03-05" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "day", period_start: "2026-03-05", period_end: "2026-03-05" }),
     });
     const created = await createRes.json() as Insight;
     const res = await app.request(`/api/insights/${created.id}`, { method: "DELETE" });
@@ -75,7 +75,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
     });
     const created = await createRes.json() as Insight;
     const res = await app.request(`/api/insights/${created.id}/discover-meetings`, { method: "POST" });
@@ -89,7 +89,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
     });
     const created = await createRes.json() as Insight;
     await app.request(`/api/insights/${created.id}/discover-meetings`, { method: "POST" });
@@ -104,7 +104,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
     });
     const created = await createRes.json() as Insight;
     const res = await app.request(`/api/insights/${created.id}/messages`);
@@ -117,7 +117,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "week", period_start: "2026-03-01", period_end: "2026-03-07" }),
     });
     const created = await createRes.json() as Insight;
     await app.request(`/api/insights/${created.id}/discover-meetings`, { method: "POST" });
@@ -133,7 +133,7 @@ describe("Insight API routes", () => {
     const createRes = await app.request("/api/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
+      body: JSON.stringify({ client_name: "Acme", client_id: "client-acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" }),
     });
     const created = await createRes.json() as Insight;
     const res = await app.request(`/api/insights/${created.id}/messages`, { method: "DELETE" });
