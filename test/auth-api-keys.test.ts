@@ -7,6 +7,8 @@ import {
   hashApiKey,
   createApiKey,
   validateApiKey,
+  revokeApiKey,
+  listApiKeys,
 } from "../core/auth/api-keys.js";
 
 let db: Database;
@@ -147,5 +149,127 @@ describe("validateApiKey", () => {
 
     const result = validateApiKey(db, key);
     expect(result).toBe(null);
+  });
+});
+
+describe("revokeApiKey", () => {
+  it("marks a key as revoked and returns true", () => {
+    const { hash } = createApiKey(db, {
+      tenantId,
+      userId,
+      name: "To Revoke",
+      scopes: ["meetings:read"],
+    });
+
+    const result = revokeApiKey(db, hash);
+    expect(result).toBe(true);
+
+    const row = db
+      .prepare("SELECT revoked FROM api_keys WHERE key_hash = ?")
+      .get(hash) as { revoked: number };
+    expect(row.revoked).toBe(1);
+  });
+
+  it("returns false for a non-existent key hash", () => {
+    const result = revokeApiKey(db, "nonexistent_hash_value");
+    expect(result).toBe(false);
+  });
+
+  it("returns true when revoking an already-revoked key", () => {
+    const { hash } = createApiKey(db, {
+      tenantId,
+      userId,
+      name: "Double Revoke",
+      scopes: ["meetings:read"],
+    });
+
+    revokeApiKey(db, hash);
+    const result = revokeApiKey(db, hash);
+    expect(result).toBe(true);
+  });
+});
+
+describe("listApiKeys", () => {
+  it("returns all keys for a tenant without exposing the hash", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const seed = seedTestTenant(freshDb);
+
+    createApiKey(freshDb, {
+      tenantId: seed.tenantId,
+      userId: seed.userId,
+      name: "Key Alpha",
+      scopes: ["meetings:read"],
+    });
+
+    createApiKey(freshDb, {
+      tenantId: seed.tenantId,
+      userId: seed.userId,
+      name: "Key Beta",
+      scopes: ["meetings:read", "search:execute"],
+    });
+
+    const keys = listApiKeys(freshDb, seed.tenantId);
+
+    expect(keys).toEqual([
+      {
+        prefix: expect.stringMatching(/^mki_[0-9a-f]{4}$/),
+        name: "Key Alpha",
+        scopes: JSON.stringify(["meetings:read"]),
+        created_at: expect.any(String),
+        last_used_at: null,
+        revoked: 0,
+      },
+      {
+        prefix: expect.stringMatching(/^mki_[0-9a-f]{4}$/),
+        name: "Key Beta",
+        scopes: JSON.stringify(["meetings:read", "search:execute"]),
+        created_at: expect.any(String),
+        last_used_at: null,
+        revoked: 0,
+      },
+    ]);
+  });
+
+  it("returns an empty array when no keys exist for the tenant", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const seed = seedTestTenant(freshDb);
+
+    const keys = listApiKeys(freshDb, seed.tenantId);
+    expect(keys).toEqual([]);
+  });
+
+  it("does not return keys from other tenants", () => {
+    const freshDb = createDb(":memory:");
+    migrate(freshDb);
+    const seedA = seedTestTenant(freshDb);
+
+    const tenantBId = "tenant-b-id";
+    const userBId = "user-b-id";
+    freshDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(tenantBId, "Tenant B", "tenant-b");
+    freshDb.prepare("INSERT INTO users (id, email, display_name) VALUES (?, ?, ?)").run(userBId, "b@test.local", "User B");
+
+    createApiKey(freshDb, {
+      tenantId: seedA.tenantId,
+      userId: seedA.userId,
+      name: "Tenant A Key",
+      scopes: ["meetings:read"],
+    });
+
+    createApiKey(freshDb, {
+      tenantId: tenantBId,
+      userId: userBId,
+      name: "Tenant B Key",
+      scopes: ["admin"],
+    });
+
+    const keysA = listApiKeys(freshDb, seedA.tenantId);
+    expect(keysA).toHaveLength(1);
+    expect(keysA[0].name).toBe("Tenant A Key");
+
+    const keysB = listApiKeys(freshDb, tenantBId);
+    expect(keysB).toHaveLength(1);
+    expect(keysB[0].name).toBe("Tenant B Key");
   });
 });

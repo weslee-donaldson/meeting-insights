@@ -46,3 +46,35 @@ export function validateApiKey(db: Database, key: string): AuthIdentity | null {
     scopes: JSON.parse(row.scopes) as Scope[],
   };
 }
+
+export function revokeApiKey(db: Database, keyHash: string): boolean {
+  const result = db
+    .prepare("UPDATE api_keys SET revoked = 1 WHERE key_hash = ?")
+    .run(keyHash);
+  return result.changes > 0;
+}
+
+export function listApiKeys(
+  db: Database,
+  tenantId: string,
+): Array<{
+  prefix: string;
+  name: string;
+  scopes: string;
+  created_at: string;
+  last_used_at: string | null;
+  revoked: number;
+}> {
+  return db
+    .prepare(
+      "SELECT prefix, name, scopes, created_at, last_used_at, revoked FROM api_keys WHERE tenant_id = ?",
+    )
+    .all(tenantId) as Array<{
+    prefix: string;
+    name: string;
+    scopes: string;
+    created_at: string;
+    last_used_at: string | null;
+    revoked: number;
+  }>;
+}
