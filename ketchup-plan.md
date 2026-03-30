@@ -235,9 +235,9 @@ Section 5 — Sequential
 #### Section 3: Core Functions — Domain Features (3 parallel agents)
 
 **Agent A** — `core/client-detection.ts`, `core/pipeline.ts`, `core/feedback.ts`:
-- [ ] Burst 9: `client-detection.ts` — `DetectionResult` gains `client_id`. `storeDetection` writes `client_id`. `detectClient` returns `client_id`.
-- [ ] Burst 14: `pipeline.ts` — pass `client_id` through pipeline. Use `reconcileMilestones(db, clientId, ...)` (new signature from Agent C).
-- [ ] Burst 15b: `feedback.ts` — `overrideClient` writes `client_id` alongside `client_name`
+- [x] Burst 9: `client-detection.ts` — `DetectionResult` gains `client_id`. `storeDetection` writes `client_id`. `detectClient` returns `client_id`.
+- [x] Burst 14: `pipeline.ts` — pass `client_id` through pipeline. Use `reconcileMilestones(db, clientId, ...)` (new signature from Agent C).
+- [x] Burst 15b: `feedback.ts` — `overrideClient` writes `client_id` alongside `client_name`
 
 **Agent B** — `core/threads.ts`, `core/insights.ts`:
 - [x] Burst 10: `threads.ts` — `createThread` writes `client_id`. `listThreadsByClient(db, clientId)` queries by `client_id`. `Thread` and `CreateThreadInput` gain `client_id`.

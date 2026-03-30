@@ -66,6 +66,22 @@ describe("detectClient", () => {
     expect(results.some((r) => r.client_name === "Revenium")).toBe(true);
   });
 
+  it("includes client_id from clients table in each detection result", () => {
+    const meeting = makeMeeting({
+      participants: [{ last_name: "Smith", id: "1b", first_name: "John", email: "john@revenium.com" }],
+    });
+    const mid = ingestMeeting(db, meeting);
+    const results = detectClient(db, mid);
+    const rev = results.find((r) => r.client_name === "Revenium");
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = 'Revenium'").get() as { id: string };
+    expect(rev).toEqual({
+      client_name: "Revenium",
+      client_id: clientRow.id,
+      confidence: expect.any(Number),
+      method: expect.any(String),
+    });
+  });
+
   it("returns client when meeting title contains client alias", () => {
     const meeting = makeMeeting({ title: "REV Quarterly Review" });
     const mid = ingestMeeting(db, meeting);
@@ -153,7 +169,7 @@ describe("meeting_names matching", () => {
     const mid = ingestMeeting(localDb, meeting);
     const results = detectClient(localDb, mid);
     const r = results.find((r) => r.client_name === "TestCo");
-    expect(r).toEqual({ client_name: "TestCo", confidence: 0.7, method: "meeting_name" });
+    expect(r).toEqual({ client_name: "TestCo", client_id: expect.any(String), confidence: 0.7, method: "meeting_name" });
   });
 
   it("detects client via token intersection on folder-derived title", () => {
@@ -189,7 +205,7 @@ describe("meeting_names matching", () => {
     const mid = ingestMeeting(localDb, meeting);
     const results = detectClient(localDb, mid);
     const r = results.find((r) => r.client_name === "TestCo");
-    expect(r).toEqual({ client_name: "TestCo", confidence: 0.95, method: "participant+meeting_name" });
+    expect(r).toEqual({ client_name: "TestCo", client_id: expect.any(String), confidence: 0.95, method: "participant+meeting_name" });
   });
 });
 
@@ -330,5 +346,18 @@ describe("storeDetection", () => {
     const row = db.prepare("SELECT client_id FROM meetings WHERE id = ?").get(mid) as { client_id: string | null };
     const clientRow = db.prepare("SELECT id FROM clients WHERE name = 'Revenium'").get() as { id: string };
     expect(row.client_id).toBe(clientRow.id);
+  });
+
+  it("writes client_id into client_detections rows", () => {
+    const meeting = makeMeeting({
+      participants: [{ last_name: "D", id: "7", first_name: "Dev", email: "dev@revenium.com" }],
+    });
+    const mid = ingestMeeting(db, meeting);
+    const results = detectClient(db, mid);
+    storeDetection(db, mid, results);
+    const rows = db.prepare("SELECT client_name, client_id FROM client_detections WHERE meeting_id = ?").all(mid) as { client_name: string; client_id: string }[];
+    const revRow = rows.find((r) => r.client_name === "Revenium");
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = 'Revenium'").get() as { id: string };
+    expect(revRow!.client_id).toBe(clientRow.id);
   });
 });

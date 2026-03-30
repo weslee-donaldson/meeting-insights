@@ -8,6 +8,7 @@ const log = createLogger("client:detect");
 
 export interface DetectionResult {
   client_name: string;
+  client_id: string;
   confidence: number;
   method: string;
 }
@@ -113,7 +114,7 @@ export function detectClient(db: Database, meetingId: string): DetectionResult[]
 
     if (confidence > 0) {
       log("detected client=%s confidence=%d method=%s", client.name, confidence, method);
-      results.push({ client_name: client.name, confidence, method });
+      results.push({ client_name: client.name, client_id: client.id, confidence, method });
     }
   }
 
@@ -121,15 +122,12 @@ export function detectClient(db: Database, meetingId: string): DetectionResult[]
 }
 
 export function storeDetection(db: Database, meetingId: string, results: DetectionResult[]): void {
-  const stmt = db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, ?, ?)");
+  const stmt = db.prepare("INSERT INTO client_detections (meeting_id, client_name, client_id, confidence, method) VALUES (?, ?, ?, ?, ?)");
   for (const r of results) {
-    stmt.run(meetingId, r.client_name, r.confidence, r.method);
+    stmt.run(meetingId, r.client_name, r.client_id, r.confidence, r.method);
   }
   const top = [...results].sort((a, b) => b.confidence - a.confidence)[0];
-  if (top) {
-    const clientRow = db.prepare("SELECT id FROM clients WHERE name = ?").get(top.client_name) as { id: string } | undefined;
-    if (clientRow?.id) {
-      db.prepare("UPDATE meetings SET client_id = ? WHERE id = ?").run(clientRow.id, meetingId);
-    }
+  if (top?.client_id) {
+    db.prepare("UPDATE meetings SET client_id = ? WHERE id = ?").run(top.client_id, meetingId);
   }
 }
