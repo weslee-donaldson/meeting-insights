@@ -6,13 +6,18 @@ import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, In
 import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext, removeInsightMeeting } from "../../../core/insights.js";
 import type { Insight, InsightMeeting, InsightMessage } from "../../../core/insights.js";
 import { resolveMeetingSources } from "./meetings.js";
+import { resolveClient } from "../../../core/resolve-client.js";
 
-export function handleListInsights(db: Database, clientName: string): Insight[] {
-  return listInsightsByClient(db, clientName);
+export function handleListInsights(db: Database, clientParam: string): Insight[] {
+  if (!clientParam) return [];
+  const resolved = resolveClient(db, clientParam);
+  if (!resolved) return [];
+  return listInsightsByClient(db, resolved.id);
 }
 
 export function handleCreateInsight(db: Database, req: CreateInsightRequest): Insight {
-  return coreCreateInsight(db, req);
+  const clientId = req.clientId ?? resolveClient(db, req.client_name)?.id ?? "";
+  return coreCreateInsight(db, { ...req, client_id: clientId });
 }
 
 export function handleUpdateInsight(db: Database, insightId: string, req: UpdateInsightRequest): Insight {

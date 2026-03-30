@@ -222,6 +222,7 @@ export interface DeepSearchResultRow {
 
 export interface CreateThreadRequest {
   client_name: string;
+  clientId?: string;
   title: string;
   shorthand: string;
   description: string;
@@ -258,6 +259,7 @@ export interface ThreadChatResponse {
 
 export interface CreateInsightRequest {
   client_name: string;
+  clientId?: string;
   name?: string;
   period_type: "day" | "week" | "month";
   period_start: string;
@@ -287,6 +289,7 @@ export interface InsightChatResponse {
 
 export interface CreateMilestoneRequest {
   clientName: string;
+  clientId?: string;
   title: string;
   targetDate?: string;
   description?: string;

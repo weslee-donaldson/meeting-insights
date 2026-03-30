@@ -6,13 +6,18 @@ import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, Threa
 import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread } from "../../../core/threads.js";
 import type { Thread } from "../../../core/threads.js";
 import { resolveMeetingSources } from "./meetings.js";
+import { resolveClient } from "../../../core/resolve-client.js";
 
-export function handleListThreads(db: Database, clientName: string): Thread[] {
-  return listThreadsByClient(db, clientName);
+export function handleListThreads(db: Database, clientParam: string): Thread[] {
+  if (!clientParam) return [];
+  const resolved = resolveClient(db, clientParam);
+  if (!resolved) return [];
+  return listThreadsByClient(db, resolved.id);
 }
 
 export function handleCreateThread(db: Database, req: CreateThreadRequest): Thread {
-  return coreCreateThread(db, req);
+  const clientId = req.clientId ?? resolveClient(db, req.client_name)?.id ?? "";
+  return coreCreateThread(db, { ...req, client_id: clientId });
 }
 
 export function handleUpdateThread(db: Database, threadId: string, req: UpdateThreadRequest): Thread {

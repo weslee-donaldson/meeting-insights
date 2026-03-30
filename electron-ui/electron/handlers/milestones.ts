@@ -6,13 +6,18 @@ import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatReque
 import { listMilestonesByClient, createMilestone as coreCreateMilestone, updateMilestone as coreUpdateMilestone, deleteMilestone as coreDeleteMilestone, getMilestoneMentions, getMeetingMilestones, getDateSlippage, getMilestoneMessages, appendMilestoneMessage, clearMilestoneMessages as coreClearMilestoneMessages, getMilestoneChatContext, confirmMilestoneMention as coreConfirmMilestoneMention, rejectMilestoneMention as coreRejectMilestoneMention, mergeMilestones as coreMergeMilestones, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMilestone } from "../../../core/timelines.js";
 import type { Milestone, MilestoneMention, MilestoneMessage, MilestoneActionItem, DateSlippageEntry } from "../../../core/timelines.js";
 import { resolveMeetingSources } from "./meetings.js";
+import { resolveClient } from "../../../core/resolve-client.js";
 
-export function handleListMilestones(db: Database, clientName: string) {
-  return listMilestonesByClient(db, clientName);
+export function handleListMilestones(db: Database, clientParam: string) {
+  if (!clientParam) return [];
+  const resolved = resolveClient(db, clientParam);
+  if (!resolved) return [];
+  return listMilestonesByClient(db, resolved.id);
 }
 
 export function handleCreateMilestone(db: Database, req: CreateMilestoneRequest): Milestone {
-  return coreCreateMilestone(db, req);
+  const clientId = req.clientId ?? resolveClient(db, req.clientName)?.id ?? "";
+  return coreCreateMilestone(db, { clientId, title: req.title, description: req.description, targetDate: req.targetDate });
 }
 
 export function handleUpdateMilestone(db: Database, milestoneId: string, req: UpdateMilestoneRequest): Milestone {

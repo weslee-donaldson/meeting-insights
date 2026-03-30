@@ -21,6 +21,7 @@ import type { MeetingMessage } from "../../../core/meeting-messages.js";
 import { reconcileMilestones } from "../../../core/timelines.js";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest } from "../channels.js";
 import { chatGuidelines, chatTemplates, extractionPrompt } from "./config.js";
+import { resolveClient } from "../../../core/resolve-client.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -120,6 +121,13 @@ export function handleGetGlossary(db: Database, clientName: string): import("../
 }
 
 export function handleGetMeetings(db: Database, opts: MeetingFilters): MeetingRow[] {
+  let resolvedClientName: string | undefined;
+  if (opts.client) {
+    const resolved = resolveClient(db, opts.client);
+    resolvedClientName = resolved?.name;
+    if (!resolvedClientName) return [];
+  }
+
   let rows = db
     .prepare(
       "SELECT m.id, m.title, m.date, COALESCE(json_array_length(a.action_items), 0) AS action_item_count, COALESCE(c.name, '') AS client_name FROM meetings m LEFT JOIN artifacts a ON m.id = a.meeting_id LEFT JOIN clients c ON m.client_id = c.id WHERE m.ignored = 0 ORDER BY m.date DESC",
@@ -159,7 +167,7 @@ export function handleGetMeetings(db: Database, opts: MeetingFilters): MeetingRo
       thread_tags: tagsByMeeting.get(r.id) ?? [],
       milestone_tags: msByMeeting.get(r.id) ?? [],
     }))
-    .filter((r) => !opts.client || r.client === opts.client);
+    .filter((r) => !resolvedClientName || r.client === resolvedClientName);
 }
 
 export function handleGetArtifact(db: Database, meetingId: string): Artifact | null {
