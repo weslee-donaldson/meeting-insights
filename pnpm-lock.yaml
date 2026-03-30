@@ -77,6 +77,9 @@ importers:
       hono:
         specifier: ^4.12.3
         version: 4.12.3
+      jose:
+        specifier: ^6.2.2
+        version: 6.2.2
       lexical:
         specifier: ^0.41.0
         version: 0.41.0
@@ -2201,6 +2204,9 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  jose@6.2.2:
+    resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
   js-git@0.7.8:
     resolution: {integrity: sha512-+E5ZH/HeRnoc/LW0AmAyhU+mNcWBzAKE+30+IDMLSLbbK+Tdt02AdkOKq9u15rlJsDEGFqtgckc8ZM59LhhiUA==}
@@ -5208,6 +5214,8 @@ snapshots:
   isomorphic.js@0.2.5: {}
 
   jiti@2.6.1: {}
+
+  jose@6.2.2: {}
 
   js-git@0.7.8:
     dependencies:
