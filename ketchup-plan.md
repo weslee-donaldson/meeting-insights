@@ -433,8 +433,8 @@ Section 14 — Sequential (integration)
 
 #### Section 8: OAuth Client Management (parallel Agent B)
 
-- [ ] Burst 28: `core/auth/oauth-clients.ts` — `registerOAuthClient`, `getOAuthClient`, `authenticateOAuthClient`. Test: `test/auth-oauth-clients.test.ts`
-- [ ] Burst 29: `core/auth/oauth-clients.ts` — `revokeOAuthClient`, `listOAuthClients`. Test: `test/auth-oauth-clients.test.ts`
+- [x] Burst 28: `core/auth/oauth-clients.ts` — `registerOAuthClient`, `getOAuthClient`, `authenticateOAuthClient`. Test: `test/auth-oauth-clients.test.ts`
+- [x] Burst 29: `core/auth/oauth-clients.ts` — `revokeOAuthClient`, `listOAuthClients`. Test: `test/auth-oauth-clients.test.ts`
 
 #### Section 9: Token Service (parallel Agent A)
 
