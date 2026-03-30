@@ -137,6 +137,51 @@ describe("migrate", () => {
     expect(cols.some(c => c.name === "milestones")).toBe(true);
   });
 
+  it("creates tenants table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(tenants)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "id", type: "TEXT", pk: 1 },
+      { name: "name", type: "TEXT", pk: 0 },
+      { name: "slug", type: "TEXT", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+    ]);
+  });
+
+  it("creates users table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(users)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "id", type: "TEXT", pk: 1 },
+      { name: "email", type: "TEXT", pk: 0 },
+      { name: "display_name", type: "TEXT", pk: 0 },
+      { name: "password_hash", type: "TEXT", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+    ]);
+  });
+
+  it("creates tenant_memberships table with composite primary key", () => {
+    const cols = db.prepare("PRAGMA table_info(tenant_memberships)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "tenant_id", type: "TEXT", pk: 1 },
+      { name: "user_id", type: "TEXT", pk: 2 },
+      { name: "role", type: "TEXT", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+    ]);
+  });
+
+  it("tenants table enforces unique slug", () => {
+    db.prepare("INSERT INTO tenants (id, name, slug) VALUES ('t1', 'Tenant 1', 'tenant-1')").run();
+    expect(() => {
+      db.prepare("INSERT INTO tenants (id, name, slug) VALUES ('t2', 'Tenant 2', 'tenant-1')").run();
+    }).toThrow();
+  });
+
+  it("users table enforces unique email", () => {
+    db.prepare("INSERT INTO users (id, email, display_name) VALUES ('u1', 'alice@test.com', 'Alice')").run();
+    expect(() => {
+      db.prepare("INSERT INTO users (id, email, display_name) VALUES ('u2', 'alice@test.com', 'Alice 2')").run();
+    }).toThrow();
+  });
+
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });
