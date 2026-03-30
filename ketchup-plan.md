@@ -449,7 +449,7 @@ Section 14 — Sequential (integration)
 
 #### Section 11: Auth Middleware
 
-- [ ] Burst 35: `api/middleware/auth.ts` — `createAuthMiddleware(db, publicKey, enabled)` — bearer extraction, JWT + API key validation, scope checking. Test: `test/auth-middleware.test.ts`
+- [x] Burst 35: `api/middleware/auth.ts` — `createAuthMiddleware(db, publicKey, enabled)` — bearer extraction, JWT + API key validation, scope checking. Test: `test/auth-middleware.test.ts`
 - [ ] Burst 36: Wire middleware into `api/server.ts` — conditional on env, bypass list. Test: `test/auth-middleware.test.ts`
 
 #### Section 12: OAuth Routes
