@@ -1,7 +1,8 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import { randomUUID } from "node:crypto";
-import { signAccessToken, signRefreshToken } from "./jwt.js";
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from "./jwt.js";
 import type { Scope } from "./scopes.js";
+import { AppError } from "../errors.js";
 
 interface IssueOpts {
   oauthClientId: string;
@@ -71,4 +72,58 @@ export async function issueTokenPair(
     expires_in: 3600,
     scope: scopeString,
   };
+}
+
+interface TokenRow {
+  jti: string;
+  oauth_client_id: string;
+  user_id: string | null;
+  tenant_id: string;
+  scopes: string;
+  token_type: string;
+  expires_at: string;
+  revoked: number;
+}
+
+export async function refreshTokens(
+  db: Database,
+  refreshToken: string,
+  keys: KeyPair,
+): Promise<{
+  access_token: string;
+  refresh_token: string;
+  token_type: "Bearer";
+  expires_in: number;
+  scope: string;
+}> {
+  let payload: { sub: string; tid: string; jti: string };
+  try {
+    payload = await verifyRefreshToken(keys.publicKey, refreshToken);
+  } catch {
+    throw new AppError("TOKEN_INVALID", "Invalid refresh token");
+  }
+
+  const row = db
+    .prepare("SELECT * FROM oauth_tokens WHERE jti = ?")
+    .get(payload.jti) as TokenRow | undefined;
+
+  if (!row || row.revoked === 1) {
+    throw new AppError("TOKEN_REVOKED", "Refresh token has been revoked");
+  }
+
+  db.prepare("UPDATE oauth_tokens SET revoked = 1 WHERE jti = ?").run(payload.jti);
+
+  const scopes = row.scopes.split(" ") as Scope[];
+  return issueTokenPair(db, {
+    oauthClientId: row.oauth_client_id,
+    userId: row.user_id ?? undefined,
+    tenantId: row.tenant_id,
+    scopes,
+  }, keys) as Promise<{
+    access_token: string;
+    refresh_token: string;
+    token_type: "Bearer";
+    expires_in: number;
+    scope: string;
+  }>;
 }
