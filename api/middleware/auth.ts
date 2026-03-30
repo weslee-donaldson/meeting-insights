@@ -8,6 +8,7 @@ import type { AuthIdentity, Scope } from "../../core/auth/scopes.js";
 
 export interface AuthConfig {
   publicKey: CryptoKey;
+  privateKey: CryptoKey;
   enabled: boolean;
 }
 

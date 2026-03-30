@@ -454,7 +454,7 @@ Section 14 — Sequential (integration)
 
 #### Section 12: OAuth Routes
 
-- [ ] Burst 37: `api/routes/oauth.ts` — `POST /oauth/token` (client_credentials grant). Test: `test/api-oauth.test.ts`
+- [x] Burst 37: `api/routes/oauth.ts` — `POST /oauth/token` (client_credentials grant). Test: `test/api-oauth.test.ts`
 - [ ] Burst 38: `api/routes/oauth.ts` — `GET+POST /oauth/authorize` (auth code + PKCE + owner consent). Test: `test/api-oauth.test.ts`
 - [ ] Burst 39: `api/routes/oauth.ts` — `POST /oauth/token` (authorization_code grant). Test: `test/api-oauth.test.ts`
 - [ ] Burst 40: `api/routes/oauth.ts` — `POST /oauth/revoke` (RFC 7009). Test: `test/api-oauth.test.ts`

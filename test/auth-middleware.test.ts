@@ -48,7 +48,7 @@ describe("createAuthMiddleware", () => {
     it("passes requests through when enabled is false", async () => {
       const db = new DatabaseSync(":memory:");
       migrate(db);
-      const app = buildApp(db, { publicKey: keys.publicKey, enabled: false });
+      const app = buildApp(db, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: false });
 
       const res = await app.request("/api/meetings");
 
@@ -74,7 +74,7 @@ describe("createAuthMiddleware", () => {
         grantTypes: ["client_credentials", "authorization_code"],
         scopes: ["meetings:read", "meetings:write", "search:execute", "admin"],
       }));
-      app = buildApp(db, { publicKey: keys.publicKey, enabled: true });
+      app = buildApp(db, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true });
     });
 
     it("returns 401 when no authorization header is present", async () => {
@@ -224,7 +224,7 @@ describe("createAuthMiddleware", () => {
 
     it("sets auth identity on context for downstream handlers", async () => {
       const innerApp = new Hono();
-      innerApp.use(createAuthMiddleware(db, { publicKey: keys.publicKey, enabled: true }));
+      innerApp.use(createAuthMiddleware(db, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true }));
       innerApp.get("/api/meetings", (c) => {
         const auth = c.get("auth");
         return c.json(auth);
@@ -310,7 +310,7 @@ describe("createApp with authConfig", () => {
   });
 
   it("returns 401 on protected route when auth is enabled and no token provided", async () => {
-    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true });
 
     const res = await app.request("/api/debug");
 
@@ -319,7 +319,7 @@ describe("createApp with authConfig", () => {
   });
 
   it("returns 200 on protected route with valid JWT through createApp", async () => {
-    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true });
 
     const { access_token } = await issueTokenPair(db, {
       oauthClientId,
@@ -335,7 +335,7 @@ describe("createApp with authConfig", () => {
   });
 
   it("returns 403 when JWT scope does not match route through createApp", async () => {
-    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true });
 
     const { access_token } = await issueTokenPair(db, {
       oauthClientId,
@@ -352,7 +352,7 @@ describe("createApp with authConfig", () => {
   });
 
   it("returns 200 with valid API key through createApp", async () => {
-    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, privateKey: keys.privateKey, enabled: true });
 
     const { key } = createApiKey(db, {
       tenantId,

@@ -8,6 +8,7 @@ import { registerThreadRoutes } from "./routes/threads.js";
 import { registerInsightRoutes } from "./routes/insights.js";
 import { registerMilestoneRoutes } from "./routes/milestones.js";
 import { registerNoteRoutes } from "./routes/notes.js";
+import { registerOAuthRoutes } from "./routes/oauth.js";
 import { createAuthMiddleware } from "./middleware/auth.js";
 import type { AuthConfig } from "./middleware/auth.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
@@ -39,6 +40,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   registerInsightRoutes(app, db, llm, searchDeps);
   registerMilestoneRoutes(app, db, llm, searchDeps);
   registerNoteRoutes(app, db);
+  registerOAuthRoutes(app, db, authConfig ? { privateKey: authConfig.privateKey, publicKey: authConfig.publicKey } : undefined);
 
   return app;
 }
