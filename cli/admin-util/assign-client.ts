@@ -6,7 +6,7 @@ export interface AssignResult {
 }
 
 export function assignClient(db: Database, identifier: string, clientName: string): AssignResult {
-  const clientRow = db.prepare("SELECT name FROM clients WHERE name = ?").get(clientName);
+  const clientRow = db.prepare("SELECT id, name FROM clients WHERE name = ?").get(clientName) as { id: string; name: string } | undefined;
   if (!clientRow) throw new Error(`Client not found: ${clientName}`);
 
   const byId = db.prepare("SELECT id FROM meetings WHERE id = ?").get(identifier) as { id: string } | undefined;
@@ -17,10 +17,12 @@ export function assignClient(db: Database, identifier: string, clientName: strin
   if (meetingIds.length === 0) throw new Error(`No meeting found for identifier: ${identifier}`);
 
   const del = db.prepare("DELETE FROM client_detections WHERE meeting_id = ?");
-  const ins = db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, ?, ?)");
+  const ins = db.prepare("INSERT INTO client_detections (meeting_id, client_name, client_id, confidence, method) VALUES (?, ?, ?, ?, ?)");
+  const upd = db.prepare("UPDATE meetings SET client_id = ? WHERE id = ?");
   for (const id of meetingIds) {
     del.run(id);
-    ins.run(id, clientName, 1.0, "manual");
+    ins.run(id, clientName, clientRow.id, 1.0, "manual");
+    upd.run(clientRow.id, id);
   }
 
   return { matched: meetingIds.length, client_name: clientName };

@@ -104,9 +104,10 @@ interface MeetingRow {
 
 const pendingBase = db.prepare(`
   SELECT m.id, m.date, m.title,
-         COALESCE((SELECT cd.client_name FROM client_detections cd WHERE cd.meeting_id = m.id ORDER BY cd.confidence DESC LIMIT 1), '') AS client
+         COALESCE(c.name, '') AS client
   FROM meetings m
   JOIN artifacts a ON a.meeting_id = m.id
+  LEFT JOIN clients c ON m.client_id = c.id
   WHERE m.ignored = 0
     AND NOT EXISTS (SELECT 1 FROM item_mentions im WHERE im.meeting_id = m.id)
   ORDER BY m.date ASC
