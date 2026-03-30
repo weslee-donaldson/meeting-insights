@@ -386,3 +386,65 @@ describe("POST /oauth/token (refresh_token)", () => {
     expect(await res.json()).toEqual({ error: "invalid_grant" });
   });
 });
+
+describe("POST /oauth/revoke", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+  let tenantId: string;
+  let clientId: string;
+  let clientSecret: string;
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    const t = seedTestTenant(db);
+    tenantId = t.tenantId;
+    const reg = registerOAuthClient(db, {
+      tenantId,
+      name: "test-revoke",
+      grantTypes: ["client_credentials"],
+      scopes: ["meetings:read"],
+    });
+    clientId = reg.clientId;
+    clientSecret = reg.clientSecret!;
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("revokes a valid token and returns 200", async () => {
+    const tokenRes = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: "meetings:read",
+      }),
+    });
+    const tokenBody = await tokenRes.json();
+
+    const res = await app.request("/oauth/revoke", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: tokenBody.access_token }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({});
+  });
+
+  it("returns 200 for invalid token per RFC 7009", async () => {
+    const res = await app.request("/oauth/revoke", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: "not-a-real-token" }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({});
+  });
+});

@@ -2,7 +2,8 @@ import type { Hono } from "hono";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { timingSafeEqual } from "node:crypto";
 import { authenticateOAuthClient, getOAuthClient } from "../../core/auth/oauth-clients.js";
-import { issueTokenPair, refreshTokens } from "../../core/auth/token-service.js";
+import { issueTokenPair, refreshTokens, revokeToken } from "../../core/auth/token-service.js";
+import { decodeJwt } from "jose";
 import { createAuthorizationCode, exchangeAuthorizationCode } from "../../core/auth/auth-codes.js";
 import { isValidScope } from "../../core/auth/scopes.js";
 import type { Scope } from "../../core/auth/scopes.js";
@@ -64,6 +65,19 @@ export function registerOAuthRoutes(app: Hono, db: Database, deps?: OAuthDeps): 
   app.post("/oauth/authorize", async (c) => {
     const body = await c.req.json();
     return handleAuthorize(c, db, body);
+  });
+
+  app.post("/oauth/revoke", async (c) => {
+    const body = await c.req.json();
+    try {
+      const claims = decodeJwt(body.token);
+      if (claims.jti) {
+        revokeToken(db, claims.jti);
+      }
+    } catch {
+      // Per RFC 7009, always return 200
+    }
+    return c.json({});
   });
 }
 

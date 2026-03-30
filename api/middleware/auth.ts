@@ -17,6 +17,8 @@ const BYPASS_PATHS = [
   "/oauth/token",
   "/oauth/authorize",
   "/oauth/jwks",
+  "/oauth/revoke",
+  "/oauth/register",
 ];
 
 export function createAuthMiddleware(db: Database, authConfig: AuthConfig | undefined): MiddlewareHandler {
