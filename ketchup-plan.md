@@ -421,7 +421,7 @@ Section 14 — Sequential (integration)
 
 #### Section 6: Auth Infrastructure
 
-- [ ] Burst 22: `core/auth/scopes.ts` — `Scope` type, `VALID_SCOPES`, `isValidScope`, `scopesForRoute` map, `AuthIdentity` interface. Test: `test/auth-scopes.test.ts`
+- [x] Burst 22: `core/auth/scopes.ts` — `Scope` type, `VALID_SCOPES`, `isValidScope`, `scopesForRoute` map, `AuthIdentity` interface. Test: `test/auth-scopes.test.ts`
 - [ ] Burst 23: Auth tables in `core/db.ts` — `oauth_clients`, `oauth_tokens`, `oauth_authorization_codes`, `api_keys`. Test: add to `test/db.test.ts`
 - [ ] Burst 24: `core/auth/jwt.ts` — `generateKeyPair`, `loadOrCreateKeys`, `signAccessToken`, `verifyAccessToken`. Test: `test/auth-jwt.test.ts`
 - [ ] Burst 25: `core/auth/jwt.ts` — `signRefreshToken`, `verifyRefreshToken`. Test: `test/auth-jwt.test.ts`
