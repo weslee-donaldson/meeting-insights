@@ -438,9 +438,9 @@ Section 14 — Sequential (integration)
 
 #### Section 9: Token Service (parallel Agent A)
 
-- [ ] Burst 30: `core/auth/token-service.ts` — `issueTokenPair`. Test: `test/auth-token-service.test.ts`
-- [ ] Burst 31: `core/auth/token-service.ts` — `refreshTokens`. Test: `test/auth-token-service.test.ts`
-- [ ] Burst 32: `core/auth/token-service.ts` — `revokeToken`, `isTokenRevoked`. Test: `test/auth-token-service.test.ts`
+- [x] Burst 30: `core/auth/token-service.ts` — `issueTokenPair`. Test: `test/auth-token-service.test.ts` (b8375f0)
+- [x] Burst 31: `core/auth/token-service.ts` — `refreshTokens`. Test: `test/auth-token-service.test.ts` (0b76d2f)
+- [x] Burst 32: `core/auth/token-service.ts` — `revokeToken`, `isTokenRevoked`. Test: `test/auth-token-service.test.ts`
 
 #### Section 10: PKCE + Authorization Codes (parallel Agent B)
 
