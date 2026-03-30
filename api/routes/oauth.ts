@@ -5,7 +5,7 @@ import { authenticateOAuthClient, getOAuthClient } from "../../core/auth/oauth-c
 import { issueTokenPair, refreshTokens, revokeToken } from "../../core/auth/token-service.js";
 import { decodeJwt } from "jose";
 import { createAuthorizationCode, exchangeAuthorizationCode } from "../../core/auth/auth-codes.js";
-import { isValidScope } from "../../core/auth/scopes.js";
+import { isValidScope, VALID_SCOPES } from "../../core/auth/scopes.js";
 import type { Scope } from "../../core/auth/scopes.js";
 import { AppError } from "../../core/errors.js";
 
@@ -65,6 +65,22 @@ export function registerOAuthRoutes(app: Hono, db: Database, deps?: OAuthDeps): 
   app.post("/oauth/authorize", async (c) => {
     const body = await c.req.json();
     return handleAuthorize(c, db, body);
+  });
+
+  app.get("/.well-known/oauth-authorization-server", (c) => {
+    return c.json({
+      issuer: "mtninsights",
+      authorization_endpoint: "/oauth/authorize",
+      token_endpoint: "/oauth/token",
+      registration_endpoint: "/oauth/register",
+      revocation_endpoint: "/oauth/revoke",
+      jwks_uri: "/oauth/jwks",
+      scopes_supported: [...VALID_SCOPES],
+      response_types_supported: ["code"],
+      grant_types_supported: ["client_credentials", "authorization_code", "refresh_token"],
+      code_challenge_methods_supported: ["S256"],
+      token_endpoint_auth_methods_supported: ["client_secret_post", "none"],
+    });
   });
 
   app.post("/oauth/revoke", async (c) => {

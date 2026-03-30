@@ -448,3 +448,51 @@ describe("POST /oauth/revoke", () => {
     expect(await res.json()).toEqual({});
   });
 });
+
+describe("GET /.well-known/oauth-authorization-server", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    seedTestTenant(db);
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("returns server metadata per RFC 8414", async () => {
+    const res = await app.request("/.well-known/oauth-authorization-server");
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      issuer: "mtninsights",
+      authorization_endpoint: "/oauth/authorize",
+      token_endpoint: "/oauth/token",
+      registration_endpoint: "/oauth/register",
+      revocation_endpoint: "/oauth/revoke",
+      jwks_uri: "/oauth/jwks",
+      scopes_supported: [
+        "meetings:read",
+        "meetings:write",
+        "search:execute",
+        "threads:read",
+        "threads:write",
+        "insights:read",
+        "insights:write",
+        "milestones:read",
+        "milestones:write",
+        "notes:read",
+        "notes:write",
+        "admin",
+      ],
+      response_types_supported: ["code"],
+      grant_types_supported: ["client_credentials", "authorization_code", "refresh_token"],
+      code_challenge_methods_supported: ["S256"],
+      token_endpoint_auth_methods_supported: ["client_secret_post", "none"],
+    });
+  });
+});
