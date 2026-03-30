@@ -265,6 +265,56 @@ export function migrate(db: DatabaseSync): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       PRIMARY KEY (tenant_id, user_id)
     );
+
+    CREATE TABLE IF NOT EXISTS oauth_clients (
+      client_id TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL,
+      client_secret_hash TEXT,
+      name TEXT NOT NULL,
+      grant_types TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      redirect_uris TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      revoked INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS oauth_tokens (
+      jti TEXT PRIMARY KEY,
+      oauth_client_id TEXT NOT NULL,
+      user_id TEXT,
+      tenant_id TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      token_type TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      revoked INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS oauth_authorization_codes (
+      code TEXT PRIMARY KEY,
+      oauth_client_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      tenant_id TEXT NOT NULL,
+      redirect_uri TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      code_challenge TEXT NOT NULL,
+      code_challenge_method TEXT NOT NULL DEFAULT 'S256',
+      expires_at TEXT NOT NULL,
+      used INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS api_keys (
+      key_hash TEXT PRIMARY KEY,
+      tenant_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      prefix TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      last_used_at TEXT,
+      revoked INTEGER DEFAULT 0
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];

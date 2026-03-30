@@ -412,3 +412,100 @@ describe("client PK migration", () => {
     expect(tenantCount).toEqual({ cnt: 1 });
   });
 });
+
+describe("auth tables", () => {
+  it("creates oauth_clients table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(oauth_clients)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "client_id", type: "TEXT", pk: 1 },
+      { name: "tenant_id", type: "TEXT", pk: 0 },
+      { name: "client_secret_hash", type: "TEXT", pk: 0 },
+      { name: "name", type: "TEXT", pk: 0 },
+      { name: "grant_types", type: "TEXT", pk: 0 },
+      { name: "scopes", type: "TEXT", pk: 0 },
+      { name: "redirect_uris", type: "TEXT", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+      { name: "revoked", type: "INTEGER", pk: 0 },
+    ]);
+  });
+
+  it("creates oauth_tokens table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(oauth_tokens)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "jti", type: "TEXT", pk: 1 },
+      { name: "oauth_client_id", type: "TEXT", pk: 0 },
+      { name: "user_id", type: "TEXT", pk: 0 },
+      { name: "tenant_id", type: "TEXT", pk: 0 },
+      { name: "scopes", type: "TEXT", pk: 0 },
+      { name: "token_type", type: "TEXT", pk: 0 },
+      { name: "expires_at", type: "TEXT", pk: 0 },
+      { name: "revoked", type: "INTEGER", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+    ]);
+  });
+
+  it("creates oauth_authorization_codes table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(oauth_authorization_codes)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "code", type: "TEXT", pk: 1 },
+      { name: "oauth_client_id", type: "TEXT", pk: 0 },
+      { name: "user_id", type: "TEXT", pk: 0 },
+      { name: "tenant_id", type: "TEXT", pk: 0 },
+      { name: "redirect_uri", type: "TEXT", pk: 0 },
+      { name: "scopes", type: "TEXT", pk: 0 },
+      { name: "code_challenge", type: "TEXT", pk: 0 },
+      { name: "code_challenge_method", type: "TEXT", pk: 0 },
+      { name: "expires_at", type: "TEXT", pk: 0 },
+      { name: "used", type: "INTEGER", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+    ]);
+  });
+
+  it("creates api_keys table with correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(api_keys)").all() as { name: string; type: string; pk: number }[];
+    expect(cols.map(c => ({ name: c.name, type: c.type, pk: c.pk }))).toEqual([
+      { name: "key_hash", type: "TEXT", pk: 1 },
+      { name: "tenant_id", type: "TEXT", pk: 0 },
+      { name: "user_id", type: "TEXT", pk: 0 },
+      { name: "name", type: "TEXT", pk: 0 },
+      { name: "prefix", type: "TEXT", pk: 0 },
+      { name: "scopes", type: "TEXT", pk: 0 },
+      { name: "created_at", type: "TEXT", pk: 0 },
+      { name: "last_used_at", type: "TEXT", pk: 0 },
+      { name: "revoked", type: "INTEGER", pk: 0 },
+    ]);
+  });
+
+  it("oauth_clients insert + query round-trip", () => {
+    db.prepare(`INSERT INTO oauth_clients (client_id, tenant_id, client_secret_hash, name, grant_types, scopes)
+      VALUES ('oc1', 't1', 'hash123', 'Test App', 'client_credentials', 'meetings:read')`).run();
+    const row = db.prepare("SELECT client_id, tenant_id, name, grant_types, scopes, revoked FROM oauth_clients WHERE client_id = 'oc1'").get() as {
+      client_id: string; tenant_id: string; name: string; grant_types: string; scopes: string; revoked: number;
+    };
+    expect(row).toEqual({
+      client_id: "oc1",
+      tenant_id: "t1",
+      name: "Test App",
+      grant_types: "client_credentials",
+      scopes: "meetings:read",
+      revoked: 0,
+    });
+  });
+
+  it("api_keys insert + query round-trip", () => {
+    db.prepare(`INSERT INTO api_keys (key_hash, tenant_id, user_id, name, prefix, scopes)
+      VALUES ('keyhash1', 't1', 'u1', 'My Key', 'mki_abc', 'meetings:read meetings:write')`).run();
+    const row = db.prepare("SELECT key_hash, tenant_id, user_id, name, prefix, scopes, revoked FROM api_keys WHERE key_hash = 'keyhash1'").get() as {
+      key_hash: string; tenant_id: string; user_id: string; name: string; prefix: string; scopes: string; revoked: number;
+    };
+    expect(row).toEqual({
+      key_hash: "keyhash1",
+      tenant_id: "t1",
+      user_id: "u1",
+      name: "My Key",
+      prefix: "mki_abc",
+      scopes: "meetings:read meetings:write",
+      revoked: 0,
+    });
+  });
+});
