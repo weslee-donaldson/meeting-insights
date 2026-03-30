@@ -1,7 +1,7 @@
 import type { Hono } from "hono";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { timingSafeEqual } from "node:crypto";
-import { authenticateOAuthClient, getOAuthClient } from "../../core/auth/oauth-clients.js";
+import { authenticateOAuthClient, getOAuthClient, registerOAuthClient } from "../../core/auth/oauth-clients.js";
 import { issueTokenPair, refreshTokens, revokeToken } from "../../core/auth/token-service.js";
 import { decodeJwt, exportJWK } from "jose";
 import { createAuthorizationCode, exchangeAuthorizationCode } from "../../core/auth/auth-codes.js";
@@ -99,6 +99,55 @@ export function registerOAuthRoutes(app: Hono, db: Database, deps?: OAuthDeps): 
       // Per RFC 7009, always return 200
     }
     return c.json({});
+  });
+
+  app.post("/oauth/register", async (c) => {
+    const authHeader = c.req.header("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return c.json({ error: "unauthorized" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    if (!verifyOwnerSecret(token)) {
+      return c.json({ error: "unauthorized" }, 401);
+    }
+
+    const body = await c.req.json();
+    const scopes = (body.scope as string).split(" ");
+    for (const s of scopes) {
+      if (!isValidScope(s)) {
+        return c.json({ error: "invalid_scope" }, 400);
+      }
+    }
+
+    const tenantRow = db
+      .prepare("SELECT id FROM tenants WHERE slug = 'default'")
+      .get() as { id: string } | undefined;
+    const tenantId = tenantRow!.id;
+
+    const redirectUris: string[] = body.redirect_uris ?? [];
+
+    const result = registerOAuthClient(db, {
+      tenantId,
+      name: body.client_name,
+      grantTypes: body.grant_types,
+      scopes,
+      redirectUris: redirectUris.length > 0 ? redirectUris : undefined,
+    });
+
+    const response: Record<string, unknown> = {
+      client_id: result.clientId,
+      client_name: body.client_name,
+      redirect_uris: redirectUris,
+      grant_types: body.grant_types,
+      scope: body.scope,
+    };
+
+    if (result.clientSecret) {
+      response.client_secret = result.clientSecret;
+    }
+
+    return c.json(response, 201);
   });
 }
 

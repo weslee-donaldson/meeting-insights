@@ -460,7 +460,7 @@ Section 14 — Sequential (integration)
 - [x] Burst 40: `api/routes/oauth.ts` — `POST /oauth/revoke` (RFC 7009). Test: `test/api-oauth.test.ts` (5f540e6)
 - [x] Burst 41: `api/routes/oauth.ts` — `GET /.well-known/oauth-authorization-server` (RFC 8414). Test: `test/api-oauth.test.ts`
 - [x] Burst 41b: `api/routes/oauth.ts` — `GET /oauth/jwks` (RFC 7517). Test: `test/api-oauth.test.ts`
-- [ ] Burst 42: `api/routes/oauth.ts` — `POST /oauth/register` (RFC 7591, requires owner secret). Test: `test/api-oauth.test.ts`
+- [x] Burst 42: `api/routes/oauth.ts` — `POST /oauth/register` (RFC 7591, requires owner secret). Test: `test/api-oauth.test.ts`
 
 #### Section 13: Management CLI
 

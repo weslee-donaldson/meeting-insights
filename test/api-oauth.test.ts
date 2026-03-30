@@ -529,3 +529,126 @@ describe("GET /oauth/jwks", () => {
     );
   });
 });
+
+describe("POST /oauth/register", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+  const ownerSecret = "test-register-secret";
+
+  beforeEach(() => {
+    process.env.MTNINSIGHTS_OWNER_SECRET = ownerSecret;
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    const t = seedTestTenant(db);
+    db.prepare("UPDATE tenants SET slug = 'default' WHERE id = ?").run(t.tenantId);
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("creates OAuth client with client_credentials grant and returns secret", async () => {
+    const res = await app.request("/oauth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ownerSecret}`,
+      },
+      body: JSON.stringify({
+        client_name: "my-service",
+        grant_types: ["client_credentials"],
+        scope: "meetings:read meetings:write",
+      }),
+    });
+
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body).toEqual({
+      client_id: expect.any(String),
+      client_secret: expect.any(String),
+      client_name: "my-service",
+      redirect_uris: [],
+      grant_types: ["client_credentials"],
+      scope: "meetings:read meetings:write",
+    });
+  });
+
+  it("creates OAuth client with authorization_code grant and redirect_uris", async () => {
+    const res = await app.request("/oauth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ownerSecret}`,
+      },
+      body: JSON.stringify({
+        client_name: "my-spa",
+        redirect_uris: ["http://localhost:3000/callback"],
+        grant_types: ["authorization_code"],
+        scope: "meetings:read",
+      }),
+    });
+
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body).toEqual({
+      client_id: expect.any(String),
+      client_name: "my-spa",
+      redirect_uris: ["http://localhost:3000/callback"],
+      grant_types: ["authorization_code"],
+      scope: "meetings:read",
+    });
+    expect(body.client_secret).toBeUndefined();
+  });
+
+  it("rejects missing authorization header with 401", async () => {
+    const res = await app.request("/oauth/register", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_name: "bad",
+        grant_types: ["client_credentials"],
+        scope: "meetings:read",
+      }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "unauthorized" });
+  });
+
+  it("rejects wrong owner secret with 401", async () => {
+    const res = await app.request("/oauth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer wrong-secret",
+      },
+      body: JSON.stringify({
+        client_name: "bad",
+        grant_types: ["client_credentials"],
+        scope: "meetings:read",
+      }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "unauthorized" });
+  });
+
+  it("rejects invalid scope with 400", async () => {
+    const res = await app.request("/oauth/register", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ownerSecret}`,
+      },
+      body: JSON.stringify({
+        client_name: "bad",
+        grant_types: ["client_credentials"],
+        scope: "invalid:scope",
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "invalid_scope" });
+  });
+});
