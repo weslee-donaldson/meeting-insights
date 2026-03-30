@@ -6,6 +6,7 @@ import { generateKeyPair } from "../core/auth/jwt.js";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
 import { registerOAuthClient } from "../core/auth/oauth-clients.js";
 import { computeCodeChallenge } from "../core/auth/pkce.js";
+import { createAuthorizationCode } from "../core/auth/auth-codes.js";
 
 let keys: { publicKey: CryptoKey; privateKey: CryptoKey };
 
@@ -212,5 +213,176 @@ describe("GET+POST /oauth/authorize", () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "invalid_client" });
+  });
+});
+
+describe("POST /oauth/token (authorization_code)", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+  let tenantId: string;
+  let userId: string;
+  let clientId: string;
+  const codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+  const codeChallenge = computeCodeChallenge(codeVerifier);
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    const t = seedTestTenant(db);
+    tenantId = t.tenantId;
+    userId = t.userId;
+    const reg = registerOAuthClient(db, {
+      tenantId,
+      name: "test-authcode-token",
+      grantTypes: ["authorization_code"],
+      scopes: ["meetings:read"],
+      redirectUris: ["http://localhost:3000/callback"],
+    });
+    clientId = reg.clientId;
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("exchanges authorization code for token pair", async () => {
+    const code = createAuthorizationCode(db, {
+      oauthClientId: clientId,
+      userId,
+      tenantId,
+      redirectUri: "http://localhost:3000/callback",
+      scopes: ["meetings:read"],
+      codeChallenge,
+    });
+
+    const res = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: "http://localhost:3000/callback",
+        client_id: clientId,
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toEqual({
+      access_token: expect.any(String),
+      refresh_token: expect.any(String),
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: "meetings:read",
+    });
+  });
+
+  it("rejects invalid authorization code with 400", async () => {
+    const res = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        code: "invalid-code",
+        redirect_uri: "http://localhost:3000/callback",
+        client_id: clientId,
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "invalid_grant" });
+  });
+});
+
+describe("POST /oauth/token (refresh_token)", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+  let tenantId: string;
+  let userId: string;
+  let clientId: string;
+  const codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+  const codeChallenge = computeCodeChallenge(codeVerifier);
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    const t = seedTestTenant(db);
+    tenantId = t.tenantId;
+    userId = t.userId;
+    const reg = registerOAuthClient(db, {
+      tenantId,
+      name: "test-refresh",
+      grantTypes: ["authorization_code"],
+      scopes: ["meetings:read"],
+      redirectUris: ["http://localhost:3000/callback"],
+    });
+    clientId = reg.clientId;
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("exchanges refresh token for new token pair", async () => {
+    const code = createAuthorizationCode(db, {
+      oauthClientId: clientId,
+      userId,
+      tenantId,
+      redirectUri: "http://localhost:3000/callback",
+      scopes: ["meetings:read"],
+      codeChallenge,
+    });
+
+    const tokenRes = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: "http://localhost:3000/callback",
+        client_id: clientId,
+        code_verifier: codeVerifier,
+      }),
+    });
+    const tokenBody = await tokenRes.json();
+
+    const res = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "refresh_token",
+        refresh_token: tokenBody.refresh_token,
+        client_id: clientId,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toEqual({
+      access_token: expect.any(String),
+      refresh_token: expect.any(String),
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: "meetings:read",
+    });
+  });
+
+  it("rejects invalid refresh token with 400", async () => {
+    const res = await app.request("/oauth/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "refresh_token",
+        refresh_token: "invalid-token",
+        client_id: clientId,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "invalid_grant" });
   });
 });

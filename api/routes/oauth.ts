@@ -2,10 +2,11 @@ import type { Hono } from "hono";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { timingSafeEqual } from "node:crypto";
 import { authenticateOAuthClient, getOAuthClient } from "../../core/auth/oauth-clients.js";
-import { issueTokenPair } from "../../core/auth/token-service.js";
-import { createAuthorizationCode } from "../../core/auth/auth-codes.js";
+import { issueTokenPair, refreshTokens } from "../../core/auth/token-service.js";
+import { createAuthorizationCode, exchangeAuthorizationCode } from "../../core/auth/auth-codes.js";
 import { isValidScope } from "../../core/auth/scopes.js";
 import type { Scope } from "../../core/auth/scopes.js";
+import { AppError } from "../../core/errors.js";
 
 export interface OAuthDeps {
   privateKey: CryptoKey;
@@ -21,6 +22,14 @@ export function registerOAuthRoutes(app: Hono, db: Database, deps?: OAuthDeps): 
 
     if (grantType === "client_credentials") {
       return handleClientCredentials(c, db, body, deps);
+    }
+
+    if (grantType === "authorization_code") {
+      return handleAuthorizationCodeGrant(c, db, body, deps);
+    }
+
+    if (grantType === "refresh_token") {
+      return handleRefreshTokenGrant(c, db, body, deps);
     }
 
     return c.json({ error: "unsupported_grant_type" }, 400);
@@ -89,6 +98,57 @@ async function handleClientCredentials(
   );
 
   return c.json(result);
+}
+
+async function handleAuthorizationCodeGrant(
+  c: { json: (data: unknown, status?: number) => Response },
+  db: Database,
+  body: { code: string; redirect_uri: string; client_id: string; code_verifier: string },
+  deps: OAuthDeps,
+): Promise<Response> {
+  try {
+    const result = exchangeAuthorizationCode(db, {
+      code: body.code,
+      clientId: body.client_id,
+      redirectUri: body.redirect_uri,
+      codeVerifier: body.code_verifier,
+    });
+
+    const tokenResult = await issueTokenPair(
+      db,
+      {
+        oauthClientId: body.client_id,
+        userId: result.userId,
+        tenantId: result.tenantId,
+        scopes: result.scopes as Scope[],
+      },
+      deps,
+    );
+
+    return c.json(tokenResult);
+  } catch (err) {
+    if (err instanceof AppError) {
+      return c.json({ error: "invalid_grant" }, 400);
+    }
+    throw err;
+  }
+}
+
+async function handleRefreshTokenGrant(
+  c: { json: (data: unknown, status?: number) => Response },
+  db: Database,
+  body: { refresh_token: string; client_id: string },
+  deps: OAuthDeps,
+): Promise<Response> {
+  try {
+    const result = await refreshTokens(db, body.refresh_token, deps);
+    return c.json(result);
+  } catch (err) {
+    if (err instanceof AppError) {
+      return c.json({ error: "invalid_grant" }, 400);
+    }
+    throw err;
+  }
 }
 
 function verifyOwnerSecret(provided: string): boolean {
