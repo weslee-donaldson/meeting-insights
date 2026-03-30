@@ -221,6 +221,7 @@ describe("IPC handlers", () => {
     it("should include thread_tags for meetings linked to threads", () => {
       const thread = createThread(db, {
         client_name: "Acme",
+        client_id: "client-acme",
         title: "AI Access Policy",
         shorthand: "ai-policy",
         description: "Track AI access concerns",
@@ -928,25 +929,25 @@ describe("IPC handlers", () => {
 
   describe("Thread CRUD handlers", () => {
     it("createThread creates a thread and listThreads returns it", () => {
-      const thread = handleCreateThread(db, { client_name: "Acme", title: "Deploy issues", shorthand: "DEPLOY", description: "Track CI", criteria_prompt: "CI failures" });
+      const thread = handleCreateThread(db, { client_name: "Acme", client_id: "client-acme", title: "Deploy issues", shorthand: "DEPLOY", description: "Track CI", criteria_prompt: "CI failures" });
       expect(thread.title).toBe("Deploy issues");
       expect(thread.shorthand).toBe("DEPLOY");
-      const list = handleListThreads(db, "Acme");
+      const list = handleListThreads(db, "client-acme");
       expect(list).toHaveLength(1);
       expect(list[0].title).toBe("Deploy issues");
     });
 
     it("updateThread updates thread fields", () => {
-      const thread = handleCreateThread(db, { client_name: "Acme", title: "Old", shorthand: "OLD", description: "", criteria_prompt: "" });
+      const thread = handleCreateThread(db, { client_name: "Acme", client_id: "client-acme", title: "Old", shorthand: "OLD", description: "", criteria_prompt: "" });
       const updated = handleUpdateThread(db, thread.id, { title: "New title", status: "resolved" });
       expect(updated.title).toBe("New title");
       expect(updated.status).toBe("resolved");
     });
 
     it("deleteThread removes thread from list", () => {
-      const thread = handleCreateThread(db, { client_name: "Acme", title: "To delete", shorthand: "DEL", description: "", criteria_prompt: "" });
+      const thread = handleCreateThread(db, { client_name: "Acme", client_id: "client-acme", title: "To delete", shorthand: "DEL", description: "", criteria_prompt: "" });
       handleDeleteThread(db, thread.id);
-      const list = handleListThreads(db, "Acme");
+      const list = handleListThreads(db, "client-acme");
       expect(list.find((t) => t.id === thread.id)).toBeUndefined();
     });
   });
@@ -955,7 +956,7 @@ describe("IPC handlers", () => {
     it("deleting a meeting marks associated thread messages as context_stale", async () => {
       const staleDb = createDb(":memory:");
       migrate(staleDb);
-      staleDb.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+      staleDb.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run("Acme", "[]", "[]", "client-acme-stale");
       const mId = ingestMeeting(staleDb, {
         title: "Stale Test Meeting",
         timestamp: "2026-03-05T10:00:00.000Z",
@@ -964,7 +965,7 @@ describe("IPC handlers", () => {
         turns: [],
         sourceFilename: "stale-test",
       });
-      const thread = createThread(staleDb, { client_name: "Acme", title: "Stale Thread", shorthand: "STALE", description: "", criteria_prompt: "" });
+      const thread = createThread(staleDb, { client_name: "Acme", client_id: "client-acme-stale", title: "Stale Thread", shorthand: "STALE", description: "", criteria_prompt: "" });
       addThreadMeeting(staleDb, { thread_id: thread.id, meeting_id: mId, relevance_summary: "related", relevance_score: 80 });
       appendThreadMessage(staleDb, { thread_id: thread.id, role: "user", content: "Question?" });
       appendThreadMessage(staleDb, { thread_id: thread.id, role: "assistant", content: "Answer." });

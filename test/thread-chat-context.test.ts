@@ -5,6 +5,7 @@ import { createThread, addThreadMeeting, getThreadChatContext } from "../core/th
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import { storeArtifact } from "../core/extractor.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 vi.mock("../core/embedder.js", () => ({
   embed: vi.fn().mockResolvedValue(new Float32Array(384).fill(0.1)),
@@ -37,16 +38,18 @@ const stubSession = {} as InferenceSession & { _tokenizer: unknown };
 
 let db: Database;
 let threadId: string;
+let acmeClientId: string;
 
 beforeEach(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+  const { tenantId } = seedTestTenant(db);
+  acmeClientId = seedTestClient(db, tenantId, "Acme").id;
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m1', 'Sprint Planning', '2026-03-01')").run();
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m2', 'Retrospective', '2026-03-08')").run();
   storeArtifact(db, "m1", { summary: "Deployment failed.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
   storeArtifact(db, "m2", { summary: "Discussed rollback.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
-  const thread = createThread(db, { client_name: "Acme", title: "Deployment issues", shorthand: "DEPLOY", description: "Track CI failures", criteria_prompt: "CI failures" });
+  const thread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "Deployment issues", shorthand: "DEPLOY", description: "Track CI failures", criteria_prompt: "CI failures" });
   threadId = thread.id;
   addThreadMeeting(db, { thread_id: threadId, meeting_id: "m1", relevance_summary: "m1 relevant.", relevance_score: 90 });
   addThreadMeeting(db, { thread_id: threadId, meeting_id: "m2", relevance_summary: "m2 relevant.", relevance_score: 70 });
@@ -60,7 +63,7 @@ describe("getThreadChatContext", () => {
   });
 
   it("returns empty meetingIds and context with thread info when no associations", async () => {
-    const emptyThread = createThread(db, { client_name: "Acme", title: "Empty thread", shorthand: "EMPTY", description: "", criteria_prompt: "" });
+    const emptyThread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "Empty thread", shorthand: "EMPTY", description: "", criteria_prompt: "" });
     const { systemContext, meetingIds } = await getThreadChatContext(db, stubVdbEmpty, stubSession, emptyThread.id, "Any updates?", false);
     expect(systemContext).toContain("Empty thread");
     expect(meetingIds).toHaveLength(0);

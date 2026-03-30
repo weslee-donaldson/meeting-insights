@@ -4,6 +4,7 @@ import type { Database } from "../core/db.js";
 import { createThread, getThreadCandidates } from "../core/threads.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 vi.mock("../core/embedder.js", () => ({
   embed: vi.fn().mockResolvedValue(new Float32Array(384).fill(0.1)),
@@ -35,24 +36,26 @@ const stubVdbWithResults: VectorDb = {
 const stubSession = {} as InferenceSession & { _tokenizer: unknown };
 
 let db: Database;
+let acmeClientId: string;
 
 beforeEach(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+  const { tenantId } = seedTestTenant(db);
+  acmeClientId = seedTestClient(db, tenantId, "Acme").id;
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m1', 'Sprint Planning', '2026-03-01')").run();
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m2', 'Retrospective', '2026-03-08')").run();
 });
 
 describe("getThreadCandidates", () => {
   it("returns empty array when no vectors match", async () => {
-    const thread = createThread(db, { client_name: "Acme", title: "Deploy issues", shorthand: "DEPLOY", description: "Track failures", criteria_prompt: "CI failures" });
+    const thread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "Deploy issues", shorthand: "DEPLOY", description: "Track failures", criteria_prompt: "CI failures" });
     const candidates = await getThreadCandidates(db, stubVdbEmpty, stubSession, thread, "Acme");
     expect(candidates).toEqual([]);
   });
 
   it("returns candidate list with meeting_id, title, date, and similarity", async () => {
-    const thread = createThread(db, { client_name: "Acme", title: "Deploy issues", shorthand: "DEPLOY", description: "Track failures", criteria_prompt: "CI failures" });
+    const thread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "Deploy issues", shorthand: "DEPLOY", description: "Track failures", criteria_prompt: "CI failures" });
     const candidates = await getThreadCandidates(db, stubVdbWithResults, stubSession, thread, "Acme");
     expect(candidates).toHaveLength(2);
     expect(candidates[0]).toMatchObject({
@@ -64,7 +67,7 @@ describe("getThreadCandidates", () => {
   });
 
   it("converts distance to similarity score (1 - distance)", async () => {
-    const thread = createThread(db, { client_name: "Acme", title: "T", shorthand: "T", description: "", criteria_prompt: "" });
+    const thread = createThread(db, { client_name: "Acme", client_id: acmeClientId, title: "T", shorthand: "T", description: "", criteria_prompt: "" });
     const candidates = await getThreadCandidates(db, stubVdbWithResults, stubSession, thread, "Acme");
     expect(candidates[0].similarity).toBeCloseTo(1 - 0.15);
     expect(candidates[1].similarity).toBeCloseTo(1 - 0.45);

@@ -8,20 +8,25 @@ import {
   updateInsight,
   deleteInsight,
 } from "../core/insights.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
+let acmeClientId: string;
+let globexClientId: string;
 
 beforeAll(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
-  db.prepare("INSERT INTO clients (name) VALUES ('Globex')").run();
+  const { tenantId } = seedTestTenant(db);
+  acmeClientId = seedTestClient(db, tenantId, "Acme").id;
+  globexClientId = seedTestClient(db, tenantId, "Globex").id;
 });
 
 describe("createInsight", () => {
-  it("stores and returns an insight with generated id and timestamps", () => {
+  it("stores and returns an insight with generated id, timestamps, and client_id", () => {
     const result = createInsight(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       period_type: "week",
       period_start: "2026-03-02",
       period_end: "2026-03-08",
@@ -29,6 +34,7 @@ describe("createInsight", () => {
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
+      client_id: acmeClientId,
       name: "",
       period_type: "week",
       period_start: "2026-03-02",
@@ -47,6 +53,7 @@ describe("createInsight", () => {
   it("stores a custom name when provided", () => {
     const result = createInsight(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       period_type: "week",
       period_start: "2026-03-09",
       period_end: "2026-03-15",
@@ -60,6 +67,7 @@ describe("getInsight", () => {
   it("retrieves an existing insight by id", () => {
     const created = createInsight(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       period_type: "day",
       period_start: "2026-03-08",
       period_end: "2026-03-08",
@@ -75,27 +83,29 @@ describe("getInsight", () => {
 });
 
 describe("listInsightsByClient", () => {
-  it("returns only insights for the specified client", () => {
+  it("returns only insights for the specified client_id", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
-    db2.prepare("INSERT INTO clients (name) VALUES ('Globex')").run();
-    createInsight(db2, { client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
-    createInsight(db2, { client_name: "Globex", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
-    createInsight(db2, { client_name: "Acme", period_type: "week", period_start: "2026-03-02", period_end: "2026-03-08" });
-    const result = listInsightsByClient(db2, "Acme");
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const acme2 = seedTestClient(db2, t2, "Acme").id;
+    const globex2 = seedTestClient(db2, t2, "Globex").id;
+    createInsight(db2, { client_name: "Acme", client_id: acme2, period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
+    createInsight(db2, { client_name: "Globex", client_id: globex2, period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
+    createInsight(db2, { client_name: "Acme", client_id: acme2, period_type: "week", period_start: "2026-03-02", period_end: "2026-03-08" });
+    const result = listInsightsByClient(db2, acme2);
     expect(result).toHaveLength(2);
-    expect(result.every((i) => i.client_name === "Acme")).toBe(true);
+    expect(result.every((i) => i.client_id === acme2)).toBe(true);
   });
 
   it("includes meeting_count for each insight", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const acme2 = seedTestClient(db2, t2, "Acme").id;
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('m1', 'Standup', '2026-03-01')").run();
-    const ins = createInsight(db2, { client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
+    const ins = createInsight(db2, { client_name: "Acme", client_id: acme2, period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
     db2.prepare("INSERT INTO insight_meetings (insight_id, meeting_id) VALUES (?, ?)").run(ins.id, "m1");
-    const result = listInsightsByClient(db2, "Acme");
+    const result = listInsightsByClient(db2, acme2);
     expect(result[0].meeting_count).toBe(1);
   });
 });
@@ -104,6 +114,7 @@ describe("updateInsight", () => {
   it("updates specified fields and returns the updated insight", () => {
     const created = createInsight(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       period_type: "day",
       period_start: "2026-03-08",
       period_end: "2026-03-08",
@@ -127,6 +138,7 @@ describe("updateInsight", () => {
   it("updates insight name", () => {
     const created = createInsight(db, {
       client_name: "Acme",
+      client_id: acmeClientId,
       period_type: "day",
       period_start: "2026-03-10",
       period_end: "2026-03-10",
@@ -140,9 +152,10 @@ describe("deleteInsight", () => {
   it("removes insight and cascades to messages and meetings", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name) VALUES ('Acme')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const acme2 = seedTestClient(db2, t2, "Acme").id;
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('m1', 'Standup', '2026-03-01')").run();
-    const ins = createInsight(db2, { client_name: "Acme", period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
+    const ins = createInsight(db2, { client_name: "Acme", client_id: acme2, period_type: "day", period_start: "2026-03-01", period_end: "2026-03-01" });
     db2.prepare("INSERT INTO insight_meetings (insight_id, meeting_id) VALUES (?, ?)").run(ins.id, "m1");
     db2.prepare("INSERT INTO insight_messages (id, insight_id, role, content, created_at) VALUES ('msg1', ?, 'user', 'hello', '2026-03-01')").run(ins.id);
     deleteInsight(db2, ins.id);
