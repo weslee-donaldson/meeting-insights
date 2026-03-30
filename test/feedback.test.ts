@@ -36,11 +36,14 @@ beforeAll(() => {
     risk_items: [],
   });
 
-  db.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("OldClient", "[]", "[]");
-  db.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("NewClient", "[]", "[]");
-  db.prepare("INSERT INTO client_detections (meeting_id, client_name, confidence, method) VALUES (?, ?, ?, ?)").run(
+  const oldClientId = randomUUID();
+  const newClientId = randomUUID();
+  db.prepare("INSERT INTO clients (id, name, aliases, known_participants) VALUES (?, ?, ?, ?)").run(oldClientId, "OldClient", "[]", "[]");
+  db.prepare("INSERT INTO clients (id, name, aliases, known_participants) VALUES (?, ?, ?, ?)").run(newClientId, "NewClient", "[]", "[]");
+  db.prepare("INSERT INTO client_detections (meeting_id, client_name, client_id, confidence, method) VALUES (?, ?, ?, ?, ?)").run(
     meetingId,
     "OldClient",
+    oldClientId,
     0.5,
     "title",
   );
@@ -62,6 +65,15 @@ describe("overrideClient", () => {
       .get(meetingId) as { client_name: string; method: string };
     expect(row.client_name).toBe("NewClient");
     expect(row.method).toBe("override");
+  });
+
+  it("writes client_id from clients table alongside client_name", () => {
+    overrideClient(db, meetingId, "NewClient");
+    const row = db
+      .prepare("SELECT client_id FROM client_detections WHERE meeting_id = ?")
+      .get(meetingId) as { client_id: string };
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = 'NewClient'").get() as { id: string };
+    expect(row.client_id).toBe(clientRow.id);
   });
 });
 
