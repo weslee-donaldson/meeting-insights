@@ -469,7 +469,7 @@ Section 14 — Sequential (integration)
 
 #### Section 14: Integration
 
-- [ ] Burst 45: Update `api/server.ts` signature — `createApp(..., authConfig?)` accepts optional `AuthConfig`
+- [x] Burst 45: Update `api/server.ts` signature — `createApp(..., authConfig?)` accepts optional `AuthConfig` (verified, already done)
 - [ ] Burst 46: Update `api/main.ts` — load signing keys, read auth env vars, pass `AuthConfig` to `createApp`
 - [ ] Burst 47: `.keys/` in `.gitignore`, update scatter/gather docs for `core/auth/`, `api/`
 
