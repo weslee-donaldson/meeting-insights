@@ -87,6 +87,18 @@ This directory contains the entire domain model. It has no imports from `electro
 | `meeting-messages.ts` | Per-meeting stateful chat history. `appendMeetingMessage` inserts a user or assistant message with optional JSON sources. `getMeetingMessages` returns the conversation for a meeting sorted by creation date. `clearMeetingMessages` wipes the history. Used by the meeting detail chat panel. |
 | `format-owner.ts` | `formatOwner(name, mode)` formats a person's name by density mode: `comfortable` returns the full name, `compact` returns first name + last initial, `dense` returns initials only. Used in action item displays across density settings. |
 
+### Authentication & Authorization (`auth/`)
+
+| File | Purpose |
+|------|---------|
+| `auth/scopes.ts` | Defines `VALID_SCOPES` constant array, `Scope` type, `isValidScope` guard, `AuthIdentity` interface, and `scopesForRoute(method, path)` which maps HTTP method + path to required scopes via a `ROUTE_RULES` table. |
+| `auth/jwt.ts` | RSA key management and JWT signing/verification. `generateKeyPair()` creates RS256 keys. `loadOrCreateKeys(keysDir)` loads PEM files from disk or generates and persists new ones. `signAccessToken`/`verifyAccessToken` (1h, audience `mtninsights-api`) and `signRefreshToken`/`verifyRefreshToken` (30d, audience `mtninsights-refresh`). |
+| `auth/api-keys.ts` | API key lifecycle. `generateApiKey()` produces `mki_`-prefixed keys with SHA-256 hashes. `createApiKey` inserts into `api_keys` table. `validateApiKey` verifies and updates `last_used_at`. `revokeApiKey` sets `revoked = 1`. `listApiKeys` returns all keys for a tenant (without exposing hashes). |
+| `auth/oauth-clients.ts` | OAuth client registration and management. `registerOAuthClient` creates a client with optional `client_secret` (generated for `client_credentials` grant type). `authenticateOAuthClient` verifies client_id + secret. `getOAuthClient`, `listOAuthClients`, `revokeOAuthClient` for CRUD. |
+| `auth/token-service.ts` | Token issuance and rotation. `issueTokenPair` mints access + optional refresh JWTs and records them in `oauth_tokens`. `refreshTokens` validates and rotates a refresh token (single-use). `revokeToken` and `isTokenRevoked` for revocation checks. |
+| `auth/pkce.ts` | PKCE utilities. `generateCodeVerifier`, `computeCodeChallenge` (S256), and `verifyCodeChallenge`. |
+| `auth/auth-codes.ts` | Authorization code grant flow. `createAuthorizationCode` stores a time-limited code with PKCE challenge. `exchangeAuthorizationCode` validates code, client, redirect URI, and PKCE verifier, then marks the code as used. |
+
 ### Orchestration
 
 | File | Purpose |

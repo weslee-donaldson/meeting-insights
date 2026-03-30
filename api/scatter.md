@@ -6,8 +6,9 @@ This layer wraps the same IPC handlers used by the Electron main process and exp
 
 | File | Purpose |
 |------|---------|
-| `server.ts` | Exports `createApp(db, dbPath, llm?, searchDeps?)` — instantiates Hono, attaches CORS and request-logging middleware, then delegates to all six `registerXxxRoutes` functions. Returns the app without starting a listener; this makes it independently testable. Also exports the `SearchDeps` interface (`{ vdb: VectorDb; session: InferenceSession & { _tokenizer: unknown } }`). |
-| `main.ts` | Entry point when run directly. Loads `.env.local`, configures log level and log directory from environment variables, initialises SQLite (`createDb` + `migrate`), populates the FTS index if empty, constructs an `LlmAdapter` based on `MTNINSIGHTS_LLM_PROVIDER` (anthropic / openai / local / stub), attempts to connect LanceDB and load the ONNX model for vector search (degrades gracefully on failure), then calls `createApp` and starts `@hono/node-server` on `PORT` (default 3000). |
+| `server.ts` | Exports `createApp(db, dbPath, llm?, searchDeps?, assetsDir?, authConfig?)` — instantiates Hono, attaches CORS and request-logging middleware, attaches the auth middleware (`createAuthMiddleware` from `middleware/auth.ts`), then delegates to all route registrars including `registerOAuthRoutes`. Returns the app without starting a listener; this makes it independently testable. Also re-exports `AuthConfig` and `SearchDeps` interfaces. |
+| `main.ts` | Entry point when run directly. Loads `.env.local`, configures log level and log directory from environment variables, initialises SQLite (`createDb` + `migrate`), populates the FTS index if empty, constructs an `LlmAdapter` based on `MTNINSIGHTS_LLM_PROVIDER`, attempts to connect LanceDB and load the ONNX model for vector search (degrades gracefully on failure). When `MTNINSIGHTS_AUTH_ENABLED=1`, loads or creates RSA signing keys from `.keys/` via `loadOrCreateKeys` and constructs an `AuthConfig`. Then calls `createApp` and starts `@hono/node-server` on `PORT` (default 3000). |
+| `middleware/auth.ts` | Exports `AuthConfig` interface (`{ publicKey, privateKey, enabled }`) and `createAuthMiddleware(db, authConfig?)`. When auth is enabled, validates Bearer tokens (API keys via `mki_` prefix, JWTs otherwise), checks token revocation, extracts `AuthIdentity`, and enforces route-level scope requirements. OAuth endpoints are bypassed. |
 
 ## Key Concepts
 
@@ -24,6 +25,8 @@ This layer wraps the same IPC handlers used by the Electron main process and exp
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | — | Required when provider is `openai` |
 | `MTNINSIGHTS_LOCAL_BASE_URL` / `MTNINSIGHTS_LOCAL_MODEL` | `http://localhost:11434` / `llama3.1:8b` | Ollama endpoint |
 | `MTNINSIGHTS_LOG_LEVEL` | `info` | `error` / `warn` / `info` / `debug` |
+| `MTNINSIGHTS_AUTH_ENABLED` | — | Set to `1` to enable JWT/API-key auth |
+| `MTNINSIGHTS_OWNER_SECRET` | — | Shared secret for `/oauth/register` and `/oauth/authorize` endpoints |
 
 **Client resolution:** all routes that accept a `?client=` query parameter resolve it by name or UUID via `resolveClient` from `core/resolve-client.ts`, enabling callers to pass either the client name or its UUID primary key.
 
