@@ -8,16 +8,22 @@ import {
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
+import { resolveClient } from "../../core/resolve-client.js";
 
 export function registerInsightRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
   app.get('/api/insights', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListInsights(db, client));
+    const clientParam = c.req.query('client') ?? '';
+    if (!clientParam) return c.json([]);
+    const resolved = resolveClient(db, clientParam);
+    if (!resolved) return c.json([]);
+    return c.json(handleListInsights(db, resolved.id));
   });
 
   app.post('/api/insights', async (c) => {
     const body = await c.req.json() as CreateInsightRequest;
-    return c.json(handleCreateInsight(db, body), 201);
+    const resolved = body.client_name ? resolveClient(db, body.client_name) : null;
+    const input = { ...body, client_id: resolved?.id ?? "" };
+    return c.json(handleCreateInsight(db, input), 201);
   });
 
   app.put('/api/insights/:id', async (c) => {

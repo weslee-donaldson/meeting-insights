@@ -9,16 +9,22 @@ import {
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
+import { resolveClient } from "../../core/resolve-client.js";
 
 export function registerThreadRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
   app.get('/api/threads', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListThreads(db, client));
+    const clientParam = c.req.query('client') ?? '';
+    if (!clientParam) return c.json([]);
+    const resolved = resolveClient(db, clientParam);
+    if (!resolved) return c.json([]);
+    return c.json(handleListThreads(db, resolved.id));
   });
 
-  app.post('/api/threads', (c) => {
-    const req = c.req.json();
-    return req.then((body) => c.json(handleCreateThread(db, body as CreateThreadRequest), 201));
+  app.post('/api/threads', async (c) => {
+    const body = await c.req.json() as CreateThreadRequest;
+    const resolved = body.client_name ? resolveClient(db, body.client_name) : null;
+    const input = { ...body, client_id: resolved?.id ?? "" };
+    return c.json(handleCreateThread(db, input), 201);
   });
 
   app.put('/api/threads/:id', async (c) => {

@@ -10,16 +10,22 @@ import {
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
+import { resolveClient } from "../../core/resolve-client.js";
 
 export function registerMilestoneRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
   app.get('/api/milestones', (c) => {
-    const client = c.req.query('client') ?? '';
-    return c.json(handleListMilestones(db, client));
+    const clientParam = c.req.query('client') ?? '';
+    if (!clientParam) return c.json([]);
+    const resolved = resolveClient(db, clientParam);
+    if (!resolved) return c.json([]);
+    return c.json(handleListMilestones(db, resolved.id));
   });
 
   app.post('/api/milestones', async (c) => {
     const body = await c.req.json() as CreateMilestoneRequest;
-    return c.json(handleCreateMilestone(db, body), 201);
+    const resolved = body.clientName ? resolveClient(db, body.clientName) : null;
+    const input = { clientId: resolved?.id ?? "", title: body.title, description: body.description, targetDate: body.targetDate };
+    return c.json(handleCreateMilestone(db, input), 201);
   });
 
   app.post('/api/milestones/merge', async (c) => {
