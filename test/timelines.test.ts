@@ -2,19 +2,23 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createMilestone, getMilestone, updateMilestone, deleteMilestone, listMilestonesByClient, addMilestoneMention, getMilestoneMentions, getDateSlippage, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMeetingMilestones, reconcileMilestones, confirmMilestoneMention, rejectMilestoneMention, mergeMilestones, appendMilestoneMessage, getMilestoneMessages, clearMilestoneMessages } from "../core/timelines.js";
+import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
+let acmeClientId: string;
 
 beforeAll(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Acme', '[]', '[]')").run();
+  const { tenantId } = seedTestTenant(db);
+  const acme = seedTestClient(db, tenantId, "Acme");
+  acmeClientId = acme.id;
 });
 
 describe("createMilestone", () => {
   it("inserts a milestone and returns it with generated id and timestamps", () => {
     const result = createMilestone(db, {
-      clientName: "Acme",
+      clientId: acmeClientId,
       title: "Launch commerce platform",
       description: "Phase 1 go-live",
       targetDate: "2026-06-01",
@@ -23,7 +27,7 @@ describe("createMilestone", () => {
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
-      client_id: null,
+      client_id: acmeClientId,
       title: "Launch commerce platform",
       description: "Phase 1 go-live",
       target_date: "2026-06-01",
@@ -37,14 +41,14 @@ describe("createMilestone", () => {
 
   it("defaults description to empty string and target_date to null when omitted", () => {
     const result = createMilestone(db, {
-      clientName: "Acme",
+      clientId: acmeClientId,
       title: "Migration complete",
     });
 
     expect(result).toEqual({
       id: expect.any(String),
       client_name: "Acme",
-      client_id: null,
+      client_id: acmeClientId,
       title: "Migration complete",
       description: "",
       target_date: null,
@@ -59,7 +63,7 @@ describe("createMilestone", () => {
 
 describe("getMilestone", () => {
   it("returns milestone by id", () => {
-    const created = createMilestone(db, { clientName: "Acme", title: "Get test" });
+    const created = createMilestone(db, { clientId: acmeClientId, title: "Get test" });
     const result = getMilestone(db, created.id);
     expect(result).toEqual(created);
   });
@@ -72,7 +76,7 @@ describe("getMilestone", () => {
 
 describe("updateMilestone", () => {
   it("updates title and returns updated milestone", () => {
-    const created = createMilestone(db, { clientName: "Acme", title: "Original" });
+    const created = createMilestone(db, { clientId: acmeClientId, title: "Original" });
     const result = updateMilestone(db, created.id, { title: "Updated" });
     expect(result).toEqual({
       ...created,
@@ -82,14 +86,14 @@ describe("updateMilestone", () => {
   });
 
   it("updates status to completed and sets completed_at", () => {
-    const created = createMilestone(db, { clientName: "Acme", title: "Complete me" });
+    const created = createMilestone(db, { clientId: acmeClientId, title: "Complete me" });
     const result = updateMilestone(db, created.id, { status: "completed" });
     expect(result!.status).toBe("completed");
     expect(result!.completed_at).toEqual(expect.any(String));
   });
 
   it("clears completed_at when status changes away from completed", () => {
-    const created = createMilestone(db, { clientName: "Acme", title: "Uncomplete me" });
+    const created = createMilestone(db, { clientId: acmeClientId, title: "Uncomplete me" });
     updateMilestone(db, created.id, { status: "completed" });
     const result = updateMilestone(db, created.id, { status: "tracked" });
     expect(result!.status).toBe("tracked");
@@ -104,7 +108,7 @@ describe("updateMilestone", () => {
 
 describe("deleteMilestone", () => {
   it("deletes milestone and cascades to mentions, action items, and messages", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Delete me" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Delete me" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('del-m1', 'Standup', '2026-01-15')").run();
     db.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'del-m1', 'introduced', '2026-01-15')").run(m.id);
     db.prepare("INSERT INTO milestone_action_items (milestone_id, meeting_id, item_index, linked_at) VALUES (?, 'del-m1', 0, '2026-01-15')").run(m.id);
@@ -123,18 +127,19 @@ describe("listMilestonesByClient", () => {
   it("returns milestones with mention_count and first_mentioned_at ordered by target_date", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Beta', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const beta = seedTestClient(db2, t2, "Beta");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('list-m1', 'DSU', '2026-02-01')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('list-m2', 'DSU 2', '2026-02-10')").run();
 
-    const m1 = createMilestone(db2, { clientName: "Beta", title: "Alpha launch", targetDate: "2026-03-01" });
-    const m2 = createMilestone(db2, { clientName: "Beta", title: "Beta launch", targetDate: "2026-04-01" });
+    const m1 = createMilestone(db2, { clientId: beta.id, title: "Alpha launch", targetDate: "2026-03-01" });
+    const m2 = createMilestone(db2, { clientId: beta.id, title: "Beta launch", targetDate: "2026-04-01" });
 
     db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m1', 'introduced', '2026-02-01')").run(m1.id);
     db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m2', 'updated', '2026-02-10')").run(m1.id);
     db2.prepare("INSERT INTO milestone_mentions (milestone_id, meeting_id, mention_type, mentioned_at) VALUES (?, 'list-m1', 'introduced', '2026-02-01')").run(m2.id);
 
-    const result = listMilestonesByClient(db2, "Beta");
+    const result = listMilestonesByClient(db2, beta.id);
     expect(result).toEqual([
       { ...m1, mention_count: 2, first_mentioned_at: "2026-02-01", pending_review_count: 0 },
       { ...m2, mention_count: 1, first_mentioned_at: "2026-02-01", pending_review_count: 0 },
@@ -144,14 +149,15 @@ describe("listMilestonesByClient", () => {
   it("returns empty array when client has no milestones", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Empty', '[]', '[]')").run();
-    expect(listMilestonesByClient(db2, "Empty")).toEqual([]);
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const empty = seedTestClient(db2, t2, "Empty");
+    expect(listMilestonesByClient(db2, empty.id)).toEqual([]);
   });
 });
 
 describe("addMilestoneMention", () => {
   it("inserts a mention and returns it", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Mention test" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Mention test" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('mention-m1', 'DSU', '2026-03-01')").run();
 
     const result = addMilestoneMention(db, {
@@ -175,7 +181,7 @@ describe("addMilestoneMention", () => {
   });
 
   it("upserts on same milestone_id + meeting_id", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Upsert test" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Upsert test" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('upsert-m1', 'DSU', '2026-03-01')").run();
 
     addMilestoneMention(db, {
@@ -211,7 +217,7 @@ describe("addMilestoneMention", () => {
   });
 
   it("supports pending_review flag for fuzzy matches", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Fuzzy test" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Fuzzy test" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('fuzzy-m1', 'DSU', '2026-03-01')").run();
 
     const result = addMilestoneMention(db, {
@@ -240,11 +246,12 @@ describe("getMilestoneMentions", () => {
   it("returns mentions joined with meeting title and date in chronological order", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Gamma', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const gamma = seedTestClient(db2, t2, "Gamma");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('gm-m1', 'Kickoff', '2026-01-10')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('gm-m2', 'Sprint Review', '2026-02-05')").run();
 
-    const m = createMilestone(db2, { clientName: "Gamma", title: "Platform launch" });
+    const m = createMilestone(db2, { clientId: gamma.id, title: "Platform launch" });
 
     addMilestoneMention(db2, {
       milestoneId: m.id,
@@ -291,7 +298,7 @@ describe("getMilestoneMentions", () => {
   });
 
   it("returns empty array when milestone has no mentions", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "No mentions" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "No mentions" });
     expect(getMilestoneMentions(db, m.id)).toEqual([]);
   });
 });
@@ -300,12 +307,13 @@ describe("getDateSlippage", () => {
   it("returns date changes across mentions in chronological order", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Slip', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const slip = seedTestClient(db2, t2, "Slip");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m1', 'DSU 1', '2026-01-10')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m2', 'DSU 2', '2026-02-05')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('slip-m3', 'DSU 3', '2026-03-01')").run();
 
-    const m = createMilestone(db2, { clientName: "Slip", title: "Slippery milestone" });
+    const m = createMilestone(db2, { clientId: slip.id, title: "Slippery milestone" });
 
     addMilestoneMention(db2, { milestoneId: m.id, meetingId: "slip-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-03-15", mentionedAt: "2026-01-10" });
     addMilestoneMention(db2, { milestoneId: m.id, meetingId: "slip-m2", mentionType: "updated", excerpt: "", targetDateAtMention: "2026-03-31", mentionedAt: "2026-02-05" });
@@ -321,11 +329,12 @@ describe("getDateSlippage", () => {
   it("returns empty array when target date never changes", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Stable', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const stable = seedTestClient(db2, t2, "Stable");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('stable-m1', 'DSU', '2026-01-10')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('stable-m2', 'DSU 2', '2026-02-05')").run();
 
-    const m = createMilestone(db2, { clientName: "Stable", title: "Stable milestone" });
+    const m = createMilestone(db2, { clientId: stable.id, title: "Stable milestone" });
 
     addMilestoneMention(db2, { milestoneId: m.id, meetingId: "stable-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-10" });
     addMilestoneMention(db2, { milestoneId: m.id, meetingId: "stable-m2", mentionType: "referenced", excerpt: "", targetDateAtMention: "2026-06-01", mentionedAt: "2026-02-05" });
@@ -334,14 +343,14 @@ describe("getDateSlippage", () => {
   });
 
   it("returns empty array when milestone has no mentions", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "No slippage mentions" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "No slippage mentions" });
     expect(getDateSlippage(db, m.id)).toEqual([]);
   });
 });
 
 describe("linkActionItem + unlinkActionItem", () => {
   it("links an action item to a milestone and returns the row", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Link test" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Link test" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('link-m1', 'DSU', '2026-03-01')").run();
 
     const result = linkActionItem(db, m.id, "link-m1", 0);
@@ -354,7 +363,7 @@ describe("linkActionItem + unlinkActionItem", () => {
   });
 
   it("is idempotent — linking same item twice does not throw", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Idempotent link" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Idempotent link" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('idem-m1', 'DSU', '2026-03-01')").run();
 
     linkActionItem(db, m.id, "idem-m1", 0);
@@ -371,7 +380,7 @@ describe("linkActionItem + unlinkActionItem", () => {
   });
 
   it("unlinks an action item from a milestone", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "Unlink test" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "Unlink test" });
     db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('unlink-m1', 'DSU', '2026-03-01')").run();
 
     linkActionItem(db, m.id, "unlink-m1", 2);
@@ -386,13 +395,14 @@ describe("getMilestoneActionItems", () => {
   it("returns linked action items with meeting title and date", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('ItemClient', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const itemClient = seedTestClient(db2, t2, "ItemClient");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('ai-m1', 'Sprint Planning', '2026-02-01')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('ai-m2', 'Retro', '2026-02-15')").run();
     db2.prepare("INSERT INTO artifacts (meeting_id, action_items) VALUES ('ai-m1', '[\"Deploy new API\",\"Update docs\"]')").run();
     db2.prepare("INSERT INTO artifacts (meeting_id, action_items) VALUES ('ai-m2', '[\"Fix auth bug\"]')").run();
 
-    const m = createMilestone(db2, { clientName: "ItemClient", title: "Action items test" });
+    const m = createMilestone(db2, { clientId: itemClient.id, title: "Action items test" });
     linkActionItem(db2, m.id, "ai-m1", 0);
     linkActionItem(db2, m.id, "ai-m2", 0);
 
@@ -418,7 +428,7 @@ describe("getMilestoneActionItems", () => {
   });
 
   it("returns empty array when no action items linked", () => {
-    const m = createMilestone(db, { clientName: "Acme", title: "No action items" });
+    const m = createMilestone(db, { clientId: acmeClientId, title: "No action items" });
     expect(getMilestoneActionItems(db, m.id)).toEqual([]);
   });
 });
@@ -427,11 +437,12 @@ describe("getMeetingMilestones", () => {
   it("returns milestone tags for a meeting via its mentions", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('TagClient', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const tagClient = seedTestClient(db2, t2, "TagClient");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('tag-m1', 'DSU', '2026-03-01')").run();
 
-    const m1 = createMilestone(db2, { clientName: "TagClient", title: "Go-live v1", targetDate: "2026-04-01" });
-    const m2 = createMilestone(db2, { clientName: "TagClient", title: "Migration", targetDate: "2026-05-01" });
+    const m1 = createMilestone(db2, { clientId: tagClient.id, title: "Go-live v1", targetDate: "2026-04-01" });
+    const m2 = createMilestone(db2, { clientId: tagClient.id, title: "Migration", targetDate: "2026-05-01" });
 
     addMilestoneMention(db2, { milestoneId: m1.id, meetingId: "tag-m1", mentionType: "introduced", excerpt: "", targetDateAtMention: "2026-04-01", mentionedAt: "2026-03-01" });
     addMilestoneMention(db2, { milestoneId: m2.id, meetingId: "tag-m1", mentionType: "referenced", excerpt: "", targetDateAtMention: "2026-05-01", mentionedAt: "2026-03-01" });
@@ -453,19 +464,20 @@ describe("reconcileMilestones", () => {
   it("matches existing milestone by normalized title and creates mention", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Exact', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const exact = seedTestClient(db2, t2, "Exact");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('exact-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('exact-m2', 'Sprint Review', '2026-02-10')").run();
 
-    const existing = createMilestone(db2, { clientName: "Exact", title: "Commerce Platform Go-Live", targetDate: "2026-06-01" });
+    const existing = createMilestone(db2, { clientId: exact.id, title: "Commerce Platform Go-Live", targetDate: "2026-06-01" });
 
     addMilestoneMention(db2, { milestoneId: existing.id, meetingId: "exact-m1", mentionType: "introduced", excerpt: "initial", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
 
-    reconcileMilestones(db2, "Exact", "exact-m2", "2026-02-10", [
+    reconcileMilestones(db2, exact.id, "exact-m2", "2026-02-10", [
       { title: "commerce platform go-live", target_date: "2026-07-01", status_signal: "updated", excerpt: "Pushed to July" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "Exact");
+    const milestones = listMilestonesByClient(db2, exact.id);
     expect(milestones).toHaveLength(1);
     expect(milestones[0].id).toBe(existing.id);
     expect(milestones[0].mention_count).toBe(2);
@@ -483,18 +495,19 @@ describe("reconcileMilestones", () => {
   it("creates pending_review mention when fuzzy match exceeds threshold", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Fuzzy', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const fuzzy = seedTestClient(db2, t2, "Fuzzy");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('fuzzy-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('fuzzy-m2', 'Sprint', '2026-02-10')").run();
 
-    const existing = createMilestone(db2, { clientName: "Fuzzy", title: "Commerce platform go-live", targetDate: "2026-06-01" });
+    const existing = createMilestone(db2, { clientId: fuzzy.id, title: "Commerce platform go-live", targetDate: "2026-06-01" });
     addMilestoneMention(db2, { milestoneId: existing.id, meetingId: "fuzzy-m1", mentionType: "introduced", excerpt: "initial", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
 
-    reconcileMilestones(db2, "Fuzzy", "fuzzy-m2", "2026-02-10", [
+    reconcileMilestones(db2, fuzzy.id, "fuzzy-m2", "2026-02-10", [
       { title: "Commerce platform launch", target_date: "2026-07-01", status_signal: "updated", excerpt: "Similar but not exact" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "Fuzzy");
+    const milestones = listMilestonesByClient(db2, fuzzy.id);
     expect(milestones).toHaveLength(1);
     expect(milestones[0].pending_review_count).toBe(1);
 
@@ -509,39 +522,41 @@ describe("reconcileMilestones", () => {
   it("creates new milestone when fuzzy similarity is below threshold", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('NoFuzzy', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const noFuzzy = seedTestClient(db2, t2, "NoFuzzy");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('nf-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('nf-m2', 'Sprint', '2026-02-10')").run();
 
-    createMilestone(db2, { clientName: "NoFuzzy", title: "Commerce platform go-live" });
+    createMilestone(db2, { clientId: noFuzzy.id, title: "Commerce platform go-live" });
 
-    reconcileMilestones(db2, "NoFuzzy", "nf-m2", "2026-02-10", [
+    reconcileMilestones(db2, noFuzzy.id, "nf-m2", "2026-02-10", [
       { title: "Database migration complete", target_date: null, status_signal: "introduced", excerpt: "Totally different" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "NoFuzzy");
+    const milestones = listMilestonesByClient(db2, noFuzzy.id);
     expect(milestones).toHaveLength(2);
   });
 
   it("transitions status from identified to tracked on second mention", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Track', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const track = seedTestClient(db2, t2, "Track");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('trk-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('trk-m2', 'Sprint', '2026-02-10')").run();
 
-    reconcileMilestones(db2, "Track", "trk-m1", "2026-01-15", [
+    reconcileMilestones(db2, track.id, "trk-m1", "2026-01-15", [
       { title: "Launch V2", target_date: "2026-06-01", status_signal: "introduced", excerpt: "First mention" },
     ]);
 
-    const before = listMilestonesByClient(db2, "Track");
+    const before = listMilestonesByClient(db2, track.id);
     expect(before[0].status).toBe("identified");
 
-    reconcileMilestones(db2, "Track", "trk-m2", "2026-02-10", [
+    reconcileMilestones(db2, track.id, "trk-m2", "2026-02-10", [
       { title: "Launch V2", target_date: "2026-06-01", status_signal: "referenced", excerpt: "Second mention" },
     ]);
 
-    const after = listMilestonesByClient(db2, "Track");
+    const after = listMilestonesByClient(db2, track.id);
     expect(after[0].status).toBe("tracked");
     expect(after[0].mention_count).toBe(2);
   });
@@ -549,19 +564,20 @@ describe("reconcileMilestones", () => {
   it("transitions to completed when status_signal is completed", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Comp', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const comp = seedTestClient(db2, t2, "Comp");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('comp-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('comp-m2', 'Retro', '2026-03-10')").run();
 
-    reconcileMilestones(db2, "Comp", "comp-m1", "2026-01-15", [
+    reconcileMilestones(db2, comp.id, "comp-m1", "2026-01-15", [
       { title: "API Migration", target_date: "2026-03-01", status_signal: "introduced", excerpt: "First" },
     ]);
 
-    reconcileMilestones(db2, "Comp", "comp-m2", "2026-03-10", [
+    reconcileMilestones(db2, comp.id, "comp-m2", "2026-03-10", [
       { title: "API Migration", target_date: "2026-03-01", status_signal: "completed", excerpt: "Done" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "Comp");
+    const milestones = listMilestonesByClient(db2, comp.id);
     expect(milestones[0].status).toBe("completed");
 
     const ms = getMilestone(db2, milestones[0].id);
@@ -571,30 +587,32 @@ describe("reconcileMilestones", () => {
   it("transitions to deferred when status_signal is deferred", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Defer', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const defer = seedTestClient(db2, t2, "Defer");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('def-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('def-m2', 'Review', '2026-02-20')").run();
 
-    reconcileMilestones(db2, "Defer", "def-m1", "2026-01-15", [
+    reconcileMilestones(db2, defer.id, "def-m1", "2026-01-15", [
       { title: "Platform Upgrade", target_date: "2026-04-01", status_signal: "introduced", excerpt: "Started" },
     ]);
 
-    reconcileMilestones(db2, "Defer", "def-m2", "2026-02-20", [
+    reconcileMilestones(db2, defer.id, "def-m2", "2026-02-20", [
       { title: "Platform Upgrade", target_date: null, status_signal: "deferred", excerpt: "Postponed" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "Defer");
+    const milestones = listMilestonesByClient(db2, defer.id);
     expect(milestones[0].status).toBe("deferred");
   });
 
   it("confirmMilestoneMention sets pending_review to 0", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Conf', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const conf = seedTestClient(db2, t2, "Conf");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('conf-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('conf-m2', 'Sprint', '2026-02-10')").run();
 
-    const ms = createMilestone(db2, { clientName: "Conf", title: "Commerce platform go-live" });
+    const ms = createMilestone(db2, { clientId: conf.id, title: "Commerce platform go-live" });
     addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "conf-m1", mentionType: "introduced", excerpt: "first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
     addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "conf-m2", mentionType: "updated", excerpt: "fuzzy", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10", pendingReview: true });
 
@@ -607,21 +625,23 @@ describe("reconcileMilestones", () => {
   it("rejectMilestoneMention removes mention and creates new milestone from rejected data", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Rej', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const rej = seedTestClient(db2, t2, "Rej");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('rej-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('rej-m2', 'Sprint', '2026-02-10')").run();
 
-    const ms = createMilestone(db2, { clientName: "Rej", title: "Commerce platform go-live" });
+    const ms = createMilestone(db2, { clientId: rej.id, title: "Commerce platform go-live" });
     addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "rej-m1", mentionType: "introduced", excerpt: "first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
     addMilestoneMention(db2, { milestoneId: ms.id, meetingId: "rej-m2", mentionType: "updated", excerpt: "fuzzy match", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10", pendingReview: true });
 
-    const newMs = rejectMilestoneMention(db2, ms.id, "rej-m2", "Rej");
+    const newMs = rejectMilestoneMention(db2, ms.id, "rej-m2", rej.id);
 
     const origMentions = getMilestoneMentions(db2, ms.id);
     expect(origMentions).toHaveLength(1);
 
     expect(newMs).toEqual(expect.objectContaining({
       client_name: "Rej",
+      client_id: rej.id,
       status: "identified",
     }));
 
@@ -638,12 +658,13 @@ describe("reconcileMilestones", () => {
   it("mergeMilestones moves all mentions and action item links from source to target", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Merge', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const merge = seedTestClient(db2, t2, "Merge");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('mrg-m1', 'Kickoff', '2026-01-15')").run();
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('mrg-m2', 'Sprint', '2026-02-10')").run();
 
-    const target = createMilestone(db2, { clientName: "Merge", title: "Target milestone" });
-    const source = createMilestone(db2, { clientName: "Merge", title: "Source milestone" });
+    const target = createMilestone(db2, { clientId: merge.id, title: "Target milestone" });
+    const source = createMilestone(db2, { clientId: merge.id, title: "Source milestone" });
 
     addMilestoneMention(db2, { milestoneId: target.id, meetingId: "mrg-m1", mentionType: "introduced", excerpt: "target first", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
     addMilestoneMention(db2, { milestoneId: source.id, meetingId: "mrg-m2", mentionType: "updated", excerpt: "source first", targetDateAtMention: "2026-07-01", mentionedAt: "2026-02-10" });
@@ -651,7 +672,7 @@ describe("reconcileMilestones", () => {
 
     mergeMilestones(db2, source.id, target.id);
 
-    const milestones = listMilestonesByClient(db2, "Merge");
+    const milestones = listMilestonesByClient(db2, merge.id);
     expect(milestones).toHaveLength(1);
     expect(milestones[0].id).toBe(target.id);
     expect(milestones[0].mention_count).toBe(2);
@@ -668,17 +689,19 @@ describe("reconcileMilestones", () => {
   it("creates a new milestone and mention when no existing title matches", () => {
     const db2 = createDb(":memory:");
     migrate(db2);
-    db2.prepare("INSERT INTO clients (name, aliases, known_participants) VALUES ('Recon', '[]', '[]')").run();
+    const { tenantId: t2 } = seedTestTenant(db2);
+    const recon = seedTestClient(db2, t2, "Recon");
     db2.prepare("INSERT INTO meetings (id, title, date) VALUES ('recon-m1', 'Kickoff', '2026-03-01')").run();
 
-    reconcileMilestones(db2, "Recon", "recon-m1", "2026-03-01", [
+    reconcileMilestones(db2, recon.id, "recon-m1", "2026-03-01", [
       { title: "Commerce platform go-live", target_date: "2026-06-01", status_signal: "introduced", excerpt: "Targeting June for go-live" },
     ]);
 
-    const milestones = listMilestonesByClient(db2, "Recon");
+    const milestones = listMilestonesByClient(db2, recon.id);
     expect(milestones).toEqual([
       expect.objectContaining({
         client_name: "Recon",
+        client_id: recon.id,
         title: "Commerce platform go-live",
         target_date: "2026-06-01",
         status: "identified",
@@ -703,7 +726,7 @@ describe("reconcileMilestones", () => {
 
 describe("milestone messages", () => {
   it("appendMilestoneMessage stores and returns a message", () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Chat test milestone" });
+    const ms = createMilestone(db, { clientId: acmeClientId, title: "Chat test milestone" });
     const msg = appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "What is the status?" });
 
     expect(msg).toEqual({
@@ -719,7 +742,7 @@ describe("milestone messages", () => {
   });
 
   it("getMilestoneMessages returns messages in chronological order", () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Chat order test" });
+    const ms = createMilestone(db, { clientId: acmeClientId, title: "Chat order test" });
     appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "First" });
     appendMilestoneMessage(db, { milestoneId: ms.id, role: "assistant", content: "Second", sources: "[M1]" });
 
@@ -731,7 +754,7 @@ describe("milestone messages", () => {
   });
 
   it("clearMilestoneMessages removes all messages for a milestone", () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Chat clear test" });
+    const ms = createMilestone(db, { clientId: acmeClientId, title: "Chat clear test" });
     appendMilestoneMessage(db, { milestoneId: ms.id, role: "user", content: "msg" });
     appendMilestoneMessage(db, { milestoneId: ms.id, role: "assistant", content: "reply" });
 

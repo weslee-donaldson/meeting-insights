@@ -244,7 +244,7 @@ Section 5 — Sequential
 - [ ] Burst 11: `insights.ts` — same pattern. Plus: `generateInsight` resolves client name from `client_id` for `{{client_name}}` template substitution.
 
 **Agent C** — `core/timelines.ts`, `core/deep-dedup.ts`, vector dual-write:
-- [ ] Burst 12: `timelines.ts` — ALL functions: `createMilestone`, `listMilestonesByClient`, `reconcileMilestones`, `rejectMilestoneMention`, `getMilestoneChatContext` — shift from `clientName` to `clientId`.
+- [x] Burst 12: `timelines.ts` — ALL functions: `createMilestone`, `listMilestonesByClient`, `reconcileMilestones`, `rejectMilestoneMention`, `getMilestoneChatContext` — shift from `clientName` to `clientId`.
 - [ ] Burst 13: `deep-dedup.ts` — `deepScanClient` parameter `clientName` → `clientId`. Update log statements and `storeItemVector` calls. Note: no SQL `client_name` queries in this file.
 - [ ] Burst 15: Vector dual-write — `meeting-pipeline.ts` stores both `client` (name) + `client_id` (UUID) in vector metadata. `context.ts`, `vector-search.ts`, `hybrid-search.ts` use dual filter (try `client_id` first, fall back to `client` name).
 
