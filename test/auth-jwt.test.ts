@@ -7,6 +7,8 @@ import {
   loadOrCreateKeys,
   signAccessToken,
   verifyAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
 } from "../core/auth/jwt.js";
 
 describe("generateKeyPair", () => {
@@ -124,5 +126,89 @@ describe("signAccessToken + verifyAccessToken", () => {
 
   it("rejects a malformed token string", async () => {
     await expect(verifyAccessToken(publicKey, "not.a.jwt")).rejects.toThrow();
+  });
+});
+
+describe("signRefreshToken + verifyRefreshToken", () => {
+  let publicKey: CryptoKey;
+  let privateKey: CryptoKey;
+
+  beforeAll(async () => {
+    const keys = await generateKeyPair();
+    publicKey = keys.publicKey;
+    privateKey = keys.privateKey;
+  });
+
+  it("produces a JWT string that verifies with the matching public key", async () => {
+    const token = await signRefreshToken(privateKey, {
+      sub: "user-42",
+      tid: "tenant-7",
+      jti: "refresh-99",
+    });
+
+    expect(typeof token).toBe("string");
+    expect(token.split(".")).toHaveLength(3);
+
+    const payload = await verifyRefreshToken(publicKey, token);
+    expect(payload).toEqual({
+      sub: "user-42",
+      tid: "tenant-7",
+      jti: "refresh-99",
+      iat: expect.any(Number),
+      exp: expect.any(Number),
+    });
+  });
+
+  it("sets expiry to approximately 30 days from now", async () => {
+    const before = Math.floor(Date.now() / 1000);
+    const token = await signRefreshToken(privateKey, {
+      sub: "u1",
+      tid: "t1",
+      jti: "j1",
+    });
+    const after = Math.floor(Date.now() / 1000);
+    const payload = await verifyRefreshToken(publicKey, token);
+    const thirtyDays = 30 * 24 * 60 * 60;
+    expect(payload.exp).toBeGreaterThanOrEqual(before + thirtyDays);
+    expect(payload.exp).toBeLessThanOrEqual(after + thirtyDays);
+  });
+
+  it("refresh token does not contain scope claim", async () => {
+    const token = await signRefreshToken(privateKey, {
+      sub: "u1",
+      tid: "t1",
+      jti: "j1",
+    });
+    const payload = await verifyRefreshToken(publicKey, token);
+    expect("scope" in payload).toBe(false);
+  });
+
+  it("rejects a token signed with a different key", async () => {
+    const otherKeys = await generateKeyPair();
+    const token = await signRefreshToken(otherKeys.privateKey, {
+      sub: "u1",
+      tid: "t1",
+      jti: "j1",
+    });
+    await expect(verifyRefreshToken(publicKey, token)).rejects.toThrow();
+  });
+
+  it("access token cannot be verified as refresh token (different audience)", async () => {
+    const accessToken = await signAccessToken(privateKey, {
+      sub: "u1",
+      tid: "t1",
+      scope: "admin",
+      jti: "j1",
+    });
+    await expect(verifyRefreshToken(publicKey, accessToken)).rejects.toThrow();
+  });
+
+  it("refresh token cannot be verified as access token (different audience)", async () => {
+    const refreshToken = await signRefreshToken(privateKey, {
+      sub: "u1",
+      tid: "t1",
+      jti: "j1",
+    });
+    await expect(verifyAccessToken(publicKey, refreshToken)).rejects.toThrow();
   });
 });
