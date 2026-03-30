@@ -4,8 +4,9 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext } from "../core/client-registry.js";
-import type { Participant, GlossaryEntry } from "../core/client-registry.js";
+import type { Participant, GlossaryEntry, ClientRow } from "../core/client-registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
+import { seedTestTenant } from "./helpers/seed-test-tenant.js";
 
 let db: Database;
 let clientsFile: string;
@@ -108,6 +109,52 @@ describe("seedClients generates client IDs", () => {
     const all = getAllClients(db);
     const ids = all.map(c => c.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("seedClients tenant-scoping", () => {
+  it("writes tenant_id when tenantId is provided", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId } = seedTestTenant(localDb);
+    const dir = join(tmpdir(), `clients-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "TenantCo", aliases: ["TC"], client_team: [] }]));
+    seedClients(localDb, file, tenantId);
+    const row = localDb.prepare("SELECT tenant_id FROM clients WHERE name = ?").get("TenantCo") as { tenant_id: string };
+    expect(row.tenant_id).toBe(tenantId);
+  });
+
+  it("defaults to bootstrap tenant when tenantId is omitted", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const bootstrapTenantId = (localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?) RETURNING id").get(
+      "00000000-0000-0000-0000-000000000001", "Default", "default",
+    ) as { id: string }).id;
+    const dir = join(tmpdir(), `clients-default-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "DefaultCo", aliases: ["DC"], client_team: [] }]));
+    seedClients(localDb, file);
+    const row = localDb.prepare("SELECT tenant_id FROM clients WHERE name = ?").get("DefaultCo") as { tenant_id: string };
+    expect(row.tenant_id).toBe(bootstrapTenantId);
+  });
+
+  it("preserves tenant_id on upsert when tenantId is provided", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId } = seedTestTenant(localDb);
+    const dir = join(tmpdir(), `clients-upsert-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "clients.json");
+    writeFileSync(file, JSON.stringify([{ name: "UpsertTenantCo", aliases: ["UTC"], client_team: [] }]));
+    seedClients(localDb, file, tenantId);
+    writeFileSync(file, JSON.stringify([{ name: "UpsertTenantCo", aliases: ["UTC", "UTC2"], client_team: [] }]));
+    seedClients(localDb, file, tenantId);
+    const row = localDb.prepare("SELECT tenant_id, aliases FROM clients WHERE name = ?").get("UpsertTenantCo") as { tenant_id: string; aliases: string };
+    expect(row.tenant_id).toBe(tenantId);
+    expect(JSON.parse(row.aliases)).toEqual(["UTC", "UTC2"]);
   });
 });
 

@@ -19,6 +19,7 @@ export interface GlossaryEntry {
 
 export interface ClientRow {
   id: string;
+  tenant_id: string;
   name: string;
   aliases: string;
   known_participants: string;
@@ -41,7 +42,13 @@ interface ClientEntry {
   glossary?: GlossaryEntry[];
 }
 
-export function seedClients(db: Database, filePath: string): void {
+function resolveDefaultTenantId(db: Database): string | null {
+  const row = db.prepare("SELECT id FROM tenants WHERE slug = 'default'").get() as { id: string } | undefined;
+  return row?.id ?? null;
+}
+
+export function seedClients(db: Database, filePath: string, tenantId?: string): void {
+  const resolvedTenantId = tenantId ?? resolveDefaultTenantId(db);
   const entries: ClientEntry[] = JSON.parse(readFileSync(filePath, "utf-8"));
   for (const entry of entries) {
     if (!entry.name) throw new Error("Client entry missing name");
@@ -70,7 +77,7 @@ export function seedClients(db: Database, filePath: string): void {
       continue;
     }
     db.prepare(
-      "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO clients (name, aliases, known_participants, client_team, implementation_team, additional_extraction_llm_prompt, meeting_names, is_default, glossary, id, tenant_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     ).run(
       entry.name,
       JSON.stringify(entry.aliases),
@@ -82,6 +89,7 @@ export function seedClients(db: Database, filePath: string): void {
       entry.is_default ? 1 : 0,
       entry.glossary ? JSON.stringify(entry.glossary) : "[]",
       randomUUID(),
+      resolvedTenantId,
     );
   }
   log("loaded %d clients", entries.length);
