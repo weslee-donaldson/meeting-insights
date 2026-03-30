@@ -201,6 +201,26 @@ describe("getClientByAlias", () => {
     expect(client).not.toBeNull();
     expect(client!.name).toBe("Revenium");
   });
+
+  it("scopes alias search to tenant when tenantId provided", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId: t1 } = seedTestTenant(localDb);
+    const t2 = "00000000-0000-0000-0000-bbbbbbbbbbbb";
+    localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(t2, "Other", "other-alias");
+    const dir = join(tmpdir(), `clients-alias-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file1 = join(dir, "c1.json");
+    writeFileSync(file1, JSON.stringify([{ name: "AliasCo1", aliases: ["SHARED"], client_team: [] }]));
+    seedClients(localDb, file1, t1);
+    const file2 = join(dir, "c2.json");
+    writeFileSync(file2, JSON.stringify([{ name: "AliasCo2", aliases: ["OTHER"], client_team: [] }]));
+    seedClients(localDb, file2, t2);
+    const found = getClientByAlias(localDb, "SHARED", t1);
+    expect(found).toEqual(expect.objectContaining({ name: "AliasCo1", tenant_id: t1 }));
+    const notFound = getClientByAlias(localDb, "SHARED", t2);
+    expect(notFound).toBeNull();
+  });
 });
 
 describe("getAllClients", () => {
@@ -365,6 +385,24 @@ describe("getDefaultClient", () => {
   it("returns null when no client has is_default flag", () => {
     expect(getDefaultClient(db)).toBeNull();
   });
+
+  it("scopes default client lookup to tenant", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId: t1 } = seedTestTenant(localDb);
+    const t2 = "00000000-0000-0000-0000-cccccccccccc";
+    localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(t2, "Other", "other-default");
+    const dir = join(tmpdir(), `clients-default-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file1 = join(dir, "c1.json");
+    writeFileSync(file1, JSON.stringify([{ name: "DefaultT1", aliases: ["DT1"], client_team: [], is_default: true }]));
+    seedClients(localDb, file1, t1);
+    const file2 = join(dir, "c2.json");
+    writeFileSync(file2, JSON.stringify([{ name: "DefaultT2", aliases: ["DT2"], client_team: [], is_default: true }]));
+    seedClients(localDb, file2, t2);
+    expect(getDefaultClient(localDb, t1)).toBe("DefaultT1");
+    expect(getDefaultClient(localDb, t2)).toBe("DefaultT2");
+  });
 });
 
 describe("getGlossaryForClient", () => {
@@ -399,6 +437,28 @@ describe("getGlossaryForClient", () => {
   it("returns empty array for client without glossary", () => {
     const result = getGlossaryForClient(db, "Revenium");
     expect(result).toEqual([]);
+  });
+
+  it("scopes glossary lookup to tenant", () => {
+    const localDb = createDb(":memory:");
+    migrate(localDb);
+    const { tenantId: t1 } = seedTestTenant(localDb);
+    const t2 = "00000000-0000-0000-0000-dddddddddddd";
+    localDb.prepare("INSERT INTO tenants (id, name, slug) VALUES (?, ?, ?)").run(t2, "Other", "other-glossary");
+    const dir = join(tmpdir(), `clients-glossary-tenant-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const file1 = join(dir, "c1.json");
+    writeFileSync(file1, JSON.stringify([{
+      name: "GlossaryCo",
+      aliases: ["GC"],
+      client_team: [],
+      glossary: [{ term: "FooBar", variants: ["FB"], description: "A thing" }],
+    }]));
+    seedClients(localDb, file1, t1);
+    const result = getGlossaryForClient(localDb, "GlossaryCo", t1);
+    expect(result).toEqual([{ term: "FooBar", variants: ["FB"], description: "A thing" }]);
+    const wrongTenant = getGlossaryForClient(localDb, "GlossaryCo", t2);
+    expect(wrongTenant).toEqual([]);
   });
 });
 

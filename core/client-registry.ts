@@ -102,8 +102,10 @@ export function getClientByName(db: Database, name: string, tenantId?: string): 
   return (db.prepare("SELECT * FROM clients WHERE name = ?").get(name) as ClientRow) ?? null;
 }
 
-export function getClientByAlias(db: Database, alias: string): ClientRow | null {
-  const all = db.prepare("SELECT * FROM clients").all() as ClientRow[];
+export function getClientByAlias(db: Database, alias: string, tenantId?: string): ClientRow | null {
+  const all = tenantId
+    ? db.prepare("SELECT * FROM clients WHERE tenant_id = ?").all(tenantId) as ClientRow[]
+    : db.prepare("SELECT * FROM clients").all() as ClientRow[];
   return all.find((c) => (JSON.parse(c.aliases) as string[]).includes(alias)) ?? null;
 }
 
@@ -114,13 +116,17 @@ export function getAllClients(db: Database, tenantId?: string): ClientRow[] {
   return db.prepare("SELECT * FROM clients").all() as ClientRow[];
 }
 
-export function getDefaultClient(db: Database): string | null {
+export function getDefaultClient(db: Database, tenantId?: string): string | null {
+  if (tenantId) {
+    const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 AND tenant_id = ? LIMIT 1").get(tenantId) as { name: string } | undefined;
+    return row?.name ?? null;
+  }
   const row = db.prepare("SELECT name FROM clients WHERE is_default = 1 LIMIT 1").get() as { name: string } | undefined;
   return row?.name ?? null;
 }
 
-export function getGlossaryForClient(db: Database, clientName: string): GlossaryEntry[] {
-  const client = getClientByName(db, clientName);
+export function getGlossaryForClient(db: Database, clientName: string, tenantId?: string): GlossaryEntry[] {
+  const client = getClientByName(db, clientName, tenantId);
   if (!client) return [];
   return JSON.parse(client.glossary) as GlossaryEntry[];
 }
