@@ -8,16 +8,20 @@ import { registerThreadRoutes } from "./routes/threads.js";
 import { registerInsightRoutes } from "./routes/insights.js";
 import { registerMilestoneRoutes } from "./routes/milestones.js";
 import { registerNoteRoutes } from "./routes/notes.js";
+import { createAuthMiddleware } from "./middleware/auth.js";
+import type { AuthConfig } from "./middleware/auth.js";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
+
+export type { AuthConfig };
 
 export interface SearchDeps {
   vdb: VectorDb;
   session: InferenceSession & { _tokenizer: unknown };
 }
 
-export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): Hono {
+export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string, authConfig?: AuthConfig): Hono {
   const app = new Hono();
   app.use(cors());
   app.use(async (c, next) => {
@@ -26,6 +30,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
     const { logApiCall } = await import("../core/logger.js");
     logApiCall(c.req.method, c.req.path, c.res.status, Date.now() - start);
   });
+  app.use(createAuthMiddleware(db, authConfig));
 
   registerDebugRoutes(app, db, dbPath, searchDeps);
   registerMeetingRoutes(app, db, llm, searchDeps, assetsDir);

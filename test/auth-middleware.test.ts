@@ -3,14 +3,14 @@ import { Hono } from "hono";
 import { DatabaseSync } from "node:sqlite";
 import { migrate } from "../core/db.js";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
-import { generateKeyPair, signAccessToken } from "../core/auth/jwt.js";
+import { generateKeyPair } from "../core/auth/jwt.js";
 import { createApiKey } from "../core/auth/api-keys.js";
 import { registerOAuthClient } from "../core/auth/oauth-clients.js";
-import { issueTokenPair } from "../core/auth/token-service.js";
-import { revokeToken } from "../core/auth/token-service.js";
+import { issueTokenPair, revokeToken } from "../core/auth/token-service.js";
 import { verifyAccessToken } from "../core/auth/jwt.js";
 import { createAuthMiddleware } from "../api/middleware/auth.js";
 import type { AuthConfig } from "../api/middleware/auth.js";
+import { createApp } from "../api/server.js";
 
 let keys: { publicKey: CryptoKey; privateKey: CryptoKey };
 
@@ -280,5 +280,91 @@ describe("createAuthMiddleware", () => {
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({ ok: true });
     });
+  });
+});
+
+describe("createApp with authConfig", () => {
+  let db: DatabaseSync;
+  let tenantId: string;
+  let userId: string;
+  let oauthClientId: string;
+
+  beforeEach(() => {
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    ({ tenantId, userId } = seedTestTenant(db));
+    ({ clientId: oauthClientId } = registerOAuthClient(db, {
+      tenantId,
+      name: "Integration Service",
+      grantTypes: ["client_credentials"],
+      scopes: ["meetings:read", "admin"],
+    }));
+  });
+
+  it("allows unauthenticated access when authConfig is omitted", async () => {
+    const app = createApp(db, ":memory:");
+
+    const res = await app.request("/api/debug");
+
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 401 on protected route when auth is enabled and no token provided", async () => {
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+
+    const res = await app.request("/api/debug");
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "unauthorized" });
+  });
+
+  it("returns 200 on protected route with valid JWT through createApp", async () => {
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+
+    const { access_token } = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["admin"],
+    }, keys);
+
+    const res = await app.request("/api/debug", {
+      headers: { authorization: `Bearer ${access_token}` },
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 403 when JWT scope does not match route through createApp", async () => {
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+
+    const { access_token } = await issueTokenPair(db, {
+      oauthClientId,
+      tenantId,
+      scopes: ["meetings:read"],
+    }, keys);
+
+    const res = await app.request("/api/debug", {
+      headers: { authorization: `Bearer ${access_token}` },
+    });
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: "forbidden", required_scope: "admin" });
+  });
+
+  it("returns 200 with valid API key through createApp", async () => {
+    const app = createApp(db, ":memory:", undefined, undefined, undefined, { publicKey: keys.publicKey, enabled: true });
+
+    const { key } = createApiKey(db, {
+      tenantId,
+      userId,
+      name: "Integration API Key",
+      scopes: ["meetings:read"],
+    });
+
+    const res = await app.request("/api/meetings", {
+      headers: { authorization: `Bearer ${key}` },
+    });
+
+    expect(res.status).toBe(200);
   });
 });
