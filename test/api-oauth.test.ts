@@ -5,6 +5,7 @@ import { createApp } from "../api/server.js";
 import { generateKeyPair } from "../core/auth/jwt.js";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
 import { registerOAuthClient } from "../core/auth/oauth-clients.js";
+import { computeCodeChallenge } from "../core/auth/pkce.js";
 
 let keys: { publicKey: CryptoKey; privateKey: CryptoKey };
 
@@ -105,5 +106,111 @@ describe("POST /oauth/token (client_credentials)", () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "invalid_scope" });
+  });
+});
+
+describe("GET+POST /oauth/authorize", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: DatabaseSync;
+  let tenantId: string;
+  let userId: string;
+  let clientId: string;
+  const ownerSecret = "test-owner-secret-123";
+  const codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+  const codeChallenge = computeCodeChallenge(codeVerifier);
+
+  beforeEach(() => {
+    process.env.MTNINSIGHTS_OWNER_SECRET = ownerSecret;
+    db = new DatabaseSync(":memory:");
+    migrate(db);
+    const t = seedTestTenant(db);
+    tenantId = t.tenantId;
+    userId = t.userId;
+    const reg = registerOAuthClient(db, {
+      tenantId,
+      name: "test-authcode",
+      grantTypes: ["authorization_code"],
+      scopes: ["meetings:read", "meetings:write"],
+      redirectUris: ["http://localhost:3000/callback"],
+    });
+    clientId = reg.clientId;
+    app = createApp(db, ":memory:", undefined, undefined, undefined, {
+      publicKey: keys.publicKey,
+      privateKey: keys.privateKey,
+      enabled: true,
+    });
+  });
+
+  it("returns HTML consent form for valid GET request", async () => {
+    const url = `/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent("http://localhost:3000/callback")}&scope=meetings:read&code_challenge=${codeChallenge}&code_challenge_method=S256&state=xyz`;
+    const res = await app.request(url);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+    const html = await res.text();
+    expect(html).toContain("form");
+    expect(html).toContain(clientId);
+  });
+
+  it("returns 302 redirect with code on valid POST with owner_secret", async () => {
+    const res = await app.request("/oauth/authorize", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_id: clientId,
+        redirect_uri: "http://localhost:3000/callback",
+        scope: "meetings:read",
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256",
+        state: "xyz",
+        owner_secret: ownerSecret,
+      }),
+    });
+
+    expect(res.status).toBe(302);
+    const location = res.headers.get("location")!;
+    const url = new URL(location);
+    expect(url.origin).toBe("http://localhost:3000");
+    expect(url.pathname).toBe("/callback");
+    expect(url.searchParams.get("code")).toEqual(expect.any(String));
+    expect(url.searchParams.get("state")).toBe("xyz");
+  });
+
+  it("rejects POST with wrong owner_secret with 401", async () => {
+    const res = await app.request("/oauth/authorize", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_id: clientId,
+        redirect_uri: "http://localhost:3000/callback",
+        scope: "meetings:read",
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256",
+        state: "xyz",
+        owner_secret: "wrong-secret",
+      }),
+    });
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "invalid_owner_secret" });
+  });
+
+  it("rejects POST with invalid client_id with 400", async () => {
+    const res = await app.request("/oauth/authorize", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        client_id: "nonexistent",
+        redirect_uri: "http://localhost:3000/callback",
+        scope: "meetings:read",
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256",
+        state: "xyz",
+        owner_secret: ownerSecret,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "invalid_client" });
   });
 });
