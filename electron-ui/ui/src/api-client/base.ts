@@ -16,6 +16,18 @@ export async function fetchJson<T = unknown>(url: string, init?: RequestInit): P
   return r.json() as Promise<T>;
 }
 
+export async function fetchJsonOrNull<T = unknown>(url: string, init?: RequestInit): Promise<T | null> {
+  const headers = { ...authHeaders(), ...init?.headers };
+  const r = await fetch(url, init ? { ...init, headers } : { headers });
+  if (r.status === 404) return null;
+  if (!r.ok) {
+    const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
+    throw new Error(body.error);
+  }
+  if (r.status === 204) return null;
+  return r.json() as Promise<T>;
+}
+
 export function jsonPost(url: string, body: unknown): Promise<unknown> {
   return fetchJson(url, {
     method: "POST",

@@ -1,5 +1,5 @@
 import type { MeetingFilters, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
-import { API_BASE, fetchJson, jsonPost, jsonPut, jsonPatch, jsonDelete } from "./base.js";
+import { API_BASE, fetchJson, fetchJsonOrNull, jsonPost, jsonPut, jsonPatch, jsonDelete } from "./base.js";
 
 export const meetingsMethods = {
   getClients: async () => {
@@ -17,9 +17,7 @@ export const meetingsMethods = {
   },
 
   getArtifact: (meetingId: string) =>
-    fetch(`${API_BASE}/api/meetings/${meetingId}/artifact`).then((r) =>
-      r.status === 404 ? null : r.json(),
-    ),
+    fetchJsonOrNull(`${API_BASE}/api/meetings/${meetingId}/artifact`),
 
   deleteMeetings: (ids: string[]) =>
     fetchJson(`${API_BASE}/api/meetings`, {
@@ -100,9 +98,7 @@ export const meetingsMethods = {
     jsonDelete(`${API_BASE}/api/assets/${assetId}`).then(() => undefined),
 
   getAssetData: (assetId: string) =>
-    fetch(`${API_BASE}/api/assets/${assetId}/data`).then((r) =>
-      r.status === 404 ? null : r.json(),
-    ),
+    fetchJsonOrNull(`${API_BASE}/api/assets/${assetId}/data`),
 
   getMeetingMessages: (meetingId: string) =>
     fetchJson(`${API_BASE}/api/meetings/${meetingId}/messages`),
@@ -113,10 +109,10 @@ export const meetingsMethods = {
   clearMeetingMessages: (meetingId: string) =>
     jsonDelete(`${API_BASE}/api/meetings/${meetingId}/messages`).then(() => undefined),
 
-  getTranscript: (meetingId: string) =>
-    fetch(`${API_BASE}/api/meetings/${meetingId}/transcript`).then(async (r) =>
-      r.status === 404 ? null : ((await r.json()) as { transcript: string }).transcript,
-    ),
+  getTranscript: async (meetingId: string) => {
+    const result = await fetchJsonOrNull<{ transcript: string }>(`${API_BASE}/api/meetings/${meetingId}/transcript`);
+    return result?.transcript ?? null;
+  },
 
   updateArtifactSection: (meetingId: string, field: string, value: unknown) =>
     jsonPatch(`${API_BASE}/api/meetings/${meetingId}/artifact`, { field, value }).then(() => undefined),
