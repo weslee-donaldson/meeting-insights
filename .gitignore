@@ -17,8 +17,20 @@ test-results/
 test/screenshots/
 .playwright-mcp/
 
-# Processed webhook data (runtime, not source)
+# Runtime data (not source)
+data/processed/
+data/raw-transcripts/
+data/failed-processing/
+data/audit/
+data/webhook-rawtranscripts/
+data/krisp-gdrive
 data/webhook-processed/
+data/webhook-failed/
+data/assets/
+data/clients/
+data/eval/
+data/external-transcripts/
+data/output/
 
 # JWT signing keys (generated at runtime)
 .keys/
