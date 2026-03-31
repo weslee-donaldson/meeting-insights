@@ -1,25 +1,22 @@
 import { test, expect, type Page } from "@playwright/test";
-import { selectClient } from "./helpers.js";
-
-const API_BASE = "http://localhost:3000";
+import { selectClient, apiFetch, API_BASE } from "./helpers.js";
 
 test.use({ viewport: { width: 1400, height: 900 } });
 
 async function createMilestoneViaAPI(clientName: string, title: string, targetDate?: string) {
-  const res = await fetch(`${API_BASE}/api/milestones`, {
+  const res = await apiFetch(`${API_BASE}/api/milestones`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ client_name: clientName, title, description: "", target_date: targetDate ?? null }),
   });
   return res.json() as Promise<{ id: string }>;
 }
 
 async function deleteMilestoneViaAPI(id: string) {
-  await fetch(`${API_BASE}/api/milestones/${id}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE}/api/milestones/${id}`, { method: "DELETE" });
 }
 
 async function listMilestonesViaAPI(clientName: string) {
-  const res = await fetch(`${API_BASE}/api/milestones?client=${encodeURIComponent(clientName)}`);
+  const res = await apiFetch(`${API_BASE}/api/milestones?client=${encodeURIComponent(clientName)}`);
   return res.json() as Promise<Array<{ id: string; title: string; status: string }>>;
 }
 

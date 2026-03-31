@@ -1,7 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { selectClient } from "./helpers.js";
-
-const API = "http://localhost:3000";
+import { selectClient, apiFetch, API_BASE } from "./helpers.js";
 
 test.use({ viewport: { width: 1400, height: 900 } });
 
@@ -24,10 +22,10 @@ async function waitForResults(page: Page) {
 }
 
 async function getClientWithMeetings(): Promise<string> {
-  const res = await fetch(`${API}/api/clients`);
+  const res = await apiFetch(`${API_BASE}/api/clients`);
   const clients = (await res.json()) as string[];
   for (const client of clients) {
-    const meetingsRes = await fetch(`${API}/api/meetings?client=${encodeURIComponent(client)}`);
+    const meetingsRes = await apiFetch(`${API_BASE}/api/meetings?client=${encodeURIComponent(client)}`);
     const meetings = (await meetingsRes.json()) as unknown[];
     if (meetings.length > 0) return client;
   }

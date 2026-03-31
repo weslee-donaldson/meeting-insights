@@ -1,7 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { selectClient } from "./helpers.js";
-
-const API = "http://localhost:3000";
+import { selectClient, apiFetch, API_BASE } from "./helpers.js";
 
 test.use({ viewport: { width: 1400, height: 900 } });
 
@@ -27,22 +25,21 @@ async function clickInsightRow(page: Page) {
 }
 
 async function deleteInsightViaAPI(insightId: string) {
-  await fetch(`${API}/api/insights/${insightId}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE}/api/insights/${insightId}`, { method: "DELETE" });
 }
 
 async function createInsightViaAPI(clientName: string, periodType: string, periodStart: string, periodEnd: string) {
-  const res = await fetch(`${API}/api/insights`, {
+  const res = await apiFetch(`${API_BASE}/api/insights`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ client_name: clientName, period_type: periodType, period_start: periodStart, period_end: periodEnd }),
   });
   const insight = await res.json();
-  await fetch(`${API}/api/insights/${insight.id}/discover-meetings`, { method: "POST" });
+  await apiFetch(`${API_BASE}/api/insights/${insight.id}/discover-meetings`, { method: "POST" });
   return insight as { id: string };
 }
 
 async function listInsightsViaAPI(clientName: string): Promise<{ id: string }[]> {
-  const res = await fetch(`${API}/api/insights?client=${encodeURIComponent(clientName)}`);
+  const res = await apiFetch(`${API_BASE}/api/insights?client=${encodeURIComponent(clientName)}`);
   return res.json();
 }
 
@@ -290,9 +287,8 @@ test.describe("Insights E2E", () => {
 
   test.describe("Empty Source Meetings", () => {
     test("insight with no meetings shows empty state message", async ({ page }) => {
-      const res = await fetch(`${API}/api/insights`, {
+      const res = await apiFetch(`${API_BASE}/api/insights`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ client_name: CLIENT, period_type: "day", period_start: "2020-01-01", period_end: "2020-01-01" }),
       });
       const insight = await res.json() as { id: string };
@@ -364,7 +360,7 @@ test.describe("Insights E2E", () => {
     test("discovered meetings via API respect client boundary", async () => {
       const insight = await createInsightViaAPI(CLIENT, "week", "2026-03-02", "2026-03-08");
       try {
-        const meetingsRes = await fetch(`${API}/api/insights/${insight.id}/meetings`);
+        const meetingsRes = await apiFetch(`${API_BASE}/api/insights/${insight.id}/meetings`);
         const meetings = await meetingsRes.json() as { meeting_id: string; meeting_title: string }[];
 
         for (const m of meetings) {

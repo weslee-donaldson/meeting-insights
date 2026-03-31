@@ -1,50 +1,46 @@
 import { test, expect, type Page } from "@playwright/test";
-import { selectClient } from "./helpers.js";
-
-const API = "http://localhost:3000";
+import { selectClient, apiFetch, API_BASE } from "./helpers.js";
 
 test.use({ viewport: { width: 1400, height: 900 } });
 
 async function createMilestoneViaAPI(clientName: string, title: string, targetDate?: string) {
-  const res = await fetch(`${API}/api/milestones`, {
+  const res = await apiFetch(`${API_BASE}/api/milestones`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ clientName, title, description: "", targetDate: targetDate ?? null }),
   });
   return res.json() as Promise<{ id: string }>;
 }
 
 async function deleteMilestoneViaAPI(id: string) {
-  await fetch(`${API}/api/milestones/${id}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE}/api/milestones/${id}`, { method: "DELETE" });
 }
 
 async function listMilestonesViaAPI(clientName: string) {
-  const res = await fetch(`${API}/api/milestones?client=${encodeURIComponent(clientName)}`);
+  const res = await apiFetch(`${API_BASE}/api/milestones?client=${encodeURIComponent(clientName)}`);
   return res.json() as Promise<Array<{ id: string }>>;
 }
 
 async function createNoteViaAPI(objectType: string, objectId: string, title: string | null, body: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}`, {
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, body }),
   });
   return res.json() as Promise<{ id: string }>;
 }
 
 async function countNotesViaAPI(objectType: string, objectId: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}/count`);
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}/count`);
   const data = await res.json() as { count: number };
   return data.count;
 }
 
 async function listNotesViaAPI(objectType: string, objectId: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}`);
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}`);
   return res.json() as Promise<Array<{ id: string }>>;
 }
 
 async function deleteNoteViaAPI(id: string) {
-  await fetch(`${API}/api/notes/${id}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE}/api/notes/${id}`, { method: "DELETE" });
 }
 
 async function cleanupAllTestMilestones(clientName: string) {

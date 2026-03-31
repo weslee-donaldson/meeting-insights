@@ -1,36 +1,33 @@
 import { test, expect, type Page } from "@playwright/test";
-import { selectClient } from "./helpers.js";
-
-const API = "http://localhost:3000";
+import { selectClient, apiFetch, API_BASE } from "./helpers.js";
 
 test.use({ viewport: { width: 1400, height: 900 } });
 
 async function createNoteViaAPI(objectType: string, objectId: string, title: string | null, body: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}`, {
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, body }),
   });
   return res.json() as Promise<{ id: string }>;
 }
 
 async function deleteNoteViaAPI(id: string) {
-  await fetch(`${API}/api/notes/${id}`, { method: "DELETE" });
+  await apiFetch(`${API_BASE}/api/notes/${id}`, { method: "DELETE" });
 }
 
 async function listNotesViaAPI(objectType: string, objectId: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}`);
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}`);
   return res.json() as Promise<Array<{ id: string; title: string | null; body: string }>>;
 }
 
 async function countNotesViaAPI(objectType: string, objectId: string) {
-  const res = await fetch(`${API}/api/notes/${objectType}/${objectId}/count`);
+  const res = await apiFetch(`${API_BASE}/api/notes/${objectType}/${objectId}/count`);
   const data = await res.json() as { count: number };
   return data.count;
 }
 
 async function getFirstMeetingId(client: string): Promise<string> {
-  const res = await fetch(`${API}/api/meetings?client=${encodeURIComponent(client)}`);
+  const res = await apiFetch(`${API_BASE}/api/meetings?client=${encodeURIComponent(client)}`);
   const meetings = await res.json() as Array<{ id: string }>;
   return meetings[0].id;
 }
