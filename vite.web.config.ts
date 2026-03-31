@@ -17,6 +17,7 @@ const redirectRoot = {
 
 export default defineConfig({
   root: resolve(__dirname, "electron-ui/ui"),
+  envDir: resolve(__dirname),
   plugins: [react(), tailwindcss(), redirectRoot],
   build: {
     outDir: resolve(__dirname, "electron-ui/out/web"),
