@@ -383,6 +383,11 @@ export function migrate(db: DatabaseSync): void {
     db.exec("ALTER TABLE threads ADD COLUMN keywords TEXT DEFAULT ''");
   }
 
+  const insightCols = db.prepare("PRAGMA table_info(insights)").all() as { name: string }[];
+  if (insightCols.length > 0 && !insightCols.some(c => c.name === "name")) {
+    db.exec("ALTER TABLE insights ADD COLUMN name TEXT DEFAULT ''");
+  }
+
   const clientPkInfo = db.prepare("PRAGMA table_info(clients)").all() as { name: string; pk: number }[];
   const needsMigration = clientPkInfo.some(c => c.name === "name" && c.pk === 1);
   if (needsMigration) {
