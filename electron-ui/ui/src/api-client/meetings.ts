@@ -2,7 +2,10 @@ import type { MeetingFilters, CreateMeetingRequest, EditActionItemFields } from 
 import { API_BASE, fetchJson, jsonPost, jsonPut, jsonPatch, jsonDelete } from "./base.js";
 
 export const meetingsMethods = {
-  getClients: () => fetchJson(`${API_BASE}/api/clients`),
+  getClients: async () => {
+    const raw = await fetchJson<Array<{ id: string; name: string }>>(`${API_BASE}/api/clients`);
+    return raw.map(c => c.name);
+  },
 
   getMeetings: (filters: MeetingFilters) => {
     const params = new URLSearchParams();
