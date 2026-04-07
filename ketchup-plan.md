@@ -396,7 +396,7 @@ Section 2 -- Sequential (pipeline integration)
 
 #### Section 2: Pipeline Integration
 
-- [ ] Burst 5: Update `core/pipeline.ts` `processEntry()` catch block -- after writing audit JSON, call `recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider })`. The `provider` must be passed into `processEntry` (add to function signature) and through from `PipelineConfig`. The `recordSystemError` call is wrapped in the existing try/catch that `recordSystemError` already has internally (belt and suspenders).
+- [x] Burst 5: Update `core/pipeline.ts` `processEntry()` catch block -- after writing audit JSON, call `recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider })`. The `provider` must be passed into `processEntry` (add to function signature) and through from `PipelineConfig`. The `recordSystemError` call is wrapped in the existing try/catch that `recordSystemError` already has internally (belt and suspenders).
 
   **Signature changes:**
   - `PipelineConfig` gains `provider?: string`

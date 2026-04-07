@@ -12,6 +12,7 @@ import { createThread } from "../core/threads.js";
 import { listMilestonesByClient } from "../core/timelines.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../core/llm-adapter.js";
+import type { InferenceSession } from "onnxruntime-node";
 
 let db: Database;
 let vdbPath: string;
@@ -814,5 +815,180 @@ describe("handleWebhookNote", () => {
     expect(handleWebhookNote(nDb, payload)).toBe(true);
     const notes = nDb.prepare("SELECT * FROM notes WHERE object_id = 'hwn-m1' AND note_type = 'action-items'").all();
     expect(notes).toHaveLength(1);
+  });
+});
+
+describe("pipeline system_errors integration", () => {
+  let eDb: Database;
+  let eVdb: Awaited<ReturnType<typeof connectVectorDb>>;
+  let eVdbPath: string;
+  let eBaseDir: string;
+  let eSession: InferenceSession & { _tokenizer: unknown };
+
+  beforeAll(async () => {
+    eBaseDir = join(tmpdir(), `pipeline-errors-${Date.now()}`);
+    mkdirSync(eBaseDir, { recursive: true });
+    eDb = createDb(":memory:");
+    migrate(eDb);
+    eVdbPath = join(tmpdir(), `lancedb-errors-${Date.now()}`);
+    mkdirSync(eVdbPath, { recursive: true });
+    eVdb = await connectVectorDb(eVdbPath);
+    eSession = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
+  }, 30000);
+
+  afterAll(() => {
+    rmSync(eBaseDir, { recursive: true, force: true });
+    rmSync(eVdbPath, { recursive: true, force: true });
+  });
+
+  it("records api_error in system_errors when LLM throws [api_error]", async () => {
+    const rawDir = join(eBaseDir, "api-error-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-01T00:00:00.000ZAPI Error Test";
+    const CONTENT = `Attendance:\n{'last_name': 'Smith', 'id': 'se-1', 'first_name': 'Alice', 'email': 'alice@test.com'}\nTranscript:\nAlice Smith | 00:11\nHello world.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402 Insufficient funds"); },
+    };
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "api-error-processed"),
+      failedDir: join(eBaseDir, "api-error-failed"),
+      auditDir: join(eBaseDir, "api-error-audit"),
+      db: eDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "stub",
+    });
+
+    const row = eDb.prepare("SELECT error_type, severity, provider FROM system_errors WHERE error_type = 'api_error' LIMIT 1").get() as { error_type: string; severity: string; provider: string | null } | undefined;
+    expect(row).toBeDefined();
+    expect(row?.error_type).toBe("api_error");
+    expect(row?.severity).toBe("critical");
+    expect(row?.provider).toBe("stub");
+  });
+
+  it("records rate_limit with severity warning in system_errors", async () => {
+    const rawDir = join(eBaseDir, "rate-limit-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-02T00:00:00.000ZRate Limit Test";
+    const CONTENT = `Attendance:\n{'last_name': 'Doe', 'id': 'se-2', 'first_name': 'John', 'email': 'john@test.com'}\nTranscript:\nJohn Doe | 00:11\nHello rate limit.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[rate_limit] 429"); },
+    };
+
+    const eDb2 = createDb(":memory:");
+    migrate(eDb2);
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "rate-limit-processed"),
+      failedDir: join(eBaseDir, "rate-limit-failed"),
+      auditDir: join(eBaseDir, "rate-limit-audit"),
+      db: eDb2,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    const row = eDb2.prepare("SELECT severity FROM system_errors WHERE error_type = 'rate_limit' LIMIT 1").get() as { severity: string } | undefined;
+    expect(row?.severity).toBe("warning");
+  });
+
+  it("still increments failed count in PipelineResult on LLM error", async () => {
+    const rawDir = join(eBaseDir, "fail-count-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-03T00:00:00.000ZFail Count Test";
+    const CONTENT = `Attendance:\n{'last_name': 'X', 'id': 'se-3', 'first_name': 'X', 'email': 'x@test.com'}\nTranscript:\nX X | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402"); },
+    };
+
+    const eDb3 = createDb(":memory:");
+    migrate(eDb3);
+
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "fail-count-processed"),
+      failedDir: join(eBaseDir, "fail-count-failed"),
+      auditDir: join(eBaseDir, "fail-count-audit"),
+      db: eDb3,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    expect(result.failed).toBeGreaterThan(0);
+  });
+
+  it("still writes audit JSON file on LLM error", async () => {
+    const rawDir = join(eBaseDir, "audit-raw");
+    const auditDir = join(eBaseDir, "audit-audit");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-04T00:00:00.000ZAudit File Test";
+    const CONTENT = `Attendance:\n{'last_name': 'Y', 'id': 'se-4', 'first_name': 'Y', 'email': 'y@test.com'}\nTranscript:\nY Y | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402"); },
+    };
+
+    const eDb4 = createDb(":memory:");
+    migrate(eDb4);
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "audit-processed"),
+      failedDir: join(eBaseDir, "audit-failed"),
+      auditDir,
+      db: eDb4,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    const auditFiles = existsSync(auditDir) ? readdirSync(auditDir).filter(f => f.endsWith(".json")) : [];
+    expect(auditFiles.length).toBeGreaterThan(0);
+  });
+
+  it("still moves failed file to failedDir on LLM error", async () => {
+    const rawDir = join(eBaseDir, "move-raw");
+    const failedDir = join(eBaseDir, "move-failed");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-05T00:00:00.000ZMove Test";
+    const CONTENT = `Attendance:\n{'last_name': 'Z', 'id': 'se-5', 'first_name': 'Z', 'email': 'z@test.com'}\nTranscript:\nZ Z | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402"); },
+    };
+
+    const eDb5 = createDb(":memory:");
+    migrate(eDb5);
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "move-processed"),
+      failedDir,
+      auditDir: join(eBaseDir, "move-audit"),
+      db: eDb5,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    const failedFiles = existsSync(failedDir) ? readdirSync(failedDir) : [];
+    expect(failedFiles.length).toBeGreaterThan(0);
   });
 });
