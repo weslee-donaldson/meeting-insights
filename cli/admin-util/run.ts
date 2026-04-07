@@ -101,6 +101,7 @@ const result = await processNewMeetings({
   session,
   llm,
   filterFolder,
+  provider: PROVIDER,
   onProgress: (event) => {
     events.push(event);
     if (event.type === "processing") {

@@ -58,6 +58,7 @@ export async function startService(config: ServiceConfig): Promise<Service> {
         session,
         llm,
         extractionPromptPath: "config/prompts/extraction.md",
+        provider: config.llmConfig.type,
         onProgress: (event: PipelineEvent) => {
           log("%s %s", event.type, event.name);
         },

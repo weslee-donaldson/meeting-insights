@@ -410,7 +410,7 @@ Section 2 -- Sequential (pipeline integration)
   - Verify audit JSON file is still written (existing behavior preserved)
   - Verify file is still moved to failedDir (existing behavior preserved)
 
-- [ ] Burst 6: Update all `processNewMeetings` call sites to pass `provider` in `PipelineConfig`. Grep for `processNewMeetings` and `processWebhookMeetings` across the codebase. Known call sites: `local-service/main.ts`, `cli/admin-util/run.ts`. Each constructs a `PipelineConfig` -- add `provider: llmConfig.type` (or equivalent) to each.
+- [x] Burst 6: Update all `processNewMeetings` call sites to pass `provider` in `PipelineConfig`. Grep for `processNewMeetings` and `processWebhookMeetings` across the codebase. Known call sites: `local-service/main.ts`, `cli/admin-util/run.ts`. Each constructs a `PipelineConfig` -- add `provider: llmConfig.type` (or equivalent) to each.
 
   Test: For each call site, write or update an integration-style test that verifies the `PipelineConfig` object includes a non-empty `provider` string. If the call site is an entry point that cannot be unit-tested (e.g., `api/main.ts` top-level `if (isMain)`), document the exclusion and verify manually. At minimum, test that `processNewMeetings` called with `provider: "openai"` stores `"openai"` in `system_errors` rows on failure (this may already be covered by Burst 5 tests -- if so, note the overlap and add a test that specifically passes a non-default provider string).
 

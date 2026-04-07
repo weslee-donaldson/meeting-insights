@@ -961,6 +961,36 @@ describe("pipeline system_errors integration", () => {
     expect(auditFiles.length).toBeGreaterThan(0);
   });
 
+  it("stores provider string from PipelineConfig in system_errors row", async () => {
+    const rawDir = join(eBaseDir, "provider-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-06T00:00:00.000ZProvider String Test";
+    const CONTENT = `Attendance:\n{'last_name': 'P', 'id': 'se-p', 'first_name': 'P', 'email': 'p@test.com'}\nTranscript:\nP P | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 401 Unauthorized"); },
+    };
+
+    const pDb = createDb(":memory:");
+    migrate(pDb);
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "provider-processed"),
+      failedDir: join(eBaseDir, "provider-failed"),
+      auditDir: join(eBaseDir, "provider-audit"),
+      db: pDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    const row = pDb.prepare("SELECT provider FROM system_errors WHERE error_type = 'api_error' LIMIT 1").get() as { provider: string } | undefined;
+    expect(row?.provider).toBe("openai");
+  });
+
   it("still moves failed file to failedDir on LLM error", async () => {
     const rawDir = join(eBaseDir, "move-raw");
     const failedDir = join(eBaseDir, "move-failed");
