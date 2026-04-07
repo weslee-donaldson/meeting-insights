@@ -315,6 +315,22 @@ export function migrate(db: DatabaseSync): void {
       last_used_at TEXT,
       revoked INTEGER DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS system_errors (
+      id TEXT PRIMARY KEY,
+      error_type TEXT NOT NULL,
+      severity TEXT NOT NULL,
+      message TEXT NOT NULL,
+      meeting_filename TEXT,
+      provider TEXT,
+      acknowledged INTEGER DEFAULT 0,
+      acknowledged_until TEXT,
+      notified INTEGER DEFAULT 0,
+      last_notified_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_system_errors_unack ON system_errors(acknowledged, severity, created_at);
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];

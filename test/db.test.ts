@@ -185,6 +185,53 @@ describe("migrate", () => {
   it("is idempotent — calling migrate twice does not throw", () => {
     expect(() => migrate(db)).not.toThrow();
   });
+
+  it("creates system_errors table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='system_errors'").get();
+    expect(row).toEqual({ name: "system_errors" });
+  });
+
+  it("system_errors table has correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(system_errors)").all() as { name: string; type: string; notnull: number; dflt_value: string | null; pk: number }[];
+    const colMap = Object.fromEntries(cols.map(c => [c.name, c]));
+    expect(colMap["id"].type).toBe("TEXT");
+    expect(colMap["id"].pk).toBe(1);
+    expect(colMap["error_type"].type).toBe("TEXT");
+    expect(colMap["error_type"].notnull).toBe(1);
+    expect(colMap["severity"].type).toBe("TEXT");
+    expect(colMap["severity"].notnull).toBe(1);
+    expect(colMap["message"].type).toBe("TEXT");
+    expect(colMap["message"].notnull).toBe(1);
+    expect(colMap["meeting_filename"].type).toBe("TEXT");
+    expect(colMap["provider"].type).toBe("TEXT");
+    expect(colMap["acknowledged"].dflt_value).toBe("0");
+    expect(colMap["acknowledged_until"].type).toBe("TEXT");
+    expect(colMap["notified"].dflt_value).toBe("0");
+    expect(colMap["last_notified_at"].type).toBe("TEXT");
+    expect(colMap["created_at"].notnull).toBe(1);
+  });
+
+  it("system_errors index exists", () => {
+    const idx = db.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name='idx_system_errors_unack'").get();
+    expect(idx).toEqual({ name: "idx_system_errors_unack" });
+  });
+
+  it("system_errors insert round-trip with defaults", () => {
+    db.prepare(
+      "INSERT INTO system_errors (id, error_type, severity, message) VALUES ('err1', 'api_error', 'critical', 'test error')"
+    ).run();
+    const row = db.prepare("SELECT * FROM system_errors WHERE id = 'err1'").get() as Record<string, unknown>;
+    expect(row["id"]).toBe("err1");
+    expect(row["error_type"]).toBe("api_error");
+    expect(row["severity"]).toBe("critical");
+    expect(row["message"]).toBe("test error");
+    expect(row["acknowledged"]).toBe(0);
+    expect(row["notified"]).toBe(0);
+    expect(row["acknowledged_until"]).toBeNull();
+    expect(row["last_notified_at"]).toBeNull();
+    expect(row["meeting_filename"]).toBeNull();
+    expect(row["provider"]).toBeNull();
+  });
 });
 
 describe("client PK migration", () => {
