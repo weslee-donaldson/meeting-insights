@@ -358,7 +358,7 @@ Section 2 -- Sequential (pipeline integration)
   - Index exists
   - Insert a row with all fields, verify defaults for `acknowledged` (0), `notified` (0), `acknowledged_until` (null), `last_notified_at` (null)
 
-- [ ] Burst 2: Create `core/system-health.ts` -- `recordSystemError(db, { error_type, message, meeting_filename?, provider? })`. Derives `severity` from `error_type` (`api_error` -> `critical`; `rate_limit` -> `warning`; `json_parse` -> `warning`; `unknown` -> `warning`). Generates UUID `id` via `randomUUID()`. Checks for an active cooldown: if `system_errors` has a row WHERE `error_type` matches AND `acknowledged_until > datetime('now')`, auto-set `acknowledged=1` on the new row. Returns the inserted `SystemError`. Wrap the entire function body in try/catch -- if the DB write fails, log to `console.error` and return `null`. Test in `test/system-health.test.ts`:
+- [x] Burst 2: Create `core/system-health.ts` -- `recordSystemError(db, { error_type, message, meeting_filename?, provider? })`. Derives `severity` from `error_type` (`api_error` -> `critical`; `rate_limit` -> `warning`; `json_parse` -> `warning`; `unknown` -> `warning`). Generates UUID `id` via `randomUUID()`. Checks for an active cooldown: if `system_errors` has a row WHERE `error_type` matches AND `acknowledged_until > datetime('now')`, auto-set `acknowledged=1` on the new row. Returns the inserted `SystemError`. Wrap the entire function body in try/catch -- if the DB write fails, log to `console.error` and return `null`. Test in `test/system-health.test.ts`:
   - Insert with `error_type: "api_error"` -> severity is `"critical"`
   - Insert with `error_type: "rate_limit"` -> severity is `"warning"`
   - Insert with `error_type: "json_parse"` -> severity is `"warning"`
