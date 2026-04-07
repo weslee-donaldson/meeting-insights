@@ -386,7 +386,7 @@ Section 2 -- Sequential (pipeline integration)
   - **Acknowledged errors excluded**: insert error, acknowledge it, getHealthStatus -> healthy
   - **Auto-prune**: insert error with created_at 91 days ago, call getHealthStatus -> row deleted
 
-- [ ] Burst 4: `core/system-health.ts` -- `acknowledgeErrors(db, errorIds: string[])` sets `acknowledged=1` and `acknowledged_until=datetime('now', '+1 hour')` for given IDs. `acknowledgeAllErrors(db)` does the same for all unacknowledged rows. Test in `test/system-health.test.ts`:
+- [x] Burst 4: `core/system-health.ts` -- `acknowledgeErrors(db, errorIds: string[])` sets `acknowledged=1` and `acknowledged_until=datetime('now', '+1 hour')` for given IDs. `acknowledgeAllErrors(db)` does the same for all unacknowledged rows. Test in `test/system-health.test.ts`:
   - Record 3 errors, acknowledge 2 by ID -> only those 2 have `acknowledged=1` and `acknowledged_until` set
   - Acknowledge all -> remaining also acknowledged
   - `getHealthStatus` returns `healthy` after acknowledging all critical errors

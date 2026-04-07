@@ -94,6 +94,18 @@ export function getHealthStatus(db: Database): HealthStatus {
   return { status, error_groups, meetings_without_artifact, last_error_at };
 }
 
+export function acknowledgeErrors(db: Database, errorIds: string[]): void {
+  if (errorIds.length === 0) return;
+  const placeholders = errorIds.map(() => "?").join(", ");
+  db.prepare(
+    `UPDATE system_errors SET acknowledged = 1, acknowledged_until = datetime('now', '+1 hour') WHERE id IN (${placeholders})`
+  ).run(...errorIds);
+}
+
+export function acknowledgeAllErrors(db: Database): void {
+  db.exec("UPDATE system_errors SET acknowledged = 1, acknowledged_until = datetime('now', '+1 hour') WHERE acknowledged = 0");
+}
+
 export function recordSystemError(db: Database, input: RecordErrorInput): SystemError | null {
   try {
     const id = randomUUID();

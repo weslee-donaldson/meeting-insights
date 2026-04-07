@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { recordSystemError, getHealthStatus } from "../core/system-health.js";
+import { recordSystemError, getHealthStatus, acknowledgeErrors, acknowledgeAllErrors } from "../core/system-health.js";
 
 let db: Database;
 
@@ -199,5 +199,57 @@ describe("getHealthStatus", () => {
     getHealthStatus(db);
     const row = db.prepare("SELECT id FROM system_errors WHERE id = 'old'").get();
     expect(row).toBeUndefined();
+  });
+});
+
+describe("acknowledgeErrors and acknowledgeAllErrors", () => {
+  it("acknowledges 2 of 3 errors by ID", () => {
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'a')").run();
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e2', 'api_error', 'critical', 'b')").run();
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e3', 'api_error', 'critical', 'c')").run();
+    acknowledgeErrors(db, ["e1", "e2"]);
+    const e1 = db.prepare("SELECT acknowledged FROM system_errors WHERE id = 'e1'").get() as { acknowledged: number };
+    const e2 = db.prepare("SELECT acknowledged FROM system_errors WHERE id = 'e2'").get() as { acknowledged: number };
+    const e3 = db.prepare("SELECT acknowledged FROM system_errors WHERE id = 'e3'").get() as { acknowledged: number };
+    expect(e1.acknowledged).toBe(1);
+    expect(e2.acknowledged).toBe(1);
+    expect(e3.acknowledged).toBe(0);
+  });
+
+  it("sets acknowledged_until approximately 1 hour from now", () => {
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'a')").run();
+    acknowledgeErrors(db, ["e1"]);
+    const row = db.prepare("SELECT acknowledged_until FROM system_errors WHERE id = 'e1'").get() as { acknowledged_until: string };
+    const until = new Date(row.acknowledged_until + "Z");
+    const diff = until.getTime() - Date.now();
+    expect(diff).toBeGreaterThan(3590 * 1000);
+    expect(diff).toBeLessThan(3610 * 1000);
+  });
+
+  it("acknowledgeAllErrors acknowledges all unacknowledged rows", () => {
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'a')").run();
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e2', 'rate_limit', 'warning', 'b')").run();
+    acknowledgeErrors(db, ["e1"]);
+    acknowledgeAllErrors(db);
+    const e2 = db.prepare("SELECT acknowledged FROM system_errors WHERE id = 'e2'").get() as { acknowledged: number };
+    expect(e2.acknowledged).toBe(1);
+  });
+
+  it("getHealthStatus returns healthy after acknowledging all critical errors", () => {
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'err')").run();
+    acknowledgeAllErrors(db);
+    const result = getHealthStatus(db);
+    expect(result.status).toBe("healthy");
+  });
+
+  it("acknowledgeErrors with empty array is no-op", () => {
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'err')").run();
+    expect(() => acknowledgeErrors(db, [])).not.toThrow();
+    const e1 = db.prepare("SELECT acknowledged FROM system_errors WHERE id = 'e1'").get() as { acknowledged: number };
+    expect(e1.acknowledged).toBe(0);
+  });
+
+  it("acknowledgeErrors with nonexistent ID is no-op", () => {
+    expect(() => acknowledgeErrors(db, ["nonexistent-id"])).not.toThrow();
   });
 });
