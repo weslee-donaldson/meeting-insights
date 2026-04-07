@@ -76,3 +76,85 @@ describe("createNotifier", () => {
     expect(body).toContain("1 meeting(s)");
   });
 });
+
+describe("sendAlert throttle logic", () => {
+  it("sends email for first error, throttles second error within 15 min", async () => {
+    const sendMailMock = vi.fn().mockResolvedValue({ messageId: "test" });
+    const notifier = createNotifier(makeConfig(), { sendMail: sendMailMock });
+
+    const err1 = makeError({ id: "e1" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'err1')").run();
+    await notifier.sendAlert(db, err1);
+
+    const err2 = makeError({ id: "e2" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e2', 'api_error', 'critical', 'err2')").run();
+    await notifier.sendAlert(db, err2);
+
+    expect(sendMailMock).toHaveBeenCalledOnce();
+
+    const e1Row = db.prepare("SELECT notified FROM system_errors WHERE id = 'e1'").get() as { notified: number };
+    const e2Row = db.prepare("SELECT notified FROM system_errors WHERE id = 'e2'").get() as { notified: number };
+    expect(e1Row.notified).toBe(1);
+    expect(e2Row.notified).toBe(1);
+  });
+
+  it("sends email after throttle window expires (20 min ago)", async () => {
+    const sendMailMock = vi.fn().mockResolvedValue({ messageId: "test" });
+    const notifier = createNotifier(makeConfig(), { sendMail: sendMailMock });
+
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message, notified, last_notified_at) VALUES ('old', 'api_error', 'critical', 'old err', 1, datetime('now', '-20 minutes'))").run();
+
+    const err = makeError({ id: "e-new" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e-new', 'api_error', 'critical', 'new err')").run();
+    await notifier.sendAlert(db, err);
+
+    expect(sendMailMock).toHaveBeenCalledOnce();
+  });
+
+  it("boundary: error notified exactly 15 minutes ago sends email (> not >=)", async () => {
+    const sendMailMock = vi.fn().mockResolvedValue({ messageId: "test" });
+    const notifier = createNotifier(makeConfig(), { sendMail: sendMailMock });
+
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message, notified, last_notified_at) VALUES ('old15', 'api_error', 'critical', 'old', 1, datetime('now', '-15 minutes'))").run();
+
+    const err = makeError({ id: "e-boundary" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e-boundary', 'api_error', 'critical', 'boundary err')").run();
+    await notifier.sendAlert(db, err);
+
+    expect(sendMailMock).toHaveBeenCalledOnce();
+  });
+
+  it("acknowledging does not affect throttle", async () => {
+    const sendMailMock = vi.fn().mockResolvedValue({ messageId: "test" });
+    const notifier = createNotifier(makeConfig(), { sendMail: sendMailMock });
+
+    const err1 = makeError({ id: "e1" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e1', 'api_error', 'critical', 'err1')").run();
+    await notifier.sendAlert(db, err1);
+
+    db.prepare("UPDATE system_errors SET acknowledged = 1 WHERE id = 'e1'").run();
+
+    const err2 = makeError({ id: "e2" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e2', 'api_error', 'critical', 'err2')").run();
+    await notifier.sendAlert(db, err2);
+
+    expect(sendMailMock).toHaveBeenCalledOnce();
+  });
+
+  it("sendMail failure leaves notified=0 and last_notified_at=null, does not throw", async () => {
+    const sendMailMock = vi.fn().mockRejectedValue(new Error("SMTP connection failed"));
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const notifier = createNotifier(makeConfig(), { sendMail: sendMailMock });
+
+    const err = makeError({ id: "e-fail" });
+    db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('e-fail', 'api_error', 'critical', 'fail err')").run();
+
+    await expect(notifier.sendAlert(db, err)).resolves.toBeUndefined();
+
+    const row = db.prepare("SELECT notified, last_notified_at FROM system_errors WHERE id = 'e-fail'").get() as { notified: number; last_notified_at: string | null };
+    expect(row.notified).toBe(0);
+    expect(row.last_notified_at).toBeNull();
+
+    errSpy.mockRestore();
+  });
+});

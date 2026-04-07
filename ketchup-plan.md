@@ -442,7 +442,7 @@ Section 3 -- Sequential (notifier)
   - Create no-op notifier (null config) -> `sendAlert` does not throw, returns resolved promise
   - Verify the body includes `meetings_without_artifact` count from the DB
 
-- [ ] Burst 8: Add throttle logic to `sendAlert` in `core/notifier.ts`. Before sending:
+- [x] Burst 8: Add throttle logic to `sendAlert` in `core/notifier.ts`. Before sending:
   1. Query: `SELECT COUNT(*) as n FROM system_errors WHERE last_notified_at > datetime('now', '-15 minutes')`
   2. If `n > 0`: skip email, still `UPDATE system_errors SET notified=1 WHERE id=?`, return
   3. If `n === 0`: send email, then `UPDATE system_errors SET notified=1, last_notified_at=datetime('now') WHERE id=?`
