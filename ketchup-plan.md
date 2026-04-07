@@ -369,7 +369,7 @@ Section 2 -- Sequential (pipeline integration)
   - Verify returned object has exact `SystemError` shape (all fields)
   - Cooldown: acknowledge an error_type with `acknowledged_until` 1 hour in future, insert new error of same type -> auto-acknowledged. Insert error of *different* type -> NOT auto-acknowledged.
 
-- [ ] Burst 3: `core/system-health.ts` -- `getHealthStatus(db)` returns `HealthStatus`. Steps:
+- [x] Burst 3: `core/system-health.ts` -- `getHealthStatus(db)` returns `HealthStatus`. Steps:
   1. Auto-prune: `DELETE FROM system_errors WHERE created_at < datetime('now', '-90 days')`
   2. Query unacknowledged critical errors, GROUP BY `error_type` to produce `ErrorGroup[]` with count, latest message, latest meeting_filename, provider, and resolution hint from `RESOLUTION_HINTS` map
   3. Count meetings without artifacts: `SELECT COUNT(*) FROM meetings LEFT JOIN artifacts ON meetings.id = artifacts.meeting_id WHERE artifacts.meeting_id IS NULL AND meetings.ignored = 0 AND meetings.created_at < datetime('now', '-5 minutes')`

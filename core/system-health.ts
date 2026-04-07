@@ -40,6 +40,60 @@ function deriveSeverity(error_type: string): "critical" | "warning" {
   return error_type === "api_error" ? "critical" : "warning";
 }
 
+const RESOLUTION_HINTS: Record<string, string> = {
+  api_error: "Check your LLM provider account billing and API key validity",
+  rate_limit: "Rate limiting is usually transient and self-resolves. If persistent, check your provider's rate limit tier",
+  json_parse: "The LLM returned unparseable output. This is usually transient. If persistent, check the extraction prompt",
+  unknown: "Check the application logs for details",
+};
+
+export function getHealthStatus(db: Database): HealthStatus {
+  db.exec("DELETE FROM system_errors WHERE created_at < datetime('now', '-90 days')");
+
+  const groupRows = db.prepare(`
+    SELECT
+      error_type,
+      severity,
+      COUNT(*) as count,
+      MAX(message) as latest_message,
+      MAX(meeting_filename) as latest_meeting_filename,
+      MAX(provider) as provider
+    FROM system_errors
+    WHERE acknowledged = 0
+    GROUP BY error_type
+    ORDER BY MAX(created_at) DESC
+  `).all() as {
+    error_type: string;
+    severity: string;
+    count: number;
+    latest_message: string;
+    latest_meeting_filename: string | null;
+    provider: string | null;
+  }[];
+
+  const error_groups: ErrorGroup[] = groupRows.map(row => ({
+    error_type: row.error_type,
+    severity: row.severity as ErrorGroup["severity"],
+    count: row.count,
+    latest_message: row.latest_message,
+    latest_meeting_filename: row.latest_meeting_filename,
+    provider: row.provider,
+    resolution_hint: RESOLUTION_HINTS[row.error_type] ?? RESOLUTION_HINTS.unknown,
+  }));
+
+  const withoutArtifactRow = db.prepare(
+    "SELECT COUNT(*) as n FROM meetings LEFT JOIN artifacts ON meetings.id = artifacts.meeting_id WHERE artifacts.meeting_id IS NULL AND meetings.ignored = 0 AND meetings.created_at < datetime('now', '-5 minutes')"
+  ).get() as { n: number };
+  const meetings_without_artifact = withoutArtifactRow.n;
+
+  const lastRow = db.prepare("SELECT MAX(created_at) as last_error_at FROM system_errors").get() as { last_error_at: string | null };
+  const last_error_at = lastRow.last_error_at;
+
+  const status: HealthStatus["status"] = error_groups.some(g => g.severity === "critical") ? "critical" : "healthy";
+
+  return { status, error_groups, meetings_without_artifact, last_error_at };
+}
+
 export function recordSystemError(db: Database, input: RecordErrorInput): SystemError | null {
   try {
     const id = randomUUID();
