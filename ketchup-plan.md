@@ -429,7 +429,7 @@ Section 3 -- Sequential (notifier)
 
 #### Section 3: Notifier
 
-- [ ] Burst 7: Create `core/notifier.ts` -- `Notifier` interface: `{ sendAlert(db: DatabaseSync, error: SystemError): Promise<void> }`. `createNotifier(config: NotificationConfig | null)` returns a `Notifier`. When `config` is null, returns a no-op (sendAlert does nothing, returns resolved promise). When config is provided, creates a nodemailer SMTP transport (`createTransport({ host, port, secure: port === 465, auth: { user, pass } })`). `sendAlert` composes an email:
+- [x] Burst 7: Create `core/notifier.ts` -- `Notifier` interface: `{ sendAlert(db: DatabaseSync, error: SystemError): Promise<void> }`. `createNotifier(config: NotificationConfig | null)` returns a `Notifier`. When `config` is null, returns a no-op (sendAlert does nothing, returns resolved promise). When config is provided, creates a nodemailer SMTP transport (`createTransport({ host, port, secure: port === 465, auth: { user, pass } })`). `sendAlert` composes an email:
   - Subject: `[Meeting Insights] Critical: LLM API error`
   - From: `smtpUser`
   - To: `alertEmail`
