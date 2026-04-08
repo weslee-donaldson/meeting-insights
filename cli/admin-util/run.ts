@@ -6,6 +6,7 @@ import { loadModel } from "../../core/embedder.js";
 import { createLlmAdapter } from "../../core/llm-adapter.js";
 import { seedClients } from "../../core/client-registry.js";
 import { processNewMeetings, type PipelineEvent } from "../../core/pipeline.js";
+import { createNotifierFromEnv } from "../../core/notifier.js";
 import { loadCliConfig } from "./shared.js";
 
 const filterFolder = process.argv[2];
@@ -87,6 +88,7 @@ const runStart = Date.now();
 const runId = new Date().toISOString().replace(/:/g, "-");
 const events: PipelineEvent[] = [];
 
+const notifier = createNotifierFromEnv();
 const result = await processNewMeetings({
   rawDir: "data/raw-transcripts",
   processedDir: "data/processed",
@@ -102,6 +104,7 @@ const result = await processNewMeetings({
   llm,
   filterFolder,
   provider: PROVIDER,
+  notifier,
   onProgress: (event) => {
     events.push(event);
     if (event.type === "processing") {

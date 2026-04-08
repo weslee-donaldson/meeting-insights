@@ -6,6 +6,7 @@ import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { seedClients } from "../core/client-registry.js";
 import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
+import { createNotifierFromEnv } from "../core/notifier.js";
 import { createWatcher } from "./watcher.js";
 import { createLogger, setLogDir } from "../core/logger.js";
 import { loadCliConfig } from "../cli/admin-util/shared.js";
@@ -44,6 +45,7 @@ export async function startService(config: ServiceConfig): Promise<Service> {
   log("model loaded");
 
   const llm = createLlmAdapter(config.llmConfig);
+  const notifier = createNotifierFromEnv();
 
   const watcher = createWatcher({
     dir: config.webhookRawDir,
@@ -59,6 +61,7 @@ export async function startService(config: ServiceConfig): Promise<Service> {
         llm,
         extractionPromptPath: "config/prompts/extraction.md",
         provider: config.llmConfig.type,
+        notifier,
         onProgress: (event: PipelineEvent) => {
           log("%s %s", event.type, event.name);
         },

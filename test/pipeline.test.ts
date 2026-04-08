@@ -13,6 +13,9 @@ import { listMilestonesByClient } from "../core/timelines.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../core/llm-adapter.js";
 import type { InferenceSession } from "onnxruntime-node";
+import { createNotifier } from "../core/notifier.js";
+import type { Notifier } from "../core/notifier.js";
+import type { SystemError } from "../core/system-health.js";
 
 let db: Database;
 let vdbPath: string;
@@ -1020,5 +1023,140 @@ describe("pipeline system_errors integration", () => {
 
     const failedFiles = existsSync(failedDir) ? readdirSync(failedDir) : [];
     expect(failedFiles.length).toBeGreaterThan(0);
+  });
+
+  it("calls notifier.sendAlert with the recorded SystemError for critical errors", async () => {
+    const rawDir = join(eBaseDir, "notifier-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-07T00:00:00.000ZNotifier Test";
+    const CONTENT = `Attendance:\n{'last_name': 'N', 'id': 'se-n', 'first_name': 'N', 'email': 'n@test.com'}\nTranscript:\nN N | 00:11\nHello notifier.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402 Insufficient funds"); },
+    };
+
+    const nDb = createDb(":memory:");
+    migrate(nDb);
+
+    const capturedErrors: SystemError[] = [];
+    const mockNotifier: Notifier = {
+      sendAlert: async (_db, error) => { capturedErrors.push(error); },
+    };
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "notifier-processed"),
+      failedDir: join(eBaseDir, "notifier-failed"),
+      auditDir: join(eBaseDir, "notifier-audit"),
+      db: nDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "anthropic",
+      notifier: mockNotifier,
+    });
+
+    expect(capturedErrors).toHaveLength(1);
+    expect(capturedErrors[0].error_type).toBe("api_error");
+    expect(capturedErrors[0].severity).toBe("critical");
+  });
+
+  it("does not call notifier for warning-severity errors", async () => {
+    const rawDir = join(eBaseDir, "notifier-warn-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-08T00:00:00.000ZNotifier Warning Test";
+    const CONTENT = `Attendance:\n{'last_name': 'W', 'id': 'se-w', 'first_name': 'W', 'email': 'w@test.com'}\nTranscript:\nW W | 00:11\nHello warning.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[rate_limit] 429"); },
+    };
+
+    const wDb = createDb(":memory:");
+    migrate(wDb);
+
+    const capturedErrors: SystemError[] = [];
+    const mockNotifier: Notifier = {
+      sendAlert: async (_db, error) => { capturedErrors.push(error); },
+    };
+
+    await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "notifier-warn-processed"),
+      failedDir: join(eBaseDir, "notifier-warn-failed"),
+      auditDir: join(eBaseDir, "notifier-warn-audit"),
+      db: wDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+      notifier: mockNotifier,
+    });
+
+    expect(capturedErrors).toHaveLength(0);
+  });
+
+  it("pipeline completes normally when notifier is undefined", async () => {
+    const rawDir = join(eBaseDir, "notifier-undef-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-09T00:00:00.000ZNotifier Undef Test";
+    const CONTENT = `Attendance:\n{'last_name': 'U', 'id': 'se-u', 'first_name': 'U', 'email': 'u@test.com'}\nTranscript:\nU U | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402"); },
+    };
+
+    const uDb = createDb(":memory:");
+    migrate(uDb);
+
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "notifier-undef-processed"),
+      failedDir: join(eBaseDir, "notifier-undef-failed"),
+      auditDir: join(eBaseDir, "notifier-undef-audit"),
+      db: uDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+    });
+
+    expect(result.failed).toBeGreaterThan(0);
+  });
+
+  it("pipeline completes normally when notifier.sendAlert throws", async () => {
+    const rawDir = join(eBaseDir, "notifier-throw-raw");
+    mkdirSync(rawDir, { recursive: true });
+    const FILENAME = " 2026-04-10T00:00:00.000ZNotifier Throw Test";
+    const CONTENT = `Attendance:\n{'last_name': 'T', 'id': 'se-t', 'first_name': 'T', 'email': 't@test.com'}\nTranscript:\nT T | 00:11\nHello.`;
+    writeFileSync(join(rawDir, FILENAME), CONTENT, "utf-8");
+
+    const failingLlm: LlmAdapter = {
+      complete: async () => { throw new Error("[api_error] 402"); },
+    };
+
+    const tDb = createDb(":memory:");
+    migrate(tDb);
+
+    const throwingNotifier: Notifier = {
+      sendAlert: async () => { throw new Error("SMTP failed"); },
+    };
+
+    const result = await processNewMeetings({
+      rawDir,
+      processedDir: join(eBaseDir, "notifier-throw-processed"),
+      failedDir: join(eBaseDir, "notifier-throw-failed"),
+      auditDir: join(eBaseDir, "notifier-throw-audit"),
+      db: tDb,
+      vdb: eVdb,
+      session: eSession,
+      llm: failingLlm,
+      provider: "openai",
+      notifier: throwingNotifier,
+    });
+
+    expect(result.failed).toBeGreaterThan(0);
   });
 });

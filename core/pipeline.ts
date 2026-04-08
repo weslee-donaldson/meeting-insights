@@ -4,6 +4,7 @@ import { createLogger } from "./logger.js";
 import { parseKrispFile, parseManifest, parseKrispFolder, listWebhookFiles, parseWebhookPayload, parseWebhookNote } from "./parser.js";
 import { createNote } from "./notes.js";
 import { recordSystemError } from "./system-health.js";
+import type { Notifier } from "./notifier.js";
 import { ingestMeeting } from "./ingest.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
@@ -101,6 +102,7 @@ interface PipelineConfig {
   webhookProcessedDir?: string;
   webhookFailedDir?: string;
   provider?: string;
+  notifier?: Notifier;
 }
 
 interface PipelineResult {
@@ -236,13 +238,17 @@ async function processEntry(
   promptTemplate: string | undefined,
   threadSimilarityThreshold: number,
   provider: string,
+  notifier: Notifier | undefined,
 ): Promise<EntryResult> {
   const start = Date.now();
   if (!parsed) {
     const reason = "parse failed";
     moveToFailed(rawDir, failedDir, name, reason);
     writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, error_type: extractErrorType(reason), timestamp: new Date().toISOString() }), "utf-8");
-    try { recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider }); } catch { /* ignore */ }
+    const recorded = recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider });
+    if (recorded && recorded.severity === "critical" && notifier) {
+      try { await notifier.sendAlert(db, recorded); } catch (ne) { console.error("[pipeline] notifier.sendAlert failed:", ne); }
+    }
     return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
   try {
@@ -263,14 +269,17 @@ async function processEntry(
     const reason = err instanceof Error ? err.message : String(err);
     moveToFailed(rawDir, failedDir, name, reason);
     writeFileSync(join(auditDir, `${Date.now()}-${name.trim()}.json`), JSON.stringify({ filename: name, reason, error_type: extractErrorType(reason), timestamp: new Date().toISOString() }), "utf-8");
-    try { recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider }); } catch { /* ignore */ }
+    const recorded = recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider });
+    if (recorded && recorded.severity === "critical" && notifier) {
+      try { await notifier.sendAlert(db, recorded); } catch (ne) { console.error("[pipeline] notifier.sendAlert failed:", ne); }
+    }
     return { status: "failed", reason, elapsed_ms: Date.now() - start };
   }
 }
 
 export async function processNewMeetings(config: PipelineConfig): Promise<PipelineResult> {
   const defaultChunkLimit = parseInt(process.env.MTNINSIGHTS_LLM_CHUNK_TOKEN_LIMIT ?? "30000", 10);
-  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder, webhookRawDir, webhookProcessedDir, webhookFailedDir, provider = "unknown" } = config;
+  const { rawDir, processedDir, failedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, filterFolder, webhookRawDir, webhookProcessedDir, webhookFailedDir, provider = "unknown", notifier } = config;
 
   let succeeded = 0;
   let failed = 0;
@@ -292,6 +301,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
       onProgress,
       threadSimilarityThreshold,
       provider,
+      notifier,
     });
     succeeded += webhookResult.succeeded;
     failed += webhookResult.failed;
@@ -340,7 +350,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
       onProgress?.({ type: "processing", name: folderName, title: entry.meeting_title, index, total });
       const parsed = parseKrispFolder(rawDir, folderName, entry);
-      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider);
+      const result = await processEntry(parsed, folderName, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider, notifier);
 
       if (result.status === "ok") {
         onProgress?.({ type: "ok", name: folderName, title: entry.meeting_title, client: result.client, elapsed_ms: result.elapsed_ms });
@@ -373,7 +383,7 @@ export async function processNewMeetings(config: PipelineConfig): Promise<Pipeli
 
     onProgress?.({ type: "processing", name: filename, title: filename, index, total });
     const parsed = parseKrispFile(join(rawDir, filename), filename);
-    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider);
+    const result = await processEntry(parsed, filename, rawDir, processedDir, failedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider, notifier);
 
     if (result.status === "ok") {
       onProgress?.({ type: "ok", name: filename, title: filename, client: result.client, elapsed_ms: result.elapsed_ms });
@@ -403,11 +413,12 @@ interface WebhookPipelineConfig {
   onProgress?: (event: PipelineEvent) => void;
   threadSimilarityThreshold?: number;
   provider?: string;
+  notifier?: Notifier;
 }
 
 export async function processWebhookMeetings(config: WebhookPipelineConfig): Promise<PipelineResult> {
   const defaultChunkLimit = parseInt(process.env.MTNINSIGHTS_LLM_CHUNK_TOKEN_LIMIT ?? "30000", 10);
-  const { webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, provider = "unknown" } = config;
+  const { webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, vdb, session, llm, tokenLimit = defaultChunkLimit, extractionPromptPath, onProgress, threadSimilarityThreshold = 0.3, provider = "unknown", notifier } = config;
 
   const promptTemplate = extractionPromptPath && existsSync(extractionPromptPath)
     ? readFileSync(extractionPromptPath, "utf-8")
@@ -456,7 +467,7 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
         continue;
       }
       onProgress?.({ type: "processing", name: filename, title: filename, index, total });
-      const result = await processEntry(null, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider);
+      const result = await processEntry(null, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider, notifier);
       onProgress?.({ type: "failed", name: filename, title: filename, reason: result.status === "failed" ? result.reason : "parse failed", elapsed_ms: result.status === "failed" ? result.elapsed_ms : 0 });
       failed++;
       continue;
@@ -470,7 +481,7 @@ export async function processWebhookMeetings(config: WebhookPipelineConfig): Pro
     }
 
     onProgress?.({ type: "processing", name: filename, title: parsed.title, index, total });
-    const result = await processEntry(parsed, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider);
+    const result = await processEntry(parsed, filename, webhookRawDir, webhookProcessedDir, webhookFailedDir, auditDir, db, table, itemTable, session, llm, tokenLimit, promptTemplate, threadSimilarityThreshold, provider, notifier);
 
     if (result.status === "ok") {
       onProgress?.({ type: "ok", name: filename, title: parsed.title, client: result.client, elapsed_ms: result.elapsed_ms });

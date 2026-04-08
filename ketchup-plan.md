@@ -455,7 +455,7 @@ Section 3 -- Sequential (notifier)
   - **Acknowledge does NOT affect throttle**: acknowledge the first error, record a new critical error within 15 min of the first -> still throttled (throttle uses `last_notified_at`, not `acknowledged`)
   - **sendMail failure**: mock sendMail to throw -> `notified` stays 0, `last_notified_at` stays null, no exception propagated
 
-- [ ] Burst 9: Integrate notifier into `core/pipeline.ts`:
+- [x] Burst 9: Integrate notifier into `core/pipeline.ts`:
   - `PipelineConfig` gains optional `notifier?: Notifier`
   - In `processEntry()` catch block, after `recordSystemError`, if `error` is not null and `error.severity === "critical"` and `config.notifier` is provided: call `config.notifier.sendAlert(db, error)` wrapped in try/catch (notification failure logged to `console.error`, never crashes pipeline)
   - Update callers: `local-service/main.ts`, `cli/admin-util/run.ts` -- construct notifier from env vars (`MTNINSIGHTS_SMTP_*`, `MTNINSIGHTS_ALERT_EMAIL`), pass to `PipelineConfig`. If env vars missing, pass `notifier: createNotifier(null)`.
