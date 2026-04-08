@@ -5,6 +5,18 @@ function parseMinutes(timestamp: string): number {
   return h * 60 + m;
 }
 
+function formatMinutes(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+export function rebaseTimestamps(turns: SpeakerTurn[]): SpeakerTurn[] {
+  if (turns.length === 0) return [];
+  const offset = parseMinutes(turns[0].timestamp);
+  return turns.map((t) => ({ ...t, timestamp: formatMinutes(parseMinutes(t.timestamp) - offset) }));
+}
+
 export function computeCutPoints(
   turns: SpeakerTurn[],
   durations: number[],

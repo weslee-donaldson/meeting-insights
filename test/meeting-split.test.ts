@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { SpeakerTurn } from "../core/parser.js";
-import { computeCutPoints } from "../core/meeting-split.js";
+import { computeCutPoints, rebaseTimestamps } from "../core/meeting-split.js";
 
 const turns: SpeakerTurn[] = [
   { speaker_name: "Alice",   timestamp: "00:00", text: "Welcome to the standup" },
@@ -59,5 +59,41 @@ describe("computeCutPoints", () => {
 
   it("throws when cumulative cut falls after last turn", () => {
     expect(() => computeCutPoints(turns, [200, 30])).toThrow();
+  });
+});
+
+describe("rebaseTimestamps", () => {
+  it("rebases turns starting at 01:02 to start at 00:00", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Alice",   timestamp: "01:02", text: "OK Charlie" },
+      { speaker_name: "Charlie", timestamp: "01:05", text: "Ready" },
+      { speaker_name: "Charlie", timestamp: "01:28", text: "Done" },
+    ];
+    const rebased = rebaseTimestamps(seg);
+    expect(rebased).toEqual([
+      { speaker_name: "Alice",   timestamp: "00:00", text: "OK Charlie" },
+      { speaker_name: "Charlie", timestamp: "00:03", text: "Ready" },
+      { speaker_name: "Charlie", timestamp: "00:26", text: "Done" },
+    ]);
+  });
+
+  it("turns already starting at 00:00 are unchanged", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Alice", timestamp: "00:00", text: "Hi" },
+      { speaker_name: "Bob",   timestamp: "00:05", text: "Hey" },
+    ];
+    const rebased = rebaseTimestamps(seg);
+    expect(rebased).toEqual([
+      { speaker_name: "Alice", timestamp: "00:00", text: "Hi" },
+      { speaker_name: "Bob",   timestamp: "00:05", text: "Hey" },
+    ]);
+  });
+
+  it("does not mutate the input array", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Alice", timestamp: "01:00", text: "Hello" },
+    ];
+    rebaseTimestamps(seg);
+    expect(seg[0].timestamp).toBe("01:00");
   });
 });
