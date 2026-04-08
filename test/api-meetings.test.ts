@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
+import { splitMeeting } from "../core/meeting-split.js";
 import { storeDetection } from "../core/client-detection.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
@@ -499,5 +500,63 @@ describe("POST /api/meetings/:id/split", () => {
       body: JSON.stringify({ durations: [60, 30] }),
     });
     expect(res.status).toBe(400);
+  });
+});
+
+describe("GET /api/meetings/:id/lineage", () => {
+  let app: ReturnType<typeof createApp>;
+  let sourceId: string;
+  let childId1: string;
+  let unsplitId: string;
+
+  beforeAll(() => {
+    const db = createDb(":memory:");
+    migrate(db);
+    sourceId = ingestMeeting(db, {
+      title: "Source Meeting",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: SPLIT_TRANSCRIPT,
+      sourceFilename: "lineage-source.md",
+    });
+    unsplitId = ingestMeeting(db, {
+      title: "Unsplit Meeting",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: SPLIT_TRANSCRIPT,
+      sourceFilename: "lineage-unsplit.md",
+    });
+    const { segments } = splitMeeting(db, sourceId, [60, 30]);
+    childId1 = segments[0].meeting_id;
+    app = createApp(db, ":memory:");
+  });
+
+  it("lineage of a split source returns null source, 2 children, and null segment_index", async () => {
+    const res = await app.request(`/api/meetings/${sourceId}/lineage`);
+    expect(res.status).toBe(200);
+    const body = await res.json() as { source: unknown; children: unknown[]; segment_index: number | null };
+    expect(body.source).toBeNull();
+    expect(body.children).toHaveLength(2);
+    expect(body.segment_index).toBeNull();
+  });
+
+  it("lineage of a child returns the source, empty children, and correct segment_index", async () => {
+    const res = await app.request(`/api/meetings/${childId1}/lineage`);
+    expect(res.status).toBe(200);
+    const body = await res.json() as { source: { id: string } | null; children: unknown[]; segment_index: number | null };
+    expect(body.source?.id).toBe(sourceId);
+    expect(body.children).toHaveLength(0);
+    expect(body.segment_index).toBe(1);
+  });
+
+  it("lineage of an unsplit meeting returns null source and empty children", async () => {
+    const res = await app.request(`/api/meetings/${unsplitId}/lineage`);
+    expect(res.status).toBe(200);
+    const body = await res.json() as { source: unknown; children: unknown[]; segment_index: number | null };
+    expect(body.source).toBeNull();
+    expect(body.children).toHaveLength(0);
+    expect(body.segment_index).toBeNull();
   });
 });

@@ -14,7 +14,7 @@ import {
   handleArtifactBatch,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
-import { splitMeeting } from "../../core/meeting-split.js";
+import { getChildMeetings, getSourceMeeting, splitMeeting } from "../../core/meeting-split.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
@@ -69,6 +69,18 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const meeting = getMeeting(db, id);
     if (!meeting) return c.json({ error: "Not found" }, 404);
     return c.json(meeting);
+  });
+
+  app.get("/api/meetings/:id/lineage", (c) => {
+    const id = c.req.param("id");
+    const source = getSourceMeeting(db, id);
+    const children = getChildMeetings(db, id);
+    const lineageRow = db.prepare("SELECT segment_index FROM meeting_lineage WHERE result_meeting_id = ?").get(id) as { segment_index: number } | undefined;
+    return c.json({
+      source,
+      children,
+      segment_index: lineageRow?.segment_index ?? null,
+    });
   });
 
   app.post("/api/meetings/:id/split", async (c) => {
