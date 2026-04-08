@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { splitMeeting } from "../core/meeting-split.js";
@@ -7,6 +7,22 @@ import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
 import { createLlmAdapter } from "../core/llm-adapter.js";
 import { createApp } from "../api/server.js";
+import type { VectorDb } from "../core/vector-db.js";
+import type { InferenceSession } from "onnxruntime-node";
+
+vi.mock("../core/meeting-pipeline.js", () => ({
+  buildEmbeddingInput: vi.fn().mockReturnValue("summary"),
+  embedMeeting: vi.fn().mockResolvedValue(new Float32Array(384)),
+  storeMeetingVector: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../core/vector-db.js", () => {
+  const mockTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }), add: vi.fn(), delete: vi.fn() };
+  return {
+    createMeetingTable: vi.fn().mockResolvedValue(mockTable),
+    createItemTable: vi.fn().mockResolvedValue(mockTable),
+  };
+});
 
 function seedClientRaw(db: ReturnType<typeof createDb>, name: string) {
   db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
@@ -558,5 +574,51 @@ describe("GET /api/meetings/:id/lineage", () => {
     expect(body.source).toBeNull();
     expect(body.children).toHaveLength(0);
     expect(body.segment_index).toBeNull();
+  });
+});
+
+const REEXTRACT_TRANSCRIPT =
+  "Alice | 00:00\nWelcome\n\n" +
+  "Bob | 00:15\nThanks\n\n" +
+  "Alice | 00:30\nGood meeting\n\n" +
+  "Bob | 01:00\nAgreed\n\n" +
+  "Alice | 01:28\nBye\n\n";
+
+describe("POST /api/meetings/:id/split with re-extraction", () => {
+  let db: ReturnType<typeof createDb>;
+  let app: ReturnType<typeof createApp>;
+  let meetingId: string;
+  const mockSession = {} as InferenceSession & { _tokenizer: unknown };
+  const mockVdb = {} as VectorDb;
+
+  beforeAll(() => {
+    db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "Weekly Standup",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: REEXTRACT_TRANSCRIPT,
+      sourceFilename: "weekly-standup-reextract-test.md",
+    });
+    const llm = createLlmAdapter({ type: "stub" });
+    app = createApp(db, ":memory:", llm, { session: mockSession, vdb: mockVdb });
+  });
+
+  it("returns split result and stores an artifact for each segment", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/split`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durations: [60, 30] }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as { source_meeting_id: string; segments: Array<{ meeting_id: string }> };
+    expect(body.source_meeting_id).toBe(meetingId);
+    expect(body.segments).toHaveLength(2);
+    for (const seg of body.segments) {
+      const artifact = db.prepare("SELECT meeting_id FROM artifacts WHERE meeting_id = ?").get(seg.meeting_id);
+      expect(artifact).toBeTruthy();
+    }
   });
 });

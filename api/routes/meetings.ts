@@ -14,7 +14,7 @@ import {
   handleArtifactBatch,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
-import { getChildMeetings, getSourceMeeting, splitMeeting } from "../../core/meeting-split.js";
+import { getChildMeetings, getSourceMeeting, splitMeeting, reprocessSplitSegments } from "../../core/meeting-split.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
@@ -88,6 +88,9 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const { durations } = await c.req.json() as { durations: number[] };
     try {
       const result = splitMeeting(db, id, durations);
+      if (llm && searchDeps) {
+        await reprocessSplitSegments(db, result, { llm, session: searchDeps.session, vdb: searchDeps.vdb });
+      }
       return c.json(result);
     } catch (err) {
       const msg = (err as Error).message;
