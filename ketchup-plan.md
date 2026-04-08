@@ -481,7 +481,7 @@ Section 4 -- Sequential (API routes + IPC)
 
 #### Section 4: Health Routes
 
-- [ ] Burst 10: Create `api/routes/health.ts` -- `registerHealthRoutes(app, db)`. Endpoints:
+- [x] Burst 10: Create `api/routes/health.ts` -- `registerHealthRoutes(app, db)`. Endpoints:
 
   `GET /api/health`:
   - Calls `getHealthStatus(db)`

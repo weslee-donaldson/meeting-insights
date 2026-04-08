@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { registerDebugRoutes } from "./routes/debug.js";
+import { registerHealthRoutes } from "./routes/health.js";
 import { registerMeetingRoutes } from "./routes/meetings.js";
 import { registerSearchRoutes } from "./routes/search.js";
 import { registerThreadRoutes } from "./routes/threads.js";
@@ -34,6 +35,7 @@ export function createApp(db: Database, dbPath: string, llm?: LlmAdapter, search
   app.use(createAuthMiddleware(db, authConfig));
 
   registerDebugRoutes(app, db, dbPath, searchDeps);
+  registerHealthRoutes(app, db);
   registerMeetingRoutes(app, db, llm, searchDeps, assetsDir);
   registerSearchRoutes(app, db, llm, searchDeps);
   registerThreadRoutes(app, db, llm, searchDeps);
