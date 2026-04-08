@@ -625,7 +625,7 @@ Section 6 -- Sequential (CLI commands, depends on Phase 3 API routes)
 
 #### Section 6: CLI
 
-- [ ] Burst 15: Create `cli/mti/src/commands/health.ts` -- `registerHealth(program, deps?)`. Two subcommands:
+- [x] Burst 15: Create `cli/mti/src/commands/health.ts` -- `registerHealth(program, deps?)`. Two subcommands:
 
   **`mti health status`** (default subcommand):
   - Calls `GET /api/health` via `HttpClient`
