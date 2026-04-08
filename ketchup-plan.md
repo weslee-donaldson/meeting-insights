@@ -561,7 +561,7 @@ Section 5 -- Sequential (UI)
 
 #### Section 5: React UI
 
-- [ ] Burst 12: Create `electron-ui/ui/src/hooks/useSystemHealth.ts` -- `useSystemHealth()` hook.
+- [x] Burst 12: Create `electron-ui/ui/src/hooks/useSystemHealth.ts` -- `useSystemHealth()` hook.
   - `useQuery` with key `["system-health"]`, `queryFn: () => window.api.getHealth()`, `refetchInterval: 30_000`, `staleTime: 15_000`
   - `refetchOnWindowFocus: true` (ensures stale state is refreshed when user returns to the app)
   - Returns `{ health: HealthStatus | undefined, isLoading: boolean, isError: boolean, acknowledgeAll: () => void, acknowledgeErrors: (ids: string[]) => void }`
