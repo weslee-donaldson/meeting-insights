@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { SpeakerTurn } from "../core/parser.js";
-import { computeCutPoints, rebaseTimestamps } from "../core/meeting-split.js";
+import { computeCutPoints, partitionTurns, rebaseTimestamps } from "../core/meeting-split.js";
 
 const turns: SpeakerTurn[] = [
   { speaker_name: "Alice",   timestamp: "00:00", text: "Welcome to the standup" },
@@ -59,6 +59,43 @@ describe("computeCutPoints", () => {
 
   it("throws when cumulative cut falls after last turn", () => {
     expect(() => computeCutPoints(turns, [200, 30])).toThrow();
+  });
+});
+
+describe("partitionTurns", () => {
+  it("2-way split: produces 2 segments with correct turn counts and content", () => {
+    const cutPoints = [{ turnIndex: 13, timestamp: "00:58" }];
+    const segments = partitionTurns(turns, cutPoints);
+    expect(segments).toHaveLength(2);
+    expect(segments[0]).toEqual(turns.slice(0, 13));
+    expect(segments[1]).toHaveLength(7);
+    expect(segments[1][0]).toEqual({ speaker_name: "Alice", timestamp: "00:00", text: "OK Charlie, let's discuss the design" });
+    expect(segments[1][6]).toEqual({ speaker_name: "Charlie", timestamp: "00:26", text: "I'll send the updated designs" });
+  });
+
+  it("3-way split: produces 3 segments with correct turn counts", () => {
+    const cutPoints = [
+      { turnIndex: 6, timestamp: "00:20" },
+      { turnIndex: 13, timestamp: "00:58" },
+    ];
+    const segments = partitionTurns(turns, cutPoints);
+    expect(segments).toHaveLength(3);
+    expect(segments[0]).toEqual(turns.slice(0, 6));
+    expect(segments[1]).toHaveLength(7);
+    expect(segments[2]).toHaveLength(7);
+  });
+
+  it("segment 2 timestamps are rebased: 01:02-01:28 becomes 00:00-00:26", () => {
+    const cutPoints = [{ turnIndex: 13, timestamp: "00:58" }];
+    const segments = partitionTurns(turns, cutPoints);
+    const seg2Timestamps = segments[1].map((t) => t.timestamp);
+    expect(seg2Timestamps).toEqual(["00:00", "00:03", "00:08", "00:13", "00:18", "00:23", "00:26"]);
+  });
+
+  it("does not mutate the input array", () => {
+    const originalTimestamps = turns.map((t) => t.timestamp);
+    partitionTurns(turns, [{ turnIndex: 13, timestamp: "00:58" }]);
+    expect(turns.map((t) => t.timestamp)).toEqual(originalTimestamps);
   });
 });
 

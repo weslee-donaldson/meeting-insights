@@ -17,6 +17,16 @@ export function rebaseTimestamps(turns: SpeakerTurn[]): SpeakerTurn[] {
   return turns.map((t) => ({ ...t, timestamp: formatMinutes(parseMinutes(t.timestamp) - offset) }));
 }
 
+export function partitionTurns(
+  turns: SpeakerTurn[],
+  cutPoints: { turnIndex: number }[],
+): SpeakerTurn[][] {
+  const boundaries = [0, ...cutPoints.map((c) => c.turnIndex), turns.length];
+  return boundaries.slice(0, -1).map((start, i) =>
+    rebaseTimestamps(turns.slice(start, boundaries[i + 1])),
+  );
+}
+
 export function computeCutPoints(
   turns: SpeakerTurn[],
   durations: number[],
