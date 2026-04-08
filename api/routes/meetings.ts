@@ -14,6 +14,7 @@ import {
   handleArtifactBatch,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/ingest.js";
+import { splitMeeting } from "../../core/meeting-split.js";
 import type { LlmAdapter } from "../../core/llm-adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
@@ -68,6 +69,19 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const meeting = getMeeting(db, id);
     if (!meeting) return c.json({ error: "Not found" }, 404);
     return c.json(meeting);
+  });
+
+  app.post("/api/meetings/:id/split", async (c) => {
+    const id = c.req.param("id");
+    const { durations } = await c.req.json() as { durations: number[] };
+    try {
+      const result = splitMeeting(db, id, durations);
+      return c.json(result);
+    } catch (err) {
+      const msg = (err as Error).message;
+      if (msg.includes("not found")) return c.json({ error: msg }, 404);
+      return c.json({ error: msg }, 400);
+    }
   });
 
   app.get("/api/meetings/:id/artifact", (c) => {

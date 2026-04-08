@@ -418,3 +418,86 @@ describe("POST /api/artifacts/batch", () => {
     expect(body).toEqual({});
   });
 });
+
+const SPLIT_TRANSCRIPT =
+  "Alice | 00:00\nWelcome\n\n" +
+  "Bob | 00:15\nThanks\n\n" +
+  "Alice | 00:30\nGood meeting\n\n" +
+  "Bob | 01:00\nAgreed\n\n" +
+  "Alice | 01:28\nBye\n\n";
+
+describe("POST /api/meetings/:id/split", () => {
+  let app: ReturnType<typeof createApp>;
+  let db: ReturnType<typeof createDb>;
+  let meetingId: string;
+
+  beforeAll(() => {
+    db = createDb(":memory:");
+    migrate(db);
+    meetingId = ingestMeeting(db, {
+      title: "Weekly Standup",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: SPLIT_TRANSCRIPT,
+      sourceFilename: "weekly-standup-split-test.md",
+    });
+    app = createApp(db, ":memory:");
+  });
+
+  it("returns 200 with SplitResult for valid durations", async () => {
+    const res = await app.request(`/api/meetings/${meetingId}/split`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durations: [60, 30] }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as { source_meeting_id: string; segments: unknown[] };
+    expect(body.source_meeting_id).toBe(meetingId);
+    expect(body.segments).toHaveLength(2);
+  });
+
+  it("returns 404 for nonexistent meeting", async () => {
+    const res = await app.request("/api/meetings/no-such-id/split", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durations: [60, 30] }),
+    });
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 for single-element durations", async () => {
+    const unspentId = ingestMeeting(db, {
+      title: "Another Meeting",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: SPLIT_TRANSCRIPT,
+      sourceFilename: "another-split-test.md",
+    });
+    const res = await app.request(`/api/meetings/${unspentId}/split`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durations: [60] }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for already-ignored meeting", async () => {
+    const ignoredId = ingestMeeting(db, {
+      title: "Archived Meeting",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: SPLIT_TRANSCRIPT,
+      sourceFilename: "archived-split-test.md",
+    });
+    db.prepare("UPDATE meetings SET ignored = 1 WHERE id = ?").run(ignoredId);
+    const res = await app.request(`/api/meetings/${ignoredId}/split`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ durations: [60, 30] }),
+    });
+    expect(res.status).toBe(400);
+  });
+});
