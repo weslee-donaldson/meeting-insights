@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { createApp } from "../api/server.js";
 import type { HealthStatus } from "../core/system-health.js";
@@ -102,5 +102,46 @@ describe("POST /api/health/acknowledge", () => {
     const healthRes = await ackApp.request("/api/health");
     const healthBody = await healthRes.json() as HealthStatus;
     expect(healthBody.status).toBe("healthy");
+  });
+});
+
+describe("api-client health methods", () => {
+  it("getHealth calls GET /api/health with correct URL", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "healthy", error_groups: [], meetings_without_artifact: 0, last_error_at: null }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    const { healthMethods } = await import("../electron-ui/ui/src/api-client/health.js");
+    await healthMethods.getHealth();
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining("/api/health"),
+      expect.objectContaining({})
+    );
+    fetchSpy.mockRestore();
+  });
+
+  it("acknowledgeHealthErrors posts correct body with errorIds", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    const { healthMethods } = await import("../electron-ui/ui/src/api-client/health.js");
+    await healthMethods.acknowledgeHealthErrors(["err1", "err2"]);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining("/api/health/acknowledge"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ errorIds: ["err1", "err2"] }),
+      })
+    );
+    fetchSpy.mockRestore();
   });
 });

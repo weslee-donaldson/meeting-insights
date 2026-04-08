@@ -77,9 +77,13 @@ export const CHANNELS = {
   NOTES_COUNT: "notes:count",
   ARTIFACT_BATCH: "artifact-batch",
   GLOSSARY: "glossary",
+  GET_HEALTH: "get-health",
+  ACKNOWLEDGE_HEALTH_ERRORS: "acknowledge-health-errors",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
+
+export type { HealthStatus, ErrorGroup } from "../../core/system-health.js";
 
 export interface MeetingRow {
   id: string;
@@ -396,4 +400,6 @@ export interface ElectronAPI {
   notesCount: (objectType: string, objectId: string) => Promise<number>;
   artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/extractor.js").Artifact | null>>;
   getGlossary: (clientName: string) => Promise<import("../../core/client-registry.js").GlossaryEntry[]>;
+  getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
+  acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
 }

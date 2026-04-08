@@ -504,7 +504,7 @@ Section 4 -- Sequential (API routes + IPC)
   - **POST with empty errorIds**: POST with `{ errorIds: [] }` -> acknowledges all (same as omitted)
   - **Verify integer-to-boolean conversion**: raw DB has `acknowledged: 0`, API response has no `acknowledged` field in `error_groups` (it's grouped, not individual rows)
 
-- [ ] Burst 11: Add health methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
+- [x] Burst 11: Add health methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
 
   **channels.ts additions:**
   ```ts

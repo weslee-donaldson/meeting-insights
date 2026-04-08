@@ -76,6 +76,11 @@ export {
 } from "./handlers/insights.js";
 
 export {
+  handleGetHealth,
+  handleAcknowledgeHealthErrors,
+} from "./handlers/health.js";
+
+export {
   handleListMilestones,
   handleCreateMilestone,
   handleUpdateMilestone,

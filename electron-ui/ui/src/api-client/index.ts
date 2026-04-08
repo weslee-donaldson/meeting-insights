@@ -5,6 +5,7 @@ import { threadsMethods } from "./threads.js";
 import { insightsMethods } from "./insights.js";
 import { milestonesMethods } from "./milestones.js";
 import { notesMethods } from "./notes.js";
+import { healthMethods } from "./health.js";
 
 export const apiClient: ElectronAPI = {
   ...meetingsMethods,
@@ -13,4 +14,5 @@ export const apiClient: ElectronAPI = {
   ...insightsMethods,
   ...milestonesMethods,
   ...notesMethods,
+  ...healthMethods,
 };

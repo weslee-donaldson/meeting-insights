@@ -47,6 +47,8 @@ import {
   handleGetMilestoneMessages,
   handleClearMilestoneMessages,
   handleRenameMeeting,
+  handleGetHealth,
+  handleAcknowledgeHealthErrors,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -90,7 +92,7 @@ describe("IPC handlers", () => {
     });
     storeArtifact(db, meetingId1, makeArtifact());
     storeDetection(db, meetingId1, [
-      { client_name: "Acme", confidence: 0.8, method: "participant" },
+      { client_name: "Acme", client_id: "client-acme", confidence: 0.8, method: "participant" },
     ]);
 
     meetingId2 = ingestMeeting(db, {
@@ -103,7 +105,7 @@ describe("IPC handlers", () => {
     });
     storeArtifact(db, meetingId2, makeArtifact());
     storeDetection(db, meetingId2, [
-      { client_name: "Beta Co", confidence: 0.9, method: "participant" },
+      { client_name: "Beta Co", client_id: "client-beta", confidence: 0.9, method: "participant" },
     ]);
   });
 
@@ -173,8 +175,8 @@ describe("IPC handlers", () => {
         sourceFilename: "shared-meeting-1",
       });
       storeDetection(db, mid, [
-        { client_name: "Acme", confidence: 0.3, method: "title" },
-        { client_name: "Beta Co", confidence: 0.9, method: "participant" },
+        { client_name: "Acme", client_id: "client-acme", confidence: 0.3, method: "title" },
+        { client_name: "Beta Co", client_id: "client-beta", confidence: 0.9, method: "participant" },
       ]);
       try {
         const acmeMeetings = handleGetMeetings(db, { client: "Acme" });
@@ -685,7 +687,7 @@ describe("IPC handlers", () => {
         additional_notes: [],
       });
       storeDetection(db, acmeMeetingId, [
-        { client_name: "Acme", confidence: 0.9, method: "participant" },
+        { client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "participant" },
       ]);
     });
 
@@ -1070,6 +1072,34 @@ describe("IPC handlers", () => {
       handleRenameMeeting(db, id, "Renamed Meeting");
       const row = getMeeting(db, id);
       expect(row.title).toBe("Renamed Meeting");
+    });
+  });
+
+  describe("health IPC handlers", () => {
+    it("handleGetHealth returns healthy status for empty DB", () => {
+      const result = handleGetHealth(db);
+      expect(result).toMatchObject({
+        status: "healthy",
+        error_groups: [],
+        meetings_without_artifact: 0,
+        last_error_at: null,
+      });
+    });
+
+    it("handleGetHealth returns critical status when api_error exists", () => {
+      db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('hh-e1', 'api_error', 'critical', 'test err')").run();
+      const result = handleGetHealth(db);
+      expect(result.status).toBe("critical");
+      expect(result.error_groups).toHaveLength(1);
+      db.prepare("DELETE FROM system_errors WHERE id = 'hh-e1'").run();
+    });
+
+    it("handleAcknowledgeHealthErrors by IDs makes status healthy", () => {
+      db.prepare("INSERT INTO system_errors (id, error_type, severity, message) VALUES ('hh-e2', 'api_error', 'critical', 'err2')").run();
+      handleAcknowledgeHealthErrors(db, ["hh-e2"]);
+      const result = handleGetHealth(db);
+      expect(result.status).toBe("healthy");
+      db.prepare("DELETE FROM system_errors WHERE id = 'hh-e2'").run();
     });
   });
 
