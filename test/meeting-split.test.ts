@@ -270,11 +270,11 @@ describe("validateSplitRequest", () => {
 });
 
 describe("splitMeeting", () => {
-  it("returns SplitResult with 2 segments and correct metadata", () => {
+  it("returns SplitResult with 2 segments and correct metadata", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     expect(result.source_meeting_id).toBe(meetingId);
     expect(result.segments).toHaveLength(2);
     expect(result.segments[0]).toEqual({
@@ -299,20 +299,20 @@ describe("splitMeeting", () => {
     });
   });
 
-  it("archives the source meeting (ignored=1)", () => {
+  it("archives the source meeting (ignored=1)", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    splitMeeting(db, meetingId, [60, 30]);
+    await splitMeeting(db, meetingId, [60, 30]);
     const row = db.prepare("SELECT ignored FROM meetings WHERE id = ?").get(meetingId) as { ignored: number };
     expect(row.ignored).toBe(1);
   });
 
-  it("writes lineage rows with correct segment_index and split_at_turn", () => {
+  it("writes lineage rows with correct segment_index and split_at_turn", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     const lineage = db.prepare(
       "SELECT source_meeting_id, result_meeting_id, segment_index, split_at_turn FROM meeting_lineage WHERE source_meeting_id = ? ORDER BY segment_index",
     ).all(meetingId) as Array<{ source_meeting_id: string; result_meeting_id: string; segment_index: number; split_at_turn: number }>;
@@ -322,11 +322,11 @@ describe("splitMeeting", () => {
     ]);
   });
 
-  it("segment source_filenames follow {original}::split:{K} convention", () => {
+  it("segment source_filenames follow {original}::split:{K} convention", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     const rows = db.prepare("SELECT source_filename FROM meetings WHERE id IN (?, ?) ORDER BY source_filename").all(
       result.segments[0].meeting_id,
       result.segments[1].meeting_id,
@@ -337,22 +337,22 @@ describe("splitMeeting", () => {
 });
 
 describe("getChildMeetings / getSourceMeeting", () => {
-  it("getChildMeetings returns split children ordered by segment_index", () => {
+  it("getChildMeetings returns split children ordered by segment_index", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     const children = getChildMeetings(db, meetingId);
     expect(children).toHaveLength(2);
     expect(children[0].id).toBe(result.segments[0].meeting_id);
     expect(children[1].id).toBe(result.segments[1].meeting_id);
   });
 
-  it("getSourceMeeting returns the source for a child meeting", () => {
+  it("getSourceMeeting returns the source for a child meeting", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     const source = getSourceMeeting(db, result.segments[0].meeting_id);
     expect(source?.id).toBe(meetingId);
   });
@@ -364,11 +364,11 @@ describe("getChildMeetings / getSourceMeeting", () => {
     expect(getSourceMeeting(db, meetingId)).toBeNull();
   });
 
-  it("getChildMeetings returns empty array for a child meeting with no children", () => {
+  it("getChildMeetings returns empty array for a child meeting with no children", async () => {
     const db = createDb(":memory:");
     migrate(db);
     const meetingId = seedMeeting(db);
-    const result = splitMeeting(db, meetingId, [60, 30]);
+    const result = await splitMeeting(db, meetingId, [60, 30]);
     expect(getChildMeetings(db, result.segments[0].meeting_id)).toEqual([]);
   });
 });
@@ -383,6 +383,28 @@ const STUB_ARTIFACT: Artifact = {
   additional_notes: [],
   milestones: [],
 };
+
+describe("splitMeeting cleanup integration", () => {
+  it("archived meeting has no artifact, fts, or client_detections after split", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+      "Acme", "[]", "[]", "client-acme",
+    );
+    const meetingId = seedMeeting(db);
+    storeArtifact(db, meetingId, STUB_ARTIFACT);
+    updateFts(db, meetingId);
+    storeDetection(db, meetingId, [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "participant" }]);
+
+    await splitMeeting(db, meetingId, [60, 30], {} as VectorDb);
+
+    expect(db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM artifact_fts WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM client_detections WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    const meeting = db.prepare("SELECT * FROM meetings WHERE id = ?").get(meetingId);
+    expect(meeting).toBeTruthy();
+  });
+});
 
 describe("cleanupArchivedMeeting", () => {
   it("removes artifact, fts, client_detections, meeting_clusters, item_mentions; leaves meeting row and meeting_messages", async () => {

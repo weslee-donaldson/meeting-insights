@@ -44,7 +44,7 @@ describe("reprocessSplitSegments", () => {
   let db: ReturnType<typeof createDb>;
   let splitResult: SplitResult;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     db = createDb(":memory:");
     migrate(db);
     db.prepare("INSERT OR IGNORE INTO clients (name, id, aliases, known_participants) VALUES (?, ?, ?, ?)").run(
@@ -58,7 +58,7 @@ describe("reprocessSplitSegments", () => {
       rawTranscript: VALID_TRANSCRIPT,
       sourceFilename: "reprocess-split-test.md",
     });
-    splitResult = splitMeeting(db, meetingId, [60, 30]);
+    splitResult = await splitMeeting(db, meetingId, [60, 30]);
   });
 
   it("stores an artifact row for each segment", async () => {
@@ -82,7 +82,7 @@ describe("reprocessSplitSegments", () => {
       rawTranscript: VALID_TRANSCRIPT,
       sourceFilename: "reprocess-detection-test.md",
     });
-    const result = splitMeeting(db2, id, [60, 30]);
+    const result = await splitMeeting(db2, id, [60, 30]);
     const llm = createLlmAdapter({ type: "stub" });
     const results = await reprocessSplitSegments(db2, result, { llm, session: mockSession, vdb: mockVdb });
     expect(results.every((r) => r.status === "ok")).toBe(true);
@@ -99,7 +99,7 @@ describe("reprocessSplitSegments", () => {
       rawTranscript: VALID_TRANSCRIPT,
       sourceFilename: "reprocess-fail-test.md",
     });
-    const result = splitMeeting(db3, id, [60, 30]);
+    const result = await splitMeeting(db3, id, [60, 30]);
     const stub = createLlmAdapter({ type: "stub" });
     let callCount = 0;
     const failingLlm: typeof stub = {

@@ -87,7 +87,7 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
     const id = c.req.param("id");
     const { durations } = await c.req.json() as { durations: number[] };
     try {
-      const result = splitMeeting(db, id, durations);
+      const result = await splitMeeting(db, id, durations, searchDeps?.vdb);
       if (llm && searchDeps) {
         await reprocessSplitSegments(db, result, { llm, session: searchDeps.session, vdb: searchDeps.vdb });
       }

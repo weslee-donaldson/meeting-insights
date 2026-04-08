@@ -144,7 +144,7 @@ export function getSourceMeeting(db: Database, resultMeetingId: string): Meeting
   return row ?? null;
 }
 
-export function splitMeeting(db: Database, meetingId: string, durations: number[]): SplitResult {
+export async function splitMeeting(db: Database, meetingId: string, durations: number[], vdb?: VectorDb): Promise<SplitResult> {
   const { meeting, turns, participants } = validateSplitRequest(db, meetingId, durations);
   const cutPoints = computeCutPoints(turns, durations);
   const segmentTurnArrays = partitionTurns(turns, cutPoints);
@@ -183,6 +183,7 @@ export function splitMeeting(db: Database, meetingId: string, durations: number[
   });
 
   db.prepare("UPDATE meetings SET ignored = 1 WHERE id = ?").run(meetingId);
+  await cleanupArchivedMeeting(db, meetingId, vdb);
   return { source_meeting_id: meetingId, segments };
 }
 

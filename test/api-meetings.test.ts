@@ -525,7 +525,7 @@ describe("GET /api/meetings/:id/lineage", () => {
   let childId1: string;
   let unsplitId: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const db = createDb(":memory:");
     migrate(db);
     sourceId = ingestMeeting(db, {
@@ -544,7 +544,7 @@ describe("GET /api/meetings/:id/lineage", () => {
       rawTranscript: SPLIT_TRANSCRIPT,
       sourceFilename: "lineage-unsplit.md",
     });
-    const { segments } = splitMeeting(db, sourceId, [60, 30]);
+    const { segments } = await splitMeeting(db, sourceId, [60, 30]);
     childId1 = segments[0].meeting_id;
     app = createApp(db, ":memory:");
   });

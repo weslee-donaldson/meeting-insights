@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { splitMeeting } from "../core/meeting-split.js";
 
-export function runSplit(db: Database, meetingId: string, durations: number[]): string {
-  const result = splitMeeting(db, meetingId, durations);
+export async function runSplit(db: Database, meetingId: string, durations: number[]): Promise<string> {
+  const result = await splitMeeting(db, meetingId, durations);
   const N = result.segments.length;
   const sourceTitle = result.segments[0].title.replace(/ \(\d+ of \d+\)$/, "");
   const lines = [`Split meeting "${sourceTitle}" into ${N} segments:`];
@@ -45,7 +45,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   migrate(db);
 
   try {
-    console.log(runSplit(db, meetingId, rawDurations));
+    console.log(await runSplit(db, meetingId, rawDurations));
   } catch (err) {
     console.error(`Error: ${(err as Error).message}`);
     process.exit(1);
