@@ -12,6 +12,7 @@ Each file in this directory implements named handler functions for one domain ar
 | `threads.ts` | Handles thread lifecycle (create, update, delete, resolve), meeting linking, candidate discovery and LLM evaluation, thread summary regeneration, and thread chat with persisted message history |
 | `insights.ts` | Handles insight lifecycle, period-based meeting discovery, LLM insight generation, insight status/RAG updates, and insight chat |
 | `milestones.ts` | Handles milestone lifecycle, mention confirmation/rejection, milestone merging, action item linking, date slippage queries, and milestone chat |
+| `health.ts` | Registers IPC handlers for `GET_HEALTH` (calls `getHealthStatus(db)`) and `ACKNOWLEDGE_HEALTH_ERRORS` (calls `acknowledgeErrors` or `acknowledgeAllErrors` depending on whether error IDs are provided). |
 
 ## Key Concepts
 

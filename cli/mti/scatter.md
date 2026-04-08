@@ -16,6 +16,7 @@ Pure HTTP client that talks to the API server. No `core/` imports, no direct DB 
 | `src/commands/items.ts` | Action item commands: `list <client>`, `create <meetingId>`, `edit <meetingId> <index>`, `complete <meetingId> <index>`, `uncomplete <meetingId> <index>`, `completions <meetingId>`, `history <canonicalId>`. Exports `registerItems(program)`. |
 | `src/commands/meetings.ts` | Meeting commands: `list`, `get <id>`, `transcript <id>`, `artifact <id>`, `rename <id> <title>`, `reassign <id> <client>`, `delete <id...>` (requires --confirm), `ignore <id>` (with --undo). Exports `registerMeetings(program)`. |
 | `src/commands/notes.ts` | Note commands: `list <meetingId>`, `create <meetingId>`, `update <noteId>`, `delete <noteId>`. ForbiddenError on update/delete maps to user-facing message. Exports `registerNotes(program, wrapAction?)`. |
+| `src/commands/health.ts` | Health commands: `health status` (GET /api/health; shows Status: HEALTHY/CRITICAL with error groups, occurrence counts, and affected meeting count; `--json` outputs raw HealthStatus), `health acknowledge` (POST /api/health/acknowledge; `--ids err1,err2` for specific IDs, else acknowledges all; `--json` outputs `{ ok: true }`). Exports `registerHealth(program, deps?)`. |
 
 ## Test Files
 

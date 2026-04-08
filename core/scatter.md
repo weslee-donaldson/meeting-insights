@@ -99,6 +99,13 @@ This directory contains the entire domain model. It has no imports from `electro
 | `auth/pkce.ts` | PKCE utilities. `generateCodeVerifier`, `computeCodeChallenge` (S256), and `verifyCodeChallenge`. |
 | `auth/auth-codes.ts` | Authorization code grant flow. `createAuthorizationCode` stores a time-limited code with PKCE challenge. `exchangeAuthorizationCode` validates code, client, redirect URI, and PKCE verifier, then marks the code as used. |
 
+### Health Monitoring
+
+| File | Purpose |
+|------|---------|
+| `system-health.ts` | Error tracking and health status. `recordSystemError(db, { error_type, message, meeting_filename?, provider? })` inserts a row into `system_errors`, derives severity (`api_error` → critical, others → warning), and auto-acknowledges new errors matching an active 1-hour cooldown window. Wrapped in try/catch so monitoring never crashes the pipeline. `getHealthStatus(db)` returns `HealthStatus`: prunes rows older than 90 days, groups unacknowledged critical errors into `ErrorGroup[]` with resolution hints, counts meetings without artifacts (time-gated to >5 min old), and derives overall status. `acknowledgeErrors(db, ids)` and `acknowledgeAllErrors(db)` set `acknowledged=1` and `acknowledged_until=+1 hour` to suppress repeat banners during sustained outages. |
+| `notifier.ts` | SMTP email alerting. `createNotifier(config)` returns a `Notifier` with `sendAlert(db, error)`. When config is null, returns a no-op. Throttle: skips sending if any row has `last_notified_at > now()-15min`; on send, sets `notified=1, last_notified_at=now()`. Email body includes error type, provider, message, meeting filename, affected meeting count, and resolution hint. Send failures are logged to stderr and never propagate. |
+
 ### Orchestration
 
 | File | Purpose |

@@ -20,6 +20,7 @@ Layout and interaction patterns used across multiple feature views. Unlike `ui/`
 | `mobile-list-header.tsx` | Mobile-specific list header with large title, optional subtitle, filter slot, and a "+ New" action button; replaces TopBar controls on mobile viewports |
 | `status-dot.tsx` | Colored circle indicator for status values; maps semantic names (`green`, `tracked`, `completed`, `missed`, etc.) to theme-aware CSS color variables |
 | `filter-chip-button.tsx` | Toggleable pill button for filter options; shows active/inactive state with accent-colored highlight; used in horizontal filter rows |
+| `SystemHealthBanner.tsx` | Full-width alert banner placed above the workspace. Hidden when healthy or loading. Red (`bg-red-600`) when `health.status === "critical"` — shows provider name, resolution hint, and affected meeting count badge, plus a dismiss button. Gray (`bg-gray-600`) when `isError` is true (health endpoint unreachable) with "Unable to reach server" message. Uses `AlertTriangle`, `WifiOff`, `X` icons from lucide-react. |
 
 ## Key Concepts
 

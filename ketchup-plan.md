@@ -732,7 +732,7 @@ Section 7 -- Sequential (E2E, depends on all prior phases)
 
 ## Phase 7: Documentation & Scatter Updates
 
-- [ ] Burst 19: Update scatter.md files for new/changed files:
+- [x] Burst 19: Update scatter.md files for new/changed files:
   - `core/scatter.md`: add `system-health.ts` (error recording, health status, acknowledgment), `notifier.ts` (SMTP email alerts with throttle)
   - `api/routes/scatter.md`: add `health.ts` (GET /api/health, POST /api/health/acknowledge)
   - `electron-ui/electron/handlers/scatter.md`: add `health.ts` (IPC handlers for health status and acknowledgment)
