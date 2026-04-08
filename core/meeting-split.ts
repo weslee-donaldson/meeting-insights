@@ -1,9 +1,18 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
+import type { InferenceSession } from "onnxruntime-node";
 import type { Participant, SpeakerTurn } from "./parser.js";
 import { parseTranscriptBody } from "./parser.js";
-import { ingestMeeting } from "./ingest.js";
+import { getMeeting, ingestMeeting } from "./ingest.js";
 import type { MeetingRow } from "./ingest.js";
+import { detectClient, storeDetection } from "./client-detection.js";
+import { getClientById } from "./client-registry.js";
+import { extractSummary, storeArtifact } from "./extractor.js";
+import { updateFts } from "./fts.js";
+import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
+import { createMeetingTable, createItemTable } from "./vector-db.js";
+import type { VectorDb } from "./vector-db.js";
+import type { LlmAdapter } from "./llm-adapter.js";
 
 function parseMinutes(timestamp: string): number {
   const [h, m] = timestamp.split(":").map(Number);
@@ -56,6 +65,51 @@ export interface SplitSegmentResult {
 export interface SplitResult {
   source_meeting_id: string;
   segments: SplitSegmentResult[];
+}
+
+export interface PipelineDeps {
+  llm: LlmAdapter;
+  session: InferenceSession & { _tokenizer: unknown };
+  vdb: VectorDb;
+  tokenLimit?: number;
+  extractionPromptPath?: string;
+  threadSimilarityThreshold?: number;
+}
+
+export async function reprocessSplitSegments(
+  db: Database,
+  splitResult: SplitResult,
+  deps: PipelineDeps,
+): Promise<{ meeting_id: string; status: "ok" | "failed"; error?: string }[]> {
+  const tokenLimit = deps.tokenLimit ?? 30000;
+  const table = await createMeetingTable(deps.vdb);
+  const itemTable = await createItemTable(deps.vdb);
+  const results: { meeting_id: string; status: "ok" | "failed"; error?: string }[] = [];
+
+  for (const seg of splitResult.segments) {
+    try {
+      const meeting = getMeeting(db, seg.meeting_id);
+      const turns = parseTranscriptBody(meeting.raw_transcript);
+      const detections = detectClient(db, seg.meeting_id);
+      storeDetection(db, seg.meeting_id, detections);
+      const topClient = detections.sort((a, b) => b.confidence - a.confidence)[0];
+      const clientRow = topClient ? getClientById(db, topClient.client_id) : null;
+      const artifact = await extractSummary(deps.llm, turns, tokenLimit, deps.extractionPromptPath);
+      storeArtifact(db, seg.meeting_id, artifact);
+      updateFts(db, seg.meeting_id);
+      const vec = await embedMeeting(deps.session, buildEmbeddingInput(artifact));
+      await storeMeetingVector(table, seg.meeting_id, vec, {
+        client: clientRow?.name ?? "",
+        meeting_type: meeting.title,
+        date: meeting.date,
+      });
+      results.push({ meeting_id: seg.meeting_id, status: "ok" });
+    } catch (err) {
+      results.push({ meeting_id: seg.meeting_id, status: "failed", error: (err as Error).message });
+    }
+  }
+
+  return results;
 }
 
 export function getChildMeetings(db: Database, sourceMeetingId: string): MeetingRow[] {
