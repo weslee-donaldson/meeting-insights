@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { SpeakerTurn, Participant } from "../core/parser.js";
 import { parseTranscriptBody } from "../core/parser.js";
-import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
+import { computeCutPoints, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 
@@ -320,5 +320,42 @@ describe("splitMeeting", () => {
     ) as { source_filename: string }[];
     expect(rows[0].source_filename).toMatch(/::split:1$/);
     expect(rows[1].source_filename).toMatch(/::split:2$/);
+  });
+});
+
+describe("getChildMeetings / getSourceMeeting", () => {
+  it("getChildMeetings returns split children ordered by segment_index", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    const children = getChildMeetings(db, meetingId);
+    expect(children).toHaveLength(2);
+    expect(children[0].id).toBe(result.segments[0].meeting_id);
+    expect(children[1].id).toBe(result.segments[1].meeting_id);
+  });
+
+  it("getSourceMeeting returns the source for a child meeting", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    const source = getSourceMeeting(db, result.segments[0].meeting_id);
+    expect(source?.id).toBe(meetingId);
+  });
+
+  it("getSourceMeeting returns null for a meeting that was not split from another", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    expect(getSourceMeeting(db, meetingId)).toBeNull();
+  });
+
+  it("getChildMeetings returns empty array for a child meeting with no children", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    expect(getChildMeetings(db, result.segments[0].meeting_id)).toEqual([]);
   });
 });

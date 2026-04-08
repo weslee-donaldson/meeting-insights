@@ -58,6 +58,24 @@ export interface SplitResult {
   segments: SplitSegmentResult[];
 }
 
+export function getChildMeetings(db: Database, sourceMeetingId: string): MeetingRow[] {
+  return db.prepare(`
+    SELECT m.* FROM meetings m
+    JOIN meeting_lineage l ON l.result_meeting_id = m.id
+    WHERE l.source_meeting_id = ?
+    ORDER BY l.segment_index
+  `).all(sourceMeetingId) as MeetingRow[];
+}
+
+export function getSourceMeeting(db: Database, resultMeetingId: string): MeetingRow | null {
+  const row = db.prepare(`
+    SELECT m.* FROM meetings m
+    JOIN meeting_lineage l ON l.source_meeting_id = m.id
+    WHERE l.result_meeting_id = ?
+  `).get(resultMeetingId) as MeetingRow | undefined;
+  return row ?? null;
+}
+
 export function splitMeeting(db: Database, meetingId: string, durations: number[]): SplitResult {
   const { meeting, turns, participants } = validateSplitRequest(db, meetingId, durations);
   const cutPoints = computeCutPoints(turns, durations);
