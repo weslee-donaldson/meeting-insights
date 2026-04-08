@@ -685,7 +685,7 @@ Section 7 -- Sequential (E2E, depends on all prior phases)
 
 #### Section 7: Browser + CLI E2E
 
-- [ ] Burst 17: Create `test/e2e/health-banner.spec.ts` -- Playwright E2E tests for the health banner.
+- [x] Burst 17: Create `test/e2e/health-banner.spec.ts` -- Playwright E2E tests for the health banner.
 
   **Setup pattern** (follows existing E2E specs like `insights.spec.ts`):
   - `test.use({ viewport: { width: 1400, height: 900 } })`
