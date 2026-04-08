@@ -599,7 +599,7 @@ Section 5 -- Sequential (UI)
   - `meetings_without_artifact: 0` -> no "affected" badge
   - Multiple error groups -> shows the critical one
 
-- [ ] Burst 14: Wire `SystemHealthBanner` into `App.tsx`.
+- [x] Burst 14: Wire `SystemHealthBanner` into `App.tsx`.
   - Import `useSystemHealth` hook
   - Place `<SystemHealthBanner>` as the first child inside the outermost layout container, above `ResponsiveShell`/`WorkspaceBanner`
   - Pass `health`, `isError`, and `onAcknowledge: acknowledgeAll` from the hook

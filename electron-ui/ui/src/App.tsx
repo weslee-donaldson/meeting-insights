@@ -28,6 +28,8 @@ import { InsightsPage } from "./pages/InsightsPage.js";
 import { TimelinesPage } from "./pages/TimelinesPage.js";
 import { SearchPage } from "./pages/SearchPage.js";
 import { useSearchState } from "./hooks/useSearchState.js";
+import { useSystemHealth } from "./hooks/useSystemHealth.js";
+import { SystemHealthBanner } from "./components/shared/SystemHealthBanner.js";
 
 export function App() {
   const { theme, setTheme, themes } = useTheme();
@@ -80,6 +82,7 @@ export function App() {
   const milestoneNotes = useNotesState({ objectType: "milestone", objectId: milestone.selectedMilestoneId, addToast });
 
   const queryClient = useQueryClient();
+  const { health, isError: healthIsError, acknowledgeAll } = useSystemHealth();
 
   const assetsQuery = useQuery({
     queryKey: ["assets", meeting.selectedMeetingId],
@@ -513,6 +516,7 @@ export function App() {
 
   return (
     <>
+    <SystemHealthBanner health={health} isError={healthIsError} onAcknowledge={acknowledgeAll} />
     <ResponsiveShell
       viewId={currentView}
       defaultSidebarWidth={currentView === "action-items" ? 520 : undefined}
