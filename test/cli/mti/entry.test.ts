@@ -112,3 +112,22 @@ describe("wrapAction error-to-exit-code mapping", () => {
     expect(exitSpy).not.toHaveBeenCalled();
   });
 });
+
+describe("health command registration", () => {
+  it("registers health command on the program", () => {
+    const healthCmd = program.commands.find((c) => c.name() === "health");
+    expect(healthCmd).toBeDefined();
+  });
+
+  it("registers health status subcommand", () => {
+    const healthCmd = program.commands.find((c) => c.name() === "health");
+    const statusCmd = healthCmd?.commands.find((c) => c.name() === "status");
+    expect(statusCmd).toBeDefined();
+  });
+
+  it("registers health acknowledge subcommand", () => {
+    const healthCmd = program.commands.find((c) => c.name() === "health");
+    const ackCmd = healthCmd?.commands.find((c) => c.name() === "acknowledge");
+    expect(ackCmd).toBeDefined();
+  });
+});

@@ -13,6 +13,7 @@ import {
   UnavailableError,
 } from "../src/errors.ts";
 import { registerNotes } from "../src/commands/notes.ts";
+import { registerHealth } from "../src/commands/health.ts";
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../../package.json");
@@ -62,6 +63,7 @@ export function wrapAction(
 }
 
 registerNotes(program, wrapAction);
+registerHealth(program);
 
 const isDirectRun =
   process.argv[1] &&

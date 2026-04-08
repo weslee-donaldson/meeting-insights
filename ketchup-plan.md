@@ -662,7 +662,7 @@ Section 6 -- Sequential (CLI commands, depends on Phase 3 API routes)
   - `mti health acknowledge --ids err1,err2` -> calls POST with `{ errorIds: ["err1", "err2"] }`, output contains "Acknowledged 2"
   - `mti health acknowledge --json` -> `{ "ok": true }`
 
-- [ ] Burst 16: Wire `registerHealth` into `cli/mti/bin/mti.ts`. Add `import { registerHealth } from "../src/commands/health.ts"` and `registerHealth(program, wrapAction)` alongside the other `register*` calls.
+- [x] Burst 16: Wire `registerHealth` into `cli/mti/bin/mti.ts`. Add `import { registerHealth } from "../src/commands/health.ts"` and `registerHealth(program, wrapAction)` alongside the other `register*` calls.
 
   Test in `test/cli/mti/entry.test.ts` (add to existing):
   - Verify `health` command is registered on the program
