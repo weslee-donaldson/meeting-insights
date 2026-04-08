@@ -331,6 +331,17 @@ export function migrate(db: DatabaseSync): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_system_errors_unack ON system_errors(acknowledged, severity, created_at);
+
+    CREATE TABLE IF NOT EXISTS meeting_lineage (
+      id TEXT PRIMARY KEY,
+      source_meeting_id TEXT NOT NULL,
+      result_meeting_id TEXT NOT NULL,
+      segment_index INTEGER NOT NULL,
+      split_at_turn INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (source_meeting_id) REFERENCES meetings(id),
+      FOREIGN KEY (result_meeting_id) REFERENCES meetings(id)
+    );
   `);
 
   const artifactCols = db.prepare("PRAGMA table_info(artifacts)").all() as { name: string }[];

@@ -556,3 +556,41 @@ describe("auth tables", () => {
     });
   });
 });
+
+describe("meeting_lineage table", () => {
+  it("creates meeting_lineage table", () => {
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='meeting_lineage'").get();
+    expect(row).toEqual({ name: "meeting_lineage" });
+  });
+
+  it("meeting_lineage has correct columns", () => {
+    const cols = db.prepare("PRAGMA table_info(meeting_lineage)").all() as Array<{ name: string }>;
+    const names = cols.map((c) => c.name);
+    expect(names).toEqual(["id", "source_meeting_id", "result_meeting_id", "segment_index", "split_at_turn", "created_at"]);
+  });
+
+  it("meeting_lineage insert + query round-trip", () => {
+    const sourceId = "src-meeting-1";
+    const resultId = "res-meeting-1";
+    db.prepare("INSERT INTO meetings (id, title, date) VALUES (?, ?, ?)").run(sourceId, "Source Meeting", "2026-01-01");
+    db.prepare("INSERT INTO meetings (id, title, date) VALUES (?, ?, ?)").run(resultId, "Result Meeting", "2026-01-01");
+    db.prepare("INSERT INTO meeting_lineage (id, source_meeting_id, result_meeting_id, segment_index, split_at_turn, created_at) VALUES (?, ?, ?, ?, ?, ?)").run(
+      "lineage-1", sourceId, resultId, 0, 42, "2026-01-01T00:00:00.000Z",
+    );
+    const row = db.prepare("SELECT * FROM meeting_lineage WHERE id = ?").get("lineage-1") as Record<string, unknown>;
+    expect(row).toMatchObject({
+      id: "lineage-1",
+      source_meeting_id: sourceId,
+      result_meeting_id: resultId,
+      segment_index: 0,
+      split_at_turn: 42,
+    });
+  });
+
+  it("existing tables are unaffected by migration adding meeting_lineage", () => {
+    const meetingRow = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='meetings'").get();
+    expect(meetingRow).toEqual({ name: "meetings" });
+    const artifactRow = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='artifacts'").get();
+    expect(artifactRow).toEqual({ name: "artifacts" });
+  });
+});
