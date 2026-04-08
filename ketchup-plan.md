@@ -715,7 +715,7 @@ Section 7 -- Sequential (E2E, depends on all prior phases)
   - **Banner position**: verify the banner is above the main workspace content (banner `y` coordinate < workspace `y` coordinate via bounding box)
   - **Unreachable server state** (via route intercept returning network error): gray banner with "Unable to reach server" visible
 
-- [ ] Burst 18: Create `test/e2e/health-cli.spec.ts` -- E2E test for the MTI CLI health commands. This tests the CLI binary against the live API server.
+- [x] Burst 18: Create `test/e2e/health-cli.spec.ts` -- E2E test for the MTI CLI health commands. This tests the CLI binary against the live API server.
 
   **Approach**: Use Node `child_process.execFile` (or `execa` if available) to run `tsx cli/mti/bin/mti.ts health status --json` and parse the output. The CLI reads its config from `~/.mtirc` or env vars (`MTI_BASE_URL`, `MTI_TOKEN`). Set these in the test environment.
 
