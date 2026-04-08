@@ -57,4 +57,42 @@ describe("runSplit", () => {
     });
     await expect(runSplit(db, meetingId, [60])).rejects.toThrow();
   });
+
+  it("output shows actual vs requested durations for each segment", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = ingestMeeting(db, {
+      title: "Duration Test",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: VALID_TRANSCRIPT,
+      sourceFilename: "cli-split-durations.md",
+    });
+    const output = await runSplit(db, meetingId, [60, 30]);
+    expect(output).toContain("requested: 60m");
+    expect(output).toContain("requested: 30m");
+    expect(output).toMatch(/actual: \d+m/);
+  });
+
+  it("after split, original meeting is archived and segments are active", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = ingestMeeting(db, {
+      title: "Archive Test",
+      timestamp: "2024-01-01",
+      participants: [],
+      turns: [],
+      rawTranscript: VALID_TRANSCRIPT,
+      sourceFilename: "cli-split-archive.md",
+    });
+    const output = await runSplit(db, meetingId, [60, 30]);
+    const original = db.prepare("SELECT ignored FROM meetings WHERE id = ?").get(meetingId) as { ignored: number };
+    expect(original.ignored).toBe(1);
+    const seg1IdMatch = output.match(/1 of 2: ([a-f0-9]{8})/);
+    const seg1Prefix = seg1IdMatch?.[1];
+    expect(seg1Prefix).toBeTruthy();
+    const seg1Row = db.prepare("SELECT ignored FROM meetings WHERE id LIKE ?").get(`${seg1Prefix}%`) as { ignored: number };
+    expect(seg1Row.ignored).toBe(0);
+  });
 });
