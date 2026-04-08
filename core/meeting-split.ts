@@ -76,6 +76,20 @@ export interface PipelineDeps {
   threadSimilarityThreshold?: number;
 }
 
+export async function cleanupArchivedMeeting(db: Database, meetingId: string, vdb?: VectorDb): Promise<void> {
+  db.prepare("DELETE FROM artifacts WHERE meeting_id = ?").run(meetingId);
+  db.prepare("DELETE FROM artifact_fts WHERE meeting_id = ?").run(meetingId);
+  db.prepare("DELETE FROM client_detections WHERE meeting_id = ?").run(meetingId);
+  db.prepare("DELETE FROM meeting_clusters WHERE meeting_id = ?").run(meetingId);
+  db.prepare("DELETE FROM item_mentions WHERE meeting_id = ?").run(meetingId);
+  if (vdb) {
+    const meetingTable = await createMeetingTable(vdb);
+    await meetingTable.delete(`meeting_id = '${meetingId}'`);
+    const itemTable = await createItemTable(vdb);
+    await itemTable.delete(`meeting_id = '${meetingId}'`);
+  }
+}
+
 export async function reprocessSplitSegments(
   db: Database,
   splitResult: SplitResult,

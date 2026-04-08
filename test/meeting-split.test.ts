@@ -1,9 +1,22 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type { SpeakerTurn, Participant } from "../core/parser.js";
 import { parseTranscriptBody } from "../core/parser.js";
-import { computeCutPoints, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
+import { computeCutPoints, cleanupArchivedMeeting, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/extractor.js";
+import type { Artifact } from "../core/extractor.js";
+import { updateFts } from "../core/fts.js";
+import { storeDetection } from "../core/client-detection.js";
+import type { VectorDb } from "../core/vector-db.js";
+
+vi.mock("../core/vector-db.js", () => {
+  const mockTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }), add: vi.fn(), delete: vi.fn().mockResolvedValue(undefined) };
+  return {
+    createMeetingTable: vi.fn().mockResolvedValue(mockTable),
+    createItemTable: vi.fn().mockResolvedValue(mockTable),
+  };
+});
 
 const VALID_TRANSCRIPT =
   "Alice | 00:00\nWelcome\n\n" +
@@ -357,5 +370,50 @@ describe("getChildMeetings / getSourceMeeting", () => {
     const meetingId = seedMeeting(db);
     const result = splitMeeting(db, meetingId, [60, 30]);
     expect(getChildMeetings(db, result.segments[0].meeting_id)).toEqual([]);
+  });
+});
+
+const STUB_ARTIFACT: Artifact = {
+  summary: "Summary",
+  decisions: [],
+  proposed_features: [],
+  action_items: [],
+  open_questions: [],
+  risk_items: [],
+  additional_notes: [],
+  milestones: [],
+};
+
+describe("cleanupArchivedMeeting", () => {
+  it("removes artifact, fts, client_detections, meeting_clusters, item_mentions; leaves meeting row and meeting_messages", async () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db, { ignored: 1 });
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run(
+      "Acme", "[]", "[]", "client-acme",
+    );
+    storeArtifact(db, meetingId, STUB_ARTIFACT);
+    updateFts(db, meetingId);
+    storeDetection(db, meetingId, [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "participant" }]);
+    db.prepare("INSERT INTO clusters (cluster_id, generated_tags, centroid_snapshot, updated_at) VALUES (?, ?, ?, ?)").run("c1", "[]", "[]", "2024-01-01");
+    db.prepare("INSERT INTO meeting_clusters (meeting_id, cluster_id) VALUES (?, ?)").run(meetingId, "c1");
+    db.prepare("INSERT INTO item_mentions (canonical_id, meeting_id, item_type, item_index, item_text, first_mentioned_at) VALUES (?, ?, ?, ?, ?, ?)").run(
+      "item-1", meetingId, "action_item", 0, "Do something", "2024-01-01",
+    );
+    db.prepare("INSERT INTO meeting_messages (id, meeting_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)").run(
+      "msg-1", meetingId, "user", "Hello", "2024-01-01",
+    );
+
+    await cleanupArchivedMeeting(db, meetingId, {} as VectorDb);
+
+    expect(db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM artifact_fts WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM client_detections WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM meeting_clusters WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    expect(db.prepare("SELECT * FROM item_mentions WHERE meeting_id = ?").get(meetingId)).toBeUndefined();
+    const meeting = db.prepare("SELECT * FROM meetings WHERE id = ?").get(meetingId);
+    expect(meeting).toBeTruthy();
+    const message = db.prepare("SELECT * FROM meeting_messages WHERE meeting_id = ?").get(meetingId);
+    expect(message).toBeTruthy();
   });
 });
