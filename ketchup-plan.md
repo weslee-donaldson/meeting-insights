@@ -575,7 +575,7 @@ Section 5 -- Sequential (UI)
   - Verify `refetchInterval` is `30_000` (inspect query options or test that re-fetch fires)
   - Mock `window.api.getHealth` to reject -> `isError` is true, `health` is undefined
 
-- [ ] Burst 13: Create `electron-ui/ui/src/components/shared/SystemHealthBanner.tsx`.
+- [x] Burst 13: Create `electron-ui/ui/src/components/shared/SystemHealthBanner.tsx`.
 
   Props: `health: HealthStatus | undefined`, `isError: boolean`, `onAcknowledge: () => void`.
 
