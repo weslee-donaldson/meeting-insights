@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { SpeakerTurn, Participant } from "../core/parser.js";
 import { parseTranscriptBody } from "../core/parser.js";
-import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript, validateSplitRequest } from "../core/meeting-split.js";
+import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 
@@ -253,5 +253,72 @@ describe("validateSplitRequest", () => {
       "INSERT INTO meeting_lineage (id, source_meeting_id, result_meeting_id, segment_index, split_at_turn) VALUES (?, ?, ?, ?, ?)",
     ).run("lin-1", meetingId, childId, 1, 3);
     expect(() => validateSplitRequest(db, meetingId, [60, 30])).toThrow("already been split");
+  });
+});
+
+describe("splitMeeting", () => {
+  it("returns SplitResult with 2 segments and correct metadata", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    expect(result.source_meeting_id).toBe(meetingId);
+    expect(result.segments).toHaveLength(2);
+    expect(result.segments[0]).toEqual({
+      meeting_id: expect.any(String),
+      segment_index: 1,
+      title: "Test Meeting (1 of 2)",
+      turn_count: 4,
+      actual_start: "00:00",
+      actual_end: "01:00",
+      requested_duration: 60,
+      actual_duration: 60,
+    });
+    expect(result.segments[1]).toEqual({
+      meeting_id: expect.any(String),
+      segment_index: 2,
+      title: "Test Meeting (2 of 2)",
+      turn_count: 1,
+      actual_start: "00:00",
+      actual_end: "00:00",
+      requested_duration: 30,
+      actual_duration: 0,
+    });
+  });
+
+  it("archives the source meeting (ignored=1)", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    splitMeeting(db, meetingId, [60, 30]);
+    const row = db.prepare("SELECT ignored FROM meetings WHERE id = ?").get(meetingId) as { ignored: number };
+    expect(row.ignored).toBe(1);
+  });
+
+  it("writes lineage rows with correct segment_index and split_at_turn", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    const lineage = db.prepare(
+      "SELECT source_meeting_id, result_meeting_id, segment_index, split_at_turn FROM meeting_lineage WHERE source_meeting_id = ? ORDER BY segment_index",
+    ).all(meetingId) as Array<{ source_meeting_id: string; result_meeting_id: string; segment_index: number; split_at_turn: number }>;
+    expect(lineage).toEqual([
+      { source_meeting_id: meetingId, result_meeting_id: result.segments[0].meeting_id, segment_index: 1, split_at_turn: 0 },
+      { source_meeting_id: meetingId, result_meeting_id: result.segments[1].meeting_id, segment_index: 2, split_at_turn: 4 },
+    ]);
+  });
+
+  it("segment source_filenames follow {original}::split:{K} convention", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = splitMeeting(db, meetingId, [60, 30]);
+    const rows = db.prepare("SELECT source_filename FROM meetings WHERE id IN (?, ?) ORDER BY source_filename").all(
+      result.segments[0].meeting_id,
+      result.segments[1].meeting_id,
+    ) as { source_filename: string }[];
+    expect(rows[0].source_filename).toMatch(/::split:1$/);
+    expect(rows[1].source_filename).toMatch(/::split:2$/);
   });
 });

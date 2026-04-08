@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { Participant, SpeakerTurn } from "./parser.js";
 import { parseTranscriptBody } from "./parser.js";
+import { ingestMeeting } from "./ingest.js";
 import type { MeetingRow } from "./ingest.js";
 
 function parseMinutes(timestamp: string): number {
@@ -38,6 +40,64 @@ export function validateSplitRequest(
   if (existing) throw new Error(`Meeting has already been split: ${meetingId}`);
   const participants: Participant[] = JSON.parse(meeting.participants);
   return { meeting, turns, participants };
+}
+
+export interface SplitSegmentResult {
+  meeting_id: string;
+  segment_index: number;
+  title: string;
+  turn_count: number;
+  actual_start: string;
+  actual_end: string;
+  requested_duration: number;
+  actual_duration: number;
+}
+
+export interface SplitResult {
+  source_meeting_id: string;
+  segments: SplitSegmentResult[];
+}
+
+export function splitMeeting(db: Database, meetingId: string, durations: number[]): SplitResult {
+  const { meeting, turns, participants } = validateSplitRequest(db, meetingId, durations);
+  const cutPoints = computeCutPoints(turns, durations);
+  const segmentTurnArrays = partitionTurns(turns, cutPoints);
+  const N = segmentTurnArrays.length;
+
+  const segments: SplitSegmentResult[] = segmentTurnArrays.map((segTurns, i) => {
+    const k = i + 1;
+    const title = `${meeting.title} (${k} of ${N})`;
+    const sourceFilename = `${meeting.source_filename}::split:${k}`;
+    const transcript = reconstructTranscript(segTurns);
+    const segParticipants = deriveParticipants(segTurns, participants);
+    const newMeetingId = ingestMeeting(db, {
+      title,
+      timestamp: meeting.date,
+      participants: segParticipants,
+      turns: segTurns,
+      rawTranscript: transcript,
+      sourceFilename,
+    });
+    const splitAtTurn = i === 0 ? 0 : cutPoints[i - 1].turnIndex;
+    db.prepare(
+      "INSERT INTO meeting_lineage (id, source_meeting_id, result_meeting_id, segment_index, split_at_turn) VALUES (?, ?, ?, ?, ?)",
+    ).run(randomUUID(), meetingId, newMeetingId, k, splitAtTurn);
+    const actualStart = segTurns[0].timestamp;
+    const actualEnd = segTurns[segTurns.length - 1].timestamp;
+    return {
+      meeting_id: newMeetingId,
+      segment_index: k,
+      title,
+      turn_count: segTurns.length,
+      actual_start: actualStart,
+      actual_end: actualEnd,
+      requested_duration: durations[i],
+      actual_duration: parseMinutes(actualEnd) - parseMinutes(actualStart),
+    };
+  });
+
+  db.prepare("UPDATE meetings SET ignored = 1 WHERE id = ?").run(meetingId);
+  return { source_meeting_id: meetingId, segments };
 }
 
 export function reconstructTranscript(turns: SpeakerTurn[]): string {
