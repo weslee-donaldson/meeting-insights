@@ -1,4 +1,4 @@
-import type { SpeakerTurn } from "./parser.js";
+import type { Participant, SpeakerTurn } from "./parser.js";
 
 function parseMinutes(timestamp: string): number {
   const [h, m] = timestamp.split(":").map(Number);
@@ -15,6 +15,18 @@ export function rebaseTimestamps(turns: SpeakerTurn[]): SpeakerTurn[] {
   if (turns.length === 0) return [];
   const offset = parseMinutes(turns[0].timestamp);
   return turns.map((t) => ({ ...t, timestamp: formatMinutes(parseMinutes(t.timestamp) - offset) }));
+}
+
+export function reconstructTranscript(turns: SpeakerTurn[]): string {
+  return turns.map((t) => `${t.speaker_name} | ${t.timestamp}\n${t.text}\n\n`).join("");
+}
+
+export function deriveParticipants(turns: SpeakerTurn[], originalParticipants: Participant[]): Participant[] {
+  const uniqueNames = [...new Set(turns.map((t) => t.speaker_name))];
+  return uniqueNames.map((name) => {
+    const match = originalParticipants.find((p) => `${p.first_name} ${p.last_name}` === name);
+    return match ?? { id: "", first_name: name, last_name: "", email: "" };
+  });
 }
 
 export function partitionTurns(

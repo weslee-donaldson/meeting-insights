@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
-import type { SpeakerTurn } from "../core/parser.js";
-import { computeCutPoints, partitionTurns, rebaseTimestamps } from "../core/meeting-split.js";
+import type { SpeakerTurn, Participant } from "../core/parser.js";
+import { parseTranscriptBody } from "../core/parser.js";
+import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript } from "../core/meeting-split.js";
+
+const participants: Participant[] = [
+  { id: "1", first_name: "Alice",   last_name: "Smith",   email: "alice@co.com" },
+  { id: "2", first_name: "Bob",     last_name: "Jones",   email: "bob@co.com" },
+  { id: "3", first_name: "Charlie", last_name: "Lee",     email: "charlie@co.com" },
+];
 
 const turns: SpeakerTurn[] = [
   { speaker_name: "Alice",   timestamp: "00:00", text: "Welcome to the standup" },
@@ -132,5 +139,46 @@ describe("rebaseTimestamps", () => {
     ];
     rebaseTimestamps(seg);
     expect(seg[0].timestamp).toBe("01:00");
+  });
+});
+
+describe("reconstructTranscript", () => {
+  it("produces speaker | timestamp header line followed by text, one blank line between turns", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Alice", timestamp: "00:00", text: "Welcome" },
+      { speaker_name: "Bob",   timestamp: "00:05", text: "Thanks" },
+      { speaker_name: "Alice", timestamp: "00:10", text: "Let's go" },
+    ];
+    expect(reconstructTranscript(seg)).toBe(
+      "Alice | 00:00\nWelcome\n\nBob | 00:05\nThanks\n\nAlice | 00:10\nLet's go\n\n",
+    );
+  });
+
+  it("round-trip: parseTranscriptBody(reconstructTranscript(turns)) reproduces original turns", () => {
+    const rebased = rebaseTimestamps(turns.slice(13));
+    expect(parseTranscriptBody(reconstructTranscript(rebased))).toEqual(rebased);
+  });
+});
+
+describe("deriveParticipants", () => {
+  it("returns only participants whose full names appear in the turns", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Alice Smith",   timestamp: "00:00", text: "Hi" },
+      { speaker_name: "Charlie Lee",   timestamp: "00:05", text: "Hey" },
+      { speaker_name: "Alice Smith",   timestamp: "00:10", text: "Bye" },
+    ];
+    expect(deriveParticipants(seg, participants)).toEqual([
+      { id: "1", first_name: "Alice",   last_name: "Smith", email: "alice@co.com" },
+      { id: "3", first_name: "Charlie", last_name: "Lee",   email: "charlie@co.com" },
+    ]);
+  });
+
+  it("unmatched speaker name produces synthetic participant with empty id/last_name/email", () => {
+    const seg: SpeakerTurn[] = [
+      { speaker_name: "Unknown Speaker 1", timestamp: "00:00", text: "hi" },
+    ];
+    expect(deriveParticipants(seg, participants)).toEqual([
+      { id: "", first_name: "Unknown Speaker 1", last_name: "", email: "" },
+    ]);
   });
 });
