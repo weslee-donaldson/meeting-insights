@@ -1,46 +1,38 @@
-# Ketchup Plan: System Health Monitoring & Alert Notifications
+# Ketchup Plan: Meeting Split
 
 ## Context
 
-The pipeline (`core/pipeline.ts`) catches LLM errors (402 insufficient funds, 401 auth, 429 rate limits) and writes audit JSON files to `data/audit/`, but nothing reads those files. Failed meetings are moved to `failedDir` and the UI has zero visibility into failures. A user can process an entire batch of meetings with an expired API key and never know extraction failed until they manually inspect individual meetings for missing artifacts.
+Krisp sometimes records what were actually two (or more) separate meetings as a single continuous transcript. This happens when meetings run back-to-back on the same call, or when a recording wasn't stopped between sessions. The result is a single meeting record containing multiple distinct conversations, producing a merged artifact with muddled summaries, mixed action items, and inaccurate client detection.
 
-**Why this matters:** The system runs unattended on webhooks. Meetings arrive and are processed automatically without an operator present. The operator consumes extracted insights programmatically via CLI/MCP throughout the workday. When extraction silently fails, the operator loses visibility into their meetings with no signal that anything is wrong -- potentially for days.
-
-**Problem statement:** When the LLM provider becomes unavailable (insufficient funds, revoked API key, auth failure, sustained rate limiting), the system silently processes meetings without attaching any insights. The operator has no notification, no banner, no health status -- the failure is invisible.
+**Problem statement:** When a transcript contains multiple meetings, the system treats them as one. The extracted artifact conflates distinct conversations, action items get attributed to the wrong context, and client detection may be wrong for portions of the recording. The operator has no way to correct this without manually editing database records.
 
 **What this plan delivers:**
-1. Persistent error tracking in SQLite (`system_errors` table)
-2. Health query API (`GET /api/health`) that surfaces unacknowledged critical errors and failed meeting counts
-3. Email alert notifications via SMTP when critical errors are recorded
-4. A UI health banner (red) that appears when the system has critical errors, with actionable resolution hints
-5. Acknowledge/dismiss flow with cooldown to prevent alert fatigue during sustained outages
-6. MTI CLI `health` commands (`mti health status`, `mti health acknowledge`) for programmatic health checks
-7. E2E Playwright tests proving the banner renders in the browser with correct content, position, and dismiss behavior
-8. E2E CLI tests proving `mti health` commands work against a live API
+1. A `core/meeting-split.ts` module that partitions a meeting's `SpeakerTurn[]` by duration-based cut points
+2. A `meeting_lineage` table to track provenance (which meetings were split from which source)
+3. An API endpoint `POST /api/meetings/:id/split` that accepts a durations array and creates N new meetings
+4. A CLI command `pnpm cli split <meeting-id> --durations 60,15,15`
+5. Automatic re-extraction pipeline run for each new meeting segment
+6. UI split dialog (slider-based, gated behind "Split Meeting" action on meeting detail)
 
 **What this plan does NOT deliver:**
-- Retry logic for failed meetings (future work)
-- Per-meeting error status badges in the meeting list (future work)
-- Circuit breaker / fail-fast on sustained LLM failures (future work)
+- Automatic split detection (gap analysis, topic shift detection) -- future work
+- Merge (combining two meetings into one) -- inverse operation, future work
+- Undo/unsplit -- the original meeting is archived with full data, but there's no one-click reversal
 
 ## Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Error persistence | SQLite `system_errors` table | Queryable, transactional, same DB as all other state -- no separate store |
-| Severity model | `critical` (api_error) only at launch | Rate limits are transient/self-resolving; amber tier deferred to avoid alert fatigue (review feedback: showing transient warnings trains operator to ignore banners) |
-| Email transport | nodemailer + SMTP (Gmail App Password or any SMTP) | Simple, no OAuth complexity, sender != receiver |
-| Email trigger | On `critical` errors only, max 1 per 15-minute window | Prevents email floods during batch processing with dead API key |
-| Email throttle | Dedicated `last_notified_at` column, decoupled from acknowledge | Review feedback: original throttle was coupled to acknowledged flag -- acknowledging errors would reset throttle window and trigger new email floods |
-| Health poll interval | 30 seconds via React Query `refetchInterval` | Consistent with existing query patterns, low overhead |
-| Acknowledge flow | POST `/api/health/acknowledge` with 1-hour cooldown | Review feedback: raw acknowledge without cooldown creates whack-a-mole during active outages. After dismiss, same error_type is suppressed for 1 hour |
-| Health status levels | `healthy` / `critical` (no amber tier at launch) | Review feedback: amber for transient rate limits trains operator to ignore all banners. Ship red-only, add amber later once engagement is validated |
-| Banner content | Error type + count + resolution hint | Review feedback: "api_error: 402" alone isn't actionable. Banner includes "what happened" + "what to do" + "how many meetings affected" |
-| Error deduplication | Banner groups by error_type, shows count | Review feedback: 30 identical errors from one dead API key should show "API auth failed (affecting 30 meetings)" not "30 errors" |
-| `meetings_without_artifact` | Time-gated: only meetings older than 5 minutes | Review feedback: freshly ingested meetings always briefly lack artifacts during pipeline processing, producing false positives |
-| `recordSystemError` resilience | try/catch with stderr fallback | Review feedback: if the monitoring DB write itself fails, the system silently swallows the failure it was designed to catch |
-| Table retention | Auto-prune errors older than 90 days | Review feedback: unbounded table growth on flaky providers. Prune runs inside `getHealthStatus()` |
-| Banner placement | Top of app, above WorkspaceBanner, full-width | Unmissable, non-modal, dismissible |
+| User input model | Array of durations (minutes per segment) | More natural than cut-point timestamps -- user thinks "first meeting was ~60 min" not "cut at 01:00:00" |
+| Last segment handling | Implicit remainder | User provides N durations for N segments; last duration is advisory, system takes whatever's left |
+| Cut-point resolution | Last turn at or before cumulative timestamp | Turns share HH:MM timestamps; cut at turn boundary, never mid-turn |
+| Timestamp rebasing | Rebase each segment to 00:00 | Each new meeting is independent; keeping absolute offsets from original recording is confusing |
+| Original meeting fate | Archived (ignored=1) + lineage row | Preserved for audit, excluded from queries, lineage tracks children |
+| Participant derivation | Per-segment from speaker names | Each segment only lists speakers who actually appear in it |
+| Artifact handling | Full re-extraction per segment | Splitting an existing artifact is unreliable; LLM re-extraction on smaller transcripts is more accurate |
+| Association migration | None -- new meetings build their own | Clean slate per segment; old associations stay on archived original |
+| Source filename convention | `{original}::split:{N}` | Preserves UNIQUE constraint, clearly marks provenance |
+| Title convention | `{original} (1 of N)`, `(2 of N)`, etc. | User can rename later via existing rename flow |
 
 ## Tooling & Stack
 
@@ -50,10 +42,7 @@ The pipeline (`core/pipeline.ts`) catches LLM errors (402 insufficient funds, 40
 - **Database**: SQLite via `node:sqlite` (`DatabaseSync` -- synchronous API, no async)
 - **Testing**: Vitest 4.0, test files at `test/**/*.test.ts`, 100% branch coverage enforced
 - **Package manager**: pnpm
-- **New dependency**: `nodemailer` (SMTP email transport)
-- **New dev dependency**: `@types/nodemailer`
-- **UI**: React 18, `@tanstack/react-query`, Tailwind CSS, lucide-react icons
-- **Existing patterns**: `core/` pure functions with `db: DatabaseSync` first arg; `api/routes/` `registerXxxRoutes(app, db, ...)` pattern; `electron-ui/electron/channels.ts` `ElectronAPI` interface + `CHANNELS` const; `api-client/` HTTP fetch implementations
+- **No new dependencies** -- this feature uses only existing infrastructure
 
 **Key patterns agents must follow:**
 - All `core/` modules export pure functions that take `db: DatabaseSync` as first arg
@@ -66,188 +55,136 @@ The pipeline (`core/pipeline.ts`) catches LLM errors (402 insufficient funds, 40
 ## Framework Quirks
 
 1. **SQLite `node:sqlite` is synchronous** -- `db.prepare().run()`, `.get()`, `.all()`. No promises. No `await`.
-2. **Hono middleware ordering** -- Middleware via `app.use()` runs in registration order. Health routes should be registered alongside debug routes.
-3. **`createApp` is a pure function** -- Returns Hono app without starting listener. Notification config must be passed as parameter, not read from env inside.
-4. **React Query polling** -- `refetchInterval: 30000` on `useQuery` provides automatic polling. `enabled` flag gates the query.
-5. **Toast system** -- Existing `useToast()` hook provides `addToast(message, "error" | "success")`. The health banner is NOT a toast -- it's a persistent banner that stays until acknowledged.
-6. **ElectronAPI is the UI contract** -- Both Electron IPC and `api-client/` implement this interface. New methods must be added to both.
-7. **nodemailer is callback/promise-based** -- `transporter.sendMail()` returns a Promise. Wrap in try/catch; notification failure must never crash the pipeline.
+2. **SpeakerTurn timestamps are HH:MM strings** -- relative to recording start, not absolute. Multiple turns can share a timestamp. Parse with simple string split, not Date objects.
+3. **`ingestMeeting` generates UUID if no externalId** -- split segments have no externalId, so each gets a random UUID.
+4. **`source_filename` has a UNIQUE constraint** -- split segments must use a derived filename (e.g., `original::split:1`) to avoid collision.
+5. **Pipeline is async** -- `processEntry` is async due to LLM calls and vector DB writes. The split endpoint must handle this (either await all segments or return immediately and process in background).
+6. **`raw_transcript` is the original text file content** -- for split segments, this must be reconstructed from the `SpeakerTurn[]` slice since we don't have the original text boundaries per turn.
+7. **`participants` is a JSON-stringified array of `Participant` objects** -- but participants from the original file have `id`, `first_name`, `last_name`, `email`. When reconstructing per-segment participants from speaker names alone, we can match against the original participant list by `first_name + " " + last_name`.
+
+## Data Shapes
+
+### `meeting_lineage` Table
+
+```sql
+CREATE TABLE IF NOT EXISTS meeting_lineage (
+  id TEXT PRIMARY KEY,
+  source_meeting_id TEXT NOT NULL,
+  result_meeting_id TEXT NOT NULL,
+  segment_index INTEGER NOT NULL,
+  split_at_turn INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (source_meeting_id) REFERENCES meetings(id),
+  FOREIGN KEY (result_meeting_id) REFERENCES meetings(id)
+);
+```
+
+- `source_meeting_id`: the original (now archived) meeting
+- `result_meeting_id`: one of the N new segments
+- `segment_index`: 1-based position within the split (1, 2, ..., N)
+- `split_at_turn`: the turn index (0-based) where this segment starts in the original turns array
+
+### Split Request Shape
+
+```ts
+interface SplitRequest {
+  durations: number[];  // minutes per segment, length = number of resulting meetings
+}
+```
+
+### Split Response Shape
+
+```ts
+interface SplitResult {
+  source_meeting_id: string;
+  segments: Array<{
+    meeting_id: string;
+    segment_index: number;
+    title: string;
+    turn_count: number;
+    actual_start: string;    // HH:MM -- where this segment actually starts
+    actual_end: string;      // HH:MM -- where this segment actually ends
+    requested_duration: number;  // what the user asked for (minutes)
+    actual_duration: number;     // what they got based on turn boundaries (minutes)
+  }>;
+}
+```
+
+### Core Function Signatures
+
+```ts
+// Compute cut points from durations
+function computeCutPoints(
+  turns: SpeakerTurn[],
+  durations: number[],
+): { turnIndex: number; timestamp: string }[];
+
+// Partition turns at cut points, rebase timestamps
+function partitionTurns(
+  turns: SpeakerTurn[],
+  cutPoints: { turnIndex: number }[],
+): SpeakerTurn[][];
+
+// Rebase turn timestamps so first turn starts at 00:00
+function rebaseTimestamps(turns: SpeakerTurn[]): SpeakerTurn[];
+
+// Reconstruct raw transcript text from turns
+function reconstructTranscript(turns: SpeakerTurn[]): string;
+
+// Derive participant subset from turns + original participant list
+function deriveParticipants(
+  turns: SpeakerTurn[],
+  originalParticipants: Participant[],
+): Participant[];
+
+// Full split operation: archive original, create N new meetings, write lineage
+function splitMeeting(
+  db: Database,
+  meetingId: string,
+  durations: number[],
+): SplitResult;
+```
 
 ## Error Propagation Path
 
 ```
-core/llm-provider-*.ts  -->  throw Error("[api_error] ...") or Error("[rate_limit] ...")
+API/CLI receives split request
   |
-core/extractor.ts       -->  throw ExtractionError (if all chunks fail)
-  |
-core/pipeline.ts processEntry()  -->  catch block:
-  1. moveToFailed()
-  2. writeFileSync(auditDir, ...)        <-- existing behavior
-  3. try { recordSystemError(db, ...) }  <-- NEW: write to system_errors table
-     catch { console.error(...) }        <-- NEW: stderr fallback if DB write fails
-  4. sendAlertIfNeeded(notifier, ...)     <-- NEW: email notification (critical only, throttled)
-  |
-  returns { status: "failed", reason }
+  core/meeting-split.ts splitMeeting()
+    |
+    1. getMeeting(db, meetingId)           --> throws if not found
+    2. Parse raw_transcript back to turns  --> throws if no turns
+    3. Validate durations                  --> throws if sum exceeds transcript duration
+    4. computeCutPoints()                  --> pure math, no errors
+    5. partitionTurns()                    --> pure array slicing
+    6. For each segment:
+       a. rebaseTimestamps()
+       b. deriveParticipants()
+       c. reconstructTranscript()
+       d. ingestMeeting(db, segment)      --> creates new meeting row
+       e. Write lineage row
+    7. Archive original: UPDATE meetings SET ignored = 1 WHERE id = ?
+    |
+    Returns SplitResult with all new meeting IDs
 ```
 
-**Non-LLM errors:** Parse failures, file I/O errors, and DB errors also flow through this catch block. They will be classified as `error_type: "unknown"`, `severity: "warning"`. The `provider` field will be `null` for non-LLM errors. This is correct -- these are operational issues, not critical API failures requiring immediate attention.
-
-## Data Shapes
-
-### `system_errors` Table
-
-```sql
-CREATE TABLE IF NOT EXISTS system_errors (
-  id TEXT PRIMARY KEY,
-  error_type TEXT NOT NULL,
-  severity TEXT NOT NULL,
-  message TEXT NOT NULL,
-  meeting_filename TEXT,
-  provider TEXT,
-  acknowledged INTEGER DEFAULT 0,
-  acknowledged_until TEXT,
-  notified INTEGER DEFAULT 0,
-  last_notified_at TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-```
-
-- `error_type`: `"rate_limit"` | `"api_error"` | `"json_parse"` | `"unknown"` (matches `extractErrorType()` return values)
-- `severity`: `"critical"` | `"warning"` (derived: `api_error` -> critical, others -> warning)
-- `provider`: LLM provider name at time of error (`"openai"`, `"anthropic"`, `"local"`, `"claudecli"`, etc.), `null` for non-LLM errors
-- `notified`: 1 if an email alert was sent for this error, 0 otherwise
-- `last_notified_at`: ISO timestamp of when the email was sent (used for throttle, decoupled from `acknowledged`)
-- `acknowledged`: 1 after the user dismisses the banner via UI
-- `acknowledged_until`: ISO timestamp -- when acknowledging, set to `datetime('now', '+1 hour')`. New errors of the same `error_type` created before this timestamp are auto-acknowledged. Prevents whack-a-mole during sustained outages.
-
-### `SystemError` TypeScript Type
-
-```ts
-interface SystemError {
-  id: string;
-  error_type: "rate_limit" | "api_error" | "json_parse" | "unknown";
-  severity: "critical" | "warning";
-  message: string;
-  meeting_filename: string | null;
-  provider: string | null;
-  acknowledged: boolean;
-  created_at: string;
-}
-```
-
-Note: `notified`, `last_notified_at`, and `acknowledged_until` are internal DB fields not exposed in the API response.
-
-### `HealthStatus` Response Shape
-
-```ts
-interface HealthStatus {
-  status: "healthy" | "critical";
-  error_groups: ErrorGroup[];
-  meetings_without_artifact: number;
-  last_error_at: string | null;
-}
-
-interface ErrorGroup {
-  error_type: string;
-  severity: "critical" | "warning";
-  count: number;
-  latest_message: string;
-  latest_meeting_filename: string | null;
-  provider: string | null;
-  resolution_hint: string;
-}
-```
-
-- `status`: `"critical"` if any unacknowledged `severity=critical` errors exist; `"healthy"` otherwise (no amber tier at launch)
-- `error_groups`: errors grouped by `error_type`, deduplicated. Each group has a count, the latest message, and a resolution hint
-- `meetings_without_artifact`: count of meetings where `created_at < datetime('now', '-5 minutes')` with no artifact row and `ignored = 0`
-- `last_error_at`: `created_at` of most recent system error (acknowledged or not), `null` if no errors exist
-
-### Resolution Hints Map
-
-```ts
-const RESOLUTION_HINTS: Record<string, string> = {
-  api_error: "Check your LLM provider account billing and API key validity",
-  rate_limit: "Rate limiting is usually transient and self-resolves. If persistent, check your provider's rate limit tier",
-  json_parse: "The LLM returned unparseable output. This is usually transient. If persistent, check the extraction prompt",
-  unknown: "Check the application logs for details",
-};
-```
-
-### SMTP / Notification Config
-
-```ts
-interface NotificationConfig {
-  smtpHost: string;       // e.g. "smtp.gmail.com"
-  smtpPort: number;       // e.g. 587
-  smtpUser: string;       // sender account (e.g. "myapp@gmail.com")
-  smtpPass: string;       // app password or SMTP password
-  alertEmail: string;     // recipient (e.g. "admin@company.com") -- NOT necessarily same as sender
-}
-```
-
-Environment variables:
-- `MTNINSIGHTS_SMTP_HOST`
-- `MTNINSIGHTS_SMTP_PORT` (default: 587)
-- `MTNINSIGHTS_SMTP_USER`
-- `MTNINSIGHTS_SMTP_PASS`
-- `MTNINSIGHTS_ALERT_EMAIL`
-
-Notifications are enabled only when ALL five env vars are set. When any is missing, `createNotifier` returns a no-op implementation.
-
-### Email Throttle Logic (Decoupled from Acknowledge)
-
-```
-On critical error:
-  1. Check system_errors for ANY row WHERE last_notified_at > datetime('now', '-15 minutes')
-  2. If found: skip email (already notified recently), still mark notified=1 on the new error
-  3. If not found: send email, UPDATE SET notified=1, last_notified_at=datetime('now') WHERE id=?
-  4. If sendMail() throws: leave notified=0, log to stderr. Do NOT crash pipeline.
-```
-
-The throttle window is based on `last_notified_at`, not `acknowledged`. Acknowledging errors in the UI does NOT affect email throttling.
-
-### Email Content
-
-Subject: `[Meeting Insights] Critical: LLM API error`
-Body (plain text):
-```
-Meeting Insights has detected a critical error.
-
-Error type: api_error
-Provider: openai
-Message: [api_error] 402 Insufficient funds
-Meeting: 2026-04-01_standup.json
-Time: 2026-04-01T14:30:00Z
-
-Affected meetings so far: 12 meeting(s) processed without insights.
-
-Action required: Check your OpenAI account billing and API key validity.
-Affected meetings will need to be reprocessed after the issue is resolved.
-```
-
-The "affected meetings so far" count comes from `meetings_without_artifact` at the time the email is sent.
+Re-extraction happens separately -- the caller (API endpoint or CLI) triggers pipeline processing for each new meeting after split completes.
 
 ## Reference Files
 
 | File | Why |
 |------|-----|
-| `core/db.ts` | Migration target -- add `system_errors` table |
-| `core/pipeline.ts` | Integration point -- `processEntry()` catch block writes errors |
-| `core/errors.ts` | Error class hierarchy -- `AppError`, `ExtractionError`, etc. |
-| `core/llm-adapter.ts` | `LlmAdapter` interface, provider config types |
-| `core/logger.ts` | Logging patterns -- `createLogger`, `logLlmCall`, file logging |
-| `api/server.ts` | `createApp()` -- wire health routes here |
-| `api/routes/debug.ts` | Pattern for `registerXxxRoutes(app, db, ...)` |
-| `api/main.ts` | Server startup -- read env vars, pass config to `createApp()` |
-| `local-service/main.ts` | Pipeline caller -- passes `PipelineConfig` to `processNewMeetings` |
-| `cli/admin-util/run.ts` | Pipeline caller -- another `processNewMeetings` call site |
+| `core/parser.ts` | `SpeakerTurn`, `Participant`, `ParsedMeeting` types; `parseTranscriptBody` for understanding turn format |
+| `core/ingest.ts` | `ingestMeeting`, `getMeeting`, `MeetingRow` -- creating new meeting records |
+| `core/db.ts` | Migration target -- add `meeting_lineage` table |
+| `core/pipeline.ts` | `processEntry` -- re-extraction entry point for new segments |
+| `core/chunker.ts` | `chunkTranscript` -- used during re-extraction, no changes needed |
+| `core/extractor.ts` | `extractSummary`, `storeArtifact` -- used during re-extraction |
+| `core/meeting-pipeline.ts` | `embedMeeting`, `storeMeetingVector` -- used during re-extraction |
+| `api/routes/meetings.ts` | `registerMeetingRoutes` -- add split endpoint here |
+| `api/server.ts` | `createApp` -- may need to pass additional deps to meeting routes |
 | `electron-ui/electron/channels.ts` | `CHANNELS` const + `ElectronAPI` interface |
-| `electron-ui/ui/src/api-client/base.ts` | `fetchJson`, `fetchJsonOrNull`, `jsonPost` helpers |
-| `electron-ui/ui/src/api-client/index.ts` | `apiClient` object -- spread all method modules |
-| `electron-ui/ui/src/App.tsx` | Root component -- health banner placement |
-| `electron-ui/ui/src/components/ui/toast.tsx` | Existing toast pattern (banner is NOT a toast) |
-| `electron-ui/ui/src/components/shared/workspace-banner.tsx` | Existing banner pattern for layout reference |
+| `electron-ui/ui/src/api-client/index.ts` | `apiClient` -- add split method |
 
 ## Testing Strategy
 
@@ -255,492 +192,483 @@ The "affected meetings so far" count comes from `meetings_without_artifact` at t
 - **In-memory SQLite**: All tests use `createDb(":memory:")` + `migrate(db)`
 - **100% coverage enforced**: No escape hatches on new files
 - **Existing tests must pass**: Migration adds new table, does not alter existing tables
-- **Notifier tests**: Mock nodemailer transport -- test that `sendMail` is called with correct args, and that throttle logic prevents duplicate sends
-- **Health API tests**: Use Hono `app.request()` pattern from `test/api-debug.test.ts`
-- **UI tests**: jsdom env, mock `window.api.getHealth`, verify banner renders/hides
 
-### Test Fixture: SystemError Row
+### Test Fixture: Meeting with Two Back-to-Back Calls
 
 ```ts
-// What the DB returns (raw row from db.prepare().all())
-const rawRow = {
-  id: "err-uuid-1",
-  error_type: "api_error",
-  severity: "critical",
-  message: "[api_error] 402 Insufficient funds",
-  meeting_filename: "2026-04-01_standup.json",
-  provider: "openai",
-  acknowledged: 0,
-  acknowledged_until: null,
-  notified: 0,
-  last_notified_at: null,
-  created_at: "2026-04-01 14:30:00",
-};
+// A 90-minute recording containing two meetings:
+//   Meeting A: 00:00 - 01:00 (turns 0-19, speakers: Alice, Bob)
+//   Meeting B: 01:02 - 01:28 (turns 20-29, speakers: Alice, Charlie)
+//
+// Realistic patterns included:
+//   - Multiple turns sharing the same timestamp (rapid speaker alternation)
+//   - A gap between meetings (00:58 -> 01:02, representing inter-meeting silence)
+//   - A turn exactly on a likely cut boundary
+const turns: SpeakerTurn[] = [
+  { speaker_name: "Alice", timestamp: "00:00", text: "Welcome to the standup" },
+  { speaker_name: "Bob",   timestamp: "00:05", text: "Here's my update" },
+  { speaker_name: "Alice", timestamp: "00:05", text: "Go ahead" },       // same timestamp as previous
+  { speaker_name: "Bob",   timestamp: "00:05", text: "We shipped the fix" }, // three turns at 00:05
+  { speaker_name: "Alice", timestamp: "00:12", text: "Nice work" },
+  { speaker_name: "Bob",   timestamp: "00:20", text: "Next topic" },
+  { speaker_name: "Alice", timestamp: "00:32", text: "Let's review the metrics" },
+  { speaker_name: "Bob",   timestamp: "00:32", text: "Sure, pulling them up" },  // shared timestamp
+  { speaker_name: "Alice", timestamp: "00:45", text: "Numbers look good" },
+  { speaker_name: "Bob",   timestamp: "00:50", text: "Agreed" },
+  { speaker_name: "Alice", timestamp: "00:55", text: "Any blockers?" },
+  { speaker_name: "Bob",   timestamp: "00:58", text: "None from me" },
+  { speaker_name: "Alice", timestamp: "00:58", text: "Alright, that wraps up standup" },  // shared with previous
+  // --- GAP: 4 minutes of silence between meetings ---
+  // Meeting B starts
+  { speaker_name: "Alice",   timestamp: "01:02", text: "OK Charlie, let's discuss the design" },
+  { speaker_name: "Charlie", timestamp: "01:05", text: "Sure, I have the mockups ready" },
+  { speaker_name: "Alice",   timestamp: "01:10", text: "These look great" },
+  { speaker_name: "Charlie", timestamp: "01:15", text: "I'll walk through the flow" },
+  { speaker_name: "Alice",   timestamp: "01:20", text: "Makes sense" },
+  { speaker_name: "Charlie", timestamp: "01:25", text: "One more thing" },
+  { speaker_name: "Charlie", timestamp: "01:28", text: "I'll send the updated designs" },
+];
 
-// What the API returns (transformed for consumer -- internal fields stripped)
-const apiError = {
-  id: "err-uuid-1",
-  error_type: "api_error",
-  severity: "critical",
-  message: "[api_error] 402 Insufficient funds",
-  meeting_filename: "2026-04-01_standup.json",
-  provider: "openai",
-  acknowledged: false,
-  created_at: "2026-04-01 14:30:00",
-};
+const participants: Participant[] = [
+  { id: "1", first_name: "Alice",   last_name: "Smith",   email: "alice@co.com" },
+  { id: "2", first_name: "Bob",     last_name: "Jones",   email: "bob@co.com" },
+  { id: "3", first_name: "Charlie", last_name: "Lee",     email: "charlie@co.com" },
+];
 ```
 
-### Test Fixture: HealthStatus Response
+### Test Fixture: Split Request
 
 ```ts
-const healthyResponse = {
-  status: "healthy",
-  error_groups: [],
-  meetings_without_artifact: 0,
-  last_error_at: null,
-};
+// "Two meetings: first was 60 minutes, second was 30 minutes"
+const durations = [60, 30];
 
-const criticalResponse = {
-  status: "critical",
-  error_groups: [{
-    error_type: "api_error",
-    severity: "critical",
-    count: 12,
-    latest_message: "[api_error] 402 Insufficient funds",
-    latest_meeting_filename: "2026-04-01_standup.json",
-    provider: "openai",
-    resolution_hint: "Check your LLM provider account billing and API key validity",
-  }],
-  meetings_without_artifact: 12,
-  last_error_at: "2026-04-01 14:30:00",
-};
+// Expected: cumulative cut at minute 60 (01:00)
+// Last turn at or before 01:00 is turn index 12 (00:58, "Alright, that wraps up standup")
+// Segment 1: turns 0-12 (00:00 to 00:58), rebased to 00:00-00:58
+// Segment 2: turns 13-20 (01:02 to 01:28), rebased to 00:00-00:26
 ```
 
-### Test Fixture: SystemError with null optional fields
+### Test Fixture: Participants After Split
 
 ```ts
-const errorWithNulls = {
-  id: "err-uuid-2",
-  error_type: "unknown",
-  severity: "warning",
-  message: "parse failed",
-  meeting_filename: null,
-  provider: null,
-  acknowledged: 0,
-  acknowledged_until: null,
-  notified: 0,
-  last_notified_at: null,
-  created_at: "2026-04-01 14:31:00",
-};
+// Segment 1 speakers: Alice, Bob -> participants: [Alice Smith, Bob Jones]
+// Segment 2 speakers: Alice, Charlie -> participants: [Alice Smith, Charlie Lee]
+```
+
+### Test Fixture: Three-Way Split
+
+```ts
+// Same 90-minute recording, user says 3 meetings: [30, 30, 30]
+// Cumulative cuts at minute 30 and minute 60
+// Cut 1: last turn at or before 00:30 -> turn 7 at 00:32? No, turn 6 at 00:20. 
+//         Actually: turn at 00:32 is AFTER 30, so last at-or-before is turn 5 at 00:20
+// Cut 2: last turn at or before 01:00 -> turn 12 at 00:58
+// Segment 1: turns 0-5 (00:00-00:20), rebased 00:00-00:20
+// Segment 2: turns 6-12 (00:32-00:58), rebased 00:00-00:26
+// Segment 3: turns 13-20 (01:02-01:28), rebased 00:00-00:26
+```
+
+### Test Fixture: Boundary Edge Cases
+
+```ts
+// Cut exactly on a turn timestamp:
+// durations = [32, 60] on above fixture
+// Cumulative cut at minute 32 -> turns at 00:32 exist (indices 6 and 7)
+// "At or before 32" includes the 00:32 turns -> last 00:32 turn is index 7
+// This tests that cuts ON a timestamp include all turns at that timestamp in the earlier segment
+
+// Unknown speaker name:
+// If a turn has speaker_name "Unknown Speaker 1" and no participant matches,
+// deriveParticipants creates: { id: "", first_name: "Unknown Speaker 1", last_name: "", email: "" }
 ```
 
 ---
 
-## Phase 1: Error Tracking Infrastructure
+## Phase 1: Core Split Logic
 
 ### Dependency Graph (Phase 1)
 
 ```
-Section 1 -- Sequential (schema + core functions)
-  Burst 1 -> 2 -> 3 -> 4
-      |
-Section 2 -- Sequential (pipeline integration)
-  Burst 5 -> 6
+Section 1 -- Sequential (schema + pure functions)
+  Burst 1 -> 2 -> 3 -> 4 -> 5
+
+Section 2 -- Sequential (split orchestration)
+  Burst 6 -> 7 -> 8
 ```
 
 ### Phase 1 Bursts
 
-#### Section 1: Core Error Tracking
+#### Section 1: Schema & Pure Functions
 
-- [x] Burst 1: Add `system_errors` table to `core/db.ts` `migrate()`. Columns: `id TEXT PRIMARY KEY`, `error_type TEXT NOT NULL`, `severity TEXT NOT NULL`, `message TEXT NOT NULL`, `meeting_filename TEXT`, `provider TEXT`, `acknowledged INTEGER DEFAULT 0`, `acknowledged_until TEXT`, `notified INTEGER DEFAULT 0`, `last_notified_at TEXT`, `created_at TEXT NOT NULL DEFAULT (datetime('now'))`. Add index: `CREATE INDEX IF NOT EXISTS idx_system_errors_unack ON system_errors(acknowledged, severity, created_at)`. Test in `test/db.test.ts`:
-  - Table exists after migration
-  - All columns present with correct types/defaults
-  - Index exists
-  - Insert a row with all fields, verify defaults for `acknowledged` (0), `notified` (0), `acknowledged_until` (null), `last_notified_at` (null)
+- [ ] Burst 1: Add `meeting_lineage` table to `core/db.ts` `migrate()`. Test: verify table exists after migration, verify columns and defaults, verify foreign keys. Verify existing tables are unaffected. File: `test/db.test.ts` (add to existing).
 
-- [x] Burst 2: Create `core/system-health.ts` -- `recordSystemError(db, { error_type, message, meeting_filename?, provider? })`. Derives `severity` from `error_type` (`api_error` -> `critical`; `rate_limit` -> `warning`; `json_parse` -> `warning`; `unknown` -> `warning`). Generates UUID `id` via `randomUUID()`. Checks for an active cooldown: if `system_errors` has a row WHERE `error_type` matches AND `acknowledged_until > datetime('now')`, auto-set `acknowledged=1` on the new row. Returns the inserted `SystemError`. Wrap the entire function body in try/catch -- if the DB write fails, log to `console.error` and return `null`. Test in `test/system-health.test.ts`:
-  - Insert with `error_type: "api_error"` -> severity is `"critical"`
-  - Insert with `error_type: "rate_limit"` -> severity is `"warning"`
-  - Insert with `error_type: "json_parse"` -> severity is `"warning"`
-  - Insert with `error_type: "unknown"` -> severity is `"warning"`
-  - Insert with `meeting_filename: undefined` -> stored as `null`
-  - Insert with `provider: undefined` -> stored as `null`
-  - Insert with both optional fields provided -> stored correctly
-  - Verify returned object has exact `SystemError` shape (all fields)
-  - Cooldown: acknowledge an error_type with `acknowledged_until` 1 hour in future, insert new error of same type -> auto-acknowledged. Insert error of *different* type -> NOT auto-acknowledged.
+- [ ] Burst 2: Create `core/meeting-split.ts` -- `computeCutPoints(turns, durations)`. Takes a `SpeakerTurn[]` and a `number[]` of durations in minutes. Converts durations to cumulative minute thresholds (e.g., `[60, 15]` -> cuts at minute 60 and minute 75). Walks the turns array; for each cut threshold, finds the index of the last turn whose `HH:MM` timestamp (parsed to total minutes) is <= the threshold. Returns `{ turnIndex, timestamp }[]` where `turnIndex` is the first turn of the NEXT segment and `timestamp` is the actual turn timestamp at that boundary. Edge case: if a cut falls before the first turn or after the last turn, throw a validation error. Test: `test/meeting-split.test.ts` -- exact cut on a turn boundary, cut between turns (snaps to last turn before), cut at very start (error), cut past end (error), three-way split.
 
-- [x] Burst 3: `core/system-health.ts` -- `getHealthStatus(db)` returns `HealthStatus`. Steps:
-  1. Auto-prune: `DELETE FROM system_errors WHERE created_at < datetime('now', '-90 days')`
-  2. Query unacknowledged critical errors, GROUP BY `error_type` to produce `ErrorGroup[]` with count, latest message, latest meeting_filename, provider, and resolution hint from `RESOLUTION_HINTS` map
-  3. Count meetings without artifacts: `SELECT COUNT(*) FROM meetings LEFT JOIN artifacts ON meetings.id = artifacts.meeting_id WHERE artifacts.meeting_id IS NULL AND meetings.ignored = 0 AND meetings.created_at < datetime('now', '-5 minutes')`
-  4. Get `last_error_at`: `SELECT MAX(created_at) FROM system_errors`
-  5. Derive status: `"critical"` if any group has `severity=critical`, else `"healthy"`
+- [ ] Burst 3: `core/meeting-split.ts` -- `rebaseTimestamps(turns)`. Takes a `SpeakerTurn[]` and returns a new array where the first turn's timestamp becomes `00:00` and all subsequent turns are offset by the same delta. Parse `HH:MM` to minutes, subtract the first turn's minutes, format back to `HH:MM`. Test: turns starting at `01:02` with subsequent turns at `01:05`, `01:28` rebase to `00:00`, `00:03`, `00:26`. Test: turns already starting at `00:00` are unchanged. Test: does not mutate the input array.
 
-  Test in `test/system-health.test.ts`:
-  - **Healthy**: no errors, no meetings -> `{ status: "healthy", error_groups: [], meetings_without_artifact: 0, last_error_at: null }`
-  - **Critical**: insert 3 `api_error` rows -> single error_group with count 3, correct latest_message
-  - **Mixed error types**: insert `api_error` + `rate_limit` -> critical wins, two error_groups returned
-  - **meetings_without_artifact**: insert meeting without artifact row (created_at > 5 min ago) -> count = 1. Insert meeting with artifact -> count still 1. Insert ignored meeting without artifact -> not counted.
-  - **Time gate**: insert meeting without artifact created NOW -> not counted (within 5-min window). Insert meeting created 10 min ago without artifact -> counted.
-  - **last_error_at**: insert two errors with different created_at -> returns the later timestamp. No errors -> null.
-  - **Acknowledged errors excluded**: insert error, acknowledge it, getHealthStatus -> healthy
-  - **Auto-prune**: insert error with created_at 91 days ago, call getHealthStatus -> row deleted
+- [ ] Burst 4: `core/meeting-split.ts` -- `partitionTurns(turns, cutPoints)`. Takes the full `SpeakerTurn[]` and the cut points from `computeCutPoints`. Returns `SpeakerTurn[][]` -- an array of N segments, where segment boundaries are at the cut point turn indices. Each segment's timestamps are rebased via `rebaseTimestamps`. Test: 2-way split produces 2 arrays with correct turns. 3-way split produces 3 arrays. Verify timestamps are rebased in each segment. Verify original array is not mutated.
 
-- [x] Burst 4: `core/system-health.ts` -- `acknowledgeErrors(db, errorIds: string[])` sets `acknowledged=1` and `acknowledged_until=datetime('now', '+1 hour')` for given IDs. `acknowledgeAllErrors(db)` does the same for all unacknowledged rows. Test in `test/system-health.test.ts`:
-  - Record 3 errors, acknowledge 2 by ID -> only those 2 have `acknowledged=1` and `acknowledged_until` set
-  - Acknowledge all -> remaining also acknowledged
-  - `getHealthStatus` returns `healthy` after acknowledging all critical errors
-  - `acknowledgeErrors(db, [])` -> no-op, no errors thrown
-  - `acknowledgeErrors(db, ["nonexistent-id"])` -> no-op, no errors thrown
-  - Verify `acknowledged_until` is approximately 1 hour from now (within 5s tolerance)
+- [ ] Burst 5: `core/meeting-split.ts` -- `reconstructTranscript(turns)` and `deriveParticipants(turns, originalParticipants)`.
 
-#### Section 2: Pipeline Integration
+  `reconstructTranscript`: Takes a `SpeakerTurn[]` and produces a plain text transcript in the same format the parser expects: `"Speaker Name | HH:MM\ntext\n\n"` for each turn. This becomes the `raw_transcript` for the new meeting.
 
-- [x] Burst 5: Update `core/pipeline.ts` `processEntry()` catch block -- after writing audit JSON, call `recordSystemError(db, { error_type: extractErrorType(reason), message: reason, meeting_filename: name, provider })`. The `provider` must be passed into `processEntry` (add to function signature) and through from `PipelineConfig`. The `recordSystemError` call is wrapped in the existing try/catch that `recordSystemError` already has internally (belt and suspenders).
+  `deriveParticipants`: Takes a `SpeakerTurn[]` and the original meeting's `Participant[]` array. Collects unique speaker names from turns, matches each against `first_name + " " + last_name` in the original participant list. Returns only matching participants. Unmatched speaker names (e.g., "Unknown Speaker 1") are included as synthetic participants with empty `id`, `last_name`, `email`.
 
-  **Signature changes:**
-  - `PipelineConfig` gains `provider?: string`
-  - `processEntry()` gains `provider: string` parameter (after `threadSimilarityThreshold`)
-  - Callers in `processNewMeetings()` and `processWebhookMeetings()` pass `config.provider ?? "unknown"`
+  Test: reconstruct a 3-turn transcript and verify exact string output. Derive participants from segment with 2 of 3 original speakers -- verify only those 2 returned. Test unknown speaker name produces synthetic participant. **Round-trip fidelity test:** verify `parseTranscriptBody(reconstructTranscript(turns))` produces turns equivalent to the input (same speaker_name, timestamp, and text for each turn). This guarantees that `reprocessSplitSegments` (Burst 12) can re-parse stored transcripts without data loss.
 
-  Test in `test/pipeline.test.ts`:
-  - Process a meeting with a stub LLM that throws `new Error("[api_error] 402 Insufficient funds")` -> verify `system_errors` table has a row with `error_type: "api_error"`, `severity: "critical"`, `message` containing "402", `meeting_filename` matching the input filename, `provider: "stub"`
-  - Process a meeting with a stub that throws `new Error("[rate_limit] 429")` -> verify `severity: "warning"`
-  - Verify `PipelineResult.failed` is still incremented (existing behavior preserved)
-  - Verify audit JSON file is still written (existing behavior preserved)
-  - Verify file is still moved to failedDir (existing behavior preserved)
+#### Section 2: Split Orchestration
 
-- [x] Burst 6: Update all `processNewMeetings` call sites to pass `provider` in `PipelineConfig`. Grep for `processNewMeetings` and `processWebhookMeetings` across the codebase. Known call sites: `local-service/main.ts`, `cli/admin-util/run.ts`. Each constructs a `PipelineConfig` -- add `provider: llmConfig.type` (or equivalent) to each.
+- [ ] Burst 6: `core/meeting-split.ts` -- `validateSplitRequest(db, meetingId, durations)`. Validates:
+  1. Meeting exists and is not already archived (`ignored != 1`)
+  2. Meeting has a `raw_transcript` that produces at least 2 turns when parsed
+  3. `durations` has at least 2 elements (splitting into 1 meeting is a no-op)
+  4. Cumulative duration of all-but-last does not exceed the transcript's time span
+  5. Meeting is not already a split source (no rows in `meeting_lineage` with `source_meeting_id = meetingId`)
 
-  Test: For each call site, write or update an integration-style test that verifies the `PipelineConfig` object includes a non-empty `provider` string. If the call site is an entry point that cannot be unit-tested (e.g., `api/main.ts` top-level `if (isMain)`), document the exclusion and verify manually. At minimum, test that `processNewMeetings` called with `provider: "openai"` stores `"openai"` in `system_errors` rows on failure (this may already be covered by Burst 5 tests -- if so, note the overlap and add a test that specifically passes a non-default provider string).
+  Returns `{ meeting: MeetingRow, turns: SpeakerTurn[], participants: Participant[] }` on success, throws descriptive errors on failure. Test: valid meeting passes. Missing meeting throws. Already-ignored meeting throws. Single-element durations array throws. Durations exceeding transcript length throws. Already-split meeting throws.
+
+- [ ] Burst 7: `core/meeting-split.ts` -- `splitMeeting(db, meetingId, durations)`. The main orchestration function:
+  1. Calls `validateSplitRequest`
+  2. Calls `computeCutPoints` then `partitionTurns`
+  3. For each segment (1..N):
+     - `reconstructTranscript(segmentTurns)`
+     - `deriveParticipants(segmentTurns, originalParticipants)`
+     - Build a `ParsedMeeting` with title `"{original} (K of N)"`, timestamp adjusted for segment offset, sourceFilename `"{original}::split:{K}"`
+     - Call `ingestMeeting(db, parsedSegment)` to create the new meeting row
+     - Insert a `meeting_lineage` row linking source to result
+  4. Archive original: `UPDATE meetings SET ignored = 1 WHERE id = ?`
+  5. Return `SplitResult` with all segment details
+
+  Test: Split a meeting into 2 -- verify 2 new meeting rows exist with correct titles, participants, transcripts. Verify original is `ignored=1`. Verify 2 lineage rows exist with correct `segment_index` and `source_meeting_id`. Verify source_filenames are unique and follow convention.
+
+- [ ] Burst 8: `core/meeting-split.ts` -- `getSplitLineage(db, meetingId)`. Two queries:
+  1. `getChildMeetings(db, sourceMeetingId)` -- returns all result meetings for a given source, ordered by `segment_index`
+  2. `getSourceMeeting(db, resultMeetingId)` -- returns the source meeting if this meeting was created by a split, or null
+
+  Test: After splitting meeting A into B and C, `getChildMeetings(A)` returns `[B, C]` ordered. `getSourceMeeting(B)` returns A. `getSourceMeeting(A)` returns null (A is the source, not a result). `getChildMeetings(B)` returns empty (B has no children).
 
 ---
 
-## Phase 2: Email Notifications
+## Phase 2: API & CLI
 
 ### Dependency Graph (Phase 2)
 
 ```
-Section 3 -- Sequential (notifier)
-  Burst 7 -> 8 -> 9
+Section 3 -- Sequential (API endpoint)
+  Burst 9 -> 10
+
+Section 4 -- Sequential (CLI command)
+  Burst 11
 ```
 
 ### Phase 2 Bursts
 
-#### Section 3: Notifier
+#### Section 3: API Endpoint
 
-- [x] Burst 7: Create `core/notifier.ts` -- `Notifier` interface: `{ sendAlert(db: DatabaseSync, error: SystemError): Promise<void> }`. `createNotifier(config: NotificationConfig | null)` returns a `Notifier`. When `config` is null, returns a no-op (sendAlert does nothing, returns resolved promise). When config is provided, creates a nodemailer SMTP transport (`createTransport({ host, port, secure: port === 465, auth: { user, pass } })`). `sendAlert` composes an email:
-  - Subject: `[Meeting Insights] Critical: LLM API error`
-  - From: `smtpUser`
-  - To: `alertEmail`
-  - Body: includes error_type, provider, message, meeting_filename, timestamp, affected meeting count (query `meetings_without_artifact` from DB), and a resolution hint from `RESOLUTION_HINTS[error.error_type]`
+- [ ] Burst 9: Add `POST /api/meetings/:id/split` to `api/routes/meetings.ts`. Accepts JSON body `{ durations: number[] }`. Calls `splitMeeting(db, id, durations)`. Returns the `SplitResult` as JSON with status 200. Error cases:
+  - Meeting not found: 404
+  - Validation failure (bad durations, already split, etc.): 400 with `{ error: string }`
+  - Internal error: 500
 
-  Test in `test/notifier.test.ts`:
-  - Mock `nodemailer.createTransport` to return a mock transport with `sendMail` spy
-  - Create notifier with config where `alertEmail: "admin@company.com"` and `smtpUser: "bot@gmail.com"` (different!)
-  - Call `sendAlert` -> verify `sendMail` called with `to: "admin@company.com"`, `from: "bot@gmail.com"`, subject contains "Critical", body contains error message, provider, meeting filename, and resolution hint
-  - Create no-op notifier (null config) -> `sendAlert` does not throw, returns resolved promise
-  - Verify the body includes `meetings_without_artifact` count from the DB
+  This burst does NOT trigger re-extraction -- it only creates the split meeting rows. Re-extraction is Phase 3.
 
-- [x] Burst 8: Add throttle logic to `sendAlert` in `core/notifier.ts`. Before sending:
-  1. Query: `SELECT COUNT(*) as n FROM system_errors WHERE last_notified_at > datetime('now', '-15 minutes')`
-  2. If `n > 0`: skip email, still `UPDATE system_errors SET notified=1 WHERE id=?`, return
-  3. If `n === 0`: send email, then `UPDATE system_errors SET notified=1, last_notified_at=datetime('now') WHERE id=?`
-  4. If `sendMail()` throws: log to `console.error`, leave `notified=0` and `last_notified_at=null`. Do NOT crash.
+  Test: `test/api-meetings.test.ts` -- POST with valid durations returns 200 + correct SplitResult shape. POST on nonexistent meeting returns 404. POST with single-element durations returns 400. POST on already-ignored meeting returns 400.
 
-  Test in `test/notifier.test.ts`:
-  - Record two critical errors 1 second apart. Call `sendAlert` for each -> first sends (sendMail called once), second is throttled (sendMail still called once total). Both have `notified=1`.
-  - Insert a critical error with `last_notified_at` set to 20 minutes ago (manually via SQL). Record a new critical error, call `sendAlert` -> email sends (throttle window expired)
-  - **Boundary test**: insert error with `last_notified_at` exactly 15 minutes ago -> verify behavior (the `>` operator means exactly-15-min IS outside the window, so email sends)
-  - **Acknowledge does NOT affect throttle**: acknowledge the first error, record a new critical error within 15 min of the first -> still throttled (throttle uses `last_notified_at`, not `acknowledged`)
-  - **sendMail failure**: mock sendMail to throw -> `notified` stays 0, `last_notified_at` stays null, no exception propagated
+- [ ] Burst 10: Add `GET /api/meetings/:id/lineage` to `api/routes/meetings.ts`. Returns:
+  ```ts
+  {
+    source: MeetingRow | null,       // if this meeting was split from another
+    children: MeetingRow[],          // if this meeting has been split into children
+    segment_index: number | null,    // this meeting's position in its split (if applicable)
+  }
+  ```
 
-- [x] Burst 9: Integrate notifier into `core/pipeline.ts`:
-  - `PipelineConfig` gains optional `notifier?: Notifier`
-  - In `processEntry()` catch block, after `recordSystemError`, if `error` is not null and `error.severity === "critical"` and `config.notifier` is provided: call `config.notifier.sendAlert(db, error)` wrapped in try/catch (notification failure logged to `console.error`, never crashes pipeline)
-  - Update callers: `local-service/main.ts`, `cli/admin-util/run.ts` -- construct notifier from env vars (`MTNINSIGHTS_SMTP_*`, `MTNINSIGHTS_ALERT_EMAIL`), pass to `PipelineConfig`. If env vars missing, pass `notifier: createNotifier(null)`.
+  Test: `test/api-meetings.test.ts` -- lineage of a split source returns null source + N children. Lineage of a child returns the source + empty children + correct segment_index. Lineage of an unsplit meeting returns null source + empty children.
 
-  Test in `test/pipeline.test.ts`:
-  - Pipeline processes meeting with failing LLM stub, notifier mock provided -> `sendAlert` called with the recorded `SystemError`
-  - Pipeline with `notifier: undefined` -> no error, pipeline completes normally
-  - Pipeline with notifier that throws from `sendAlert` -> pipeline completes normally (error swallowed), `PipelineResult.failed` still incremented
-  - Notifier is NOT called for `severity: "warning"` errors (e.g., rate_limit)
+#### Section 4: CLI Command
+
+- [ ] Burst 11: Create `cli/split.ts`. Parses args: `<meeting-id> --durations 60,15,15`. Validates meeting ID is provided and durations parse as comma-separated positive numbers. Opens the database, calls `splitMeeting`, prints the result table:
+
+  ```
+  Split meeting "Weekly Standup" into 3 segments:
+    1 of 3: a1b2c3d4  "Weekly Standup (1 of 3)"  turns: 20  00:00-00:58  (requested: 60m, actual: 58m)
+    2 of 3: e5f6g7h8  "Weekly Standup (2 of 3)"  turns: 6   00:00-00:14  (requested: 15m, actual: 14m)
+    3 of 3: i9j0k1l2  "Weekly Standup (3 of 3)"  turns: 4   00:00-00:12  (requested: 15m, actual: 12m)
+  Original meeting archived (ignored=1)
+  Run pipeline to extract insights for new meetings.
+  ```
+
+  Test: `test/cli-split.test.ts` -- call the split function with a seeded meeting, verify output includes all segment IDs and the "archived" confirmation. Verify error output when meeting not found. Verify error output when durations are invalid.
 
 ---
 
-## Phase 3: Health API
+## Phase 3: Re-extraction Integration
 
 ### Dependency Graph (Phase 3)
 
 ```
-Section 4 -- Sequential (API routes + IPC)
-  Burst 10 -> 11
+Section 5 -- Sequential (pipeline trigger)
+  Burst 12 -> 13
 ```
 
 ### Phase 3 Bursts
 
-#### Section 4: Health Routes
+#### Section 5: Pipeline Re-extraction for Split Segments
 
-- [x] Burst 10: Create `api/routes/health.ts` -- `registerHealthRoutes(app, db)`. Endpoints:
+- [ ] Burst 12: Create `core/meeting-split.ts` -- `reprocessSplitSegments(db, splitResult, pipelineDeps)`. Takes the `SplitResult` from `splitMeeting` plus the pipeline dependencies (`llm`, `session`, `vdb`, etc.). For each segment in `splitResult.segments`:
+  1. Loads the new meeting row via `getMeeting(db, segment.meeting_id)`
+  2. Parses the `raw_transcript` back into turns
+  3. Runs `detectClient` + `storeDetection`
+  4. Runs `extractSummary` + `storeArtifact`
+  5. Runs `embedMeeting` + `storeMeetingVector`
+  6. Runs thread evaluation + milestone reconciliation
 
-  `GET /api/health`:
-  - Calls `getHealthStatus(db)`
-  - Returns JSON with `HealthStatus` shape
-  - No auth required (health should be checkable even if auth is misconfigured)
+  This mirrors the `processEntry` pipeline steps but operates on already-ingested meetings rather than raw files. Error on one segment does not abort the others -- collect results as `{ meeting_id, status: "ok" | "failed", error?: string }[]`.
 
-  `POST /api/health/acknowledge`:
-  - Accepts `{ errorIds?: string[] }`
-  - If `errorIds` provided and non-empty: calls `acknowledgeErrors(db, errorIds)`
-  - If `errorIds` omitted or empty: calls `acknowledgeAllErrors(db)`
-  - Returns `{ ok: true }`
+  Test: `test/meeting-split.test.ts` -- use stub LLM adapter. Split a meeting, call `reprocessSplitSegments`, verify each segment has an artifact row, verify client detection ran for each. Verify a failure in one segment still processes the others.
 
-  Wire into `api/server.ts` -- add `import { registerHealthRoutes } from "./routes/health.js"` and `registerHealthRoutes(app, db)` after `registerDebugRoutes(...)`.
-
-  Test in `test/api-health.test.ts` (Hono `app.request()` pattern):
-  - **Healthy state**: empty DB -> GET returns `{ status: "healthy", error_groups: [], meetings_without_artifact: 0, last_error_at: null }` with status 200
-  - **Critical state**: seed `system_errors` with an `api_error` row -> GET returns `status: "critical"`, `error_groups` has one entry with correct shape including `resolution_hint`
-  - **Acknowledge by IDs**: POST with `{ errorIds: ["id1"] }` -> 200. Subsequent GET -> healthy
-  - **Acknowledge all**: POST with `{}` -> 200. Subsequent GET -> healthy
-  - **POST with empty errorIds**: POST with `{ errorIds: [] }` -> acknowledges all (same as omitted)
-  - **Verify integer-to-boolean conversion**: raw DB has `acknowledged: 0`, API response has no `acknowledged` field in `error_groups` (it's grouped, not individual rows)
-
-- [x] Burst 11: Add health methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
-
-  **channels.ts additions:**
+  **Note:** This burst depends on the pipeline dependencies being available. The function signature should mirror what `processEntry` needs, but extracted into a reusable shape. If a `PipelineDeps` type doesn't already exist, define one:
   ```ts
-  // Add to CHANNELS const:
-  GET_HEALTH: "get-health",
-  ACKNOWLEDGE_HEALTH_ERRORS: "acknowledge-health-errors",
-
-  // Add to ElectronAPI interface:
-  getHealth: () => Promise<HealthStatus>;
-  acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
+  interface PipelineDeps {
+    llm: LlmAdapter;
+    session: InferenceSession & { _tokenizer: unknown };
+    vdb: VectorDb;
+    tokenLimit?: number;
+    extractionPromptPath?: string;
+    threadSimilarityThreshold?: number;
+  }
   ```
 
-  **New file `electron-ui/ui/src/api-client/health.ts`:**
-  ```ts
-  import { API_BASE, fetchJson, jsonPost } from "./base.js";
-  import type { HealthStatus } from "../../../electron/channels.js";
+- [ ] Burst 13: Wire re-extraction into the API endpoint from Burst 9. After `splitMeeting` returns, call `reprocessSplitSegments` for each new segment. Since re-extraction is async (LLM calls), the endpoint should either:
+  - **Option A:** Await all re-extractions and return the full result (simple, but slow -- user waits)
+  - **Option B:** Return the split result immediately, trigger re-extraction in the background
 
-  export const healthMethods = {
-    getHealth: (): Promise<HealthStatus> => fetchJson(`${API_BASE}/api/health`),
-    acknowledgeHealthErrors: (errorIds?: string[]): Promise<void> =>
-      jsonPost(`${API_BASE}/api/health/acknowledge`, { errorIds }).then(() => undefined),
-  };
-  ```
+  Choose Option A for v1 (simpler, and splits are infrequent operations). The CLI from Burst 11 also calls `reprocessSplitSegments` after split.
 
-  **Update `api-client/index.ts`:** import `healthMethods`, spread into `apiClient`.
+  Update the API endpoint to accept pipeline dependencies from `createApp`. Update `registerMeetingRoutes` signature if needed.
 
-  **New file `electron-ui/electron/handlers/health.ts`:** Register IPC handlers:
-  - `GET_HEALTH` -> calls `getHealthStatus(db)`, returns result
-  - `ACKNOWLEDGE_HEALTH_ERRORS` -> calls `acknowledgeErrors(db, ids)` or `acknowledgeAllErrors(db)`, returns void
-
-  **Export `HealthStatus` and `ErrorGroup` types** from `channels.ts` (or from `core/system-health.ts` and re-export).
-
-  Test in `test/ipc-handlers.test.ts` (add to existing):
-  - Register health handlers with in-memory DB, invoke `GET_HEALTH` -> returns `HealthStatus` shape
-  - Seed errors, invoke `GET_HEALTH` -> returns critical status
-  - Invoke `ACKNOWLEDGE_HEALTH_ERRORS` with IDs -> subsequent `GET_HEALTH` returns healthy
-
-  Test in `test/api-health.test.ts` (add to existing or separate):
-  - Verify `api-client` `getHealth()` calls correct URL
-  - Verify `acknowledgeHealthErrors(["id1"])` posts correct body
+  Test: `test/api-meetings.test.ts` -- POST split with stub LLM, verify response includes segment IDs, verify each segment has an artifact row after the response returns.
 
 ---
 
-## Phase 4: UI Health Banner
+## Phase 4: Cleanup of Archived Meeting Downstream Data
 
 ### Dependency Graph (Phase 4)
 
 ```
-Section 5 -- Sequential (UI)
-  Burst 12 -> 13 -> 14
+Section 6 -- Sequential (cleanup)
+  Burst 14 -> 15
 ```
 
 ### Phase 4 Bursts
 
-#### Section 5: React UI
+#### Section 6: Archive Cleanup
 
-- [x] Burst 12: Create `electron-ui/ui/src/hooks/useSystemHealth.ts` -- `useSystemHealth()` hook.
-  - `useQuery` with key `["system-health"]`, `queryFn: () => window.api.getHealth()`, `refetchInterval: 30_000`, `staleTime: 15_000`
-  - `refetchOnWindowFocus: true` (ensures stale state is refreshed when user returns to the app)
-  - Returns `{ health: HealthStatus | undefined, isLoading: boolean, isError: boolean, acknowledgeAll: () => void, acknowledgeErrors: (ids: string[]) => void }`
-  - `acknowledgeAll` and `acknowledgeErrors` are `useMutation` wrappers that call `window.api.acknowledgeHealthErrors(...)` and invalidate `["system-health"]` query on success
+- [ ] Burst 14: `core/meeting-split.ts` -- `cleanupArchivedMeeting(db, vdb, meetingId)`. When a meeting is archived after split, its downstream data becomes stale. This function:
+  1. Deletes the archived meeting's artifact row (`DELETE FROM artifacts WHERE meeting_id = ?`)
+  2. Deletes the archived meeting's FTS index entry (`DELETE FROM artifact_fts WHERE meeting_id = ?`)
+  3. Deletes client detection rows (`DELETE FROM client_detections WHERE meeting_id = ?`)
+  4. Deletes cluster assignments (`DELETE FROM meeting_clusters WHERE meeting_id = ?`)
+  5. Deletes item mentions (`DELETE FROM item_mentions WHERE meeting_id = ?`)
+  6. Removes the meeting vector from LanceDB (`meeting_vectors` table, delete by meeting_id)
+  7. Removes item vectors from LanceDB (`item_vectors` table, delete by meeting_id)
 
-  Test in `test/ui/system-health-hook.test.tsx`:
-  - Mock `window.api.getHealth` to return healthy -> hook returns health data
-  - Mock `window.api.getHealth` to return critical -> hook returns critical data
-  - Call `acknowledgeAll` -> verify `window.api.acknowledgeHealthErrors()` called with no args
-  - Call `acknowledgeErrors(["id1"])` -> verify called with `["id1"]`
-  - Verify `refetchInterval` is `30_000` (inspect query options or test that re-fetch fires)
-  - Mock `window.api.getHealth` to reject -> `isError` is true, `health` is undefined
+  Does NOT delete: `meeting_messages` (chat history is conversational, user may want to keep it), `thread_meetings` (thread relevance was valid at the time), `milestone_mentions` / `milestone_action_items` (these reference specific content that may still be relevant via the new segments), `action_item_completions` (historical record of what was marked done).
 
-- [x] Burst 13: Create `electron-ui/ui/src/components/shared/SystemHealthBanner.tsx`.
+  Test: seed a meeting with artifact, FTS entry, client detection, cluster assignment, item mention. Call `cleanupArchivedMeeting`. Verify all cleaned rows are gone. Verify meeting row itself still exists with `ignored=1`. Verify un-cleaned associations still exist.
 
-  Props: `health: HealthStatus | undefined`, `isError: boolean`, `onAcknowledge: () => void`.
+- [ ] Burst 15: Integrate `cleanupArchivedMeeting` into `splitMeeting` (Burst 7). After archiving the original meeting and before returning the result, call cleanup. This ensures the archived meeting's stale data doesn't pollute search results or cluster assignments while the new segments are being re-extracted.
 
-  Renders nothing when `health` is undefined and `isError` is false (loading state).
-  Renders nothing when `health.status === "healthy"`.
-
-  When `isError` is true (health endpoint unreachable): gray banner (`bg-gray-600 text-white`), WifiOff icon, message: "Unable to reach server -- health status unknown".
-
-  When `health.status === "critical"`: red banner (`bg-red-600 text-white`), AlertTriangle icon from lucide-react. Content:
-  - Headline: "{provider} API error" (from first error_group) or "System error" if no provider
-  - Detail: resolution_hint from the error_group
-  - Badge: "{count} meeting(s) affected" if `meetings_without_artifact > 0`
-  - Dismiss button (X icon, right side) calls `onAcknowledge`
-
-  Test in `test/ui/system-health-banner.test.tsx`:
-  - `health: undefined, isError: false` -> renders nothing
-  - `health: { status: "healthy", ... }` -> renders nothing
-  - `health: { status: "critical", error_groups: [...], meetings_without_artifact: 5 }` -> red banner visible, contains "API error", contains resolution hint, contains "5 meeting(s) affected", dismiss button present
-  - `health: undefined, isError: true` -> gray banner with "Unable to reach server"
-  - Click dismiss -> `onAcknowledge` called
-  - `meetings_without_artifact: 0` -> no "affected" badge
-  - Multiple error groups -> shows the critical one
-
-- [x] Burst 14: Wire `SystemHealthBanner` into `App.tsx`.
-  - Import `useSystemHealth` hook
-  - Place `<SystemHealthBanner>` as the first child inside the outermost layout container, above `ResponsiveShell`/`WorkspaceBanner`
-  - Pass `health`, `isError`, and `onAcknowledge: acknowledgeAll` from the hook
-
-  Test in `test/ui/app-health-banner.test.tsx`:
-  - Mock `window.api.getHealth` to return critical status -> render App -> banner is visible with correct content
-  - Mock `window.api.getHealth` to return healthy status -> render App -> no banner rendered
-  - Mock `window.api.getHealth` to reject -> render App -> gray "unreachable" banner
-  - Click dismiss on banner -> `window.api.acknowledgeHealthErrors` called
+  Test: split a meeting that has an artifact + FTS entry + client detection. After split, verify archived meeting has no artifact, no FTS entry, no client detection. Verify new segment meetings exist correctly.
 
 ---
 
-## Phase 5: MTI CLI Health Commands
+## Phase 5: End-to-End Integration Tests
 
 ### Dependency Graph (Phase 5)
 
 ```
-Section 6 -- Sequential (CLI commands, depends on Phase 3 API routes)
-  Burst 15 -> 16
+Section 7 -- Sequential (E2E tests)
+  Burst 16 -> 17 -> 18
 ```
 
 ### Phase 5 Bursts
 
-#### Section 6: CLI
+#### Section 7: Integration & E2E Verification
 
-- [x] Burst 15: Create `cli/mti/src/commands/health.ts` -- `registerHealth(program, deps?)`. Two subcommands:
+- [ ] Burst 16: Create `test/split-e2e.test.ts` -- full lifecycle test through the API. This test exercises the complete split flow as a real consumer would use it. Setup:
+  1. Create an in-memory DB + migrate
+  2. Seed a meeting via `ingestMeeting` with the full 21-turn fixture (both shared timestamps and gap)
+  3. Seed a client and store a detection for the meeting
+  4. Store an artifact for the meeting (use stub LLM fixture output)
+  5. Insert an FTS entry via `updateFts`
+  6. Create a Hono app via `createApp(db, ":memory:", stubLlm)`
 
-  **`mti health status`** (default subcommand):
-  - Calls `GET /api/health` via `HttpClient`
-  - Human-readable output:
-    ```
-    Status: CRITICAL
-    
-    Errors:
-      [api_error] openai — Check your LLM provider account billing and API key validity
-        12 occurrence(s), latest: 2026-04-01_standup.json
-    
-    Meetings without insights: 12
-    Last error: 2026-04-01 14:30:00
-    ```
-  - When healthy: `Status: HEALTHY\n\nNo issues detected.\n`
-  - `--json` flag: output raw `HealthStatus` JSON
+  **Test: "split via API creates correct segments and cleans up original"**
+  1. `POST /api/meetings/:id/split` with `{ durations: [60, 30] }`
+  2. Verify response is 200 with `SplitResult` shape
+  3. Verify `segments` array has 2 entries with correct `segment_index`, `turn_count`, `actual_start`, `actual_end`
+  4. Verify `actual_duration` is approximate (within 2 minutes of requested)
 
-  **`mti health acknowledge`**:
-  - Calls `POST /api/health/acknowledge` with `{}` (acknowledge all)
-  - Optional `--ids <id1,id2>` flag to acknowledge specific error IDs
-  - Human-readable: `Acknowledged all errors.\n` or `Acknowledged 2 error(s).\n`
-  - `--json` flag: `{ "ok": true }`
+  **Test: "new segments appear in meeting list, original does not"**
+  1. After split, `GET /api/meetings` 
+  2. Verify response contains both new segment meetings (by ID from split result)
+  3. Verify response does NOT contain the original meeting ID
+  4. Verify each segment's title follows `(1 of 2)` / `(2 of 2)` convention
 
-  Follow the exact pattern from `cli/mti/src/commands/meetings.ts`:
-  - `MeetingsDeps`-style deps interface with `client?: HttpClient`, `stream?`, `stderr?`
-  - `resolveClient(deps)` / `resolveStream(deps)` pattern
-  - `wrapAction` for error handling
+  **Test: "each new segment has correct participants"**
+  1. `GET /api/meetings/:segmentId` for segment 1
+  2. Verify participants include Alice and Bob, NOT Charlie
+  3. `GET /api/meetings/:segmentId` for segment 2
+  4. Verify participants include Alice and Charlie, NOT Bob
 
-  Test in `test/cli/mti/commands/health.test.ts`:
-  - `mti health status` with healthy response -> output contains "HEALTHY" and "No issues detected"
-  - `mti health status` with critical response -> output contains "CRITICAL", error type, provider, resolution hint, occurrence count, meetings without insights count
-  - `mti health status --json` -> raw JSON output matching `HealthStatus` shape
-  - `mti health acknowledge` -> calls POST /api/health/acknowledge with `{}`, output contains "Acknowledged all"
-  - `mti health acknowledge --ids err1,err2` -> calls POST with `{ errorIds: ["err1", "err2"] }`, output contains "Acknowledged 2"
-  - `mti health acknowledge --json` -> `{ "ok": true }`
+  **Test: "archived meeting's stale data is removed"**
+  1. After split, query `artifacts` table directly -- no row for original meeting ID
+  2. Query `artifact_fts` -- no row for original meeting ID
+  3. Query `client_detections` -- no rows for original meeting ID
+  4. Verify original meeting row still exists with `ignored = 1`
 
-- [x] Burst 16: Wire `registerHealth` into `cli/mti/bin/mti.ts`. Add `import { registerHealth } from "../src/commands/health.ts"` and `registerHealth(program, wrapAction)` alongside the other `register*` calls.
+  **Test: "lineage is queryable from both directions"**
+  1. `GET /api/meetings/:originalId/lineage` -- verify `children` contains both segments ordered by index, `source` is null
+  2. `GET /api/meetings/:segment1Id/lineage` -- verify `source` is the original meeting, `children` is empty, `segment_index` is 1
+  3. `GET /api/meetings/:segment2Id/lineage` -- verify `segment_index` is 2
 
-  Test in `test/cli/mti/entry.test.ts` (add to existing):
-  - Verify `health` command is registered on the program
-  - Verify `health status` and `health acknowledge` subcommands exist
+  **Test: "split is idempotent-safe -- cannot split an already-split meeting"**
+  1. `POST /api/meetings/:originalId/split` with `{ durations: [30, 30] }`
+  2. Verify response is 400 (original is now ignored)
+  3. `POST /api/meetings/:segment1Id/split` with `{ durations: [15, 15] }`
+  4. This SHOULD succeed (splitting a child is allowed -- it's a normal meeting). Verify 200.
+
+  Note: If the design decision is to prevent splitting children too, adjust the validation and this test accordingly.
+
+- [ ] Burst 17: Add re-extraction verification to `test/split-e2e.test.ts`. After the split + re-extraction flow:
+
+  **Test: "re-extraction produces artifacts for each new segment"**
+  1. Split a meeting via the API (which triggers re-extraction per Burst 13)
+  2. For each segment ID in the result:
+     - `GET /api/meetings/:segmentId` -- verify `artifact` field is populated (not null/empty)
+     - Verify `artifact.summary` is a non-empty string
+     - Verify `artifact.action_items` is an array (may be empty for short segments, but must exist)
+  3. Verify the stub LLM was called once per segment (not once total)
+
+  **Test: "FTS indexes new segments after re-extraction"**
+  1. After split + re-extraction, query `artifact_fts` table directly
+  2. Verify rows exist for each new segment meeting ID
+  3. Verify no row exists for the original meeting ID
+
+  **Test: "client detection runs independently per segment"**
+  1. After split + re-extraction, query `client_detections` table
+  2. Verify detection rows exist for each new segment meeting ID
+  3. Verify each segment's detection was derived independently (not copied from original)
+
+  **Test: "re-extraction failure on one segment does not block the other"**
+  1. Create a stub LLM that fails on the second call but succeeds on the first
+  2. Split a meeting into 2 segments
+  3. Verify segment 1 has an artifact
+  4. Verify segment 2 has NO artifact (extraction failed)
+  5. Verify segment 2's meeting row still exists (not deleted or corrupted)
+  6. Verify the error is surfaced in the response (either in SplitResult or via health endpoint)
+
+- [ ] Burst 18: Create CLI integration test in `test/cli-split.test.ts` that exercises the CLI entry point against a real Hono app.
+
+  **Test: "CLI split hits the API endpoint and prints correct output"**
+  1. Create an in-memory DB + Hono app + stub LLM
+  2. Seed a meeting with realistic turns
+  3. Call the CLI split function with the meeting ID and `--durations 60,30`
+  4. Verify the CLI calls `POST /api/meetings/:id/split` (or calls the core function -- either way, verify the full stack)
+  5. Verify stdout contains all segment IDs from the result
+  6. Verify stdout contains "archived" confirmation
+  7. Verify stdout shows actual vs requested durations for each segment
+
+  **Test: "CLI prints error for nonexistent meeting"**
+  1. Call CLI split with a fake meeting ID
+  2. Verify stderr/stdout contains a descriptive error message
+  3. Verify process exit code is non-zero (or function throws)
+
+  **Test: "CLI prints error for invalid durations"**
+  1. Call CLI split with `--durations abc,def`
+  2. Verify error message about invalid duration format
+  3. Call CLI split with `--durations 60` (only one segment)
+  4. Verify error message about needing at least 2 segments
+
+  **Test: "CLI split followed by meeting list excludes archived meeting"**
+  1. After a successful CLI split, query the DB directly (or call the meetings list API)
+  2. Verify the original meeting is not in the active list
+  3. Verify both new segments are in the active list
 
 ---
 
-## Phase 6: E2E Playwright Tests
+## Phase 6: UI Split Dialog
 
 ### Dependency Graph (Phase 6)
 
 ```
-Section 7 -- Sequential (E2E, depends on all prior phases)
-  Burst 17 -> 18
-```
+Section 8 -- Sequential (ElectronAPI + api-client)
+  Burst 19
 
-**Prerequisite:** The API server must be running with a seeded DB. E2E tests use `apiFetch` from `test/e2e/helpers.ts` to seed data via the API, then use Playwright to verify the UI.
+Section 9 -- Sequential (React UI)
+  Burst 20 -> 21 -> 22
+```
 
 ### Phase 6 Bursts
 
-#### Section 7: Browser + CLI E2E
+#### Section 8: ElectronAPI & API Client
 
-- [x] Burst 17: Create `test/e2e/health-banner.spec.ts` -- Playwright E2E tests for the health banner.
+- [ ] Burst 19: Add split and lineage methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
 
-  **Setup pattern** (follows existing E2E specs like `insights.spec.ts`):
-  - `test.use({ viewport: { width: 1400, height: 900 } })`
-  - Use `apiFetch` from `test/e2e/helpers.ts` for API calls
-  - Seed data via API before each test, clean up after
+  **channels.ts changes:**
+  ```ts
+  // CHANNELS const:
+  SPLIT_MEETING: "split-meeting",
+  GET_MEETING_LINEAGE: "get-meeting-lineage",
 
-  **Seeding critical errors:**
-  Since there's no direct "create error" API endpoint, seed via a helper that calls the DB directly, OR use the `/api/health` endpoint to verify state and seed errors by triggering a pipeline run with an invalid LLM config. The simpler approach: add a test-only helper that directly inserts into `system_errors` via `apiFetch` to a debug-style endpoint. However, to avoid adding test-only routes, the cleaner E2E approach is:
-  1. Call `GET /api/health` to verify healthy baseline
-  2. Directly insert a `system_errors` row via a test utility SQL endpoint (if one exists in debug routes), OR create the error state by calling `POST /api/meetings` with a request that will fail extraction (if LLM is stub/unavailable in E2E env)
+  // ElectronAPI interface:
+  splitMeeting: (meetingId: string, durations: number[]) => Promise<SplitResult>;
+  getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;
+  ```
 
-  **Preferred approach**: Add a test-seeding helper. Since the E2E tests run against a live server with a real DB, and the existing debug endpoint (`GET /api/debug`) already exists, add a `POST /api/debug/seed-error` endpoint that only exists when `NODE_ENV=test` or similar guard. OR simply seed via direct DB access if the test harness supports it. Follow whatever pattern the existing E2E tests use for data setup (they use `apiFetch` to create/delete via existing API endpoints).
+  **api-client additions:**
+  ```ts
+  splitMeeting: (meetingId: string, durations: number[]) =>
+    jsonPost(`${API_BASE}/api/meetings/${meetingId}/split`, { durations }),
+  getMeetingLineage: (meetingId: string) =>
+    fetchJson(`${API_BASE}/api/meetings/${meetingId}/lineage`),
+  ```
 
-  **If no test-seeding route is practical**, the E2E test can:
-  1. Verify the banner is NOT visible on a healthy system
-  2. Use Playwright's `page.route()` to intercept `GET /api/health` and return a mocked critical response
-  3. Verify the banner appears with correct content
+  **IPC handler** (`electron-ui/electron/handlers/meetings.ts`): register handlers that call `splitMeeting` from core and `getSplitLineage` from core.
 
-  **Test cases:**
-  - **Healthy state**: navigate to app -> no health banner visible anywhere on the page
-  - **Critical state** (via route intercept or seeded error): navigate to app -> red banner visible at top of page, above the workspace content. Assert:
-    - Banner contains text matching the provider name (e.g., "openai")
-    - Banner contains the resolution hint text
-    - Banner contains "{n} meeting(s) affected" if meetings_without_artifact > 0
-    - Banner has a dismiss/close button
-  - **Dismiss flow**: click the dismiss button -> banner disappears. If using real API (not route intercept), verify `GET /api/health` now returns healthy. If using route intercept, verify the acknowledge API was called (intercept the POST).
-  - **Banner position**: verify the banner is above the main workspace content (banner `y` coordinate < workspace `y` coordinate via bounding box)
-  - **Unreachable server state** (via route intercept returning network error): gray banner with "Unable to reach server" visible
+  Test: `test/ipc-handlers.test.ts` -- verify split handler calls core function with correct args. Verify lineage handler returns expected shape.
 
-- [x] Burst 18: Create `test/e2e/health-cli.spec.ts` -- E2E test for the MTI CLI health commands. This tests the CLI binary against the live API server.
+#### Section 9: React UI
 
-  **Approach**: Use Node `child_process.execFile` (or `execa` if available) to run `tsx cli/mti/bin/mti.ts health status --json` and parse the output. The CLI reads its config from `~/.mtirc` or env vars (`MTI_BASE_URL`, `MTI_TOKEN`). Set these in the test environment.
+- [ ] Burst 20: Create `electron-ui/ui/src/components/SplitMeetingDialog.tsx`. A modal dialog with:
+  1. Prompt: "How many meetings are in this recording?" -- number input, min 2, max 10, default 2
+  2. For each segment: a row showing "Meeting K of N" with a duration input (minutes). Last segment shows "remainder" as placeholder.
+  3. Below inputs: a summary bar showing the transcript's total duration and how the durations map: "Segment 1: 00:00-01:00 | Segment 2: 01:00-01:15 | Segment 3: 01:15-end"
+  4. Confirm button ("Split Meeting") and Cancel button
+  5. On confirm: calls `window.api.splitMeeting(meetingId, durations)`, shows loading state, then success/error toast
 
-  **Alternative**: Since the unit tests in Burst 15 already test CLI output via stubbed `HttpClient`, the E2E test here verifies the CLI talks to the real API and gets a real response. This is a thin integration test.
+  Props: `meetingId: string`, `meetingTitle: string`, `totalDurationMinutes: number`, `onClose: () => void`, `onSuccess: (result: SplitResult) => void`.
 
-  **Test cases:**
-  - `mti health status --json` against a running server -> output parses as valid `HealthStatus` JSON, `status` is `"healthy"` or `"critical"` (depending on server state)
-  - `mti health status` (human-readable) -> output contains "Status:" and either "HEALTHY" or "CRITICAL"
-  - `mti health acknowledge --json` -> output is `{ "ok": true }`
-  - Verify exit code is 0 for all successful commands
-  - Verify exit code is 2 (server error) or non-zero when server is unreachable
+  Test: `test/ui/split-meeting-dialog.test.tsx` -- render with props, verify number input changes segment count. Fill in durations, click confirm, verify `window.api.splitMeeting` called with correct args. Verify error state renders on API failure.
+
+- [ ] Burst 21: Add "Split Meeting" action to meeting detail view. This is a button or menu item in the meeting detail header/actions area. Clicking it opens the `SplitMeetingDialog`. The button should be hidden/disabled if:
+  1. Meeting is already archived (`ignored=1`)
+  2. Meeting was created by a split (has a source in lineage -- show "Split from {source title}" info instead)
+
+  Requires calling `getMeetingLineage` when loading meeting detail to determine button visibility and show lineage info.
+
+  Test: `test/ui/meeting-detail.test.tsx` -- render meeting detail with mock API. Verify "Split Meeting" button appears for normal meetings. Verify button is hidden for ignored meetings. Verify lineage info appears for split-child meetings.
+
+- [ ] Burst 22: After a successful split, the UI should navigate away from the archived meeting and show the first new segment. Invalidate the meetings list query so it refreshes. Show a success toast: "Meeting split into N parts. Re-extraction in progress."
+
+  Test: `test/ui/split-meeting-dialog.test.tsx` -- after successful split, verify `onSuccess` callback fired with result, verify meeting list query invalidated.
 
 ---
 
 ## Phase 7: Documentation & Scatter Updates
 
-- [x] Burst 19: Update scatter.md files for new/changed files:
-  - `core/scatter.md`: add `system-health.ts` (error recording, health status, acknowledgment), `notifier.ts` (SMTP email alerts with throttle)
-  - `api/routes/scatter.md`: add `health.ts` (GET /api/health, POST /api/health/acknowledge)
-  - `electron-ui/electron/handlers/scatter.md`: add `health.ts` (IPC handlers for health status and acknowledgment)
-  - `electron-ui/ui/src/hooks/scatter.md`: add `useSystemHealth.ts` (health polling hook with 30s interval)
-  - `electron-ui/ui/src/components/shared/scatter.md`: add `SystemHealthBanner.tsx` (critical error banner with resolution hints)
-  - `electron-ui/ui/src/api-client/scatter.md`: add `health.ts` (HTTP fetch implementations for health endpoints)
-  - `cli/mti/src/commands/scatter.md` (or equivalent): add `health.ts` (mti health status/acknowledge commands)
-  - `test/e2e/scatter.md`: add `health-banner.spec.ts`, `health-cli.spec.ts`
+- [ ] Burst 23: Update scatter.md files for new/changed files: `core/scatter.md` (add `meeting-split.ts`), `api/routes/scatter.md` (update `meetings.ts` entry), `cli/scatter.md` (add `split.ts`), `electron-ui/electron/handlers/scatter.md` (update `meetings.ts`), `electron-ui/ui/src/components/scatter.md` (add `SplitMeetingDialog.tsx`), `test/scatter.md` (add `split-e2e.test.ts`, `cli-split.test.ts`).
 
 ---
 
@@ -748,43 +676,31 @@ Section 7 -- Sequential (E2E, depends on all prior phases)
 
 ### Functional Requirements Checklist
 
-| # | Requirement | Verified by |
-|---|-------------|-------------|
-| FR-1 | Pipeline LLM errors (402, 401, 429, 5xx) are recorded in `system_errors` table | Burst 5 test: failing LLM stub -> system_errors row |
-| FR-2 | Error severity derived: `api_error` -> critical, `rate_limit`/`json_parse`/`unknown` -> warning | Burst 2 test: all four error_type values explicitly |
-| FR-3 | `GET /api/health` returns status + grouped errors + failed meeting count | Burst 10 test: all status levels |
-| FR-4 | `POST /api/health/acknowledge` dismisses errors with 1-hour cooldown | Burst 10 test: acknowledge then re-query |
-| FR-5 | Email sent on first critical error | Burst 8 test: mock sendMail called |
-| FR-6 | Email NOT sent if another critical email was sent within 15 minutes | Burst 8 test: second error throttled |
-| FR-7 | Email throttle decoupled from acknowledge | Burst 8 test: acknowledge then new error within 15 min -> still throttled |
-| FR-8 | Email recipient configurable independently from sender | Burst 7 test: `alertEmail` != `smtpUser` in test config |
-| FR-9 | Notification disabled gracefully when SMTP env vars missing | Burst 7 test: null config -> no-op notifier |
-| FR-10 | Notification failure does not crash pipeline | Burst 9 test: notifier throws, pipeline continues |
-| FR-11 | UI banner appears (red) when critical errors exist | Burst 13 test + Burst 17 E2E: red banner visible in browser |
-| FR-12 | UI banner hidden when healthy | Burst 13 test + Burst 17 E2E: no banner in healthy state |
-| FR-13 | Dismiss button acknowledges errors and hides banner | Burst 14 test + Burst 17 E2E: click dismiss, banner disappears |
-| FR-14 | Health polls every 30 seconds, refreshes on window focus | Burst 12 test: refetchInterval + refetchOnWindowFocus configured |
-| FR-15 | Meetings without artifacts are counted (time-gated, 5 min) | Burst 3 test: recent meeting excluded, old meeting counted |
-| FR-16 | Ignored meetings excluded from "without artifact" count | Burst 3 test: ignored meeting not counted |
-| FR-17 | Provider name captured in system_errors | Burst 5 test: provider field matches config |
-| FR-18 | Existing pipeline behavior unchanged when notifier absent | Burst 9 test: pipeline without notifier works |
-| FR-19 | Health endpoint works in both Electron IPC and web API modes | Burst 11 test: both code paths |
-| FR-20 | Acknowledged errors remain in DB for audit history | Burst 4 test: acknowledged errors still queryable |
-| FR-21 | Errors grouped by type in health response with resolution hints | Burst 3 + 10 test: error_groups shape with count, hint |
-| FR-22 | Acknowledgment cooldown prevents whack-a-mole (1 hour) | Burst 2 test: new error of same type auto-acknowledged during cooldown |
-| FR-23 | `recordSystemError` failure does not crash pipeline | Burst 2 test: function returns null on DB error (stderr fallback) |
-| FR-24 | Table auto-prunes errors older than 90 days | Burst 3 test: old error deleted by getHealthStatus |
-| FR-25 | Email body includes affected meeting count and resolution hint | Burst 7 test: body contains meetings_without_artifact count and hint text |
-| FR-26 | "Unable to reach server" state shown when health poll fails | Burst 13 test + Burst 17 E2E: gray banner |
-| FR-27 | Optional fields (meeting_filename, provider) stored as null when omitted | Burst 2 test: undefined -> null in DB |
-| FR-28 | Pipeline callers pass provider string from LLM config | Burst 6 test: config includes provider field |
-| FR-29 | Email throttle boundary: exactly 15 min ago is outside window | Burst 8 test: boundary condition |
-| FR-30 | Non-LLM pipeline errors classified as unknown/warning | Burst 5 test: parse failure -> error_type "unknown", severity "warning" |
-| FR-31 | `mti health status` shows human-readable health output | Burst 15 test: healthy -> "HEALTHY", critical -> "CRITICAL" with details |
-| FR-32 | `mti health status --json` returns raw HealthStatus JSON | Burst 15 test: parse output as JSON, verify shape |
-| FR-33 | `mti health acknowledge` calls acknowledge API | Burst 15 test: POST called with correct body |
-| FR-34 | `mti health acknowledge --ids` acknowledges specific errors | Burst 15 test: POST with errorIds array |
-| FR-35 | CLI health commands registered in mti entrypoint | Burst 16 test: program has health command |
-| FR-36 | Banner is positioned above workspace content in the browser | Burst 17 E2E: bounding box assertion |
-| FR-37 | CLI health status returns valid response from live API | Burst 18 E2E: run CLI binary, parse output |
-| FR-38 | CLI exits cleanly with code 0 on success | Burst 18 E2E: verify exit code |
+| # | Requirement | Verified by (unit) | Verified by (E2E) |
+|---|-------------|--------------------|--------------------|
+| FR-1 | User can split a meeting into N segments by specifying durations | Burst 7: splitMeeting with 2 and 3 segments | Burst 16: POST split returns correct SplitResult |
+| FR-2 | Cut points snap to turn boundaries (last turn at or before cumulative timestamp) | Burst 2: computeCutPoints with between-turn cuts, shared-timestamp boundary | Burst 16: actual_start/actual_end in response match expected boundaries |
+| FR-3 | Each segment gets rebased timestamps starting at 00:00 | Burst 3: rebaseTimestamps on non-zero-start turns | -- (covered by unit) |
+| FR-4 | Each segment has only the participants who spoke in it | Burst 5: deriveParticipants filters correctly | Burst 16: GET each segment verifies participant subset |
+| FR-5 | Original meeting is archived (ignored=1) after split | Burst 7: verify ignored flag | Burst 16: original absent from GET /api/meetings |
+| FR-6 | Lineage table tracks source -> result relationships | Burst 7 + 8: lineage rows, queries both directions | Burst 16: GET lineage from parent and child |
+| FR-7 | Split source_filenames are unique and follow convention | Burst 7: verify `::split:N` suffix | -- (covered by unit) |
+| FR-8 | API endpoint returns SplitResult with actual vs requested durations | Burst 9: POST returns correct shape | Burst 16: full response shape validation |
+| FR-9 | CLI accepts `--durations` flag and prints result table | Burst 11: CLI output verification | Burst 18: CLI integration against real app |
+| FR-10 | Re-extraction runs for each new segment | Burst 12: artifacts exist after reprocess | Burst 17: GET each segment has populated artifact |
+| FR-11 | Re-extraction failure on one segment doesn't abort others | Burst 12: one fails, others succeed | Burst 17: failing LLM stub, segment 1 has artifact, segment 2 does not |
+| FR-12 | Archived meeting's stale data is cleaned up | Burst 14: artifact, FTS, detections removed | Burst 16: no artifact/FTS/detections for original after split |
+| FR-13 | Cannot split an already-archived meeting | Burst 6: validation rejects ignored meeting | Burst 16: POST on archived returns 400 |
+| FR-14 | Cannot split a meeting that was already split | Burst 6: validation rejects meeting with lineage children | Burst 16: POST on already-split source returns 400 |
+| FR-15 | UI shows "Split Meeting" action on eligible meetings | Burst 21: button visibility | -- (UI unit test with mock) |
+| FR-16 | UI hides split action on archived or already-split meetings | Burst 21: button hidden | -- (UI unit test with mock) |
+| FR-17 | Last segment duration is the remainder of the transcript | Burst 2: last cut uses remaining turns | Burst 16: last segment in response has remaining turns |
+| FR-18 | Durations exceeding transcript length are rejected | Burst 6: validation error | Burst 16: POST with excessive durations returns 400 |
+| FR-19 | Meeting title follows "(K of N)" convention | Burst 7: verify title format | Burst 16: GET /api/meetings shows correct titles |
+| FR-20 | Lineage endpoint returns source, children, and segment_index | Burst 10: all three lineage queries | Burst 16: GET lineage from both directions |
+| FR-21 | reconstructTranscript round-trips through parseTranscriptBody | Burst 5: parse(reconstruct(turns)) equals original | -- (covered by unit) |
+| FR-22 | FTS indexes new segments after re-extraction | -- | Burst 17: artifact_fts rows exist for new segments |
+| FR-23 | Client detection runs independently per segment | -- | Burst 17: client_detection rows per segment |
+| FR-24 | CLI prints descriptive errors for invalid input | Burst 11: error output tests | Burst 18: nonexistent meeting, bad durations |
+| FR-25 | New segments appear in meeting list after split | -- | Burst 16 + 18: API and CLI both verify active list |
+| FR-26 | Splitting a child meeting is allowed (it's a normal meeting) | -- | Burst 16: split a segment, verify 200 |
