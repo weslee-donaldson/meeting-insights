@@ -1,7 +1,30 @@
 import { describe, it, expect } from "vitest";
 import type { SpeakerTurn, Participant } from "../core/parser.js";
 import { parseTranscriptBody } from "../core/parser.js";
-import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript } from "../core/meeting-split.js";
+import { computeCutPoints, deriveParticipants, partitionTurns, rebaseTimestamps, reconstructTranscript, validateSplitRequest } from "../core/meeting-split.js";
+import { createDb, migrate } from "../core/db.js";
+import { ingestMeeting } from "../core/ingest.js";
+
+const VALID_TRANSCRIPT =
+  "Alice | 00:00\nWelcome\n\n" +
+  "Bob | 00:15\nThanks\n\n" +
+  "Alice | 00:30\nGood meeting\n\n" +
+  "Bob | 01:00\nAgreed\n\n" +
+  "Alice | 01:28\nBye\n\n";
+
+let _seedCounter = 0;
+function seedMeeting(db: ReturnType<typeof createDb>, opts?: { transcript?: string; ignored?: 1 }): string {
+  const id = ingestMeeting(db, {
+    title: "Test Meeting",
+    timestamp: "2024-01-01",
+    participants: [],
+    turns: [],
+    rawTranscript: opts?.transcript ?? VALID_TRANSCRIPT,
+    sourceFilename: `test-meeting-${++_seedCounter}.md`,
+  });
+  if (opts?.ignored) db.prepare("UPDATE meetings SET ignored = 1 WHERE id = ?").run(id);
+  return id;
+}
 
 const participants: Participant[] = [
   { id: "1", first_name: "Alice",   last_name: "Smith",   email: "alice@co.com" },
@@ -180,5 +203,55 @@ describe("deriveParticipants", () => {
     expect(deriveParticipants(seg, participants)).toEqual([
       { id: "", first_name: "Unknown Speaker 1", last_name: "", email: "" },
     ]);
+  });
+});
+
+describe("validateSplitRequest", () => {
+  it("returns meeting, turns, and participants for a valid request", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const result = validateSplitRequest(db, meetingId, [60, 30]);
+    expect(result.meeting.id).toBe(meetingId);
+    expect(result.turns).toHaveLength(5);
+    expect(result.participants).toEqual([]);
+  });
+
+  it("throws when meeting does not exist", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    expect(() => validateSplitRequest(db, "no-such-id", [60, 30])).toThrow("not found");
+  });
+
+  it("throws when meeting is archived", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db, { ignored: 1 });
+    expect(() => validateSplitRequest(db, meetingId, [60, 30])).toThrow("archived");
+  });
+
+  it("throws when durations has fewer than 2 elements", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    expect(() => validateSplitRequest(db, meetingId, [60])).toThrow();
+  });
+
+  it("throws when cumulative duration exceeds transcript time span", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    expect(() => validateSplitRequest(db, meetingId, [200, 30])).toThrow();
+  });
+
+  it("throws when meeting is already a split source", () => {
+    const db = createDb(":memory:");
+    migrate(db);
+    const meetingId = seedMeeting(db);
+    const childId = seedMeeting(db);
+    db.prepare(
+      "INSERT INTO meeting_lineage (id, source_meeting_id, result_meeting_id, segment_index, split_at_turn) VALUES (?, ?, ?, ?, ?)",
+    ).run("lin-1", meetingId, childId, 1, 3);
+    expect(() => validateSplitRequest(db, meetingId, [60, 30])).toThrow("already been split");
   });
 });
