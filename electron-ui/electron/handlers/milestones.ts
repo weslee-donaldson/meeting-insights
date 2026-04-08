@@ -38,7 +38,7 @@ export function handleConfirmMilestoneMention(db: Database, milestoneId: string,
 
 export function handleRejectMilestoneMention(db: Database, milestoneId: string, meetingId: string): void {
   const ms = getMilestone(db, milestoneId);
-  coreRejectMilestoneMention(db, milestoneId, meetingId, ms?.client_name ?? "");
+  coreRejectMilestoneMention(db, milestoneId, meetingId, ms?.client_id ?? "");
 }
 
 export function handleMergeMilestones(db: Database, sourceId: string, targetId: string): void {

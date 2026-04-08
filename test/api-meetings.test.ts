@@ -26,8 +26,8 @@ describe("GET /api/clients", () => {
   it("should return list of client names", async () => {
     const res = await app.request("/api/clients");
     expect(res.status).toBe(200);
-    const body = await res.json() as string[];
-    expect(body).toEqual(["TestCo"]);
+    const body = await res.json() as Array<{ id: string; name: string }>;
+    expect(body).toEqual([{ id: "client-testco", name: "TestCo" }]);
   });
 });
 
@@ -50,7 +50,7 @@ describe("GET /api/meetings", () => {
       turns: [],
       sourceFilename: "testco-dsu-1",
     });
-    storeDetection(db, meetingId1, [{ client_name: "TestCo", confidence: 0.8, method: "participant" }]);
+    storeDetection(db, meetingId1, [{ client_name: "TestCo", client_id: "client-testco", confidence: 0.8, method: "participant" }]);
 
     meetingId2 = ingestMeeting(db, {
       title: "OtherCo Planning",
@@ -60,7 +60,7 @@ describe("GET /api/meetings", () => {
       turns: [],
       sourceFilename: "otherco-plan-1",
     });
-    storeDetection(db, meetingId2, [{ client_name: "OtherCo", confidence: 0.8, method: "participant" }]);
+    storeDetection(db, meetingId2, [{ client_name: "OtherCo", client_id: "client-otherco", confidence: 0.8, method: "participant" }]);
 
     app = createApp(db, ":memory:");
   });
@@ -286,7 +286,7 @@ describe("GET /api/clients/:name/action-items", () => {
       JSON.stringify([{ description: "Fix bug", owner: "Alice", requester: "Bob", due_date: null, priority: "critical" }]),
       "[]", "[]", "[]",
     );
-    storeDetection(db, meetingId, [{ client_name: "Acme", confidence: 0.9, method: "participant" }]);
+    storeDetection(db, meetingId, [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "participant" }]);
     app = createApp(db, ":memory:");
   });
 

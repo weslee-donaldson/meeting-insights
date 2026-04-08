@@ -48,7 +48,7 @@ export interface ThreadMessage {
 
 export interface CreateThreadInput {
   client_name: string;
-  client_id: string;
+  client_id?: string | null;
   title: string;
   shorthand: string;
   description: string;
@@ -107,7 +107,7 @@ export function createThread(db: Database, input: CreateThreadInput): Thread {
   db.prepare(`
     INSERT INTO threads (id, client_name, client_id, title, shorthand, description, status, summary, criteria_prompt, keywords, criteria_changed_at, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, 'open', '', ?, ?, ?, ?, ?)
-  `).run(id, input.client_name, input.client_id, input.title, input.shorthand, input.description, input.criteria_prompt, input.keywords ?? "", now, now, now);
+  `).run(id, input.client_name, input.client_id ?? null, input.title, input.shorthand, input.description, input.criteria_prompt, input.keywords ?? "", now, now, now);
   return rowToThread(db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as ThreadRow);
 }
 

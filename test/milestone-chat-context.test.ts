@@ -41,12 +41,12 @@ let milestoneId: string;
 beforeEach(() => {
   db = createDb(":memory:");
   migrate(db);
-  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("Acme", "[]", "[]");
+  db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run("Acme", "[]", "[]", "client-acme");
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m1', 'Sprint Planning', '2026-03-01')").run();
   db.prepare("INSERT OR IGNORE INTO meetings (id, title, date) VALUES ('m2', 'Retrospective', '2026-03-08')").run();
   storeArtifact(db, "m1", { summary: "Discussed launch timeline.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
   storeArtifact(db, "m2", { summary: "Launch delayed to July.", decisions: [], proposed_features: [], action_items: [], open_questions: [], risk_items: [], additional_notes: [] });
-  const ms = createMilestone(db, { clientName: "Acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
+  const ms = createMilestone(db, { clientId: "client-acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
   milestoneId = ms.id;
   addMilestoneMention(db, { milestoneId, meetingId: "m1", mentionType: "introduced", excerpt: "First discussion", targetDateAtMention: "2026-06-01", mentionedAt: "2026-03-01" });
   addMilestoneMention(db, { milestoneId, meetingId: "m2", mentionType: "updated", excerpt: "Pushed to July", targetDateAtMention: "2026-07-01", mentionedAt: "2026-03-08" });
@@ -62,7 +62,7 @@ describe("getMilestoneChatContext", () => {
   });
 
   it("returns empty meetingIds when milestone has no mentions", async () => {
-    const emptyMs = createMilestone(db, { clientName: "Acme", title: "Empty milestone" });
+    const emptyMs = createMilestone(db, { clientId: "client-acme", title: "Empty milestone" });
     const { systemContext, meetingIds } = await getMilestoneChatContext(db, stubVdbEmpty, stubSession, emptyMs.id, "Any updates?", false);
     expect(systemContext).toContain("Empty milestone");
     expect(meetingIds).toHaveLength(0);

@@ -5,5 +5,6 @@ export default defineConfig({
     include: ["test/**/*.test.ts", "test/ui/**/*.test.tsx"],
     passWithNoTests: true,
     environmentMatchGlobs: [["test/ui/**", "jsdom"]],
+    env: { VITE_API_TOKEN: "" },
   },
 });

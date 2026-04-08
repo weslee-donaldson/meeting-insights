@@ -14,7 +14,7 @@ function mockFetch(data: unknown, status = 200) {
 
 describe("apiClient", () => {
   it("getClients fetches /api/clients and returns string array", async () => {
-    const spy = mockFetch(["Acme", "Corp"]);
+    const spy = mockFetch([{ id: "client-acme", name: "Acme" }, { id: "client-corp", name: "Corp" }]);
     expect(await apiClient.getClients()).toEqual(["Acme", "Corp"]);
     expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/clients");
   });

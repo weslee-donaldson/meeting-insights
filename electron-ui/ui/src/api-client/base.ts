@@ -7,7 +7,8 @@ function authHeaders(): Record<string, string> {
 
 export async function fetchJson<T = unknown>(url: string, init?: RequestInit): Promise<T> {
   const headers = { ...authHeaders(), ...init?.headers };
-  const r = await fetch(url, init ? { ...init, headers } : { headers });
+  const hasHeaders = Object.keys(headers).length > 0;
+  const r = init ? await fetch(url, { ...init, headers }) : hasHeaders ? await fetch(url, { headers }) : await fetch(url);
   if (!r.ok) {
     const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };
     throw new Error(body.error);
@@ -18,7 +19,8 @@ export async function fetchJson<T = unknown>(url: string, init?: RequestInit): P
 
 export async function fetchJsonOrNull<T = unknown>(url: string, init?: RequestInit): Promise<T | null> {
   const headers = { ...authHeaders(), ...init?.headers };
-  const r = await fetch(url, init ? { ...init, headers } : { headers });
+  const hasHeaders = Object.keys(headers).length > 0;
+  const r = init ? await fetch(url, { ...init, headers }) : hasHeaders ? await fetch(url, { headers }) : await fetch(url);
   if (r.status === 404) return null;
   if (!r.ok) {
     const body = await r.json().catch(() => ({ error: r.statusText })) as { error: string };

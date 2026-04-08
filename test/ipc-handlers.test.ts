@@ -249,7 +249,7 @@ describe("IPC handlers", () => {
     });
 
     it("should include milestone_tags for meetings with milestone mentions", () => {
-      const ms = createMilestone(db, { clientName: "Acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
+      const ms = createMilestone(db, { clientId: "client-acme", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
       addMilestoneMention(db, { milestoneId: ms.id, meetingId: meetingId1, mentionType: "introduced", excerpt: "First discussion", targetDateAtMention: "2026-06-01", mentionedAt: "2026-01-15" });
       try {
         const meetings = handleGetMeetings(db, {});
@@ -922,7 +922,7 @@ describe("IPC handlers", () => {
         },
       };
       await handleReExtract(db, spyLlm, meetingId2);
-      const milestones = listMilestonesByClient(db, "Acme");
+      const milestones = listMilestonesByClient(db, "client-acme");
       expect(milestones.length).toBeGreaterThanOrEqual(1);
       const match = milestones.find((m: { title: string }) => m.title === "Platform launch v2");
       expect(match).toBeDefined();

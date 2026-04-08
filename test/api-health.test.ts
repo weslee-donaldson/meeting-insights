@@ -117,10 +117,7 @@ describe("api-client health methods", () => {
     const { healthMethods } = await import("../electron-ui/ui/src/api-client/health.js");
     await healthMethods.getHealth();
 
-    expect(fetchSpy).toHaveBeenCalledWith(
-      expect.stringContaining("/api/health"),
-      expect.objectContaining({})
-    );
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining("/api/health"));
     fetchSpy.mockRestore();
   });
 

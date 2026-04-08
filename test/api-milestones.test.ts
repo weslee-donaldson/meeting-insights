@@ -22,7 +22,7 @@ beforeAll(() => {
     turns: [],
     sourceFilename: "sprint-review-1",
   });
-  storeDetection(db, meetingId, [{ client_name: "Acme", confidence: 0.9, method: "auto" }]);
+  storeDetection(db, meetingId, [{ client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "auto" }]);
   app = createApp(db, ":memory:");
 });
 
@@ -48,7 +48,7 @@ describe("Milestone API routes", () => {
   });
 
   it("PUT /api/milestones/:id updates a milestone", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Update Target", targetDate: "2026-07-01" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Update Target", targetDate: "2026-07-01" });
     const res = await app.request(`/api/milestones/${ms.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -60,13 +60,13 @@ describe("Milestone API routes", () => {
   });
 
   it("DELETE /api/milestones/:id deletes a milestone", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "To Delete" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "To Delete" });
     const res = await app.request(`/api/milestones/${ms.id}`, { method: "DELETE" });
     expect(res.status).toBe(200);
   });
 
   it("GET /api/milestones/:id/mentions returns mentions with meeting context", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Mentions Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Mentions Test" });
     addMilestoneMention(db, { milestoneId: ms.id, meetingId, mentionType: "introduced", excerpt: "We are launching", targetDateAtMention: "2026-06-01", mentionedAt: "2026-03-01" });
     const res = await app.request(`/api/milestones/${ms.id}/mentions`);
     expect(res.status).toBe(200);
@@ -76,7 +76,7 @@ describe("Milestone API routes", () => {
   });
 
   it("GET /api/milestones/:id/slippage returns date slippage entries", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Slippage Test", targetDate: "2026-06-01" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Slippage Test", targetDate: "2026-06-01" });
     const meetingId2 = ingestMeeting(db, {
       title: "Slip Meeting 2",
       timestamp: "2026-03-10T10:00:00.000Z",
@@ -94,7 +94,7 @@ describe("Milestone API routes", () => {
   });
 
   it("GET /api/milestones/:id/messages returns empty initially", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Messages Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Messages Test" });
     const res = await app.request(`/api/milestones/${ms.id}/messages`);
     expect(res.status).toBe(200);
     const body = await res.json() as MilestoneMessage[];
@@ -102,13 +102,13 @@ describe("Milestone API routes", () => {
   });
 
   it("DELETE /api/milestones/:id/messages clears messages", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Clear Msgs Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Clear Msgs Test" });
     const res = await app.request(`/api/milestones/${ms.id}/messages`, { method: "DELETE" });
     expect(res.status).toBe(200);
   });
 
   it("GET /api/meetings/:id/milestones returns milestones for a meeting", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Meeting MS Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Meeting MS Test" });
     addMilestoneMention(db, { milestoneId: ms.id, meetingId, mentionType: "referenced", excerpt: "ref", targetDateAtMention: null, mentionedAt: "2026-03-01" });
     const res = await app.request(`/api/meetings/${meetingId}/milestones`);
     expect(res.status).toBe(200);
@@ -117,7 +117,7 @@ describe("Milestone API routes", () => {
   });
 
   it("POST /api/milestones/:id/confirm-mention confirms a pending mention", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Confirm Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Confirm Test" });
     addMilestoneMention(db, { milestoneId: ms.id, meetingId, mentionType: "referenced", excerpt: "test", targetDateAtMention: null, mentionedAt: "2026-03-01" });
     db.prepare("UPDATE milestone_mentions SET pending_review = 1 WHERE milestone_id = ? AND meeting_id = ?").run(ms.id, meetingId);
     const res = await app.request(`/api/milestones/${ms.id}/confirm-mention`, {
@@ -129,7 +129,7 @@ describe("Milestone API routes", () => {
   });
 
   it("POST /api/milestones/:id/reject-mention rejects a pending mention", async () => {
-    const ms2 = createMilestone(db, { clientName: "Acme", title: "Reject Source" });
+    const ms2 = createMilestone(db, { clientId: "client-acme", title: "Reject Source" });
     const meetingId2 = ingestMeeting(db, {
       title: "Another Meeting",
       timestamp: "2026-03-05T10:00:00.000Z",
@@ -149,8 +149,8 @@ describe("Milestone API routes", () => {
   });
 
   it("POST /api/milestones/merge merges two milestones", async () => {
-    const source = createMilestone(db, { clientName: "Acme", title: "Merge Source" });
-    const target = createMilestone(db, { clientName: "Acme", title: "Merge Target" });
+    const source = createMilestone(db, { clientId: "client-acme", title: "Merge Source" });
+    const target = createMilestone(db, { clientId: "client-acme", title: "Merge Target" });
     const res = await app.request("/api/milestones/merge", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -160,7 +160,7 @@ describe("Milestone API routes", () => {
   });
 
   it("POST /api/milestones/:id/link-action-item links an action item", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Link AI Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Link AI Test" });
     const res = await app.request(`/api/milestones/${ms.id}/link-action-item`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -170,7 +170,7 @@ describe("Milestone API routes", () => {
   });
 
   it("DELETE /api/milestones/:id/link-action-item unlinks an action item", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Unlink AI Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Unlink AI Test" });
     const { linkActionItem } = await import("../core/timelines.js");
     linkActionItem(db, ms.id, meetingId, 0);
     const res = await app.request(`/api/milestones/${ms.id}/link-action-item`, {
@@ -182,7 +182,7 @@ describe("Milestone API routes", () => {
   });
 
   it("GET /api/milestones/:id/action-items returns linked action items", async () => {
-    const ms = createMilestone(db, { clientName: "Acme", title: "Get AI Test" });
+    const ms = createMilestone(db, { clientId: "client-acme", title: "Get AI Test" });
     const res = await app.request(`/api/milestones/${ms.id}/action-items`);
     expect(res.status).toBe(200);
     const body = await res.json() as unknown[];

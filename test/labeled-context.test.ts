@@ -143,8 +143,8 @@ describe("buildLabeledContext", () => {
   });
 
   it("includes milestone context when meeting has milestone mentions", () => {
-    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants) VALUES (?, ?, ?)").run("TestCo", "[]", "[]");
-    const ms = createMilestone(db, { clientName: "TestCo", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
+    db.prepare("INSERT OR IGNORE INTO clients (name, aliases, known_participants, id) VALUES (?, ?, ?, ?)").run("TestCo", "[]", "[]", "client-testco");
+    const ms = createMilestone(db, { clientId: "client-testco", title: "Platform Launch", targetDate: "2026-06-01", description: "Phase 1 go-live" });
     addMilestoneMention(db, { milestoneId: ms.id, meetingId: id1, mentionType: "introduced", excerpt: "First mention", targetDateAtMention: "2026-06-01", mentionedAt: "2026-02-25" });
     const result = buildLabeledContext(db, [id1]);
     expect(result.contextText).toContain("Milestones:");

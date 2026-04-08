@@ -285,7 +285,9 @@ export async function handleReExtract(db: Database, llm: LlmAdapter, meetingId: 
   storeArtifact(db, meetingId, artifact);
   if (clientName && artifact.milestones.length > 0) {
     const meetingDate = (db.prepare("SELECT date FROM meetings WHERE id = ?").get(meetingId) as { date: string }).date;
-    reconcileMilestones(db, clientName, meetingId, meetingDate, artifact.milestones);
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = ?").get(clientName) as { id: string } | undefined;
+    const clientId = clientRow?.id ?? "";
+    if (clientId) reconcileMilestones(db, clientId, meetingId, meetingDate, artifact.milestones);
   }
   updateFts(db, meetingId);
 }
@@ -471,7 +473,8 @@ export async function handleCreateMeeting(
     sourceFilename: `manual-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   });
   if (req.clientName) {
-    storeDetection(db, meetingId, [{ client_name: req.clientName, confidence: 1.0, method: "manual" }]);
+    const clientRow = db.prepare("SELECT id FROM clients WHERE name = ?").get(req.clientName) as { id: string } | undefined;
+    storeDetection(db, meetingId, [{ client_name: req.clientName, client_id: clientRow?.id ?? "", confidence: 1.0, method: "manual" }]);
   }
   let turns = req.format === "webvtt"
     ? parseWebVttBody(req.rawTranscript)

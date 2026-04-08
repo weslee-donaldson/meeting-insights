@@ -41,7 +41,7 @@ describe("resolveMeetingSources", () => {
       sourceFilename: "arch-review-1",
     });
     storeDetection(db, meetingId, [
-      { client_name: "Acme", confidence: 0.9, method: "participant" },
+      { client_name: "Acme", client_id: "client-acme", confidence: 0.9, method: "participant" },
     ]);
   });
 
