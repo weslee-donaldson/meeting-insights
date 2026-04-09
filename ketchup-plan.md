@@ -300,15 +300,15 @@ Section 2 -- Sequential (split orchestration)
 
 #### Section 1: Schema & Pure Functions
 
-- [ ] Burst 1: Add `meeting_lineage` table to `core/db.ts` `migrate()`. Test: verify table exists after migration, verify columns and defaults, verify foreign keys. Verify existing tables are unaffected. File: `test/db.test.ts` (add to existing).
+- [x] Burst 1: Add `meeting_lineage` table to `core/db.ts` `migrate()`. Test: verify table exists after migration, verify columns and defaults, verify foreign keys. Verify existing tables are unaffected. File: `test/db.test.ts` (add to existing).
 
-- [ ] Burst 2: Create `core/meeting-split.ts` -- `computeCutPoints(turns, durations)`. Takes a `SpeakerTurn[]` and a `number[]` of durations in minutes. Converts durations to cumulative minute thresholds (e.g., `[60, 15]` -> cuts at minute 60 and minute 75). Walks the turns array; for each cut threshold, finds the index of the last turn whose `HH:MM` timestamp (parsed to total minutes) is <= the threshold. Returns `{ turnIndex, timestamp }[]` where `turnIndex` is the first turn of the NEXT segment and `timestamp` is the actual turn timestamp at that boundary. Edge case: if a cut falls before the first turn or after the last turn, throw a validation error. Test: `test/meeting-split.test.ts` -- exact cut on a turn boundary, cut between turns (snaps to last turn before), cut at very start (error), cut past end (error), three-way split.
+- [x] Burst 2: Create `core/meeting-split.ts` -- `computeCutPoints(turns, durations)`. Takes a `SpeakerTurn[]` and a `number[]` of durations in minutes. Converts durations to cumulative minute thresholds (e.g., `[60, 15]` -> cuts at minute 60 and minute 75). Walks the turns array; for each cut threshold, finds the index of the last turn whose `HH:MM` timestamp (parsed to total minutes) is <= the threshold. Returns `{ turnIndex, timestamp }[]` where `turnIndex` is the first turn of the NEXT segment and `timestamp` is the actual turn timestamp at that boundary. Edge case: if a cut falls before the first turn or after the last turn, throw a validation error. Test: `test/meeting-split.test.ts` -- exact cut on a turn boundary, cut between turns (snaps to last turn before), cut at very start (error), cut past end (error), three-way split.
 
-- [ ] Burst 3: `core/meeting-split.ts` -- `rebaseTimestamps(turns)`. Takes a `SpeakerTurn[]` and returns a new array where the first turn's timestamp becomes `00:00` and all subsequent turns are offset by the same delta. Parse `HH:MM` to minutes, subtract the first turn's minutes, format back to `HH:MM`. Test: turns starting at `01:02` with subsequent turns at `01:05`, `01:28` rebase to `00:00`, `00:03`, `00:26`. Test: turns already starting at `00:00` are unchanged. Test: does not mutate the input array.
+- [x] Burst 3: `core/meeting-split.ts` -- `rebaseTimestamps(turns)`. Takes a `SpeakerTurn[]` and returns a new array where the first turn's timestamp becomes `00:00` and all subsequent turns are offset by the same delta. Parse `HH:MM` to minutes, subtract the first turn's minutes, format back to `HH:MM`. Test: turns starting at `01:02` with subsequent turns at `01:05`, `01:28` rebase to `00:00`, `00:03`, `00:26`. Test: turns already starting at `00:00` are unchanged. Test: does not mutate the input array.
 
-- [ ] Burst 4: `core/meeting-split.ts` -- `partitionTurns(turns, cutPoints)`. Takes the full `SpeakerTurn[]` and the cut points from `computeCutPoints`. Returns `SpeakerTurn[][]` -- an array of N segments, where segment boundaries are at the cut point turn indices. Each segment's timestamps are rebased via `rebaseTimestamps`. Test: 2-way split produces 2 arrays with correct turns. 3-way split produces 3 arrays. Verify timestamps are rebased in each segment. Verify original array is not mutated.
+- [x] Burst 4: `core/meeting-split.ts` -- `partitionTurns(turns, cutPoints)`. Takes the full `SpeakerTurn[]` and the cut points from `computeCutPoints`. Returns `SpeakerTurn[][]` -- an array of N segments, where segment boundaries are at the cut point turn indices. Each segment's timestamps are rebased via `rebaseTimestamps`. Test: 2-way split produces 2 arrays with correct turns. 3-way split produces 3 arrays. Verify timestamps are rebased in each segment. Verify original array is not mutated.
 
-- [ ] Burst 5: `core/meeting-split.ts` -- `reconstructTranscript(turns)` and `deriveParticipants(turns, originalParticipants)`.
+- [x] Burst 5: `core/meeting-split.ts` -- `reconstructTranscript(turns)` and `deriveParticipants(turns, originalParticipants)`.
 
   `reconstructTranscript`: Takes a `SpeakerTurn[]` and produces a plain text transcript in the same format the parser expects: `"Speaker Name | HH:MM\ntext\n\n"` for each turn. This becomes the `raw_transcript` for the new meeting.
 
@@ -318,7 +318,7 @@ Section 2 -- Sequential (split orchestration)
 
 #### Section 2: Split Orchestration
 
-- [ ] Burst 6: `core/meeting-split.ts` -- `validateSplitRequest(db, meetingId, durations)`. Validates:
+- [x] Burst 6: `core/meeting-split.ts` -- `validateSplitRequest(db, meetingId, durations)`. Validates:
   1. Meeting exists and is not already archived (`ignored != 1`)
   2. Meeting has a `raw_transcript` that produces at least 2 turns when parsed
   3. `durations` has at least 2 elements (splitting into 1 meeting is a no-op)
@@ -327,7 +327,7 @@ Section 2 -- Sequential (split orchestration)
 
   Returns `{ meeting: MeetingRow, turns: SpeakerTurn[], participants: Participant[] }` on success, throws descriptive errors on failure. Test: valid meeting passes. Missing meeting throws. Already-ignored meeting throws. Single-element durations array throws. Durations exceeding transcript length throws. Already-split meeting throws.
 
-- [ ] Burst 7: `core/meeting-split.ts` -- `splitMeeting(db, meetingId, durations)`. The main orchestration function:
+- [x] Burst 7: `core/meeting-split.ts` -- `splitMeeting(db, meetingId, durations)`. The main orchestration function:
   1. Calls `validateSplitRequest`
   2. Calls `computeCutPoints` then `partitionTurns`
   3. For each segment (1..N):
@@ -341,7 +341,7 @@ Section 2 -- Sequential (split orchestration)
 
   Test: Split a meeting into 2 -- verify 2 new meeting rows exist with correct titles, participants, transcripts. Verify original is `ignored=1`. Verify 2 lineage rows exist with correct `segment_index` and `source_meeting_id`. Verify source_filenames are unique and follow convention.
 
-- [ ] Burst 8: `core/meeting-split.ts` -- `getSplitLineage(db, meetingId)`. Two queries:
+- [x] Burst 8: `core/meeting-split.ts` -- `getSplitLineage(db, meetingId)`. Two queries:
   1. `getChildMeetings(db, sourceMeetingId)` -- returns all result meetings for a given source, ordered by `segment_index`
   2. `getSourceMeeting(db, resultMeetingId)` -- returns the source meeting if this meeting was created by a split, or null
 
@@ -365,7 +365,7 @@ Section 4 -- Sequential (CLI command)
 
 #### Section 3: API Endpoint
 
-- [ ] Burst 9: Add `POST /api/meetings/:id/split` to `api/routes/meetings.ts`. Accepts JSON body `{ durations: number[] }`. Calls `splitMeeting(db, id, durations)`. Returns the `SplitResult` as JSON with status 200. Error cases:
+- [x] Burst 9: Add `POST /api/meetings/:id/split` to `api/routes/meetings.ts`. Accepts JSON body `{ durations: number[] }`. Calls `splitMeeting(db, id, durations)`. Returns the `SplitResult` as JSON with status 200. Error cases:
   - Meeting not found: 404
   - Validation failure (bad durations, already split, etc.): 400 with `{ error: string }`
   - Internal error: 500
@@ -374,7 +374,7 @@ Section 4 -- Sequential (CLI command)
 
   Test: `test/api-meetings.test.ts` -- POST with valid durations returns 200 + correct SplitResult shape. POST on nonexistent meeting returns 404. POST with single-element durations returns 400. POST on already-ignored meeting returns 400.
 
-- [ ] Burst 10: Add `GET /api/meetings/:id/lineage` to `api/routes/meetings.ts`. Returns:
+- [x] Burst 10: Add `GET /api/meetings/:id/lineage` to `api/routes/meetings.ts`. Returns:
   ```ts
   {
     source: MeetingRow | null,       // if this meeting was split from another
@@ -387,7 +387,7 @@ Section 4 -- Sequential (CLI command)
 
 #### Section 4: CLI Command
 
-- [ ] Burst 11: Create `cli/split.ts`. Parses args: `<meeting-id> --durations 60,15,15`. Validates meeting ID is provided and durations parse as comma-separated positive numbers. Opens the database, calls `splitMeeting`, prints the result table:
+- [x] Burst 11: Create `cli/split.ts`. Parses args: `<meeting-id> --durations 60,15,15`. Validates meeting ID is provided and durations parse as comma-separated positive numbers. Opens the database, calls `splitMeeting`, prints the result table:
 
   ```
   Split meeting "Weekly Standup" into 3 segments:
@@ -415,7 +415,7 @@ Section 5 -- Sequential (pipeline trigger)
 
 #### Section 5: Pipeline Re-extraction for Split Segments
 
-- [ ] Burst 12: Create `core/meeting-split.ts` -- `reprocessSplitSegments(db, splitResult, pipelineDeps)`. Takes the `SplitResult` from `splitMeeting` plus the pipeline dependencies (`llm`, `session`, `vdb`, etc.). For each segment in `splitResult.segments`:
+- [x] Burst 12: Create `core/meeting-split.ts` -- `reprocessSplitSegments(db, splitResult, pipelineDeps)`. Takes the `SplitResult` from `splitMeeting` plus the pipeline dependencies (`llm`, `session`, `vdb`, etc.). For each segment in `splitResult.segments`:
   1. Loads the new meeting row via `getMeeting(db, segment.meeting_id)`
   2. Parses the `raw_transcript` back into turns
   3. Runs `detectClient` + `storeDetection`
@@ -439,7 +439,7 @@ Section 5 -- Sequential (pipeline trigger)
   }
   ```
 
-- [ ] Burst 13: Wire re-extraction into the API endpoint from Burst 9. After `splitMeeting` returns, call `reprocessSplitSegments` for each new segment. Since re-extraction is async (LLM calls), the endpoint should either:
+- [x] Burst 13: Wire re-extraction into the API endpoint from Burst 9. After `splitMeeting` returns, call `reprocessSplitSegments` for each new segment. Since re-extraction is async (LLM calls), the endpoint should either:
   - **Option A:** Await all re-extractions and return the full result (simple, but slow -- user waits)
   - **Option B:** Return the split result immediately, trigger re-extraction in the background
 
@@ -464,7 +464,7 @@ Section 6 -- Sequential (cleanup)
 
 #### Section 6: Archive Cleanup
 
-- [ ] Burst 14: `core/meeting-split.ts` -- `cleanupArchivedMeeting(db, vdb, meetingId)`. When a meeting is archived after split, its downstream data becomes stale. This function:
+- [x] Burst 14: `core/meeting-split.ts` -- `cleanupArchivedMeeting(db, vdb, meetingId)`. When a meeting is archived after split, its downstream data becomes stale. This function:
   1. Deletes the archived meeting's artifact row (`DELETE FROM artifacts WHERE meeting_id = ?`)
   2. Deletes the archived meeting's FTS index entry (`DELETE FROM artifact_fts WHERE meeting_id = ?`)
   3. Deletes client detection rows (`DELETE FROM client_detections WHERE meeting_id = ?`)
@@ -477,7 +477,7 @@ Section 6 -- Sequential (cleanup)
 
   Test: seed a meeting with artifact, FTS entry, client detection, cluster assignment, item mention. Call `cleanupArchivedMeeting`. Verify all cleaned rows are gone. Verify meeting row itself still exists with `ignored=1`. Verify un-cleaned associations still exist.
 
-- [ ] Burst 15: Integrate `cleanupArchivedMeeting` into `splitMeeting` (Burst 7). After archiving the original meeting and before returning the result, call cleanup. This ensures the archived meeting's stale data doesn't pollute search results or cluster assignments while the new segments are being re-extracted.
+- [x] Burst 15: Integrate `cleanupArchivedMeeting` into `splitMeeting` (Burst 7). After archiving the original meeting and before returning the result, call cleanup. This ensures the archived meeting's stale data doesn't pollute search results or cluster assignments while the new segments are being re-extracted.
 
   Test: split a meeting that has an artifact + FTS entry + client detection. After split, verify archived meeting has no artifact, no FTS entry, no client detection. Verify new segment meetings exist correctly.
 
@@ -496,7 +496,7 @@ Section 7 -- Sequential (E2E tests)
 
 #### Section 7: Integration & E2E Verification
 
-- [ ] Burst 16: Create `test/split-e2e.test.ts` -- full lifecycle test through the API. This test exercises the complete split flow as a real consumer would use it. Setup:
+- [x] Burst 16: Create `test/split-e2e.test.ts` -- full lifecycle test through the API. This test exercises the complete split flow as a real consumer would use it. Setup:
   1. Create an in-memory DB + migrate
   2. Seed a meeting via `ingestMeeting` with the full 21-turn fixture (both shared timestamps and gap)
   3. Seed a client and store a detection for the meeting
@@ -541,7 +541,7 @@ Section 7 -- Sequential (E2E tests)
 
   Note: If the design decision is to prevent splitting children too, adjust the validation and this test accordingly.
 
-- [ ] Burst 17: Add re-extraction verification to `test/split-e2e.test.ts`. After the split + re-extraction flow:
+- [x] Burst 17: Add re-extraction verification to `test/split-e2e.test.ts`. After the split + re-extraction flow:
 
   **Test: "re-extraction produces artifacts for each new segment"**
   1. Split a meeting via the API (which triggers re-extraction per Burst 13)
@@ -569,7 +569,7 @@ Section 7 -- Sequential (E2E tests)
   5. Verify segment 2's meeting row still exists (not deleted or corrupted)
   6. Verify the error is surfaced in the response (either in SplitResult or via health endpoint)
 
-- [ ] Burst 18: Create CLI integration test in `test/cli-split.test.ts` that exercises the CLI entry point against a real Hono app.
+- [x] Burst 18: Create CLI integration test in `test/cli-split.test.ts` that exercises the CLI entry point against a real Hono app.
 
   **Test: "CLI split hits the API endpoint and prints correct output"**
   1. Create an in-memory DB + Hono app + stub LLM
@@ -614,7 +614,7 @@ Section 9 -- Sequential (React UI)
 
 #### Section 8: ElectronAPI & API Client
 
-- [ ] Burst 19: Add split and lineage methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
+- [x] Burst 19: Add split and lineage methods to `ElectronAPI` interface + `CHANNELS` const + IPC handler + `api-client/`.
 
   **channels.ts changes:**
   ```ts
