@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
-import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText } from "lucide-react";
+import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText, Scissors } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
 import { useDropzone } from "react-dropzone";
@@ -50,6 +50,8 @@ interface MeetingDetailProps {
   onNotesClick?: () => void;
   onCopyTranscripts?: () => void;
   onOpenInMeetings?: () => void;
+  onSplit?: () => void;
+  sourceMeetingTitle?: string | null;
 }
 
 
@@ -677,7 +679,7 @@ function AttachmentsSection({ assets, onDeleteAsset, onUploadAsset }: { assets: 
   );
 }
 
-export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, onUpdateArtifactSection, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts, onOpenInMeetings }: MeetingDetailProps) {
+export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtractPending, clients, onReassignClient, onIgnore, completions, onComplete, onUncomplete, mentionStats, onMentionClick, artifactLoading, searchQuery, threadTags, onThreadClick, milestoneTags, onMilestoneClick, onEditActionItem, onUpdateArtifactSection, assets, onDeleteAsset, onUploadAsset, onRename, rawTranscript, notesCount, onNotesClick, onCopyTranscripts, onOpenInMeetings, onSplit, sourceMeetingTitle }: MeetingDetailProps) {
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -817,6 +819,11 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
                 ))}
               </div>
             )}
+            {sourceMeetingTitle && (
+              <div className="text-xs mt-1 text-muted-foreground">
+                Split from: <span className="font-medium">{sourceMeetingTitle}</span>
+              </div>
+            )}
           </div>
         </div>
         {onOpenInMeetings && (
@@ -866,6 +873,12 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
               icon: <Pencil className="w-3.5 h-3.5" />,
               onClick: () => setEditMode((prev) => !prev),
               variant: (editMode ? "primary" : "default") as "primary" | "default",
+            }] : []),
+            ...(!onOpenInMeetings && onSplit ? [{
+              label: "Split",
+              icon: <Scissors className="w-3.5 h-3.5" />,
+              onClick: onSplit,
+              variant: "default" as const,
             }] : []),
             ...(!onOpenInMeetings && onIgnore ? [{
               label: "Ignore",

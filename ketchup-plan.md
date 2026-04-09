@@ -475,6 +475,12 @@ Section 14 — Sequential (integration)
 
 ---
 
+## Meeting Split: App.tsx Wiring
+
+- [x] Burst 24: Wire `SplitMeetingDialog` into `App.tsx` — `splitDialogOpen` state, `lineageQuery`, `onSplit` prop to `MeetingDetail` (gated on no source lineage), `sourceMeetingTitle` prop, `handleSplitSuccess` navigates to first segment and shows toast. Test: `test/ui/app-split.test.tsx`
+
+---
+
 ## Agent Context Manifests
 
 Each parallel phase section below defines exactly what the orchestrator copy-pastes into each sub-agent prompt. See the plan file at `.claude/plans/buzzing-shimmying-kite.md` for the complete inline type definitions, before/after function signatures, DB schemas, and TCR revert scopes for every agent.

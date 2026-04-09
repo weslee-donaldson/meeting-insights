@@ -396,4 +396,11 @@ export interface ElectronAPI {
   notesCount: (objectType: string, objectId: string) => Promise<number>;
   artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/extractor.js").Artifact | null>>;
   getGlossary: (clientName: string) => Promise<import("../../core/client-registry.js").GlossaryEntry[]>;
+  splitMeeting: (meetingId: string, durations: number[]) => Promise<SplitResult>;
+  getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;
+}
+
+export interface SplitResult {
+  source_meeting_id: string;
+  segments: Array<{ meeting_id: string; segment_index: number; title: string; duration_minutes: number }>;
 }
