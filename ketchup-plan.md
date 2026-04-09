@@ -664,6 +664,15 @@ Section 9 -- Sequential (React UI)
 
   Test: `test/ui/split-meeting-dialog.test.tsx` -- after successful split, verify `onSuccess` callback fired with result, verify meeting list query invalidated.
 
+- [ ] Burst 24: Wire `SplitMeetingDialog` into `App.tsx`.
+  - Import `SplitMeetingDialog` and add `splitDialogOpen` boolean state
+  - Pass `onSplit={() => setSplitDialogOpen(true)}` to `MeetingDetail` only when the selected meeting is eligible (not ignored, no lineage source)
+  - On meeting select, call `window.api.getMeetingLineage(meetingId)` and store the result; use `lineage.source` to populate `sourceMeetingTitle` on `MeetingDetail`
+  - In `SplitMeetingDialog.onSuccess`: select `result.segments[0].meeting_id` as the new `selectedMeetingId` and show a toast "Meeting split into N parts. Re-extraction in progress."
+  - Close the dialog (`setSplitDialogOpen(false)`) on success
+
+  Test: `test/ui/app-split.test.tsx` -- render `App` with mock `window.api` (getMeetingLineage returns no source, splitMeeting resolves). Select a meeting, verify Split button appears in toolbar. Click Split, fill duration, confirm -- verify `splitMeeting` was called and the first segment becomes selected.
+
 ---
 
 ## Phase 7: Documentation & Scatter Updates
