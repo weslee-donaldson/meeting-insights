@@ -1074,4 +1074,33 @@ describe("MeetingDetail", () => {
     expect(term.getAttribute("title")).toBe("Product planning document");
     expect(term.textContent).toBe("roadmap");
   });
+
+  it("shows Split button in toolbar when onSplit is provided", () => {
+    renderWithQuery(
+      <MeetingDetail meeting={makeMeeting()} artifact={null} onSplit={vi.fn()} />,
+    );
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.textContent).toContain("Split");
+  });
+
+  it("hides Split button when onSplit is not provided", () => {
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={null} />);
+    const toolbar = screen.getByRole("toolbar");
+    expect(toolbar.textContent).not.toContain("Split");
+  });
+
+  it("clicking Split button calls onSplit", () => {
+    const onSplit = vi.fn();
+    renderWithQuery(<MeetingDetail meeting={makeMeeting()} artifact={null} onSplit={onSplit} />);
+    fireEvent.click(screen.getByText("Split").closest("button")!);
+    expect(onSplit).toHaveBeenCalledOnce();
+  });
+
+  it("shows source meeting lineage badge when sourceMeetingTitle is provided", () => {
+    renderWithQuery(
+      <MeetingDetail meeting={makeMeeting()} artifact={null} sourceMeetingTitle="Weekly Standup" />,
+    );
+    expect(screen.getByText(/split from/i)).toBeDefined();
+    expect(screen.getByText(/Weekly Standup/)).toBeDefined();
+  });
 });
