@@ -14,6 +14,7 @@ Contains two subdirectories and one standalone script serving different audience
 | File | Purpose |
 |------|---------|
 | `manage-auth.ts` | Auth management CLI (`pnpm manage-auth`). Subcommands: `create-client` (register OAuth client), `create-api-key` (mint API key), `list-clients`, `list-api-keys`, `revoke-client <client_id>`, `revoke-api-key <prefix>`. Reads DB from `MTNINSIGHTS_DB_PATH` or default, uses the default tenant's owner user. Exports `buildProgram(db, tenantId, userId, print)` for testability. |
+| `split.ts` | Meeting split CLI (`pnpm split`). Accepts `meetingId` positional arg and `--durations` flag (comma-separated minutes). Calls `splitMeeting` from `core/meeting-split.ts` and prints a summary of created segments. Exports `runSplit(db, meetingId, durations)` for testability. |
 
 ## Related
 

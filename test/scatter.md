@@ -21,6 +21,13 @@ Tests for the Hono HTTP server routes in `api/`.
 | `api-milestones.test.ts` | `/api/milestones` CRUD endpoints |
 | `api-search.test.ts` | `/api/search` semantic and hybrid search endpoints |
 
+### Split Tests
+
+| File | Purpose |
+|------|---------|
+| `split-e2e.test.ts` | End-to-end split lifecycle: validates `computeCutPoints`, `partitionTurns`, `splitMeeting` creates N new meetings and marks source ignored, `cleanupArchivedMeeting` removes artifacts/vectors, and `reprocessSplitSegments` runs extraction per segment |
+| `cli-split.test.ts` | `runSplit(db, meetingId, durations)` formatting of the split summary output |
+
 ### Core Module Tests
 
 Tests for business logic in `core/`.

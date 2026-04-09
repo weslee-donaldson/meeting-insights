@@ -51,6 +51,7 @@ All React components that render domain data. Organized into layout, feature-vie
 | `ItemHistoryDialog.tsx` | Modal showing the mention history of a canonical action item or decision across all meetings |
 | `EditActionItemDialog.tsx` | Modal form for editing an action item's description, owner, requester, due date, and priority |
 | `NotesDialog.tsx` | Universal notes dialog for creating, viewing, editing, and deleting annotations; attached to meetings, insights, milestones, or threads via `useNotesState` |
+| `SplitMeetingDialog.tsx` | Modal for splitting a multi-meeting recording into N separate meetings. Shows a segment count input and N-1 duration inputs; derives the last segment duration as the remainder. Renders a timeline summary bar. On confirm calls `window.api.splitMeeting(meetingId, durations[])`, invalidates the `["meetings"]` query via `useQueryClient`, and calls `onSuccess(result)`. |
 
 ### Search components
 

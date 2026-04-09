@@ -660,7 +660,7 @@ Section 9 -- Sequential (React UI)
 
   Test: `test/ui/meeting-detail.test.tsx` -- render meeting detail with mock API. Verify "Split Meeting" button appears for normal meetings. Verify button is hidden for ignored meetings. Verify lineage info appears for split-child meetings.
 
-- [ ] Burst 22: After a successful split, the UI should navigate away from the archived meeting and show the first new segment. Invalidate the meetings list query so it refreshes. Show a success toast: "Meeting split into N parts. Re-extraction in progress."
+- [x] Burst 22: After a successful split, the UI should navigate away from the archived meeting and show the first new segment. Invalidate the meetings list query so it refreshes. Show a success toast: "Meeting split into N parts. Re-extraction in progress."
 
   Test: `test/ui/split-meeting-dialog.test.tsx` -- after successful split, verify `onSuccess` callback fired with result, verify meeting list query invalidated.
 
