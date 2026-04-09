@@ -528,3 +528,9 @@ Each parallel phase section below defines exactly what the orchestrator copy-pas
 9. `GET /.well-known/oauth-authorization-server` returns valid metadata
 10. `GET /oauth/jwks` returns public key
 11. `POST /oauth/register` with owner secret creates functional OAuth client
+
+---
+
+## Meeting Split: CLI Phase
+
+- [x] Burst 25: Add `mti meetings split` subcommand to `cli/mti/src/commands/meetings.ts`. Posts `{durations: number[]}` to `POST /api/meetings/:id/split`. Prints segment summary lines or raw JSON. Errors write to stderr with exitCode=1. Test: `test/cli/mti/commands/meetings.test.ts`.

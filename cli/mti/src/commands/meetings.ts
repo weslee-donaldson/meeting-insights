@@ -394,5 +394,52 @@ Errors:
       stream.write(`Meeting ${id} ${verb}.\n`);
     });
 
+  const SPLIT_DESCRIPTION = `Split a meeting into segments by duration.
+
+Output schema (--json):
+  { "source_meeting_id": "string",
+    "segments": [{ "meeting_id": "string", "segment_index": "number",
+      "title": "string", "duration_minutes": "number" }] }
+
+Example:
+  $ mti meetings split a1b2c3d4 --durations 30,45
+  Segment 1: Morning Standup (30 min)
+  Segment 2: Planning Discussion (45 min)
+
+Errors:
+  400  Durations exceed total meeting length
+  404  Meeting not found`;
+
+  meetings
+    .command("split")
+    .description(SPLIT_DESCRIPTION)
+    .argument("<id>", "Meeting ID")
+    .option("--durations <csv>", "Comma-separated segment durations in minutes")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, opts: { durations?: string; json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      const stderr = resolveStderr(deps);
+      const durations = (opts.durations ?? "")
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10));
+      try {
+        const data = (await client.post(`/api/meetings/${id}/split`, { durations })) as {
+          source_meeting_id: string;
+          segments: Array<{ meeting_id: string; segment_index: number; title: string; duration_minutes: number }>;
+        };
+        if (opts.json) {
+          outputJson(data, stream);
+          return;
+        }
+        for (const seg of data.segments) {
+          stream.write(`Segment ${seg.segment_index + 1}: ${seg.title} (${seg.duration_minutes} min)\n`);
+        }
+      } catch (err) {
+        stderr.write((err as Error).message + "\n");
+        process.exitCode = 1;
+      }
+    });
+
   program.addCommand(meetings);
 }
