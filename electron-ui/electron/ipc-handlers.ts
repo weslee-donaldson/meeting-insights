@@ -35,6 +35,8 @@ export {
   handleGetTranscript,
   handleUpdateArtifactSection,
   handleArtifactBatch,
+  handleSplitMeeting,
+  handleGetMeetingLineage,
 } from "./handlers/meetings.js";
 
 export {

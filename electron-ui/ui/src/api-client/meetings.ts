@@ -119,4 +119,10 @@ export const meetingsMethods = {
 
   artifactBatch: (meetingIds: string[]) =>
     jsonPost(`${API_BASE}/api/artifacts/batch`, { meetingIds }),
+
+  splitMeeting: (meetingId: string, durations: number[]) =>
+    jsonPost(`${API_BASE}/api/meetings/${meetingId}/split`, { durations }),
+
+  getMeetingLineage: (meetingId: string) =>
+    fetchJson(`${API_BASE}/api/meetings/${meetingId}/lineage`),
 };

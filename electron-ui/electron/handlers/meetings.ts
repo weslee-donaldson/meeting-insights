@@ -8,6 +8,9 @@ import { getClientByName, getGlossaryForClient, buildClientContext } from "../..
 import type { Participant, GlossaryEntry } from "../../../core/client-registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
+import { splitMeeting, getChildMeetings, getSourceMeeting } from "../../../core/meeting-split.js";
+import type { SplitResult } from "../../../core/meeting-split.js";
+import type { MeetingRow } from "../../../core/ingest.js";
 import { deleteNotesByObject } from "../../../core/notes.js";
 import { storeDetection } from "../../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
@@ -556,4 +559,15 @@ export function handleArtifactBatch(db: Database, meetingIds: string[]): Record<
     result[id] = handleGetArtifact(db, id);
   }
   return result;
+}
+
+export async function handleSplitMeeting(db: Database, meetingId: string, durations: number[]): Promise<SplitResult> {
+  return splitMeeting(db, meetingId, durations);
+}
+
+export function handleGetMeetingLineage(db: Database, meetingId: string): { source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null } {
+  const source = getSourceMeeting(db, meetingId);
+  const children = getChildMeetings(db, meetingId);
+  const row = db.prepare("SELECT segment_index FROM meeting_lineage WHERE result_meeting_id = ?").get(meetingId) as { segment_index: number } | undefined;
+  return { source, children, segment_index: row?.segment_index ?? null };
 }

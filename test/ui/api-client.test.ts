@@ -449,4 +449,19 @@ describe("apiClient", () => {
     expect(await apiClient.getTranscript("m1")).toBeNull();
   });
 
+  it("splitMeeting POSTs to /api/meetings/:id/split with durations", async () => {
+    const spy = mockFetch({ source_meeting_id: "m1", segments: [] });
+    await apiClient.splitMeeting("m1", [60, 30]);
+    expect(spy).toHaveBeenCalledWith(
+      "http://localhost:3000/api/meetings/m1/split",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("getMeetingLineage GETs /api/meetings/:id/lineage", async () => {
+    const spy = mockFetch({ source: null, children: [], segment_index: null });
+    await apiClient.getMeetingLineage("m1");
+    expect(spy).toHaveBeenCalledWith("http://localhost:3000/api/meetings/m1/lineage");
+  });
+
 });

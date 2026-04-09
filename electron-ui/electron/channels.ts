@@ -79,6 +79,8 @@ export const CHANNELS = {
   GLOSSARY: "glossary",
   GET_HEALTH: "get-health",
   ACKNOWLEDGE_HEALTH_ERRORS: "acknowledge-health-errors",
+  SPLIT_MEETING: "split-meeting",
+  GET_MEETING_LINEAGE: "get-meeting-lineage",
 } as const;
 
 export type ChannelName = (typeof CHANNELS)[keyof typeof CHANNELS];
@@ -402,4 +404,6 @@ export interface ElectronAPI {
   getGlossary: (clientName: string) => Promise<import("../../core/client-registry.js").GlossaryEntry[]>;
   getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
   acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
+  splitMeeting: (meetingId: string, durations: number[]) => Promise<import("../../core/meeting-split.js").SplitResult>;
+  getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;
 }

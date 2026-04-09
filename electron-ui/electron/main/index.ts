@@ -45,6 +45,8 @@ import {
   handleDeleteAsset,
   handleGetAssetData,
   handleRenameMeeting,
+  handleSplitMeeting,
+  handleGetMeetingLineage,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm-adapter.js";
 import { ensureFtsCurrent } from "../../../core/fts.js";
@@ -172,6 +174,8 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.DELETE_ASSET, (_e, assetId: string) => handleDeleteAsset(db, assetId, ASSETS_DIR));
   ipcMain.handle(CHANNELS.GET_ASSET_DATA, (_e, assetId: string) => handleGetAssetData(db, assetId, ASSETS_DIR));
   ipcMain.handle(CHANNELS.RENAME_MEETING, (_e, meetingId: string, newTitle: string) => handleRenameMeeting(db, meetingId, newTitle));
+  ipcMain.handle(CHANNELS.SPLIT_MEETING, (_e, meetingId: string, durations: number[]) => handleSplitMeeting(db, meetingId, durations));
+  ipcMain.handle(CHANNELS.GET_MEETING_LINEAGE, (_e, meetingId: string) => handleGetMeetingLineage(db, meetingId));
 
   createWindow();
 

@@ -53,6 +53,8 @@ const api: ElectronAPI = {
   threadChat: (req: ThreadChatRequest) => ipcRenderer.invoke(CHANNELS.THREAD_CHAT, req),
   clearThreadMessages: (threadId: string) => ipcRenderer.invoke(CHANNELS.CLEAR_THREAD_MESSAGES, threadId),
   getMeetingThreads: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MEETING_THREADS, meetingId),
+  splitMeeting: (meetingId: string, durations: number[]) => ipcRenderer.invoke(CHANNELS.SPLIT_MEETING, meetingId, durations),
+  getMeetingLineage: (meetingId: string) => ipcRenderer.invoke(CHANNELS.GET_MEETING_LINEAGE, meetingId),
 };
 
 contextBridge.exposeInMainWorld("api", api);

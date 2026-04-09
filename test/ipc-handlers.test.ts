@@ -49,6 +49,8 @@ import {
   handleRenameMeeting,
   handleGetHealth,
   handleAcknowledgeHealthErrors,
+  handleSplitMeeting,
+  handleGetMeetingLineage,
 } from "../electron-ui/electron/ipc-handlers.js";
 
 function seedClientsRaw(db: ReturnType<typeof createDb>) {
@@ -1100,6 +1102,58 @@ describe("IPC handlers", () => {
       const result = handleGetHealth(db);
       expect(result.status).toBe("healthy");
       db.prepare("DELETE FROM system_errors WHERE id = 'hh-e2'").run();
+    });
+  });
+
+  describe("split/lineage handlers", () => {
+    const SPLIT_TRANSCRIPT =
+      "Alice | 00:00\nOpening\n\n" +
+      "Bob | 00:15\nThanks\n\n" +
+      "Alice | 00:30\nGood meeting\n\n" +
+      "Bob | 01:00\nAgreed\n\n" +
+      "Alice | 01:28\nBye\n\n";
+
+    it("handleSplitMeeting returns SplitResult with correct segments", async () => {
+      const splitDb = createDb(":memory:");
+      migrate(splitDb);
+      const meetingId = ingestMeeting(splitDb, {
+        title: "Split Target",
+        timestamp: "2024-01-01",
+        participants: [],
+        turns: [],
+        rawTranscript: SPLIT_TRANSCRIPT,
+        sourceFilename: "ipc-split-test.md",
+      });
+      const result = await handleSplitMeeting(splitDb, meetingId, [60, 30]);
+      expect(result.source_meeting_id).toBe(meetingId);
+      expect(result.segments).toHaveLength(2);
+      expect(result.segments[0].segment_index).toBe(1);
+      expect(result.segments[1].segment_index).toBe(2);
+    });
+
+    it("handleGetMeetingLineage returns source, children, segment_index", async () => {
+      const lineageDb = createDb(":memory:");
+      migrate(lineageDb);
+      const meetingId = ingestMeeting(lineageDb, {
+        title: "Lineage Source",
+        timestamp: "2024-01-01",
+        participants: [],
+        turns: [],
+        rawTranscript: SPLIT_TRANSCRIPT,
+        sourceFilename: "ipc-lineage-test.md",
+      });
+      await handleSplitMeeting(lineageDb, meetingId, [60, 30]);
+
+      const parentLineage = handleGetMeetingLineage(lineageDb, meetingId);
+      expect(parentLineage.source).toBeNull();
+      expect(parentLineage.children).toHaveLength(2);
+      expect(parentLineage.segment_index).toBeNull();
+
+      const seg1Id = parentLineage.children[0].id;
+      const childLineage = handleGetMeetingLineage(lineageDb, seg1Id);
+      expect(childLineage.source?.id).toBe(meetingId);
+      expect(childLineage.children).toHaveLength(0);
+      expect(childLineage.segment_index).toBe(1);
     });
   });
 
