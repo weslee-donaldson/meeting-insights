@@ -822,8 +822,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             {sourceMeetingTitle && (
               <div className="text-xs mt-1 text-muted-foreground flex gap-1.5 items-center">
                 <Scissors className="w-3 h-3" />
-                <span>Split from <span className="font-medium text-foreground">{sourceMeetingTitle}</span></span>
-              </div>
+                <span>Split from <span className="font-medium text-foreground">{sourceMeetingTitle}</span></span>              </div>
             )}
           </div>
         </div>

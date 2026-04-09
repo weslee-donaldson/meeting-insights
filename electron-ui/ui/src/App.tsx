@@ -11,6 +11,8 @@ import { ItemHistoryDialog } from "./components/ItemHistoryDialog.js";
 import { Dialog, DialogContent, DialogTitle } from "./components/ui/dialog.js";
 import { Button } from "./components/ui/button.js";
 import { NewMeetingDialog } from "./components/NewMeetingDialog.js";
+import { SplitMeetingDialog } from "./components/SplitMeetingDialog.js";
+import type { SplitResult } from "../../electron/channels.js";
 import { CreateThreadDialog } from "./components/CreateThreadDialog.js";
 import { CreateInsightDialog } from "./components/CreateInsightDialog.js";
 import { CreateMilestoneDialog } from "./components/CreateMilestoneDialog.js";
@@ -83,6 +85,20 @@ export function App() {
 
   const queryClient = useQueryClient();
   const { health, isError: healthIsError, acknowledgeAll } = useSystemHealth();
+
+  const [splitDialogOpen, setSplitDialogOpen] = useState(false);
+
+  const lineageQuery = useQuery({
+    queryKey: ["lineage", meeting.selectedMeetingId],
+    queryFn: () => window.api.getMeetingLineage(meeting.selectedMeetingId!),
+    enabled: !!meeting.selectedMeetingId,
+  });
+
+  const handleSplitSuccess = useCallback((result: SplitResult) => {
+    meeting.setSelectedMeetingId(result.segments[0].meeting_id);
+    queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    addToast(`Meeting split into ${result.segments.length} parts. Re-extraction in progress.`, "success");
+  }, [meeting, queryClient, addToast]);
 
   const assetsQuery = useQuery({
     queryKey: ["assets", meeting.selectedMeetingId],
@@ -288,6 +304,8 @@ export function App() {
     notesCount: meetingNotes.noteCountQuery.data ?? 0,
     onNotesClick: meeting.selectedMeetingId ? () => meetingNotes.setNotesDialogOpen(true) : undefined,
     onCopyTranscripts: meeting.handleCopyMultiTranscripts,
+    onSplit: meeting.selectedMeetingId && !lineageQuery.data?.source ? () => setSplitDialogOpen(true) : undefined,
+    sourceMeetingTitle: lineageQuery.data?.source?.title ?? null,
   });
 
   const actionItemsPanels = ActionItemsPage({
@@ -582,6 +600,16 @@ export function App() {
       clients={clientsQuery.data ?? []}
       onSubmit={meeting.handleNewMeeting}
     />
+    {meeting.selectedMeetingId && meeting.selectedMeeting && (
+      <SplitMeetingDialog
+        open={splitDialogOpen}
+        onOpenChange={setSplitDialogOpen}
+        meetingId={meeting.selectedMeetingId}
+        meetingTitle={meeting.selectedMeeting.title}
+        totalDurationMinutes={60}
+        onSuccess={handleSplitSuccess}
+      />
+    )}
     <Dialog open={meeting.pendingDeleteIds !== null} onOpenChange={(o) => { if (!o) meeting.setPendingDeleteIds(null); }}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Delete meetings</DialogTitle>

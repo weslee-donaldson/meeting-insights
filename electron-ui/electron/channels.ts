@@ -405,5 +405,4 @@ export interface ElectronAPI {
   getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
   acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
   splitMeeting: (meetingId: string, durations: number[]) => Promise<import("../../core/meeting-split.js").SplitResult>;
-  getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;
-}
+  getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;}

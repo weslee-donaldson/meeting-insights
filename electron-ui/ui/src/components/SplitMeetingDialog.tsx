@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 import type { SplitResult } from "../../../../core/meeting-split.js";
-
 interface SplitMeetingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -75,8 +74,7 @@ export function SplitMeetingDialog({
             Splitting: <span className="font-medium text-foreground">{meetingTitle}</span>
           </p>
           <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            How many meetings are in this recording?
-            <input
+            How many meetings are in this recording?            <input
               type="number"
               min={2}
               max={10}
@@ -119,8 +117,7 @@ export function SplitMeetingDialog({
             <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancel
             </Button>
-            <Button onClick={handleSplit} disabled={loading}>
-              {loading ? "Splitting..." : "Split Meeting"}
+            <Button onClick={handleSplit} disabled={loading}>              {loading ? "Splitting..." : "Split Meeting"}
             </Button>
           </div>
         </div>

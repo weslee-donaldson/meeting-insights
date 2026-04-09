@@ -403,7 +403,6 @@ Section 4 -- Sequential (CLI command)
 ---
 
 ## Phase 3: Re-extraction Integration
-
 ### Dependency Graph (Phase 3)
 
 ```
