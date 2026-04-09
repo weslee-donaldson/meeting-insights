@@ -775,3 +775,87 @@ describe("meetings ignore", () => {
     expect(help).toContain("404");
   });
 });
+
+describe("meetings split", () => {
+  const splitResponse = {
+    source_meeting_id: "m1",
+    segments: [
+      { meeting_id: "s1", segment_index: 0, title: "Part 1", duration_minutes: 30 },
+      { meeting_id: "s2", segment_index: 1, title: "Part 2", duration_minutes: 45 },
+    ],
+  };
+
+  it("sends correct POST body to /api/meetings/:id/split", async () => {
+    let capturedUrl = "";
+    let capturedBody = "";
+    const client = stubClient(async (url, init) => {
+      capturedUrl = url;
+      capturedBody = init?.body as string;
+      return new Response(JSON.stringify(splitResponse));
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "split", "m1", "--durations", "30,45"],
+      { from: "user" }
+    );
+
+    expect(new URL(capturedUrl).pathname).toBe("/api/meetings/m1/split");
+    expect(JSON.parse(capturedBody)).toEqual({ durations: [30, 45] });
+  });
+
+  it("prints segment summary lines on success", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(splitResponse))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "split", "m1", "--durations", "30,45"],
+      { from: "user" }
+    );
+
+    const text = out.text();
+    expect(text).toContain("Segment 1: Part 1 (30 min)");
+    expect(text).toContain("Segment 2: Part 2 (45 min)");
+  });
+
+  it("outputs raw JSON with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(splitResponse))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "split", "m1", "--durations", "30,45", "--json"],
+      { from: "user" }
+    );
+
+    expect(JSON.parse(out.text())).toEqual(splitResponse);
+  });
+
+  it("writes error to stderr and sets exitCode=1 on API error", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify({ error: "durations exceed total meeting length" }), { status: 400 })
+    );
+    const out = collectOutput();
+    const err = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
+    await program.parseAsync(
+      ["meetings", "split", "m1", "--durations", "999"],
+      { from: "user" }
+    );
+
+    expect(out.text()).toBe("");
+    expect(err.text()).toContain("durations exceed total meeting length");
+    expect(process.exitCode).toBe(1);
+  });
+});
