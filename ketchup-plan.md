@@ -673,6 +673,13 @@ Section 9 -- Sequential (React UI)
 
   Test: `test/ui/app-split.test.tsx` -- render `App` with mock `window.api` (getMeetingLineage returns no source, splitMeeting resolves). Select a meeting, verify Split button appears in toolbar. Click Split, fill duration, confirm -- verify `splitMeeting` was called and the first segment becomes selected.
 
+- [ ] Burst 25: Add `mti meetings split` subcommand to `cli/mti/src/commands/meetings.ts`.
+  - `mti meetings split <id> --durations <m1,m2,...>` posts `{durations: number[]}` to `POST /api/meetings/:id/split`
+  - Prints each created segment: id, title, duration
+  - Errors from the API (400/404) are printed to stderr and exit non-zero
+
+  Test: `test/mti-split.test.ts` -- mock HTTP client, verify correct POST body sent, verify segment summary printed, verify error path exits non-zero.
+
 ---
 
 ## Phase 7: Documentation & Scatter Updates
