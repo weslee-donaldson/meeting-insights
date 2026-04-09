@@ -652,7 +652,7 @@ Section 9 -- Sequential (React UI)
 
   Test: `test/ui/split-meeting-dialog.test.tsx` -- render with props, verify number input changes segment count. Fill in durations, click confirm, verify `window.api.splitMeeting` called with correct args. Verify error state renders on API failure.
 
-- [ ] Burst 21: Add "Split Meeting" action to meeting detail view. This is a button or menu item in the meeting detail header/actions area. Clicking it opens the `SplitMeetingDialog`. The button should be hidden/disabled if:
+- [x] Burst 21: Add "Split Meeting" action to meeting detail view. This is a button or menu item in the meeting detail header/actions area. Clicking it opens the `SplitMeetingDialog`. The button should be hidden/disabled if:
   1. Meeting is already archived (`ignored=1`)
   2. Meeting was created by a split (has a source in lineage -- show "Split from {source title}" info instead)
 

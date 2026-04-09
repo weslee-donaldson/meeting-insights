@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
 import type { SplitResult } from "../../../../core/meeting-split.js";
@@ -20,6 +21,7 @@ export function SplitMeetingDialog({
   totalDurationMinutes,
   onSuccess,
 }: SplitMeetingDialogProps) {
+  const queryClient = useQueryClient();
   const [numSegments, setNumSegments] = useState(2);
   const [durations, setDurations] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,6 +56,7 @@ export function SplitMeetingDialog({
     try {
       const filled = getFilledDurations();
       const result = await (window as unknown as { api: { splitMeeting: (id: string, d: number[]) => Promise<SplitResult> } }).api.splitMeeting(meetingId, filled);
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
       onSuccess(result);
       onOpenChange(false);
     } catch (err) {
