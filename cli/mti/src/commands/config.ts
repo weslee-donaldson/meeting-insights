@@ -84,6 +84,10 @@ export function registerConfig(program: Command): void {
 Output schema (--json):
   { "baseUrl": "string", "token": "string (masked)" }
 
+Environment variable overrides (take precedence over ~/.mtirc):
+  MTI_BASE_URL  Override base URL
+  MTI_TOKEN     Override authentication token
+
 Example:
   $ mti config show
   Base URL:   http://localhost:3000

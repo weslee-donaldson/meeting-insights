@@ -268,7 +268,7 @@ describe("items list", () => {
     expect(dataLine).toContain("\u2026");
   });
 
-  it("renders full values without truncation when truncate is false", async () => {
+  it("renders full values without truncation when full is true", async () => {
     const longDesc = "A".repeat(50);
     const payload = [
       { ...sampleItems[0], description: longDesc },
@@ -278,7 +278,7 @@ describe("items list", () => {
     );
     const out = collectStream();
 
-    await listItems("Acme", { truncate: false }, { client, stream: out.stream });
+    await listItems("Acme", { full: true }, { client, stream: out.stream });
 
     const dataLine = out.output().split("\n")[2];
     expect(dataLine).toContain(longDesc);
@@ -300,14 +300,14 @@ describe("items list", () => {
     expect(parsed[4].short_id).toBe("sid4");
   });
 
-  it("declares --limit and --no-truncate options on list subcommand", () => {
+  it("declares --limit and --full options on list subcommand", () => {
     const program = buildProgram();
     const items = program.commands.find((c) => c.name() === "items")!;
     const list = items.commands.find((c) => c.name() === "list")!;
     const optionNames = list.options.map((o) => o.long);
 
     expect(optionNames).toContain("--limit");
-    expect(optionNames).toContain("--no-truncate");
+    expect(optionNames).toContain("--full");
   });
 });
 
@@ -448,7 +448,7 @@ describe("items edit", () => {
     const edit = items.commands.find((c) => c.name() === "edit")!;
     const help = captureHelp(edit);
 
-    expect(help).toContain("Edit an existing action item's fields.");
+    expect(help).toContain("Edit an existing action item's fields (index is 0-based");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
@@ -516,7 +516,7 @@ describe("items complete", () => {
     const complete = items.commands.find((c) => c.name() === "complete")!;
     const help = captureHelp(complete);
 
-    expect(help).toContain("Mark an action item as complete.");
+    expect(help).toContain("Mark an action item as complete (index is 0-based");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
@@ -568,7 +568,7 @@ describe("items uncomplete", () => {
     const uncomplete = items.commands.find((c) => c.name() === "uncomplete")!;
     const help = captureHelp(uncomplete);
 
-    expect(help).toContain("Revert an action item's completion status.");
+    expect(help).toContain("Revert an action item's completion status (index is 0-based");
     expect(help).toContain("Errors:");
     expect(help).toContain("404");
   });
@@ -741,9 +741,9 @@ describe("items history", () => {
     const history = items.commands.find((c) => c.name() === "history")!;
     const help = captureHelp(history);
 
-    expect(help).toContain(
-      "Show cross-meeting history for an action item by its canonical ID."
-    );
+    expect(help).toContain("Show cross-meeting history for an action item.");
+    expect(help).toContain("Short ID");
+    expect(help).toContain("items list");
     expect(help).toContain("Output schema (--json):");
     expect(help).toContain("Example:");
     expect(help).toContain("Errors:");

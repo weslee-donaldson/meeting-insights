@@ -75,13 +75,13 @@ export function registerHealth(program: Command, deps?: HealthDeps): void {
   health
     .command("acknowledge")
     .description("Acknowledge (dismiss) health errors.")
-    .option("--ids <ids>", "Comma-separated error IDs to acknowledge (default: all)")
+    .option("--id <id>", "Error ID to acknowledge (can be specified multiple times; default: all)", (val: string, acc: string[]) => [...acc, val], [] as string[])
     .option("--json", "Output raw JSON")
-    .action(async (opts: { ids?: string; json?: boolean }) => {
+    .action(async (opts: { id: string[]; json?: boolean }) => {
       const client = resolveClient(deps);
       const stream = resolveStream(deps);
 
-      const errorIds = opts.ids ? opts.ids.split(",").map((s) => s.trim()) : undefined;
+      const errorIds = opts.id.length > 0 ? opts.id : undefined;
       const body = errorIds ? { errorIds } : {};
       const result = await client.post("/api/health/acknowledge", body) as { ok: boolean };
 

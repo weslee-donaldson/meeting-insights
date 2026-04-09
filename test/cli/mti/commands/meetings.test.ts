@@ -253,7 +253,7 @@ describe("meetings list", () => {
     expect(dataLine).toContain("\u2026");
   });
 
-  it("renders full values without truncation when --no-truncate is passed", async () => {
+  it("renders full values without truncation when --full is passed", async () => {
     const longTitle = "A".repeat(50);
     const payload = [
       { id: "m1", title: longTitle, date: "2026-01-15", client: "Acme", series: "standup", actionItemCount: 0 },
@@ -266,14 +266,14 @@ describe("meetings list", () => {
 
     const program = new Command();
     registerMeetings(program, { client, stream: out.stream, stderr: err.stream });
-    await program.parseAsync(["meetings", "list", "--no-truncate"], { from: "user" });
+    await program.parseAsync(["meetings", "list", "--full"], { from: "user" });
 
     const dataLine = out.text().split("\n")[2];
     expect(dataLine).toContain(longTitle);
     expect(dataLine).not.toContain("\u2026");
   });
 
-  it("shows --no-truncate in help text", () => {
+  it("shows --full in help text", () => {
     const program = new Command();
     registerMeetings(program, {
       client: stubClient(async () => new Response("{}")),
@@ -284,7 +284,7 @@ describe("meetings list", () => {
     const listCmd = meetingsCmd.commands.find((c) => c.name() === "list")!;
     const help = listCmd.helpInformation();
 
-    expect(help).toContain("--no-truncate");
+    expect(help).toContain("--full");
   });
 });
 
@@ -340,7 +340,7 @@ describe("meetings get", () => {
     expect(parsed.id).toBe("m1");
   });
 
-  it("strips raw_transcript from --json output by default", async () => {
+  it("strips raw_transcript from --json output by default and parses participants as array", async () => {
     const client = stubClient(async () =>
       new Response(JSON.stringify(meetingDetail))
     );
@@ -356,14 +356,16 @@ describe("meetings get", () => {
       title: "Sprint Review",
       meeting_type: "standup",
       date: "2026-01-15",
-      participants:
-        '[{"last_name":"Smith","id":"p1","first_name":"Alice","email":"alice@example.com"},{"last_name":"Jones","id":"p2","first_name":"Bob","email":"bob@example.com"}]',
+      participants: [
+        { last_name: "Smith", id: "p1", first_name: "Alice", email: "alice@example.com" },
+        { last_name: "Jones", id: "p2", first_name: "Bob", email: "bob@example.com" },
+      ],
       source_filename: "2026-01-15_sprint-review.txt",
       created_at: "2026-01-15T10:00:00Z",
     });
   });
 
-  it("includes raw_transcript in --json output when --include-transcript is passed", async () => {
+  it("includes raw_transcript in --json output when --include-transcript is passed and participants is parsed array", async () => {
     const client = stubClient(async () =>
       new Response(JSON.stringify(meetingDetail))
     );
@@ -378,6 +380,7 @@ describe("meetings get", () => {
 
     const parsed = JSON.parse(out.text());
     expect(parsed.raw_transcript).toBe("full transcript text here");
+    expect(Array.isArray(parsed.participants)).toBe(true);
   });
 
   it("shows help with description, output schema, example, and errors", () => {
@@ -773,6 +776,104 @@ describe("meetings ignore", () => {
     expect(help).toContain("--undo");
     expect(help).toContain("Errors");
     expect(help).toContain("404");
+  });
+});
+
+describe("meetings search", () => {
+  const searchResults = [
+    {
+      meeting_id: "m1",
+      score: 0.92,
+      client: "Acme",
+      meeting_type: "standup",
+      date: "2026-01-15",
+      cluster_tags: ["budget", "planning"],
+      series: "standup",
+    },
+    {
+      meeting_id: "m2",
+      score: 0.81,
+      client: "Acme",
+      meeting_type: "review",
+      date: "2026-02-01",
+      cluster_tags: [],
+      series: "review",
+    },
+  ];
+
+  it("sends query and optional filters as query params to /api/search", async () => {
+    let capturedUrl = "";
+    const client = stubClient(async (url) => {
+      capturedUrl = url;
+      return new Response(JSON.stringify(searchResults));
+    });
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(
+      ["meetings", "search", "Q1 budget", "--client", "Acme", "--after", "2026-01-01", "--before", "2026-12-31", "--limit", "5"],
+      { from: "user" }
+    );
+
+    const url = new URL(capturedUrl);
+    expect(url.searchParams.get("q")).toBe("Q1 budget");
+    expect(url.searchParams.get("client")).toBe("Acme");
+    expect(url.searchParams.get("date_after")).toBe("2026-01-01");
+    expect(url.searchParams.get("date_before")).toBe("2026-12-31");
+    expect(url.searchParams.get("limit")).toBe("5");
+  });
+
+  it("displays results as a table with ID, Date, Client, Score, Tags columns", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(searchResults))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "search", "budget"], { from: "user" });
+
+    const text = out.text();
+    expect(text).toMatch(/ID\s+Date\s+Client\s+Score\s+Tags/);
+    expect(text).toContain("m1");
+    expect(text).toContain("0.92");
+    expect(text).toContain("budget, planning");
+    expect(text).toContain("m2");
+    expect(text).toContain("0.81");
+  });
+
+  it("outputs raw JSON with --json", async () => {
+    const client = stubClient(async () =>
+      new Response(JSON.stringify(searchResults))
+    );
+    const out = collectOutput();
+
+    const program = new Command();
+    registerMeetings(program, { client, stream: out.stream });
+    await program.parseAsync(["meetings", "search", "budget", "--json"], { from: "user" });
+
+    expect(JSON.parse(out.text())).toEqual(searchResults);
+  });
+
+  it("shows help with description, output schema, example, and errors", () => {
+    const program = new Command();
+    registerMeetings(program, {
+      client: stubClient(async () => new Response("{}")),
+      stream: collectOutput().stream,
+    });
+
+    const meetingsCmd = program.commands.find((c) => c.name() === "meetings")!;
+    const searchCmd = meetingsCmd.commands.find((c) => c.name() === "search")!;
+    const help = searchCmd.helpInformation();
+
+    expect(help).toContain("Search meetings");
+    expect(help).toContain("Output schema");
+    expect(help).toContain("cluster_tags");
+    expect(help).toContain("Example");
+    expect(help).toContain("Errors");
+    expect(help).toContain("400");
+    expect(help).toContain("503");
   });
 });
 

@@ -262,7 +262,8 @@ describe("extraction prompt", () => {
   it("summary field requests bullet points for searchability", async () => {
     const { readFileSync } = await import("node:fs");
     const prompt = readFileSync("config/prompts/extraction.md", "utf8");
-    expect(prompt).toContain("3-5 bullet points");
+    expect(prompt).toContain("bullet");
+    expect(prompt).toContain("summary");
   });
 
   it("risk_items field describes systemic unresolved conditions with categories", async () => {

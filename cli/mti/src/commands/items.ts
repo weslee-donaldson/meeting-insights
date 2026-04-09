@@ -184,7 +184,7 @@ export async function listItems(
     before?: string;
     json?: boolean;
     limit?: string;
-    truncate?: boolean;
+    full?: boolean;
   },
   deps: Deps = defaultDeps()
 ): Promise<void> {
@@ -208,7 +208,7 @@ export async function listItems(
   }
 
   const columns =
-    options.truncate === false
+    options.full
       ? LIST_COLUMNS.map(({ width, ...rest }) => rest)
       : LIST_COLUMNS;
   outputTable(displayed, columns, deps.stream);
@@ -231,7 +231,7 @@ export function registerItems(program: Command): void {
     .option("--before <date>", "Only items from meetings before this date (YYYY-MM-DD)")
     .option("--json", "Output as JSON")
     .option("--limit <n>", "Max items to display (0 = all)", "25")
-    .option("--no-truncate", "Disable column width truncation")
+    .option("--full", "Show full column values without truncation")
     .addHelpText(
       "after",
       `
@@ -280,7 +280,7 @@ Errors:
 
   items
     .command("edit <meetingId> <index>")
-    .description("Edit an existing action item's fields. Only specified fields are updated.")
+    .description("Edit an existing action item's fields (index is 0-based, from items list output). Only specified fields are updated.")
     .option("--desc <text>", "Item description")
     .option("--owner <name>", "Person responsible")
     .option("--due <date>", "Due date (YYYY-MM-DD)")
@@ -307,7 +307,7 @@ Errors:
 
   items
     .command("complete <meetingId> <index>")
-    .description("Mark an action item as complete.")
+    .description("Mark an action item as complete (index is 0-based, from items list output).")
     .option("--note <text>", "Completion note (default: empty string)")
     .option("--json", "Output as JSON")
     .addHelpText(
@@ -331,7 +331,7 @@ Errors:
 
   items
     .command("uncomplete <meetingId> <index>")
-    .description("Revert an action item's completion status.")
+    .description("Revert an action item's completion status (index is 0-based, from items list output).")
     .option("--json", "Output as JSON")
     .addHelpText(
       "after",
@@ -377,14 +377,16 @@ Errors:
     });
 
   items
-    .command("history <canonicalId>")
+    .command("history <id>")
     .description(
-      "Show cross-meeting history for an action item by its canonical ID."
+      "Show cross-meeting history for an action item. Use the Short ID from 'items list' output."
     )
     .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
+The <id> argument accepts the Short ID shown in the 'Short ID' column of 'items list' (e.g., f3a1b2).
+
 Output schema (--json):
   [{ "canonical_id": "string", "meeting_id": "string",
      "item_type": "string", "item_index": "number",
@@ -392,18 +394,19 @@ Output schema (--json):
      "meeting_title": "string", "meeting_date": "string" }]
 
 Example:
-  $ mti items history f3a1b2
+  $ mti items list Acme          # note the Short ID column
+  $ mti items history f3a1b2     # pass the Short ID here
   Meeting              Date         Description
   ──────────────────  ──────────  ─────────────────────
   Q1 Planning Review  2026-01-15  Draft Q2 roadmap
   Sprint Retro        2026-02-01  Draft Q2 roadmap (updated scope)
 
 Errors:
-  404  Canonical ID not found`
+  404  ID not found`
     )
-    .action(async (canonicalId: string, opts: Record<string, string>) => {
+    .action(async (id: string, opts: Record<string, string>) => {
       const json = opts.json ?? program.opts().json;
-      await itemHistory(canonicalId, { ...opts, json }, defaultDeps());
+      await itemHistory(id, { ...opts, json }, defaultDeps());
     });
 
   program.addCommand(items);

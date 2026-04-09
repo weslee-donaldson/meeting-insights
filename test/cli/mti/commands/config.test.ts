@@ -174,7 +174,7 @@ describe("config set", () => {
 });
 
 describe("config help text", () => {
-  it("show help contains description, example, and output schema", async () => {
+  it("show help contains description, output schema, env var overrides, and example", async () => {
     const { Command } = await import("commander");
     const { registerConfig } = await import(
       "../../../../cli/mti/src/commands/config.ts"
@@ -198,6 +198,8 @@ describe("config help text", () => {
 
     expect(helpOutput).toContain("Display current");
     expect(helpOutput).toContain("Output schema");
+    expect(helpOutput).toContain("MTI_BASE_URL");
+    expect(helpOutput).toContain("MTI_TOKEN");
     expect(helpOutput).toContain("Example");
   });
 

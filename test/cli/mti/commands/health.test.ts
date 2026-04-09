@@ -102,7 +102,7 @@ describe("mti health acknowledge", () => {
     expect(out.text()).toContain("Acknowledged all");
   });
 
-  it("calls POST with errorIds when --ids is provided", async () => {
+  it("calls POST with errorIds when --id is provided multiple times", async () => {
     let capturedBody: unknown;
     const client = stubClient(async (_, init) => {
       capturedBody = JSON.parse(init?.body as string);
@@ -111,7 +111,7 @@ describe("mti health acknowledge", () => {
     const out = collectOutput();
     const program = new Command();
     registerHealth(program, { client, stream: out.stream });
-    await program.parseAsync(["health", "acknowledge", "--ids", "err1,err2"], { from: "user" });
+    await program.parseAsync(["health", "acknowledge", "--id", "err1", "--id", "err2"], { from: "user" });
     expect(capturedBody).toEqual({ errorIds: ["err1", "err2"] });
     expect(out.text()).toContain("Acknowledged 2");
   });

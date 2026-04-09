@@ -56,7 +56,8 @@ const GET_DESCRIPTION = `Show full details for a single meeting.
 
 Output schema (--json):
   { "id": "string", "title": "string", "meeting_type": "string|null",
-    "date": "string (ISO 8601)", "participants": "string (JSON-encoded array)",
+    "date": "string (ISO 8601)",
+    "participants": [{ "first_name": "string", "last_name": "string", "id": "string", "email": "string" }],
     "source_filename": "string", "created_at": "string (ISO 8601)" }
   With --include-transcript: adds "raw_transcript": "string"
 
@@ -89,8 +90,8 @@ export function registerMeetings(
     .option("--before <date>", "Only meetings before this date (YYYY-MM-DD)")
     .option("--json", "Output as JSON array")
     .option("--limit <n>", "Max meetings to display (0 = all)", "25")
-    .option("--no-truncate", "Disable column width truncation")
-    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean; limit?: string; truncate?: boolean }) => {
+    .option("--full", "Show full column values without truncation")
+    .action(async (opts: { client?: string; after?: string; before?: string; json?: boolean; limit?: string; full?: boolean }) => {
       const client = resolveClient(deps);
       const stream = resolveStream(deps);
       const stderr = resolveStderr(deps);
@@ -107,7 +108,7 @@ export function registerMeetings(
         outputJson(displayed, stream);
         return;
       }
-      const columns = opts.truncate === false
+      const columns = opts.full
         ? LIST_COLUMNS.map(({ width, ...rest }) => rest)
         : LIST_COLUMNS;
       outputTable(displayed, columns, stream);
@@ -127,11 +128,16 @@ export function registerMeetings(
       const stream = resolveStream(deps);
       const data = (await client.get(`/api/meetings/${id}`)) as Record<string, unknown>;
       if (opts.json) {
+        let parsed: unknown[] | null = null;
+        if (typeof data.participants === "string") {
+          try { parsed = JSON.parse(data.participants); } catch { /* keep string */ }
+        }
+        const jsonData = parsed !== null ? { ...data, participants: parsed } : data;
         if (!opts.includeTranscript) {
-          const { raw_transcript, ...rest } = data;
+          const { raw_transcript, ...rest } = jsonData;
           outputJson(rest, stream);
         } else {
-          outputJson(data, stream);
+          outputJson(jsonData, stream);
         }
         return;
       }
@@ -396,6 +402,8 @@ Errors:
 
   const SPLIT_DESCRIPTION = `Split a meeting into segments by duration.
 
+When to use: recording software often captures back-to-back sessions in a single file (e.g., a standup immediately followed by a planning session). Use split to create separate, searchable meetings from a single source recording.
+
 Output schema (--json):
   { "source_meeting_id": "string",
     "segments": [{ "meeting_id": "string", "segment_index": "number",
@@ -439,6 +447,61 @@ Errors:
         stderr.write((err as Error).message + "\n");
         process.exitCode = 1;
       }
+    });
+
+  const SEARCH_DESCRIPTION = `Search meetings using semantic similarity.
+
+Output schema (--json):
+  [{ "meeting_id": "string", "score": "number", "client": "string",
+     "meeting_type": "string", "date": "string (ISO 8601)",
+     "cluster_tags": ["string"], "series": "string" }]
+
+Example:
+  $ mti meetings search "Q1 budget discussion" --client Acme
+  ID          Date         Client  Score  Tags
+  a1b2c3d4    2026-01-15   Acme    0.92   budget, planning
+
+Errors:
+  400  Query too short (minimum 2 characters)
+  503  Search not available (vector index not configured)`;
+
+  meetings
+    .command("search")
+    .description(SEARCH_DESCRIPTION)
+    .argument("<query>", "Search query (minimum 2 characters)")
+    .option("--client <name>", "Filter by client name")
+    .option("--after <date>", "Only meetings after this date (YYYY-MM-DD)")
+    .option("--before <date>", "Only meetings before this date (YYYY-MM-DD)")
+    .option("--limit <n>", "Max results to return (default: 10)", "10")
+    .option("--json", "Output as JSON")
+    .action(async (query: string, opts: { client?: string; after?: string; before?: string; limit?: string; json?: boolean }) => {
+      const client = resolveClient(deps);
+      const stream = resolveStream(deps);
+      const params: Record<string, string> = { q: query };
+      if (opts.client) params.client = opts.client;
+      if (opts.after) params.date_after = opts.after;
+      if (opts.before) params.date_before = opts.before;
+      if (opts.limit) params.limit = opts.limit;
+      const data = await client.get("/api/search", params) as Record<string, unknown>[];
+      if (opts.json) {
+        outputJson(data, stream);
+        return;
+      }
+      const SEARCH_COLUMNS: ColumnDef[] = [
+        { key: "meeting_id", header: "ID", width: 10 },
+        { key: "date", header: "Date", width: 12 },
+        { key: "client", header: "Client", width: 20 },
+        { key: "score", header: "Score", width: 6 },
+        { key: "cluster_tags", header: "Tags", width: 30 },
+      ];
+      const formatted = data.map((row) => ({
+        ...row,
+        score: typeof row.score === "number" ? row.score.toFixed(2) : row.score,
+        cluster_tags: Array.isArray(row.cluster_tags)
+          ? (row.cluster_tags as string[]).join(", ")
+          : row.cluster_tags,
+      }));
+      outputTable(formatted, SEARCH_COLUMNS, stream);
     });
 
   program.addCommand(meetings);
