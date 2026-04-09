@@ -668,7 +668,7 @@ Section 9 -- Sequential (React UI)
 
 ## Phase 7: Documentation & Scatter Updates
 
-- [ ] Burst 23: Update scatter.md files for new/changed files: `core/scatter.md` (add `meeting-split.ts`), `api/routes/scatter.md` (update `meetings.ts` entry), `cli/scatter.md` (add `split.ts`), `electron-ui/electron/handlers/scatter.md` (update `meetings.ts`), `electron-ui/ui/src/components/scatter.md` (add `SplitMeetingDialog.tsx`), `test/scatter.md` (add `split-e2e.test.ts`, `cli-split.test.ts`).
+- [x] Burst 23: Update scatter.md files for new/changed files: `core/scatter.md` (add `meeting-split.ts`), `api/routes/scatter.md` (update `meetings.ts` entry), `cli/scatter.md` (add `split.ts`), `electron-ui/electron/handlers/scatter.md` (update `meetings.ts`), `electron-ui/ui/src/components/scatter.md` (add `SplitMeetingDialog.tsx`), `test/scatter.md` (add `split-e2e.test.ts`, `cli-split.test.ts`).
 
 ---
 
