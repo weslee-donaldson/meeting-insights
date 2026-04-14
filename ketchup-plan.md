@@ -75,10 +75,6 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 ### Section 2: Setup & Distribution
 
-- [ ] Burst 5: `scripts/download-models.ts` -- downloads ONNX model + tokenizer from Hugging Face with SHA256 hash verification. Exports `downloadIfMissing(modelDir)` which checks if files exist with correct hashes, downloads only what's missing. Creates `models/` directory if absent. Uses native fetch() + node:crypto for verification. Add `pnpm download-models` script to package.json.
-
-  Test: `test/download-models.test.ts` -- getModelUrls() returns correct Hugging Face URLs, verifyHash(filePath, expectedHash) returns true for matching SHA256, verifyHash with wrong hash returns false, downloadIfMissing skips when file exists with correct hash (mock fetch not called).
-
 - [ ] Burst 6: `setup.sh` -- single entry point for new team members. Checks prerequisites (node >= 22, pnpm available), runs `pnpm install`, copies `.env.example` to `.env.local` if not present (prompts user to fill in API key), runs `pnpm download-models`, runs `pnpm setup`. Idempotent -- safe to re-run. Make executable with chmod +x.
 
   Test: `test/setup-script.test.ts` -- script file exists, is executable (file mode check), contains node version check, contains pnpm check, references pnpm install, references download-models, references pnpm setup.
@@ -92,7 +88,8 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 - [x] Burst 1: `core/migrations/runner.ts` -- runMigrations, getCurrentVersion with schema_version table (e33d5e3)
 - [x] Burst 2: `core/migrations/001-baseline.ts` + `index.ts` -- extract migrate() into versioned migration
 - [x] Burst 3: Wire runner into setup/API/local-service via db.ts `migrate()` thin wrapper (499cf5b)
-- [x] Burst 4: `.env.example` + ecosystem.config.cjs with mti-api entry
+- [x] Burst 4: `.env.example` + ecosystem.config.cjs with mti-api entry (d23308a)
+- [x] Burst 5: `scripts/download-models.ts` with hash-verified ONNX model download + uncommented dedup tuning defaults
 
 ## Verification
 
