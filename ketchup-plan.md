@@ -75,10 +75,6 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 ### Section 2: Setup & Distribution
 
-- [ ] Burst 4: `.env.example` with all required variables documented with inline comments. Grouped by section (LLM provider, database, auth, logging, search tuning). No actual secret values. Update `ecosystem.config.cjs` to include mti-api entry alongside webhook-watcher with correct script path and tsx interpreter.
-
-  Test: `test/env-example.test.ts` -- .env.example file exists, contains all required keys (ANTHROPIC_API_KEY, MTNINSIGHTS_LLM_PROVIDER, MTNINSIGHTS_DB_PATH, PORT, MTNINSIGHTS_AUTH_ENABLED, MTNINSIGHTS_OWNER_SECRET), contains no actual API key values, ecosystem.config.cjs has mti-api entry with correct script path.
-
 - [ ] Burst 5: `scripts/download-models.ts` -- downloads ONNX model + tokenizer from Hugging Face with SHA256 hash verification. Exports `downloadIfMissing(modelDir)` which checks if files exist with correct hashes, downloads only what's missing. Creates `models/` directory if absent. Uses native fetch() + node:crypto for verification. Add `pnpm download-models` script to package.json.
 
   Test: `test/download-models.test.ts` -- getModelUrls() returns correct Hugging Face URLs, verifyHash(filePath, expectedHash) returns true for matching SHA256, verifyHash with wrong hash returns false, downloadIfMissing skips when file exists with correct hash (mock fetch not called).
@@ -95,7 +91,8 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 - [x] Burst 1: `core/migrations/runner.ts` -- runMigrations, getCurrentVersion with schema_version table (e33d5e3)
 - [x] Burst 2: `core/migrations/001-baseline.ts` + `index.ts` -- extract migrate() into versioned migration
-- [x] Burst 3: Wire runner into setup/API/local-service via db.ts `migrate()` thin wrapper. Skipped `mti update` command since migrations auto-run on API startup and via `pnpm setup`.
+- [x] Burst 3: Wire runner into setup/API/local-service via db.ts `migrate()` thin wrapper (499cf5b)
+- [x] Burst 4: `.env.example` + ecosystem.config.cjs with mti-api entry
 
 ## Verification
 
