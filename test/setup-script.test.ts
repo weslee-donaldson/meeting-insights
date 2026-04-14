@@ -44,4 +44,16 @@ describe("setup.sh", () => {
   it("runs pnpm setup", () => {
     expect(script).toMatch(/pnpm setup/);
   });
+
+  it("prompts to install mti globally via pnpm link", () => {
+    expect(script).toMatch(/pnpm link --global/);
+  });
+
+  it("gates the global-link prompt on an interactive TTY", () => {
+    expect(script).toMatch(/-t 0/);
+  });
+
+  it("honors MTI_SETUP_SKIP_PROMPTS to bypass interactive prompts", () => {
+    expect(script).toMatch(/MTI_SETUP_SKIP_PROMPTS/);
+  });
 });

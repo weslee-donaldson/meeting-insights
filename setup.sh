@@ -51,6 +51,23 @@ echo "==> Initializing database..."
 pnpm setup
 
 echo ""
+echo "==> mti CLI"
+echo "    You can always run the CLI as 'pnpm mti <command>' from this directory."
+echo "    Optionally, install it globally so 'mti' works from anywhere."
+if [ -t 0 ] && [ "${MTI_SETUP_SKIP_PROMPTS:-0}" != "1" ]; then
+  read -r -p "    Install mti globally via 'pnpm link --global'? [y/N] " REPLY
+  if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    pnpm link --global
+    echo "    mti linked globally ✓"
+    echo "    (ensure ~/Library/pnpm or equivalent is on your PATH; run 'pnpm setup' if 'mti' isn't found)"
+  else
+    echo "    Skipped. Use 'pnpm mti' from this directory, or re-run this script to install globally."
+  fi
+else
+  echo "    Non-interactive shell; skipping. Run 'pnpm link --global' manually to install."
+fi
+
+echo ""
 echo "============================================================"
 echo "Setup complete."
 echo ""
