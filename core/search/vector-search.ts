@@ -1,4 +1,4 @@
-import { embed } from "../embedder.js";
+import { embed } from "../pipeline/embedder.js";
 import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";

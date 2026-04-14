@@ -1,4 +1,4 @@
-import { embed } from "../embedder.js";
+import { embed } from "../pipeline/embedder.js";
 import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "../search/vector-db.js";
@@ -174,7 +174,7 @@ export async function cleanupItemVectors(table: VectorTable, meetingId: string):
 
 import { randomUUID } from "node:crypto";
 import { isSemanticDuplicate, isStringDuplicate } from "../math.js";
-import type { Artifact } from "../extractor.js";
+import type { Artifact } from "../pipeline/extractor.js";
 
 interface DeduplicateItemsResult {
   mentionsCreated: number;

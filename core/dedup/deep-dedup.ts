@@ -51,7 +51,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorTable } from "../search/vector-db.js";
 import type { LlmAdapter } from "../llm/adapter.js";
-import type { Artifact } from "../extractor.js";
+import type { Artifact } from "../pipeline/extractor.js";
 import { getItemText, getMeetingTitle, DEDUP_FIELDS, embedItem, storeItemVector, recordMention } from "./item-dedup.js";
 import { createLogger } from "../logger.js";
 

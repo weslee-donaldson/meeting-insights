@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 
 const logFilename = createLogger("parser:filename");
 const logAttend = createLogger("parser:attend");

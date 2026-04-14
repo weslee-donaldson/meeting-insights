@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { storeArtifact, generateShortId } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { storeArtifact, generateShortId } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { createApp } from "../api/server.js";
 
-vi.mock("../core/meeting-pipeline.js", () => ({
+vi.mock("../core/pipeline/meeting-pipeline.js", () => ({
   buildEmbeddingInput: vi.fn().mockReturnValue("summary"),
   embedMeeting: vi.fn().mockResolvedValue(new Float32Array(384)),
   storeMeetingVector: vi.fn().mockResolvedValue(undefined),

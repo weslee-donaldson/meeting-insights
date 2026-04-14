@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { migrate } from "../core/db.js";
 import { getAssets, storeAsset, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../core/assets.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData } from "../electron-ui/electron/handlers/meetings.js";
 
 describe("assets", () => {

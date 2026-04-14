@@ -4,10 +4,10 @@ import { resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm/adapter.js";
-import { getArtifact } from "./extractor.js";
+import { getArtifact } from "./pipeline/extractor.js";
 import { deleteNotesByObject } from "./notes.js";
-import type { ArtifactRow } from "./extractor.js";
-import { embed } from "./embedder.js";
+import type { ArtifactRow } from "./pipeline/extractor.js";
+import { embed } from "./pipeline/embedder.js";
 import type { VectorDb } from "./search/vector-db.js";
 import { createLogger } from "./logger.js";
 

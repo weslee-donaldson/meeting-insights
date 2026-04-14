@@ -3,7 +3,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { connectVectorDb, createItemTable } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
+import { loadModel } from "../core/pipeline/embedder.js";
 import {
   embedItem,
   storeItemVector,
@@ -19,7 +19,7 @@ import {
 import { cosineSimilarity } from "../core/math.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import type { Artifact } from "../core/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 
 let db: Database;
 let vdbPath: string;
@@ -249,7 +249,7 @@ describe("cleanupItemVectors", () => {
 
 describe("searchSimilarItemsByVector", () => {
   it("returns same results as searchSimilarItems for the same pre-computed vector", async () => {
-    const { embed } = await import("../core/embedder.js");
+    const { embed } = await import("../core/pipeline/embedder.js");
     const vec = await embed(session as Parameters<typeof embed>[0], "Deploy to production");
     const fromText = await searchSimilarItems(table, session, "Deploy to production", { limit: 3 });
     const fromVec = await searchSimilarItemsByVector(table, vec, { limit: 3 });

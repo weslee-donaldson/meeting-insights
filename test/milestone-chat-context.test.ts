@@ -4,9 +4,9 @@ import type { Database } from "../core/db.js";
 import { createMilestone, addMilestoneMention, getMilestoneChatContext } from "../core/timelines.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import { storeArtifact } from "../core/extractor.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 
-vi.mock("../core/embedder.js", () => ({
+vi.mock("../core/pipeline/embedder.js", () => ({
   embed: vi.fn().mockResolvedValue(new Float32Array(384).fill(0.1)),
 }));
 

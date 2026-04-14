@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { runSplit } from "../cli/split.js";
 
 vi.mock("../core/search/vector-db.js", () => {

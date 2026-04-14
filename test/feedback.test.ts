@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { overrideClient, overrideTag, flagExtraction } from "../core/feedback.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 

@@ -4,7 +4,7 @@ import type { VectorDb } from "../../../core/search/vector-db.js";
 import { hybridSearch } from "../../../core/search/hybrid-search.js";
 import { deepSearch } from "../../../core/search/deep-search.js";
 import { createMeetingTable } from "../../../core/search/vector-db.js";
-import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../../core/meeting-pipeline.js";
+import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../../core/pipeline/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow } from "../channels.js";
 import { SEARCH_MAX_DISTANCE, SEARCH_LIMIT, deepSearchPrompt } from "./config.js";

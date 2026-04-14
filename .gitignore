@@ -30,6 +30,9 @@ data/eval/
 data/clients/
 data/krisp-gdrive
 
+# Client config (seeded from config/clients.example.json; may contain private team data)
+config/clients.json
+
 # JWT signing keys (generated at runtime)
 .keys/
 

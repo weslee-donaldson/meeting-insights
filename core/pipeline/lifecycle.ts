@@ -1,6 +1,6 @@
 import { mkdirSync, renameSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 import { parseKrispFile } from "./parser.js";
 
 const logFile = createLogger("ingest:file");

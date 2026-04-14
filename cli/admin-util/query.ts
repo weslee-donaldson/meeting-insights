@@ -1,9 +1,9 @@
 import { createDb } from "../../core/db.js";
 import { connectVectorDb } from "../../core/search/vector-db.js";
-import { loadModel } from "../../core/embedder.js";
+import { loadModel } from "../../core/pipeline/embedder.js";
 import { searchMeetings } from "../../core/search/vector-search.js";
-import { getMeeting } from "../../core/ingest.js";
-import { getArtifact } from "../../core/extractor.js";
+import { getMeeting } from "../../core/pipeline/ingest.js";
+import { getArtifact } from "../../core/pipeline/extractor.js";
 import { renderNotesGroups, parseCitations } from "../../core/display-helpers.js";
 import { createLlmAdapter } from "../../core/llm/adapter.js";
 import { deepSearch } from "../../core/search/deep-search.js";

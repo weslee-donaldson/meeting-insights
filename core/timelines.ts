@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync } from "node:sqlite";
-import { getArtifact } from "./extractor.js";
+import { getArtifact } from "./pipeline/extractor.js";
 import { deleteNotesByObject } from "./notes.js";
-import { embed } from "./embedder.js";
+import { embed } from "./pipeline/embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./search/vector-db.js";
 

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import type { SpeakerTurn, Participant } from "../core/parser.js";
-import { parseTranscriptBody } from "../core/parser.js";
+import type { SpeakerTurn, Participant } from "../core/pipeline/parser.js";
+import { parseTranscriptBody } from "../core/pipeline/parser.js";
 import { computeCutPoints, cleanupArchivedMeeting, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { updateFts } from "../core/search/fts.js";
 import { storeDetection } from "../core/clients/detection.js";
 import type { VectorDb } from "../core/search/vector-db.js";

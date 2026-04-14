@@ -37,8 +37,9 @@ That's it. Re-run `./setup.sh` any time; it's idempotent.
 1. Verifies Node 22+ and pnpm are installed
 2. Runs `pnpm install`
 3. Copies `.env.example` to `.env.local` (if missing)
-4. Downloads the ONNX embedding model (`all-MiniLM-L6-v2`, ~90 MB) with SHA256 verification
-5. Runs database migrations (creates SQLite + LanceDB stores)
+4. Copies `config/clients.example.json` to `config/clients.json` (if missing)
+5. Downloads the ONNX embedding model (`all-MiniLM-L6-v2`, ~90 MB) with SHA256 verification
+6. Runs database migrations and seeds clients from `config/clients.json`
 
 All steps are idempotent -- safe to re-run after pulling updates.
 
@@ -68,7 +69,13 @@ This downloads:
 
 Skips if already present with matching SHA256 hashes.
 
-### 4. Initialize the database
+### 4. Configure your clients
+
+`config/clients.json` defines the clients whose meetings you want to ingest. `setup.sh` seeds it from `config/clients.example.json` if it doesn't exist. **Edit it before running `pnpm setup`** — the seed step reads this file and writes the results into the database.
+
+See [docs/clients.md](docs/clients.md) for the full schema, workflows (adding, editing, tuning detection/extraction), and glossary conventions.
+
+### 5. Initialize the database
 ```bash
 pnpm setup
 ```

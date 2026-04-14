@@ -5,13 +5,13 @@ import { tmpdir } from "node:os";
 import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse, assignCanonicalGroups, deepScanClient } from "../core/dedup/deep-dedup.js";
 import type { BatchDedupItem } from "../core/dedup/deep-dedup.js";
 import { connectVectorDb, createItemTable } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
+import { loadModel } from "../core/pipeline/embedder.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 describe("buildBatchDedupPrompt", () => {

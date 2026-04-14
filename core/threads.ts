@@ -58,10 +58,10 @@ export interface CreateThreadInput {
 
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getArtifact } from "./extractor.js";
+import { getArtifact } from "./pipeline/extractor.js";
 import { deleteNotesByObject } from "./notes.js";
 import type { LlmAdapter } from "./llm/adapter.js";
-import { embed } from "./embedder.js";
+import { embed } from "./pipeline/embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./search/vector-db.js";
 
@@ -288,7 +288,7 @@ Keywords to look for: {{keywords}}
 Determine if this meeting contains discussion, decisions, or actions related to the thread.
 Return ONLY valid JSON with fields: related (boolean), relevance_summary (string), relevance_score (integer 0-100)`;
 
-function buildMeetingContextFromArtifact(art: import("./extractor.js").ArtifactRow): string {
+function buildMeetingContextFromArtifact(art: import("./pipeline/extractor.js").ArtifactRow): string {
   const parts: string[] = [`Summary: ${art.summary}`];
   const actions = JSON.parse(art.action_items ?? "[]") as Array<{ description: string; owner: string }>;
   if (actions.length > 0) {

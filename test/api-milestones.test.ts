@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { storeDetection } from "../core/clients/detection.js";
 import { createApp } from "../api/server.js";
 import { createMilestone, addMilestoneMention } from "../core/timelines.js";

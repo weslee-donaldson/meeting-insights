@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { seedClients } from "../core/clients/registry.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { assignClient } from "../cli/admin-util/assign-client.js";
-import type { ParsedMeeting } from "../core/parser.js";
+import type { ParsedMeeting } from "../core/pipeline/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { splitMeeting } from "../core/meeting-split.js";
 import { storeDetection } from "../core/clients/detection.js";
-import { storeArtifact } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { createApp } from "../api/server.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
-vi.mock("../core/meeting-pipeline.js", () => ({
+vi.mock("../core/pipeline/meeting-pipeline.js", () => ({
   buildEmbeddingInput: vi.fn().mockReturnValue("summary"),
   embedMeeting: vi.fn().mockResolvedValue(new Float32Array(384)),
   storeMeetingVector: vi.fn().mockResolvedValue(undefined),

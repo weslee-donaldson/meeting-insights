@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createThread, evaluateMeetingAgainstThread } from "../core/threads.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { storeArtifact } from "../core/extractor.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 let db: Database;

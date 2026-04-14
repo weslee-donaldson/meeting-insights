@@ -3,10 +3,10 @@ import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { connectVectorDb, createMeetingTable } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
-import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
+import { loadModel } from "../core/pipeline/embedder.js";
+import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/pipeline/meeting-pipeline.js";
 import { searchMeetings, searchMeetingsByVector } from "../core/search/vector-search.js";
-import type { Artifact } from "../core/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 
 let vdbPath: string;
 let vdb: Awaited<ReturnType<typeof connectVectorDb>>;
@@ -113,7 +113,7 @@ describe("searchMeetings", () => {
 
 describe("searchMeetingsByVector", () => {
   it("returns same results as searchMeetings when given the same pre-computed vector", async () => {
-    const { embed } = await import("../core/embedder.js");
+    const { embed } = await import("../core/pipeline/embedder.js");
     const vec = await embed(session as Parameters<typeof embed>[0], "REST API integration");
     const fromText = await searchMeetings(vdb, session, "REST API integration", { limit: 2 });
     const fromVec = await searchMeetingsByVector(vdb, vec, { limit: 2 });

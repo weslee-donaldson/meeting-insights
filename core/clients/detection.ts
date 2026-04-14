@@ -2,7 +2,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import { createLogger } from "../logger.js";
 import { getAllClients } from "./registry.js";
 import type { Participant } from "./registry.js";
-import { getMeeting } from "../ingest.js";
+import { getMeeting } from "../pipeline/ingest.js";
 
 const log = createLogger("client:detect");
 

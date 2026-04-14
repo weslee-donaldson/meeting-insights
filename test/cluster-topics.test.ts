@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { aggregateClusterSummaries, extractClusterTags, storeClusterTags } from "../core/cluster-topics.js";
 import type { DatabaseSync as Database } from "node:sqlite";

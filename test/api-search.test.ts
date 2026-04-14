@@ -53,7 +53,7 @@ describe("GET /api/search", () => {
   it("should enrich results with cluster_tags from DB when clusters exist", async () => {
     const enrichDb = createDb(":memory:");
     migrate(enrichDb);
-    const { ingestMeeting } = await import("../core/ingest.js");
+    const { ingestMeeting } = await import("../core/pipeline/ingest.js");
     const meetingId = ingestMeeting(enrichDb, {
       title: "Sprint Planning",
       timestamp: "2026-02-24T10:00:00.000Z",

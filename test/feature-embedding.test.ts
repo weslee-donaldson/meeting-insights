@@ -3,10 +3,10 @@ import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { connectVectorDb, createFeatureTable } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
+import { loadModel } from "../core/pipeline/embedder.js";
 import { embedFeature, storeFeatureVector, searchFeatures, searchFeaturesByVector } from "../core/search/feature-embedding.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
@@ -130,7 +130,7 @@ describe("searchFeatures", () => {
 
 describe("searchFeaturesByVector", () => {
   it("returns same meeting_ids and scores as searchFeatures for the same query", async () => {
-    const { embed } = await import("../core/embedder.js");
+    const { embed } = await import("../core/pipeline/embedder.js");
     const vec = await embed(session as Parameters<typeof embed>[0], "OAuth single sign-on");
     const fromText = await searchFeatures(vdb, session, "OAuth single sign-on", { limit: 4 });
     const fromVec = await searchFeaturesByVector(vdb, vec, { limit: 4 });

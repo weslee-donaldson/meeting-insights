@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { DatabaseSync as Database } from "node:sqlite";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import type { LlmAdapter } from "../core/llm/adapter.js";
 import { deepSearch } from "../core/search/deep-search.js";

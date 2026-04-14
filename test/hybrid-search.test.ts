@@ -6,8 +6,8 @@ import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion, hybridSea
 import { populateFts } from "../core/search/fts.js";
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
-import { embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
+import { loadModel } from "../core/pipeline/embedder.js";
+import { embedMeeting, storeMeetingVector } from "../core/pipeline/meeting-pipeline.js";
 import { embedFeature, storeFeatureVector } from "../core/search/feature-embedding.js";
 import { embedItem, storeItemVector } from "../core/dedup/item-dedup.js";
 import type { DatabaseSync as Database } from "node:sqlite";

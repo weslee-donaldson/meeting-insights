@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createThread, addThreadMeeting, evaluateConfirmedCandidates, getThreadMeetings } from "../core/threads.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { storeArtifact } from "../core/extractor.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
 const llm = createLlmAdapter({ type: "stub" });

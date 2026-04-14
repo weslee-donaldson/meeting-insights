@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { createDb, type Database } from "../core/db.js";
 import { migrate } from "../core/db.js";
-import { storeArtifact, generateShortId } from "../core/extractor.js";
-import type { Artifact } from "../core/extractor.js";
+import { storeArtifact, generateShortId } from "../core/pipeline/extractor.js";
+import type { Artifact } from "../core/pipeline/extractor.js";
 import { handleBatchCompleteItems, handleBatchUncompleteItems } from "../electron-ui/electron/handlers/meetings.js";
 
 function seedMeeting(db: Database, id: string): void {

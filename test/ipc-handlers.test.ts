@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting, getMeeting } from "../core/ingest.js";
-import { storeArtifact, generateShortId } from "../core/extractor.js";
+import { ingestMeeting, getMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact, generateShortId } from "../core/pipeline/extractor.js";
 import { storeDetection } from "../core/clients/detection.js";
 import { createLlmAdapter, type LlmAdapter } from "../core/llm/adapter.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";

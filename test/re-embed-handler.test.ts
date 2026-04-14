@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { ingestMeeting } from "../core/ingest.js";
-import { storeArtifact } from "../core/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
 import { storeDetection } from "../core/clients/detection.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
@@ -10,7 +10,7 @@ const mockStoreMeetingVector = vi.fn().mockResolvedValue(undefined);
 const mockEmbedMeeting = vi.fn().mockResolvedValue(new Float32Array(384));
 const mockBuildEmbeddingInput = vi.fn().mockReturnValue("summary text decisions");
 
-vi.mock("../core/meeting-pipeline.js", () => ({
+vi.mock("../core/pipeline/meeting-pipeline.js", () => ({
   buildEmbeddingInput: mockBuildEmbeddingInput,
   embedMeeting: mockEmbedMeeting,
   storeMeetingVector: mockStoreMeetingVector,

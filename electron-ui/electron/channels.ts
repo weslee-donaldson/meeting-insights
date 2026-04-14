@@ -323,7 +323,7 @@ export interface MilestoneChatResponse {
 export interface ElectronAPI {
   getClients: () => Promise<string[]>;
   getMeetings: (filters: MeetingFilters) => Promise<MeetingRow[]>;
-  getArtifact: (meetingId: string) => Promise<import("../../core/extractor.js").Artifact | null>;
+  getArtifact: (meetingId: string) => Promise<import("../../core/pipeline/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
   getMeetingMessages: (meetingId: string) => Promise<import("../../core/meeting-messages.js").MeetingMessage[]>;
@@ -400,7 +400,7 @@ export interface ElectronAPI {
   notesUpdate: (id: string, title?: string | null, body?: string) => Promise<import("../../core/notes.js").Note>;
   notesDelete: (id: string) => Promise<void>;
   notesCount: (objectType: string, objectId: string) => Promise<number>;
-  artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/extractor.js").Artifact | null>>;
+  artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/pipeline/extractor.js").Artifact | null>>;
   getGlossary: (clientName: string) => Promise<import("../../core/clients/registry.js").GlossaryEntry[]>;
   getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
   acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;

@@ -44,6 +44,19 @@ else
   echo "    .env.local already exists (skipping)"
 fi
 
+echo "==> Configuring clients..."
+if [ ! -f config/clients.json ]; then
+  cp config/clients.example.json config/clients.json
+  echo "    created config/clients.json from config/clients.example.json"
+  echo ""
+  echo "  ⚠  Edit config/clients.json to define your own clients (team members,"
+  echo "     aliases, meeting names, glossary) before running 'pnpm setup'."
+  echo "     See setup.md § 'Configure your clients' for the schema."
+  echo ""
+else
+  echo "    config/clients.json already exists (skipping)"
+fi
+
 echo "==> Downloading ONNX models..."
 pnpm download-models
 

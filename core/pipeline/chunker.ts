@@ -1,4 +1,4 @@
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 import type { SpeakerTurn } from "./parser.js";
 
 const log = createLogger("extract:chunk");

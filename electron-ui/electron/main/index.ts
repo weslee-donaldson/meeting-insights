@@ -52,7 +52,7 @@ import {
 import { createLlmAdapter } from "../../../core/llm/adapter.js";
 import { ensureFtsCurrent } from "../../../core/search/fts.js";
 import { connectVectorDb } from "../../../core/search/vector-db.js";
-import { loadModel } from "../../../core/embedder.js";
+import { loadModel } from "../../../core/pipeline/embedder.js";
 
 // Resolve .env.local relative to app root before reading any env vars
 const APP_ROOT = resolve(app.getAppPath());

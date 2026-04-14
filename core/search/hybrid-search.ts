@@ -1,4 +1,4 @@
-import { embed } from "../embedder.js";
+import { embed } from "../pipeline/embedder.js";
 import { searchMeetingsByVector } from "./vector-search.js";
 import { searchFeaturesByVector } from "./feature-embedding.js";
 import { searchSimilarItemsByVector } from "../dedup/item-dedup.js";

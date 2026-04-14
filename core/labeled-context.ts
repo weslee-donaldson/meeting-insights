@@ -1,7 +1,7 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getMeeting } from "./ingest.js";
-import { getArtifact } from "./extractor.js";
-import type { ArtifactRow, Artifact } from "./extractor.js";
+import { getMeeting } from "./pipeline/ingest.js";
+import { getArtifact } from "./pipeline/extractor.js";
+import type { ArtifactRow, Artifact } from "./pipeline/extractor.js";
 import { getMentionStats } from "./dedup/item-dedup.js";
 import { getMeetingMilestones } from "./timelines.js";
 import { getNote } from "./notes.js";

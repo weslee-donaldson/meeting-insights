@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { storeArtifact } from "../core/extractor.js";
-import { ingestMeeting } from "../core/ingest.js";
+import { storeArtifact } from "../core/pipeline/extractor.js";
+import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { updateFts, populateFts, searchFts, sanitizeFtsQuery, ensureFtsCurrent, filterBySearchFields } from "../core/search/fts.js";
 import type { Database } from "../core/db.js";
 

@@ -144,7 +144,7 @@ if (pending.length === 0) {
 }
 
 console.log("Loading embedding model...");
-const { loadModel } = await import("../../core/embedder.js");
+const { loadModel } = await import("../../core/pipeline/embedder.js");
 const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
 console.log("Model loaded.\n");
 

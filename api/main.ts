@@ -17,7 +17,7 @@ if (isMain) {
   const { createDb, migrate } = await import("../core/db.js");
   const { createLlmAdapter } = await import("../core/llm/adapter.js");
   const { connectVectorDb } = await import("../core/search/vector-db.js");
-  const { loadModel } = await import("../core/embedder.js");
+  const { loadModel } = await import("../core/pipeline/embedder.js");
 
   const APP_ROOT = resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd());
   const DB_PATH = process.env.MTNINSIGHTS_DB_PATH

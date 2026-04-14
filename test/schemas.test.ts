@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ArtifactSchema, DecisionSchema, ActionItemSchema, RiskItemSchema } from "../core/schemas.js";
+import { ArtifactSchema, DecisionSchema, ActionItemSchema, RiskItemSchema } from "../core/pipeline/schemas.js";
 
 describe("DecisionSchema", () => {
   it("parses object form", () => {

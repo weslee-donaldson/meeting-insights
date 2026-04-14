@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 import type { ParsedMeeting } from "./parser.js";
 
 const log = createLogger("ingest");

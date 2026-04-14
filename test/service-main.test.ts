@@ -19,7 +19,7 @@ vi.mock("../core/search/vector-db.js", () => ({
   connectVectorDb: vi.fn(async () => ({})),
 }));
 
-vi.mock("../core/embedder.js", () => ({
+vi.mock("../core/pipeline/embedder.js", () => ({
   loadModel: vi.fn(async () => ({ _tokenizer: {} })),
 }));
 
@@ -31,7 +31,7 @@ vi.mock("../core/clients/registry.js", () => ({
   seedClients: vi.fn(),
 }));
 
-vi.mock("../core/pipeline.js", () => ({
+vi.mock("../core/pipeline/pipeline.js", () => ({
   processWebhookMeetings: vi.fn(async () => ({ total: 0, succeeded: 0, failed: 0, skipped: 0 })),
 }));
 
@@ -41,10 +41,10 @@ vi.mock("../local-service/watcher.js", () => ({
 
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/search/vector-db.js";
-import { loadModel } from "../core/embedder.js";
+import { loadModel } from "../core/pipeline/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { seedClients } from "../core/clients/registry.js";
-import { processWebhookMeetings } from "../core/pipeline.js";
+import { processWebhookMeetings } from "../core/pipeline/pipeline.js";
 import { createWatcher } from "../local-service/watcher.js";
 import { startService } from "../local-service/main.js";
 

@@ -6,7 +6,7 @@ import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 
-vi.mock("../core/embedder.js", () => ({
+vi.mock("../core/pipeline/embedder.js", () => ({
   embed: vi.fn().mockResolvedValue(new Float32Array(384).fill(0.1)),
 }));
 

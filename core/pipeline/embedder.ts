@@ -1,6 +1,6 @@
 import * as ort from "onnxruntime-node";
 import { readFileSync } from "node:fs";
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 
 const log = createLogger("embed");
 

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Acme",
+    "is_default": true,
+    "aliases": ["Acme", "acme", "Acme Corp"],
+    "meeting_names": [
+      "Acme - Weekly Sync",
+      "Acme DSU"
+    ],
+    "client_team": [
+      { "name": "Jane Doe", "email": "jane@acme.com", "role": "CTO" },
+      { "name": "John Roe", "email": "john@acme.com", "role": "Engineering Manager" }
+    ],
+    "implementation_team": [
+      { "name": "Your Name", "email": "you@yourcompany.com", "role": "Consultant" }
+    ],
+    "additional_extraction_llm_prompt": "Jane is the highest authority. Action items directed at the implementation team are delivery commitments.",
+    "glossary": [
+      {
+        "term": "Acme",
+        "variants": ["acme", "ACM"],
+        "description": "The client company."
+      }
+    ]
+  }
+]
