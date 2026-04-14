@@ -1,7 +1,7 @@
-import { embed } from "./embedder.js";
-import { createLogger } from "./logger.js";
+import { embed } from "../embedder.js";
+import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
-import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "./vector-db.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "../vector-db.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("dedup:item");
@@ -173,8 +173,8 @@ export async function cleanupItemVectors(table: VectorTable, meetingId: string):
 }
 
 import { randomUUID } from "node:crypto";
-import { isSemanticDuplicate, isStringDuplicate } from "./math.js";
-import type { Artifact } from "./extractor.js";
+import { isSemanticDuplicate, isStringDuplicate } from "../math.js";
+import type { Artifact } from "../extractor.js";
 
 interface DeduplicateItemsResult {
   mentionsCreated: number;

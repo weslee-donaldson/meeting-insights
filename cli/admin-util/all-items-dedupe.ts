@@ -226,7 +226,7 @@ if (deepScan) {
   console.log(`Clients: ${clientMap.size}\n`);
 
   if (dryRun) {
-    const { filterAndCapItems, buildBatchDedupPrompt, parseBatchDedupResponse } = await import("../../core/deep-dedup.js");
+    const { filterAndCapItems, buildBatchDedupPrompt, parseBatchDedupResponse } = await import("../../core/dedup/deep-dedup.js");
     type BatchDedupItem = { description: string; priority: "critical" | "normal" | "low"; meetingTitle: string; date: string };
 
     for (const [client, meetings] of clientMap) {
@@ -273,7 +273,7 @@ if (deepScan) {
     console.log(`\nDry run: ${pending.length} meetings  ${totalMentions} eligible items  ${totalDupes} would be grouped`);
     console.log("No changes made.");
   } else {
-    const { deepScanClient } = await import("../../core/deep-dedup.js");
+    const { deepScanClient } = await import("../../core/dedup/deep-dedup.js");
 
     for (const [client, meetings] of clientMap) {
       const label = client === "__no_client__" ? "(no client)" : client;
@@ -290,7 +290,7 @@ if (deepScan) {
 } else if (dryRun) {
   // ─── embedding-only dry run ────────────────────────────────────────────────
 
-  const { searchSimilarItems } = await import("../../core/item-dedup.js");
+  const { searchSimilarItems } = await import("../../core/dedup/item-dedup.js");
   const { isSemanticDuplicate, isStringDuplicate } = await import("../../core/math.js");
 
   for (const meeting of pending) {
@@ -332,7 +332,7 @@ if (deepScan) {
 } else {
   // ─── embedding-only run ────────────────────────────────────────────────────
 
-  const { deduplicateItems } = await import("../../core/item-dedup.js");
+  const { deduplicateItems } = await import("../../core/dedup/item-dedup.js");
 
   for (let i = 0; i < pending.length; i++) {
     const meeting = pending[i];

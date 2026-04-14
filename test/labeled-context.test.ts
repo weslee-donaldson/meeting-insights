@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { buildLabeledContext, buildDistilledContext } from "../core/labeled-context.js";
-import { recordMention } from "../core/item-dedup.js";
+import { recordMention } from "../core/dedup/item-dedup.js";
 import { createMilestone, addMilestoneMention } from "../core/timelines.js";
 import { createNote } from "../core/notes.js";
 

@@ -9,7 +9,7 @@ import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTabl
 import { loadModel } from "../core/embedder.js";
 import { embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
 import { embedFeature, storeFeatureVector } from "../core/feature-embedding.js";
-import { embedItem, storeItemVector } from "../core/item-dedup.js";
+import { embedItem, storeItemVector } from "../core/dedup/item-dedup.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 describe("mergeSearchResults", () => {

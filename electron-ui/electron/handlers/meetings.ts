@@ -18,7 +18,7 @@ import { parseCitations, replaceCitations } from "../../../core/display-helpers.
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import { updateFts } from "../../../core/fts.js";
 import type { VectorDb } from "../../../core/vector-db.js";
-import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../../core/item-dedup.js";
+import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../../core/dedup/item-dedup.js";
 import { markThreadMessagesStale } from "../../../core/threads.js";
 import { getMeetingMessages, appendMeetingMessage, clearMeetingMessages } from "../../../core/meeting-messages.js";
 import type { MeetingMessage } from "../../../core/meeting-messages.js";

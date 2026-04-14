@@ -15,7 +15,7 @@ import {
   cleanupMentions,
   cleanupItemVectors,
   deduplicateItems,
-} from "../core/item-dedup.js";
+} from "../core/dedup/item-dedup.js";
 import { cosineSimilarity } from "../core/math.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
