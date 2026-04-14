@@ -3,8 +3,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext, getClientById } from "../core/client-registry.js";
-import type { Participant, GlossaryEntry, ClientRow } from "../core/client-registry.js";
+import { seedClients, getClientByName, getClientByAlias, getAllClients, getDefaultClient, getGlossaryForClient, buildClientContext, getClientById } from "../core/clients/registry.js";
+import type { Participant, GlossaryEntry, ClientRow } from "../core/clients/registry.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { seedTestTenant } from "./helpers/seed-test-tenant.js";
 

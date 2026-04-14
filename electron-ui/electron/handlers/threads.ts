@@ -6,7 +6,7 @@ import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, Threa
 import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread } from "../../../core/threads.js";
 import type { Thread } from "../../../core/threads.js";
 import { resolveMeetingSources } from "./meetings.js";
-import { resolveClient } from "../../../core/resolve-client.js";
+import { resolveClient } from "../../../core/clients/resolve.js";
 
 export function handleListThreads(db: Database, clientParam: string): Thread[] {
   if (!clientParam) return [];

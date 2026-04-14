@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { resolveClient } from "../core/resolve-client.js";
+import { resolveClient } from "../core/clients/resolve.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 describe("resolveClient", () => {

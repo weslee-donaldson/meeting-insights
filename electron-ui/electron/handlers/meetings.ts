@@ -5,15 +5,15 @@ import { storeAsset, getAssets, deleteAsset, getAssetData, deleteAssetsForMeetin
 import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/parser.js";
-import { getClientByName, getGlossaryForClient, buildClientContext } from "../../../core/client-registry.js";
-import type { Participant, GlossaryEntry } from "../../../core/client-registry.js";
+import { getClientByName, getGlossaryForClient, buildClientContext } from "../../../core/clients/registry.js";
+import type { Participant, GlossaryEntry } from "../../../core/clients/registry.js";
 import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/ingest.js";
 import { splitMeeting, getChildMeetings, getSourceMeeting } from "../../../core/meeting-split.js";
 import type { SplitResult } from "../../../core/meeting-split.js";
 import type { MeetingRow } from "../../../core/ingest.js";
 import { deleteNotesByObject } from "../../../core/notes.js";
-import { storeDetection } from "../../../core/client-detection.js";
+import { storeDetection } from "../../../core/clients/detection.js";
 import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import { updateFts } from "../../../core/search/fts.js";
@@ -25,7 +25,7 @@ import type { MeetingMessage } from "../../../core/meeting-messages.js";
 import { reconcileMilestones } from "../../../core/timelines.js";
 import type { MeetingRow, ChatRequest, ChatResponse, ConversationChatRequest, ConversationChatResponse, MeetingFilters, ActionItemCompletion, ItemHistoryEntry, MentionStat, ClientActionItem, CreateMeetingRequest } from "../channels.js";
 import { chatGuidelines, chatTemplates, extractionPrompt } from "./config.js";
-import { resolveClient } from "../../../core/resolve-client.js";
+import { resolveClient } from "../../../core/clients/resolve.js";
 
 interface ClientRow { name: string; }
 interface DbMeetingRow { id: string; title: string; date: string; action_item_count: number; }
@@ -102,7 +102,7 @@ export function handleGetClientDetail(db: Database, clientId: string): {
   meeting_names: string[];
   glossary_count: number;
 } | null {
-  const row = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId) as import("../../../core/client-registry.js").ClientRow | undefined;
+  const row = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId) as import("../../../core/clients/registry.js").ClientRow | undefined;
   if (!row) return null;
   return {
     id: row.id,
@@ -120,7 +120,7 @@ export function handleGetDefaultClient(db: Database): string | null {
   return row?.name ?? null;
 }
 
-export function handleGetGlossary(db: Database, clientName: string): import("../../../core/client-registry.js").GlossaryEntry[] {
+export function handleGetGlossary(db: Database, clientName: string): import("../../../core/clients/registry.js").GlossaryEntry[] {
   return getGlossaryForClient(db, clientName);
 }
 

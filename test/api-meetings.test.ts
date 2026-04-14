@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { splitMeeting } from "../core/meeting-split.js";
-import { storeDetection } from "../core/client-detection.js";
+import { storeDetection } from "../core/clients/detection.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";

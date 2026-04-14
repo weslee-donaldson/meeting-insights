@@ -4,7 +4,7 @@ import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { seedClients } from "../core/client-registry.js";
+import { seedClients } from "../core/clients/registry.js";
 import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline.js";
 import { createNotifierFromEnv } from "../core/notifier.js";
 import { createWatcher } from "./watcher.js";

@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
-import { seedClients } from "../core/client-registry.js";
+import { seedClients } from "../core/clients/registry.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { assignClient } from "../cli/admin-util/assign-client.js";
 import type { ParsedMeeting } from "../core/parser.js";

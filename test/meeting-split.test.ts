@@ -7,7 +7,7 @@ import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
 import { updateFts } from "../core/search/fts.js";
-import { storeDetection } from "../core/client-detection.js";
+import { storeDetection } from "../core/clients/detection.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 
 vi.mock("../core/search/vector-db.js", () => {

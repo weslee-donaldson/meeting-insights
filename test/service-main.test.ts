@@ -27,7 +27,7 @@ vi.mock("../core/llm/adapter.js", () => ({
   createLlmAdapter: vi.fn(() => ({})),
 }));
 
-vi.mock("../core/client-registry.js", () => ({
+vi.mock("../core/clients/registry.js", () => ({
   seedClients: vi.fn(),
 }));
 
@@ -43,7 +43,7 @@ import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { seedClients } from "../core/client-registry.js";
+import { seedClients } from "../core/clients/registry.js";
 import { processWebhookMeetings } from "../core/pipeline.js";
 import { createWatcher } from "../local-service/watcher.js";
 import { startService } from "../local-service/main.js";

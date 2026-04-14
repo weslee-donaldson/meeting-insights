@@ -401,7 +401,7 @@ export interface ElectronAPI {
   notesDelete: (id: string) => Promise<void>;
   notesCount: (objectType: string, objectId: string) => Promise<number>;
   artifactBatch: (meetingIds: string[]) => Promise<Record<string, import("../../core/extractor.js").Artifact | null>>;
-  getGlossary: (clientName: string) => Promise<import("../../core/client-registry.js").GlossaryEntry[]>;
+  getGlossary: (clientName: string) => Promise<import("../../core/clients/registry.js").GlossaryEntry[]>;
   getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
   acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
   splitMeeting: (meetingId: string, durations: number[]) => Promise<import("../../core/meeting-split.js").SplitResult>;

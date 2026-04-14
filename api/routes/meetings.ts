@@ -19,7 +19,7 @@ import { getChildMeetings, getSourceMeeting, splitMeeting, reprocessSplitSegment
 import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
-import { resolveClient } from "../../core/resolve-client.js";
+import { resolveClient } from "../../core/clients/resolve.js";
 
 export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps, assetsDir?: string): void {
   app.get("/api/clients", (c) => {

@@ -1,5 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { ClientRow } from "./client-registry.js";
+import type { ClientRow } from "./registry.js";
 
 const UUID_PREFIX = /^[0-9a-f]{8}-/;
 

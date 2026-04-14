@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { createDb, migrate } from "../../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable } from "../../core/search/vector-db.js";
-import { seedClients, getAllClients } from "../../core/client-registry.js";
+import { seedClients, getAllClients } from "../../core/clients/registry.js";
 import { resolveDataPaths, ensureDataDirs } from "../../core/paths.js";
 import { loadCliConfig } from "./shared.js";
 

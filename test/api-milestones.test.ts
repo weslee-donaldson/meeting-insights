@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { storeDetection } from "../core/client-detection.js";
+import { storeDetection } from "../core/clients/detection.js";
 import { createApp } from "../api/server.js";
 import { createMilestone, addMilestoneMention } from "../core/timelines.js";
 import type { Milestone, MilestoneMention, MilestoneMessage, DateSlippageEntry } from "../core/timelines.js";

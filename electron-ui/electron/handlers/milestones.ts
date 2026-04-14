@@ -6,7 +6,7 @@ import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatReque
 import { listMilestonesByClient, createMilestone as coreCreateMilestone, updateMilestone as coreUpdateMilestone, deleteMilestone as coreDeleteMilestone, getMilestoneMentions, getMeetingMilestones, getDateSlippage, getMilestoneMessages, appendMilestoneMessage, clearMilestoneMessages as coreClearMilestoneMessages, getMilestoneChatContext, confirmMilestoneMention as coreConfirmMilestoneMention, rejectMilestoneMention as coreRejectMilestoneMention, mergeMilestones as coreMergeMilestones, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMilestone } from "../../../core/timelines.js";
 import type { Milestone, MilestoneMention, MilestoneMessage, MilestoneActionItem, DateSlippageEntry } from "../../../core/timelines.js";
 import { resolveMeetingSources } from "./meetings.js";
-import { resolveClient } from "../../../core/resolve-client.js";
+import { resolveClient } from "../../../core/clients/resolve.js";
 
 export function handleListMilestones(db: Database, clientParam: string) {
   if (!clientParam) return [];

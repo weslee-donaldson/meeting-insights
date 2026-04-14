@@ -6,7 +6,7 @@ import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, In
 import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext, removeInsightMeeting } from "../../../core/insights.js";
 import type { Insight, InsightMeeting, InsightMessage } from "../../../core/insights.js";
 import { resolveMeetingSources } from "./meetings.js";
-import { resolveClient } from "../../../core/resolve-client.js";
+import { resolveClient } from "../../../core/clients/resolve.js";
 
 export function handleListInsights(db: Database, clientParam: string): Insight[] {
   if (!clientParam) return [];

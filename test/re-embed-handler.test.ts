@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
-import { storeDetection } from "../core/client-detection.js";
+import { storeDetection } from "../core/clients/detection.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 

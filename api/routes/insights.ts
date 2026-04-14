@@ -8,7 +8,7 @@ import {
 import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
-import { resolveClient } from "../../core/resolve-client.js";
+import { resolveClient } from "../../core/clients/resolve.js";
 
 export function registerInsightRoutes(app: Hono, db: Database, llm?: LlmAdapter, searchDeps?: SearchDeps): void {
   app.get('/api/insights', (c) => {
