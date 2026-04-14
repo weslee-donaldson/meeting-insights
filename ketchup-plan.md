@@ -75,10 +75,6 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 ### Section 2: Setup & Distribution
 
-- [ ] Burst 7: Update `SETUP.md` with complete onboarding instructions. Quick start section: `git clone && ./setup.sh`. Manual setup steps for each component. Environment variable reference table. PM2 management commands (`pm2 start ecosystem.config.cjs`, `pm2 logs`, `pm2 restart`). Troubleshooting section (common issues: model download failures, missing API key, port conflicts). Development commands (`pnpm test`, `pnpm web:dev`, `pnpm ui:dev`).
-
-  No test (documentation only, infra commit).
-
 ## DONE
 
 - [x] Burst 1: `core/migrations/runner.ts` -- runMigrations, getCurrentVersion with schema_version table (e33d5e3)
@@ -86,7 +82,8 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 - [x] Burst 3: Wire runner into setup/API/local-service via db.ts `migrate()` thin wrapper (499cf5b)
 - [x] Burst 4: `.env.example` + ecosystem.config.cjs with mti-api entry (d23308a)
 - [x] Burst 5: `scripts/download-models.ts` with hash-verified ONNX model download + uncommented dedup tuning defaults (178990f)
-- [x] Burst 6: `setup.sh` one-command onboarding script
+- [x] Burst 6: `setup.sh` one-command onboarding script (50fc502)
+- [x] Burst 7: Rewrote SETUP.md with quick-start, manual steps, env vars, PM2 commands, troubleshooting
 
 ## Verification
 
