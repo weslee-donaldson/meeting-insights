@@ -5,10 +5,10 @@ export const DATA_SUBDIRS = [
   "assets",
   "audit",
   "eval",
-  "external-transcripts",
   "manual/raw-transcripts",
   "manual/processed",
   "manual/failed",
+  "manual/external-transcripts",
   "webhook/raw-transcripts",
   "webhook/processed",
   "webhook/failed",
@@ -19,11 +19,11 @@ export interface DataPaths {
   assets: string;
   audit: string;
   eval: string;
-  externalTranscripts: string;
   manual: {
     rawTranscripts: string;
     processed: string;
     failed: string;
+    externalTranscripts: string;
   };
   webhook: {
     rawTranscripts: string;
@@ -39,11 +39,11 @@ export function resolveDataPaths(dataDir: string | undefined): DataPaths {
     assets: join(root, "assets"),
     audit: join(root, "audit"),
     eval: join(root, "eval"),
-    externalTranscripts: join(root, "external-transcripts"),
     manual: {
       rawTranscripts: join(root, "manual", "raw-transcripts"),
       processed: join(root, "manual", "processed"),
       failed: join(root, "manual", "failed"),
+      externalTranscripts: join(root, "manual", "external-transcripts"),
     },
     webhook: {
       rawTranscripts: join(root, "webhook", "raw-transcripts"),

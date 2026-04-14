@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { resolveDataPaths } from "../../core/paths.js";
 
 const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
-const EXTERNAL_DIR = dataPaths.externalTranscripts;
+const EXTERNAL_DIR = dataPaths.manual.externalTranscripts;
 const RAW_DIR = dataPaths.manual.rawTranscripts;
 const MANIFEST_PATH = join(RAW_DIR, "manifest.json");
 

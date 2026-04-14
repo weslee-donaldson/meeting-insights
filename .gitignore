@@ -24,10 +24,8 @@ data/webhook/
 data/assets/
 data/audit/
 data/eval/
-data/external-transcripts/
 data/clients/
 data/krisp-gdrive
-data/output/
 
 # JWT signing keys (generated at runtime)
 .keys/

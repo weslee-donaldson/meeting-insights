@@ -12,11 +12,10 @@ describe("resolveDataPaths", () => {
     expect(paths.assets).toBe("/custom/data/assets");
     expect(paths.audit).toBe("/custom/data/audit");
     expect(paths.eval).toBe("/custom/data/eval");
-    expect(paths.externalTranscripts).toBe("/custom/data/external-transcripts");
-
     expect(paths.manual.rawTranscripts).toBe("/custom/data/manual/raw-transcripts");
     expect(paths.manual.processed).toBe("/custom/data/manual/processed");
     expect(paths.manual.failed).toBe("/custom/data/manual/failed");
+    expect(paths.manual.externalTranscripts).toBe("/custom/data/manual/external-transcripts");
 
     expect(paths.webhook.rawTranscripts).toBe("/custom/data/webhook/raw-transcripts");
     expect(paths.webhook.processed).toBe("/custom/data/webhook/processed");
@@ -38,10 +37,10 @@ describe("DATA_SUBDIRS", () => {
       "assets",
       "audit",
       "eval",
-      "external-transcripts",
       "manual/raw-transcripts",
       "manual/processed",
       "manual/failed",
+      "manual/external-transcripts",
       "webhook/raw-transcripts",
       "webhook/processed",
       "webhook/failed",

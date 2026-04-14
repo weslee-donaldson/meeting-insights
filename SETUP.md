@@ -111,12 +111,74 @@ pnpm ui:dev    # launches the desktop app
 ```
 
 ### CLI (mti)
+
+The `mti` CLI talks to the API via HTTP. It works out of the box when `MTNINSIGHTS_AUTH_ENABLED=0` (the default) -- no token needed.
+
+**From the project directory** (works immediately after setup):
 ```bash
 pnpm mti clients list
 pnpm mti meetings list Acme
-pnpm mti items list Acme
 pnpm mti items complete <short_id1> <short_id2>
 ```
+
+**Use `mti` from anywhere** (one-time setup):
+```bash
+pnpm link --global     # symlinks mti into your pnpm global bin dir
+# Now you can run:
+mti clients list
+mti meetings list Acme
+```
+
+`pnpm link --global` installs the symlink into `~/Library/pnpm/` on macOS (ensure that's on your `PATH`, which `pnpm setup` configures automatically).
+
+**Pointing at a different API or enabling auth:**
+```bash
+mti config show                                     # show current config
+mti config set baseUrl https://api.example.com      # different API host
+mti config set token <bearer-token>                 # required if AUTH_ENABLED=1
+```
+
+Config lives in `~/.mtirc`. Env vars `MTI_BASE_URL` and `MTI_TOKEN` override the file.
+
+**Getting a token** (only needed if API auth is enabled):
+```bash
+pnpm manage-auth create-api-key --name "my-cli" --scopes "meetings:read,meetings:write,search:execute"
+# Copy the printed mki_... token and:
+mti config set token mki_...
+```
+
+---
+
+## Verify your setup
+
+After `./setup.sh` completes, run the eval harness to confirm the full pipeline works (LLM provider, embedder, search, chat):
+
+```bash
+pnpm eval
+```
+
+This runs canned queries from `data/eval/questions.json` through your configured LLM and writes results to `data/eval/results-{provider}-{timestamp}.jsonl`. If it finishes without errors, your setup is healthy. Edit `data/eval/questions.json` to add your own test queries.
+
+---
+
+## Data directory layout
+
+`MTNINSIGHTS_DATA_DIR` (default `data`) is the root for all operational storage. `setup.sh` scaffolds these subdirectories:
+
+| Path | Purpose |
+|------|---------|
+| `manual/raw-transcripts/` | Operator drop zone for Krisp batch exports |
+| `manual/processed/` | Successfully ingested manual transcripts (moved here after processing) |
+| `manual/failed/` | Manual transcripts that failed ingestion |
+| `manual/external-transcripts/` | Non-Krisp transcripts (`.txt`, `.vtt`). Run `pnpm import-external` to convert and queue them for processing |
+| `webhook/raw-transcripts/` | Incoming transcripts dropped by the webhook watcher |
+| `webhook/processed/` | Webhook transcripts after successful ingestion |
+| `webhook/failed/` | Webhook transcripts that failed ingestion |
+| `assets/` | File attachments on meetings (stored as `{meetingId}/{uuid}-{filename}`). Uploaded via the UI and tracked in the `assets` DB table |
+| `audit/` | Extraction audit logs (per-meeting LLM request/response records for debugging) |
+| `eval/` | Eval harness: `questions.json` config + timestamped `results-*.jsonl` output |
+
+All ten are gitignored. Back up `data/` along with `db/` and `models/` if you need to preserve state across machines.
 
 ---
 
