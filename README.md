@@ -80,11 +80,12 @@ krisp-meeting-insights/
 │   └── prompts/      Prompt templates (extraction, insight, search, threads)
 ├── docs/             Operational guides
 ├── scripts/          Developer utilities (LLM health check, server restart)
-├── data/             Runtime data directories (gitignored except structure)
-│   ├── raw-transcripts/   Drop Krisp exports here
-│   ├── processed/         Moved here after successful processing
-│   ├── failed-processing/ Moved here on pipeline failure
-│   └── audit/             Processing run logs
+├── data/             Runtime data directories (gitignored)
+│   ├── manual/            Operator drop zone: raw-transcripts, processed, failed, external-transcripts
+│   ├── webhook/           Webhook-delivered transcripts: raw-transcripts, processed, failed
+│   ├── assets/            Meeting file attachments
+│   ├── audit/             Processing run logs
+│   └── eval/              Eval harness config and results
 ├── db/               SQLite + LanceDB (gitignored)
 └── models/           ONNX embedding model (gitignored)
 ```
@@ -123,7 +124,7 @@ Each directory also contains `llm-context.md` (file inventory) and optionally `l
 ```bash
 pnpm install          # install dependencies
 pnpm setup            # initialize DB, vector store, seed clients
-pnpm process          # ingest transcripts from data/raw-transcripts/
+pnpm process          # ingest transcripts from data/manual/raw-transcripts/
 pnpm ui:dev           # launch Electron desktop app
 pnpm api:dev          # start HTTP API server (port 3000)
 pnpm web:dev          # start web UI (port 5173, requires api:dev)
@@ -131,60 +132,13 @@ pnpm test             # run all tests (1248 tests, ~10s)
 pnpm test:e2e         # run Playwright end-to-end tests
 ```
 
-See [SETUP.md](SETUP.md) for prerequisites, model download, and environment variable reference.
-See [docs/applications.md](docs/applications.md) for detailed CLI and API documentation.
+See [SETUP.md](SETUP.md) for first-time setup.
+See [docs/](docs/README.md) for operational reference: API, CLI, core logic, UI, webhooks, database, env vars.
 
 ---
 
 ## Webhook Ingestion
 
-Krisp webhook events flow through a multi-stage pipeline: Krisp sends POST events to a Firebase Cloud Function, which saves the raw JSON to Google Drive. Google Drive for Desktop syncs files locally. A background file watcher detects new files and runs them through the processing pipeline automatically.
+Krisp webhook events flow through Firebase Cloud Functions to Google Drive, sync locally via Google Drive for Desktop, and are picked up by a pm2-managed file watcher that runs them through the pipeline automatically.
 
-### Firebase Cloud Function
-
-The `krispWebhook` Cloud Function lives in `webhook-transcript-handler/firebase/`. It accepts POST requests from Krisp, authenticates via a bearer token, and writes the raw JSON payload to a Google Drive folder.
-
-**Project:** krisp-meeting-insights (Firebase Blaze plan)
-
-**Secrets** (configured via `firebase functions:secrets:set`):
-
-| Secret | Purpose |
-|--------|---------|
-| `KRISP_AUTH_TOKEN` | Bearer token Krisp sends with each webhook |
-| `DRIVE_FOLDER_ID` | Google Drive folder where payloads are saved |
-| `GOOGLE_CLIENT_ID` | OAuth client ID for Drive API access |
-| `GOOGLE_CLIENT_SECRET` | OAuth client secret |
-| `GOOGLE_REFRESH_TOKEN` | Long-lived OAuth refresh token |
-
-**Deploy:**
-
-```bash
-cd webhook-transcript-handler/firebase && firebase deploy --only functions
-```
-
-### Google Drive Sync
-
-Webhook JSON files land in the configured Google Drive folder. Google Drive for Desktop syncs them to your local machine. Configure Drive sync so the folder maps to `data/webhook-rawtranscripts/` in this project (or symlink the synced directory there).
-
-### Local Background Service
-
-A pm2-managed Node.js process watches `data/webhook-rawtranscripts/` for new JSON files and processes them through the full pipeline (parse, ingest, detect client, extract artifacts, embed). Processed files move to `data/webhook-processed/`; failures move to `data/webhook-failed/`.
-
-```bash
-pnpm service:start    # start the file watcher via pm2
-pnpm service:stop     # stop the watcher
-pnpm service:logs     # tail watcher logs
-pnpm service:status   # check if the watcher is running
-```
-
-The watcher uses `fs.watch` with a 30-second periodic scan fallback (macOS + Google Drive sync can miss `fs.watch` events). File writes are debounced to avoid processing partially-synced files.
-
-### Manual Processing
-
-`pnpm process` still works for batch processing. It processes webhook files first (from `data/webhook-rawtranscripts/`), then raw transcripts (from `data/raw-transcripts/`). Meeting IDs from webhook processing feed into the dedup set, so a meeting ingested via webhook will not be re-processed from a raw transcript.
-
-### Troubleshooting
-
-- **Files not being processed:** Check `pnpm service:logs` for errors. Verify the watcher is running with `pnpm service:status`.
-- **Drive sync not working:** Check that Google Drive for Desktop is running and the sync folder maps to `data/webhook-rawtranscripts/`.
-- **OAuth token expired:** Re-run `node webhook-transcript-handler/firebase/get-refresh-token.js` and update the `GOOGLE_REFRESH_TOKEN` secret via `firebase functions:secrets:set GOOGLE_REFRESH_TOKEN`.
+Full details in [docs/webhook.md](docs/webhook.md).
