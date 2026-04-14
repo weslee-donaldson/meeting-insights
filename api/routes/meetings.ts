@@ -15,7 +15,7 @@ import {
   handleArtifactBatch,
 } from "../../electron-ui/electron/ipc-handlers.js";
 import { getMeeting } from "../../core/pipeline/ingest.js";
-import { getChildMeetings, getSourceMeeting, splitMeeting, reprocessSplitSegments } from "../../core/meeting-split.js";
+import { getChildMeetings, getSourceMeeting, splitMeeting, reprocessSplitSegments } from "../../core/meetings/split.js";
 import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { CreateMeetingRequest, EditActionItemFields } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";

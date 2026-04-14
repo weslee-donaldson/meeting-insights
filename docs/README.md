@@ -12,6 +12,8 @@ For first-time setup see [../SETUP.md](../SETUP.md). For project-level overview 
 | [api.md](api.md) | HTTP endpoints: meetings, clients, action items, threads, insights, milestones, notes, search, OAuth |
 | [cli.md](cli.md) | `mti` CLI (HTTP client for the API) |
 | [cli-admin.md](cli-admin.md) | Admin pnpm scripts: setup, process, clear, purge, eval, manage-auth, PM2 services |
+| [clients.md](clients.md) | Configuring `config/clients.json`: schema, aliases, teams, glossary, verification via API |
+| [prompts.md](prompts.md) | Editing LLM prompts and chat templates under `config/`: variables, output contracts, tuning knobs |
 | [ui.md](ui.md) | Electron desktop app + web UI (LinearShell, views, chat panel, design system) |
 | [webhook.md](webhook.md) | Automated transcript ingestion: Firebase Cloud Function, Google Drive sync, local watcher |
 | [database.md](database.md) | SQLite schema, LanceDB tables, versioned migration system |

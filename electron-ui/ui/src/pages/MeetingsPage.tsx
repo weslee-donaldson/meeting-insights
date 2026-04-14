@@ -2,7 +2,7 @@ import React from "react";
 import { MeetingList, type GroupBy, type SortBy } from "../components/MeetingList.js";
 import { MeetingDetail } from "../components/MeetingDetail.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
-import type { AssetRow } from "../../../../core/assets.js";
+import type { AssetRow } from "../../../../core/meetings/assets.js";
 import type { DensityMode } from "../components/shared/density-toggle.js";
 
 interface MeetingsPageProps {

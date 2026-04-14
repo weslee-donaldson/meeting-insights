@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import type { SpeakerTurn, Participant } from "../core/pipeline/parser.js";
 import { parseTranscriptBody } from "../core/pipeline/parser.js";
-import { computeCutPoints, cleanupArchivedMeeting, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meeting-split.js";
+import { computeCutPoints, cleanupArchivedMeeting, deriveParticipants, getChildMeetings, getSourceMeeting, partitionTurns, rebaseTimestamps, reconstructTranscript, splitMeeting, validateSplitRequest } from "../core/meetings/split.js";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { storeArtifact } from "../core/pipeline/extractor.js";

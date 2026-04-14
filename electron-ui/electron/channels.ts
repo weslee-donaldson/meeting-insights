@@ -326,7 +326,7 @@ export interface ElectronAPI {
   getArtifact: (meetingId: string) => Promise<import("../../core/pipeline/extractor.js").Artifact | null>;
   chat: (req: ChatRequest) => Promise<ChatResponse>;
   conversationChat: (req: ConversationChatRequest) => Promise<ConversationChatResponse>;
-  getMeetingMessages: (meetingId: string) => Promise<import("../../core/meeting-messages.js").MeetingMessage[]>;
+  getMeetingMessages: (meetingId: string) => Promise<import("../../core/meetings/messages.js").MeetingMessage[]>;
   meetingChat: (meetingId: string, message: string, includeTranscripts?: boolean, template?: string, includeAssets?: boolean, attachments?: { name: string; base64: string; mimeType: string }[], noteIds?: string[]) => Promise<ConversationChatResponse>;
   clearMeetingMessages: (meetingId: string) => Promise<void>;
   search: (req: SearchRequest) => Promise<SearchResultRow[]>;
@@ -389,8 +389,8 @@ export interface ElectronAPI {
   clearMilestoneMessages: (milestoneId: string) => Promise<void>;
   getMeetingMilestones: (meetingId: string) => Promise<Array<{ milestone_id: string; title: string; target_date: string | null; status: string }>>;
   getDateSlippage: (milestoneId: string) => Promise<import("../../core/timelines.js").DateSlippageEntry[]>;
-  uploadAsset: (meetingId: string, filename: string, mimeType: string, base64: string) => Promise<import("../../core/assets.js").AssetRow>;
-  getMeetingAssets: (meetingId: string) => Promise<import("../../core/assets.js").AssetRow[]>;
+  uploadAsset: (meetingId: string, filename: string, mimeType: string, base64: string) => Promise<import("../../core/meetings/assets.js").AssetRow>;
+  getMeetingAssets: (meetingId: string) => Promise<import("../../core/meetings/assets.js").AssetRow[]>;
   deleteAsset: (assetId: string) => Promise<void>;
   getAssetData: (assetId: string) => Promise<{ data: string; filename: string; mimeType: string } | null>;
   renameMeeting: (meetingId: string, newTitle: string) => Promise<void>;
@@ -404,5 +404,5 @@ export interface ElectronAPI {
   getGlossary: (clientName: string) => Promise<import("../../core/clients/registry.js").GlossaryEntry[]>;
   getHealth: () => Promise<import("../../core/system-health.js").HealthStatus>;
   acknowledgeHealthErrors: (errorIds?: string[]) => Promise<void>;
-  splitMeeting: (meetingId: string, durations: number[]) => Promise<import("../../core/meeting-split.js").SplitResult>;
+  splitMeeting: (meetingId: string, durations: number[]) => Promise<import("../../core/meetings/split.js").SplitResult>;
   getMeetingLineage: (meetingId: string) => Promise<{ source: MeetingRow | null; children: MeetingRow[]; segment_index: number | null }>;}

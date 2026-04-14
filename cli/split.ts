@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { splitMeeting } from "../core/meeting-split.js";
+import { splitMeeting } from "../core/meetings/split.js";
 
 export async function runSplit(db: Database, meetingId: string, durations: number[]): Promise<string> {
   const result = await splitMeeting(db, meetingId, durations);

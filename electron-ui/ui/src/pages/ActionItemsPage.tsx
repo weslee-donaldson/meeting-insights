@@ -2,7 +2,7 @@ import React from "react";
 import { ClientActionItemsView } from "../components/ClientActionItemsView.js";
 import { MeetingDetail } from "../components/MeetingDetail.js";
 import type { MeetingRow, ClientActionItem, Artifact, ActionItemCompletion, MentionStat, EditActionItemFields } from "../../../../electron/channels.js";
-import type { AssetRow } from "../../../../core/assets.js";
+import type { AssetRow } from "../../../../core/meetings/assets.js";
 import type { DensityMode } from "../components/shared/density-toggle.js";
 
 interface ActionItemsPageProps {

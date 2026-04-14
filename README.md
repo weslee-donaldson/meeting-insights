@@ -137,6 +137,16 @@ See [docs/](docs/README.md) for operational reference: API, CLI, core logic, UI,
 
 ---
 
+## Configuration
+
+| Concern | Doc |
+|---------|-----|
+| Define your clients (teams, aliases, glossary, per-client LLM guidance) | [docs/clients.md](docs/clients.md) |
+| Tune LLM prompts, chat templates, and search knobs | [docs/prompts.md](docs/prompts.md) |
+| Environment variables and data directory layout | [docs/reference.md](docs/reference.md) |
+
+---
+
 ## Webhook Ingestion
 
 Krisp webhook events flow through Firebase Cloud Functions to Google Drive, sync locally via Google Drive for Desktop, and are picked up by a pm2-managed file watcher that runs them through the pipeline automatically.

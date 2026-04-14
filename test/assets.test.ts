@@ -4,7 +4,7 @@ import { mkdtempSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { migrate } from "../core/db.js";
-import { getAssets, storeAsset, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../core/assets.js";
+import { getAssets, storeAsset, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../core/meetings/assets.js";
 import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData } from "../electron-ui/electron/handlers/meetings.js";
 

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { createDb, type Database } from "../core/db.js";
 import { migrate } from "../core/db.js";
 import { storeArtifact, generateShortId } from "../core/pipeline/extractor.js";
-import { resolveShortIds } from "../core/action-item-resolver.js";
+import { resolveShortIds } from "../core/meetings/action-item-resolver.js";
 import type { Artifact } from "../core/pipeline/extractor.js";
 
 function seedMeeting(db: Database, id: string): void {

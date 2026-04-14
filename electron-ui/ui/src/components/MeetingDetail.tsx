@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Clipboard, Check, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText, Scissors } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
-import type { AssetRow } from "../../../../core/assets.js";
+import type { AssetRow } from "../../../../core/meetings/assets.js";
 import { useDropzone } from "react-dropzone";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/pipeline/ingest.js";
-import { splitMeeting } from "../core/meeting-split.js";
+import { splitMeeting } from "../core/meetings/split.js";
 import { storeDetection } from "../core/clients/detection.js";
 import { storeArtifact } from "../core/pipeline/extractor.js";
 import type { Artifact } from "../core/pipeline/extractor.js";

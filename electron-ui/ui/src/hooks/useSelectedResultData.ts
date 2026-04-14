@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Artifact, ActionItemCompletion } from "../../../electron/channels.js";
-import type { AssetRow } from "../../../../core/assets.js";
+import type { AssetRow } from "../../../../core/meetings/assets.js";
 
 export interface SelectedResultData {
   artifact: Artifact | null;

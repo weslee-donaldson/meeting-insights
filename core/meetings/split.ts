@@ -1,18 +1,18 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
-import type { Participant, SpeakerTurn } from "./pipeline/parser.js";
-import { parseTranscriptBody } from "./pipeline/parser.js";
-import { getMeeting, ingestMeeting } from "./pipeline/ingest.js";
-import type { MeetingRow } from "./pipeline/ingest.js";
-import { detectClient, storeDetection } from "./clients/detection.js";
-import { getClientById } from "./clients/registry.js";
-import { extractSummary, storeArtifact } from "./pipeline/extractor.js";
-import { updateFts } from "./search/fts.js";
-import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./pipeline/meeting-pipeline.js";
-import { createMeetingTable, createItemTable } from "./search/vector-db.js";
-import type { VectorDb } from "./search/vector-db.js";
-import type { LlmAdapter } from "./llm/adapter.js";
+import type { Participant, SpeakerTurn } from "../pipeline/parser.js";
+import { parseTranscriptBody } from "../pipeline/parser.js";
+import { getMeeting, ingestMeeting } from "../pipeline/ingest.js";
+import type { MeetingRow } from "../pipeline/ingest.js";
+import { detectClient, storeDetection } from "../clients/detection.js";
+import { getClientById } from "../clients/registry.js";
+import { extractSummary, storeArtifact } from "../pipeline/extractor.js";
+import { updateFts } from "../search/fts.js";
+import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../pipeline/meeting-pipeline.js";
+import { createMeetingTable, createItemTable } from "../search/vector-db.js";
+import type { VectorDb } from "../search/vector-db.js";
+import type { LlmAdapter } from "../llm/adapter.js";
 
 function parseMinutes(timestamp: string): number {
   const [h, m] = timestamp.split(":").map(Number);

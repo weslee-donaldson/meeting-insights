@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog.js";
 import { Button } from "./ui/button.js";
-import type { SplitResult } from "../../../../core/meeting-split.js";
+import type { SplitResult } from "../../../../core/meetings/split.js";
 interface SplitMeetingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

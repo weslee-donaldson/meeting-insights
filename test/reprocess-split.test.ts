@@ -4,7 +4,7 @@ import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { SplitResult } from "../core/meeting-split.js";
+import type { SplitResult } from "../core/meetings/split.js";
 
 const mockStoreMeetingVector = vi.fn().mockResolvedValue(undefined);
 const mockEmbedMeeting = vi.fn().mockResolvedValue(new Float32Array(384));
@@ -27,8 +27,8 @@ vi.mock("../core/search/vector-db.js", () => ({
   createItemTable: mockCreateItemTable,
 }));
 
-const { reprocessSplitSegments } = await import("../core/meeting-split.js");
-const { splitMeeting } = await import("../core/meeting-split.js");
+const { reprocessSplitSegments } = await import("../core/meetings/split.js");
+const { splitMeeting } = await import("../core/meetings/split.js");
 
 const VALID_TRANSCRIPT =
   "Alice | 00:00\nWelcome\n\n" +
