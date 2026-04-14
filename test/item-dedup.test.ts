@@ -16,7 +16,7 @@ import {
   cleanupItemVectors,
   deduplicateItems,
 } from "../core/dedup/item-dedup.js";
-import { cosineSimilarity } from "../core/math.js";
+import { cosineSimilarity } from "../core/utils/math.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import type { Artifact } from "../core/pipeline/extractor.js";

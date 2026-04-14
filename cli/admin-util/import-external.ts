@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, statSync } from "node:fs";
 import { join, basename, extname } from "node:path";
 import { randomUUID } from "node:crypto";
-import { resolveDataPaths } from "../../core/paths.js";
+import { resolveDataPaths } from "../../core/utils/paths.js";
 
 const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
 const EXTERNAL_DIR = dataPaths.manual.externalTranscripts;

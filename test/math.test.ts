@@ -6,7 +6,7 @@ import {
   normalizeItemText,
   jaroWinklerSimilarity,
   isStringDuplicate,
-} from "../core/math.js";
+} from "../core/utils/math.js";
 
 describe("cosineSimilarity", () => {
   it("returns 1.0 for identical unit vectors", () => {

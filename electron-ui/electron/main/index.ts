@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 import { join, resolve } from "path";
 const { app, BrowserWindow, ipcMain } = createRequire(import.meta.url)("electron") as typeof import("electron");
 import { createDb, migrate } from "../../../core/db.js";
-import { resolveDataPaths } from "../../../core/paths.js";
+import { resolveDataPaths } from "../../../core/utils/paths.js";
 import { CHANNELS } from "../channels.js";
 import {
   handleGetClients,

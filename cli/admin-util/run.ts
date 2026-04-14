@@ -8,7 +8,7 @@ import { seedClients } from "../../core/clients/registry.js";
 import { processNewMeetings, type PipelineEvent } from "../../core/pipeline/pipeline.js";
 import { createNotifierFromEnv } from "../../core/notifier.js";
 import { loadCliConfig } from "./shared.js";
-import { resolveDataPaths } from "../../core/paths.js";
+import { resolveDataPaths } from "../../core/utils/paths.js";
 
 const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
 

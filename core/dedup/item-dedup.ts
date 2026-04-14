@@ -173,7 +173,7 @@ export async function cleanupItemVectors(table: VectorTable, meetingId: string):
 }
 
 import { randomUUID } from "node:crypto";
-import { isSemanticDuplicate, isStringDuplicate } from "../math.js";
+import { isSemanticDuplicate, isStringDuplicate } from "../utils/math.js";
 import type { Artifact } from "../pipeline/extractor.js";
 
 interface DeduplicateItemsResult {

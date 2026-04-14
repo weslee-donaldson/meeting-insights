@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { resolveDataPaths, ensureDataDirs, DATA_SUBDIRS } from "../core/paths.js";
+import { resolveDataPaths, ensureDataDirs, DATA_SUBDIRS } from "../core/utils/paths.js";
 
 describe("resolveDataPaths", () => {
   it("uses the provided dataDir as the base", () => {

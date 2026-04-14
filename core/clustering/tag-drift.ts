@@ -1,5 +1,5 @@
 import { createLogger } from "../logger.js";
-import { cosineSimilarity } from "../math.js";
+import { cosineSimilarity } from "../utils/math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("cluster:drift");

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatOwner } from "../core/format-owner.js";
+import { formatOwner } from "../core/utils/format-owner.js";
 
 describe("formatOwner", () => {
   it("returns full name in comfortable mode", () => {

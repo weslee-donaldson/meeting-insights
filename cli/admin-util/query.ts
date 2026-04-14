@@ -4,7 +4,7 @@ import { loadModel } from "../../core/pipeline/embedder.js";
 import { searchMeetings } from "../../core/search/vector-search.js";
 import { getMeeting } from "../../core/pipeline/ingest.js";
 import { getArtifact } from "../../core/pipeline/extractor.js";
-import { renderNotesGroups, parseCitations } from "../../core/display-helpers.js";
+import { renderNotesGroups, parseCitations } from "../../core/utils/display.js";
 import { createLlmAdapter } from "../../core/llm/adapter.js";
 import { deepSearch } from "../../core/search/deep-search.js";
 import { readFileSync, existsSync } from "node:fs";

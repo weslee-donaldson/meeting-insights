@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useSearchScope } from "./useSearchScope.js";
 import { mergeArtifactsDeduped, computeActionItemOrigins } from "../lib/merge-artifacts.js";
-import { formatMultiTranscript } from "../../../../core/display-helpers.js";
+import { formatMultiTranscript } from "../../../../core/utils/display.js";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat, ItemHistoryEntry, CreateMeetingRequest, EditActionItemFields } from "../../../electron/channels.js";
 import type { GroupBy, SortBy } from "../components/MeetingList.js";
 import { useClearMessages } from "./useClearMessages.js";

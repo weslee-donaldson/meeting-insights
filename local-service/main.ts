@@ -10,7 +10,7 @@ import { createNotifierFromEnv } from "../core/notifier.js";
 import { createWatcher } from "./watcher.js";
 import { createLogger, setLogDir } from "../core/logger.js";
 import { loadCliConfig } from "../cli/admin-util/shared.js";
-import { resolveDataPaths } from "../core/paths.js";
+import { resolveDataPaths } from "../core/utils/paths.js";
 
 const log = createLogger("service");
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderNotesGroups, parseCitations, replaceCitations, formatMultiTranscript } from "../core/display-helpers.js";
+import { renderNotesGroups, parseCitations, replaceCitations, formatMultiTranscript } from "../core/utils/display.js";
 
 describe("renderNotesGroups", () => {
   it("returns empty string for empty notes array", () => {

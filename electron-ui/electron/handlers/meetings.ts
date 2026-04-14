@@ -14,7 +14,7 @@ import type { SplitResult } from "../../../core/meetings/split.js";
 import type { MeetingRow } from "../../../core/pipeline/ingest.js";
 import { deleteNotesByObject } from "../../../core/notes.js";
 import { storeDetection } from "../../../core/clients/detection.js";
-import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
+import { parseCitations, replaceCitations } from "../../../core/utils/display.js";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import { updateFts } from "../../../core/search/fts.js";
 import type { VectorDb } from "../../../core/search/vector-db.js";

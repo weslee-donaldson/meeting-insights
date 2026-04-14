@@ -69,7 +69,7 @@ if (isMain) {
     console.log("[api] Auth enabled");
   }
 
-  const { resolveDataPaths } = await import("../core/paths.js");
+  const { resolveDataPaths } = await import("../core/utils/paths.js");
   const dataDir = process.env.MTNINSIGHTS_DATA_DIR
     ? resolve(process.env.MTNINSIGHTS_DATA_DIR)
     : join(APP_ROOT, "data");

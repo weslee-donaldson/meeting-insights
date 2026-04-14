@@ -1,4 +1,4 @@
-import type { DensityMode } from "../electron-ui/ui/src/components/shared/density-toggle.js";
+import type { DensityMode } from "../../electron-ui/ui/src/components/shared/density-toggle.js";
 
 export function formatOwner(name: string | undefined, mode: DensityMode): string {
   if (!name) return "";

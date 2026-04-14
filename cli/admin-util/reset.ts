@@ -1,7 +1,7 @@
 import { rmSync, existsSync, readdirSync, renameSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { loadCliConfig } from "./shared.js";
-import { resolveDataPaths } from "../../core/paths.js";
+import { resolveDataPaths } from "../../core/utils/paths.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH } = loadCliConfig();
 const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);

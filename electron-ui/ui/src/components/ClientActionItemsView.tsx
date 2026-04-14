@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Pencil, Clipboard, ReceiptText } from "lucide-react";
 import type { ClientActionItem, EditActionItemFields } from "../../../electron/channels.js";
 import { DensityToggle, type DensityMode } from "./shared/density-toggle.js";
-import { formatOwner } from "../../../../core/format-owner.js";
+import { formatOwner } from "../../../../core/utils/format-owner.js";
 import { Badge } from "./ui/badge.js";
 import { Button } from "./ui/button.js";
 import { EditActionItemDialog } from "./EditActionItemDialog.js";

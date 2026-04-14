@@ -19,7 +19,7 @@ import { updateFts } from "../search/fts.js";
 import { listThreadsByClient, evaluateMeetingAgainstThread, addThreadMeeting } from "../threads.js";
 import { reconcileMilestones } from "../timelines.js";
 import { embed } from "./embedder.js";
-import { cosineSimilarity } from "../math.js";
+import { cosineSimilarity } from "../utils/math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "../search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";

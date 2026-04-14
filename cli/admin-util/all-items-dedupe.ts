@@ -291,7 +291,7 @@ if (deepScan) {
   // ─── embedding-only dry run ────────────────────────────────────────────────
 
   const { searchSimilarItems } = await import("../../core/dedup/item-dedup.js");
-  const { isSemanticDuplicate, isStringDuplicate } = await import("../../core/math.js");
+  const { isSemanticDuplicate, isStringDuplicate } = await import("../../core/utils/math.js");
 
   for (const meeting of pending) {
     const row = db.prepare("SELECT * FROM artifacts WHERE meeting_id = ?").get(meeting.id) as ArtifactRow | undefined;
