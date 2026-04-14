@@ -43,7 +43,7 @@ All configurable via `.env.local`. See `.env.example` for the annotated template
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `PORT` | `3000` | API server port |
+| `API_PORT` | `3000` | API server port |
 | `MTNINSIGHTS_AUTH_ENABLED` | `0` | Set to `1` to require Bearer tokens on all `/api/*` routes |
 | `MTNINSIGHTS_OWNER_SECRET` | -- | Required when auth enabled; signs JWTs and gates `/oauth/register` |
 

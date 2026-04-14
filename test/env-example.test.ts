@@ -13,7 +13,7 @@ describe(".env.example", () => {
       "MTNINSIGHTS_LLM_PROVIDER",
       "MTNINSIGHTS_DB_PATH",
       "MTNINSIGHTS_VECTOR_PATH",
-      "PORT",
+      "API_PORT",
       "MTNINSIGHTS_AUTH_ENABLED",
       "MTNINSIGHTS_OWNER_SECRET",
       "MTNINSIGHTS_LOG_LEVEL",

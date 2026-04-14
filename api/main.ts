@@ -26,7 +26,7 @@ if (isMain) {
   const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH
     ? resolve(process.env.MTNINSIGHTS_VECTOR_PATH)
     : join(APP_ROOT, "db/lancedb");
-  const PORT = Number(process.env.PORT ?? 3000);
+  const API_PORT = Number(process.env.API_PORT ?? 3000);
 
   const { ensureFtsCurrent } = await import("../core/search/fts.js");
   const db = createDb(DB_PATH);
@@ -75,6 +75,6 @@ if (isMain) {
     : join(APP_ROOT, "data");
   const ASSETS_DIR = resolveDataPaths(dataDir).assets;
   const app = createApp(db, DB_PATH, llm, searchDeps, ASSETS_DIR, authConfig);
-  serve({ fetch: app.fetch, port: PORT });
-  console.log(`[api] Listening on http://localhost:${PORT}`);
+  serve({ fetch: app.fetch, port: API_PORT });
+  console.log(`[api] Listening on http://localhost:${API_PORT}`);
 }

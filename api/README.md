@@ -12,7 +12,7 @@ The server listens on `http://localhost:3000` by default. Configuration is via e
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `PORT` | `3000` | HTTP listen port |
+| `API_PORT` | `3000` | HTTP listen port |
 | `MTNINSIGHTS_APP_ROOT` | `cwd()` | Base path for DB, vectors, models, and logs |
 | `MTNINSIGHTS_DB_PATH` | `$APP_ROOT/db/mtninsights.db` | SQLite file |
 | `MTNINSIGHTS_VECTOR_PATH` | `$APP_ROOT/db/lancedb` | LanceDB directory |

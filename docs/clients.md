@@ -99,7 +99,7 @@ Fetch a single client by name to inspect the full seeded record:
 curl http://localhost:3000/api/clients/Acme
 ```
 
-If `MTNINSIGHTS_AUTH_ENABLED=1`, add `-H "Authorization: Bearer <token>"`. Change `localhost:3000` to match your `PORT` if you overrode it in `.env.local`.
+If `MTNINSIGHTS_AUTH_ENABLED=1`, add `-H "Authorization: Bearer <token>"`. Change `localhost:3000` to match your `API_PORT` if you overrode it in `.env.local`.
 
 ### Editing an existing client
 

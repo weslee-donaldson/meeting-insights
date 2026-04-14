@@ -16,7 +16,7 @@ This layer wraps the same IPC handlers used by the Electron main process and exp
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `PORT` | `3000` | HTTP listen port |
+| `API_PORT` | `3000` | HTTP listen port |
 | `MTNINSIGHTS_APP_ROOT` | `cwd()` | Base path for DB, vectors, and logs |
 | `MTNINSIGHTS_DB_PATH` | `$APP_ROOT/db/mtninsights.db` | SQLite file |
 | `MTNINSIGHTS_VECTOR_PATH` | `$APP_ROOT/db/lancedb` | LanceDB directory |
@@ -28,7 +28,7 @@ This layer wraps the same IPC handlers used by the Electron main process and exp
 | `MTNINSIGHTS_AUTH_ENABLED` | — | Set to `1` to enable JWT/API-key auth |
 | `MTNINSIGHTS_OWNER_SECRET` | — | Shared secret for `/oauth/register` and `/oauth/authorize` endpoints |
 
-**Client resolution:** all routes that accept a `?client=` query parameter resolve it by name or UUID via `resolveClient` from `core/resolve-client.ts`, enabling callers to pass either the client name or its UUID primary key.
+**Client resolution:** all routes that accept a `?client=` query parameter resolve it by name or UUID via `resolveClient` from `core/clients/resolve.ts`, enabling callers to pass either the client name or its UUID primary key.
 
 **Degraded mode:** if the ONNX model files are absent or LanceDB fails to connect, the server starts without `searchDeps`. All search and re-embed endpoints return `503` rather than crashing.
 

@@ -4,7 +4,7 @@ HTTP API for Meeting Insights. A Hono server that mirrors the Electron IPC surfa
 
 ## Overview
 
-**Base URL:** `http://localhost:3000` (override via `PORT` env var).
+**Base URL:** `http://localhost:3000` (override via `API_PORT` env var).
 
 **Entrypoint:**
 - Development: `pnpm api:dev`

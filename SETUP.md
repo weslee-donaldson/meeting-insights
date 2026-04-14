@@ -205,7 +205,7 @@ All configurable in `.env.local`. See `.env.example` for the full annotated list
 | `MTNINSIGHTS_LLM_PROVIDER` | `anthropic` | `anthropic \| openai \| local \| claudecli \| stub` |
 | `MTNINSIGHTS_DB_PATH` | `db/mtninsights.db` | SQLite path |
 | `MTNINSIGHTS_VECTOR_PATH` | `db/lancedb` | LanceDB path |
-| `PORT` | `3000` | API server port |
+| `API_PORT` | `3000` | API server port |
 | `MTNINSIGHTS_AUTH_ENABLED` | `0` | Set to `1` to require Bearer tokens |
 | `MTNINSIGHTS_OWNER_SECRET` | — | Required when auth enabled |
 | `MTNINSIGHTS_LOG_LEVEL` | `info` | `error \| warn \| info \| debug` |
@@ -235,7 +235,7 @@ The download pulls ~90 MB from Hugging Face. Retry `pnpm download-models` -- it 
 Check `.env.local` exists and `ANTHROPIC_API_KEY` is set. Restart `mti-api` after edits: `pm2 restart mti-api`.
 
 **Port 3000 already in use**
-Change `PORT` in `.env.local`, then `pm2 restart mti-api`.
+Change `API_PORT` in `.env.local`, then `pm2 restart mti-api`.
 
 **Database errors after pulling updates**
 Run `pnpm setup` to apply pending migrations. Check `schema_version` in the DB to see the current version.

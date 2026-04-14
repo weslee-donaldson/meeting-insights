@@ -2,7 +2,7 @@
 
 Unit and integration tests covering API endpoints, core business logic, LLM adapters, IPC handlers, threads, insights, and supporting utilities. All tests use Vitest. 100% branch coverage is enforced (per CLAUDE.md); no coverage exclusions except barrel `index.ts` re-exports and `*.test.ts` files themselves.
 
-The stub LLM adapter (`llm-provider-stub.ts`) provides deterministic fixtures keyed by `PromptType`, enabling LLM-dependent tests to run without API keys or network access.
+The stub LLM adapter (`core/llm/provider-stub.ts`) provides deterministic fixtures keyed by `PromptType`, enabling LLM-dependent tests to run without API keys or network access.
 
 ## Test Files
 
