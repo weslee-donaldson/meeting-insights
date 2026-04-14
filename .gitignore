@@ -15,6 +15,7 @@ logs/
 # Ephemeral test/CI artifacts
 test-results/
 test/screenshots/
+screenshots/
 .playwright-mcp/
 
 # Runtime data (not source)
