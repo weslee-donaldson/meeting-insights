@@ -12,6 +12,9 @@ logs/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
 
+# Planning docs (builder-local, not shared)
+planning/
+
 # Ephemeral test/CI artifacts
 test-results/
 test/screenshots/
