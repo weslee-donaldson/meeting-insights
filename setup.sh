@@ -45,20 +45,38 @@ else
 fi
 
 echo "==> Configuring clients..."
+CLIENTS_JUST_CREATED=0
 if [ ! -f config/clients.json ]; then
   cp config/clients.example.json config/clients.json
+  CLIENTS_JUST_CREATED=1
   echo "    created config/clients.json from config/clients.example.json"
-  echo ""
-  echo "  ⚠  Edit config/clients.json to define your own clients (team members,"
-  echo "     aliases, meeting names, glossary) before running 'pnpm setup'."
-  echo "     See setup.md § 'Configure your clients' for the schema."
-  echo ""
 else
   echo "    config/clients.json already exists (skipping)"
 fi
 
 echo "==> Downloading ONNX models..."
 pnpm download-models
+
+if [ "$CLIENTS_JUST_CREATED" = "1" ]; then
+  echo ""
+  echo "============================================================"
+  echo "⚠  Stopping before database seed."
+  echo ""
+  echo "   config/clients.json was just created from the example."
+  echo "   Edit it to define your real clients before seeding:"
+  echo "     - team members, aliases, meeting names, glossary"
+  echo "     - see docs/clients.md for the schema"
+  echo ""
+  echo "   Also edit .env.local and set ANTHROPIC_API_KEY."
+  echo ""
+  echo "   Then finish setup with:"
+  echo "     pnpm setup                        # seeds clients"
+  echo "     pm2 start ecosystem.config.cjs    # starts services"
+  echo ""
+  echo "   Verify with:  curl http://localhost:3000/api/clients"
+  echo "============================================================"
+  exit 0
+fi
 
 echo "==> Initializing database..."
 pnpm setup

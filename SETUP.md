@@ -12,11 +12,23 @@ cd krisp-meeting-insights
 ./setup.sh
 ```
 
-Then edit `.env.local` and set your `ANTHROPIC_API_KEY`, then:
+`setup.sh` stops before seeding the database if it just created `config/clients.json` from the example. Edit these two files:
+
+1. `.env.local` — set your `ANTHROPIC_API_KEY`
+2. `config/clients.json` — replace the Acme example with your real clients (see [docs/clients.md](docs/clients.md))
+
+Then seed and start:
 
 ```bash
-pm2 start ecosystem.config.cjs   # starts mti-api + webhook-watcher
+pnpm setup                        # seeds clients into the DB
+pm2 start ecosystem.config.cjs    # starts mti-api + webhook-watcher
 pnpm web:dev                      # launches the web UI
+```
+
+Verify your clients seeded correctly:
+
+```bash
+curl http://localhost:3000/api/clients
 ```
 
 That's it. Re-run `./setup.sh` any time; it's idempotent.
@@ -255,4 +267,4 @@ Run `pnpm setup` to apply pending migrations. Check `schema_version` in the DB t
 | `pnpm purge` | Delete DB + vector store only (transcripts untouched) |
 | `pnpm manage-auth` | Create/revoke API keys and OAuth clients |
 
-See [docs/applications.md](docs/applications.md) for detailed usage.
+See [docs/cli-admin.md](docs/cli-admin.md) for detailed usage.

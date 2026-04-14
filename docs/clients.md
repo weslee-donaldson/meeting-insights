@@ -105,7 +105,7 @@ If `MTNINSIGHTS_AUTH_ENABLED=1`, add `-H "Authorization: Bearer <token>"`. Chang
 
 1. Update the entry in `config/clients.json`.
 2. Run `pnpm setup` to re-seed.
-3. Existing meetings are **not** automatically re-extracted. If you changed `additional_extraction_llm_prompt`, `glossary`, or team rosters and want those changes reflected in prior meetings, flag them for re-extraction (see [docs/applications.md](applications.md)).
+3. Existing meetings are **not** automatically re-extracted. If you changed `additional_extraction_llm_prompt`, `glossary`, or team rosters and want those changes reflected in prior meetings, flag them for re-extraction (see [docs/cli-admin.md](cli-admin.md)).
 
 ### Tuning detection
 
