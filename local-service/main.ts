@@ -10,6 +10,7 @@ import { createNotifierFromEnv } from "../core/notifier.js";
 import { createWatcher } from "./watcher.js";
 import { createLogger, setLogDir } from "../core/logger.js";
 import { loadCliConfig } from "../cli/admin-util/shared.js";
+import { resolveDataPaths } from "../core/paths.js";
 
 const log = createLogger("service");
 
@@ -94,6 +95,8 @@ if (isMainModule) {
           ? { type: "stub" as const }
           : { type: "anthropic" as const, apiKey: apiKey! };
 
+  const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
+
   const service = await startService({
     dbPath,
     vectorPath,
@@ -101,10 +104,10 @@ if (isMainModule) {
     tokenizerPath: "models/tokenizer.json",
     llmConfig,
     clientsPath: process.env.MTNINSIGHTS_CLIENTS_PATH ?? "config/clients.json",
-    webhookRawDir: "data/webhook-rawtranscripts",
-    webhookProcessedDir: "data/webhook-processed",
-    webhookFailedDir: "data/webhook-failed",
-    auditDir: "data/audit",
+    webhookRawDir: dataPaths.webhook.rawTranscripts,
+    webhookProcessedDir: dataPaths.webhook.processed,
+    webhookFailedDir: dataPaths.webhook.failed,
+    auditDir: dataPaths.audit,
   });
 
   process.on("SIGINT", () => {

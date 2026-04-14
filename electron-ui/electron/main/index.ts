@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import { join, resolve } from "path";
 const { app, BrowserWindow, ipcMain } = createRequire(import.meta.url)("electron") as typeof import("electron");
 import { createDb, migrate } from "../../../core/db.js";
+import { resolveDataPaths } from "../../../core/paths.js";
 import { CHANNELS } from "../channels.js";
 import {
   handleGetClients,
@@ -71,7 +72,10 @@ const VECTOR_PATH = process.env.MTNINSIGHTS_VECTOR_PATH
 
 const MODEL_PATH     = join(APP_ROOT, "models/all-MiniLM-L6-v2.onnx");
 const TOKENIZER_PATH = join(APP_ROOT, "models/tokenizer.json");
-const ASSETS_DIR     = join(APP_ROOT, "data/assets");
+const DATA_DIR       = process.env.MTNINSIGHTS_DATA_DIR
+  ? resolve(process.env.MTNINSIGHTS_DATA_DIR)
+  : join(APP_ROOT, "data");
+const ASSETS_DIR     = resolveDataPaths(DATA_DIR).assets;
 
 const PROVIDER = (process.env.MTNINSIGHTS_LLM_PROVIDER ?? "anthropic") as
   | "anthropic"

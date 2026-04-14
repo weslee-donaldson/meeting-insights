@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { createDb, migrate } from "../../core/db.js";
 import { connectVectorDb, createMeetingTable, createFeatureTable } from "../../core/vector-db.js";
 import { seedClients, getAllClients } from "../../core/client-registry.js";
+import { resolveDataPaths, ensureDataDirs } from "../../core/paths.js";
 import { loadCliConfig } from "./shared.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();
@@ -47,6 +48,10 @@ if (PROVIDER === "local") {
 }
 
 mkdirSync("db", { recursive: true });
+
+const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
+ensureDataDirs(dataPaths.root);
+console.log(`✓ Data directory scaffolded at ${dataPaths.root}`);
 
 const db = createDb(DB_PATH);
 migrate(db);

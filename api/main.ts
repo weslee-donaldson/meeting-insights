@@ -69,7 +69,11 @@ if (isMain) {
     console.log("[api] Auth enabled");
   }
 
-  const ASSETS_DIR = join(APP_ROOT, "data/assets");
+  const { resolveDataPaths } = await import("../core/paths.js");
+  const dataDir = process.env.MTNINSIGHTS_DATA_DIR
+    ? resolve(process.env.MTNINSIGHTS_DATA_DIR)
+    : join(APP_ROOT, "data");
+  const ASSETS_DIR = resolveDataPaths(dataDir).assets;
   const app = createApp(db, DB_PATH, llm, searchDeps, ASSETS_DIR, authConfig);
   serve({ fetch: app.fetch, port: PORT });
   console.log(`[api] Listening on http://localhost:${PORT}`);

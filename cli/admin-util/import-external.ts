@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, statSync } from "node:fs";
 import { join, basename, extname } from "node:path";
 import { randomUUID } from "node:crypto";
+import { resolveDataPaths } from "../../core/paths.js";
 
-const EXTERNAL_DIR = "data/external-transcripts";
-const RAW_DIR = "data/raw-transcripts";
+const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
+const EXTERNAL_DIR = dataPaths.externalTranscripts;
+const RAW_DIR = dataPaths.manual.rawTranscripts;
 const MANIFEST_PATH = join(RAW_DIR, "manifest.json");
 
 interface ExternalTurn {

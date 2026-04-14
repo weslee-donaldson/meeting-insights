@@ -1,11 +1,13 @@
 import { rmSync, existsSync, readdirSync, renameSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { loadCliConfig } from "./shared.js";
+import { resolveDataPaths } from "../../core/paths.js";
 
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH } = loadCliConfig();
-const RAW_DIR = "data/raw-transcripts";
-const PROCESSED_DIR = "data/processed";
-const FAILED_DIR = "data/failed-processing";
+const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
+const RAW_DIR = dataPaths.manual.rawTranscripts;
+const PROCESSED_DIR = dataPaths.manual.processed;
+const FAILED_DIR = dataPaths.manual.failed;
 
 if (existsSync(DB_PATH)) {
   rmSync(DB_PATH);

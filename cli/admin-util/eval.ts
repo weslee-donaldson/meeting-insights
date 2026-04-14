@@ -6,9 +6,11 @@ import { searchMeetings } from "../../core/vector-search.js";
 import { parseCitations } from "../../core/display-helpers.js";
 import { createLlmAdapter } from "../../core/llm-adapter.js";
 import { loadCliConfig, buildSearchContext, type SearchResult } from "./shared.js";
+import { resolveDataPaths } from "../../core/paths.js";
 
+const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
 const { dbPath: DB_PATH, vectorPath: VECTOR_PATH, provider: PROVIDER, apiKey: API_KEY, localBaseUrl: LOCAL_BASE_URL, localModel: LOCAL_MODEL } = loadCliConfig();
-const QUESTIONS_PATH = process.env.MTNINSIGHTS_EVAL_QUESTIONS ?? "data/eval/questions.json";
+const QUESTIONS_PATH = process.env.MTNINSIGHTS_EVAL_QUESTIONS ?? `${dataPaths.eval}/questions.json`;
 const LIMIT        = parseInt(process.env.MTNINSIGHTS_EVAL_LIMIT ?? "6");
 
 // ── Types (imported from cli/shared.ts) ───────────────────────────────────────
@@ -39,9 +41,9 @@ const llm = PROVIDER === "local"
 
 const modelLabel = PROVIDER === "local" ? LOCAL_MODEL : PROVIDER === "stub" ? "stub" : "claude-sonnet-4-6";
 
-mkdirSync("data/eval", { recursive: true });
+mkdirSync(dataPaths.eval, { recursive: true });
 const timestamp = new Date().toISOString().replace(/:/g, "-");
-const outPath = `data/eval/results-${PROVIDER}-${timestamp}.jsonl`;
+const outPath = `${dataPaths.eval}/results-${PROVIDER}-${timestamp}.jsonl`;
 
 for (let qi = 0; qi < questions.length; qi++) {
   const { question, client } = questions[qi];

@@ -8,6 +8,9 @@ import { seedClients } from "../../core/client-registry.js";
 import { processNewMeetings, type PipelineEvent } from "../../core/pipeline.js";
 import { createNotifierFromEnv } from "../../core/notifier.js";
 import { loadCliConfig } from "./shared.js";
+import { resolveDataPaths } from "../../core/paths.js";
+
+const dataPaths = resolveDataPaths(process.env.MTNINSIGHTS_DATA_DIR);
 
 const filterFolder = process.argv[2];
 
@@ -41,7 +44,7 @@ const llm = PROVIDER === "local"
     : createLlmAdapter({ type: "anthropic", apiKey: API_KEY! });
 
 if (filterFolder) {
-  const rawDir = "data/raw-transcripts";
+  const rawDir = dataPaths.manual.rawTranscripts;
   const manifestPath = join(rawDir, "manifest.json");
   if (existsSync(manifestPath)) {
     const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Array<{ meeting_id: string; meeting_files: string[] }>;
@@ -73,7 +76,7 @@ if (filterFolder) {
       }
       console.log(`Purged meeting ${meetingId}`);
     }
-    const processedDir = "data/processed";
+    const processedDir = dataPaths.manual.processed;
     const processedFolder = join(processedDir, filterFolder);
     if (existsSync(processedFolder)) {
       const { rmSync } = await import("node:fs");
@@ -90,14 +93,14 @@ const events: PipelineEvent[] = [];
 
 const notifier = createNotifierFromEnv();
 const result = await processNewMeetings({
-  rawDir: "data/raw-transcripts",
-  processedDir: "data/processed",
-  failedDir: "data/failed-processing",
-  auditDir: "data/audit",
+  rawDir: dataPaths.manual.rawTranscripts,
+  processedDir: dataPaths.manual.processed,
+  failedDir: dataPaths.manual.failed,
+  auditDir: dataPaths.audit,
   extractionPromptPath: "config/prompts/extraction.md",
-  webhookRawDir: "data/webhook-rawtranscripts",
-  webhookProcessedDir: "data/webhook-processed",
-  webhookFailedDir: "data/webhook-failed",
+  webhookRawDir: dataPaths.webhook.rawTranscripts,
+  webhookProcessedDir: dataPaths.webhook.processed,
+  webhookFailedDir: dataPaths.webhook.failed,
   db,
   vdb,
   session,
