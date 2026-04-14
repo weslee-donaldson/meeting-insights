@@ -75,13 +75,31 @@
 2. Replace the `Acme` entry with your real client.
 3. Keep `"is_default": true` on one entry.
 4. Run `pnpm setup` to seed.
-5. Verify with `pnpm mti clients list`.
+5. Verify via the API (see [Verifying via the API](#verifying-via-the-api) below).
 
 ### Adding another client
 
 1. Append a new object to the array. Leave `is_default: false` (or omit).
 2. Run `pnpm setup` — it's idempotent and will upsert the new client.
-3. Verify with `pnpm mti clients list`.
+3. Verify via the API (see below).
+
+### Verifying via the API
+
+With the API server running (`pm2 start ecosystem.config.cjs` or `pnpm api:dev`), hit the clients endpoint:
+
+```bash
+curl http://localhost:3000/api/clients
+```
+
+You should see every client you defined in `config/clients.json`, with matching `name`, `is_default`, `aliases`, and team rosters. If a client is missing, re-run `pnpm setup` and check the output for seed errors. If `is_default` isn't set on exactly one client, detection will fall back unpredictably — fix the config and re-seed.
+
+Fetch a single client by name to inspect the full seeded record:
+
+```bash
+curl http://localhost:3000/api/clients/Acme
+```
+
+If `MTNINSIGHTS_AUTH_ENABLED=1`, add `-H "Authorization: Bearer <token>"`. Change `localhost:3000` to match your `PORT` if you overrode it in `.env.local`.
 
 ### Editing an existing client
 

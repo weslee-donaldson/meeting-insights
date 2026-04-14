@@ -75,6 +75,12 @@ Skips if already present with matching SHA256 hashes.
 
 See [docs/clients.md](docs/clients.md) for the full schema, workflows (adding, editing, tuning detection/extraction), and glossary conventions.
 
+### 4a. (Optional) Tweak the LLM prompts
+
+Every extraction, insight report, search-scoring, and chat response is driven by a Markdown file under `config/prompts/` or `config/chat-templates/`, plus the global `config/chat-guidelines.md`. Numeric knobs live in `config/system.json`. You can reshape behavior without touching code.
+
+See [docs/prompts.md](docs/prompts.md) for the file map, template variables, output-contract rules, and common tweaks.
+
 ### 5. Initialize the database
 ```bash
 pnpm setup
