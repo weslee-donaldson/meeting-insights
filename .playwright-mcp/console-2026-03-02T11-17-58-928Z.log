@@ -1,7 +1,0 @@
-[   92007ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019ca032bcdf7137ac3522a0ab49a8d8/completions:0
-[   93013ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/api/meetings/019ca032bcdf7137ac3522a0ab49a8d8/completions:0
-[  240583ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=sh2ROP6d0af_' failed:  @ http://localhost:5173/@vite/client:744
-[  240729ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
-[  240729ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0
-[  241736ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/clients:0
-[  241737ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/api/meetings:0

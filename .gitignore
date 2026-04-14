@@ -40,3 +40,6 @@ data/output/
 **/.venv/
 **/__pycache__/
 *.pyc
+
+# Claude CLI API shim (local-only FastAPI wrapper)
+claudecli-api/

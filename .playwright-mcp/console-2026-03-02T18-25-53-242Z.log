@@ -1,2 +1,0 @@
-[ 1151676ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/chat:0
-[ 1151678ms] Unexpected token 'I', "Internal S"... is not valid JSON
