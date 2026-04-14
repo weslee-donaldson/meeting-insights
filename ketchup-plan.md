@@ -80,18 +80,6 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 ## TODO
 
-- [ ] Burst 3: `api/routes/meetings.ts` -- add `POST /api/action-items/complete`. Parses body as `{ short_ids: string[], note?: string }`. Validates `short_ids` is a non-empty array. Calls `handleBatchCompleteItems`. Returns 200 with `{ results }`. Empty array returns 400.
-
-- [ ] Burst 5: Replace `complete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items complete <ids...>` with `--note` and `--json`. Calls `POST /api/action-items/complete` with `{ short_ids, note }`. Displays results as table (Short ID + Status columns) or JSON.
-
-  Test: `test/cli/mti/commands/items.test.ts` -- update complete tests. Stub returns `{ results: [...] }`, verify table output and JSON output. Verify correct URL (`/api/action-items/complete`) and body shape sent.
-
-- [ ] Burst 6: Replace `uncomplete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items uncomplete <ids...>` with `--json`. Calls `POST /api/action-items/uncomplete`.
-
-  Test: `test/cli/mti/commands/items.test.ts` -- update uncomplete tests. Same pattern as Burst 5.
-
-- [ ] Burst 5: Replace `complete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items complete <ids...>` with `--note` and `--json`. Calls `POST /api/action-items/complete` with `{ short_ids, note }`. Displays results as table (Short ID + Status columns) or JSON.
-
   Test: `test/cli/mti/commands/items.test.ts` -- update complete tests. Stub returns `{ results: [...] }`, verify table output and JSON output. Verify correct URL (`/api/action-items/complete`) and body shape sent.
 
 - [ ] Burst 6: Replace `uncomplete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items uncomplete <ids...>` with `--json`. Calls `POST /api/action-items/uncomplete`.
@@ -103,4 +91,6 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
 - [x] Burst 1: `core/action-item-resolver.ts` -- `resolveShortIds(db, shortIds)` (7bb43f0)
 - [x] Burst 2: `handleBatchCompleteItems` and `handleBatchUncompleteItems` in handlers/meetings.ts (54adc2b)
 - [x] Burst 3: `POST /api/action-items/complete` endpoint
-- [x] Burst 4: `POST /api/action-items/uncomplete` endpoint
+- [x] Burst 4: `POST /api/action-items/uncomplete` endpoint (caf5df4)
+- [x] Burst 5: Replace `complete` CLI command with variadic short_id signature
+- [x] Burst 6: Replace `uncomplete` CLI command with variadic short_id signature

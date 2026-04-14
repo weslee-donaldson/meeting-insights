@@ -464,7 +464,14 @@ describe("items edit", () => {
 });
 
 describe("items complete", () => {
-  it("marks an action item as complete with a note", async () => {
+  const batchResponse = {
+    results: [
+      { short_id: "a1b2c3", status: "completed" },
+      { short_id: "d4e5f6", status: "completed" },
+    ],
+  };
+
+  it("marks multiple items complete by short_id with a note", async () => {
     let capturedUrl = "";
     let capturedBody = "";
     let capturedMethod = "";
@@ -472,53 +479,53 @@ describe("items complete", () => {
       capturedUrl = url;
       capturedBody = init?.body as string;
       capturedMethod = init?.method as string;
-      return new Response(null, { status: 204 });
+      return new Response(JSON.stringify(batchResponse), { status: 200, headers: { "Content-Type": "application/json" } });
     });
     const { stream, output } = collectStream();
 
-    await completeItem("m1", "3", { note: "Done via PR #42" }, { client, stream });
+    await completeItem(["a1b2c3", "d4e5f6"], { note: "Done via PR #42" }, { client, stream });
 
     expect(capturedMethod).toBe("POST");
-    expect(new URL(capturedUrl).pathname).toBe(
-      "/api/meetings/m1/action-items/3/complete"
-    );
-    expect(JSON.parse(capturedBody)).toEqual({ note: "Done via PR #42" });
-    expect(output()).toContain("Action item 3 marked complete.");
+    expect(new URL(capturedUrl).pathname).toBe("/api/action-items/complete");
+    expect(JSON.parse(capturedBody)).toEqual({ short_ids: ["a1b2c3", "d4e5f6"], note: "Done via PR #42" });
+    const out = output();
+    expect(out).toContain("a1b2c3");
+    expect(out).toContain("completed");
   });
 
   it("sends empty note when --note is omitted", async () => {
     let capturedBody = "";
     const client = stubClient(async (_url, init) => {
       capturedBody = init?.body as string;
-      return new Response(null, { status: 204 });
+      return new Response(JSON.stringify({ results: [{ short_id: "a1b2c3", status: "completed" }] }), { status: 200, headers: { "Content-Type": "application/json" } });
     });
     const { stream } = collectStream();
 
-    await completeItem("m1", "0", {}, { client, stream });
+    await completeItem(["a1b2c3"], {}, { client, stream });
 
-    expect(JSON.parse(capturedBody)).toEqual({ note: "" });
+    expect(JSON.parse(capturedBody)).toEqual({ short_ids: ["a1b2c3"], note: "" });
   });
 
-  it("outputs JSON confirmation when --json is passed", async () => {
+  it("outputs JSON when --json is passed", async () => {
     const client = stubClient(async () =>
-      new Response(null, { status: 204 })
+      new Response(JSON.stringify(batchResponse), { status: 200, headers: { "Content-Type": "application/json" } })
     );
     const { stream, output } = collectStream();
 
-    await completeItem("m1", "0", { json: true }, { client, stream });
+    await completeItem(["a1b2c3", "d4e5f6"], { json: true }, { client, stream });
 
-    expect(JSON.parse(output())).toEqual({ ok: true });
+    expect(JSON.parse(output())).toEqual(batchResponse);
   });
 
-  it("shows help with description and errors", () => {
+  it("shows help with description", () => {
     const program = buildProgram();
     const items = program.commands.find((c) => c.name() === "items")!;
     const complete = items.commands.find((c) => c.name() === "complete")!;
     const help = captureHelp(complete);
 
-    expect(help).toContain("Mark an action item as complete (index is 0-based");
+    expect(help).toContain("Mark action items as complete by Short ID");
     expect(help).toContain("Errors:");
-    expect(help).toContain("404");
+    expect(help).toContain("400");
   });
 
   it("declares --json as a Commander option on the complete subcommand", () => {
@@ -532,45 +539,54 @@ describe("items complete", () => {
 });
 
 describe("items uncomplete", () => {
-  it("reverts an action item completion", async () => {
+  const batchResponse = {
+    results: [
+      { short_id: "a1b2c3", status: "uncompleted" },
+    ],
+  };
+
+  it("reverts completion for items by short_id", async () => {
     let capturedUrl = "";
+    let capturedBody = "";
     let capturedMethod = "";
     const client = stubClient(async (url, init) => {
       capturedUrl = url;
+      capturedBody = init?.body as string;
       capturedMethod = init?.method as string;
-      return new Response(null, { status: 204 });
+      return new Response(JSON.stringify(batchResponse), { status: 200, headers: { "Content-Type": "application/json" } });
     });
     const { stream, output } = collectStream();
 
-    await uncompleteItem("m1", "3", {}, { client, stream });
+    await uncompleteItem(["a1b2c3"], {}, { client, stream });
 
-    expect(capturedMethod).toBe("DELETE");
-    expect(new URL(capturedUrl).pathname).toBe(
-      "/api/meetings/m1/action-items/3/complete"
-    );
-    expect(output()).toContain("Action item 3 completion reverted.");
+    expect(capturedMethod).toBe("POST");
+    expect(new URL(capturedUrl).pathname).toBe("/api/action-items/uncomplete");
+    expect(JSON.parse(capturedBody)).toEqual({ short_ids: ["a1b2c3"] });
+    const out = output();
+    expect(out).toContain("a1b2c3");
+    expect(out).toContain("uncompleted");
   });
 
-  it("outputs JSON confirmation when --json is passed", async () => {
+  it("outputs JSON when --json is passed", async () => {
     const client = stubClient(async () =>
-      new Response(null, { status: 204 })
+      new Response(JSON.stringify(batchResponse), { status: 200, headers: { "Content-Type": "application/json" } })
     );
     const { stream, output } = collectStream();
 
-    await uncompleteItem("m1", "0", { json: true }, { client, stream });
+    await uncompleteItem(["a1b2c3"], { json: true }, { client, stream });
 
-    expect(JSON.parse(output())).toEqual({ ok: true });
+    expect(JSON.parse(output())).toEqual(batchResponse);
   });
 
-  it("shows help with description and errors", () => {
+  it("shows help with description", () => {
     const program = buildProgram();
     const items = program.commands.find((c) => c.name() === "items")!;
     const uncomplete = items.commands.find((c) => c.name() === "uncomplete")!;
     const help = captureHelp(uncomplete);
 
-    expect(help).toContain("Revert an action item's completion status (index is 0-based");
+    expect(help).toContain("Revert action item completion by Short ID");
     expect(help).toContain("Errors:");
-    expect(help).toContain("404");
+    expect(help).toContain("400");
   });
 
   it("declares --json as a Commander option on the uncomplete subcommand", () => {

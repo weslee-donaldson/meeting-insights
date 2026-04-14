@@ -37,6 +37,11 @@ const HISTORY_COLUMNS: ColumnDef[] = [
   { key: "item_text", header: "Description" },
 ];
 
+const BATCH_RESULT_COLUMNS: ColumnDef[] = [
+  { key: "short_id", header: "Short ID", width: 10 },
+  { key: "status", header: "Status", width: 15 },
+];
+
 const COMPLETIONS_COLUMNS: ColumnDef[] = [
   { key: "item_index", header: "Item #" },
   { key: "completed_at", header: "Completed At" },
@@ -110,40 +115,40 @@ export async function listCompletions(
 }
 
 export async function uncompleteItem(
-  meetingId: string,
-  index: string,
+  ids: string[],
   options: { json?: boolean },
   deps: Deps = defaultDeps()
 ): Promise<void> {
-  await deps.client.delete(
-    `/api/meetings/${meetingId}/action-items/${index}/complete`
-  );
+  const data = await deps.client.post("/api/action-items/uncomplete", {
+    short_ids: ids,
+  });
 
   if (options.json) {
-    outputJson({ ok: true }, deps.stream);
+    outputJson(data, deps.stream);
     return;
   }
 
-  writeln(deps.stream, `Action item ${index} completion reverted.`);
+  const results = (data as { results: { short_id: string; status: string }[] }).results;
+  outputTable(results, BATCH_RESULT_COLUMNS, deps.stream);
 }
 
 export async function completeItem(
-  meetingId: string,
-  index: string,
+  ids: string[],
   options: { note?: string; json?: boolean },
   deps: Deps = defaultDeps()
 ): Promise<void> {
-  await deps.client.post(
-    `/api/meetings/${meetingId}/action-items/${index}/complete`,
-    { note: options.note ?? "" }
-  );
+  const data = await deps.client.post("/api/action-items/complete", {
+    short_ids: ids,
+    note: options.note ?? "",
+  });
 
   if (options.json) {
-    outputJson({ ok: true }, deps.stream);
+    outputJson(data, deps.stream);
     return;
   }
 
-  writeln(deps.stream, `Action item ${index} marked complete.`);
+  const results = (data as { results: { short_id: string; status: string }[] }).results;
+  outputTable(results, BATCH_RESULT_COLUMNS, deps.stream);
 }
 
 export async function editItem(
@@ -306,54 +311,62 @@ Errors:
     );
 
   items
-    .command("complete <meetingId> <index>")
-    .description("Mark an action item as complete (index is 0-based, from items list output).")
+    .command("complete <ids...>")
+    .description("Mark action items as complete by Short ID (from items list output).")
     .option("--note <text>", "Completion note (default: empty string)")
     .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
-Output schema (--json): { "ok": true }
+Output schema (--json):
+  { "results": [{ "short_id": "string", "status": "completed|not_found" }] }
+
+Example:
+  $ mti items complete f3a1b2 d4e5f6 --note "Done via PR #42"
+  Short ID    Status
+  ────────    ──────────────
+  f3a1b2      completed
+  d4e5f6      completed
 
 Errors:
-  404  Meeting or item not found`
+  400  Empty short_ids array`
     )
     .action(
       async (
-        meetingId: string,
-        index: string,
+        ids: string[],
         opts: Record<string, string>
       ) => {
         const json = opts.json ?? program.opts().json;
-        await completeItem(meetingId, index, { ...opts, json }, defaultDeps());
+        await completeItem(ids, { ...opts, json }, defaultDeps());
       }
     );
 
   items
-    .command("uncomplete <meetingId> <index>")
-    .description("Revert an action item's completion status (index is 0-based, from items list output).")
+    .command("uncomplete <ids...>")
+    .description("Revert action item completion by Short ID (from items list output).")
     .option("--json", "Output as JSON")
     .addHelpText(
       "after",
       `
-Output schema (--json): { "ok": true }
+Output schema (--json):
+  { "results": [{ "short_id": "string", "status": "uncompleted|not_found" }] }
+
+Example:
+  $ mti items uncomplete f3a1b2
+  Short ID    Status
+  ────────    ──────────────
+  f3a1b2      uncompleted
 
 Errors:
-  404  Meeting or item not found`
+  400  Empty short_ids array`
     )
     .action(
       async (
-        meetingId: string,
-        index: string,
+        ids: string[],
         opts: Record<string, string>
       ) => {
         const json = opts.json ?? program.opts().json;
-        await uncompleteItem(
-          meetingId,
-          index,
-          { ...opts, json },
-          defaultDeps()
-        );
+        await uncompleteItem(ids, { ...opts, json }, defaultDeps());
       }
     );
 
