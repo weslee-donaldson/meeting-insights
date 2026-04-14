@@ -142,7 +142,7 @@ Krisp webhook events flow through a multi-stage pipeline: Krisp sends POST event
 
 ### Firebase Cloud Function
 
-The `krispWebhook` Cloud Function lives in `google-krisp-webhook/firebase/`. It accepts POST requests from Krisp, authenticates via a bearer token, and writes the raw JSON payload to a Google Drive folder.
+The `krispWebhook` Cloud Function lives in `webhook-transcript-handler/firebase/`. It accepts POST requests from Krisp, authenticates via a bearer token, and writes the raw JSON payload to a Google Drive folder.
 
 **Project:** krisp-meeting-insights (Firebase Blaze plan)
 
@@ -159,7 +159,7 @@ The `krispWebhook` Cloud Function lives in `google-krisp-webhook/firebase/`. It 
 **Deploy:**
 
 ```bash
-cd google-krisp-webhook/firebase && firebase deploy --only functions
+cd webhook-transcript-handler/firebase && firebase deploy --only functions
 ```
 
 ### Google Drive Sync
@@ -187,4 +187,4 @@ The watcher uses `fs.watch` with a 30-second periodic scan fallback (macOS + Goo
 
 - **Files not being processed:** Check `pnpm service:logs` for errors. Verify the watcher is running with `pnpm service:status`.
 - **Drive sync not working:** Check that Google Drive for Desktop is running and the sync folder maps to `data/webhook-rawtranscripts/`.
-- **OAuth token expired:** Re-run `node google-krisp-webhook/firebase/get-refresh-token.js` and update the `GOOGLE_REFRESH_TOKEN` secret via `firebase functions:secrets:set GOOGLE_REFRESH_TOKEN`.
+- **OAuth token expired:** Re-run `node webhook-transcript-handler/firebase/get-refresh-token.js` and update the `GOOGLE_REFRESH_TOKEN` secret via `firebase functions:secrets:set GOOGLE_REFRESH_TOKEN`.

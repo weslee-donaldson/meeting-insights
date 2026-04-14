@@ -38,7 +38,7 @@ UI tests mock `window.api` — this is the key testing seam. Core tests use the 
 
 A standalone background service managed by pm2 that watches `data/webhook-rawtranscripts/` for new Krisp webhook JSON files and auto-processes them through the full pipeline. Uses `fs.watch` with a 30s periodic scan fallback (macOS + Google Drive sync is unreliable). Debounces rapid file events to avoid processing partially-written files. Completely independent from the API server and web UI — runs as its own Node.js process via `ecosystem.config.cjs`.
 
-## From `google-krisp-webhook/`
+## From `webhook-transcript-handler/`
 
 Firebase Cloud Function (`firebase/`) that receives Krisp webhook POST requests and writes raw JSON payloads to Google Drive. Uses OAuth2 with a refresh token stored in Firebase Secret Manager to write to Drive via the v3 API. Auth token is validated from a query parameter or Authorization header. Files land in Drive and sync to `data/webhook-rawtranscripts/` via Google Drive Desktop, where `local-service/` picks them up.
 
@@ -76,5 +76,5 @@ Prompt templates use `{{variable}}` placeholders and instruct strict JSON output
 | `local-service/` | [llm-context](local-service/llm-context.md) | — |
 | `scripts/` | [llm-context](scripts/llm-context.md) | — |
 | `planning/` | [llm-context](planning/llm-context.md) | — |
-| `google-krisp-webhook/` | [llm-context](google-krisp-webhook/llm-context.md) | — |
+| `webhook-transcript-handler/` | [llm-context](webhook-transcript-handler/llm-context.md) | — |
 | `docs/` | [llm-context](docs/llm-context.md) | — |
