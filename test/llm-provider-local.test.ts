@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { createLocalAdapter } from "../core/llm-provider-local.js";
+import { createLocalAdapter } from "../core/llm/provider-local.js";
 
 afterEach(() => vi.restoreAllMocks());
 

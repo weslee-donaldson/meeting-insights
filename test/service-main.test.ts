@@ -23,7 +23,7 @@ vi.mock("../core/embedder.js", () => ({
   loadModel: vi.fn(async () => ({ _tokenizer: {} })),
 }));
 
-vi.mock("../core/llm-adapter.js", () => ({
+vi.mock("../core/llm/adapter.js", () => ({
   createLlmAdapter: vi.fn(() => ({})),
 }));
 
@@ -42,7 +42,7 @@ vi.mock("../local-service/watcher.js", () => ({
 import { createDb, migrate } from "../core/db.js";
 import { connectVectorDb } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { seedClients } from "../core/client-registry.js";
 import { processWebhookMeetings } from "../core/pipeline.js";
 import { createWatcher } from "../local-service/watcher.js";

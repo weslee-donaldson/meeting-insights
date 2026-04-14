@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import { createApp } from "../api/server.js";
-import type { LlmAdapter } from "../core/llm-adapter.js";
+import type { LlmAdapter } from "../core/llm/adapter.js";
 
 const failLlm: LlmAdapter = {
   async complete() { throw new Error("[api_error] credit balance too low"); },

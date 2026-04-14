@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 
 const hybridSearchMock = vi.fn().mockResolvedValue([
   { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },

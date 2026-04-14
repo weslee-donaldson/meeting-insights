@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting, getMeeting } from "../core/ingest.js";
 import { storeArtifact, generateShortId } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
-import { createLlmAdapter, type LlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter, type LlmAdapter } from "../core/llm/adapter.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
 import { listMilestonesByClient, createMilestone, addMilestoneMention } from "../core/timelines.js";
 import {

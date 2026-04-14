@@ -1,5 +1,5 @@
-import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger, logLlmCall } from "./logger.js";
+import type { LlmAdapter, LlmCapability, ImageAttachment } from "./adapter.js";
+import { createLogger, logLlmCall } from "../logger.js";
 
 const logLlm = createLogger("llm");
 

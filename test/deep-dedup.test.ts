@@ -8,7 +8,7 @@ import { connectVectorDb, createItemTable } from "../core/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";

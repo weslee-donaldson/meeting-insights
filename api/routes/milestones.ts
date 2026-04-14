@@ -7,7 +7,7 @@ import {
   handleGetMilestoneActionItems, handleGetMeetingMilestones, handleGetDateSlippage,
   handleGetMilestoneMessages, handleMilestoneChat, handleClearMilestoneMessages,
 } from "../../electron-ui/electron/ipc-handlers.js";
-import type { LlmAdapter } from "../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
 import { resolveClient } from "../../core/resolve-client.js";

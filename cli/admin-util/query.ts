@@ -5,7 +5,7 @@ import { searchMeetings } from "../../core/vector-search.js";
 import { getMeeting } from "../../core/ingest.js";
 import { getArtifact } from "../../core/extractor.js";
 import { renderNotesGroups, parseCitations } from "../../core/display-helpers.js";
-import { createLlmAdapter } from "../../core/llm-adapter.js";
+import { createLlmAdapter } from "../../core/llm/adapter.js";
 import { deepSearch } from "../../core/deep-search.js";
 import { readFileSync, existsSync } from "node:fs";
 import type { DatabaseSync as Database } from "node:sqlite";

@@ -1,5 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { LlmAdapter } from "../../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import type { VectorDb } from "../../../core/vector-db.js";
 import { hybridSearch } from "../../../core/hybrid-search.js";
 import { deepSearch } from "../../../core/deep-search.js";

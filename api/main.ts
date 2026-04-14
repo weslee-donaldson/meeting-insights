@@ -15,7 +15,7 @@ if (isMain) {
   setLogDir(resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd(), "logs/api"));
 
   const { createDb, migrate } = await import("../core/db.js");
-  const { createLlmAdapter } = await import("../core/llm-adapter.js");
+  const { createLlmAdapter } = await import("../core/llm/adapter.js");
   const { connectVectorDb } = await import("../core/vector-db.js");
   const { loadModel } = await import("../core/embedder.js");
 

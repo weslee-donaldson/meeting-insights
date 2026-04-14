@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { SplitResult } from "../core/meeting-split.js";

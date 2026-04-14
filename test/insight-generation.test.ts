@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
-import { createStubAdapter, STUB_FIXTURES } from "../core/llm-provider-stub.js";
-import type { LlmAdapter } from "../core/llm-adapter.js";
+import { createStubAdapter, STUB_FIXTURES } from "../core/llm/provider-stub.js";
+import type { LlmAdapter } from "../core/llm/adapter.js";
 import { createInsight, addInsightMeeting, getInsight, generateInsight } from "../core/insights.js";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";
 

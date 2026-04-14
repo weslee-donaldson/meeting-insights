@@ -200,7 +200,7 @@ if (deepScan) {
   const LOCAL_MODEL = process.env.MTNINSIGHTS_LOCAL_MODEL ?? "deepseek-r1:8b";
   const CLAUDEAPI_URL = process.env.MTNINSIGHTS_CLAUDEAPI_URL ?? "http://localhost:8100";
 
-  const { createLlmAdapter } = await import("../../core/llm-adapter.js");
+  const { createLlmAdapter } = await import("../../core/llm/adapter.js");
   const llm = PROVIDER === "local"
     ? createLlmAdapter({ type: "local", baseUrl: LOCAL_BASE_URL, model: LOCAL_MODEL })
     : PROVIDER === "claudecli"

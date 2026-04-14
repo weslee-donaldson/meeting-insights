@@ -5,7 +5,7 @@ import { splitMeeting } from "../core/meeting-split.js";
 import { storeDetection } from "../core/client-detection.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { createApp } from "../api/server.js";
 import type { VectorDb } from "../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";

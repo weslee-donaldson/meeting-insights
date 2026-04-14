@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import type { ChatCompletionContentPart } from "openai/resources/chat/completions.js";
-import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger, logLlmCall } from "./logger.js";
-import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
+import type { LlmAdapter, LlmCapability, ImageAttachment } from "./adapter.js";
+import { createLogger, logLlmCall } from "../logger.js";
+import { parseJsonOrThrow, withRepair } from "./helpers.js";
 
 const logLlm = createLogger("llm");
 

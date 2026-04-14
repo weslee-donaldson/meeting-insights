@@ -1,9 +1,9 @@
-import { createStubAdapter } from "./llm-provider-stub.js";
-import { createLocalAdapter } from "./llm-provider-local.js";
-import { createAnthropicAdapter } from "./llm-provider-anthropic.js";
-import { createOpenaiAdapter } from "./llm-provider-openai.js";
-import { createClaudecliAdapter } from "./llm-provider-claudecli.js";
-import { createClaudeapiAdapter } from "./llm-provider-claudeapi.js";
+import { createStubAdapter } from "./provider-stub.js";
+import { createLocalAdapter } from "./provider-local.js";
+import { createAnthropicAdapter } from "./provider-anthropic.js";
+import { createOpenaiAdapter } from "./provider-openai.js";
+import { createClaudecliAdapter } from "./provider-claudecli.js";
+import { createClaudeapiAdapter } from "./provider-claudeapi.js";
 
 export type LlmCapability = "extract_artifact" | "cluster_tags" | "generate_task" | "synthesize_answer" | "deep_search_filter" | "evaluate_thread" | "generate_insight" | "dedup_intent";
 

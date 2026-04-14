@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { createAnthropicAdapter } from "../core/llm-provider-anthropic.js";
+import { createAnthropicAdapter } from "../core/llm/provider-anthropic.js";
 
 vi.mock("@anthropic-ai/sdk", () => {
   class RateLimitError extends Error { constructor(msg: string) { super(msg); this.name = "RateLimitError"; } }

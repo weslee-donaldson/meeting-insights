@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { createStubAdapter, STUB_FIXTURES } from "../core/llm-provider-stub.js";
-import type { LlmCapability } from "../core/llm-adapter.js";
+import { createStubAdapter, STUB_FIXTURES } from "../core/llm/provider-stub.js";
+import type { LlmCapability } from "../core/llm/adapter.js";
 
 describe("createStubAdapter", () => {
   const adapter = createStubAdapter();

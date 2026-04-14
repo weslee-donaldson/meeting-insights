@@ -1,5 +1,5 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { LlmAdapter } from "../../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import type { VectorDb } from "../../../core/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest, MilestoneChatResponse } from "../channels.js";

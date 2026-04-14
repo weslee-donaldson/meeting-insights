@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { aggregateClusterSummaries, extractClusterTags, storeClusterTags } from "../core/cluster-topics.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 

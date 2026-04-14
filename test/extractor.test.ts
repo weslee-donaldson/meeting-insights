@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { extractSummary, validateArtifact, storeArtifact, getArtifact, updateArtifact, generateShortId, type Artifact } from "../core/extractor.js";
 import { ingestMeeting } from "../core/ingest.js";
 import type { ParsedMeeting } from "../core/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { LlmAdapter } from "../core/llm-adapter.js";
+import type { LlmAdapter } from "../core/llm/adapter.js";
 
 let db: Database;
 let adapter: LlmAdapter;

@@ -1,8 +1,8 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import type { LlmAdapter, LlmCapability, ImageAttachment } from "./llm-adapter.js";
-import { createLogger, logLlmCall } from "./logger.js";
-import { parseJsonOrThrow, withRepair } from "./llm-helpers.js";
+import type { LlmAdapter, LlmCapability, ImageAttachment } from "./adapter.js";
+import { createLogger, logLlmCall } from "../logger.js";
+import { parseJsonOrThrow, withRepair } from "./helpers.js";
 
 const logLlm = createLogger("llm");
 

@@ -1,6 +1,6 @@
 import { createLogger } from "./logger.js";
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 
 const log = createLogger("cluster:tags");
 

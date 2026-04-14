@@ -15,7 +15,7 @@ import type { MeetingRow } from "../../../core/ingest.js";
 import { deleteNotesByObject } from "../../../core/notes.js";
 import { storeDetection } from "../../../core/client-detection.js";
 import { parseCitations, replaceCitations } from "../../../core/display-helpers.js";
-import type { LlmAdapter } from "../../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../../core/llm/adapter.js";
 import { updateFts } from "../../../core/fts.js";
 import type { VectorDb } from "../../../core/vector-db.js";
 import { cleanupMentions, getMentionsByCanonical, getMentionStats } from "../../../core/item-dedup.js";

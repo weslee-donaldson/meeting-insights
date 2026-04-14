@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { stripCodeFences, parseJsonOrThrow, withRepair, REPAIR_PREFIX } from "../core/llm-helpers.js";
+import { stripCodeFences, parseJsonOrThrow, withRepair, REPAIR_PREFIX } from "../core/llm/helpers.js";
 
 describe("stripCodeFences", () => {
   it("returns plain JSON unchanged", () => {

@@ -23,7 +23,7 @@ import { cosineSimilarity } from "./math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { VectorDb } from "./vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 
 const log = createLogger("pipeline");
 

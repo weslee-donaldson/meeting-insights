@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 import { appendInsightMessage } from "../core/insights.js";
 import {
   handleListInsights,

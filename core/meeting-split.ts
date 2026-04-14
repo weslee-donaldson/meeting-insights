@@ -12,7 +12,7 @@ import { updateFts } from "./fts.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
 import { createMeetingTable, createItemTable } from "./vector-db.js";
 import type { VectorDb } from "./vector-db.js";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 
 function parseMinutes(timestamp: string): number {
   const [h, m] = timestamp.split(":").map(Number);

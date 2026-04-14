@@ -6,7 +6,7 @@ import {
   handleRemoveThreadMeeting, handleAddThreadMeeting, handleRegenerateThreadSummary, handleGetThreadMessages,
   handleThreadChat, handleClearThreadMessages, handleGetMeetingThreads,
 } from "../../electron-ui/electron/ipc-handlers.js";
-import type { LlmAdapter } from "../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
 import { resolveClient } from "../../core/resolve-client.js";

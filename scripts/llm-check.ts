@@ -1,4 +1,4 @@
-import { createLlmAdapter } from "../core/llm-adapter.js";
+import { createLlmAdapter } from "../core/llm/adapter.js";
 
 process.loadEnvFile?.(".env.local");
 

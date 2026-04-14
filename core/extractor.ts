@@ -2,7 +2,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import { createHash } from "node:crypto";
 import { createLogger } from "./logger.js";
 import { chunkTranscript } from "./chunker.js";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 import type { SpeakerTurn } from "./parser.js";
 import { ArtifactSchema } from "./schemas.js";
 import { ExtractionError } from "./errors.js";

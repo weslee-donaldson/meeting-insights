@@ -5,7 +5,7 @@ import { storeArtifact } from "../core/extractor.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createThread, addThreadMeeting, appendThreadMessage, getThreadMessages } from "../core/threads.js";
 import { createInsight, addInsightMeeting, appendInsightMessage, getInsightMessages } from "../core/insights.js";
-import type { LlmAdapter } from "../core/llm-adapter.js";
+import type { LlmAdapter } from "../core/llm/adapter.js";
 import { handleThreadChat, handleInsightChat, resolveMeetingSources } from "../electron-ui/electron/ipc-handlers.js";
 
 const stubVdb = {} as Parameters<typeof handleThreadChat>[2];

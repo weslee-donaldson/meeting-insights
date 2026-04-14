@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { InferenceSession } from "onnxruntime-node";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 import { getArtifact } from "./extractor.js";
 import { deleteNotesByObject } from "./notes.js";
 import type { ArtifactRow } from "./extractor.js";

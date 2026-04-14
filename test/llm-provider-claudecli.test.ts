@@ -31,35 +31,35 @@ afterEach(() => vi.clearAllMocks());
 
 describe("createClaudecliAdapter", () => {
   it("complete parses JSON response for non-synthesize_answer capability", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockSuccess('{"tags":["a","b"]}');
     expect(await adapter.complete("cluster_tags", "input")).toEqual({ tags: ["a", "b"] });
   });
 
   it("complete returns { answer } wrapper for synthesize_answer", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockSuccess("The answer is 42.");
     expect(await adapter.complete("synthesize_answer", "question")).toEqual({ answer: "The answer is 42." });
   });
 
   it("complete throws [rate_limit] when stderr contains rate limit", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockError("Rate limit exceeded", "Rate limit exceeded");
     await expect(adapter.complete("cluster_tags", "input")).rejects.toThrow("[rate_limit]");
   });
 
   it("complete throws [api_error] on other subprocess errors", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockError("Connection refused");
     await expect(adapter.complete("cluster_tags", "input")).rejects.toThrow("[api_error]");
   });
 
   it("complete appends temp file paths to prompt when attachments provided", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockSuccess('{"tags":["x"]}');
     await adapter.complete("cluster_tags", "describe this", [
@@ -71,7 +71,7 @@ describe("createClaudecliAdapter", () => {
   });
 
   it("converse sends full formatted history with system prompt on first call", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
     mockSuccess("hello back", "sess-abc");
     const result = await adapter.converse("be helpful", [{ role: "user", content: "hi" }]);
@@ -83,7 +83,7 @@ describe("createClaudecliAdapter", () => {
   });
 
   it("converse uses --resume with only last message on cache hit", async () => {
-    const { createClaudecliAdapter } = await import("../core/llm-provider-claudecli.js");
+    const { createClaudecliAdapter } = await import("../core/llm/provider-claudecli.js");
     const adapter = createClaudecliAdapter();
 
     mockSuccess("first reply", "sess-xyz");

@@ -60,7 +60,7 @@ import { randomUUID } from "node:crypto";
 import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact } from "./extractor.js";
 import { deleteNotesByObject } from "./notes.js";
-import type { LlmAdapter } from "./llm-adapter.js";
+import type { LlmAdapter } from "./llm/adapter.js";
 import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";

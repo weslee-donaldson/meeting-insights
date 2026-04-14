@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { createOpenaiAdapter } from "../core/llm-provider-openai.js";
+import { createOpenaiAdapter } from "../core/llm/provider-openai.js";
 
 const { mockCreate, APIError } = vi.hoisted(() => {
   const mockCreate = vi.fn();

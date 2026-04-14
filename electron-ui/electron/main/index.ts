@@ -49,7 +49,7 @@ import {
   handleSplitMeeting,
   handleGetMeetingLineage,
 } from "../ipc-handlers.js";
-import { createLlmAdapter } from "../../../core/llm-adapter.js";
+import { createLlmAdapter } from "../../../core/llm/adapter.js";
 import { ensureFtsCurrent } from "../../../core/fts.js";
 import { connectVectorDb } from "../../../core/vector-db.js";
 import { loadModel } from "../../../core/embedder.js";

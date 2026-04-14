@@ -3,7 +3,7 @@ import type { DatabaseSync as Database } from "node:sqlite";
 import {
   handleChat, handleConversationChat, handleDeepSearch,
 } from "../../electron-ui/electron/ipc-handlers.js";
-import type { LlmAdapter } from "../../core/llm-adapter.js";
+import type { LlmAdapter } from "../../core/llm/adapter.js";
 import type { DeepSearchRequest } from "../../electron-ui/electron/channels.js";
 import type { SearchDeps } from "../server.js";
 
