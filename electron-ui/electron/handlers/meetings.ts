@@ -7,7 +7,7 @@ import type { Artifact } from "../../../core/pipeline/extractor.js";
 import { parseTranscriptBody, parseWebVttBody } from "../../../core/pipeline/parser.js";
 import { getClientByName, getGlossaryForClient, buildClientContext } from "../../../core/clients/registry.js";
 import type { Participant, GlossaryEntry } from "../../../core/clients/registry.js";
-import { buildLabeledContext, buildDistilledContext } from "../../../core/labeled-context.js";
+import { buildLabeledContext, buildDistilledContext } from "../../../core/context/labeled.js";
 import { ingestMeeting, getMeeting, renameMeeting } from "../../../core/pipeline/ingest.js";
 import { splitMeeting, getChildMeetings, getSourceMeeting } from "../../../core/meetings/split.js";
 import type { SplitResult } from "../../../core/meetings/split.js";

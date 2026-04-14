@@ -9,7 +9,7 @@ import { storeArtifact } from "../core/pipeline/extractor.js";
 import { connectVectorDb, createMeetingTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/pipeline/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/pipeline/meeting-pipeline.js";
-import { buildContext } from "../core/context.js";
+import { buildContext } from "../core/context/context.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { Artifact } from "../core/pipeline/extractor.js";
 

@@ -1,11 +1,11 @@
 import type { DatabaseSync as Database } from "node:sqlite";
-import { getMeeting } from "./pipeline/ingest.js";
-import { getArtifact } from "./pipeline/extractor.js";
-import type { ArtifactRow, Artifact } from "./pipeline/extractor.js";
-import { getMentionStats } from "./dedup/item-dedup.js";
-import { getMeetingMilestones } from "./timelines.js";
-import { getNote } from "./notes.js";
-import { createLogger } from "./logger.js";
+import { getMeeting } from "../pipeline/ingest.js";
+import { getArtifact } from "../pipeline/extractor.js";
+import type { ArtifactRow, Artifact } from "../pipeline/extractor.js";
+import { getMentionStats } from "../dedup/item-dedup.js";
+import { getMeetingMilestones } from "../timelines.js";
+import { getNote } from "../notes.js";
+import { createLogger } from "../logger.js";
 
 const log = createLogger("labeled-context");
 

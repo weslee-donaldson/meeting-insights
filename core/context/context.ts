@@ -1,9 +1,9 @@
-import { embed } from "./pipeline/embedder.js";
-import { createLogger } from "./logger.js";
+import { embed } from "../pipeline/embedder.js";
+import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { searchWithFilters, type VectorSearchFilter, type VectorDb } from "./search/vector-db.js";
-import type { ArtifactRow } from "./pipeline/extractor.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorDb } from "../search/vector-db.js";
+import type { ArtifactRow } from "../pipeline/extractor.js";
 
 const log = createLogger("context");
 
