@@ -52,19 +52,20 @@ pnpm setup
 
 echo ""
 echo "==> mti CLI"
-echo "    You can always run the CLI as 'pnpm mti <command>' from this directory."
-echo "    Optionally, install it globally so 'mti' works from anywhere."
+echo "    Installing mti globally so 'mti <command>' works from anywhere."
+echo "    (Required for Claude Code skills and other integrations that call 'mti' directly.)"
 if [ -t 0 ] && [ "${MTI_SETUP_SKIP_PROMPTS:-0}" != "1" ]; then
-  read -r -p "    Install mti globally via 'pnpm link --global'? [y/N] " REPLY
-  if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+  read -r -p "    Run 'pnpm link --global' now? [Y/n] " REPLY
+  if [[ "$REPLY" =~ ^[Nn]$ ]]; then
+    echo "    Skipped. Use 'pnpm mti' from this directory, or run 'pnpm link --global' later."
+  else
     pnpm link --global
     echo "    mti linked globally ✓"
     echo "    (ensure ~/Library/pnpm or equivalent is on your PATH; run 'pnpm setup' if 'mti' isn't found)"
-  else
-    echo "    Skipped. Use 'pnpm mti' from this directory, or re-run this script to install globally."
   fi
 else
-  echo "    Non-interactive shell; skipping. Run 'pnpm link --global' manually to install."
+  echo "    Non-interactive shell; running pnpm link --global automatically."
+  pnpm link --global
 fi
 
 echo ""
