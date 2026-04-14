@@ -73,14 +73,6 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 ### Section 1: Versioned Migration System
 
-- [ ] Burst 2: `core/migrations/001-baseline.ts` -- extract entire existing `migrate()` body into migration 001. Version 1, description "Baseline schema". Create `core/migrations/index.ts` exporting `allMigrations` array sorted by version.
-
-  Test: `test/migration-001-baseline.test.ts` -- up() on fresh DB creates all tables (compare table list against known set), up() adds all ALTER TABLE columns, schema matches what current migrate() produces. Running via runner twice applies once and skips second.
-
-- [ ] Burst 3: Wire runner into setup and API startup. Replace `migrate(db)` calls in `cli/admin-util/setup.ts`, `api/main.ts`, and `local-service/main.ts` with `runMigrations(db, allMigrations)`. Keep `migrate()` in db.ts as thin wrapper calling `runMigrations()` for backward compat with existing tests. Add `mti update` CLI command that runs pending migrations and prints results.
-
-  Test: `test/migration-integration.test.ts` -- runMigrations with allMigrations on empty DB produces same schema as old migrate(). Running on DB already at version 1 is a no-op.
-
 ### Section 2: Setup & Distribution
 
 - [ ] Burst 4: `.env.example` with all required variables documented with inline comments. Grouped by section (LLM provider, database, auth, logging, search tuning). No actual secret values. Update `ecosystem.config.cjs` to include mti-api entry alongside webhook-watcher with correct script path and tsx interpreter.
@@ -101,7 +93,9 @@ Burst 1 -> 2 -> 3 -> 4 | 5 (parallel) -> 6 -> 7
 
 ## DONE
 
-- [x] Burst 1: `core/migrations/runner.ts` -- runMigrations, getCurrentVersion with schema_version table
+- [x] Burst 1: `core/migrations/runner.ts` -- runMigrations, getCurrentVersion with schema_version table (e33d5e3)
+- [x] Burst 2: `core/migrations/001-baseline.ts` + `index.ts` -- extract migrate() into versioned migration
+- [x] Burst 3: Wire runner into setup/API/local-service via db.ts `migrate()` thin wrapper. Skipped `mti update` command since migrations auto-run on API startup and via `pnpm setup`.
 
 ## Verification
 
