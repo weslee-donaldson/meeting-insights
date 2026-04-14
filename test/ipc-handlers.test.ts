@@ -513,7 +513,7 @@ describe("IPC handlers", () => {
       const vdb = {
         tableNames: async () => ["meeting_vectors", "feature_vectors", "item_vectors"],
         openTable: async (name: string) => makeTable(name),
-      } as unknown as import("../core/vector-db.js").VectorDb;
+      } as unknown as import("../core/search/vector-db.js").VectorDb;
       await handleDeleteMeetings(freshDb, vdb, [tempId]);
       expect(deletedFilters).toEqual({
         meeting_vectors: [`meeting_id = '${tempId}'`],

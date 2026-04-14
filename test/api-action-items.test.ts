@@ -10,7 +10,7 @@ vi.mock("../core/meeting-pipeline.js", () => ({
   storeMeetingVector: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../core/vector-db.js", () => {
+vi.mock("../core/search/vector-db.js", () => {
   const mockTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }), add: vi.fn(), delete: vi.fn() };
   return {
     createMeetingTable: vi.fn().mockResolvedValue(mockTable),

@@ -1,6 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
-import type { VectorDb } from "../../../core/vector-db.js";
+import type { VectorDb } from "../../../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { CreateMilestoneRequest, UpdateMilestoneRequest, MilestoneChatRequest, MilestoneChatResponse } from "../channels.js";
 import { listMilestonesByClient, createMilestone as coreCreateMilestone, updateMilestone as coreUpdateMilestone, deleteMilestone as coreDeleteMilestone, getMilestoneMentions, getMeetingMilestones, getDateSlippage, getMilestoneMessages, appendMilestoneMessage, clearMilestoneMessages as coreClearMilestoneMessages, getMilestoneChatContext, confirmMilestoneMention as coreConfirmMilestoneMention, rejectMilestoneMention as coreRejectMilestoneMention, mergeMilestones as coreMergeMilestones, linkActionItem, unlinkActionItem, getMilestoneActionItems, getMilestone } from "../../../core/timelines.js";

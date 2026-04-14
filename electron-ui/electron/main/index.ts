@@ -50,8 +50,8 @@ import {
   handleGetMeetingLineage,
 } from "../ipc-handlers.js";
 import { createLlmAdapter } from "../../../core/llm/adapter.js";
-import { ensureFtsCurrent } from "../../../core/fts.js";
-import { connectVectorDb } from "../../../core/vector-db.js";
+import { ensureFtsCurrent } from "../../../core/search/fts.js";
+import { connectVectorDb } from "../../../core/search/vector-db.js";
 import { loadModel } from "../../../core/embedder.js";
 
 // Resolve .env.local relative to app root before reading any env vars
@@ -144,7 +144,7 @@ app.whenReady().then(async () => {
   ipcMain.handle(CHANNELS.GET_ARTIFACT, (_e, meetingId: string) => handleGetArtifact(db, meetingId));
   ipcMain.handle(CHANNELS.CHAT, (_e, opts) => handleChat(db, llm, opts));
   ipcMain.handle(CHANNELS.CONVERSATION_CHAT, (_e, opts) => handleConversationChat(db, llm, opts));
-  let vdbRef: import("../../../core/vector-db.js").VectorDb | null = null;
+  let vdbRef: import("../../../core/search/vector-db.js").VectorDb | null = null;
   ipcMain.handle(CHANNELS.DELETE_MEETINGS, (_e, ids: string[]) => handleDeleteMeetings(db, vdbRef, ids, ASSETS_DIR));
   ipcMain.handle(CHANNELS.RE_EXTRACT, (_e, meetingId: string) => handleReExtract(db, llm, meetingId));
   ipcMain.handle(CHANNELS.REASSIGN_CLIENT, (_e, meetingId: string, clientName: string) => handleReassignClient(db, meetingId, clientName));

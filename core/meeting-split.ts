@@ -8,10 +8,10 @@ import type { MeetingRow } from "./ingest.js";
 import { detectClient, storeDetection } from "./client-detection.js";
 import { getClientById } from "./client-registry.js";
 import { extractSummary, storeArtifact } from "./extractor.js";
-import { updateFts } from "./fts.js";
+import { updateFts } from "./search/fts.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting-pipeline.js";
-import { createMeetingTable, createItemTable } from "./vector-db.js";
-import type { VectorDb } from "./vector-db.js";
+import { createMeetingTable, createItemTable } from "./search/vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 import type { LlmAdapter } from "./llm/adapter.js";
 
 function parseMinutes(timestamp: string): number {

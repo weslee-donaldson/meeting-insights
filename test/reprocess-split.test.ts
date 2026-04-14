@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import type { VectorDb } from "../core/vector-db.js";
+import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { SplitResult } from "../core/meeting-split.js";
 
@@ -22,7 +22,7 @@ const mockItemTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }
 const mockCreateMeetingTable = vi.fn().mockResolvedValue(mockTable);
 const mockCreateItemTable = vi.fn().mockResolvedValue(mockItemTable);
 
-vi.mock("../core/vector-db.js", () => ({
+vi.mock("../core/search/vector-db.js", () => ({
   createMeetingTable: mockCreateMeetingTable,
   createItemTable: mockCreateItemTable,
 }));

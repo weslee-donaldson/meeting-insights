@@ -1,9 +1,9 @@
-import { embed } from "./embedder.js";
+import { embed } from "../embedder.js";
 import { searchMeetingsByVector } from "./vector-search.js";
 import { searchFeaturesByVector } from "./feature-embedding.js";
-import { searchSimilarItemsByVector } from "./dedup/item-dedup.js";
+import { searchSimilarItemsByVector } from "../dedup/item-dedup.js";
 import { searchFts } from "./fts.js";
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
 import type { DatabaseSync as Database } from "node:sqlite";

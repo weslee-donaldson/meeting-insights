@@ -1,6 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
-import type { VectorDb } from "../../../core/vector-db.js";
+import type { VectorDb } from "../../../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { CreateThreadRequest, UpdateThreadRequest, ThreadChatRequest, ThreadChatResponse } from "../channels.js";
 import { listThreadsByClient, createThread as coreCreateThread, updateThread as coreUpdateThread, deleteThread as coreDeleteThread, getThreadMeetings, getThreadCandidates as coreGetThreadCandidates, evaluateConfirmedCandidates, removeThreadMeeting, addThreadMeeting as coreAddThreadMeeting, regenerateThreadSummary as coreRegenerateThreadSummary, getThreadMessages, appendThreadMessage, clearThreadMessages as coreClearThreadMessages, getThreadChatContext, getThread } from "../../../core/threads.js";

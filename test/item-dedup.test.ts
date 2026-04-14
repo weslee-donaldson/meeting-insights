@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { connectVectorDb, createItemTable } from "../core/vector-db.js";
+import { connectVectorDb, createItemTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import {
   embedItem,

@@ -1,7 +1,7 @@
-import { getArtifact } from "./extractor.js";
-import { createLogger } from "./logger.js";
-import type { ArtifactRow } from "./extractor.js";
-import type { LlmAdapter } from "./llm/adapter.js";
+import { getArtifact } from "../extractor.js";
+import { createLogger } from "../logger.js";
+import type { ArtifactRow } from "../extractor.js";
+import type { LlmAdapter } from "../llm/adapter.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("deep-search");

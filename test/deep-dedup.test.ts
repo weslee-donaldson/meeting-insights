@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { buildBatchDedupPrompt, filterAndCapItems, parseBatchDedupResponse, assignCanonicalGroups, deepScanClient } from "../core/dedup/deep-dedup.js";
 import type { BatchDedupItem } from "../core/dedup/deep-dedup.js";
-import { connectVectorDb, createItemTable } from "../core/vector-db.js";
+import { connectVectorDb, createItemTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";

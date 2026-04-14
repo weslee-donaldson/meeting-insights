@@ -11,17 +11,17 @@ import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "./meeting
 import { detectClient, storeDetection } from "./client-detection.js";
 import { getClientById, buildClientContext } from "./client-registry.js";
 import type { Participant, GlossaryEntry } from "./client-registry.js";
-import { createMeetingTable, createItemTable } from "./vector-db.js";
+import { createMeetingTable, createItemTable } from "./search/vector-db.js";
 import { moveToProcessed, moveToFailed } from "./lifecycle.js";
 import { deduplicateItems } from "./dedup/item-dedup.js";
 import { deepScanClient } from "./dedup/deep-dedup.js";
-import { updateFts } from "./fts.js";
+import { updateFts } from "./search/fts.js";
 import { listThreadsByClient, evaluateMeetingAgainstThread, addThreadMeeting } from "./threads.js";
 import { reconcileMilestones } from "./timelines.js";
 import { embed } from "./embedder.js";
 import { cosineSimilarity } from "./math.js";
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { VectorDb } from "./vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { LlmAdapter } from "./llm/adapter.js";
 

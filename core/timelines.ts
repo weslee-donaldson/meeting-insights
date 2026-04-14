@@ -4,7 +4,7 @@ import { getArtifact } from "./extractor.js";
 import { deleteNotesByObject } from "./notes.js";
 import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { VectorDb } from "./vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 
 export interface Milestone {
   id: string;

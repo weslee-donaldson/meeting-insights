@@ -1,7 +1,7 @@
 import { embed } from "../embedder.js";
 import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
-import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "../vector-db.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorTable } from "../search/vector-db.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("dedup:item");

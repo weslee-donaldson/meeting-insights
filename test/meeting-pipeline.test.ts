@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
-import { connectVectorDb, createMeetingTable } from "../core/vector-db.js";
+import { connectVectorDb, createMeetingTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
 import type { ParsedMeeting } from "../core/parser.js";

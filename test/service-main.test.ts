@@ -15,7 +15,7 @@ vi.mock("../core/db.js", () => ({
   migrate: vi.fn(),
 }));
 
-vi.mock("../core/vector-db.js", () => ({
+vi.mock("../core/search/vector-db.js", () => ({
   connectVectorDb: vi.fn(async () => ({})),
 }));
 
@@ -40,7 +40,7 @@ vi.mock("../local-service/watcher.js", () => ({
 }));
 
 import { createDb, migrate } from "../core/db.js";
-import { connectVectorDb } from "../core/vector-db.js";
+import { connectVectorDb } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { seedClients } from "../core/client-registry.js";

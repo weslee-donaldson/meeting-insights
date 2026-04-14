@@ -1,15 +1,15 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
-import type { VectorDb } from "../../../core/vector-db.js";
-import { hybridSearch } from "../../../core/hybrid-search.js";
-import { deepSearch } from "../../../core/deep-search.js";
-import { createMeetingTable } from "../../../core/vector-db.js";
+import type { VectorDb } from "../../../core/search/vector-db.js";
+import { hybridSearch } from "../../../core/search/hybrid-search.js";
+import { deepSearch } from "../../../core/search/deep-search.js";
+import { createMeetingTable } from "../../../core/search/vector-db.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../../../core/meeting-pipeline.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { SearchRequest, SearchResultRow, DeepSearchRequest, DeepSearchResultRow } from "../channels.js";
 import { SEARCH_MAX_DISTANCE, SEARCH_LIMIT, deepSearchPrompt } from "./config.js";
 import { handleGetArtifact, clientNameForMeeting } from "./meetings.js";
-import { filterBySearchFields } from "../../../core/fts.js";
+import { filterBySearchFields } from "../../../core/search/fts.js";
 
 function enrichSearchResults(db: Database, results: Array<{ meeting_id: string; score: number; client: string; meeting_type: string; date: string }>): SearchResultRow[] {
   const meetingIds = results.map((r) => r.meeting_id);

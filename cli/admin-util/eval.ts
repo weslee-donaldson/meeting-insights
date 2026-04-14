@@ -1,8 +1,8 @@
 import { readFileSync, mkdirSync, appendFileSync } from "node:fs";
 import { createDb } from "../../core/db.js";
-import { connectVectorDb } from "../../core/vector-db.js";
+import { connectVectorDb } from "../../core/search/vector-db.js";
 import { loadModel } from "../../core/embedder.js";
-import { searchMeetings } from "../../core/vector-search.js";
+import { searchMeetings } from "../../core/search/vector-search.js";
 import { parseCitations } from "../../core/display-helpers.js";
 import { createLlmAdapter } from "../../core/llm/adapter.js";
 import { loadCliConfig, buildSearchContext, type SearchResult } from "./shared.js";

@@ -8,7 +8,7 @@ import { getArtifact } from "./extractor.js";
 import { deleteNotesByObject } from "./notes.js";
 import type { ArtifactRow } from "./extractor.js";
 import { embed } from "./embedder.js";
-import type { VectorDb } from "./vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 import { createLogger } from "./logger.js";
 
 const INSIGHT_PROMPT_PATH = resolve(import.meta.dirname ?? ".", "../config/prompts/insight-generation.md");

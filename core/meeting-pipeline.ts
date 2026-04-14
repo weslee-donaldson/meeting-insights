@@ -2,7 +2,7 @@ import { embed } from "./embedder.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { Artifact } from "./extractor.js";
-import type { VectorTable } from "./vector-db.js";
+import type { VectorTable } from "./search/vector-db.js";
 
 const log = createLogger("embed:meeting");
 

@@ -20,7 +20,7 @@ if (meetingId) {
   console.log(`✓ Deleted SQL records for meeting ${meetingId}`);
 
   if (existsSync(VECTOR_PATH)) {
-    const { connectVectorDb } = await import("../../core/vector-db.js");
+    const { connectVectorDb } = await import("../../core/search/vector-db.js");
     const vdb = await connectVectorDb(resolve(VECTOR_PATH));
     const filter = `meeting_id = '${meetingId.replace(/'/g, "''")}'`;
     const names = await vdb.tableNames();

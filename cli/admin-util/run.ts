@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createDb, migrate } from "../../core/db.js";
-import { connectVectorDb } from "../../core/vector-db.js";
+import { connectVectorDb } from "../../core/search/vector-db.js";
 import { loadModel } from "../../core/embedder.js";
 import { createLlmAdapter } from "../../core/llm/adapter.js";
 import { seedClients } from "../../core/client-registry.js";

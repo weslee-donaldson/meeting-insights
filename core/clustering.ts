@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createLogger } from "./logger.js";
 import type { DatabaseSync as Database } from "node:sqlite";
-import type { VectorDb } from "./vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 
 const log = createLogger("cluster");
 

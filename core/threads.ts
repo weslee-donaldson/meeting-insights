@@ -63,7 +63,7 @@ import { deleteNotesByObject } from "./notes.js";
 import type { LlmAdapter } from "./llm/adapter.js";
 import { embed } from "./embedder.js";
 import type { InferenceSession } from "onnxruntime-node";
-import type { VectorDb } from "./vector-db.js";
+import type { VectorDb } from "./search/vector-db.js";
 
 interface ThreadRow {
   id: string;

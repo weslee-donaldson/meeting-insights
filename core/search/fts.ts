@@ -1,4 +1,4 @@
-import { createLogger } from "./logger.js";
+import { createLogger } from "../logger.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 const log = createLogger("fts");

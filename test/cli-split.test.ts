@@ -3,7 +3,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { runSplit } from "../cli/split.js";
 
-vi.mock("../core/vector-db.js", () => {
+vi.mock("../core/search/vector-db.js", () => {
   const mockTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }), add: vi.fn(), delete: vi.fn().mockResolvedValue(undefined) };
   return {
     createMeetingTable: vi.fn().mockResolvedValue(mockTable),

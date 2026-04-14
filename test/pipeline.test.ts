@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
-import { connectVectorDb } from "../core/vector-db.js";
+import { connectVectorDb } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { processNewMeetings, processWebhookMeetings, handleWebhookNote, type PipelineEvent } from "../core/pipeline.js";

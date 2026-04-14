@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createDb, migrate } from "../core/db.js";
 import type { Database } from "../core/db.js";
 import { createInsight, addInsightMeeting, getInsightChatContext } from "../core/insights.js";
-import type { VectorDb } from "../core/vector-db.js";
+import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import { storeArtifact } from "../core/extractor.js";
 import { seedTestTenant, seedTestClient } from "./helpers/seed-test-tenant.js";

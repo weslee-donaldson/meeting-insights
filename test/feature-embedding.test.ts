@@ -5,9 +5,9 @@ import { tmpdir } from "node:os";
 import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
-import { connectVectorDb, createFeatureTable } from "../core/vector-db.js";
+import { connectVectorDb, createFeatureTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
-import { embedFeature, storeFeatureVector, searchFeatures, searchFeaturesByVector } from "../core/feature-embedding.js";
+import { embedFeature, storeFeatureVector, searchFeatures, searchFeaturesByVector } from "../core/search/feature-embedding.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

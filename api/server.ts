@@ -13,7 +13,7 @@ import { registerOAuthRoutes } from "./routes/oauth.js";
 import { createAuthMiddleware } from "./middleware/auth.js";
 import type { AuthConfig } from "./middleware/auth.js";
 import type { LlmAdapter } from "../core/llm/adapter.js";
-import type { VectorDb } from "../core/vector-db.js";
+import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
 export type { AuthConfig };

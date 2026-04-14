@@ -55,7 +55,7 @@ if (command === "clear") {
     console.log(`Would delete: ${autoCompCount} auto-dedup completions`);
 
     if (existsSync(VECTOR_PATH)) {
-      const { connectVectorDb } = await import("../../core/vector-db.js");
+      const { connectVectorDb } = await import("../../core/search/vector-db.js");
       const vdb = await connectVectorDb(resolve(VECTOR_PATH));
       const names = await vdb.tableNames();
       if (names.includes("item_vectors")) {
@@ -77,7 +77,7 @@ if (command === "clear") {
   console.log(`\u2713 Deleted ${autoCompCount} auto-dedup completions`);
 
   if (existsSync(VECTOR_PATH)) {
-    const { connectVectorDb, createItemTable } = await import("../../core/vector-db.js");
+    const { connectVectorDb, createItemTable } = await import("../../core/search/vector-db.js");
     const vdb = await connectVectorDb(resolve(VECTOR_PATH));
     const names = await vdb.tableNames();
     if (names.includes("item_vectors")) {
@@ -148,7 +148,7 @@ const { loadModel } = await import("../../core/embedder.js");
 const session = await loadModel("models/all-MiniLM-L6-v2.onnx", "models/tokenizer.json");
 console.log("Model loaded.\n");
 
-const { connectVectorDb, createItemTable } = await import("../../core/vector-db.js");
+const { connectVectorDb, createItemTable } = await import("../../core/search/vector-db.js");
 const vdb = await connectVectorDb(resolve(VECTOR_PATH));
 const itemTable = await createItemTable(vdb);
 

@@ -16,7 +16,7 @@ if (isMain) {
 
   const { createDb, migrate } = await import("../core/db.js");
   const { createLlmAdapter } = await import("../core/llm/adapter.js");
-  const { connectVectorDb } = await import("../core/vector-db.js");
+  const { connectVectorDb } = await import("../core/search/vector-db.js");
   const { loadModel } = await import("../core/embedder.js");
 
   const APP_ROOT = resolve(process.env.MTNINSIGHTS_APP_ROOT ?? process.cwd());
@@ -28,7 +28,7 @@ if (isMain) {
     : join(APP_ROOT, "db/lancedb");
   const PORT = Number(process.env.PORT ?? 3000);
 
-  const { ensureFtsCurrent } = await import("../core/fts.js");
+  const { ensureFtsCurrent } = await import("../core/search/fts.js");
   const db = createDb(DB_PATH);
   migrate(db);
   ensureFtsCurrent(db);

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import type { SearchResultRow } from "../electron-ui/electron/channels.js";
-import type { VectorDb } from "../core/vector-db.js";
+import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { DatabaseSync as Database } from "node:sqlite";
 
@@ -21,7 +21,7 @@ const fakeResults: SearchResultRow[] = [
 
 const hybridSearchMock = vi.fn().mockResolvedValue(fakeRawResults);
 
-vi.mock("../core/hybrid-search.js", () => ({
+vi.mock("../core/search/hybrid-search.js", () => ({
   hybridSearch: hybridSearchMock,
 }));
 

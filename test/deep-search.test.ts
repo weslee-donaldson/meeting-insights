@@ -6,7 +6,7 @@ import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import type { LlmAdapter } from "../core/llm/adapter.js";
-import { deepSearch } from "../core/deep-search.js";
+import { deepSearch } from "../core/search/deep-search.js";
 
 function seedMeeting(db: Database, id: string, title: string, artifact: Artifact): void {
   ingestMeeting(db, {

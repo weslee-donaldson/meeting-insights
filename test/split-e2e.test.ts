@@ -3,11 +3,11 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/ingest.js";
 import { storeArtifact } from "../core/extractor.js";
 import type { Artifact } from "../core/extractor.js";
-import { updateFts } from "../core/fts.js";
+import { updateFts } from "../core/search/fts.js";
 import { storeDetection } from "../core/client-detection.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { createApp } from "../api/server.js";
-import type { VectorDb } from "../core/vector-db.js";
+import type { VectorDb } from "../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 
 vi.mock("../core/meeting-pipeline.js", () => ({
@@ -16,7 +16,7 @@ vi.mock("../core/meeting-pipeline.js", () => ({
   storeMeetingVector: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../core/vector-db.js", () => {
+vi.mock("../core/search/vector-db.js", () => {
   const mockTable = { query: () => ({ toArray: vi.fn().mockResolvedValue([]) }), add: vi.fn(), delete: vi.fn().mockResolvedValue(undefined) };
   return {
     createMeetingTable: vi.fn().mockResolvedValue(mockTable),

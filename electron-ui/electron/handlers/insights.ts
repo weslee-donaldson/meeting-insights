@@ -1,6 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import type { LlmAdapter } from "../../../core/llm/adapter.js";
-import type { VectorDb } from "../../../core/vector-db.js";
+import type { VectorDb } from "../../../core/search/vector-db.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { CreateInsightRequest, UpdateInsightRequest, InsightChatRequest, InsightChatResponse } from "../channels.js";
 import { listInsightsByClient, createInsight as coreCreateInsight, updateInsight as coreUpdateInsight, deleteInsight as coreDeleteInsight, getInsightMeetings, discoverMeetingsForPeriod, addInsightMeeting, generateInsight as coreGenerateInsight, getInsightMessages, appendInsightMessage, clearInsightMessages as coreClearInsightMessages, getInsight, getInsightChatContext, removeInsightMeeting } from "../../../core/insights.js";

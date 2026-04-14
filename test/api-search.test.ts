@@ -6,7 +6,7 @@ const hybridSearchMock = vi.fn().mockResolvedValue([
   { meeting_id: "m1", score: 0.9, client: "Acme", meeting_type: "dsu", date: "2026-02-24" },
 ]);
 
-vi.mock("../core/hybrid-search.js", () => ({
+vi.mock("../core/search/hybrid-search.js", () => ({
   hybridSearch: (...args: unknown[]) => hybridSearchMock(...args),
 }));
 

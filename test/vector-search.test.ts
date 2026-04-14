@@ -2,10 +2,10 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { connectVectorDb, createMeetingTable } from "../core/vector-db.js";
+import { connectVectorDb, createMeetingTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
-import { searchMeetings, searchMeetingsByVector } from "../core/vector-search.js";
+import { searchMeetings, searchMeetingsByVector } from "../core/search/vector-search.js";
 import type { Artifact } from "../core/extractor.js";
 
 let vdbPath: string;

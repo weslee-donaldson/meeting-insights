@@ -2,7 +2,7 @@ import { embed } from "./embedder.js";
 import { createLogger } from "./logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { DatabaseSync as Database } from "node:sqlite";
-import { searchWithFilters, type VectorSearchFilter, type VectorDb } from "./vector-db.js";
+import { searchWithFilters, type VectorSearchFilter, type VectorDb } from "./search/vector-db.js";
 import type { ArtifactRow } from "./extractor.js";
 
 const log = createLogger("context");

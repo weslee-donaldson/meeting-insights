@@ -2,13 +2,13 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion, hybridSearch } from "../core/hybrid-search.js";
-import { populateFts } from "../core/fts.js";
+import { mergeSearchResults, hybridVectorSearch, reciprocalRankFusion, hybridSearch } from "../core/search/hybrid-search.js";
+import { populateFts } from "../core/search/fts.js";
 import { createDb, migrate } from "../core/db.js";
-import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/vector-db.js";
+import { connectVectorDb, createMeetingTable, createFeatureTable, createItemTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/embedder.js";
 import { embedMeeting, storeMeetingVector } from "../core/meeting-pipeline.js";
-import { embedFeature, storeFeatureVector } from "../core/feature-embedding.js";
+import { embedFeature, storeFeatureVector } from "../core/search/feature-embedding.js";
 import { embedItem, storeItemVector } from "../core/dedup/item-dedup.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 

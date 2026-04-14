@@ -1,5 +1,5 @@
-import { embed } from "./embedder.js";
-import { createLogger } from "./logger.js";
+import { embed } from "../embedder.js";
+import { createLogger } from "../logger.js";
 import type { InferenceSession } from "onnxruntime-node";
 import type { VectorDb } from "./vector-db.js";
 import { searchWithFilters, type VectorSearchFilter } from "./vector-db.js";
