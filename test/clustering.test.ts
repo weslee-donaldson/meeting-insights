@@ -7,7 +7,7 @@ import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { connectVectorDb, createMeetingTable } from "../core/search/vector-db.js";
 import { loadModel } from "../core/pipeline/embedder.js";
 import { buildEmbeddingInput, embedMeeting, storeMeetingVector } from "../core/pipeline/meeting-pipeline.js";
-import { clusterMeetings, assignCluster, recluster } from "../core/clustering.js";
+import { clusterMeetings, assignCluster, recluster } from "../core/clustering/kmeans.js";
 import type { Artifact } from "../core/pipeline/extractor.js";
 import type { ParsedMeeting } from "../core/pipeline/parser.js";
 import type { DatabaseSync as Database } from "node:sqlite";

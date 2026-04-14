@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { randomUUID } from "node:crypto";
 import { createDb, migrate } from "../core/db.js";
-import { detectTagDrift } from "../core/tag-drift.js";
+import { detectTagDrift } from "../core/clustering/tag-drift.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;

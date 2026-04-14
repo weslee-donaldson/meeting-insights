@@ -4,7 +4,7 @@ import { createDb, migrate } from "../core/db.js";
 import { ingestMeeting } from "../core/pipeline/ingest.js";
 import { storeArtifact } from "../core/pipeline/extractor.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
-import { aggregateClusterSummaries, extractClusterTags, storeClusterTags } from "../core/cluster-topics.js";
+import { aggregateClusterSummaries, extractClusterTags, storeClusterTags } from "../core/clustering/topics.js";
 import type { DatabaseSync as Database } from "node:sqlite";
 
 let db: Database;
