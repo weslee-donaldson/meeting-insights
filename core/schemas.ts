@@ -16,7 +16,7 @@ export const ActionItemSchema = z.object({
 
 export const RiskItemSchema = z.union([
   z.object({
-    category: z.enum(["relationship", "architecture", "engineering"]),
+    category: z.enum(["relationship", "architecture", "engineering", "delivery"]),
     description: z.string(),
   }),
   z.string().transform((s) => ({ category: "engineering" as const, description: s })),

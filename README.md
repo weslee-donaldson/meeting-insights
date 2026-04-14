@@ -100,7 +100,7 @@ krisp-meeting-insights/
 | `electron-ui/` | Desktop + web dual-mode UI (Electron + React) | [electron-ui/README.md](electron-ui/README.md) |
 | `cli/` | Command-line tools for setup, processing, querying | [cli/README.md](cli/README.md) |
 
-Each directory also contains `scatter.md` (file inventory) and optionally `gather.md` (aggregated learnings) for LLM-assisted navigation. See [gather.md](gather.md) for the root-level index.
+Each directory also contains `llm-context.md` (file inventory) and optionally `llm-context-summary.md` (aggregated learnings) for LLM-assisted navigation. See [llm-context-summary.md](llm-context-summary.md) for the root-level index.
 
 ---
 

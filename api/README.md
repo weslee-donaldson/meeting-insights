@@ -202,4 +202,4 @@ Every route file exports a single `registerXxxRoutes` function with the same sig
    if (!llm) return c.json({ error: "LLM not available" }, 503);
    ```
 
-5. **Update `routes/scatter.md`** with the new file and its endpoint list.
+5. **Update `routes/llm-context.md`** with the new file and its endpoint list.

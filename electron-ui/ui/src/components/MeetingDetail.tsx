@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
-import { Clipboard, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText, Scissors } from "lucide-react";
+import { Clipboard, Check, RefreshCw, UserPen, EyeOff, Pencil, Trash2, Paperclip, FileText, Scissors } from "lucide-react";
 import type { MeetingRow, Artifact, ActionItemCompletion, MentionStat } from "../../../electron/channels.js";
 import type { AssetRow } from "../../../../core/assets.js";
 import { useDropzone } from "react-dropzone";
@@ -684,6 +684,7 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
   const [reassignSelection, setReassignSelection] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
+  const [copiedId, setCopiedId] = useState(false);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const { data: glossary = [] } = useGlossary(meeting?.client);
@@ -788,6 +789,12 @@ export function MeetingDetail({ meeting, meetings, artifact, onReExtract, reExtr
             <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
               <span>{meeting.date.slice(0, 10)}</span>
               {meeting.client && <Badge variant="secondary">{meeting.client}</Badge>}
+              <span className="flex items-center gap-0.5 font-mono opacity-60" title="Meeting ID">
+                <span className="select-all">{meeting.id}</span>
+                <Button size="sm" variant="ghost" className="h-auto px-1 py-0.5" aria-label="Copy meeting ID" onClick={() => { navigator.clipboard.writeText(meeting.id); setCopiedId(true); setTimeout(() => setCopiedId(false), 1500); }}>
+                  {copiedId ? <Check className="w-3 h-3 text-green-600" /> : <Clipboard className="w-3 h-3" />}
+                </Button>
+              </span>
             </div>
             {threadTags && threadTags.length > 0 && (
               <div className="text-xs mt-1 text-muted-foreground flex gap-2 items-center">
