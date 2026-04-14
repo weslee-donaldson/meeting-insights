@@ -18,6 +18,8 @@ export {
   handleCompleteActionItem,
   handleUncompleteActionItem,
   handleGetCompletions,
+  handleBatchCompleteItems,
+  handleBatchUncompleteItems,
   handleGetItemHistory,
   handleGetMentionStats,
   handleGetClientActionItems,

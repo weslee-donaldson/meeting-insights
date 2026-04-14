@@ -7,6 +7,7 @@ import {
   handleSetIgnored, handleEditActionItem, handleCreateActionItem, handleCompleteActionItem, handleUncompleteActionItem, handleGetCompletions,
   handleGetItemHistory, handleGetMentionStats, handleGetDefaultClient, handleGetGlossary, handleGetClientActionItems,
   handleGetTemplates, handleCreateMeeting,
+  handleBatchCompleteItems, handleBatchUncompleteItems,
   handleUploadAsset, handleGetMeetingAssets, handleDeleteAsset, handleGetAssetData,
   handleRenameMeeting,
   handleGetMeetingMessages, handleMeetingChat, handleClearMeetingMessages,
@@ -206,6 +207,22 @@ export function registerMeetingRoutes(app: Hono, db: Database, llm?: LlmAdapter,
   app.get("/api/meetings/:id/completions", (c) => {
     const id = c.req.param("id");
     return c.json(handleGetCompletions(db, id));
+  });
+
+  app.post("/api/action-items/complete", async (c) => {
+    const { short_ids, note } = await c.req.json() as { short_ids: string[]; note?: string };
+    if (!Array.isArray(short_ids) || short_ids.length === 0) {
+      return c.json({ error: "short_ids must be a non-empty array" }, 400);
+    }
+    return c.json(handleBatchCompleteItems(db, short_ids, note ?? ""));
+  });
+
+  app.post("/api/action-items/uncomplete", async (c) => {
+    const { short_ids } = await c.req.json() as { short_ids: string[] };
+    if (!Array.isArray(short_ids) || short_ids.length === 0) {
+      return c.json({ error: "short_ids must be a non-empty array" }, 400);
+    }
+    return c.json(handleBatchUncompleteItems(db, short_ids));
   });
 
   app.get("/api/items/:canonicalId/history", (c) => {

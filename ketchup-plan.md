@@ -82,13 +82,13 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 - [ ] Burst 3: `api/routes/meetings.ts` -- add `POST /api/action-items/complete`. Parses body as `{ short_ids: string[], note?: string }`. Validates `short_ids` is a non-empty array. Calls `handleBatchCompleteItems`. Returns 200 with `{ results }`. Empty array returns 400.
 
-- [ ] Burst 3: `api/routes/meetings.ts` -- add `POST /api/action-items/complete`. Parses body as `{ short_ids: string[], note?: string }`. Validates `short_ids` is a non-empty array. Calls `handleBatchCompleteItems`. Returns 200 with `{ results }`. Empty array returns 400.
+- [ ] Burst 5: Replace `complete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items complete <ids...>` with `--note` and `--json`. Calls `POST /api/action-items/complete` with `{ short_ids, note }`. Displays results as table (Short ID + Status columns) or JSON.
 
-  Test: `test/api-action-items.test.ts` -- POST with valid short_ids (200 + correct results), POST with empty array (400), POST with mix of valid+invalid (200 + partial success).
+  Test: `test/cli/mti/commands/items.test.ts` -- update complete tests. Stub returns `{ results: [...] }`, verify table output and JSON output. Verify correct URL (`/api/action-items/complete`) and body shape sent.
 
-- [ ] Burst 4: `api/routes/meetings.ts` -- add `POST /api/action-items/uncomplete`. Same pattern as Burst 3 but calls `handleBatchUncompleteItems`. Body is `{ short_ids: string[] }`.
+- [ ] Burst 6: Replace `uncomplete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items uncomplete <ids...>` with `--json`. Calls `POST /api/action-items/uncomplete`.
 
-  Test: `test/api-action-items.test.ts` -- seed + complete items first, POST uncomplete with their short_ids (200 + status "uncompleted"), POST with not-found IDs (200 + status "not_found").
+  Test: `test/cli/mti/commands/items.test.ts` -- update uncomplete tests. Same pattern as Burst 5.
 
 - [ ] Burst 5: Replace `complete` CLI command in `cli/mti/src/commands/items.ts`. New signature: `mti items complete <ids...>` with `--note` and `--json`. Calls `POST /api/action-items/complete` with `{ short_ids, note }`. Displays results as table (Short ID + Status columns) or JSON.
 
@@ -101,4 +101,6 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
 ## DONE
 
 - [x] Burst 1: `core/action-item-resolver.ts` -- `resolveShortIds(db, shortIds)` (7bb43f0)
-- [x] Burst 2: `handleBatchCompleteItems` and `handleBatchUncompleteItems` in handlers/meetings.ts
+- [x] Burst 2: `handleBatchCompleteItems` and `handleBatchUncompleteItems` in handlers/meetings.ts (54adc2b)
+- [x] Burst 3: `POST /api/action-items/complete` endpoint
+- [x] Burst 4: `POST /api/action-items/uncomplete` endpoint
