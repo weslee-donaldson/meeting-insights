@@ -80,13 +80,7 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 ## TODO
 
-- [ ] Burst 1: `core/action-item-resolver.ts` -- `resolveShortIds(db, shortIds)`. Scans all rows from the `artifacts` table. For each row, parses the `action_items` JSON column and checks each item's `short_id` field against the requested set. Returns `{ resolved: ResolvedItem[], not_found: string[] }`. Edge cases: empty input returns empty results; unparseable JSON rows skipped; duplicate input short_ids deduplicated.
-
-  Test: `test/action-item-resolver.test.ts` -- seed two meetings with artifacts via `createDb(":memory:")` + `migrate(db)` + `storeArtifact`. Resolve known short_ids (both found), resolve unknown ID (not_found), resolve mix of valid+invalid (partial), resolve empty array (empty result).
-
-- [ ] Burst 2: `electron-ui/electron/handlers/meetings.ts` -- add `handleBatchCompleteItems(db, shortIds, note): BatchResponse` and `handleBatchUncompleteItems(db, shortIds): BatchResponse`. Each calls `resolveShortIds`, then iterates resolved items calling existing `handleCompleteActionItem`/`handleUncompleteActionItem`. Builds results array with per-item status. Not-found IDs get status `"not_found"`.
-
-  Test: `test/batch-complete.test.ts` -- seed DB with meetings + artifacts + known short_ids. Batch complete two items, verify completion rows exist. Batch complete with unknown ID, verify `not_found` in results. Batch uncomplete, verify completion row deleted.
+- [ ] Burst 3: `api/routes/meetings.ts` -- add `POST /api/action-items/complete`. Parses body as `{ short_ids: string[], note?: string }`. Validates `short_ids` is a non-empty array. Calls `handleBatchCompleteItems`. Returns 200 with `{ results }`. Empty array returns 400.
 
 - [ ] Burst 3: `api/routes/meetings.ts` -- add `POST /api/action-items/complete`. Parses body as `{ short_ids: string[], note?: string }`. Validates `short_ids` is a non-empty array. Calls `handleBatchCompleteItems`. Returns 200 with `{ results }`. Empty array returns 400.
 
@@ -105,3 +99,6 @@ Burst 1 -> 2 -> 3 -> 4 -> 5 -> 6
   Test: `test/cli/mti/commands/items.test.ts` -- update uncomplete tests. Same pattern as Burst 5.
 
 ## DONE
+
+- [x] Burst 1: `core/action-item-resolver.ts` -- `resolveShortIds(db, shortIds)` (7bb43f0)
+- [x] Burst 2: `handleBatchCompleteItems` and `handleBatchUncompleteItems` in handlers/meetings.ts

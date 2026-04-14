@@ -1,5 +1,6 @@
 import type { DatabaseSync as Database } from "node:sqlite";
 import { getArtifact, extractSummary, storeArtifact, generateShortId, updateArtifact } from "../../../core/extractor.js";
+import { resolveShortIds } from "../../../core/action-item-resolver.js";
 import { storeAsset, getAssets, deleteAsset, getAssetData, deleteAssetsForMeeting } from "../../../core/assets.js";
 import type { AssetRow } from "../../../core/assets.js";
 import type { Artifact } from "../../../core/extractor.js";
@@ -385,6 +386,47 @@ export function handleCompleteActionItem(db: Database, meetingId: string, itemIn
 
 export function handleUncompleteActionItem(db: Database, meetingId: string, itemIndex: number): void {
   db.prepare("DELETE FROM action_item_completions WHERE id = ?").run(`${meetingId}:${itemIndex}`);
+}
+
+export interface BatchItemResult {
+  short_id: string;
+  status: "completed" | "uncompleted" | "not_found";
+}
+
+export interface BatchResponse {
+  results: BatchItemResult[];
+}
+
+export function handleBatchCompleteItems(db: Database, shortIds: string[], note: string): BatchResponse {
+  const { resolved, not_found } = resolveShortIds(db, shortIds);
+  const results: BatchItemResult[] = [];
+
+  for (const item of resolved) {
+    handleCompleteActionItem(db, item.meeting_id, item.item_index, note);
+    results.push({ short_id: item.short_id, status: "completed" });
+  }
+
+  for (const sid of not_found) {
+    results.push({ short_id: sid, status: "not_found" });
+  }
+
+  return { results };
+}
+
+export function handleBatchUncompleteItems(db: Database, shortIds: string[]): BatchResponse {
+  const { resolved, not_found } = resolveShortIds(db, shortIds);
+  const results: BatchItemResult[] = [];
+
+  for (const item of resolved) {
+    handleUncompleteActionItem(db, item.meeting_id, item.item_index);
+    results.push({ short_id: item.short_id, status: "uncompleted" });
+  }
+
+  for (const sid of not_found) {
+    results.push({ short_id: sid, status: "not_found" });
+  }
+
+  return { results };
 }
 
 export function handleGetCompletions(db: Database, meetingId: string): ActionItemCompletion[] {
