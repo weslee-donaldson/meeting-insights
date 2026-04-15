@@ -33,10 +33,12 @@ vi.mock("../core/clients/registry.js", () => ({
 
 vi.mock("../core/pipeline/pipeline.js", () => ({
   processWebhookMeetings: vi.fn(async () => ({ total: 0, succeeded: 0, failed: 0, skipped: 0 })),
+  processNewMeetings: vi.fn(async () => ({ total: 0, succeeded: 0, failed: 0, skipped: 0 })),
 }));
 
 vi.mock("../local-service/watcher.js", () => ({
   createWatcher: vi.fn(() => ({ stop: vi.fn() })),
+  createFolderWatcher: vi.fn(() => ({ stop: vi.fn() })),
 }));
 
 import { createDb, migrate } from "../core/db.js";
@@ -64,6 +66,9 @@ describe("startService", () => {
       webhookRawDir: "data/webhook-rawtranscripts",
       webhookProcessedDir: "data/webhook-processed",
       webhookFailedDir: "data/webhook-failed",
+      manualRawDir: "data/manual-rawtranscripts",
+      manualProcessedDir: "data/manual-processed",
+      manualFailedDir: "data/manual-failed",
       auditDir: "data/audit",
     });
 
@@ -95,6 +100,9 @@ describe("startService", () => {
       webhookRawDir: "data/webhook-rawtranscripts",
       webhookProcessedDir: "data/webhook-processed",
       webhookFailedDir: "data/webhook-failed",
+      manualRawDir: "data/manual-rawtranscripts",
+      manualProcessedDir: "data/manual-processed",
+      manualFailedDir: "data/manual-failed",
       auditDir: "data/audit",
     });
 
@@ -129,6 +137,9 @@ describe("startService", () => {
       webhookRawDir: "data/webhook-rawtranscripts",
       webhookProcessedDir: "data/webhook-processed",
       webhookFailedDir: "data/webhook-failed",
+      manualRawDir: "data/manual-rawtranscripts",
+      manualProcessedDir: "data/manual-processed",
+      manualFailedDir: "data/manual-failed",
       auditDir: "data/audit",
     });
 
@@ -159,6 +170,9 @@ describe("startService", () => {
       webhookRawDir: "data/webhook-rawtranscripts",
       webhookProcessedDir: "data/webhook-processed",
       webhookFailedDir: "data/webhook-failed",
+      manualRawDir: "data/manual-rawtranscripts",
+      manualProcessedDir: "data/manual-processed",
+      manualFailedDir: "data/manual-failed",
       auditDir: "data/audit",
     });
 

@@ -5,9 +5,9 @@ import { connectVectorDb } from "../core/search/vector-db.js";
 import { loadModel } from "../core/pipeline/embedder.js";
 import { createLlmAdapter } from "../core/llm/adapter.js";
 import { seedClients } from "../core/clients/registry.js";
-import { processWebhookMeetings, type PipelineEvent } from "../core/pipeline/pipeline.js";
+import { processNewMeetings, processWebhookMeetings, type PipelineEvent } from "../core/pipeline/pipeline.js";
 import { createNotifierFromEnv } from "../core/notifier.js";
-import { createWatcher } from "./watcher.js";
+import { createWatcher, createFolderWatcher } from "./watcher.js";
 import { createLogger, setLogDir } from "../core/logger.js";
 import { loadCliConfig } from "../cli/admin-util/shared.js";
 import { resolveDataPaths } from "../core/utils/paths.js";
@@ -24,7 +24,11 @@ export interface ServiceConfig {
   webhookRawDir: string;
   webhookProcessedDir: string;
   webhookFailedDir: string;
+  manualRawDir: string;
+  manualProcessedDir: string;
+  manualFailedDir: string;
   auditDir: string;
+  manualQuietPeriodMs?: number;
 }
 
 export interface Service {
@@ -72,8 +76,40 @@ export async function startService(config: ServiceConfig): Promise<Service> {
 
   log("webhook-watcher started, watching %s", config.webhookRawDir);
 
+  let manualQueue: Promise<unknown> = Promise.resolve();
+  const manualWatcher = createFolderWatcher({
+    dir: config.manualRawDir,
+    quietPeriodMs: config.manualQuietPeriodMs,
+    onFolder: (folderName) => {
+      manualQueue = manualQueue.then(() =>
+        processNewMeetings({
+          rawDir: config.manualRawDir,
+          processedDir: config.manualProcessedDir,
+          failedDir: config.manualFailedDir,
+          auditDir: config.auditDir,
+          db,
+          vdb,
+          session,
+          llm,
+          extractionPromptPath: "config/prompts/extraction.md",
+          filterFolder: folderName,
+          provider: config.llmConfig.type,
+          notifier,
+          onProgress: (event: PipelineEvent) => {
+            log("manual %s %s", event.type, (event as { name?: string; title?: string }).name ?? (event as { name?: string; title?: string }).title ?? "");
+          },
+        }).catch((err) => {
+          log("manual processing failed for %s: %s", folderName, (err as Error).message);
+        }),
+      );
+    },
+  });
+
+  log("manual-watcher started, watching %s", config.manualRawDir);
+
   function stop(): void {
     watcher.stop();
+    manualWatcher.stop();
     log("shutdown");
   }
 
@@ -107,7 +143,13 @@ if (isMainModule) {
     webhookRawDir: dataPaths.webhook.rawTranscripts,
     webhookProcessedDir: dataPaths.webhook.processed,
     webhookFailedDir: dataPaths.webhook.failed,
+    manualRawDir: dataPaths.manual.rawTranscripts,
+    manualProcessedDir: dataPaths.manual.processed,
+    manualFailedDir: dataPaths.manual.failed,
     auditDir: dataPaths.audit,
+    manualQuietPeriodMs: process.env.MTNINSIGHTS_MANUAL_QUIET_MS
+      ? parseInt(process.env.MTNINSIGHTS_MANUAL_QUIET_MS, 10)
+      : undefined,
   });
 
   process.on("SIGINT", () => {
