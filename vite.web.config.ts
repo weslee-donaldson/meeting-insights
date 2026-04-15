@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "path";
@@ -15,17 +15,26 @@ const redirectRoot = {
   },
 };
 
-export default defineConfig({
-  root: resolve(__dirname, "electron-ui/ui"),
-  envDir: resolve(__dirname),
-  plugins: [react(), tailwindcss(), redirectRoot],
-  build: {
-    outDir: resolve(__dirname, "electron-ui/out/web"),
-    rollupOptions: {
-      input: { index: resolve(__dirname, "electron-ui/ui/index-web.html") },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, resolve(__dirname), "");
+  const apiPort = Number(env.API_PORT ?? 3000);
+  const webPort = Number(env.WEB_PORT ?? 5188);
+  const apiBase = env.VITE_API_BASE ?? `http://localhost:${apiPort}`;
+  return {
+    root: resolve(__dirname, "electron-ui/ui"),
+    envDir: resolve(__dirname),
+    plugins: [react(), tailwindcss(), redirectRoot],
+    define: {
+      "import.meta.env.VITE_API_BASE": JSON.stringify(apiBase),
     },
-  },
-  server: {
-    port: 5188,
-  },
+    build: {
+      outDir: resolve(__dirname, "electron-ui/out/web"),
+      rollupOptions: {
+        input: { index: resolve(__dirname, "electron-ui/ui/index-web.html") },
+      },
+    },
+    server: {
+      port: webPort,
+    },
+  };
 });
