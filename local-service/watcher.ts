@@ -1,4 +1,5 @@
-import { watch, readdirSync } from "node:fs";
+import { watch, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 export interface WatcherOptions {
   dir: string;
@@ -60,6 +61,58 @@ export function createWatcher(options: WatcherOptions): Watcher {
       clearTimeout(timer);
     }
     debounceTimers.clear();
+  }
+
+  return { stop };
+}
+
+export interface FolderWatcherOptions {
+  dir: string;
+  onFolder: (folderName: string) => void | Promise<void>;
+  pollIntervalMs?: number;
+  quietPeriodMs?: number;
+}
+
+function newestMtimeMs(path: string): number {
+  let newest = 0;
+  const stack = [path];
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    const stat = statSync(current);
+    if (stat.mtimeMs > newest) newest = stat.mtimeMs;
+    if (stat.isDirectory()) {
+      for (const entry of readdirSync(current)) {
+        stack.push(join(current, entry));
+      }
+    }
+  }
+  return newest;
+}
+
+export function createFolderWatcher(options: FolderWatcherOptions): Watcher {
+  const { dir, onFolder, pollIntervalMs = 30000, quietPeriodMs = 60000 } = options;
+  const fired = new Set<string>();
+
+  function scan(): void {
+    const now = Date.now();
+    for (const entry of readdirSync(dir)) {
+      if (entry.startsWith(".")) continue;
+      if (fired.has(entry)) continue;
+      const full = join(dir, entry);
+      const stat = statSync(full);
+      if (!stat.isDirectory()) continue;
+      const newest = newestMtimeMs(full);
+      if (now - newest >= quietPeriodMs) {
+        fired.add(entry);
+        onFolder(entry);
+      }
+    }
+  }
+
+  const pollTimer = setInterval(scan, pollIntervalMs);
+
+  function stop(): void {
+    clearInterval(pollTimer);
   }
 
   return { stop };

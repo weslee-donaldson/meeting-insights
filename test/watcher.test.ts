@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createWatcher, Watcher } from "../local-service/watcher.js";
+import { createWatcher, createFolderWatcher, Watcher } from "../local-service/watcher.js";
 
 let tmpDir: string;
 let watcher: Watcher | undefined;
@@ -103,6 +103,27 @@ describe("createWatcher", () => {
     await new Promise((r) => setTimeout(r, 200));
 
     expect(calls).toEqual(["valid.json"]);
+  });
+
+  it("createFolderWatcher fires onFolder once when folder is quiet for quietPeriodMs", async () => {
+    tmpDir = join(tmpdir(), `folder-watcher-${Date.now()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    const meetingDir = join(tmpDir, "Meeting_2026-04-15");
+    mkdirSync(meetingDir);
+    writeFileSync(join(meetingDir, "transcript.md"), "# hello");
+    writeFileSync(join(meetingDir, "manifest.json"), "{}");
+
+    const received = new Promise<string>((resolve) => {
+      watcher = createFolderWatcher({
+        dir: tmpDir,
+        onFolder: resolve,
+        pollIntervalMs: 50,
+        quietPeriodMs: 150,
+      });
+    });
+
+    expect(await received).toBe("Meeting_2026-04-15");
   });
 
   it("stop() cleans up watchers and timers — no callbacks after stop", async () => {
