@@ -309,6 +309,30 @@ Run `pnpm setup` to apply pending migrations. Check `schema_version` in the DB t
 **PM2 services won't start**
 `pm2 logs mti-api --err --lines 50` shows the last errors. Common causes: missing env vars, models not downloaded, port conflict.
 
+**Meetings ingest but no insights appear**
+Extraction failed silently. Check these, in order:
+
+1. **Audit logs** — every failed extraction writes a JSON file with `reason` and `error_type`:
+   ```bash
+   ls -lt data/audit/ | head -20
+   cat data/audit/*.json | jq -s 'sort_by(.timestamp) | reverse | .[0:10]'
+   ```
+2. **Live API logs** — LLM request/response errors, rate limits, parse failures:
+   ```bash
+   pnpm exec pm2 logs mti-api --lines 200
+   pnpm exec pm2 logs webhook-watcher --lines 200
+   ```
+3. **Failed meeting folders** — files moved out of `raw-transcripts/` on failure:
+   ```bash
+   ls data/webhook/failed/ data/manual/failed/
+   ```
+4. **system_errors table** — aggregated error history:
+   ```bash
+   sqlite3 db/mtninsights.db "SELECT timestamp, error_type, message, meeting_filename FROM system_errors ORDER BY timestamp DESC LIMIT 20;"
+   ```
+
+Common causes on a fresh machine: `ANTHROPIC_API_KEY` missing or invalid (→ `api_error`), `MTNINSIGHTS_LLM_PROVIDER` mismatch, or rate-limit throttling (→ `rate_limit`). For verbose LLM output, set `MTNINSIGHTS_LOG_LEVEL=debug` in `.env.local` and `pm2 restart mti-api`.
+
 ---
 
 ## Utilities (advanced)
