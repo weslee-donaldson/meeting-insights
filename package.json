@@ -22,6 +22,8 @@
     "ui:build": "electron-vite build",
     "api:dev": "tsx api/main.ts",
     "web:dev": "vite --config vite.web.config.ts",
+    "web:build": "vite build --config vite.web.config.ts && cp electron-ui/out/web/index-web.html electron-ui/out/web/index.html",
+    "web:start": "vite preview --config vite.web.config.ts --port 5188 --host",
     "llm:check": "tsx scripts/llm-check.ts",
     "import-external": "tsx cli/admin-util/import-external.ts",
     "to-webvtt": "tsx cli/admin-util/to-webvtt.ts",

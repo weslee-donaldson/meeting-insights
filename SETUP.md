@@ -12,26 +12,25 @@ cd krisp-meeting-insights
 ./setup.sh
 ```
 
-`setup.sh` stops before seeding the database if it just created `config/clients.json` from the example. Edit these two files:
+`setup.sh` is a guided installer. It explains each step before running it and lets you skip any prompt. End-to-end it will:
 
-1. `.env.local` — set your `ANTHROPIC_API_KEY`
-2. `config/clients.json` — replace the Acme example with your real clients (see [docs/clients.md](docs/clients.md))
+1. Install dependencies (including PM2 as a devDependency).
+2. Create `.env.local` and offer to open it so you can set `ANTHROPIC_API_KEY`.
+3. Create `config/clients.json` and offer to open it so you can define your real clients (see [docs/clients.md](docs/clients.md)). Skipping the edit exits setup so you can return later — re-run `./setup.sh` to continue.
+4. Download ONNX models (~90 MB).
+5. Seed the database.
+6. Build the web UI production bundle.
+7. Start `mti-api`, `mti-web`, and `webhook-watcher` under PM2 and snapshot the process list (`pm2 save`).
+8. Offer to install the PM2 boot hook (`pm2 startup`) so services resurrect after a reboot.
+9. Offer to link `mti` globally (`pnpm link --global`).
 
-Then seed and start:
+Verify with:
 
 ```bash
-pnpm setup                        # seeds clients into the DB
-pm2 start ecosystem.config.cjs    # starts mti-api + webhook-watcher
-pnpm web:dev                      # launches the web UI
+curl "http://localhost:${API_PORT:-3000}/api/clients"
 ```
 
-Verify your clients seeded correctly:
-
-```bash
-curl http://localhost:3000/api/clients
-```
-
-That's it. Re-run `./setup.sh` any time; it's idempotent.
+Re-run `./setup.sh` any time; it's idempotent. Set `MTI_SETUP_SKIP_PROMPTS=1` to auto-accept every prompt for CI / unattended installs.
 
 ---
 
@@ -39,7 +38,6 @@ That's it. Re-run `./setup.sh` any time; it's idempotent.
 
 - **Node.js 22+** (`brew install node@22` on macOS)
 - **pnpm** (`npm install -g pnpm`)
-- **PM2** for service management (`npm install -g pm2`)
 - An **Anthropic API key** (or OpenAI / local Ollama -- see LLM providers below)
 
 ---
@@ -54,6 +52,24 @@ That's it. Re-run `./setup.sh` any time; it's idempotent.
 6. Runs database migrations and seeds clients from `config/clients.json`
 
 All steps are idempotent -- safe to re-run after pulling updates.
+
+---
+
+## Configuration files
+
+Everything that shapes behavior without a code change lives under `config/` and `.env.local`. You will revisit these as you tune the system.
+
+| File | Purpose | Detailed docs |
+|------|---------|---------------|
+| `.env.local` | Environment variables: API keys, LLM provider, ports (`API_PORT`, `WEB_PORT`), auth, paths. Copied from `.env.example` by `setup.sh`. | [Environment variables](docs/reference.md) |
+| `config/clients.json` | Client definitions: team members, aliases, meeting-name patterns, glossary, per-client extraction prompts. Drives client detection and seed data. | [docs/clients.md](docs/clients.md) |
+| `config/system.json` | Numeric tuning knobs: search `maxDistance`, result `limit`, `displayLimit`, `chatContextLimit`. Shapes what context prompts see. Override path via `MTNINSIGHTS_SYSTEM_CONFIG_PATH`. | [docs/prompts.md#tuning-the-knobs-in-systemjson](docs/prompts.md), [docs/reference.md](docs/reference.md) |
+| `config/prompts/*.md` | LLM prompt templates for extraction, tagging, insight generation, deep search, task generation. Edit the Markdown to reshape behavior. | [docs/prompts.md](docs/prompts.md) |
+| `config/chat-templates/*.md` | Output-shape templates selected by chat intent (Jira ticket/epic, team actions, thread discovery). | [docs/prompts.md](docs/prompts.md) |
+| `config/chat-guidelines.md` | Global chat-response rules (formatting, tone, refusals). Prepended to every chat call. | [docs/prompts.md](docs/prompts.md) |
+| `ecosystem.config.cjs` | PM2 process definitions for `mti-api`, `mti-web`, `webhook-watcher`. Reads `WEB_PORT` from `.env.local`. | — |
+
+After editing any of these, restart the relevant service: `pnpm exec pm2 restart mti-api` (for `.env.local`, `clients.json`, `system.json`, prompts) — the API loads them at startup.
 
 ---
 
@@ -87,11 +103,9 @@ Skips if already present with matching SHA256 hashes.
 
 See [docs/clients.md](docs/clients.md) for the full schema, workflows (adding, editing, tuning detection/extraction), and glossary conventions.
 
-### 4a. (Optional) Tweak the LLM prompts
+### 4a. (Optional) Tweak prompts and search knobs
 
-Every extraction, insight report, search-scoring, and chat response is driven by a Markdown file under `config/prompts/` or `config/chat-templates/`, plus the global `config/chat-guidelines.md`. Numeric knobs live in `config/system.json`. You can reshape behavior without touching code.
-
-See [docs/prompts.md](docs/prompts.md) for the file map, template variables, output-contract rules, and common tweaks.
+See the **Configuration files** table above for the list. Prompt templates live under `config/prompts/` and `config/chat-templates/`; numeric search/chat knobs live in `config/system.json`. Details in [docs/prompts.md](docs/prompts.md).
 
 ### 5. Initialize the database
 ```bash
@@ -115,20 +129,38 @@ Schema changes are forward-only and versioned via the `schema_version` table.
 ## Running the application
 
 ### PM2 (recommended for daily use)
+
+PM2 manages three processes: `mti-api` (HTTP API), `mti-web` (built web UI), and `webhook-watcher`.
+
 ```bash
-pm2 start ecosystem.config.cjs   # start both mti-api and webhook-watcher
+pnpm web:build                    # build the web UI bundle (required before first start and after UI changes)
+pm2 start ecosystem.config.cjs    # start all three services
 pm2 status                        # check running services
 pm2 logs                          # tail logs
 pm2 restart mti-api               # restart just the API
+pm2 restart mti-web               # restart the web UI (after a new web:build)
 pm2 stop all                      # stop everything
 ```
 
-### Web UI
+The web UI is served by `mti-web` on the port set by `WEB_PORT` in `.env.local` (default `5188`), via `vite preview` against the production bundle in `electron-ui/out/web`.
+
+### Surviving system restarts
+
+After `pm2 start`, persist the process list and install the boot hook:
+
 ```bash
-pnpm web:dev   # serves on http://localhost:5188
+pm2 save           # snapshot the current process list
+pm2 startup        # prints a sudo command — run it to register PM2 at boot
 ```
 
-Requires `mti-api` running (either via PM2 or `pnpm api:dev`).
+All three services will resurrect on reboot.
+
+### Web UI (development)
+```bash
+pnpm web:dev   # Vite dev server with hot reload (port set in vite.web.config.ts)
+```
+
+Use this instead of `mti-web` when iterating on the UI. Requires `mti-api` running (either via PM2 or `pnpm api:dev`).
 
 ### Electron desktop app
 ```bash
@@ -235,6 +267,28 @@ pnpm web:dev           # web UI with hot reload
 pnpm ui:dev            # Electron app with hot reload
 pnpm api:dev           # API server in foreground (useful for debugging)
 ```
+
+---
+
+## Uninstall
+
+```bash
+./uninstall.sh
+```
+
+A guided teardown that removes only what this project created:
+
+- **PM2 apps** registered by this project (`mti-api`, `mti-web`, `webhook-watcher`). Your PM2 installation, boot hook, and any other apps are untouched.
+- The **`mti` pnpm global link** (pnpm itself is kept).
+- **Generated artifacts**: `electron-ui/out/`, `models/`, `.keys/`.
+
+Separate prompts let you decide about:
+
+- **Config files** (`.env.local`, `config/clients.json`) — kept by default so a future `./setup.sh` picks up where you left off.
+- **Database backup** — optionally tars `db/` (SQLite + LanceDB) to `../mti-db-backup-<timestamp>.tar.gz` before deletion.
+- **All data** (`db/`, `data/manual/`, `data/webhook/`, `data/assets/`, `data/audit/`, `data/eval/`, `data/clients/`, `data/krisp-gdrive/`) — destructive; defaults to **No**.
+
+`node_modules/` is left in place; remove it manually with `rm -rf node_modules` if you want a fully clean tree. To delete the checkout entirely, remove the directory after running the script.
 
 ---
 
