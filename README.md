@@ -96,10 +96,10 @@ krisp-meeting-insights/
 
 | Package | Purpose | README |
 |---------|---------|--------|
-| `core/` | Pure business logic — pipeline, DB, search, LLM, clients | [core/README.md](core/README.md) |
-| `api/` | HTTP REST API server (Hono) — mirrors IPC handlers | [api/README.md](api/README.md) |
-| `electron-ui/` | Desktop + web dual-mode UI (Electron + React) | [electron-ui/README.md](electron-ui/README.md) |
-| `cli/` | Command-line tools for setup, processing, querying | [cli/README.md](cli/README.md) |
+| `core/` | Pure business logic — pipeline, DB, search, LLM, clients | [docs/core.md](docs/core.md) |
+| `api/` | HTTP REST API server (Hono) — mirrors IPC handlers | [docs/api.md](docs/api.md) |
+| `electron-ui/` | Desktop + web dual-mode UI (Electron + React) | [docs/ui.md](docs/ui.md) |
+| `cli/` | Command-line tools for setup, processing, querying | [docs/cli.md](docs/cli.md) |
 
 Each directory also contains `llm-context.md` (file inventory) and optionally `llm-context-summary.md` (aggregated learnings) for LLM-assisted navigation. See [llm-context-summary.md](llm-context-summary.md) for the root-level index.
 

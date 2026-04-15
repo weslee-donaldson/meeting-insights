@@ -36,6 +36,12 @@ config/clients.json
 # JWT signing keys (generated at runtime)
 .keys/
 
+# LLM navigation aids (builder-local, regenerated from code)
+llm-context.md
+llm-context-summary.md
+**/llm-context.md
+**/llm-context-summary.md
+
 # Python
 **/.venv/
 **/__pycache__/

@@ -122,3 +122,51 @@ Outputs to `electron-ui/out/` -- main, preload, and renderer bundles. Packaging 
 
 ### Web bundle
 `pnpm web:dev` is a dev-only command. For production web deployment, add a production Vite build step and serve the `dist/` output behind any static host; the bundle expects the API to be reachable at `MTI_BASE_URL`.
+
+## State hierarchy
+
+Top-level state is instantiated in `App.tsx` via a set of domain hooks and passed as props to page modules. Pages do no data fetching themselves.
+
+```
+App.tsx
+  |-- useMeetingState     (meetings, search, artifacts, completions, multi-select)
+  |-- useThreadState      (threads, candidates, thread chat)
+  |-- useInsightState     (insights, generation, RAG, insight chat)
+  |-- useMilestoneState   (milestones, mentions, merging, milestone chat)
+  |-- useNotesState       (notes CRUD across all entity types)
+  |-- useSearchState      (search view: query, filters, deep search, enrichment)
+```
+
+Pages are thin composers: they receive state and callbacks as props and return arrays of `ReactNode` for the shell's slot-based layout. Components render domain data and never call `window.api` directly.
+
+## Component organization
+
+```
+components/
+  ui/        UI primitives (button, badge, dialog, toast, scroll-area,
+             tag, checkbox, progress-bar, count-pill, hash-id,
+             rich-text-editor, bottom-sheet, responsive-dialog)
+  shared/    Shared domain primitives (list-item-row, command-bar,
+             filter-bar, filter-chip, density-toggle, unified-search,
+             group-header, section-header, show-more, chat-fab,
+             status-dot, mobile-list-header, workspace-banner)
+  Layout:    ResponsiveShell, LinearShell, TopBar, NavRail,
+             BottomTabBar, BreadcrumbBar
+  Features:  MeetingList, ThreadsView, InsightsView, TimelinesView,
+             ClientActionItemsView
+  Detail:    MeetingDetail, ThreadDetailView, InsightDetailView,
+             TimelineDetailView, ChatPanel
+  Dialogs:   CreateThreadDialog, CreateInsightDialog,
+             CreateMilestoneDialog, NewMeetingDialog,
+             ItemHistoryDialog, EditActionItemDialog, NotesDialog
+  Search:    SearchForm, SearchResultsList, SearchResultCard,
+             CompactResultsSidebar, HighlightText
+```
+
+## Adding a new page
+
+1. **Create the page** in `ui/src/pages/NewPage.tsx`. It should accept state as props and return `ReactNode[]` for the shell's slot-based layout.
+2. **Create a state hook** in `ui/src/hooks/useNewState.ts` if the page needs its own data fetching or stateful logic. Instantiate it in `App.tsx`.
+3. **Register the view** in `App.tsx`: add the view name to the `currentView` union, instantiate the hook, and render `<NewPage>` inside `ResponsiveShell`.
+4. **Add navigation** -- an icon entry in `NavRail.tsx` and `BottomTabBar.tsx`.
+5. **If the page needs new API calls**, update the contract in all three places: `electron/channels.ts`, `electron/preload/index.ts`, and `ui/src/api-client/index.ts`.

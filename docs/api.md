@@ -682,3 +682,19 @@ When `MTNINSIGHTS_AUTH_ENABLED=1`, each request is matched against the first rul
 Routes not matched by any rule (for example `/api/health`, `/oauth/*`, `/.well-known/*`) bypass the scope check. OAuth routes enforce their own credentials (client id/secret, owner secret, PKCE).
 
 Valid scope values: `meetings:read`, `meetings:write`, `search:execute`, `threads:read`, `threads:write`, `insights:read`, `insights:write`, `milestones:read`, `milestones:write`, `notes:read`, `notes:write`, `admin`.
+
+---
+
+## Architecture
+
+`createApp(db, dbPath, llm?, searchDeps?)` is a pure function that constructs the Hono app without starting a listener, which makes the app independently testable. `main.ts` handles all side-effectful startup: loading environment, initializing SQLite, connecting LanceDB, loading the ONNX model, and starting `@hono/node-server`.
+
+Every route file exports a single `registerXxxRoutes` function with the same signature pattern. Routes delegate directly to handler functions imported from `electron-ui/electron/ipc-handlers.ts` or `core/` modules. The HTTP API and Electron IPC share identical business logic with zero duplication.
+
+### Adding a new route
+
+1. **Create the route file** in `api/routes/` (for example `widgets.ts`). Export a `registerWidgetRoutes(app, db, llm?, searchDeps?)` function.
+2. **Implement the handler** in `core/` or `electron-ui/electron/ipc-handlers.ts`. The route should only parse HTTP parameters and delegate.
+3. **Register in `server.ts`** -- import and call the register function inside `createApp()`.
+4. **Guard optional deps** -- if the route needs `llm` or `searchDeps`, return `503` when they are absent (for example `if (!llm) return c.json({ error: "LLM not available" }, 503);`).
+5. **Update `api/routes/llm-context.md`** with the new file and its endpoint list.

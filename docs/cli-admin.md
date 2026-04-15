@@ -47,11 +47,43 @@ With a meeting ID: removes just that meeting from the DB and vector store.
 ### `pnpm query <mode> [args]`
 Direct SQL/vector query from the command line. Modes:
 
-- `pnpm query list [--client <name>] [--limit <n>]` -- List meetings
-- `pnpm query search <query> [--client <name>]` -- Hybrid semantic + FTS search
-- `pnpm query ask <question> [--client <name>]` -- LLM-answered question grounded on search results
+- `pnpm query list <entity> [flags]` -- Dump structured artifact fields as formatted terminal output (no embedding model or LLM). `<entity>` is one of `meetings`, `summary`, `decisions`, `actions`, `features`, `questions`, `risks`, `notes`.
+- `pnpm query search <query> [flags]` -- Hybrid semantic + FTS search with ranked results. Add `--deepsearch` to run an LLM relevance filter over vector results.
+- `pnpm query ask <question> [flags]` -- Embed the question, retrieve top-K meetings, and synthesize an answer via LLM with citations.
+
+Shared filter flags across all modes: `--client=<name>`, `--meeting=<title-or-id-prefix>`, `--after=YYYY-MM-DD`, `--before=YYYY-MM-DD`, `--limit=<n>` (default 6).
 
 For richer interactions, use the [mti](cli.md) CLI or the web UI.
+
+## Common workflows
+
+### First run
+
+```bash
+pnpm install
+pnpm download-models              # ONNX model + tokenizer
+cp .env.example .env.local        # add ANTHROPIC_API_KEY
+pnpm setup                        # create DB, seed clients, create vector tables
+# Drop Krisp batch export into data/manual/raw-transcripts/
+pnpm process                      # ingest, extract, embed
+pnpm query list meetings          # verify
+```
+
+### Continuous webhook ingestion
+
+```bash
+pnpm service:start                # start the watcher
+pnpm service:logs                 # tail activity
+pnpm service:stop                 # stop when done
+```
+
+### Reprocess everything
+
+```bash
+pnpm clear                        # delete DB + vectors, restore transcripts
+pnpm setup
+pnpm process
+```
 
 ## Eval harness
 
