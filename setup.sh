@@ -81,6 +81,22 @@ else
 fi
 
 echo ""
+echo "==> Scaffolding data directories..."
+mkdir -p \
+  data/assets \
+  data/audit \
+  data/eval \
+  data/manual/raw-transcripts \
+  data/manual/processed \
+  data/manual/failed \
+  data/manual/external-transcripts \
+  data/webhook/raw-transcripts \
+  data/webhook/processed \
+  data/webhook/failed \
+  db
+echo "    data/ and db/ scaffolded ✓"
+
+echo ""
 echo "==> Configuring clients (config/clients.json)..."
 if [ ! -f config/clients.json ]; then
   cp config/clients.example.json config/clients.json
