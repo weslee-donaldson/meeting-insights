@@ -20,6 +20,8 @@ Orchestrates the full first-run: checks prerequisites, runs `pnpm install`, copi
 ### `pnpm process [folder-name]`
 Run the full ingestion pipeline. Processes webhook files first (from `data/webhook/raw-transcripts/`), then manual files (from `data/manual/raw-transcripts/`).
 
+> **Note:** When `webhook-watcher` is running under PM2, manual folders are auto-processed 60s after they go quiet (see [docs/webhook.md](webhook.md)). `pnpm process` is mainly useful for one-off folder reprocessing (`pnpm process <folder-name>`) or for environments where PM2 isn't running.
+
 With an optional folder name, reprocesses only that meeting (purges existing DB rows, removes from `data/manual/processed/`, runs pipeline). Useful for iterating on extraction prompts.
 
 Pipeline steps per meeting: parse, ingest, detect client, extract artifact, reconcile milestones, rebuild FTS, dedup items, embed, evaluate threads. See [core.md](core.md) for details.
