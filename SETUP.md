@@ -328,7 +328,7 @@ Extraction failed silently. Check these, in order:
    ```
 4. **system_errors table** — aggregated error history:
    ```bash
-   sqlite3 db/mtninsights.db "SELECT timestamp, error_type, message, meeting_filename FROM system_errors ORDER BY timestamp DESC LIMIT 20;"
+   sqlite3 db/mtninsights.db "SELECT created_at, error_type, severity, message, meeting_filename FROM system_errors ORDER BY created_at DESC LIMIT 20;"
    ```
 
 Common causes on a fresh machine: `ANTHROPIC_API_KEY` missing or invalid (→ `api_error`), `MTNINSIGHTS_LLM_PROVIDER` mismatch, or rate-limit throttling (→ `rate_limit`). For verbose LLM output, set `MTNINSIGHTS_LOG_LEVEL=debug` in `.env.local` and `pm2 restart mti-api`.
