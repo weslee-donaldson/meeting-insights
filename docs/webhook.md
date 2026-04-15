@@ -30,6 +30,8 @@ data/webhook/processed/ or data/webhook/failed/
 
 The webhook watcher processes new files in parallel with manual ingestion from `data/manual/raw-transcripts/`. Meeting IDs from webhook processing feed into the dedup set, so a meeting ingested via webhook won't be re-processed if the same transcript later arrives as a manual drop.
 
+The same `webhook-watcher` process also auto-ingests folders dropped into `data/manual/raw-transcripts/`. Each subfolder is polled every 30s; once its newest mtime (recursive) is older than `MTNINSIGHTS_MANUAL_QUIET_MS` (default 60_000ms), `processNewMeetings` runs scoped to that folder. The quiet period exists to avoid processing partially-copied folders — if you drop a Krisp export and the manifest lands before the transcript files, the watcher waits until the copy settles. Manual jobs run on a serial promise queue so they don't contend with each other or the webhook flow. A failed folder is not retried until the service restarts or someone touches a file inside the folder to reset its mtime.
+
 ## Firebase Cloud Function
 
 ### Location

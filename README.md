@@ -124,7 +124,7 @@ Each directory also contains `llm-context.md` (file inventory) and optionally `l
 ```bash
 pnpm install          # install dependencies
 pnpm setup            # initialize DB, vector store, seed clients
-pnpm process          # ingest transcripts from data/manual/raw-transcripts/
+pnpm process          # one-off ingestion (auto-handled by webhook-watcher when PM2 is up)
 pnpm ui:dev           # launch Electron desktop app
 pnpm api:dev          # start HTTP API server (port 3000)
 pnpm web:dev          # start web UI (port 5173, requires api:dev)

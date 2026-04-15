@@ -224,7 +224,7 @@ This runs canned queries from `data/eval/questions.json` through your configured
 
 | Path | Purpose |
 |------|---------|
-| `manual/raw-transcripts/` | Operator drop zone for Krisp batch exports |
+| `manual/raw-transcripts/` | Operator drop zone for Krisp batch exports. The `webhook-watcher` service auto-processes folders here once they've been quiet for 60s (override via `MTNINSIGHTS_MANUAL_QUIET_MS`); no need to run `pnpm process` manually. |
 | `manual/processed/` | Successfully ingested manual transcripts (moved here after processing) |
 | `manual/failed/` | Manual transcripts that failed ingestion |
 | `manual/external-transcripts/` | Non-Krisp transcripts (`.txt`, `.vtt`). Run `pnpm import-external` to convert and queue them for processing |
@@ -255,6 +255,7 @@ All configurable in `.env.local`. See `.env.example` for the full annotated list
 | `MTNINSIGHTS_LOG_LEVEL` | `info` | `error \| warn \| info \| debug` |
 | `MTNINSIGHTS_LLM_CHUNK_TOKEN_LIMIT` | `30000` | Max tokens per extraction chunk |
 | `MTNINSIGHTS_DEDUP_SEMANTIC_THRESHOLD` | `0.80` | Cosine similarity cutoff for item dedup |
+| `MTNINSIGHTS_MANUAL_QUIET_MS` | `60000` | Quiet period (ms) before `webhook-watcher` auto-processes a folder under `data/manual/raw-transcripts/`. Increase if you copy large folders that take longer than 60s. |
 
 ---
 
